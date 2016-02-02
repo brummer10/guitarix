@@ -518,21 +518,25 @@ void StackBoxBuilder::create_fload_switch(const char *sw_type, const std::string
 }
 
 void StackBoxBuilder::create_h_switch(const char *sw_type, const std::string& id, const char *label) {
-    Gtk::Widget* w = UiHSwitchWithCaption::create(machine, sw_type, id, label);
-    UiHSwitchWithCaption *sw = static_cast<UiHSwitchWithCaption*>(w);
+    Gtk::Widget* sw = UiHSwitchWithCaption::create(machine, sw_type, id, label);
+    UiHSwitchWithCaption *w = static_cast<UiHSwitchWithCaption*>(sw);
+	//w->get_regler()->set_relief(Gtk::RELIEF_NONE);
+	w->get_regler()->set_name("effect_on_off");
     if (next_flags & UI_LABEL_INVERSE) {
-        sw->set_rack_label_inverse();
+        w->set_rack_label_inverse();
     }
-    addwidget(w);
+    addwidget(sw);
 }
 
 void StackBoxBuilder::create_v_switch(const char *sw_type, const std::string& id, const char *label) {
-    Gtk::Widget* w = UiVSwitchWithCaption::create(machine, sw_type, id, label);
-    UiVSwitchWithCaption *sw = static_cast<UiVSwitchWithCaption*>(w);
+    Gtk::Widget* sw = UiVSwitchWithCaption::create(machine, sw_type, id, label);
+    UiVSwitchWithCaption *w = static_cast<UiVSwitchWithCaption*>(sw);
+	//w->get_regler()->set_relief(Gtk::RELIEF_NONE);
+	w->get_regler()->set_name("effect_on_off");
     if (next_flags & UI_LABEL_INVERSE) {
-        sw->set_rack_label_inverse();
+        w->set_rack_label_inverse();
     }
-    addwidget(w);
+    addwidget(sw);
 }
 
 void StackBoxBuilder::create_feedback_slider(const std::string& id, const char *label) {

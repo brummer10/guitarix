@@ -452,6 +452,44 @@ static Glib::ustring TrimLabel(const char *label, int cnt_in_row) {
     return pn;
 }
 
+static Glib::ustring TrimEffectLabel(const char *label, int cnt_in_row) {
+    const size_t minlen = 60  / cnt_in_row - 1;
+    const size_t maxlen = minlen + 10;
+    const size_t cutlen = (maxlen + minlen) / 2;
+    Glib::ustring pn(label);
+    size_t rem = 0;
+    size_t rem1 = 0;
+    size_t lastpos = 0;
+    while (true) {
+	rem1 = pn.find_first_of(" ", rem1);
+	if (rem1 == Glib::ustring::npos) {
+	    rem1 = pn.size();
+	}
+	while (rem1 > rem + minlen) {
+	    if (lastpos > rem) {
+		rem = lastpos;
+		pn.replace(lastpos, 1, 1, '\n');
+	    } else if (rem1 < rem + maxlen) {
+		if (rem1 == pn.size()) {
+		    break;
+		}
+		rem = rem1;
+		pn.replace(rem1, 1, 1, '\n');
+	    } else {
+		rem += cutlen;
+		pn.insert(rem, "\n");
+	    }
+	    rem += 1;
+	}
+	lastpos = rem1;
+	rem1 += 1;
+	if (rem1 >= pn.size()) {
+	    break;
+	}
+    }
+    return pn;
+}
+
 std::string LadspaDsp::make_id(const paradesc& p) {
     return pd->id_str + "." + to_string(p.index);
 }
@@ -531,9 +569,6 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    }
 	}
     }
-    b.closeBox();
-    b.openVerticalBox("");
-    b.openHorizontalBox("");
     int rows = 0;
     int n = 0;
     for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
@@ -541,15 +576,29 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    rows +=1;
 	}
 	}
+    b.closeBox();
+    b.openVerticalBox("");
+    if  (rows > 0) {
+        b.insertSpacer();
+        b.insertSpacer();
+	}
+    b.openHorizontalBox("");
     n = 0;
     int row = 0;
     for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
 	if ((*it)->newrow) {
-	    row +=1;
 	    b.closeBox();
+	    if ( (rows == 1) || ( rows > 1 && row > 0 )) {
+	        b.insertSpacer();
+	        b.insertSpacer();
+	        b.insertSpacer();
+		}
 	    b.openHorizontalBox("");
+	    row +=1;
 	}
-	const char *p = self.desc->PortNames[(*it)->index];
+	const char *p1 = self.desc->PortNames[(*it)->index];
+	Glib::ustring trim = TrimEffectLabel(p1, 4);
+	const char *p = trim.c_str();
 	std::string id = self.make_id(**it);
 	if ((row == 1 && rows == 1 ) || (row >1 && rows >1 )) {
 		b.set_next_flags(UI_LABEL_INVERSE);
@@ -586,7 +635,11 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    if (!(*it)->has_caption) {
 		p = "";
 	    }
-	    b.create_spin_value(id.c_str(), p);
+	    if (((*it)->up - (*it)->low)<200) {
+		    b.create_small_rackknob(id.c_str(), p);
+		} else {
+	        b.create_spin_value(id.c_str(), p);
+		}
 	    break;
 	case tp_enum:
 	    if ((*it)->has_caption) {
@@ -602,7 +655,7 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	}
     }
     if (self.pd->add_wet_dry) {
-	b.create_small_rackknob(self.idd.c_str(), "dry/wet");
+	b.create_small_rackknobr(self.idd.c_str(), "dry/wet");
     }
     b.closeBox();
     b.closeBox();
@@ -944,9 +997,11 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
     for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
 	if ((*it)->newrow) {
 	    b.closeBox();
-	    b.insertSpacer();
-	    b.insertSpacer();
-	    b.insertSpacer();
+	    if ( (rows == 1) || ( rows > 1 && row > 0 )) {
+	        b.insertSpacer();
+	        b.insertSpacer();
+	        b.insertSpacer();
+		}
 	    b.openHorizontalBox("");
 	    row +=1;
 	}
@@ -967,7 +1022,7 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	    break;
 	case tp_toggle:
 	    if ((*it)->has_caption) {
-		b.create_switch("switch",id.c_str(), p);
+		b.create_switch("switch_mid",id.c_str(), p);
 	    } else {
 		b.create_switch_no_caption("switchit",id.c_str());
 	    }
@@ -1010,7 +1065,7 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	lilv_node_free(nm_node);
     }
     if (self.pd->add_wet_dry) {
-	b.create_small_rackknob(self.idd.c_str(), "dry/wet");
+	b.create_small_rackknobr(self.idd.c_str(), "dry/wet");
     }
     b.closeBox();
     b.closeBox();

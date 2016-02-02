@@ -441,12 +441,18 @@ UiVSwitchWithCaption::UiVSwitchWithCaption(
     gx_engine::GxMachineBase& machine, const char *sw_type,
     gx_engine::Parameter &param, const char *label)
     : Gtk::VBox(),
+      m_hbox(),
+      m_hbox1(),
+      m_hbox2(),
       m_label(label ? label : param.l_name()),
       m_switch(UiSwitch::create(machine, sw_type, param)) {
     m_label.set_name("rack_label");
     m_label.set_justify(Gtk::JUSTIFY_CENTER);
-    pack_start(*m_switch, Gtk::PACK_EXPAND_PADDING);
     pack_start(m_label, Gtk::PACK_SHRINK);
+    pack_start(m_hbox, Gtk::PACK_EXPAND_PADDING);
+    m_hbox.pack_start(m_hbox1, Gtk::PACK_EXPAND_PADDING);
+    m_hbox.pack_start(*m_switch, Gtk::PACK_SHRINK);
+    m_hbox.pack_start(m_hbox2, Gtk::PACK_EXPAND_PADDING);
     set_name(param.id());
     set_accessible(*m_switch, m_label);
     show_all();

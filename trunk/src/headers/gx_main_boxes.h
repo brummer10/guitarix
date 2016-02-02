@@ -99,11 +99,15 @@ class UiHSwitchWithCaption: public Gtk::HBox {
     UiHSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
 			 const char *label);
     void set_rack_label_inverse() {m_label.set_name("rack_label_inverse"); }
+    UiSwitch *get_regler() { return m_switch; }
     ~UiHSwitchWithCaption();
 };
 
 class UiVSwitchWithCaption: public Gtk::VBox {
  private:
+    Gtk::HBox  m_hbox;
+    Gtk::HBox  m_hbox1;
+    Gtk::HBox  m_hbox2;
     Gtk::Label m_label;
  protected:
     UiSwitch *m_switch;
@@ -113,6 +117,7 @@ class UiVSwitchWithCaption: public Gtk::VBox {
     UiVSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
 			 const char *label);
     void set_rack_label_inverse() {m_label.set_name("rack_label_inverse"); }
+    UiSwitch *get_regler() { return m_switch; }
     ~UiVSwitchWithCaption();
 };
 

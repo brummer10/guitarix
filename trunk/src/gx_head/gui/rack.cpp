@@ -489,7 +489,9 @@ void MiniRackBox::set_config_mode(bool mode) {
 	if (preset_button) {
 	    preset_button->hide();
 	}
-	mb_expand_button->hide();
+	if (mb_expand_button) {
+	    mb_expand_button->hide();
+	}
 	if (mb_delete_button) {
 	    mb_delete_button->show();
 	}
@@ -498,7 +500,9 @@ void MiniRackBox::set_config_mode(bool mode) {
 	if (preset_button) {
 	    preset_button->show();
 	}
-	mb_expand_button->show();
+	if (mb_expand_button) {
+	    mb_expand_button->show();
+	}
 	if (mb_delete_button) {
 	    mb_delete_button->hide();
 	}
@@ -1132,12 +1136,12 @@ void RackBox::set_config_mode(bool mode) {
     if (!can_compress() || !get_plug_visible()) {
 	if (mode) {
 	    vis_switch(*fbox, mbox);
+        if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
+	        return;
+        }
 	} else {
 	    vis_switch(mbox, *fbox);
 	}
-    }
-    if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
-	return;
     }
     minibox->set_config_mode(mode);
     enable_drag(mode);
