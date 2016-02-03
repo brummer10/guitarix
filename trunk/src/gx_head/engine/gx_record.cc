@@ -243,6 +243,7 @@ void always_inline SCapture::compute(int count, float *input0, float *output0)
         fRecb0[0] = ((iTemp1)?fmax(fRecb0[1], fRec3):fRec3);
         iRecb1[0] = ((iTemp1)?(1 + iRecb1[1]):1);
         fRecb2[0] = ((iTemp1)?fRecb2[1]:fRecb0[1]);
+        fbargraph0 = fRecb2[0];
         
         if (iSlow0) { //record
             if (iA) {
@@ -298,6 +299,7 @@ void always_inline SCapture::compute_st(int count, float *input0, float *input1,
         fRecb0[0] = ((iTemp1)?fmax(fRecb0[1], fRec3):fRec3);
         iRecb1[0] = ((iTemp1)?(1 + iRecb1[1]):1);
         fRecb2[0] = ((iTemp1)?fRecb2[1]:fRecb0[1]);
+        fbargraph0 = fRecb2[0];
         
         if (iSlow0) { //record
             if (iA) {
@@ -343,14 +345,16 @@ int SCapture::register_par(const ParamReg& reg)
     static const value_pair fformat_values[] = {{"wav"},{"ogg"},{0}};
     if (channel == 1) {
     reg.registerEnumVar("recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 1.0, 1.0);
-    reg.registerVar("recorder.rec","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-    reg.registerVar("recorder.gain","","S","",&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
+    reg.registerVar("recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
     reg.registerNonMidiFloatVar("recorder.clip",&fcheckbox1, false, true, 0.0, 0.0, 1.0, 1.0);
+    reg.registerNonMidiFloatVar("recorder.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
     } else {
     reg.registerEnumVar("st_recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 1.0, 1.0);
-    reg.registerVar("st_recorder.rec","","B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-    reg.registerVar("st_recorder.gain","","S","",&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
+    reg.registerVar("st_recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("st_recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
     reg.registerNonMidiFloatVar("st_recorder.clip",&fcheckbox1, false, true, 0.0, 0.0, 1.0, 1.0);
+    reg.registerNonMidiFloatVar("st_recorder.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
     }
     
     return 0;
@@ -361,42 +365,693 @@ int SCapture::register_params_static(const ParamReg& reg)
     return static_cast<SCapture*>(reg.plugin)->register_par(reg);
 }
 
+const char *SCapture::glade_def = "\
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<interface>\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
+  <!-- interface-naming-policy project-wide -->\n\
+  <object class=\"GtkWindow\" id=\"window1\">\n\
+    <property name=\"can_focus\">False</property>\n\
+    <child>\n\
+      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+        <property name=\"visible\">True</property>\n\
+        <property name=\"can_focus\">False</property>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"spacing\">10</property>\n\
+                <child>\n\
+                  <object class=\"GtkTable\" id=\"table1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"n_rows\">5</property>\n\
+                    <property name=\"n_columns\">5</property>\n\
+                    <property name=\"row_spacing\">5</property>\n\
+                    <child>\n\
+                      <placeholder/>\n\
+                    </child>\n\
+                    <child>\n\
+                      <placeholder/>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"label\" translatable=\"yes\">label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxMidKnob\" id=\"gxbigknob1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">recorder.gain</property>\n\
+                            <property name=\"label_ref\">label1:rack_label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">4</property>\n\
+                        <property name=\"right_attach\">5</property>\n\
+                        <property name=\"bottom_attach\">5</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox5\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <placeholder/>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox6\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GxSelector\" id=\"gxselector1\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">recorder.file</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">2</property>\n\
+                        <property name=\"right_attach\">3</property>\n\
+                        <property name=\"top_attach\">3</property>\n\
+                        <property name=\"bottom_attach\">4</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox9\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <placeholder/>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"right_attach\">4</property>\n\
+                        <property name=\"bottom_attach\">3</property>\n\
+                        <property name=\"y_padding\">20</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxFastMeter\" id=\"gxfastmeter1\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"hold\">120</property>\n\
+                        <property name=\"dimen\">0</property>\n\
+                        <property name=\"horiz\">True</property>\n\
+                        <property name=\"type\">1</property>\n\
+                        <property name=\"var_id\">recorder.v1</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">1</property>\n\
+                        <property name=\"right_attach\">3</property>\n\
+                        <property name=\"top_attach\">4</property>\n\
+                        <property name=\"bottom_attach\">5</property>\n\
+                        <property name=\"y_options\">GTK_EXPAND</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox7\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxSwitch\" id=\"gxfswitch3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"receives_default\">False</property>\n\
+                            <property name=\"relief\">none</property>\n\
+                            <property name=\"var_id\">recorder.clip</property>\n\
+                            <property name=\"base_name\">led</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox8\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">3</property>\n\
+                        <property name=\"right_attach\">4</property>\n\
+                        <property name=\"top_attach\">4</property>\n\
+                        <property name=\"bottom_attach\">5</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox10\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <placeholder/>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"top_attach\">4</property>\n\
+                        <property name=\"bottom_attach\">5</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxSwitch\" id=\"gxfswitch1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">recorder.rec</property>\n\
+                            <property name=\"base_name\">rbutton</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">1</property>\n\
+                        <property name=\"right_attach\">2</property>\n\
+                        <property name=\"top_attach\">3</property>\n\
+                        <property name=\"bottom_attach\">4</property>\n\
+                        <property name=\"y_padding\">16</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"padding\">5</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">True</property>\n\
+                <property name=\"padding\">5</property>\n\
+                <property name=\"pack_type\">end</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">False</property>\n\
+            <property name=\"position\">0</property>\n\
+          </packing>\n\
+        </child>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"minibox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">10</property>\n\
+            <child>\n\
+              <object class=\"GxSwitch\" id=\"gxfswitch2\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">True</property>\n\
+                <property name=\"receives_default\">True</property>\n\
+                <property name=\"var_id\">recorder.rec</property>\n\
+                <property name=\"base_name\">rbutton</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GxHSlider\" id=\"gxhslider1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">True</property>\n\
+                <property name=\"receives_default\">True</property>\n\
+                <property name=\"round_digits\">0</property>\n\
+                <property name=\"var_id\">recorder.gain</property>\n\
+                <property name=\"show_value\">False</property>\n\
+                <property name=\"value_position\">right</property>\n\
+                <property name=\"value_xalign\">0.52000000000000002</property>\n\
+                <property name=\"label_ref\">label0:rack_label</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">1</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"xalign\">0</property>\n\
+                <property name=\"label\" translatable=\"yes\">Level</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">2</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GxSwitch\" id=\"gxfswitch4\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"receives_default\">False</property>\n\
+                <property name=\"relief\">none</property>\n\
+                <property name=\"var_id\">recorder.clip</property>\n\
+                <property name=\"base_name\">led</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">3</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">False</property>\n\
+            <property name=\"fill\">False</property>\n\
+            <property name=\"position\">1</property>\n\
+          </packing>\n\
+        </child>\n\
+      </object>\n\
+    </child>\n\
+  </object>\n\
+</interface>\n\
+";
+
+const char *SCapture::glade_def_st = "\
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<interface>\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
+  <!-- interface-naming-policy project-wide -->\n\
+  <object class=\"GtkWindow\" id=\"window1\">\n\
+    <property name=\"can_focus\">False</property>\n\
+    <child>\n\
+      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+        <property name=\"visible\">True</property>\n\
+        <property name=\"can_focus\">False</property>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"spacing\">10</property>\n\
+                <child>\n\
+                  <object class=\"GtkTable\" id=\"table1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"n_rows\">5</property>\n\
+                    <property name=\"n_columns\">5</property>\n\
+                    <property name=\"row_spacing\">5</property>\n\
+                    <child>\n\
+                      <placeholder/>\n\
+                    </child>\n\
+                    <child>\n\
+                      <placeholder/>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"label\" translatable=\"yes\">label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxMidKnob\" id=\"gxbigknob1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">st_recorder.gain</property>\n\
+                            <property name=\"label_ref\">label1:rack_label</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">4</property>\n\
+                        <property name=\"right_attach\">5</property>\n\
+                        <property name=\"bottom_attach\">5</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox5\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <placeholder/>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox6\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GxSelector\" id=\"gxselector1\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">st_recorder.file</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">2</property>\n\
+                        <property name=\"right_attach\">3</property>\n\
+                        <property name=\"top_attach\">3</property>\n\
+                        <property name=\"bottom_attach\">4</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox9\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <placeholder/>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"right_attach\">4</property>\n\
+                        <property name=\"bottom_attach\">3</property>\n\
+                        <property name=\"y_padding\">20</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxFastMeter\" id=\"gxfastmeter1\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"hold\">120</property>\n\
+                        <property name=\"dimen\">0</property>\n\
+                        <property name=\"horiz\">True</property>\n\
+                        <property name=\"type\">1</property>\n\
+                        <property name=\"var_id\">st_recorder.v1</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">1</property>\n\
+                        <property name=\"right_attach\">3</property>\n\
+                        <property name=\"top_attach\">4</property>\n\
+                        <property name=\"bottom_attach\">5</property>\n\
+                        <property name=\"y_options\">GTK_EXPAND</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox7\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxSwitch\" id=\"gxfswitch3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"receives_default\">False</property>\n\
+                            <property name=\"relief\">none</property>\n\
+                            <property name=\"var_id\">st_recorder.clip</property>\n\
+                            <property name=\"base_name\">led</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox8\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">3</property>\n\
+                        <property name=\"right_attach\">4</property>\n\
+                        <property name=\"top_attach\">4</property>\n\
+                        <property name=\"bottom_attach\">5</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox10\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <placeholder/>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"top_attach\">4</property>\n\
+                        <property name=\"bottom_attach\">5</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxSwitch\" id=\"gxfswitch1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">st_recorder.rec</property>\n\
+                            <property name=\"base_name\">rbutton</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkHBox\" id=\"hbox4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"left_attach\">1</property>\n\
+                        <property name=\"right_attach\">2</property>\n\
+                        <property name=\"top_attach\">3</property>\n\
+                        <property name=\"bottom_attach\">4</property>\n\
+                        <property name=\"y_padding\">16</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"padding\">5</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">True</property>\n\
+                <property name=\"padding\">5</property>\n\
+                <property name=\"pack_type\">end</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">False</property>\n\
+            <property name=\"position\">0</property>\n\
+          </packing>\n\
+        </child>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"minibox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">10</property>\n\
+            <child>\n\
+              <object class=\"GxSwitch\" id=\"gxfswitch2\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">True</property>\n\
+                <property name=\"receives_default\">True</property>\n\
+                <property name=\"var_id\">st_recorder.rec</property>\n\
+                <property name=\"base_name\">rbutton</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GxHSlider\" id=\"gxhslider1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">True</property>\n\
+                <property name=\"receives_default\">True</property>\n\
+                <property name=\"round_digits\">0</property>\n\
+                <property name=\"var_id\">st_recorder.gain</property>\n\
+                <property name=\"show_value\">False</property>\n\
+                <property name=\"value_position\">right</property>\n\
+                <property name=\"value_xalign\">0.52000000000000002</property>\n\
+                <property name=\"label_ref\">label0:rack_label</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">1</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"xalign\">0</property>\n\
+                <property name=\"label\" translatable=\"yes\">Level</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">2</property>\n\
+              </packing>\n\
+            </child>\n\
+            <child>\n\
+              <object class=\"GxSwitch\" id=\"gxfswitch4\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"receives_default\">False</property>\n\
+                <property name=\"relief\">none</property>\n\
+                <property name=\"var_id\">st_recorder.clip</property>\n\
+                <property name=\"base_name\">led</property>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">False</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">3</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">False</property>\n\
+            <property name=\"fill\">False</property>\n\
+            <property name=\"position\">1</property>\n\
+          </packing>\n\
+        </child>\n\
+      </object>\n\
+    </child>\n\
+  </object>\n\
+</interface>\n\
+";
+
 inline int SCapture::load_ui_f(const UiBuilder& b, int form)
 {
-    if (form & UI_FORM_STACK) {
-
+    if (form & UI_FORM_GLADE) {
         if (channel == 1) {
-#define PARAM(p) ("recorder" "." p)
-            b.openHorizontalhideBox("");
-            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
-
-            b.closeBox();
-
-            b.openHorizontalBox("");
-            b.create_small_rackknob(PARAM("gain"), N_("gain(db)"));
-            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
-            b.create_feedback_switch(sw_led,PARAM("clip"));
-            b.create_selector_no_caption(PARAM("file"));
-
-            b.closeBox();
-
-#undef PARAM
+            b.load_glade(glade_def);
         } else {
-#define PARAM(p) ("st_recorder" "." p)
-            b.openHorizontalhideBox("");
-            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
-
-            b.closeBox();
-
-            b.openHorizontalBox("");
-            b.create_small_rackknob(PARAM("gain"), N_("gain(db)"));
-            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
-            b.create_feedback_switch(sw_led,PARAM("clip"));
-            b.create_selector_no_caption(PARAM("file"));
-
-            b.closeBox();
-
-#undef PARAM
+            b.load_glade(glade_def_st);
         }
         return 0;
     }

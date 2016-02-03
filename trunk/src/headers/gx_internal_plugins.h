@@ -785,6 +785,7 @@ private:
     float           fcheckbox0;
     float           fcheckbox1;
     float           fslider0;
+    float           fbargraph0;
     float           fRecC0[2];
     float           fformat;
     int             IOTA;
@@ -824,6 +825,8 @@ private:
     static void *run_thread(void* p);
     static void clear_state_f_static(PluginDef*);
     static int  activate_static(bool start, PluginDef*);
+    static const char *glade_def;
+    static const char *glade_def_st;
     static int  load_ui_f_static(const UiBuilder& b, int form);
     static void init_static(unsigned int samplingFreq, PluginDef*);
     static void compute_static(int count, float *input0, float *output0, PluginDef*);
