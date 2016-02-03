@@ -22,6 +22,7 @@
 
 enum {
 	PROP_BASE_NAME = 1,
+	PROP_VAR_ID ,
 };
 
 G_DEFINE_TYPE(GxToggleImage, gx_toggle_image, GTK_TYPE_MISC)
@@ -55,6 +56,11 @@ static void gx_toggle_image_class_init(GxToggleImageClass *klass)
 		                    P_("Base name of the image, append \"_on\" and \"_off\" for the stock names"),
 		                    "switch",
 		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+	g_object_class_install_property (
+		gobject_class, PROP_VAR_ID, g_param_spec_string(
+			"var-id", P_("Variable"),
+			P_("The id of the linked variable"),
+			NULL, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 }
 
 static void gx_toggle_image_init(GxToggleImage *toggle_image)
@@ -133,6 +139,13 @@ gx_toggle_image_set_property (GObject *object, guint prop_id, const GValue *valu
 	case PROP_BASE_NAME:
 		gx_toggle_image_set_base_name(toggle_image, g_value_get_string(value));
 		break;
+	case PROP_VAR_ID: {
+		const char *str = g_value_get_string(value);
+		g_free(toggle_image->var_id);
+		toggle_image->var_id = g_strdup(str ? str : "");
+		g_object_notify(object, "var-id");
+		break;
+	}
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
@@ -148,6 +161,9 @@ gx_toggle_image_get_property(GObject *object, guint prop_id, GValue *value,
 	switch(prop_id) {
 	case PROP_BASE_NAME:
 		g_value_set_string(value, toggle_image->base_name);
+		break;
+	case PROP_VAR_ID:
+		g_value_set_string(value, toggle_image->var_id);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

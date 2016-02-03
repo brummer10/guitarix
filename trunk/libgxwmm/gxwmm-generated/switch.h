@@ -146,6 +146,26 @@ private:
   Glib::PropertyProxy_ReadOnly< Gtk::Label > property_label_ref() const;
 #endif //#GLIBMM_PROPERTIES_ENABLED
 
+#ifdef GLIBMM_PROPERTIES_ENABLED
+/** The id of the linked variable.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy< Glib::ustring > property_var_id() ;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+/** The id of the linked variable.
+   *
+   * You rarely need to use properties because there are get_ and set_ methods for almost all of them.
+   * @return A PropertyProxy that allows you to get or set the property of the value, or receive notification when
+   * the value of the property changes.
+   */
+  Glib::PropertyProxy_ReadOnly< Glib::ustring > property_var_id() const;
+#endif //#GLIBMM_PROPERTIES_ENABLED
+
 
 };
 

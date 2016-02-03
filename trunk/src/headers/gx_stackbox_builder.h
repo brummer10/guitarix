@@ -113,6 +113,7 @@ private:
 	addwidget(new UiRegler<Gxw::EqSlider>(machine, id, true));
     }
     bool set_engine_value(const std::string id);
+    bool set_engine_cp_value(Gxw::Switch *w,const std::string id);
     bool set_pd_value(Gxw::PortDisplay *w, const std::string id, const std::string& idl, const std::string& idh);
     void load_file(const std::string& id, const std::string& idf);
     void create_port_display(const std::string& id, const char *label);

@@ -185,6 +185,20 @@ Glib::PropertyProxy_ReadOnly< Gtk::Label > Switch::property_label_ref() const
 }
 #endif //GLIBMM_PROPERTIES_ENABLED
 
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy< Glib::ustring > Switch::property_var_id() 
+{
+  return Glib::PropertyProxy< Glib::ustring >(this, "var-id");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
+#ifdef GLIBMM_PROPERTIES_ENABLED
+Glib::PropertyProxy_ReadOnly< Glib::ustring > Switch::property_var_id() const
+{
+  return Glib::PropertyProxy_ReadOnly< Glib::ustring >(this, "var-id");
+}
+#endif //GLIBMM_PROPERTIES_ENABLED
+
 
 } // namespace Gxw
 

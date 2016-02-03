@@ -35,6 +35,7 @@ typedef struct _GxToggleImageClass GxToggleImageClass;
 
 struct _GxToggleImage {
 	GtkMisc parent;
+	gchar *GSEAL(var_id);
 	gchar *GSEAL(base_name);
 };
 

@@ -37,6 +37,7 @@ class Switch: public Gtk::ToggleButton, public ControlParameter {
 	_WRAP_METHOD(Glib::ustring get_base_name(), gx_switch_get_base_name)
 	_WRAP_PROPERTY("base-name", Glib::ustring)
 	_WRAP_PROPERTY("label-ref", Gtk::Label)
+	_WRAP_PROPERTY("var-id", Glib::ustring)
 };
 
 } // namespace Gxw

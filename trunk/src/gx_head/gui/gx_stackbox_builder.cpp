@@ -183,7 +183,7 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
             fastmeter->set_name("simplemeter");
             if (!id.empty())
             Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-            sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
+                  sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
             fastmeter->set_by_power(0.0001);        
         } else {
             break;
@@ -198,8 +198,24 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
             fastmeter->set_name("simplemeter");
             if (!id.empty())
             Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-            sigc::mem_fun(*this, &StackBoxBuilder::set_compressor_level),id), fastmeter), 60);
+                  sigc::mem_fun(*this, &StackBoxBuilder::set_compressor_level),id), fastmeter), 60);
             fastmeter->set_c_level(0.0);        
+        } else {
+            break;
+        }
+    }
+    // find feedback switches and connect a timeout callback to update the UI elements.
+    // findbak switches must have the id gxfswitchN were N starts with 1
+    for (int i = 1; i<12;++i) {
+        Glib::ustring fm = "gxfswitch" + gx_system::to_string(i);
+        if (bld->has_object(fm)) {
+            Gxw::Switch *sw;
+            bld->find_widget(fm, sw);
+            sw->get_property("var_id",id);
+            sw->set_name("no_dim");
+            if (!id.empty())
+            Glib::signal_timeout().connect(sigc::bind<Gxw::Switch*>(sigc::bind<const std::string>(
+                  sigc::mem_fun(*this, &StackBoxBuilder::set_engine_cp_value),id),sw), 60);
         } else {
             break;
         }
@@ -391,6 +407,15 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     }
 }
 
+bool StackBoxBuilder::set_engine_cp_value(Gxw::Switch * sw, const std::string id) {
+    if (machine.parameter_hasId(id)) {
+    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
+      sw->cp_set_value(machine.get_parameter_value<float>(id));
+    return true;
+    } else {
+    return false;
+    }
+}
 
 bool StackBoxBuilder::set_engine_value(const std::string id) {
     if (machine.parameter_hasId(id)) {

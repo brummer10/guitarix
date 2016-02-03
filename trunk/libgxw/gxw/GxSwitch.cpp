@@ -89,6 +89,11 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 	object_class->destroy = gx_switch_destroy;
 	widget_class->style_set = gx_switch_style_set;
 
+	g_object_class_install_property (
+		gobject_class, PROP_VAR_ID, g_param_spec_string(
+			"var-id", P_("Variable"),
+			P_("The id of the linked variable"),
+			NULL, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_LABEL_REF,
 		g_param_spec_object("label-ref",
@@ -103,7 +108,7 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 		                    P_("Base name of the image, append \"_on\" and \"_off\" for the stock names"),
 		                    "",
 		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
-	g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
+	//g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
 	g_object_class_override_property(gobject_class, PROP_IMAGE, "image");
 }
 
