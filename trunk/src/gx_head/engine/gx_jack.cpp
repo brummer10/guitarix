@@ -104,6 +104,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       engine(engine_),
       jack_is_down(false),
       jack_is_exit(true),
+      bypass_insert(false),
 #ifdef HAVE_JACK_SESSION
       session_event(0),
       session_event_ins(0),
@@ -117,6 +118,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       client_instance(),
       jack_sr(),
       jack_bs(),
+      insert_buffer(NULL),
       xrun(),
       last_xrun(0),
       xrun_msg_blocked(false),
@@ -353,7 +355,9 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
 	_("Jack init"),
 	boost::format(_("The jack buffer size is %1%/frames ... "))
 	% jack_bs);
-
+	// create buffer to bypass the insert ports
+    insert_buffer = new float[jack_bs];
+    
     gx_jack_callbacks();
     client_change(); // might load port connection definitions
     if (opt.get_jack_uuid().empty() && !opt.get_jack_noconnect()) {
@@ -412,6 +416,8 @@ void GxJack::gx_jack_cleanup() {
     client = 0;
     jack_client_close(client_insert);
     client_insert = 0;
+    delete[] insert_buffer;
+    insert_buffer = NULL;
     client_change();
 }
 
@@ -673,11 +679,14 @@ int __rt_func GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 	}
 	self.transport_state = jack_transport_query (self.client, &self.current);
         // gx_head DSP computing
+    float *obuf = get_float_buf(self.ports.insert_out.port, nframes);
 	self.engine.mono_chain.process(
 	    nframes,
 	    get_float_buf(self.ports.input.port, nframes),
-	    get_float_buf(self.ports.insert_out.port, nframes));
+	    obuf);
 
+    if (self.bypass_insert) 
+        memcpy(self.insert_buffer, obuf, nframes*sizeof(float));
         // midi input processing
 	if (self.ports.midi_input.port) {
 	    self.engine.controller_map.compute_midi_in(
@@ -708,7 +717,12 @@ int __rt_func GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) 
 	    self.check_overload();
 	}
         // gx_head DSP computing
-	float *ibuf = get_float_buf(self.ports.insert_in.port, nframes);
+    float *ibuf = NULL;
+    if (!self.bypass_insert) {
+	    ibuf = get_float_buf(self.ports.insert_in.port, nframes);
+	} else {
+	    ibuf = self.insert_buffer;
+	}
 	self.engine.stereo_chain.process(
 	    nframes, ibuf, ibuf,
 	    get_float_buf(self.ports.output1.port, nframes),
@@ -871,6 +885,10 @@ int GxJack::gx_jack_buffersize_callback(jack_nframes_t nframes, void* arg) {
     self.engine.set_buffersize(nframes);
     self.engine.clear_stateflag(gx_engine::GxEngine::SF_JACK_RECONFIG);
     self.buffersize_change();
+	// create buffer to bypass the insert ports
+	delete[] self.insert_buffer;
+	self.insert_buffer = NULL;
+    self.insert_buffer = new float[self.jack_bs];
     return 0;
 }
 

@@ -205,7 +205,7 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
         }
     }
     // find feedback switches and connect a timeout callback to update the UI elements.
-    // findbak switches must have the id gxfswitchN were N starts with 1
+    // feedback switches must have the id gxfswitchN were N starts with 1
     for (int i = 1; i<12;++i) {
         Glib::ustring fm = "gxfswitch" + gx_system::to_string(i);
         if (bld->has_object(fm)) {
@@ -216,6 +216,22 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
             if (!id.empty())
             Glib::signal_timeout().connect(sigc::bind<Gxw::Switch*>(sigc::bind<const std::string>(
                   sigc::mem_fun(*this, &StackBoxBuilder::set_engine_cp_value),id),sw), 60);
+        } else {
+            break;
+        }
+    }
+    // find feedback Regler and connect a timeout callback to update the UI elements.
+    // were Regler could be GxKnob's or GxSlider's
+    // feedback Regler must have the id gxfreglerN were N starts with 1
+    for (int i = 1; i<12;++i) {
+        Glib::ustring fm = "gxfregler" + gx_system::to_string(i);
+        if (bld->has_object(fm)) {
+            Gxw::Regler *regler;
+            bld->find_widget(fm, regler);
+            regler->get_property("var_id",id);
+            if (!id.empty())
+            Glib::signal_timeout().connect(sigc::bind<Gxw::Regler*>(sigc::bind<const std::string>(
+                  sigc::mem_fun(*this, &StackBoxBuilder::set_regler_cp_value),id),regler), 60);
         } else {
             break;
         }
@@ -404,6 +420,16 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     } else {
     box->show_all();
     fBox.box_pack_start(manage(box),false);
+    }
+}
+
+bool StackBoxBuilder::set_regler_cp_value(Gxw::Regler * regler, const std::string id) {
+    if (machine.parameter_hasId(id)) {
+    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
+      regler->cp_set_value(machine.get_parameter_value<float>(id));
+    return true;
+    } else {
+    return false;
     }
 }
 

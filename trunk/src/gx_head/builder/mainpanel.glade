@@ -4326,6 +4326,25 @@
               </packing>
             </child>
             <child>
+              <object class="GtkEventBox" id="eventbox4">
+                <property name="name">eventbox1</property><property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkImage" id="insert_image">
+                    <property name="name">insert_image</property><property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">bypass jack insert ports: click to toggle</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkEventBox" id="eventbox2">
                 <property name="name">eventbox2</property><property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -4347,7 +4366,7 @@ to midi controller</property>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child>
@@ -4366,7 +4385,7 @@ to midi controller</property>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">3</property>
+                <property name="position">4</property>
               </packing>
             </child>
             <child>
@@ -4389,7 +4408,7 @@ to midi controller</property>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">4</property>
+                <property name="position">5</property>
               </packing>
             </child>
           </object>

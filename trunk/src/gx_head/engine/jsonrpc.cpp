@@ -1074,6 +1074,10 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	send_notify_end(jw);
     }
 
+    PROCEDURE(set_jack_insert) {
+	serv.jack.set_jack_insert(params[0]->getInt());
+    }
+
     PROCEDURE(save_ladspalist) {
 	gx_system::JsonSubParser jps = params[0]->getSubParser();
 	ladspa::LadspaPluginList pluginlist;

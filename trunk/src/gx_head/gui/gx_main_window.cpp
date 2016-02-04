@@ -486,6 +486,7 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("preset_scrolledbox", preset_scrolledbox);
     bld->find_widget("preset_box_no_rack", preset_box_no_rack);
     bld->find_widget("effects_frame_paintbox", effects_frame_paintbox);
+    bld->find_widget("insert_image", insert_image);
     bld->find_widget("status_image", status_image);
     bld->find_widget("jackd_image", jackd_image);
     bld->find_widget("logstate_image", logstate_image);
@@ -2150,6 +2151,21 @@ bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
     return true;
 }
 
+bool MainWindow::on_toggle_insert(GdkEventButton* ev) {
+    if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
+	if (machine.get_parameter_value<bool>("engine.insert")) {
+		insert_image->set(pixbuf_insert_off);
+		machine.set_parameter_value("engine.insert",false);
+		machine.set_jack_insert(true);
+	} else {
+		insert_image->set(pixbuf_insert_on);
+		machine.set_parameter_value("engine.insert",true);
+		machine.set_jack_insert(false);
+	}
+	}
+    return true;
+}
+
 bool MainWindow::on_jackserverconnection(GdkEventButton* ev) {
     if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
     bool v = actions.jackserverconnection->get_active();
@@ -2579,6 +2595,8 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       select_jack_control(0),
       fLoggingWindow(),
       amp_radio_menu(machine_, "tube.select"),
+      pixbuf_insert_on(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("insert_on.png"))),
+      pixbuf_insert_off(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("insert_off.png"))),
       pixbuf_on(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_on.png"))),
       pixbuf_off(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_off.png"))),
       pixbuf_bypass(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_bypass.png"))),
@@ -2840,6 +2858,14 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     on_engine_state_change(machine.get_state());
 
     /*
+    ** init insert image widget
+    */
+    insert_image->set(pixbuf_insert_on);
+    gx_gui::connect_midi_controller(insert_image->get_parent(), "engine.insert", machine);
+    insert_image->get_parent()->signal_button_press_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_toggle_insert));
+
+    /*
     ** connect buttons with actions
     */
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(show_rack_button->gobj()), GTK_ACTION(actions.show_rack->gobj()));
@@ -2962,6 +2988,15 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    sigc::mem_fun(this, &MainWindow::amp_controls_visible),
 	    rr));
     amp_controls_visible(rr);
+
+    // set insert_image state
+	if (machine.get_parameter_value<bool>("engine.insert")) {
+		insert_image->set(pixbuf_insert_on);
+		machine.set_jack_insert(false);
+	} else {
+		insert_image->set(pixbuf_insert_off);
+		machine.set_jack_insert(true);
+	}
 
     /*
      * Logo image

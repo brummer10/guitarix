@@ -14,6 +14,7 @@ enum jsonrpc_method {
 	RPNM_setstate,
 	RPCM_jack_cpu_load,
 	RPCM_get_jack_load_status,
+	RPNM_set_jack_insert,
 	RPCM_get,
 	RPNM_set,
 	RPCM_parameterlist,

@@ -139,6 +139,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     p.signal_changed().connect(
 	sigc::bind(sigc::ptr_fun(on_engine_mute_changed), sigc::ref(engine)));
     pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false);
+    pmap.reg_par("engine.insert", N_("switch insert ports on/off"), (bool*)0, false, false);
 
 #ifndef NDEBUG
     // ------ time measurement (debug) ------
@@ -636,6 +637,10 @@ void GxMachine::pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name)
 // jack
 gx_jack::GxJack *GxMachine::get_jack() {
     return &jack;
+}
+
+void GxMachine::set_jack_insert(bool v) {
+    return jack.set_jack_insert(v);
 }
 
 // pmap
@@ -2225,6 +2230,12 @@ void GxMachineRemote::pf_save(gx_system::PresetFileGui& pf, const Glib::ustring&
 // jack
 gx_jack::GxJack *GxMachineRemote::get_jack() {
     return 0;
+}
+
+void GxMachineRemote::set_jack_insert(bool v) {
+    START_NOTIFY(set_jack_insert);
+    jw->write(v);
+    SEND();
 }
 
 // pmap

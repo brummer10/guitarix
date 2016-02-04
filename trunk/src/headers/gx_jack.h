@@ -113,6 +113,7 @@ class GxJack: public sigc::trackable {
     gx_engine::GxEngine& engine;
     bool                jack_is_down;
     bool                jack_is_exit;
+    bool                bypass_insert;
     midi_cc             mmessage;
     static int          gx_jack_srate_callback(jack_nframes_t, void* arg);
     static int          gx_jack_xrun_callback(void* arg);
@@ -146,6 +147,7 @@ class GxJack: public sigc::trackable {
     string              client_instance;
     jack_nframes_t      jack_sr;   // jack sample rate
     jack_nframes_t      jack_bs;   // jack buffer size
+    float               *insert_buffer;
     Glib::Dispatcher    xrun;
     float               last_xrun;
     bool                xrun_msg_blocked;
@@ -185,6 +187,7 @@ public:
     void                set_jack_down(bool v) { jack_is_down = v; }
     void                set_jack_exit(bool v) { jack_is_exit = v; }
 
+    void                set_jack_insert(bool v) { bypass_insert = v;}
     bool                gx_jack_connection(bool connect, bool startserver,
 					   int wait_after_connect, const gx_system::CmdlineOptions& opt);
     float               get_last_xrun() { return last_xrun; }

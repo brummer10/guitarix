@@ -83,7 +83,7 @@ Perfect_Hash::in_word_set (register const char *str, register unsigned int len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 77,
+      TOTAL_KEYWORDS = 78,
       MIN_WORD_LENGTH = 3,
       MAX_WORD_LENGTH = 27,
       MIN_HASH_VALUE = 3,
@@ -121,7 +121,8 @@ Perfect_Hash::in_word_set (register const char *str, register unsigned int len)
       {"bank_remove", RPCM_bank_remove},
       {""},
       {"bank_set_flag", RPNM_bank_set_flag},
-      {""}, {""},
+      {""},
+      {"set_jack_insert", RPNM_set_jack_insert},
       {"get_oscilloscope_info", RPCM_get_oscilloscope_info},
       {"bank_get_contents", RPCM_bank_get_contents},
       {"setstate", RPNM_setstate},
@@ -226,6 +227,7 @@ const jsonrpc_method_def jsonrpc_method_list[] = {
 	{ "setstate", false },
 	{ "jack_cpu_load", true },
 	{ "get_jack_load_status", true },
+	{ "set_jack_insert", false },
 	{ "get", true },
 	{ "set", false },
 	{ "parameterlist", true },

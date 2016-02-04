@@ -587,6 +587,8 @@ private:
     gx_gui::SelectJackControlPgm *select_jack_control;
     TextLoggingBox fLoggingWindow;
     GxUiRadioMenu amp_radio_menu;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_insert_on;
+    Glib::RefPtr<Gdk::Pixbuf> pixbuf_insert_off;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_on;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_off;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_bypass;
@@ -621,6 +623,7 @@ private:
     Gtk::ScrolledWindow *preset_scrolledbox;
     Gtk::Box *preset_box_no_rack;
     Gxw::PaintBox *effects_frame_paintbox;
+    Gtk::Image *insert_image;
     Gtk::Image *status_image;
     Gtk::Image *jackd_image;
     Gtk::Image *logstate_image;
@@ -734,6 +737,7 @@ private:
     void setup_tuner_temperament(Gxw::RackTuner& tuner);
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);
+    bool on_toggle_insert(GdkEventButton* ev);
     bool on_jackserverconnection(GdkEventButton* ev);
     void on_msg_level_changed();
     void on_ampdetail_switch(bool compress, bool setparam);

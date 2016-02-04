@@ -150,6 +150,7 @@ public:
 
     // jack
     virtual gx_jack::GxJack *get_jack() = 0;
+    virtual void set_jack_insert(bool v) = 0;
     // pmap
     virtual Parameter& get_parameter(const std::string& id) = 0;
     virtual void set_init_values() = 0;
@@ -331,6 +332,7 @@ public:
 
     // jack
     virtual gx_jack::GxJack *get_jack();
+    virtual void set_jack_insert(bool v);
     // pmap
     virtual Parameter& get_parameter(const char *p);
     virtual Parameter& get_parameter(const std::string& id);
@@ -509,6 +511,7 @@ public:
 
     // jack
     virtual gx_jack::GxJack *get_jack();
+    virtual void set_jack_insert(bool v);
     // pmap
     virtual Parameter& get_parameter(const char *p);
     virtual Parameter& get_parameter(const std::string& id);
