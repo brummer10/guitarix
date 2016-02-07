@@ -18,12 +18,12 @@ with {
 	  dflange = 0.001 * SR *  10.0;
 	  odflange = 0.001 * SR *  1.0;
 	  //freq	 = hslider("freq [unit:Hz]", 0.2, 0, 5, 0.01);
-      freq   = hslider("lfobpm[name:LFO freq (bpm)][unit:bpm][tooltip:LFO in Beats per Minute]",24,24,360,1)/60;
-	  level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : db2linear;
+      freq   = hslider("lfobpm[name:BPM][unit:bpm][tooltip:LFO in Beats per Minute]",24,24,360,1)/60;
+	  level	 = hslider("level[name:Level][unit:dB]", 0, -60, 10, 0.1) : db2linear;
 	  curdel = odflange+dflange*(1 + lfol(freq))/2; 
   };
   
-wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+wet = vslider("wet_dry[name:Wet/Dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
 dry = 1 - wet;
   
 process =  _<:*(dry),(*(wet): flangermonogx ):>_;
