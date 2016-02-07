@@ -249,7 +249,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec17[0] = ((((fTemp29 + (fSlow41 * fRec19[0])) + (fSlow40 * fRec19[2])) / fTemp28) - ((((1 + (fSlow34 * (fSlow34 - fTemp24))) * fRec17[2]) + fTemp26) / fTemp25));
 		fRec15[0] = ((((fTemp26 + (fSlow43 * fRec17[0])) + (fSlow42 * fRec17[2])) / fTemp25) - ((((1 + (fSlow30 * (fSlow30 - fTemp21))) * fRec15[2]) + fTemp23) / fTemp22));
 		fRec13[0] = ((((fTemp23 + (fSlow45 * fRec15[0])) + (fSlow44 * fRec15[2])) / fTemp22) - ((((1 + (fSlow26 * (fSlow26 - fTemp18))) * fRec13[2]) + fTemp20) / fTemp19));
-		fRec11[0] = ((((fTemp20 + (fSlow47 * fRec13[0])) + (fSlow46 * fRec13[2])) / fTemp19) - (((fRec11[2] * (1 + (fSlow22 * (fSlow22 - fTemp15)))) + fTemp17) / fTemp16));
+		fRec11[0] = ((((fTemp20 + (fSlow47 * fRec13[0])) + (fSlow46 * fRec13[2])) / fTemp19) - ((((1 + (fSlow22 * (fSlow22 - fTemp15))) * fRec11[2]) + fTemp17) / fTemp16));
 		fRec9[0] = ((((fTemp17 + (fSlow49 * fRec11[0])) + (fSlow48 * fRec11[2])) / fTemp16) - ((((1 + (fSlow18 * (fSlow18 - fTemp12))) * fRec9[2]) + fTemp14) / fTemp13));
 		fRec7[0] = ((((fTemp14 + (fSlow51 * fRec9[0])) + (fSlow50 * fRec9[2])) / fTemp13) - ((((1 + (fSlow14 * (fSlow14 - fTemp9))) * fRec7[2]) + fTemp11) / fTemp10));
 		fRec5[0] = ((((fTemp11 + (fSlow53 * fRec7[0])) + (fSlow52 * fRec7[2])) / fTemp10) - ((((1 + (fSlow10 * (fSlow10 - fTemp6))) * fRec5[2]) + fTemp8) / fTemp7));
@@ -348,10 +348,13 @@ const char *Dsp::glade_def = "\
                 <property name=\"can_focus\">False</property>\n\
                 <property name=\"n_rows\">3</property>\n\
                 <property name=\"n_columns\">10</property>\n\
+                <property name=\"column_spacing\">3</property>\n\
+                <property name=\"row_spacing\">10</property>\n\
                 <child>\n\
                   <object class=\"GtkVBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label1:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -387,6 +390,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label2:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -424,6 +428,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox4\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label3:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -461,6 +466,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox5\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label4:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -498,6 +504,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox6\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label5:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -535,6 +542,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox7\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label6:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -572,6 +580,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox8\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label7:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -609,6 +618,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox9\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label8:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -646,6 +656,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox10\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label9:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -683,6 +694,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox11\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label10:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -871,6 +883,9 @@ const char *Dsp::glade_def = "\
                     <property name=\"receives_default\">True</property>\n\
                     <property name=\"var_id\">eqs.freq31_25</property>\n\
                   </object>\n\
+                  <packing>\n\
+                    <property name=\"x_options\"/>\n\
+                  </packing>\n\
                 </child>\n\
                 <child>\n\
                   <object class=\"GxValueDisplay\" id=\"gxvaluedisplay2\">\n\
@@ -882,6 +897,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">1</property>\n\
                     <property name=\"right_attach\">2</property>\n\
+                    <property name=\"x_options\"/>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -894,6 +910,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">2</property>\n\
                     <property name=\"right_attach\">3</property>\n\
+                    <property name=\"x_options\"/>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -906,6 +923,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">3</property>\n\
                     <property name=\"right_attach\">4</property>\n\
+                    <property name=\"x_options\"/>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -918,6 +936,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">4</property>\n\
                     <property name=\"right_attach\">5</property>\n\
+                    <property name=\"x_options\"/>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -930,6 +949,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">5</property>\n\
                     <property name=\"right_attach\">6</property>\n\
+                    <property name=\"x_options\"/>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -942,6 +962,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">6</property>\n\
                     <property name=\"right_attach\">7</property>\n\
+                    <property name=\"x_options\"/>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -954,6 +975,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">7</property>\n\
                     <property name=\"right_attach\">8</property>\n\
+                    <property name=\"x_options\"/>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -966,6 +988,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">8</property>\n\
                     <property name=\"right_attach\">9</property>\n\
+                    <property name=\"x_options\"/>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -978,6 +1001,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">9</property>\n\
                     <property name=\"right_attach\">10</property>\n\
+                    <property name=\"x_options\"/>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\

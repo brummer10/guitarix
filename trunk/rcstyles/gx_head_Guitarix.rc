@@ -260,7 +260,7 @@ widget "*effects_toolpalette*GtkButton*" style:highest "guitarix_rack_button"
 
 style "guitarix_regler" {
     
-    font_name = "Roboto Condensed Regular 8"
+    font_name = "Roboto Condensed Regular 7"
     
     GxRegler::value-border      = { 4, 4, 2, 2 } # border around text
     GxRegler::border-radius     = 6
