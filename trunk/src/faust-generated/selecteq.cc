@@ -338,10 +338,11 @@ const char *Dsp::glade_def = "\
         <property name=\"visible\">True</property>\n\
         <property name=\"can_focus\">False</property>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+          <object class=\"GxPaintBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
+            <property name=\"paint_func\">box_uni_2_expose</property>\n\
             <child>\n\
               <object class=\"GtkTable\" id=\"table1\">\n\
                 <property name=\"visible\">True</property>\n\
