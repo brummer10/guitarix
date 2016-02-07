@@ -36,11 +36,11 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GxMidKnob" id="gxbigknob1">
+                      <object class="GxBigKnob" id="gxbigknob1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="var_id">duckDelay.time</property>
+                        <property name="var_id">duckDelaySt.time</property>
                         <property name="label_ref">label1:rack_label</property>
                       </object>
                       <packing>
@@ -52,7 +52,7 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
@@ -77,7 +77,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="var_id">duckDelay.feedback</property>
+                        <property name="var_id">duckDelaySt.feedback</property>
                         <property name="label_ref">label2:rack_label</property>
                       </object>
                       <packing>
@@ -86,10 +86,36 @@
                         <property name="position">1</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GxSmallKnobR" id="gxbigknob6">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="var_id">duckDelaySt.attack</property>
+                        <property name="label_ref">label2:rack_label_inverse</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label2:rack_label_inverse">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">label</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -114,7 +140,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="var_id">duckDelay.attack</property>
+                        <property name="var_id">duckDelaySt.pingpong</property>
                         <property name="label_ref">label3:rack_label</property>
                       </object>
                       <packing>
@@ -123,10 +149,36 @@
                         <property name="position">1</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GxSmallKnobR" id="gxbigknob7">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="var_id">duckDelaySt.release</property>
+                        <property name="label_ref">label3:rack_label_inverse</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label3:rack_label_inverse">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">label</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
+                    <property name="fill">True</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
@@ -151,7 +203,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="var_id">duckDelay.relese</property>
+                        <property name="var_id">duckDelaySt.coloration</property>
                         <property name="label_ref">label4:rack_label</property>
                       </object>
                       <packing>
@@ -160,10 +212,36 @@
                         <property name="position">1</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GxSmallKnobR" id="gxbigknob8">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="var_id">duckDelaySt.amount</property>
+                        <property name="label_ref">label4:rack_label_inverse</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label4:rack_label_inverse">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">label</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
+                    <property name="fill">True</property>
                     <property name="position">3</property>
                   </packing>
                 </child>
@@ -184,11 +262,11 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GxMidKnob" id="gxbigknob5">
+                      <object class="GxBigKnob" id="gxbigknob5">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="var_id">duckDelay.amount</property>
+                        <property name="var_id">duckDelaySt.effect</property>
                         <property name="label_ref">label5:rack_label</property>
                       </object>
                       <packing>
@@ -200,7 +278,7 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">False</property>
+                    <property name="fill">True</property>
                     <property name="position">4</property>
                   </packing>
                 </child>
@@ -208,7 +286,6 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">False</property>
-                <property name="pack_type">end</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -230,7 +307,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="round_digits">0</property>
-                <property name="var_id">duckDelay.amount</property>
+                <property name="var_id">duckDelaySt.amount</property>
                 <property name="show_value">False</property>
                 <property name="value_position">right</property>
                 <property name="value_xalign">0.52000000000000002</property>
@@ -247,7 +324,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">Level</property>
+                <property name="label" translatable="yes">Amount</property>
               </object>
               <packing>
                 <property name="expand">False</property>

@@ -23,16 +23,16 @@ import("music.lib");
 import("effect.lib");
 
 //Constrols
-p_time = hslider("time", 500, 1, 2000, 1):smooth(tau2pole(0.1));
-p_feedback = hslider("feedback", 0, 0, 1, 0.05);
-p_pingpong = hslider("pingpong", 0, 0, 1, 0.05);
-coloration = hslider("coloration", 0, -1, 1, 0.05);
+p_time = hslider("time[name:Delay]", 500, 1, 2000, 1):smooth(tau2pole(0.1));
+p_feedback = hslider("feedback[name:Feedback]", 0, 0, 1, 0.05);
+p_pingpong = hslider("pingpong[name:Ping Pong]", 0, 0, 1, 0.05);
+coloration = hslider("coloration[name:Coloration]", 0, -1, 1, 0.05);
 
-p_attack_time = hslider("attack", 0.1, 0.05, 0.5, 0.05);
-p_release_time = hslider("release", 0.1, 0.05, 2, 0.05);
-p_amount = hslider("amount", 0.5, 0,56, 0.05):db2linear;
+p_attack_time = hslider("attack[name:Attack]", 0.1, 0.05, 0.5, 0.05);
+p_release_time = hslider("release[name:Release]", 0.1, 0.05, 2, 0.05);
+p_amount = hslider("amount[name:Amount]", 0.5, 0,56, 0.05):db2linear;
 
-p_effect = hslider("effect", 0, -16, +4, 0.1) : db2linear : smooth(0.999);
+p_effect = hslider("effect[name:Effect]", 0, -16, +4, 0.1) : db2linear : smooth(0.999);
 
 //Consts
 c_fdelay_max_len = 393216;
@@ -65,4 +65,3 @@ process = (_<:_,_,_),(_<:_,_,_):
 	switcher(p_attack_time, p_release_time, p_amount),
 	_:
 	_,_*_,_*_,_:(_,_*p_effect:>_),(_*p_effect,_:>_);
-
