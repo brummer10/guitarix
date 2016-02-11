@@ -96,7 +96,7 @@ void GxtubetremeloGUI::set_skin()
                  "{ 52428, 0, 0, 0, 52428 },\n"
                  "{ 13107, 0, 0, 13107, 13107 }}\n"
                  "    GxPaintBox::icon-set =4\n"
-                 "    stock['amp_skin'] = {{'";
+                 "    stock['gxhead'] = {{'";
   toparse +=     plugskin;
   toparse +=     "'}}\n"
                  " }\n"

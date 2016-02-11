@@ -91,8 +91,8 @@ protected:
   Gtk::HBox         m_hbox1_;
   Gtk::Image        pir;
   Gxw::PaintBox     m_paintbox;
-  Gxw::BigKnob      m_bigknob[2];
-  Gxw::BigKnob      m_smallknob[6];
+  Gxw::SmallKnobR   m_bigknob[2];
+  Gxw::SmallKnobR   m_smallknob[6];
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

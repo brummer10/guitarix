@@ -58,7 +58,7 @@ logo(plugname)
   make_controller_box(&m_vboxc[2], "TONE", 0.0, 1.0, 0.01, TONE);
 
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(5);
+  m_paintbox.set_border_width(15);
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
@@ -80,8 +80,8 @@ logo(plugname)
   logo.modify_font(font_desc);
 
   // and controller box on top
-  //m_hbox1_.set_border_width(24);
-  m_hbox1_.set_spacing(14);
+  m_hbox1_.set_border_width(10);
+  m_hbox1_.set_spacing(10);
   logo.set_name("amplabel");
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_SHRINK);
   m_hbox1_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);

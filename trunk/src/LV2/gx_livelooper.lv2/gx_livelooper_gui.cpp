@@ -118,7 +118,7 @@ void Gx_livelooper_GUI::set_skin()
   toparse +=     "_dark-paintbox\"\n"
                  " { \n"
                  "    GxPaintBox::icon-set =9\n"
-                 "    stock['amp_skin'] = {{'";
+                 "    stock['gxhead'] = {{'";
   toparse +=     plugskin;
   toparse +=     "'}}\n"
                  " }\n"
