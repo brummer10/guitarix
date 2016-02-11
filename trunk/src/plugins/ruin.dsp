@@ -5,23 +5,25 @@ declare name "Ruiner";
 declare category "Fuzz";
 declare shortname "Ruiner";
 declare description "Devi Ever Dark Boost";
+declare insert_p "tranyclipper3";
+declare drywetbox "true";
 
 import("filter.lib");
 import("trany.lib");
 
-process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : *(0.5) : clip  : clip2 ):>_ with {
+process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : *(0.8) with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
     pre = _;
-    wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
-    dry = 1 - wet;
-    clip = tranystage(TB_SVEL34_250k,86.0,2700.0,3.571981)   ;
-    clip2 = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
+    //wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+    //dry = 1 - wet;
+    //clip = tranystage(TB_SVEL34_250k,86.0,2700.0,3.571981)   ;
+    //clip2 = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
 
     
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : *(0.3) : Inverted(0) : LogPot(0) : smooth(s);
     
         Intensity = vslider("Intensity[name:Intensity]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
     

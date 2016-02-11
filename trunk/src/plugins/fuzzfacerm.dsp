@@ -1,21 +1,22 @@
 // generated automatically
 // DO NOT MODIFY!
 declare id "fuzzfacerm";
-declare name "Fuzz Face Roger Mayer";
+declare name "Fuzz Face Mayer";
 declare category "Fuzz";
 declare shortname "FF Mayer";
 declare description "Roger Mayer Fuzz Face simulation";
+declare insert_p "tranyclipper3";
 
 import("filter.lib");
 import("trany.lib");
 
-process = iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clip with {
+process = iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0))  with {
     LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
     pre = _;
-    clip = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) : tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
+    //clip = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) : tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
   
         Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
     

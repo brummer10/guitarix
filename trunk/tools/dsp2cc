@@ -9,6 +9,11 @@ except ImportError:
 from subprocess import Popen, PIPE
 from optparse import OptionParser
 from collections import OrderedDict
+from importlib import import_module
+
+#tranypath = "./tranylib.py"
+#sys.path.append(os.path.abspath(tranypath))
+#from tranylib import *
 
 num_re = r"(-?\d*\.?\d*e?[+-]?\d*f?)"
 
@@ -395,6 +400,14 @@ class Parser(object):
                     self.description = value
                 elif key == "gladefile":
                     self.gladefile = value
+                elif key == "samplerate":
+                    self.oversample = value
+                elif key == "insert_p":
+                    self.insert_p = value
+                elif key == "drywetbox":
+                    self.drywetbox = value
+                elif key == "volume_p":
+                    self.volume_p = value
 
     def readIncludes(self, stop_expr):
         stop = re.compile(stop_expr).match
@@ -465,6 +478,16 @@ class Parser(object):
         self.toplevel = None
         self.topname = None
         self.name = None
+        self.oversample = None
+        self.has_oversample = False
+        self.has_stereo = False
+        self.insert_p = None
+        self.has_insert_p = False
+        self.has_vector = False
+        self.drywetbox = None
+        self.has_drywetbox = False
+        self.volume_p = None
+        self.has_volume_p = False
         self.groups = OrderedDict()
         self.memlist = []
         self.staticlist = []
@@ -492,9 +515,32 @@ class Parser(object):
         self.skip_until(r"\s*virtual void compute")
         if self.options.vectorize:
             s["compute"] = self.replace_ioref_vector(self.copy(r"\t}$"))
+            self.has_vector = True
         else:
             s["compute"] = self.replace_ioref_scalar(self.copy(r"\t}$"))
         self.sections = s
+        if self.oversample is not None:
+            self.has_oversample = True
+        if self.drywetbox is not None:
+            self.has_drywetbox = True
+        if self.volume_p is not None:
+            self.has_volume_p = True
+        if self.insert_p is not None:
+            self.has_insert_p = True
+            self.faust_opt = []
+            if self.options.faust:
+                self.faust_opt.append('-d')
+            elif self.options.faustf:
+                self.faust_opt.append('-f')
+            if self.options.vectorize:
+                self.faust_opt.append('-V')
+            if self.options.add:
+                self.faust_opt.append(options.add);
+            cmd ='../tools/dsp2insert -o /tmp/'+self.insert_p+'.py'+' '+'  %s'.join(self.faust_opt)+' --init-type=insert ../src/faust/'+self.insert_p+'.dsp'
+            #print('%s\n' % cmd)
+            os.system(cmd) 
+        if self.numOutputs == 2:
+            self.has_stereo = True
         if self.topname is None:
             self.topname = self.modname
         # ignore any following definitions of static class members
@@ -509,6 +555,13 @@ class Parser(object):
             if m:
                 g = m.groups()
                 line = "\t%s* %sput%s = &%sputX%s[index];\n" % (g[0],g[1],g[2],g[1],g[2])
+            if self.oversample:
+                line=re.sub("fullcount",'ReCount',line)
+                line=re.sub("inputX0",'buf',line)
+                line=re.sub("outputX0",'buf',line)
+                if self.numOutputs == 2:
+                    line=re.sub("inputX1",'bufs',line)
+                    line=re.sub("outputX1",'bufs',line)
             l.append(line)
         return l
 
@@ -518,7 +571,14 @@ class Parser(object):
         l = []
         for line in lines:
             if not match(line):
-                l.append(line)
+                if self.oversample:
+                    line=re.sub("count",'ReCount',line)
+                    line=re.sub("input0",'buf',line)
+                    line=re.sub("output0",'buf',line)
+                    if self.numOutputs == 2:
+                        line=re.sub("input1",'bufs',line)
+                        line=re.sub("output1",'bufs',line)
+                l.append(line)            
         return l
 
     def checkfor(self, re_exp, sect):
@@ -782,6 +842,32 @@ PluginDef *plugin() {
 %(end_extra_namespace)s\
 """
 
+dry_wetbox_mono_pre1 = """\
+	double 	fSlowdw0 = (0.01 * fsliderdw0);
+	double 	fSlowdw1 = (1 - fSlowdw0);
+	float 	dryinput[count];
+	memcpy(&dryinput, input0, count * sizeof(float));
+"""
+
+dry_wetbox_mono_post1 = """\
+	for (int i=0; i<count; i++) {
+		output0[i] = ((fSlowdw1 * (double)dryinput[i]) + (fSlowdw0 * (double)output0[i]));
+	}
+"""
+
+volume_mono_pre = """\
+	double 	fSlowV0 = (0.0010000000000000009 * double(fsliderV0));
+"""
+
+volume_mono_post = """\
+	for (int i=0; i<count; i++) {
+		fRecV0[0] = ((0.999 * fRecV0[1]) + fSlowV0);
+		output0[i] = (FAUSTFLOAT)((double)output0[i] * fRecV0[0]);
+		// post processing
+		fRecV0[1] = fRecV0[0];
+	}
+"""
+
 template_plugin_instance = """\
 // generated from file '%(filepath)s' by dsp2cc:
 // %(headline)s
@@ -795,6 +881,12 @@ template_plugin_instance = """\
 #endif
 %(includes)s\
 #endif
+#if %(has_insert_p)s
+%(insert_p_incl)s\
+#endif
+#if %(has_drywetbox)s
+#include <string.h>
+#endif
 
 %(start_extra_namespace)s\
 namespace %(namespace)s {
@@ -805,8 +897,25 @@ class Dsp: public PluginDef {
 class Dsp {
 #endif
 private:
+#if %(has_oversample)s
+	gx_resample::FixedRateResampler smp;
+#if %(has_stereo)s
+	gx_resample::FixedRateResampler smps;
+#endif
+	int samplingFreq;
+#endif
 	int fSamplingFreq;
 %(var_decl)s\
+#if %(has_insert_p)s
+%(insert_p_class)s
+#endif
+#if %(has_drywetbox)s
+	float fsliderdw0;
+#endif
+#if %(has_volume_p)s
+	FAUSTFLOAT 	fsliderV0;
+	double 	fRecV0[2];
+#endif
 #if %(has_activate)s
 	bool mem_allocated;
 	void mem_alloc();
@@ -901,6 +1010,12 @@ Dsp::~Dsp() {
 inline void Dsp::clear_state_f()
 {
 %(state_init)s\
+#if %(has_insert_p)s
+%(insert_p_clearstate)s
+#endif
+#if %(has_volume_p)s
+	for (int i=0; i<2; i++) fRecV0[i] = 0;
+#endif
 }
 
 #if %(has_plugindef)s
@@ -911,9 +1026,22 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 #endif
 #endif
+#if %(has_oversample)s
+inline void Dsp::init(unsigned int RsamplingFreq)
+{
+	samplingFreq = %(oversample)s;
+	smp.setup(RsamplingFreq, samplingFreq);
+#if %(has_stereo)s
+	smps.setup(RsamplingFreq, samplingFreq);
+#endif
+#else
 inline void Dsp::init(unsigned int samplingFreq)
 {
+#endif
 %(init_body)s\
+#if %(has_insert_p)s
+%(insert_p_init)s
+#endif
 #if %(has_state_no_activate)s
 	clear_state_f();
 #endif
@@ -963,7 +1091,52 @@ int Dsp::activate_static(bool start, PluginDef *p)
 void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 {
 %(defines)s\
+#if %(has_drywetbox)s
+%(dry_wetbox_mono_pre)s
+#endif
+#if %(has_volume_p)s
+%(volume_pre)s
+#endif
+#if %(has_oversample)s
+	float buf[smp.max_out_count(%(countname)s)];
+#if %(has_stereo)s
+	float bufs[smps.max_out_count(%(countname)s)];
+#if %(has_vector)s
+	smps.up(%(countname)s, inputX1, bufs);
+#else
+	smps.up(%(countname)s, input1, bufs);
+#endif
+#endif
+#if %(has_vector)s
+	int ReCount = smp.up(%(countname)s, inputX0, buf);
+#else
+	int ReCount = smp.up(%(countname)s, input0, buf);
+#endif
+#endif
 %(compute_body)s\
+#if %(has_oversample)s
+#if %(has_vector)s
+	smp.down(buf, outputX0);
+#else
+	smp.down(buf, output0);
+#endif
+#if %(has_stereo)s
+#if %(has_vector)s
+	smps.down(bufs, outputX1);
+#else
+	smps.down(bufs, output1);
+#endif
+#endif
+#endif
+#if %(has_insert_p)s
+%(insert_p_compute)s
+#endif
+#if %(has_volume_p)s
+%(volume_post)s
+#endif
+#if %(has_drywetbox)s
+%(dry_wetbox_mono_post)s
+#endif
 %(undefines)s\
 }
 
@@ -976,6 +1149,12 @@ void __rt_func Dsp::compute_static(int %(countname)s%(compute_args)s, PluginDef 
 #endif
 int Dsp::register_par(const ParamReg& reg)
 {
+#if %(has_drywetbox)s
+	reg.registerVar("%(plugin_id)s.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fsliderdw0, 1e+02, 0.0, 1e+02, 1.0);
+#endif
+#if %(has_volume_p)s
+	reg.registerVar("%(plugin_id)s.%(volume_name)s",N_("%(volume_name)s"),"S","",&fsliderV0, 0.5, 0.0, 1, 0.01);
+#endif
 %(register_body)s\
 	return 0;
 }
@@ -1068,6 +1247,12 @@ template_plugin_lv2 = """\
 #endif
 %(includes)s\
 #endif
+#if %(has_insert_p)s
+%(insert_p_incl)s\
+#endif
+#if %(has_drywetbox)s
+#include <string.h>
+#endif
 
 %(start_extra_namespace)s\
 namespace %(namespace)s {
@@ -1078,8 +1263,27 @@ class Dsp: public PluginLV2 {
 class Dsp {
 #endif
 private:
+#if %(has_oversample)s
+	gx_resample::FixedRateResampler smp;
+#if %(has_stereo)s
+	gx_resample::FixedRateResampler smps;
+#endif
+	uint32_t samplingFreq;
+#endif
 	uint32_t fSamplingFreq;
 %(var_decl)s\
+#if %(has_insert_p)s
+%(insert_p_class)s
+#endif
+#if %(has_drywetbox)s
+	float fsliderdw0;
+	float *fsliderdw0_;
+#endif
+#if %(has_volume_p)s
+	float 	fsliderV0;
+	float 	*fsliderV0_;
+	double 	fRecV0[2];
+#endif
 #if %(has_activate)s
 	bool mem_allocated;
 	void mem_alloc();
@@ -1163,6 +1367,12 @@ Dsp::~Dsp() {
 inline void Dsp::clear_state_f()
 {
 %(state_init)s\
+#if %(has_insert_p)s
+%(insert_p_clearstate)s
+#endif
+#if %(has_volume_p)s
+	for (int i=0; i<2; i++) fRecV0[i] = 0;
+#endif
 }
 
 #if %(has_plugindef)s
@@ -1173,9 +1383,22 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 
 #endif
 #endif
+#if %(has_oversample)s
+inline void Dsp::init(uint32_t RsamplingFreq)
+{
+	samplingFreq = %(oversample)s;
+	smp.setup(RsamplingFreq, samplingFreq);
+#if %(has_stereo)s
+	smps.setup(RsamplingFreq, samplingFreq);
+#endif
+#else
 inline void Dsp::init(uint32_t samplingFreq)
 {
+#endif
 %(init_body)s\
+#if %(has_insert_p)s
+%(insert_p_init)s
+#endif
 #if %(has_state_no_activate)s
 	clear_state_f();
 #endif
@@ -1225,7 +1448,56 @@ int Dsp::activate_static(bool start, PluginLV2 *p)
 void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 {
 %(defines)s\
+#if %(has_drywetbox)s
+#define fsliderdw0 (*fsliderdw0_)
+%(dry_wetbox_mono_pre)s
+#endif
+#if %(has_volume_p)s
+#define fsliderV0 (*fsliderV0_)
+%(volume_pre)s
+#endif
+#if %(has_oversample)s
+	float buf[smp.max_out_count(%(countname)s)];
+#if %(has_stereo)s
+	float bufs[smps.max_out_count(%(countname)s)];
+#if %(has_vector)s
+	smps.up(%(countname)s, inputX1, bufs);
+#else
+	smps.up(%(countname)s, input1, bufs);
+#endif
+#endif
+#if %(has_vector)s
+	int ReCount = smp.up(%(countname)s, inputX0, buf);
+#else
+	int ReCount = smp.up(%(countname)s, input0, buf);
+#endif
+#endif
 %(compute_body)s\
+#if %(has_oversample)s
+#if %(has_vector)s
+	smp.down(buf, outputX0);
+#else
+	smp.down(buf, output0);
+#endif
+#if %(has_stereo)s
+#if %(has_vector)s
+	smps.down(bufs, outputX1);
+#else
+	smps.down(bufs, output1);
+#endif
+#endif
+#endif
+#if %(has_insert_p)s
+%(insert_p_compute)s
+#endif
+#if %(has_volume_p)s
+%(volume_post)s
+#undef fsliderV0 
+#endif
+#if %(has_drywetbox)s
+%(dry_wetbox_mono_post)s
+#undef fsliderdw0
+#endif
 %(undefines)s\
 }
 
@@ -1243,6 +1515,16 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 %(port_body)s\
+#if %(has_drywetbox)s
+	case WET_DRY: 
+		fsliderdw0_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
+		break;
+#endif
+#if %(has_volume_p)s
+	case %(Volume_Name)s: 
+		fsliderV0_ = (float*)data; // , 0.5, 0.0, 1, 0.01 
+		break;
+#endif
 	default:
 		break;
 	}
@@ -1269,6 +1551,12 @@ void Dsp::del_instance(PluginLV2 *p)
 typedef enum
 {
 %(port_head)s\
+#if %(has_drywetbox)s
+   WET_DRY,
+#endif
+#if %(has_volume_p)s
+   %(Volume_Name)s,
+#endif
 } PortIndex;
 */
 
@@ -1375,8 +1663,9 @@ class Output(object):
         if os.path.exists(ui_name):
             xml = open(ui_name).read()
             found_params = re.findall('<property name="var_id">([^<]*)</property>',xml)
-            if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
-                raise SystemExit(1)
+            if not self.parser.has_drywetbox and not self.parser.has_volume_p:
+                if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
+                    raise SystemExit(1)
             sg = xml.replace("\\",r"\\").replace("\n","\\n\\\n").replace('"',r'\"')
             load_ui |= 2
         ui_name = self.fname.replace(".dsp", "_ui.cc")
@@ -1389,8 +1678,9 @@ class Output(object):
             re_expr = r'\s*(//)?'+re_func_name+r'\s*\(\s*(?:[a-z_0-9]+\s*,\s*)?(?:'+re_param+'|'+re_str+')'
             found_params = [v[2] if v[2] else plugin_id + "." + v[1]
                             for v in re.findall(re_expr,ccdef) if not v[0]]
-            if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
-                raise SystemExit(1)
+            if not self.parser.has_drywetbox and not self.parser.has_volume_p:
+                if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
+                    raise SystemExit(1)
             load_ui |= 1
         if wrap:
             s = loadui_glade % dict(
@@ -1512,8 +1802,53 @@ class Output(object):
         template = template_plugin if self.options.init_type == "plugin" else template_plugin_instance
         if self.options.init_type == "plugin-lv2":
             template = template_plugin_lv2 
+        if self.parser.has_insert_p:
+            #tranpath = '/tools/tranylib1.py'
+            #libto = 'tranylib1'
+            sys.path.append(os.path.abspath('/tmp/'))
+            my_c = import_module("%s" % self.parser.insert_p)
+            #from libto import insert_p1_incl, insert_p1_class, insert_p1_clearstate, insert_p1_init, insert_p1_compute
+            insert_p_incl = my_c.insert_p1_incl
+            insert_p_class = my_c.insert_p1_class
+            insert_p_clearstate = my_c.insert_p1_clearstate
+            insert_p_init = my_c.insert_p1_init
+            insert_p_compute = my_c.insert_p1_compute
+            os.remove('/tmp/'+self.parser.insert_p+'.py')
+            os.remove('/tmp/'+self.parser.insert_p+'.pyc')
+        else:
+            insert_p_incl = ""
+            insert_p_class = ""
+            insert_p_clearstate = ""
+            insert_p_init = ""
+            insert_p_compute = ""
+
+        if self.parser.has_drywetbox:
+            dry_wetbox_mono_pre = dry_wetbox_mono_pre1
+            dry_wetbox_mono_post = dry_wetbox_mono_post1
+        else:
+            dry_wetbox_mono_pre = ""
+            dry_wetbox_mono_post = ""
+
+        if self.parser.has_volume_p:
+            volume_pre = volume_mono_pre
+            volume_post = volume_mono_post
+            volume_name = self.parser.volume_p
+            Volume_Name = self.parser.volume_p.upper()
+        else:
+            volume_pre = ""
+            volume_post = ""
+            volume_name = ""
+            Volume_Name = ""
+            
+            
         s = StringIO()
         s.write(template % dict(
+            has_oversample = self.parser.has_oversample,
+            has_stereo = self.parser.has_stereo,
+            oversample = self.parser.oversample,
+            has_insert_p = self.parser.has_insert_p,
+            insert_p = self.parser.insert_p,
+            has_vector = self.parser.has_vector,
             filepath = self.fname,
             headline = self.parser.headvers,
             start_extra_namespace = "namespace %s {\n" % in_namespace if in_namespace else "",
@@ -1531,6 +1866,20 @@ class Output(object):
             dsp_initlist = self.dsp_initlist(has_plugindef, has_lv2),
             var_alloc = self.parser_sect("var-alloc", 1),
             var_free = self.parser_sect("var-free", 1),
+            insert_p_class = insert_p_class,
+            insert_p_clearstate = insert_p_clearstate,
+            insert_p_init = insert_p_init,
+            insert_p_compute = insert_p_compute,
+            insert_p_incl = insert_p_incl,
+            dry_wetbox_mono_pre = dry_wetbox_mono_pre,
+            dry_wetbox_mono_post = dry_wetbox_mono_post,
+            has_drywetbox = self.parser.has_drywetbox,
+            volume_name = volume_name,
+            Volume_Name = volume_name.upper(),
+            volume_pre = volume_pre,
+            volume_post = volume_post,
+            has_volume_p = self.parser.has_volume_p,
+            
             countname = self.countname,
             compute_args = compute_args,
             compute_call_args = compute_call_args,

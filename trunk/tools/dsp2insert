@@ -1,0 +1,886 @@
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+
+import re, os, sys
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
+from subprocess import Popen, PIPE
+from optparse import OptionParser
+from collections import OrderedDict
+
+
+num_re = r"(-?\d*\.?\d*e?[+-]?\d*f?)"
+
+def wrap_N_(s):
+    if s:
+        return 'N_("%s")' % s
+    else:
+        return '""'
+
+class UIDefs(object):
+
+    class UID(dict):
+        def write(self, fp, v, prefix):
+            d = {}
+            d.update(self)
+            d["tail"] = "".join([", "+x for x in d["value"]])
+            d["prefix"] = prefix
+            d["N_name"] = wrap_N_("%(name)s" % self)
+            d["N_tooltip"] = wrap_N_("%(tooltip)s" % self)
+            if "log" in d:
+                d["type"] += "L"
+            if "alias" in d:
+                #assert "enum" not in d
+                if "enum" in d:
+                    def value_pair(s):
+                        m = re.match(r"(.*)\[(.*)\]$", s)
+                        if m:
+                            return '{"%s",%s}' % (m.group(1), wrap_N_(m.group(2)))
+                        else:
+                            return '{"%s"}' % s
+                    enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
+                    d["ename"] = ename = d["variable"] + "_values"
+                    fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
+                    fp.write('\t%(variable)s_ = %(prefix)sregisterSharedEnumVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
+                else:
+                    fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+            elif "enum" in d:
+                def value_pair(s):
+                    m = re.match(r"(.*)\[(.*)\]$", s)
+                    if m:
+                        return '{"%s",%s}' % (m.group(1), wrap_N_(m.group(2)))
+                    else:
+                        return '{"%s"}' % s
+                enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
+                d["ename"] = ename = d["variable"] + "_values"
+                fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
+                fp.write('\t%(prefix)sregisterEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
+            elif "nomidi" in d:
+                assert "enum" not in d
+                fp.write('\t%(prefix)sregisterNonMidiFloatVar("%(id)s",&%(variable)s, false, true%(tail)s);\n' % d)
+            else:
+                fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+
+        def write_port(self, fp, v, prefix):
+            d = {}
+            d.update(self)
+            d["tail"] = "".join([", "+x for x in d["value"]])
+            d["prefix"] = prefix
+            d["N_name"] = wrap_N_("%(name)s" % self)
+            d["N_tooltip"] = wrap_N_("%(tooltip)s" % self)
+            ast = d["id"].split(".")
+            d["port"] = re.sub(r'\s+', '',ast[-1].upper())
+            if "log" in d:
+                d["type"] += "L"
+            if "enum" not in d:
+                if "alias" in d:
+                    assert "enum" not in d
+                    fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+                   # fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+            elif "enum" in d:
+                def value_pair(s):
+                    m = re.match(r"(.*)\[(.*)\]$", s)
+                    if m:
+                        return '{"%s",%s}' % (m.group(1), wrap_N_(m.group(2)))
+                    else:
+                        return '{"%s"}' % s
+                enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
+                d["ename"] = ename = d["variable"] + "_values"
+                fp.write('\t// static const value_pair %s[] = {%s};\n' % (ename, enumvals))
+                fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+                #fp.write('\t%(prefix)sregisterEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
+            else:
+                fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+               #fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+
+        def write_port_head(self, fp, v, prefix):
+            d = {}
+            d.update(self)
+            ast = d["id"].split(".")
+            d["port"] = re.sub(r'\s+', '',ast[-1].upper())
+            fp.write('   %(port)s, \n' % d)
+
+        def __getitem__(self, n):
+            try:
+                return dict.__getitem__(self, n)
+            except KeyError:
+                return ""
+
+    def __init__(self):
+        self.ui = OrderedDict()
+
+    def add(self, element, key, value):
+        try:
+            uid = self.ui[element]
+        except KeyError:
+            self.ui[element] = uid = self.UID(variable=element)
+        uid[key] = value
+
+    def get(self, element, key):
+        return self.ui[element][key]
+
+    def has(self, element, key):
+        return key in self.ui[element]
+
+    def var_filter(self, const=2):
+        s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in self.ui.keys()])
+        def filt(t):
+            if re.compile(r"\s*("+s+");").match(t):
+                return True
+            if const == 1 and t.startswith("for "):
+                return True
+            if const == 0 and not t.startswith("for "):
+                return True
+            return False
+        return filt
+
+    def write(self, fp, prefix=""):
+        for v, r in self.ui.items():
+            r.write(fp, v, prefix)
+
+    def write_port(self, fp, prefix=""):
+        for v, r in self.ui.items():
+            r.write_port(fp, v, prefix)
+
+    def write_port_head(self, fp, prefix=""):
+        for v, r in self.ui.items():
+            r.write_port_head(fp, v, prefix)
+
+    def check_parameter(self, fname, uiname, l, only_warn):
+        s1 = set(l)
+        s2 = set([v["id"] for v in self.ui.values()])
+        d = s2 - s1
+        errlevel = 0
+        if d:
+            print ("%s:warning: parameters in faust dsp not used in %s: %s"
+                   % (fname, uiname, ", ".join(d)))
+            errlevel = 1
+        d = s1 - s2
+        if d:
+            if only_warn:
+                cat = "warning"
+                errlevel = 1
+            else:
+                cat = "error"
+                errlevel = 2
+            print ("%s:%s: parameters in %s not found in faust dsp: %s"
+                   % (fname, cat, uiname, ", ".join(d)))
+        return errlevel
+
+
+class Parser(object):
+
+    def skip_until(self, exp):
+        r = re.compile(exp)
+        for line in self.lines:
+            m = r.match(line)
+            if m:
+                return m
+        return None
+
+    def skip_while(self, exp):
+        m = re.compile(exp).match
+        for line in self.lines:
+            if not m(line):
+                return line
+        return ""
+
+    def copy(self, exp, line=None):
+        cp = []
+        if line:
+            cp.append(line)
+        m = re.compile(exp).match
+        for line in self.lines:
+            if m(line):
+                break
+            cp.append(line)
+        # remove indentation
+        m = re.compile(r"\t*").match
+        n = 10
+        for l in cp:
+            if l != "\n":
+                n = min(n, len(m(l).group(0)))
+        return [l[n:] for l in cp]
+
+    def get_section_list(self):
+        return "includes", "var-decl", "alias-defines", "alias-undefines", "var-init", "var-free", "ui", "compute"
+
+    def getIO(self, s):
+        e = r"\s*virtual int getNum%sputs\(\)\s*{\s*return\s*(\d+);\s*}" % s
+        for line in self.lines:
+            m = re.match(e, line)
+            if m:
+                return int(m.group(1))
+        raise ValueError("getNum%sputs not found in source" % s)
+
+    def parse_name(self, s):
+        def findBrackets(aString):
+            l = []
+            n = []
+            while aString:
+                v = aString.split('[',1)
+                if len(v) == 2:
+                    s, match = v
+                else:
+                    n.append(aString)
+                    break
+                s.strip()
+                if s:
+                    n.append(s)
+                match.lstrip()
+                open = 1
+                for index in range(len(match)):
+                    if match[index] in '[]':
+                        open = (open + 1) if match[index] == '[' else (open - 1)
+                    if not open:
+                        l.append(match[:index])
+                        break
+                aString = match[index+1:].lstrip()
+            return " ".join(n), l
+        s, l = findBrackets(s)
+        for v in l:
+            if ":" in v:
+                key, value = v.split(":",1)
+            else:
+                key = v
+                value = ""
+            if key == "name" and value:
+                self.groups[s] = value
+        return s
+
+    def readUI(self, exp):
+        stop = re.compile(exp).match
+        pre = r"\s*interface->"
+        nm = '"([^"]*)"'
+        vr = "([a-zA-Z_][0-9a-zA-Z_]*)"
+        sarg = (r"%s,\s*&%s,\s*%s,\s*%s,\s*%s,\s*%s"
+                % (nm, vr, num_re, num_re, num_re, num_re))
+        sargb = (r"%s,\s*&%s,\s*%s,\s*%s"
+                % (nm, vr, num_re, num_re))
+        openbox = re.compile(pre+r"open(Horizontal|Vertical)Box\(%s\);" % nm).match
+        closebox = re.compile(pre+r"closeBox\(\);").match
+        vslider = re.compile(pre+r"addVerticalSlider\(%s\);" % sarg).match
+        hslider = re.compile(pre+r"addHorizontalSlider\(%s\);" % sarg).match
+        numentry = re.compile(pre+r"addNumEntry\(%s\);" % sarg).match
+        vbargrahp = re.compile(pre+r"addVerticalBargraph\(%s\);" % sargb).match
+        hbargrahp = re.compile(pre+r"addHorizontalBargraph\(%s\);" % sargb).match
+        checkbutton = re.compile(pre+r"addCheckButton\(%s,\s*&%s\);" % (nm, vr)).match
+        declare = re.compile(pre+r"declare\((?:&%s|0),\s*%s,\s*%s\);" % (vr, nm, nm)).match
+        stack = []
+        def make_name_int(mystack):
+            st = mystack[1:]
+            if not st:
+                return mystack[0]
+            s = make_name_int(st)
+            if s.startswith("."):
+                return s
+            return mystack[0] + "." + s
+            
+        def make_name(nm):
+            stack.append(nm)
+            nm = make_name_int(stack)
+            stack.pop()
+            if nm.startswith("."):
+                return nm[1:]
+            return nm
+
+        nextbox = {}
+        for line in self.lines:
+            if stop(line):
+                return
+            m = openbox(line)
+            if m:
+                grp = m.group(2)
+                if "[" in grp:
+                    # 0.9.30 didn't parse [..] in [hv]group names
+                    grp = self.parse_name(grp)
+                if nextbox:
+                    if "name" in nextbox:
+                        self.groups[grp] = nextbox["name"]
+                    # ignore all other attributes for now
+                    nextbox = {}
+                if not stack:
+                    if self.toplevel and grp == self.modname:
+                        grp = self.toplevel
+                    if not self.topname:
+                        self.topname = grp
+                stack.append(grp)
+                continue
+            if closebox(line):
+                stack.pop()
+                continue
+            m = vslider(line) or hslider(line) or numentry(line)
+            if m:
+                vn = m.group(2)
+                self.ui.add(vn, "type", "S")
+                self.ui.add(vn, "id", make_name(m.group(1)))
+                self.ui.add(vn, "value", m.groups()[2:])
+                continue
+            m = checkbutton(line)
+            if m:
+                vn = m.group(2)
+                self.ui.add(vn, "type", "B")
+                self.ui.add(vn, "id", make_name(m.group(1)))
+                self.ui.add(vn, "value", ("0.0","0.0","1.0","1.0"))
+                continue
+            m = vbargrahp(line) or hbargrahp(line) 
+            if m:
+                vn = m.group(2)
+                self.ui.add(vn, "type", "S")
+                self.ui.add(vn, "id", make_name(m.group(1)))
+                self.ui.add(vn, "value", ("-70.0","-70.0","4.0","0.00001"))
+                continue
+            m = declare(line)
+            if m:
+                if m.group(1) is None: # 0.9.43: attributes for next openbox
+                    nextbox[m.group(2)] = m.group(3)
+                else:
+                    self.ui.add(m.group(1), m.group(2), m.group(3))
+                continue
+            assert False, line
+
+    def readMeta(self):
+        "only needed for faust 9.4; not used at the moment"
+        self.meta = {}
+        stop = re.compile(r'// Code generated with Faust').match
+        declare = re.compile(r'// ([^:]+):\s*"([^"]*)"\s*$').match
+        for line in self.lines:
+            if stop(line):
+                return
+            m = declare(line)
+            if m:
+                key = m.group(1)
+                value = m.group(2)
+                self.meta[key] = value
+                if key == "name":
+                    self.toplevel = value
+
+    def splitgroups(self, value):
+        d = {}
+        for l in re.split(r"\]\s*,\s*", value):
+            a = re.split(r"\s*\[\s*",l,1)
+            g = a[0].strip()
+            if len(a) == 1:
+                v = "?"
+            else:
+                v = a[1].rstrip(" ]")
+            d[g] = v
+        return d
+            
+
+    def readMeta2(self, stop_expr):
+        self.meta = {}
+        stop = re.compile(stop_expr).match
+        declare = re.compile(r'\s*m->declare\s*\("([^"]+)"\s*,\s*"([^"]*)"\);').match
+        for line in self.lines:
+            if stop(line):
+                return
+            m = declare(line)
+            if m:
+                key = m.group(1)
+                value = m.group(2)
+                self.meta[key] = value
+                if key == "id":
+                    self.toplevel = value
+                elif key == "name":
+                    self.name = value
+                elif key == "groups":
+                    self.groups.update(self.splitgroups(value));
+                elif key == "category":
+                    self.category = value
+                elif key == "shortname":
+                    self.shortname = value
+                elif key == "description":
+                    self.description = value
+                elif key == "gladefile":
+                    self.gladefile = value
+                elif key == "samplerate":
+                    self.oversample = value
+                elif key == "insert_p":
+                    self.insert_p = value
+
+    def readIncludes(self, stop_expr):
+        stop = re.compile(stop_expr).match
+        cp = []
+        for line in self.lines:
+            if stop(line):
+                return cp
+            if line.startswith('#include "'):
+                cp.append(line)
+        raise RuntimeError("EOF while looking for #include")
+
+    def change_var_decl(self, lines, init_type):
+        param_matcher = re.compile(r"FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
+        array_matcher = re.compile(r"(int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
+        static_matcher = re.compile(r"static (int|float|double)\s+([a-zA-Z_0-9]+)\s*\[\s*(\d+)\s*\]\s*;\n$").match
+        out = []
+        out_defines = []
+        out_undefines = []
+        for l in lines:
+            l=re.sub("Const",'ConstCl',l)
+            l=re.sub("Vec",'VecCl',l)
+            l=re.sub("Rec",'RecCl',l)
+            l=re.sub("Yec",'YecCl',l)
+            l=re.sub("index",'indexCl',l)
+            m = param_matcher(l);
+            if m:
+                var = m.group(1)
+                alias = self.ui.has(var,"alias")
+                if init_type in ("plugin-lv2"):
+                    if not alias:
+                        self.ui.add(var,"alias", "[alias]")
+                        alias = self.ui.has(var,"alias")
+                if alias:
+                    #l = ('FAUSTFLOAT&\t%s = get_alias("%s");\n'
+                    #     % (var, self.ui.get(var, "id")))
+                    out.append(l)
+                    out.append('FAUSTFLOAT\t*%s_;\n' % var)
+                    out_defines.append('#define %s (*%s_)\n' % (var, var))
+                    out_undefines.append('#undef %s\n' % var)
+                    continue
+            m = static_matcher(l);
+            if m:
+                self.staticlist.append((m.group(2), m.group(1), m.group(3)))
+            if self.options.memory_threshold:
+                m = array_matcher(l)
+                if m:
+                    sz = {"int": 4, "float": 4, "double": 8}[m.group(1)]
+                    alen = int(m.group(3))
+                    if alen * sz > self.options.memory_threshold:
+                        l = "%s *%s;\n" % (m.group(1), m.group(2))
+                        self.memlist.append((m.group(2), m.group(1), alen))
+            if l.startswith(("int","float","double","FAUSTFLOAT")):
+                l = "%(static)s" + l
+            out.append(l)
+        return out, out_defines, out_undefines
+
+    def add_var_alloc(self):
+        l = []
+        for v, t, s in self.memlist:
+            l.append("if (!%s) %s = new %s[%d];\n" % (v, v, t, s))
+        return l
+
+    def add_var_free(self):
+        l = []
+        for v, t, s in self.memlist:
+            l.append("if (%s) { delete %s; %s = 0; }\n" % (v, v, v))
+        return l
+
+    def __init__(self, lines, modname, options):
+        self.lines = ((line.decode("utf-8") for line in lines))
+        
+        self.modname = modname
+        self.options = options
+        self.toplevel = None
+        self.topname = None
+        self.name = None
+        self.oversample = None
+        self.has_oversample = False
+        self.has_stereo = False
+        self.has_vector = False
+        self.groups = OrderedDict()
+        self.memlist = []
+        self.staticlist = []
+        s = {}
+        self.ui = UIDefs()
+        #self.readMeta()  # (needed only for faust 9.4
+        self.headvers = self.skip_until(r"\s*//\s*(Code generated with Faust.*)").group(1)
+        s["includes"] = self.readIncludes(r"  private:")
+        #self.skip_until(r"  private:")
+        var_decl = self.copy(r"  public:")
+        self.skip_until(r"^\s*static\s+void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
+        self.readMeta2(r"\s*}\s*\n$")
+        self.numInputs = self.getIO("In")
+        self.numOutputs = self.getIO("Out")
+        self.skip_until(r"\s*static void classInit")
+        s["var-init"] = self.copy(r"\s*}$")
+        self.skip_until(r"\s*virtual void instanceInit")
+        s["var-init"] += self.copy(r"\s*}$")
+        self.skip_until(r"\s*virtual void buildUserInterface")
+        s["ui"] = self.readUI(r"\s*}$")
+        s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl,options.init_type)
+        s["var-init"] = self.replace_var_name(s["var-init"])
+        s["var-alloc"] = self.add_var_alloc()
+        s["var-free"] = self.add_var_free()
+        self.skip_until(r"\s*virtual void compute")
+        if self.options.vectorize:
+            s["compute"] = self.replace_ioref_vector(self.copy(r"\t}$"))
+            self.has_vector = True
+        else:
+            s["compute"] = self.replace_ioref_scalar(self.copy(r"\t}$"))
+        self.sections = s
+        if self.oversample is not None:
+            self.has_oversample = True
+        if self.numOutputs == 2:
+            self.has_stereo = True
+        if self.topname is None:
+            self.topname = self.modname
+        # ignore any following definitions of static class members
+        #self.checkfor(r".*\bexp\b", "compute")
+
+    def replace_var_name(self, lines):
+        l = []
+        for line in lines:
+            line=re.sub("Const",'ConstCl',line)
+            line=re.sub("Vec",'VecCl',line)
+            line=re.sub("Rec",'RecCl',line)
+            line=re.sub("Yec",'YecCl',line)
+            l.append(line)
+        return l
+        
+    def replace_ioref_vector(self, lines):
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*&\2put\[\3\]\[index\];"
+        match = re.compile(ioref).match
+        l = []
+        for line in lines:
+            line=re.sub("Const",'ConstCl',line)
+            line=re.sub("Vec",'VecCl',line)
+            line=re.sub("Rec",'RecCl',line)
+            line=re.sub("Yec",'YecCl',line)
+            line=re.sub("index",'indexCl',line)
+            m = match(line)
+            if m:
+                g = m.groups()
+                line = "\t%s* %sput%s = &%sputX%s[index];\n" % (g[0],g[1],g[2],g[1],g[2])
+            if self.oversample:
+                if self.numOutputs == 2:
+                    line=re.sub("inputX1",'bufsCl',line)
+                    line=re.sub("outputX1",'bufsCl',line)
+            l.append(line)
+        return l
+
+    def replace_ioref_scalar(self, lines):
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
+        match = re.compile(ioref).match
+        l = []
+        for line in lines:
+            line=re.sub("Const",'ConstCl',line)
+            line=re.sub("Vec",'VecCl',line)
+            line=re.sub("Rec",'RecCl',line)
+            line=re.sub("Yec",'YecCl',line)
+            if not match(line):
+                if self.oversample:
+                    line=re.sub("count",'ReCount',line)
+                    line=re.sub("input0",'bufCl',line)
+                    line=re.sub("output0",'bufCl',line)
+                    if self.numOutputs == 2:
+                        line=re.sub("input1",'bufsCl',line)
+                        line=re.sub("output1",'bufsCl',line)
+                else:
+                    line=re.sub("input",'output',line)
+                l.append(line)            
+        return l
+
+    def checkfor(self, re_exp, sect):
+        loop = re.compile(r"\s*for\s*\(int\s+i=0;\s*i<count;\s*i\+\+\)\s*{").match
+        re_m = re.compile(re_exp).match
+        in_loop = False
+        for l in self.sections[sect]:
+            if not in_loop:
+                if loop(l):
+                    in_loop = True
+                continue
+            if re_m(l):
+                print("%s %s" % (self.modname, l))
+
+    def getNumInputs(self):
+        return self.numInputs
+
+    def getNumOutputs(self):
+        return self.numOutputs
+
+    def __getitem__(self, n):
+        return self.sections[n]
+
+    def formatted_groups(self, plugin_id):
+        l = []
+        for k, v in self.groups.items():
+            if k == plugin_id:
+                continue
+            k = '"'+k+'"'
+            l.append("\t%s, %s,\n" % (k, wrap_N_(v)))
+        return "".join(l) + "\t0\n"
+  
+    def write(self, fp, sect, indent=0, filt=lambda l: False, dct=None):
+        pre = "\t" * indent
+        for l in self.sections[sect]:
+            if filt(l):
+                continue
+            fp.write(pre)
+            if dct:
+                l = l % dct
+            fp.write(l)
+
+
+template_plugin_insert = """\
+#! /usr/bin/python
+# -*- coding: utf-8 -*-
+
+insert_p1_incl = \"\"\"
+%(includes)s\
+\"\"\"
+
+insert_p1_class = \"\"\"
+#if %(has_oversample)s
+	int samplingFreq;
+	gx_resample::FixedRateResampler smpCl;
+#if %(has_stereo)s
+	gx_resample::FixedRateResampler smpsCl;
+#endif
+#endif
+%(var_decl)s\
+\"\"\"
+
+insert_p1_init = \"\"\"
+#if %(has_oversample)s
+	samplingFreq = %(oversample)s;
+	smpCl.setup(fSamplingFreq, samplingFreq);
+#if %(has_stereo)s
+	smpsCl.setup(fSamplingFreq, samplingFreq);
+#endif
+#endif
+%(init_body)s\
+\"\"\"
+
+insert_p1_clearstate = \"\"\"
+%(state_init)s\
+\"\"\"
+
+insert_p1_compute = \"\"\"
+#if %(has_oversample)s
+	float bufCl[smpCl.max_out_count(%(countname)s)];
+#if %(has_stereo)s
+	float bufsCl[smpsCl.max_out_count(%(countname)s)];
+#if %(has_vector)s
+	smpsCl.up(%(countname)s, outputX1, bufsCl);
+#else
+	smpsCl.up(%(countname)s, output1, bufsCl);
+#endif
+#endif
+#if %(has_vector)s
+	int ReCount = smpCl.up(%(countname)s, outputX0, bufCl);
+#else
+	int ReCount = smpCl.up(%(countname)s, output0, bufCl);
+#endif
+#endif
+%(compute_body)s\
+#if %(has_oversample)s
+#if %(has_vector)s
+	smpCl.down(bufCl, outputX0);
+#else
+	smpCl.down(bufCl, output0);
+#endif
+#if %(has_stereo)s
+#if %(has_vector)s
+	smpsCl.down(bufsCl, outputX1);
+#else
+	smpsCl.down(bufsCl, output1);
+#endif
+#endif
+#endif
+\"\"\"
+
+
+insert_p1_register = \"\"\"
+%(register_body)s\
+\"\"\"
+
+"""
+
+
+def preprocess(s, fp, fp_head):
+    depth = 0  # conditional nesting depth
+    truelevel = 0  # last depth where all nested conditions where true
+    impl_seen = False
+    for lno, l in enumerate(s):
+        if l.startswith("#if"):
+            if l.endswith("True\n"):
+                cond = True
+            elif l.endswith("False\n"):
+                cond = False
+            else:
+                assert False, "%d: %s" % (lno+1, l)
+            if l.startswith("#ifnot ") != cond:
+                if truelevel == depth:
+                    truelevel += 1
+            depth += 1
+            continue
+        elif l == "#else\n":
+            if depth == 0:
+                raise SystemExit("template line %d: wrong #else" % (lno+1))
+            if truelevel == depth:
+                truelevel -= 1
+            elif truelevel == depth-1:
+                truelevel = depth
+            continue
+        elif l == "#endif\n":
+            if depth == 0:
+                raise SystemExit("template line %d: unbalanced #if / #endif" % (lno+1))
+            if truelevel == depth:
+                truelevel -= 1
+            depth -= 1
+            continue
+        if l == "#impl\n":
+            impl_seen = True
+            continue
+        if truelevel == depth:
+            if fp_head and not impl_seen:
+                fp_head.write(l)
+            else:
+                fp.write(l)
+    if depth:
+        raise SystemExit("template EOF: unbalanced #if / #endif")
+
+
+class Output(object):
+
+    def __init__(self, parser, fname, options):
+        self.parser = parser
+        self.fname = fname
+        self.options = options
+        self.has_activate = len(self.parser.memlist) > 0
+        if self.options.vectorize:
+            self.countname = "fullcount"
+            self.inputdecl = ", FAUSTFLOAT *inputX%d"
+            self.outputdecl = ", FAUSTFLOAT *outputX%d"
+            self.inputcall = ", inputX%d"
+            self.outputcall = ", outputX%d"
+        else:
+            self.countname = "count"
+            self.inputdecl = ", FAUSTFLOAT *input%d"
+            self.outputdecl = ", FAUSTFLOAT *output%d"
+            self.inputcall = ", input%d"
+            self.outputcall = ", output%d"
+        s = StringIO()
+        self.parser.write(s, "var-init", 1, filt=self.parser.ui.var_filter(0))
+        self.state_init = s.getvalue()
+
+
+    def parser_sect(self, sect, indent=0, filt=lambda l: False):
+        s = StringIO()
+        self.parser.write(s, sect, indent, filt)
+        #print s.getvalue()
+        #print "##########"+sect+"############\n"
+        return s.getvalue()
+
+    def parser_ui(self, prefix=""):
+        s = StringIO()
+        self.parser.ui.write(s, prefix)
+        return s.getvalue()
+
+    def write_plugin(self, fp, fp_head, h_name):
+        if self.options.init_type == "plugin":
+            dd = dict(static = "static ", cls = "")
+            ds = ""
+            indent = 0
+        else:
+            dd = dict(static = "", cls = "Dsp::")
+            ds = "_static"
+            indent = 1
+        has_plugindef = self.options.init_type in ("plugin", "insert", "plugin-lv2")
+        compute_args = ("".join([self.inputdecl % i for i in range(self.parser.getNumInputs())])
+                        + "".join([self.outputdecl % i for i in range(self.parser.getNumOutputs())]))
+        compute_call_args = ("".join([self.inputcall % i for i in range(self.parser.getNumInputs())])
+                             + "".join([self.outputcall % i for i in range(self.parser.getNumOutputs())]))
+        template = template_plugin_insert
+
+        s = StringIO()
+        s.write(template % dict(
+            countname = self.countname,
+            has_oversample = self.parser.has_oversample,
+            has_stereo = self.parser.has_stereo,
+            oversample = self.parser.oversample,
+            has_vector = self.parser.has_vector,
+            filepath = self.fname,
+            includes = self.parser_sect("includes"),
+            var_decl = self.parser_sect("var-decl", indent=indent) % dd,
+            state_init = self.state_init,
+            init_body = self.parser_sect("var-init", 1, filt=self.parser.ui.var_filter(1)),
+            defines = self.parser_sect("alias-defines", 0),
+            compute_body = self.parser_sect("compute", 1),
+            undefines = self.parser_sect("alias-undefines", 0),
+            register_body = self.parser_ui("reg."),
+            ))
+        s.seek(0)
+        preprocess(s, fp, fp_head)
+
+    def write(self, fp, fp_head, h_name):
+        if self.options.init_type in ("plugin", "insert", "no-init-instance", "plugin-lv2"):
+            self.write_plugin(fp, fp_head, h_name)
+            return
+
+def main():
+    op = OptionParser(usage="usage: %prog [options] <faust-dsp-file>")
+    op.add_option("-o", "--output", dest="oname",
+                  help="write c++ code to FILE", metavar="FILE")
+    op.add_option("-H", "--header-output", dest="hname",
+                  help="write separate c++ header to FILE", metavar="FILE")
+    op.add_option("-d", "--double", dest="faust", action="store_true", default=False,
+                  help="additional faust options, build with double precision") 
+    op.add_option("-f", "--float", dest="faustf", action="store_true", default=False,
+                  help="additional faust options, build with single precision")
+    op.add_option("-V", "--vectorize", dest="vectorize", action="store_true", default=False,
+                  help="faust --vectorize")
+    op.add_option("-a", "--add", dest="add", action="store",
+                  help="additional faust options, like '-vs 128 -dfs'")
+    op.add_option("-s", "--memory-threshold", dest="memory_threshold",
+                  default=0, type="int",
+                  help="change static memory allocations above threshold to dynamic ones")
+    init_opts = ["insert"]
+    op.add_option("-i", "--init-type", dest="init_type", action="store", default="insert",
+                  help="type of init code generation: %s" % ", ".join(init_opts))
+    template_opts = ["embed", "staticlib", "sharedlib"]
+    op.add_option("-t", "--template-type", dest="template_type", action="store",
+                  default="embed",
+                  help="template for code generation: %s" % ", ".join(template_opts))
+    op.add_option("-N", "--in-namespace", action="store", metavar="NAMESPACE",
+                  help="put definitions inside an extra namespace")
+    op.add_option("-e", "--param-warn", dest="param_warn", action="store_true", default=False,
+                  help="don't signal an error when the ui definition references an unknown dsp parameter")
+    options, args = op.parse_args()
+    if options.init_type not in init_opts:
+        op.error("unknown init-type")
+    if options.template_type not in template_opts:
+        op.error("unknown template-type")
+    if len(args) != 1:
+        op.error("exactly one input filename expected\n")
+    fname = args[0]
+    if not os.path.exists(fname):
+        print("error: can't open '%s'" % fname)
+        raise SystemExit(1)
+    faust_opt = []
+    if options.faust:
+        faust_opt.append('-double')
+    elif options.faustf:
+        faust_opt.append('-single')
+    if options.vectorize:
+        faust_opt.append('-vec')
+    if options.add:
+        faust_opt.append(options.add);
+    faust = Popen("faust %s %s" % (" ".join(faust_opt), fname), shell=True, stdout=PIPE)
+    try:
+        parser = Parser(faust.stdout,
+                        os.path.splitext(os.path.basename(fname))[0],
+                        options)
+    except ValueError as e:
+        if faust.wait() == 0:
+            print(e)
+        raise SystemExit(1)
+    if options.oname:
+        outp = open(options.oname, "w")
+    else:
+        outp = sys.stdout
+    if options.hname:
+        h_outp = open(options.hname, "w")
+        h_name = os.path.basename(options.hname)
+    else:
+        h_outp = h_name = None
+    Output(parser, fname, options).write(outp, h_outp, h_name)
+    outp.close()
+    if h_outp:
+        h_outp.close()
+
+if __name__ == "__main__":
+    main()

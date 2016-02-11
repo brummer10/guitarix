@@ -1,5 +1,6 @@
 declare id "pre 6DJ8/ push-pull 6V6"; // in amp tube selector
 declare name "pre 6DJ8/ push-pull 6V6";
+declare samplerate "96000";
 
 import("music.lib");
 import("filter.lib");

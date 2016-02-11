@@ -10,6 +10,8 @@ namespace ts9sim {
 
 class Dsp: public PluginDef {
 private:
+	gx_resample::FixedRateResampler smp;
+	int samplingFreq;
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
 	double 	fRec0[2];
@@ -83,8 +85,10 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int RsamplingFreq)
 {
+	samplingFreq = 96000;
+	smp.setup(RsamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = (9.4e-08 * iConst0);
@@ -103,6 +107,8 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
+	float buf[smp.max_out_count(count)];
+	int ReCount = smp.up(count, input0, buf);
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
 	double 	fSlow1 = (fConst1 * ((500000 * double(fslider1)) + 55700));
 	double 	fSlow2 = (1 - fSlow1);
@@ -111,15 +117,15 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow5 = (1 + fSlow4);
 	double 	fSlow6 = (1.0 / fSlow5);
 	double 	fSlow7 = (0 - ((1 - fSlow4) / fSlow5));
-	for (int i=0; i<count; i++) {
+	for (int i=0; i<ReCount; i++) {
 		fRec0[0] = ((0.999 * fRec0[1]) + fSlow0);
-		double fTemp0 = (double)input0[i];
+		double fTemp0 = (double)buf[i];
 		fVec0[0] = fTemp0;
 		fRec2[0] = ((fConst5 * fRec2[1]) + (fConst4 * ((fSlow3 * fVec0[0]) + (fSlow2 * fVec0[1]))));
 		double fTemp1 = (fVec0[0] - ts9nonlin((fRec2[0] - fVec0[0])));
 		fVec1[0] = fTemp1;
 		fRec1[0] = ((fSlow7 * fRec1[1]) + (fSlow6 * (fVec1[0] + fVec1[1])));
-		output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+		buf[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
 		// post processing
 		fRec1[1] = fRec1[0];
 		fVec1[1] = fVec1[0];
@@ -127,6 +133,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec0[1] = fVec0[0];
 		fRec0[1] = fRec0[0];
 	}
+	smp.down(buf, output0);
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)

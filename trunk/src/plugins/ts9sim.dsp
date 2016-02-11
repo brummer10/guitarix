@@ -1,6 +1,7 @@
 declare id 		"ts9sim";
 declare name            "Tube Screamer";
 declare category        "Distortion";
+declare samplerate "96000";
 
 /*
 ** based on a circuit diagram of the Ibanez TS-9 and

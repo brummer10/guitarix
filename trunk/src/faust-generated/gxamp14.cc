@@ -7,6 +7,8 @@ namespace gxamp14 {
 
 class Dsp: public PluginDef {
 private:
+	gx_resample::FixedRateResampler smp;
+	int samplingFreq;
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
@@ -223,8 +225,10 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int RsamplingFreq)
 {
+	samplingFreq = 96000;
+	smp.setup(RsamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = tan((942.4777960769379 / double(iConst0)));
@@ -308,6 +312,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
 #define fslider3 (*fslider3_)
+	float buf[smp.max_out_count(count)];
+	int ReCount = smp.up(count, input0, buf);
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
 	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider1))));
 	double 	fSlow2 = (1.000000000000001e-05 * double(fslider2));
@@ -320,12 +326,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow9 = pow(1e+01,(0.8 * fSlow3));
 	double 	fSlow10 = (fConst6 * pow(1e+01,(2 * fSlow3)));
 	double 	fSlow11 = (1 - max((double)0, (0 - fSlow4)));
-	for (int i=0; i<count; i++) {
+	for (int i=0; i<ReCount; i++) {
 		fRec0[0] = ((0.999 * fRec0[1]) + fSlow0);
 		fRec11[0] = ((0.999 * fRec11[1]) + fSlow1);
 		fRec16[0] = (fSlow2 + (0.999 * fRec16[1]));
 		double fTemp0 = (1 - fRec16[0]);
-		double fTemp1 = (double)input0[i];
+		double fTemp1 = (double)buf[i];
 		fRec25[0] = ((fTemp1 * fRec16[0]) - (fConst26 * ((fConst24 * fRec25[2]) + (fConst22 * fRec25[1]))));
 		double fTemp2 = (fRec25[2] + (fRec25[0] + (2 * fRec25[1])));
 		fVec0[0] = fTemp2;
@@ -382,7 +388,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec37[0] = ((fConst67 * fRec37[1]) + (fConst66 * (fRec2[1] + fRec2[2])));
 		fRec2[0] = (Ftube(TUBE_TABLE_12AT7_250k, ((fRec37[0] + (0.9254498422517706 * (fRec3[2] + (fRec3[0] + (2.0 * fRec3[1]))))) - 1.256962)) - 96.7119512195122);
 		fRec1[0] = ((fConst31 * fRec1[1]) + (fConst59 * ((fConst27 * fRec2[0]) + (fConst28 * fRec2[1]))));
-		output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
+		buf[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
 		// post processing
 		fRec1[1] = fRec1[0];
 		fRec2[2] = fRec2[1]; fRec2[1] = fRec2[0];
@@ -430,6 +436,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec11[1] = fRec11[0];
 		fRec0[1] = fRec0[0];
 	}
+	smp.down(buf, output0);
 #undef fslider0
 #undef fslider1
 #undef fslider2

@@ -1,5 +1,6 @@
 declare id "12ax7"; // in amp tube selector
 declare name "12ax7";
+declare samplerate "96000";
 
 import("music.lib");
 import("filter.lib");

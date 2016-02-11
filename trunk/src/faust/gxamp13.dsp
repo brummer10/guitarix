@@ -1,5 +1,6 @@
 declare id "6DJ8 feedback"; // in amp tube selector
 declare name "6DJ8 feedback";
+declare samplerate "96000";
 
 import("music.lib");
 import("filter.lib");

@@ -1,5 +1,6 @@
 declare id "pre 12AU7/ master 6V6"; // in amp tube selector
 declare name "pre 12AU7/ master 6V6";
+declare samplerate "96000";
 
 import("music.lib");
 import("filter.lib");

@@ -1,6 +1,7 @@
 declare id 		"aclipper";
 declare name            "Rat";
 declare category        "Distortion";
+declare samplerate "96000";
 
 
 SR = component("math.lib").SR;
