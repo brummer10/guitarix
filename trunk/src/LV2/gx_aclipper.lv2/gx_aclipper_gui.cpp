@@ -22,7 +22,7 @@
 #include <iostream>
 
 #include <gtkmm.h>
-#include "gx_fumaster.h"
+#include "gx_aclipper.h"
 #include "widget.h"
 
 
@@ -31,7 +31,7 @@
 
 using namespace std;
 
-class Gx_fumaster_GUI
+class Gx_aclipper_GUI
 {
 private:
   Glib::ustring plugskin;
@@ -44,20 +44,20 @@ private:
 public:
 
   Widget* widget;
-  static void set_plug_name_static(Gx_fumaster_GUI *self, const char * plugin_uri)
+  static void set_plug_name_static(Gx_aclipper_GUI *self, const char * plugin_uri)
   {
     self->set_plug_name(plugin_uri);
   }
-  static GtkWidget* make_gui_static(Gx_fumaster_GUI *self)
+  static GtkWidget* make_gui_static(Gx_aclipper_GUI *self)
   {
     return self->make_gui();
   }
 
-  Gx_fumaster_GUI () {};
-  ~Gx_fumaster_GUI () {};
+  Gx_aclipper_GUI () {};
+  ~Gx_aclipper_GUI () {};
 } ;
 
-void Gx_fumaster_GUI::set_knob( Glib::ustring knob)
+void Gx_aclipper_GUI::set_knob( Glib::ustring knob)
 {
   addKnob =   " style 'gx_";
   addKnob +=  plug_name;
@@ -87,7 +87,7 @@ void Gx_fumaster_GUI::set_knob( Glib::ustring knob)
   addKnob +=  "_dark_skin_icons' \n";
 }
 
-void Gx_fumaster_GUI::set_skin()
+void Gx_aclipper_GUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
   toparse +=     " '";
@@ -115,24 +115,7 @@ void Gx_fumaster_GUI::set_skin()
   toparse +=     "' style 'gx_";
   toparse +=     plug_name;
   toparse +=     "_dark-paintbox' ";
-  toparse +=     " style 'gx_selector_";
-  toparse +=     plug_name;
-  toparse +=     "'\n"
-                 " {\n"
-                 " fg[NORMAL] = '#c0c6d0'\n"
-                 " GtkRange::trough-border = 2\n"
-                 " GtkRange::stepper-size = 8\n"
-                 " GtkRange::stepper-spacing = 2\n"
-                 " GxRegler::value-border = { 2, 0, 0, 0 }\n"
-                 " font_name = 'sans 7.5'\n"
-                 " xthickness = 10\n"
-                 " ythickness = 1\n"
-                 " }\n"
-                 "widget '*.";
-  toparse +=     plug_name;
-  toparse +=     "' style:highest 'gx_selector_";
-  toparse +=     plug_name;
-  toparse +=     "'\n";
+
   toparse +=  "style 'gx_switch'\n"
               "{\n"
               "xthickness = 0\n"
@@ -148,6 +131,61 @@ void Gx_fumaster_GUI::set_skin()
               "widget '*.";
   toparse +=  plug_name;
   toparse +=  "' style:highest 'gx_switch'";
+  toparse +=     "style 'guitarix_default' {\n"
+    
+                 "    GxPaintBox::bevel                  = 0.11\n"
+                 "    GxPaintBox::inverse                = 0\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 15, 15 }\n"
+
+                 "    fg[NORMAL]              = '#ff9900'\n"
+                 "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[PRELIGHT]            = { 1.0, 1.0, 1.0 }\n"
+                 "    fg[INSENSITIVE]         = { 0.5, 0.5, 0.5 }\n"
+                 "    fg[SELECTED]            = { 0.9, 0.9, 0.9 }\n"
+    
+                 "    bg[NORMAL]              = { 0.13, 0.13, 0.13 }\n"
+                 "    bg[ACTIVE]              = { 0.0, 0.0, 0.0 }\n"
+                 "    bg[PRELIGHT]            = { 0.25, 0.25, 0.25 }\n"
+                 "    bg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }\n"
+                 "    bg[SELECTED]            = { 0.25, 0.25, 0.25 }\n"
+    
+                 "    text[NORMAL]            = { 0.9, 0.9, 0.9 }\n"
+                 "    text[ACTIVE]            = '#999999'\n"
+                 "    text[PRELIGHT]          = { 1.0, 1.0, 1.0 }\n"
+                 "    text[INSENSITIVE]       = { 0.5, 0.5, 0.5 }\n"
+                 "    text[SELECTED]          = { 1.0, 1.0, 1.0 }\n"
+    
+                 "    base[NORMAL]            = { 0.0, 0.0, 0.0 }\n"
+                 "    base[ACTIVE]            = { 0.18, 0.18, 0.18 }\n"
+                 "    base[PRELIGHT]          = { 0.1, 0.1, 0.1 }\n"
+                 "    base[INSENSITIVE]       = { 0.2, 0.2, 0.2 }\n"
+                 "    base[SELECTED]          = { 0.8, 0.18, 0.18 }\n"
+                 "}\n"
+                 "widget '*.";
+  toparse +=     plug_name;
+  toparse +=     "' style:highest 'guitarix_default'\n";
+  toparse +=     " style 'gx_selector'\n"
+                 " {\n"
+                 " fg[NORMAL]     = '#999999'   \n"
+                 " fg[PRELIGHT]   = '#ffffff'    \n"
+                 " bg[NORMAL]     = '#2f2f2f'     \n"
+                 " bg[PRELIGHT]   = '#2f2f2f'      \n"
+                 " base[NORMAL]   = { 0.05, 0.05, 0.05 } \n"
+                 " base[PRELIGHT] = '#000000'      \n"
+                 " text[NORMAL]   = '#999999'     \n"
+                 " text[PRELIGHT] = '#ffffff'    \n"
+                 " GxRegler::value-border      = { 4, 4, 2, 2 } \n"
+                 " GxRegler::border-radius     = 6\n"
+                 " GxRegler::bevel             = 0.12\n"
+                 " GtkRange::trough-border = 2\n"
+                 " GtkRange::stepper-size = 8\n"
+                 " GtkRange::stepper-spacing = 2\n"
+                 " GxRegler::value-border = { 2, 0, 0, 0 }\n"
+                 " font_name = 'sans bold 7.5'\n"
+                 " xthickness = 8\n"
+                 " ythickness = 4\n"
+                 " }\n"
+                 "class '*GxSelector' style:highest 'gx_selector'\n";
   toparse +=     " style 'guitarix_knobs' {\n"
                  "    fg[INSENSITIVE] = '#211006'\n"
                  "}\n"
@@ -182,7 +220,7 @@ void Gx_fumaster_GUI::set_skin()
                  "style 'guitarix_mid_knob' {\n"
                  "    GxKnob::x_center          = -1\n"
                  "    GxKnob::y_center          = -1\n"
-                 "    GxKnob::ring_radius       = 35\n"
+                 "    GxKnob::ring_radius       = 39\n"
                  "    GxKnob::ring_width        = 6\n"
                  "    GxKnob::ring_led_size     = 2\n"
                  "    GxKnob::ring_led_distance = 2\n"
@@ -209,22 +247,22 @@ void Gx_fumaster_GUI::set_skin()
   gtk_rc_parse_string (toparse.c_str());
 }
 
-void Gx_fumaster_GUI::set_plug_name( const char * plugin_uri)
+void Gx_aclipper_GUI::set_plug_name( const char * plugin_uri)
 {
   addKnob = "";
 
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_fumaster_gui#_fumaster_", plugin_uri) == 0)
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_aclipper_gui#_aclipper_", plugin_uri) == 0)
     {
-      plug_name = "Fuzz Master";
+      plug_name = "RAT";
       //set_knob("nk-knob");
     }
   else
     {
-      plug_name = "Fuzz Master";
+      plug_name = "RAT";
     }
 }
 
-GtkWidget* Gx_fumaster_GUI::make_gui()
+GtkWidget* Gx_aclipper_GUI::make_gui()
 {
   // init the gxwmm library
   Gxw::init();
@@ -246,7 +284,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
                                 LV2UI_Widget * widget,
                                 const LV2_Feature * const * features)
 {
-  Gx_fumaster_GUI* self = new Gx_fumaster_GUI();
+  Gx_aclipper_GUI* self = new Gx_aclipper_GUI();
   if (self == NULL) return NULL;
   self->set_plug_name_static(self, plugin_uri);
   *widget = (LV2UI_Widget)self->make_gui_static(self);
@@ -257,7 +295,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 
 static void cleanup(LV2UI_Handle ui)
 {
-  Gx_fumaster_GUI *pluginGui = static_cast<Gx_fumaster_GUI*>(ui);
+  Gx_aclipper_GUI *pluginGui = static_cast<Gx_aclipper_GUI*>(ui);
   delete pluginGui->widget;
   delete pluginGui;
 }
@@ -268,14 +306,14 @@ static void port_event(LV2UI_Handle ui,
                        uint32_t format,
                        const void * buffer)
 {
-  Gx_fumaster_GUI *self = static_cast<Gx_fumaster_GUI*>(ui);
+  Gx_aclipper_GUI *self = static_cast<Gx_aclipper_GUI*>(ui);
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }
 
 static LV2UI_Descriptor descriptors[] =
 {
-  {GXPLUGIN_UI_URI"#_fumaster_", instantiate, cleanup, port_event, NULL}
+  {GXPLUGIN_UI_URI"#_aclipper_", instantiate, cleanup, port_event, NULL}
 };
 
 const LV2UI_Descriptor * lv2ui_descriptor(uint32_t index)

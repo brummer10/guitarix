@@ -24,7 +24,7 @@
 
 #include <gtkmm.h>
 #include <gxwmm.h>
-#include "gx_sceleton.h"
+#include "gx_aclipper.h"
 #include "../config.h" // for GX_STYLE_DIR
 // LV2UI stuff
 #include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
@@ -82,15 +82,15 @@ protected:
   Gtk::VBox         m_vbox2_;
   Gtk::VBox         m_vbox;
   Gtk::VBox         m_vbox1;
-  Gtk::VBox         m_vboxc[VAR];
-  Gtk::VBox         m_vboxs[VAI];
+  Gtk::VBox         m_vboxc[3];
+  Gtk::VBox         m_vboxs[0];
   Gtk::VBox         m_vboxs_;
   Gtk::HBox         m_hbox_;
   Gtk::HBox         m_hbox1_;
 
   Gxw::PaintBox     m_paintbox;
-  Gxw::Selector     m_selector[VAI];
-  Gxw::MidKnob      m_bigknob[VAR];
+  Gxw::Selector     m_selector[0];
+  Gxw::MidKnob      m_bigknob[3];
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

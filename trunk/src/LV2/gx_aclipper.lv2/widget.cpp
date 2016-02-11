@@ -35,7 +35,13 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 {
   switch ((PortIndex)port_index )
   {
-PORTS
+    case DRIVE:
+      return &m_bigknob[0];
+    case LEVEL:
+      return &m_bigknob[1];
+    case TONE:
+      return &m_bigknob[2];
+
     default:
       return NULL;
   } 
@@ -45,22 +51,25 @@ Widget::Widget(Glib::ustring plugname):
 plug_name(plugname),
 logo(plugname)
 {
-ENUMS
+
   // create controllers for port name
-CONTS
+  make_controller_box(&m_vboxc[0], "DRIVE", 0.0, 1.0, 0.01, DRIVE);
+  make_controller_box(&m_vboxc[1], "LEVEL", -2e+01, 12.0, 0.1, LEVEL);
+  make_controller_box(&m_vboxc[2], "TONE", 0.0, 1.0, 0.01, TONE);
+
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(10);
+  m_paintbox.set_border_width(5);
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "gx_rack_unit_expose";
   add(m_paintbox);
   // box for the controllers
-  m_hbox_.set_spacing(25);
-  m_hbox_.set_border_width(24);
+  m_hbox_.set_spacing(15);
+  m_hbox_.set_border_width(14);
   m_hbox_.set_homogeneous(false);
   // set a vertical box in the paintbox
-  m_vbox.set_border_width(14);
+  m_vbox.set_border_width(24);
   m_vbox1.set_border_width(14);
   m_paintbox.pack_start(m_vbox_);
 
@@ -72,7 +81,7 @@ CONTS
 
   // and controller box on top
   //m_hbox1_.set_border_width(24);
-  m_hbox1_.set_spacing(64);
+  m_hbox1_.set_spacing(14);
   logo.set_name("amplabel");
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_SHRINK);
   m_hbox1_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);
@@ -82,12 +91,12 @@ CONTS
   m_vbox_.set_homogeneous(false);
    // put boxed controllers into controller box
   m_hbox_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
-  for (int i = 0; i<VAI;i++) {
+  for (int i = 0; i<0;i++) {
     m_vboxs_.pack_start(m_vboxs[i]);
   }
   m_vboxs_.set_spacing(5);
   m_hbox_.pack_start(m_vboxs_, Gtk::PACK_EXPAND_PADDING);
-  for (int i = 0; i<VARI;i++) {
+  for (int i = 0; i<3;i++) {
     m_hbox_.pack_start(m_vboxc[i]);
   }
   m_hbox_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
