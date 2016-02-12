@@ -253,6 +253,20 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
         b.load_glade(glade_def);
         return 0;
     }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("scream" "." p)
+
+b.openHorizontalhideBox("");
+    b.create_master_slider(PARAM("Scream"), N_("Scream"));
+b.closeBox();
+b.openHorizontalBox("");
+
+    b.create_small_rackknobr(PARAM("Scream"), N_("Scream"));
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
 	return -1;
 }
 

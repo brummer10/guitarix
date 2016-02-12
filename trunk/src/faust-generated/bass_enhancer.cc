@@ -399,6 +399,26 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
         b.load_glade(glade_def);
         return 0;
     }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("bassEnhancer" "." p)
+// ----- bass enhancer
+b.openHorizontalhideBox("");
+b.closeBox();
+b.openVerticalBox("");
+{
+    b.openHorizontalTableBox("");
+    {
+	b.create_small_rackknob(PARAM("Frequency"),   _("   frequency  "));
+	b.create_small_rackknob(PARAM("HarmonicsdB"), _(" harmonics dB "));
+    }
+    b.closeBox();
+}
+b.closeBox();
+
+
+#undef PARAM
+        return 0;
+    }
 	return -1;
 }
 

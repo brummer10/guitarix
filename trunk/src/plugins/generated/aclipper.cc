@@ -153,7 +153,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	float buf[smp.max_out_count(count)];
+	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
 	double 	fSlow0 = (0.007000000000000006 * (1.0 - double(fslider0)));
 	double 	fSlow1 = (0.007000000000000006 * double(fslider1));
@@ -409,6 +409,22 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         b.load_glade(glade_def);
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("aclipper" "." p)
+b.openHorizontalhideBox("");
+b.create_master_slider(PARAM("drive"), "drive");
+b.closeBox();
+b.openHorizontalBox("");
+b.insertSpacer();
+b.create_small_rackknobr(PARAM("drive"), "Distortion");
+b.create_small_rackknob(PARAM("tone"), "Filter");
+b.create_small_rackknob(PARAM("level"), "Volume");
+b.insertSpacer();
+b.closeBox();
+
+#undef PARAM
         return 0;
     }
 	return -1;

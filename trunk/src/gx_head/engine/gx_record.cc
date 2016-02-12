@@ -495,7 +495,7 @@ const char *SCapture::glade_def = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
                         <property name=\"hold\">120</property>\n\
-                        <property name=\"dimen\">0</property>\n\
+                        <property name=\"dimen\">3</property>\n\
                         <property name=\"horiz\">True</property>\n\
                         <property name=\"type\">1</property>\n\
                         <property name=\"var_id\">recorder.v1</property>\n\
@@ -835,7 +835,7 @@ const char *SCapture::glade_def_st = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
                         <property name=\"hold\">120</property>\n\
-                        <property name=\"dimen\">0</property>\n\
+                        <property name=\"dimen\">3</property>\n\
                         <property name=\"horiz\">True</property>\n\
                         <property name=\"type\">1</property>\n\
                         <property name=\"var_id\">st_recorder.v1</property>\n\
@@ -1055,7 +1055,44 @@ inline int SCapture::load_ui_f(const UiBuilder& b, int form)
         }
         return 0;
     }
-    return -1;
+    if (form & UI_FORM_STACK) {
+
+        if (channel == 1) {
+#define PARAM(p) ("recorder" "." p)
+            b.openHorizontalhideBox("");
+            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
+
+            b.closeBox();
+
+            b.openHorizontalBox("");
+            b.create_small_rackknob(PARAM("gain"), N_("gain(db)"));
+            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
+            b.create_feedback_switch(sw_led,PARAM("clip"));
+            b.create_selector_no_caption(PARAM("file"));
+
+            b.closeBox();
+
+#undef PARAM
+        } else {
+#define PARAM(p) ("st_recorder" "." p)
+            b.openHorizontalhideBox("");
+            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
+
+            b.closeBox();
+
+            b.openHorizontalBox("");
+            b.create_small_rackknob(PARAM("gain"), N_("gain(db)"));
+            b.create_feedback_switch(sw_rbutton,PARAM("rec"));
+            b.create_feedback_switch(sw_led,PARAM("clip"));
+            b.create_selector_no_caption(PARAM("file"));
+
+            b.closeBox();
+
+#undef PARAM
+        }
+        return 0;
+    }
+     return -1;
 }
 
 int SCapture::load_ui_f_static(const UiBuilder& b, int form)

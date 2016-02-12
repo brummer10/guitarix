@@ -337,6 +337,26 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
         b.load_glade(glade_def);
         return 0;
     }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("delay" "." p)
+// -----delay
+b.openHorizontalhideBox("");
+b.create_master_slider(PARAM("bpm"), _(" delay (bpm) "));
+b.closeBox();
+b.openVerticalBox("");
+{
+    b.openHorizontalTableBox("");
+    {
+	b.create_small_rackknobr(PARAM("bpm"), _(" delay (bpm) "));
+	b.create_small_rackknob(PARAM("gain"), _("  gain "));
+    }
+    b.closeBox();
+}
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
 	return -1;
 }
 

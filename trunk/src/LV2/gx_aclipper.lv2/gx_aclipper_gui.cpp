@@ -135,7 +135,7 @@ void Gx_aclipper_GUI::set_skin()
     
                  "    GxPaintBox::bevel                  = 0.11\n"
                  "    GxPaintBox::inverse                = 0\n"
-                 "    GxPaintBox::alternate-box          = { 0, 0, 15, 15 }\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 60, 0 }\n"
 
                  "    fg[NORMAL]              = '#ff9900'\n"
                  "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"

@@ -11,9 +11,6 @@ from optparse import OptionParser
 from collections import OrderedDict
 from importlib import import_module
 
-#tranypath = "./tranylib.py"
-#sys.path.append(os.path.abspath(tranypath))
-#from tranylib import *
 
 num_re = r"(-?\d*\.?\d*e?[+-]?\d*f?)"
 
@@ -845,7 +842,7 @@ PluginDef *plugin() {
 dry_wetbox_mono_pre1 = """\
 	double 	fSlowdw0 = (0.01 * fsliderdw0);
 	double 	fSlowdw1 = (1 - fSlowdw0);
-	float 	dryinput[count];
+	FAUSTFLOAT 	dryinput[count];
 	memcpy(&dryinput, input0, count * sizeof(float));
 """
 
@@ -910,7 +907,7 @@ private:
 %(insert_p_class)s
 #endif
 #if %(has_drywetbox)s
-	float fsliderdw0;
+	FAUSTFLOAT fsliderdw0;
 #endif
 #if %(has_volume_p)s
 	FAUSTFLOAT 	fsliderV0;
@@ -1098,9 +1095,9 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 %(volume_pre)s
 #endif
 #if %(has_oversample)s
-	float buf[smp.max_out_count(%(countname)s)];
+	FAUSTFLOAT buf[smp.max_out_count(%(countname)s)];
 #if %(has_stereo)s
-	float bufs[smps.max_out_count(%(countname)s)];
+	FAUSTFLOAT bufs[smps.max_out_count(%(countname)s)];
 #if %(has_vector)s
 	smps.up(%(countname)s, inputX1, bufs);
 #else
@@ -1276,12 +1273,12 @@ private:
 %(insert_p_class)s
 #endif
 #if %(has_drywetbox)s
-	float fsliderdw0;
-	float *fsliderdw0_;
+	FAUSTFLOAT fsliderdw0;
+	FAUSTFLOAT *fsliderdw0_;
 #endif
 #if %(has_volume_p)s
-	float 	fsliderV0;
-	float 	*fsliderV0_;
+	FAUSTFLOAT 	fsliderV0;
+	FAUSTFLOAT 	*fsliderV0_;
 	double 	fRecV0[2];
 #endif
 #if %(has_activate)s
@@ -1457,9 +1454,9 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 %(volume_pre)s
 #endif
 #if %(has_oversample)s
-	float buf[smp.max_out_count(%(countname)s)];
+	FAUSTFLOAT buf[smp.max_out_count(%(countname)s)];
 #if %(has_stereo)s
-	float bufs[smps.max_out_count(%(countname)s)];
+	FAUSTFLOAT bufs[smps.max_out_count(%(countname)s)];
 #if %(has_vector)s
 	smps.up(%(countname)s, inputX1, bufs);
 #else
@@ -1813,8 +1810,8 @@ class Output(object):
             insert_p_clearstate = my_c.insert_p1_clearstate
             insert_p_init = my_c.insert_p1_init
             insert_p_compute = my_c.insert_p1_compute
-            os.remove('/tmp/'+self.parser.insert_p+'.py')
-            os.remove('/tmp/'+self.parser.insert_p+'.pyc')
+            #os.remove('/tmp/'+self.parser.insert_p+'.py')
+            #os.remove('/tmp/'+self.parser.insert_p+'.pyc')
         else:
             insert_p_incl = ""
             insert_p_class = ""

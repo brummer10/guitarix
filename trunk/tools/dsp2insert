@@ -650,9 +650,9 @@ insert_p1_clearstate = \"\"\"
 
 insert_p1_compute = \"\"\"
 #if %(has_oversample)s
-	float bufCl[smpCl.max_out_count(%(countname)s)];
+	FAUSTFLOAT bufCl[smpCl.max_out_count(%(countname)s)];
 #if %(has_stereo)s
-	float bufsCl[smpsCl.max_out_count(%(countname)s)];
+	FAUSTFLOAT bufsCl[smpsCl.max_out_count(%(countname)s)];
 #if %(has_vector)s
 	smpsCl.up(%(countname)s, outputX1, bufsCl);
 #else

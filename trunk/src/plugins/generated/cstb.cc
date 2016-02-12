@@ -236,7 +236,7 @@ private:
 	double 	fRecCl1[3];
 	double 	fRecCl0[2];
 
-	float fsliderdw0;
+	FAUSTFLOAT fsliderdw0;
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -527,7 +527,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	double 	fSlowdw0 = (0.01 * fsliderdw0);
 	double 	fSlowdw1 = (1 - fSlowdw0);
-	float 	dryinput[count];
+	FAUSTFLOAT 	dryinput[count];
 	memcpy(&dryinput, input0, count * sizeof(float));
 
 	double 	fSlow0 = (0.007000000000000006 * double(fslider0));
@@ -547,7 +547,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec0[1] = fRec0[0];
 	}
 
-	float bufCl[smpCl.max_out_count(count)];
+	FAUSTFLOAT bufCl[smpCl.max_out_count(count)];
 	int ReCount = smpCl.up(count, output0, bufCl);
 	for (int i=0; i<ReCount; i++) {
 		double fTemp0 = (double)bufCl[i];
@@ -841,6 +841,25 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         b.load_glade(glade_def);
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("cstbt1" "." p)
+
+b.openHorizontalhideBox("");
+    b.create_master_slider(PARAM("Level"), "Level");
+b.closeBox();
+b.openHorizontalBox("");
+
+    b.create_small_rackknobr(PARAM("Level"), "Level");
+
+    b.create_small_rackknobr(PARAM("Tone"), "Tone");
+
+    b.create_small_rackknobr(PARAM("Attack"), "Attack");
+    b.create_small_rackknobr(PARAM("wet_dry"), "dry/wet");
+b.closeBox();
+
+#undef PARAM
         return 0;
     }
 	return -1;

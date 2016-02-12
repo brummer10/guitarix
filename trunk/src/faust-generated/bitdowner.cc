@@ -366,6 +366,40 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
         b.load_glade(glade_def);
         return 0;
     }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("bitdowner" "." p)
+// ----- bitdowner
+b.openHorizontalhideBox("");
+b.create_master_slider("bitdowner.volume", _(" Volume "));
+b.closeBox();
+b.openHorizontalBox("");
+{
+	b.openVerticalBox("");
+	{
+		b.openFlipLabelBox("");
+		{
+			b.openHorizontalBox("");
+			{
+				b.create_small_rackknobr(
+					"bitdowner.input_gain", _(" Input Gain "));
+				b.create_small_rackknobr(
+					"bitdowner.bit_down", _(" BitDown "));
+				b.create_small_rackknobr(
+					"bitdowner.downsampling", _(" Downsampling "));
+				b.create_small_rackknobr(
+					"bitdowner.volume", _(" Volume "));
+			}
+			b.closeBox();
+		}
+		b.closeBox();
+	}
+	b.closeBox();
+}
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
 	return -1;
 }
 

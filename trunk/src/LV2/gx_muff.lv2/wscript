@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import sys, os, TaskGen, ctypes
+import sys, os, TaskGen, ctypes, wscript_helper
 
 def configure(conf):
     pass
@@ -9,13 +9,15 @@ def configure(conf):
 def build(bld):
     bundle = 'gx_muff.lv2'
     
-    src = ['gx_muff.cpp'
+    src = ['gx_muff.cpp',
+           '../DSP/gx_resampler.cc',
            ]
     incl = ['../faust','./', '../DSP', '../DSP/tube_tables']
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
     uselib = ['LV2CORE']
+    wscript_helper.add_zita_resampler(bld, uselib, src, incl, base="../..")
     cxxflag =[]
     if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag = [ "-msse2", "-mfpmath=sse"]
@@ -24,7 +26,7 @@ def build(bld):
         includes = incl,
         lib = lib,
         uselib = uselib,
-        obj_ext  = '_14.o',
+        obj_ext  = '_22.o',
         cxxflags = cxxflag,
         defines  = ["LV2_SO"],
         target   = 'gx_muff',

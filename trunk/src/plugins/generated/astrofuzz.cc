@@ -469,6 +469,24 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
         b.load_glade(glade_def);
         return 0;
     }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("astrofuzz" "." p)
+
+b.openHorizontalhideBox("");
+    b.create_master_slider(PARAM("Tone"), "Tone");
+b.closeBox();
+b.openHorizontalBox("");
+
+    b.create_small_rackknobr(PARAM("Tone"), "Tone");
+
+    b.create_small_rackknobr(PARAM("Volume"), "Volume");
+
+    b.create_small_rackknobr(PARAM("Attack"), "Attack");
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
 	return -1;
 }
 

@@ -38,9 +38,9 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
     case DRIVE:
       return &m_bigknob[0];
     case LEVEL:
-      return &m_bigknob[1];
+      return &m_midknob[0];
     case TONE:
-      return &m_bigknob[2];
+      return &m_bigknob[1];
 
     default:
       return NULL;
@@ -58,19 +58,19 @@ logo(plugname)
   make_controller_box(&m_vboxc[2], "TONE", 0.0, 1.0, 0.01, TONE);
 
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(15);
+  m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "gx_rack_unit_expose";
   add(m_paintbox);
   // box for the controllers
-  m_hbox_.set_spacing(15);
-  m_hbox_.set_border_width(14);
+  m_hbox_.set_spacing(25);
+  m_hbox_.set_border_width(24);
   m_hbox_.set_homogeneous(false);
   // set a vertical box in the paintbox
-  m_vbox.set_border_width(24);
-  m_vbox1.set_border_width(14);
+  m_vbox.set_border_width(4);
+  m_vbox1.set_border_width(4);
   m_paintbox.pack_start(m_vbox_);
 
   // modify logo layout
@@ -80,8 +80,8 @@ logo(plugname)
   logo.modify_font(font_desc);
 
   // and controller box on top
-  m_hbox1_.set_border_width(10);
-  m_hbox1_.set_spacing(10);
+  //m_hbox1_.set_border_width(10);
+  m_hbox1_.set_spacing(64);
   logo.set_name("amplabel");
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_SHRINK);
   m_hbox1_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);

@@ -335,7 +335,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec0[1] = fRec0[0];
 	}
 
-	float bufCl[smpCl.max_out_count(count)];
+	FAUSTFLOAT bufCl[smpCl.max_out_count(count)];
 	int ReCount = smpCl.up(count, output0, bufCl);
 	for (int i=0; i<ReCount; i++) {
 		double fTemp0 = (double)bufCl[i];
@@ -556,6 +556,22 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         b.load_glade(glade_def);
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("susta" "." p)
+
+b.openHorizontalhideBox("");
+    b.create_master_slider(PARAM("Sustain"), N_("Sustain"));
+b.closeBox();
+b.openHorizontalBox("");
+
+    b.create_small_rackknobr(PARAM("Sustain"), N_("Sustain"));
+
+    b.create_small_rackknobr(PARAM("Volume"), N_("Volume"));
+b.closeBox();
+
+#undef PARAM
         return 0;
     }
 	return -1;

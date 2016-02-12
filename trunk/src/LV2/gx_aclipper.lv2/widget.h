@@ -90,7 +90,8 @@ protected:
 
   Gxw::PaintBox     m_paintbox;
   Gxw::Selector     m_selector[0];
-  Gxw::SmallKnobR   m_bigknob[3];
+  Gxw::SmallKnobR   m_bigknob[2];
+  Gxw::MidKnob      m_midknob[1];
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

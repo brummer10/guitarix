@@ -147,7 +147,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
-	float buf[smp.max_out_count(count)];
+	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
 	double 	fSlow0 = (0.007000000000000006 * (1.0 - double(fslider0)));
 	double 	fSlow1 = (0.007000000000000006 * double(fslider1));

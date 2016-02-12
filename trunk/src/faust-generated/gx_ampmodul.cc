@@ -228,8 +228,8 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	float buf[smp.max_out_count(count)];
-	float bufs[smps.max_out_count(count)];
+	FAUSTFLOAT buf[smp.max_out_count(count)];
+	FAUSTFLOAT bufs[smps.max_out_count(count)];
 	smps.up(count, input1, bufs);
 	int ReCount = smp.up(count, input0, buf);
 	double 	fSlow0 = double(fslider0);
