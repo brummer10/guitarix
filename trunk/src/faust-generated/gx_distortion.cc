@@ -343,24 +343,24 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("gx_distortion.drive","","S","",&fslider5, 0.64, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.gain","","S","",&fslider1, 2.0, -1e+01, 1e+01, 0.1);
-	reg.registerVar("gx_distortion.high_drive",N_("high"),"S","",&fslider12, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.high_gain",N_("high"),"S","",&fslider13, 1e+01, -1e+01, 2e+01, 0.1);
-	reg.registerVar("gx_distortion.level","","S","",&fslider6, 0.0, 0.0, 0.5, 0.01);
-	reg.registerVar("gx_distortion.low_drive",N_("low"),"S","",&fslider4, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.low_gain",N_("low"),"S","",&fslider7, 1e+01, -1e+01, 2e+01, 0.1);
-	reg.registerVar("gx_distortion.middle_h_drive",N_("middle h."),"S","",&fslider10, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.middle_h_gain",N_("middle h."),"S","",&fslider11, 1e+01, -1e+01, 2e+01, 0.1);
-	reg.registerVar("gx_distortion.middle_l_drive",N_("middle l."),"S","",&fslider8, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.middle_l_gain",N_("middle l."),"S","",&fslider9, 1e+01, -1e+01, 2e+01, 0.1);
+	reg.registerVar("gx_distortion.drive",N_("Drive"),"S","",&fslider5, 0.64, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.gain",N_("Gain"),"S","",&fslider1, 2.0, -1e+01, 1e+01, 0.1);
+	reg.registerVar("gx_distortion.high_drive",N_("Hi"),"S","",&fslider12, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.high_gain",N_("Hi"),"S","",&fslider13, 1e+01, -1e+01, 2e+01, 0.1);
+	reg.registerVar("gx_distortion.level",N_("Level"),"S","",&fslider6, 0.0, 0.0, 0.5, 0.01);
+	reg.registerVar("gx_distortion.low_drive",N_("Lo"),"S","",&fslider4, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.low_gain",N_("Lo"),"S","",&fslider7, 1e+01, -1e+01, 2e+01, 0.1);
+	reg.registerVar("gx_distortion.middle_h_drive",N_("HiMid"),"S","",&fslider10, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.middle_h_gain",N_("HiMid"),"S","",&fslider11, 1e+01, -1e+01, 2e+01, 0.1);
+	reg.registerVar("gx_distortion.middle_l_drive",N_("LoMid"),"S","",&fslider8, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.middle_l_gain",N_("LoMid"),"S","",&fslider9, 1e+01, -1e+01, 2e+01, 0.1);
 	reg.registerVar("gx_distortion.resonator.on_off",N_("resonat"),"B","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("gx_distortion.split_high_freq","","S","",&fentry2, 1.25e+03, 1.25e+03, 1.2e+04, 1e+01);
-	reg.registerVar("gx_distortion.split_low_freq","","S","",&fentry0, 2.5e+02, 2e+01, 6e+02, 1e+01);
-	reg.registerVar("gx_distortion.split_middle_freq","","S","",&fentry1, 6.5e+02, 6e+02, 1.25e+03, 1e+01);
-	reg.registerVar("gx_distortion.trigger","","S","",&fslider2, 0.12, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.vibrato","","S","",&fslider3, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("gx_distortion.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("gx_distortion.split_high_freq",N_("Split Hi"),"S","",&fentry2, 1.25e+03, 1.25e+03, 1.2e+04, 1e+01);
+	reg.registerVar("gx_distortion.split_low_freq",N_("Split Lo"),"S","",&fentry0, 2.5e+02, 2e+01, 6e+02, 1e+01);
+	reg.registerVar("gx_distortion.split_middle_freq",N_("Split Mid"),"S","",&fentry1, 6.5e+02, 6e+02, 1.25e+03, 1e+01);
+	reg.registerVar("gx_distortion.trigger",N_("Trigger"),"S","",&fslider2, 0.12, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.vibrato",N_("Vibrato"),"S","",&fslider3, 1.0, 0.0, 1.0, 0.01);
+	reg.registerVar("gx_distortion.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 
@@ -373,88 +373,6 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         b.load_glade_file("gx_distortion_ui.glade");
-        return 0;
-    }
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("gx_distortion" "." p)
-// ----- distortion
-b.openHorizontalhideBox("");
-b.create_master_slider("gx_distortion.drive", _("drive"));
-b.closeBox();
-b.openHorizontalBox("");
-{
-    b.openVerticalBox("");
-    {
-	b.openVerticalBox("");
-	{
-	    b.openFlipLabelBox(_("  drive "));
-	    {
-		b.openHorizontalBox("");
-		{
-		    b.create_small_rackknobr("gx_distortion.drive", _("  drive "));
-		    b.create_small_rackknobr("gx_distortion.low_drive", _(" low "));
-		    b.create_small_rackknobr("gx_distortion.middle_l_drive", _(" middle l. "));
-		    b.create_small_rackknobr("gx_distortion.middle_h_drive", _(" middle h. "));
-		    b.create_small_rackknobr("gx_distortion.high_drive", _(" high "));
-		}
-		b.closeBox();
-	    }
-	    b.closeBox();
-	    b.openFlipLabelBox(_("  gain  "));
-	    {
-		b.openHorizontalBox("");
-		{
-		    b.create_small_rackknob("gx_distortion.gain", _("  gain  "));
-		    b.create_small_rackknob("gx_distortion.low_gain", _(" low "));
-		    b.create_small_rackknob("gx_distortion.middle_l_gain", _(" middle l. "));
-		    b.create_small_rackknob("gx_distortion.middle_h_gain", _(" middle h. "));
-		    b.create_small_rackknob("gx_distortion.high_gain", _(" high "));
-		}
-		b.closeBox();
-	    }
-	    b.closeBox();
-	}
-	b.closeBox();
-
-	b.openHorizontalBox("");
-	{
-	    b.create_small_rackknob("gx_distortion.wet_dry", _("dry/wet"));
-	    b.create_small_rackknob("gx_distortion.level", _("  level  "));
-	    b.openVerticalBox(_("frequency split Hz"));
-	    {
-		b.openpaintampBox("");
-		{
-		    b.openHorizontalBox("");
-		    {
-			b.insertSpacer();
-			b.create_wheel("gx_distortion.split_low_freq", _("split low freq"));
-			b.insertSpacer();
-			b.create_wheel("gx_distortion.split_middle_freq", _("split m. freq"));
-			b.insertSpacer();
-			b.create_wheel("gx_distortion.split_high_freq", _("split high freq"));
-			b.insertSpacer();
-		    }
-		    b.closeBox();
-		}
-		b.closeBox();
-	    }
-	    b.closeBox();
-	}
-	b.closeBox();
-    }
-    b.closeBox();
-
-    b.openVerticalBox(_("resonator"));
-    {
-	b.create_small_rackknob("gx_distortion.trigger", _("trigger "));
-	b.create_small_rackknob("gx_distortion.vibrato", _(" vibrato "));
-	b.create_switch_no_caption(sw_switchit, "gx_distortion.resonator.on_off");
-    }
-    b.closeBox();
-}
-b.closeBox();
-
-#undef PARAM
         return 0;
     }
 	return -1;

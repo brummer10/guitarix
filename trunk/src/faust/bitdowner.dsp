@@ -23,7 +23,7 @@ downbit =
 
 downsampling =
 	vslider(
-		"downsampling[name:Downsampling][tooltip:Downsampling (samples to skip count)]",
+		"downsampling[name:Smpl Down][tooltip:Downsampling (samples to skip count)]",
 		1, 1, 200, 1)
 	: int
 	;

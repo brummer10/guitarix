@@ -309,6 +309,7 @@ private:
 	FAUSTFLOAT 	fbargraph10;
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
+	static const char *glade_def;
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
@@ -667,7 +668,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec22[0] = (fRec23[0] - (fConst70 * ((fConst68 * fRec22[2]) + (fConst66 * fRec22[1]))));
 		double fTemp1 = (fRec22[2] + (fRec22[0] + (2 * fRec22[1])));
 		fVec1[0] = fTemp1;
-		fRec21[0] = ((fConst76 * fRec21[1]) + (fConst75 * (fVec1[1] + fVec1[0])));
+		fRec21[0] = ((fConst76 * fRec21[1]) + (fConst75 * (fVec1[0] + fVec1[1])));
 		fRec20[0] = (fRec21[0] - (fConst63 * ((fConst61 * fRec20[2]) + (fConst59 * fRec20[1]))));
 		double fTemp2 = (fRec20[2] + (fRec20[0] + (2 * fRec20[1])));
 		fVec2[0] = fTemp2;
@@ -890,7 +891,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec131[0] = ((fRec132[2] + (fConst120 * (fTemp70 + (fConst119 * fRec132[0])))) - (fConst116 * ((fConst115 * fRec131[2]) + fTemp69)));
 		fRec130[0] = ((fRec131[2] + (fConst116 * (fTemp69 + (fConst115 * fRec131[0])))) - (fConst112 * ((fConst111 * fRec130[2]) + fTemp68)));
 		fRec129[0] = ((fRec130[2] + (fConst112 * (fTemp68 + (fConst111 * fRec130[0])))) - (fConst108 * ((fConst107 * fRec129[2]) + fTemp67)));
-		fRec128[0] = ((fRec129[2] + (fConst108 * (fTemp67 + (fConst107 * fRec129[0])))) - (fConst104 * ((fConst103 * fRec128[2]) + fTemp66)));
+		fRec128[0] = ((fRec129[2] + (fConst108 * ((fConst107 * fRec129[0]) + fTemp67))) - (fConst104 * ((fConst103 * fRec128[2]) + fTemp66)));
 		fRec139[0] = ((0.999 * fRec139[1]) + fSlow10);
 		double fTemp75 = (fRec139[0] * (fRec128[2] + (fConst104 * (fTemp66 + (fConst103 * fRec128[0])))));
 		double 	fRec127 = max(fConst1, fabs(fTemp75));
@@ -1080,78 +1081,750 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
+const char *Dsp::glade_def = "\
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<interface>\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
+  <!-- interface-naming-policy project-wide -->\n\
+  <object class=\"GtkWindow\" id=\"window1\">\n\
+    <property name=\"can_focus\">False</property>\n\
+    <child>\n\
+      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+        <property name=\"visible\">True</property>\n\
+        <property name=\"can_focus\">False</property>\n\
+        <child>\n\
+          <object class=\"GxPaintBox\" id=\"rackbox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <property name=\"paint_func\">box_uni_2_expose</property>\n\
+            <child>\n\
+              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"spacing\">10</property>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label1:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">&lt; 31</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v1</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g1</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label2:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">62</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox3\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter2\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v2</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider2\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g2</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox4\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label3:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">125</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox4\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v3</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g3</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">2</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox5\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label4:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">250</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox5\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v4</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g4</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">3</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox6\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label5:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">500</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox6\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter5\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v5</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider5\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g5</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">4</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox7\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label6:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">1k</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox7\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter6\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v6</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider6\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g6</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">5</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox8\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label7:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">2k</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox8\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter7\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v7</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider7\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g7</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">6</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox9\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label8:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">4k</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox9\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter8\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v8</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider8\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g8</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">7</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox10\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label9:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">8k</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox10\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter9\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v9</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider9\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g9</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">8</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox11\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label10:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">16k</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox11\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter10\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v10</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider10\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g10</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">9</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox12\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label11:rack_label_inverse\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">&gt; 16k</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GtkHBox\" id=\"hbox12\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GxFastMeter\" id=\"gxfastmeter11\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"hold\">0</property>\n\
+                            <property name=\"dimen\">0</property>\n\
+                            <property name=\"var_id\">graphiceq.v11</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxVSlider\" id=\"gxvslider11\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"var_id\">graphiceq.g11</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">10</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"pack_type\">end</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">False</property>\n\
+            <property name=\"position\">0</property>\n\
+          </packing>\n\
+        </child>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"minibox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <child>\n\
+              <placeholder/>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">True</property>\n\
+            <property name=\"position\">1</property>\n\
+          </packing>\n\
+        </child>\n\
+      </object>\n\
+    </child>\n\
+  </object>\n\
+</interface>\n\
+";
+
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("graphiceq" "." p)
-// ----- graphiceq
-b.openHorizontalhideBox("");
-b.closeBox();
-b.openHorizontalBox("");
-{
-    b.openFrameBox("");
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v1"), PARAM("g1"),"<31");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v2"), PARAM("g2"),"62");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v3"), PARAM("g3"),"125");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v4"), PARAM("g4"),"250");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v5"), PARAM("g5"),"500");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v6"), PARAM("g6"),"1k");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v7"), PARAM("g7"),"2k");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v8"), PARAM("g8"),"4k");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v9"), PARAM("g9"),"8k");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v10"), PARAM("g10"),"16k");
-    }
-    b.closeBox();
-    b.openHorizontalBox("");
-    {
-    b.create_simple_c_meter(PARAM("v11"), PARAM("g11"),"<");
-    }
-    b.closeBox();
-    b.openFrameBox("");
-    b.closeBox();
-}
-b.closeBox();
-
-#undef PARAM
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
         return 0;
     }
 	return -1;

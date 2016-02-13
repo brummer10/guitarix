@@ -15,9 +15,9 @@ import("filter.lib");
 import("guitarix.lib");
 import("maxmsp.lib");
 
-F = nentry("split_low_freq", 250, 20, 600, 10);
-F1 = nentry("split_middle_freq", 650, 600, 1250, 10);
-F2 = nentry("split_high_freq", 1250, 1250, 12000, 10);
+F = nentry("split_low_freq[name:Split Lo]", 250, 20, 600, 10);
+F1 = nentry("split_middle_freq[name:Split Mid]", 650, 600, 1250, 10);
+F2 = nentry("split_high_freq[name:Split Hi]", 1250, 1250, 12000, 10);
 
 /**********************************************************************
 *** this part is included here for backward compatibility from 0.9.27 to
@@ -112,17 +112,17 @@ filterbankN(lfreqs) = filterbankn(3,lfreqs);
 //----------distortion---------
 
 //-distortion
-drivelevel      = vslider("level", 0.0, 0, 0.5, 0.01);
-drivegain1      = vslider("gain", 2, -10, 10, 0.1)-10 : db2linear : smoothi(0.999);
-low_gain      	= vslider("low_gain[name:low]", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
-high_gain      	= vslider("high_gain[name:high]", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
-middle_gain_l     = vslider("middle_l_gain[name:middle l.]", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
-middle_gain_h     = vslider("middle_h_gain[name:middle h.]", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
-drive			= vslider("drive", 0.64, 0, 1, 0.01);
-drive1			= vslider("low_drive[name:low]", 1, 0, 1, 0.01)*drive;
-drive2			= vslider("high_drive[name:high]", 1, 0, 1, 0.01)*drive;
-drive3			= vslider("middle_l_drive[name:middle l.]", 1, 0, 1, 0.01)*drive;
-drive4			= vslider("middle_h_drive[name:middle h.]", 1, 0, 1, 0.01)*drive;
+drivelevel      = vslider("level[name:Level]", 0.0, 0, 0.5, 0.01);
+drivegain1      = vslider("gain[name:Gain]", 2, -10, 10, 0.1)-10 : db2linear : smoothi(0.999);
+low_gain      	= vslider("low_gain[name:Lo]", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
+high_gain      	= vslider("high_gain[name:Hi]", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
+middle_gain_l     = vslider("middle_l_gain[name:LoMid]", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
+middle_gain_h     = vslider("middle_h_gain[name:HiMid]", 10, -10, 20, 0.1)-10 : db2linear : smoothi(0.999);
+drive			= vslider("drive[name:Drive]", 0.64, 0, 1, 0.01);
+drive1			= vslider("low_drive[name:Lo]", 1, 0, 1, 0.01)*drive;
+drive2			= vslider("high_drive[name:Hi]", 1, 0, 1, 0.01)*drive;
+drive3			= vslider("middle_l_drive[name:LoMid]", 1, 0, 1, 0.01)*drive;
+drive4			= vslider("middle_h_drive[name:HiMid]", 1, 0, 1, 0.01)*drive;
 distortion1 	=  _:cubicnl(drive1,drivelevel): *(low_gain); 
 distortion2 	=  _:cubicnl(drive2,drivelevel) : *(high_gain);
 distortion3 	=  _:cubicnl(drive3,drivelevel) : *(middle_gain_l);
@@ -132,15 +132,15 @@ distortion	= lowpassN(2,15000.0): highpass(1,31.0)  : filterbankN((F,(F1,F2))) :
 //-resonator
 resonator 		= (+ <: (delay(4096, d-1) + delay(4096, d)) / 2) ~ *(1.0-a)
 with {
-  d = vslider("vibrato", 1, 0, 1, 0.01);
-  a = vslider("trigger", 0.12, 0, 1, 0.01);
+  d = vslider("vibrato[name:Vibrato]", 1, 0, 1, 0.01);
+  a = vslider("trigger[name:Trigger]", 0.12, 0, 1, 0.01);
 };
 
 switch2       	= checkbox("resonator.on_off[name:resonat]");
 //reso 			= hgroup("resonator", bypass(switch2, resonator));
 moving_filter(x) = (x+x'+x'')/3;
 
-wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+wet = vslider("wet_dry[name:Wet/Dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
 dry = 1 - wet;
 
 process_dist 		= bypass(switch2, resonator) : +(anti_denormal_ac) : distortion : *(drivegain1) ;

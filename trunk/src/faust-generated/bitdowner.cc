@@ -115,7 +115,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("bitdowner.bit_down",N_("Bit Down"),"S","",&fslider1, 16.0, 1.0, 16.0, 0.1);
-	reg.registerVar("bitdowner.downsampling",N_("Downsampling"),"S",N_("Downsampling (samples to skip count)"),&fslider2, 1.0, 1.0, 2e+02, 1.0);
+	reg.registerVar("bitdowner.downsampling",N_("Smpl Down"),"S",N_("Downsampling (samples to skip count)"),&fslider2, 1.0, 1.0, 2e+02, 1.0);
 	reg.registerVar("bitdowner.input_gain",N_("Input"),"S",N_("Gain (dB)"),&fslider0, 0.0, -4e+01, 4e+01, 0.1);
 	reg.registerVar("bitdowner.volume",N_("Volume"),"S",N_("Volume (dB)"),&fslider3, 0.0, -9e+01, 12.0, 0.1);
 	return 0;

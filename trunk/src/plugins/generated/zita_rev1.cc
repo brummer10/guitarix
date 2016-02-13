@@ -634,7 +634,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkHBox\" id=\"hbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
-                    <property name=\"spacing\">1</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkFrame\" id=\"frame4\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -644,10 +644,10 @@ const char *Dsp::glade_def = "\
                           <object class=\"GtkAlignment\" id=\"alignment4\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
-                            <property name=\"top_padding\">5</property>\n\
-                            <property name=\"bottom_padding\">5</property>\n\
-                            <property name=\"left_padding\">5</property>\n\
-                            <property name=\"right_padding\">5</property>\n\
+                            <property name=\"top_padding\">2</property>\n\
+                            <property name=\"bottom_padding\">2</property>\n\
+                            <property name=\"left_padding\">2</property>\n\
+                            <property name=\"right_padding\">2</property>\n\
                             <child>\n\
                               <object class=\"GtkHBox\" id=\"hbox6\">\n\
                                 <property name=\"visible\">True</property>\n\

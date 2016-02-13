@@ -70,7 +70,7 @@
                   <object class="GtkHBox" id="hbox2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="spacing">1</property>
+                    <property name="spacing">5</property>
                     <child>
                       <object class="GtkFrame" id="frame4">
                         <property name="visible">True</property>
@@ -80,10 +80,10 @@
                           <object class="GtkAlignment" id="alignment4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="top_padding">5</property>
-                            <property name="bottom_padding">5</property>
-                            <property name="left_padding">5</property>
-                            <property name="right_padding">5</property>
+                            <property name="top_padding">2</property>
+                            <property name="bottom_padding">2</property>
+                            <property name="left_padding">2</property>
+                            <property name="right_padding">2</property>
                             <child>
                               <object class="GtkHBox" id="hbox6">
                                 <property name="visible">True</property>
