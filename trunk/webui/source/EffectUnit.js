@@ -193,7 +193,7 @@ enyo.kind({
 	} else if (o.ctl_enum) {
 	    v = inEvent.selected.key;
 	} else {
-	    v = inEvent.value;
+	    v = Math.round(inEvent.value*100)/100;
 	}
 	guitarix.notify("set", [o.id, v]);
 	if (o.id.match(/.*\.on_off$/)) { // signaling up only needed for effect on/off atm.

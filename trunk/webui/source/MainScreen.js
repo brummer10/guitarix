@@ -141,7 +141,8 @@ enyo.kind({
 	elem.mozRequestFullScreen && ! /Android/.test(window.navigator.userAgent);   // not working in FF17 on TouchPad
     },
     outmasterChanged: function(inSender, inEvent) {
-	guitarix.notify("set", ["amp.out_master", inEvent.value]);
+	var v = Math.round(inEvent.value*100)/100;
+	guitarix.notify("set", ["amp.out_master", v]);
     },
     setParameter: function(param_id, value) {
 	if (param_id == "amp.out_master") {
