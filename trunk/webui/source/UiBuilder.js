@@ -121,7 +121,7 @@ UiBuilder.prototype.create_simple_meter = function(id, label) {
     var el = this.owner[this.owner.length-1].createComponent(
 	{kind: "gx.SimpleLevelDisplay", classes: "gx-maxlevel",
 	 varname: this.get_name(label, o.name, id), obj: o});
-    this.control_setter[id] = enyo.bind(el, el.setValue);
+    this.control_setter[id] = enyo.bind(el, el.display_level);
 }
 
 UiBuilder.prototype.create_simple_c_meter = function(id, idl, label) {
@@ -129,11 +129,12 @@ UiBuilder.prototype.create_simple_c_meter = function(id, idl, label) {
 	return;
     }
     this.state = 3; // rackbox
-    var o = this.prepare_obj(id);
+    var o = this.prepare_obj(idl);
     var el = this.owner[this.owner.length-1].createComponent(
 	{kind: "gx.ValueSlider", classes: "gx-control-slider",
 	 varname: this.get_name(label, o.name, idl), obj: o});
     this.control_setter[idl] = enyo.bind(el, el.setValue);
+    this.create_simple_meter(id, label);
 }
 
 UiBuilder.prototype.create_p_meter = function(id, idl, idh, label) {

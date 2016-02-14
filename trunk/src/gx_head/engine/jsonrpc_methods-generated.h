@@ -19,6 +19,7 @@ enum jsonrpc_method {
 	RPNM_set,
 	RPCM_parameterlist,
 	RPCM_get_parameter,
+	RPCM_get_parameter_value,
 	RPCM_desc,
 	RPCM_list,
 	RPCM_banks,

@@ -508,6 +508,17 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.end_object();
     }
 
+    FUNCTION(get_parameter_value) {
+	gx_engine::ParamMap& param = serv.settings.get_param();
+	const Glib::ustring& id = params[0]->getString();
+	float f = 0.0;
+	if (param[id.substr(0,id.find_last_of(".")+1)+"on_off"].getInt().get_value())
+	  f = param[id].getFloat().get_value();
+	jw.begin_array();
+	jw.write(f);
+	jw.end_array();
+    }
+
     FUNCTION(get_bank) {
 	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
 	if (!pf) {

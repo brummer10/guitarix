@@ -17,22 +17,84 @@
  */
 
 enyo.kind({
+    name: "gx.eqLevel",
+    tag: "canvas",
+    published: {
+	value: 0,
+    },
+    valueChanged: function() {
+	this.value = Math.max(0, Math.min(this.value, 1));
+	this.updateBarPosition(this.value);
+    },
+    rendered: function() {
+	this.inherited(arguments);
+	var node = this.hasNode();
+	this.width = node.width;
+	this.height = node.height;
+	this.ctx = node.getContext('2d');
+	this.pat = this.ctx.createLinearGradient(0, 0, node.width, 0);
+	this.pat.addColorStop(0, rgb(102/255.0,222/255.0,13/255.0));
+	this.pat.addColorStop(0.5, rgb(162/255.0,222/255.0,13/255.0));
+	this.pat.addColorStop(0.8, rgb(222/255.0,222/255.0,13/255.0));
+	this.pat.addColorStop(1, rgb(1.0,0,51/255.0));
+    },
+    updateBarPosition: function(v) {
+	if (this.ctx === undefined) {
+	    return;
+	}
+	var f = this.width * v;
+	this.ctx.fillStyle = this.pat;
+	this.ctx.fillRect(0, 0, f, this.height);
+	this.ctx.fillStyle = rgb(0.1,0.1,0.1);
+	this.ctx.fillRect(f, 0, this.width, this.height);
+    },
+});
+
+enyo.kind({
     name: "gx.SimpleLevelDisplay",
-    tag: "span",
-    classes: "gx-maxlevel",
+    layoutKind: "FittableColumnsLayout",
+    classes: "gx-level",
+    published: {
+	repeat: 100,
+    },
+    timeout_handle: null,
     components:[
-	// {kind: "gx.ValueDisplay", name: "display" },
+	{name: "eqbar", kind: "gx.eqLevel", fit: true, showStripes: false },
     ],
-    setStep: function(v) {
-    var l = 0.00001;
-	this.digits = l;
+    //obj: null,
+    create: function() {
+	this.inherited(arguments);
+	this.start();
+	this.display_level();
+	this.objChanged();
     },
-    valueChanged: function(old, val) {
-	this.$.display.setValue(val);
+    start: function() {
+	if (this.timeout_handle) {
+	    clearTimeout(this.timeout_handle);
+	}
+	this.display_level();
     },
-    setValue: function(v) {
-	this.setContent(v.toFixed(this.digits));
-    this.$.display.setValue(v);
+    objChanged: function() {
+	if (this.obj === null) {
+	    return;
+	}
+	    this.start();
+    },
+    display_level: function() {
+	if (this.obj === null) {
+	    return;
+	}
+	this.timeout_handle = null;
+	guitarix.call(
+	    'get_parameter_value', [this.obj.id],
+	    this, function(result) {
+		this.$.eqbar.setValue(1+Math.log(Math.max(result[0], 0.001))/(3*Math.log(10)));
+		if (!this.timeout_handle) {
+		    this.timeout_handle = setTimeout(
+			enyo.bind(this, this.display_level), this.repeat);
+		}
+	    }
+	);
     },
 });
 
@@ -63,7 +125,7 @@ enyo.kind({
     setRange: function(obj) {
 	this.setMin(obj.lower_bound);
 	this.setMax(obj.upper_bound);
-	this.setValue(obj.value[obj.id]);
+	this.setValue(obj.value[obj.id]+0.0001);
 	this.obj = obj;
     },
 });

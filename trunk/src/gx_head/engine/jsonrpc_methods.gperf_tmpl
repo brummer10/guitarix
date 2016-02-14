@@ -63,6 +63,7 @@ struct CmdConnection::methodnames;
 "set", false
 "parameterlist", true
 "get_parameter", true
+"get_parameter_value", true
 "desc", true
 "list", true
 
