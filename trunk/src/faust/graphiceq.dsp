@@ -11,7 +11,7 @@ import("reduce.lib");
 //geq = filterbank(3, (31.25, 62.5, 125., 250., 500., 1000., 2000., 4000., 8000., 16000.));
 geq = filterbank(3, (44., 88., 177., 354., 707., 1414., 2828., 5657., 11384., 18110.));
 
-g1 = vslider("g1[tooltip:gain (dB) below 31.25 Hz]", 0, -60, 5.2, 0.1) : db2linear : smooth(0.999);
+g1 = vslider("g1[tooltip:gain (dB) below 31.25 Hz]", 0, -30, 5.2, 0.1) : db2linear : smooth(0.999);
 g2 = vslider("g2 [tooltip:gain (dB) at 62.5 Hz]", 0, -30, 5.2, 0.1) : db2linear : smooth(0.999);
 g3 = vslider("g3  [tooltip:gain (dB) at 125 Hz]", 0, -30, 5.2, 0.1) : db2linear : smooth(0.999);
 g4 = vslider("g4  [tooltip:gain (dB) at 250 Hz]", 0, -30, 5.2, 0.1) : db2linear : smooth(0.999);

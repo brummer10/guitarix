@@ -891,7 +891,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec131[0] = ((fRec132[2] + (fConst120 * (fTemp70 + (fConst119 * fRec132[0])))) - (fConst116 * ((fConst115 * fRec131[2]) + fTemp69)));
 		fRec130[0] = ((fRec131[2] + (fConst116 * (fTemp69 + (fConst115 * fRec131[0])))) - (fConst112 * ((fConst111 * fRec130[2]) + fTemp68)));
 		fRec129[0] = ((fRec130[2] + (fConst112 * (fTemp68 + (fConst111 * fRec130[0])))) - (fConst108 * ((fConst107 * fRec129[2]) + fTemp67)));
-		fRec128[0] = ((fRec129[2] + (fConst108 * ((fConst107 * fRec129[0]) + fTemp67))) - (fConst104 * ((fConst103 * fRec128[2]) + fTemp66)));
+		fRec128[0] = ((fRec129[2] + (fConst108 * (fTemp67 + (fConst107 * fRec129[0])))) - (fConst104 * ((fConst103 * fRec128[2]) + fTemp66)));
 		fRec139[0] = ((0.999 * fRec139[1]) + fSlow10);
 		double fTemp75 = (fRec139[0] * (fRec128[2] + (fConst104 * (fTemp66 + (fConst103 * fRec128[0])))));
 		double 	fRec127 = max(fConst1, fabs(fTemp75));
@@ -1053,7 +1053,7 @@ int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("graphiceq.g10","","S",N_("gain (dB) at 16 kHz"),&fslider9, 0.0, -3e+01, 5.2, 0.1);
 	reg.registerVar("graphiceq.g11","","S",N_("gain (dB) above 16 kHz"),&fslider10, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g1","","S",N_("gain (dB) below 31.25 Hz"),&fslider0, 0.0, -6e+01, 5.2, 0.1);
+	reg.registerVar("graphiceq.g1","","S",N_("gain (dB) below 31.25 Hz"),&fslider0, 0.0, -3e+01, 5.2, 0.1);
 	reg.registerVar("graphiceq.g2","","S",N_("gain (dB) at 62.5 Hz"),&fslider1, 0.0, -3e+01, 5.2, 0.1);
 	reg.registerVar("graphiceq.g3","","S",N_("gain (dB) at 125 Hz"),&fslider2, 0.0, -3e+01, 5.2, 0.1);
 	reg.registerVar("graphiceq.g4","","S",N_("gain (dB) at 250 Hz"),&fslider3, 0.0, -3e+01, 5.2, 0.1);
@@ -1825,6 +1825,78 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         b.load_glade(glade_def);
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("graphiceq" "." p)
+// ----- graphiceq
+b.openHorizontalhideBox("");
+b.closeBox();
+b.openHorizontalBox("");
+{
+    b.openFrameBox("");
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v1"), PARAM("g1"),"<31");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v2"), PARAM("g2"),"62");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v3"), PARAM("g3"),"125");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v4"), PARAM("g4"),"250");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v5"), PARAM("g5"),"500");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v6"), PARAM("g6"),"1k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v7"), PARAM("g7"),"2k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v8"), PARAM("g8"),"4k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v9"), PARAM("g9"),"8k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v10"), PARAM("g10"),"16k");
+    }
+    b.closeBox();
+    b.openHorizontalBox("");
+    {
+    b.create_simple_c_meter(PARAM("v11"), PARAM("g11"),"<");
+    }
+    b.closeBox();
+    b.openFrameBox("");
+    b.closeBox();
+}
+b.closeBox();
+
+#undef PARAM
         return 0;
     }
 	return -1;
