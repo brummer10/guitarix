@@ -286,7 +286,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec31[0] = ((0.9302847925323914 * (fVec4[0] + fVec4[1])) - (0.8605695850647829 * fRec31[1]));
 		fRec30[0] = (fRec31[0] - ((1.8405051250752198 * fRec30[1]) + (0.8612942439318627 * fRec30[2])));
 		fRec38[0] = ((fConst17 * fRec38[1]) + (fConst16 * (fRec29[1] + fRec29[2])));
-		fRec29[0] = (Ftube(TUBE_TABLE_6V6_250k, ((fRec38[0] + (0.9254498422517706 * ((fRec30[0] + fRec30[2]) + (2.0 * fRec30[1])))) - 1.675587)) - 138.2942);
+		fRec29[0] = (Ftube(TUBE_TABLE_6V6_250k, ((fRec38[0] + (0.9254498422517706 * (fRec30[2] + (fRec30[0] + (2.0 * fRec30[1]))))) - 1.675587)) - 138.2942);
 		fRec28[0] = ((fConst9 * fRec28[1]) + (fConst8 * ((fConst5 * fRec29[0]) + (fConst6 * fRec29[1]))));
 		fRec27[0] = ((fConst13 * fRec27[1]) + (fConst12 * (fRec28[0] + fRec28[1])));
 		double fTemp7 = (fRec5[0] * fRec27[0]);
@@ -685,6 +685,28 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         b.load_glade(glade_def);
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("ampmodul" "." p)
+// postamp
+b.openHorizontalhideBox("");
+b.create_master_slider(PARAM("level"), _("level"));
+b.closeBox();
+b.openHorizontalBox("");
+{
+    b.insertSpacer();
+    b.create_small_rackknobr(PARAM("feedbac"), _("dry/feedback  "));
+    b.create_small_rackknob(PARAM("wet_dry"), _("dry/wet"));
+    b.create_small_rackknob(PARAM("level"), _("level"));
+    b.create_small_rackknob(PARAM("amp2.stage1.tube1"), _("tube1"));
+    b.create_small_rackknob(PARAM("amp2.stage2.tube2"), _("tube2"));
+    b.create_small_rackknobr(PARAM("feedback"), _("  wet/feedback"));
+    b.insertSpacer();
+}
+b.closeBox();
+
+#undef PARAM
         return 0;
     }
 	return -1;
