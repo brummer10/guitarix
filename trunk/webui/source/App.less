@@ -23,6 +23,10 @@
 /* Onyx default variable definitions: */
 @import "Theme.less";
 
+.gx-mainscreen {
+    background: url(../assets/logo.png) center bottom 120px no-repeat;
+}
+
 .enyo-panels {
     color: darken(white,10%);
     background-color: black;
@@ -104,9 +108,21 @@
     vertical-align: middle;
 }
 
-.gx-level {
+.gx-eqlevel {
     margin-bottom: 0px;
     margin-top: 0px;
+    margin-left: 20px;
+    margin-right: 20px;
+    height: 5px;
+}
+
+.gx-eqlevel > canvas {
+    vertical-align: middle;
+}
+
+.gx-level {
+    margin-bottom: 10px;
+    margin-top: 10px;
     margin-left: 20px;
     margin-right: 20px;
     height: 5px;

@@ -19,6 +19,7 @@
 enyo.kind({
     name: "gx.MainScreen",
     layoutKind: "FittableRowsLayout",
+    classes: "gx-mainscreen",
     events:{
 	onTunerOn: "",
 	onEffects: "",

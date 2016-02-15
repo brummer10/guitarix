@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 enyo.kind({
     name: "gx.ToggleButton",
     //kind: "onyx.custom.AnimatedToggleButton",
@@ -146,6 +147,9 @@ enyo.kind({
     },
     stateChanged: function(inSender, inEvent) {
 	var id = this.fx.id+".on_off";
+	if (id == "graphiceq.on_off") {
+		gxeq = inEvent.value;
+	}
 	guitarix.notify("set", [id, inEvent.value ? 1 : 0]);
 	this.doParameterChanged({id: id, value: inEvent.value});
     },

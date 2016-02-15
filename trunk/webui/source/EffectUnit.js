@@ -16,6 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+var gxeq = 0;
+
 enyo.kind({
     name: "gx.eqLevel",
     tag: "canvas",
@@ -59,6 +61,57 @@ enyo.kind({
     },
     timeout_handle: null,
     components:[
+	{name: "lbar", kind: "gx.eqLevel", fit: true, showStripes: false },
+    ],
+    //obj: null,
+    create: function() {
+	this.inherited(arguments);
+	this.start();
+	this.display_level();
+	this.objChanged();
+    },
+    start: function() {
+	if (this.timeout_handle) {
+	    clearTimeout(this.timeout_handle);
+	}
+	this.display_level();
+    },
+    objChanged: function() {
+	if (this.obj === null) {
+	    return;
+	}
+	    this.start();
+    },
+    display_level: function() {
+	if (typeof(this.$.lbar) == "undefined") {
+	    return;
+	}
+	if (this.obj === null) {
+	    return;
+	}
+	this.timeout_handle = null;
+	guitarix.call(
+	    'get_parameter_value', [this.obj.id],
+	    this, function(result) {
+		this.$.lbar.setValue(1+Math.log(Math.max(result[0], 0.001))/(3*Math.log(10)));
+		if (!this.timeout_handle) {
+		    this.timeout_handle = setTimeout(
+			enyo.bind(this, this.display_level), this.repeat);
+		}
+	    }
+	);
+    },
+});
+
+enyo.kind({
+    name: "gx.SimpleEQDisplay",
+    layoutKind: "FittableColumnsLayout",
+    classes: "gx-eqlevel",
+    published: {
+	repeat: 100,
+    },
+    timeout_handle: null,
+    components:[
 	{name: "eqbar", kind: "gx.eqLevel", fit: true, showStripes: false },
     ],
     //obj: null,
@@ -81,10 +134,21 @@ enyo.kind({
 	    this.start();
     },
     display_level: function() {
+	if (typeof(this.$.eqbar) == "undefined") {
+		return;
+	}
 	if (this.obj === null) {
 	    return;
 	}
 	this.timeout_handle = null;
+	if (!gxeq) {
+			this.$.eqbar.setValue(0.0);
+		if (!this.timeout_handle) {
+		    this.timeout_handle = setTimeout(
+			enyo.bind(this, this.display_level), this.repeat);
+		}
+		return;
+	}
 	guitarix.call(
 	    'get_parameter_value', [this.obj.id],
 	    this, function(result) {
@@ -260,6 +324,9 @@ enyo.kind({
 	guitarix.notify("set", [o.id, v]);
 	if (o.id.match(/.*\.on_off$/)) { // signaling up only needed for effect on/off atm.
 	    this.doParameterChanged({id: o.id, value: v});
+		if (o.id == "graphiceq.on_off") {
+			gxeq = v;
+		}
 	}
     },
     setParameter: function(param_id, value) {
