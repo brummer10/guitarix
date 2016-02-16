@@ -289,7 +289,7 @@ enyo.kind({
 	var f = this.width * v;
 	this.ctx.fillStyle = this.pat;
 	this.ctx.fillRect(0, 0, f, this.height);
-	this.ctx.fillStyle = rgb(0,0,0);
+	this.ctx.fillStyle = rgb(0.1,0.1,0.1);
 	this.ctx.fillRect(f, 0, this.width, this.height);
     },
 });

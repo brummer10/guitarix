@@ -122,6 +122,7 @@ enyo.kind({
 enyo.kind({
     name: "gx.EffectScreen",
     layoutKind: "FittableRowsLayout",
+    classes: "gx-mainscreen",
     events:{
 	onMain: "",
     },

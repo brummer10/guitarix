@@ -343,6 +343,7 @@ enyo.kind({
 enyo.kind({
     name: "gx.EffectUnit",
     layoutKind: "FittableRowsLayout",
+    classes: "gx-mainscreen",
     events:{
 	onEffects: "",
     },
