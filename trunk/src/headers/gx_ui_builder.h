@@ -214,6 +214,7 @@ protected:
     static void openpaintampBox_(const char* label);
     static void insertSpacer_();
     static void set_next_flags_(int flags);
+    static void create_mid_rackknob_(const char *id, const char *label);
     static void create_small_rackknob_(const char *id, const char *label);
     static void create_small_rackknobr_(const char *id, const char *label);
     static void create_master_slider_(const char *id, const char *label);

@@ -96,10 +96,10 @@ LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& l
       plugin() {
     version = PLUGINDEF_VERSION;
     id = "dubber";
-    name = N_("Dubber");
+    name = N_("Live Looper");
     groups = 0;
     description = N_("Live Looper"); // description (tooltip)
-    category = N_("Echo / Delay");       // category
+    category = N_("Misc");       // category
     shortname = "";     // shortname
     mono_audio = compute_static;
     stereo_audio = 0;
@@ -408,6 +408,7 @@ void LiveLooper::load_tape1() {
         tape1_size = max(4194304,RecSize1[1]);
         IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
         save1 = true;
+        load_file1 = "tape1";
         gx_system::atomic_set(&ready,1);
     }
 }
@@ -426,6 +427,7 @@ void LiveLooper::load_tape2() {
         tape2_size = max(4194304,RecSize2[1]);
         IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
         save2 = true;
+        load_file2 = "tape2";
         gx_system::atomic_set(&ready,1);
     }
 }
@@ -444,6 +446,7 @@ void LiveLooper::load_tape3() {
         tape3_size = max(4194304,RecSize3[1]);
         IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
         save3 = true;
+        load_file3 = "tape3";
         gx_system::atomic_set(&ready,1);
     }
 }
@@ -462,6 +465,7 @@ void LiveLooper::load_tape4() {
         tape4_size = max(4194304,RecSize4[1]);
         IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
         save4 = true;
+        load_file4 = "tape4";
         gx_system::atomic_set(&ready,1);
     }
 }
@@ -772,7 +776,7 @@ b.create_switch_no_caption(sw_pbutton,PARAM("playall"));
 b.closeBox();
 
 b.openHorizontalBox("");
-b.create_small_rackknob(PARAM("gain"), "gain");
+b.create_small_rackknobr(PARAM("gain"), "gain");
 
 b.openTabBox("");
 
@@ -814,7 +818,7 @@ b.insertSpacer();
 b.closeBox();
 
 b.closeBox();
-b.create_small_rackknob(PARAM("level1"), "level");
+b.create_small_rackknobr(PARAM("level1"), "level");
 
 b.closeBox();
 b.closeBox();
@@ -854,7 +858,7 @@ b.closeBox();
 
 b.closeBox();
 
-b.create_small_rackknob(PARAM("level2"), "level");
+b.create_small_rackknobr(PARAM("level2"), "level");
 b.closeBox();
 b.closeBox();
 
@@ -892,7 +896,7 @@ b.insertSpacer();
 b.closeBox();
 
 b.closeBox();
-b.create_small_rackknob(PARAM("level3"), "level");
+b.create_small_rackknobr(PARAM("level3"), "level");
 b.closeBox();
 b.closeBox();
 
@@ -930,13 +934,13 @@ b.insertSpacer();
 b.closeBox();
 
 b.closeBox();
-b.create_small_rackknob(PARAM("level4"), "level");
+b.create_small_rackknobr(PARAM("level4"), "level");
 b.closeBox();
 b.closeBox();
 
 b.closeBox();
 
-b.create_small_rackknob(PARAM("mix"), "mix");
+b.create_mid_rackknob(PARAM("mix"), "mix");
 b.closeBox();
 
 #undef PARAM

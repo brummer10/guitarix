@@ -166,9 +166,9 @@ static int load_tonestack_ui(const UiBuilder& builder, int format) {
 	    builder.openHorizontalBox("");
 	    {
 		builder.create_selector("amp.tonestack.select", 0);
-		builder.create_small_rackknob("amp.tonestack.Bass", _("bass"));
-		builder.create_small_rackknob("amp.tonestack.Middle", _("middle"));
-		builder.create_small_rackknob("amp.tonestack.Treble", _("treble"));
+		builder.create_small_rackknobr("amp.tonestack.Bass", _("bass"));
+		builder.create_small_rackknobr("amp.tonestack.Middle", _("middle"));
+		builder.create_small_rackknobr("amp.tonestack.Treble", _("treble"));
 	    }
 	    builder.closeBox();
 	}

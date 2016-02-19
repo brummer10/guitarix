@@ -507,6 +507,7 @@ void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::str
 }
 
 void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
+	static Glib::ustring recent_filename = "";
     if (machine.parameter_hasId(id)) {
 		if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
 			if (machine.get_parameter_value<float>(id)>0) {
@@ -516,7 +517,8 @@ void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
 				Gtk::FileChooserDialog d( "Select loop file");
 				d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 				d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
-				d.add_shortcut_folder(string(getenv("HOME")) + string("/.config/guitarix/pluginpresets/loops"));
+				Glib::ustring loop_dir = machine.get_options().get_loop_dir();
+				d.add_shortcut_folder(loop_dir);
 				Gtk::FileFilter wav;
 				wav.set_name("WAV Files");
 				wav.add_mime_type("audio/x-vorbis+ogg");
@@ -534,15 +536,18 @@ void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
 				all.add_pattern("*");
 				all.set_name("All Files");
 				d.add_filter(all);
-				if ((filename.find("tape") == Glib::ustring::npos) && (!filename.empty())) {
-					d.set_filename(filename);
+				if (!recent_filename.empty()) {
+					d.set_filename(recent_filename);
+				} else if ((filename.find("tape") != Glib::ustring::npos) && (!filename.empty())) {
+					d.set_filename(loop_dir + filename + string(".wav"));
 				} else {
-					d.set_current_folder(string(getenv("HOME")) + string("/.config/guitarix/pluginpresets/loops"));
+					d.set_current_folder(loop_dir);
 				}
 				if (d.run() != Gtk::RESPONSE_OK) {
 					return;
 				}
 				filename = d.get_filename();
+				recent_filename = filename;
 				Gtk::RecentManager::Data data;
 				bool result_uncertain;
 				data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);
@@ -660,6 +665,17 @@ void StackBoxBuilder::check_set_flags(Gxw::Regler *r) {
 	}
 	r->set_value_position(pos);
     }
+}
+
+void StackBoxBuilder::create_mid_rackknob(const std::string& id, const char *label) {
+    UiReglerWithCaption<Gxw::MidKnob> *w = new UiReglerWithCaption<Gxw::MidKnob>(machine, id);
+    if (next_flags & UI_LABEL_INVERSE) {
+        w->set_rack_label_inverse(label);
+    } else {
+        w->set_rack_label(label);
+    }
+    check_set_flags(w->get_regler());
+    addwidget(w);
 }
 
 void StackBoxBuilder::create_small_rackknob(const std::string& id, const char *label) {

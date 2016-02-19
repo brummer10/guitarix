@@ -738,9 +738,10 @@ static const float no_sum = 1e10;
 #include "faust/cabinet_impulse_former.cc"
 
 static int cab_load_ui(const UiBuilder& builder, int format) {
-    if (!(format & UI_FORM_STACK)) {
-	return -1;
-    }
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("cabinet_ui.glade");
+    return 0;
+    } else if (format & UI_FORM_STACK) {
     builder.openHorizontalhideBox("");
     builder.create_selector_no_caption("cab.select");
     builder.closeBox();
@@ -748,15 +749,20 @@ static int cab_load_ui(const UiBuilder& builder, int format) {
     {
 	builder.openHorizontalBox("");
 	{
+	    builder.insertSpacer();
 	    builder.create_selector_no_caption("cab.select");
-	    builder.create_small_rackknob("cab.bass", "bass");
-	    builder.create_small_rackknob("cab.treble", "treble");
-	    builder.create_small_rackknobr("cab.Level", "level");
+	    builder.create_small_rackknobr("cab.bass", "bass");
+	    builder.create_small_rackknobr("cab.treble", "treble");
+	    builder.create_mid_rackknob("cab.Level", "level");
 	}
 	builder.closeBox();
     }
     builder.closeBox();
     return 0;
+    } else {
+    return -1;
+    }
+
 }
 
 CabinetConvolver::CabinetConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp):
@@ -903,9 +909,10 @@ static PreEntry& getPreEntry(unsigned int n) {
 #include "faust/preamp_impulse_former.cc"
 
 static int pre_load_ui(const UiBuilder& builder, int format) {
-    if (!(format & UI_FORM_STACK)) {
-	return -1;
-    }
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("ampimpulse_ui.glade");
+    return 0;
+    } else if (format & UI_FORM_STACK) {
     builder.openHorizontalhideBox("");
     builder.create_selector_no_caption("pre.select");
     builder.closeBox();
@@ -913,15 +920,20 @@ static int pre_load_ui(const UiBuilder& builder, int format) {
     {
 	builder.openHorizontalBox("");
 	{
+	    builder.insertSpacer();
 	    builder.create_selector_no_caption("pre.select");
-	    builder.create_small_rackknob("pre.bass", "bass");
-	    builder.create_small_rackknob("pre.treble", "treble");
-	    builder.create_small_rackknobr("pre.Level", "level");
+	    builder.create_small_rackknobr("pre.bass", "bass");
+	    builder.create_small_rackknobr("pre.treble", "treble");
+	    builder.create_mid_rackknob("pre.Level", "level");
 	}
 	builder.closeBox();
     }
     builder.closeBox();
     return 0;
+	} else {
+	return -1;
+    }
+
 }
 
 PreampConvolver::PreampConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp):
@@ -1580,22 +1592,29 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
     {
     b.openVerticalBox("");
     {
+    b.insertSpacer();
     b.create_selector_no_caption("smbPitchShift.octave");
     b.create_selector_no_caption("smbPitchShift.l");
     b.create_selector_no_caption("smbPitchShift.latency");
+    b.insertSpacer();
     }
     b.closeBox();
-    b.create_small_rackknob("smbPitchShift.semitone","detune");
-    b.create_small_rackknob("smbPitchShift.dry","dry amount");
-    b.create_small_rackknob("smbPitchShift.wet","wet amount");
+    b.create_mid_rackknob("smbPitchShift.semitone","detune");
+    b.create_small_rackknobr("smbPitchShift.dry","dry amount");
+    b.create_small_rackknobr("smbPitchShift.wet","wet amount");
     }
     b.closeBox();
+    b.insertSpacer();
     b.openHorizontalBox("");
     {
-    b.create_small_rackknob("smbPitchShift.a","low");
-    b.create_small_rackknob("smbPitchShift.b","middle low");
-    b.create_small_rackknob("smbPitchShift.c","middle treble");
-    b.create_small_rackknob("smbPitchShift.d","treble");
+    b.set_next_flags(UI_LABEL_INVERSE);
+    b.create_small_rackknobr("smbPitchShift.a","low");
+    b.set_next_flags(UI_LABEL_INVERSE);
+    b.create_small_rackknobr("smbPitchShift.b","middle low");
+    b.set_next_flags(UI_LABEL_INVERSE);
+    b.create_small_rackknobr("smbPitchShift.c","middle treble");
+    b.set_next_flags(UI_LABEL_INVERSE);
+    b.create_small_rackknobr("smbPitchShift.d","treble");
     }
     b.closeBox();
     }

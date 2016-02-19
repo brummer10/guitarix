@@ -223,6 +223,7 @@ UiBuilder.prototype.create_selector = function(id, label) {
     this.control_setter[id] = enyo.bind(el, el.setValue);
 }
 
+UiBuilder.prototype.if_create_mid_rackknob = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_small_rackknob = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_small_rackknobr = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_master_slider = UiBuilder.prototype.create_slider;

@@ -99,6 +99,7 @@ struct UiBuilder {
     void (*create_simple_spin_value)(const char *id);
     void (*create_eq_rackslider_no_caption)(const char *id);
     void (*create_fload_switch)(const char *sw_type,const char * id,const char * idf);
+    void (*create_mid_rackknob)(const char *id, const char *label);
     // adding additional functions:
     // If possible don't change the order of the current defintion.
     // new functions need to be added at the following places:

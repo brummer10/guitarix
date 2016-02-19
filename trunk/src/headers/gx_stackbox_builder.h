@@ -76,6 +76,7 @@ private:
     void create_simple_c_meter(const std::string& id, const std::string& idl, const char *label);
     bool set_simple(Gxw::FastMeter *fastmeter, const std::string id);
     bool set_compressor_level(Gxw::FastMeter *fastmeter, const std::string id);
+    void create_mid_rackknob(const std::string& id, const char *label);
     void create_small_rackknob(const std::string& id, const char *label);
     void create_small_rackknobr(const std::string& id);
     void create_small_rackknobr(const std::string& id, const char *label);

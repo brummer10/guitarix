@@ -1560,6 +1560,10 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	} else if (jp->current_value() == "set_next_flags") {
 	    jp->next(gx_system::JsonParser::value_number);
 	    builder.set_next_flags(jp->current_value_int());
+	} else if (jp->current_value() == "create_mid_rackknob") {
+	    std::string id = next_string(jp);
+	    std::string lab = next_string(jp);
+	    builder.create_mid_rackknob(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_small_rackknob") {
 	    std::string id = next_string(jp);
 	    std::string lab = next_string(jp);

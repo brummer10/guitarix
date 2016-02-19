@@ -76,6 +76,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     load_glade_file = load_glade_file_;
     create_master_slider = create_master_slider_;
     create_feedback_slider = create_feedback_slider_;
+    create_mid_rackknob = create_mid_rackknob_;
     create_small_rackknob = create_small_rackknob_;
     create_small_rackknobr = create_small_rackknobr_;
     create_spin_value = create_spin_value_;
@@ -153,6 +154,10 @@ void UiBuilderImpl::insertSpacer_() {
 
 void UiBuilderImpl::set_next_flags_(int flags) {
     intf->set_next_flags(flags);
+}
+
+void UiBuilderImpl::create_mid_rackknob_(const char *id, const char *label) {
+    intf->create_mid_rackknob(id, label);
 }
 
 void UiBuilderImpl::create_small_rackknob_(const char *id, const char *label) {

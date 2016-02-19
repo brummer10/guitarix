@@ -196,6 +196,7 @@ private:
     static void openpaintampBox_(const char* label);
     static void insertSpacer_();
     static void set_next_flags_(int flags);
+    static void create_mid_rackknob_(const char *id, const char *label);
     static void create_small_rackknob_(const char *id, const char *label);
     static void create_small_rackknobr_(const char *id, const char *label);
     static void create_master_slider_(const char *id, const char *label);
@@ -1362,6 +1363,7 @@ UiBuilderVirt::UiBuilderVirt(gx_system::JsonWriter *jw_, const gx_system::Cmdlin
     load_glade_file = load_glade_file_;
     create_master_slider = create_master_slider_;
     create_feedback_slider = create_feedback_slider_;
+    create_mid_rackknob = create_mid_rackknob_;
     create_small_rackknob = create_small_rackknob_;
     create_small_rackknobr = create_small_rackknobr_;
     create_simple_meter = create_simple_meter_;
@@ -1465,6 +1467,14 @@ void UiBuilderVirt::set_next_flags_(int flags) {
     jw->begin_array();
     jw->write("set_next_flags");
     jw->write(flags);
+    jw->end_array();
+}
+
+void UiBuilderVirt::create_mid_rackknob_(const char *id, const char *label) {
+    jw->begin_array();
+    jw->write("create_mid_rackknob");
+    jw->write(id);
+    jw->write(label);
     jw->end_array();
 }
 
