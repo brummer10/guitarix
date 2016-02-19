@@ -144,7 +144,7 @@ UiBuilder.prototype.create_simple_c_meter = function(id, idl, label) {
     this.state = 3; // rackbox
     var o = this.prepare_obj(idl);
     var el = this.owner[this.owner.length-1].createComponent(
-	{kind: "gx.ValueSlider", classes: "gx-control-slider",
+	{kind: "gx.EQSlider", classes: "gx-control-slider",
 	 varname: this.get_name(label, o.name, idl), obj: o});
     this.control_setter[idl] = enyo.bind(el, el.setValue);
     this.create_eq_meter(id, label);
@@ -181,6 +181,9 @@ UiBuilder.prototype.create_switch = function(sw_type, id, label) {
     });
     el = el.getClientControls()[0]; // Button
     this.control_setter[id] = enyo.bind(el, el.setValue);
+	if (id == "graphiceq.on_off") {
+		gxeq = o.value[id];
+	}
 }
 
 UiBuilder.prototype.create_selector = function(id, label) {

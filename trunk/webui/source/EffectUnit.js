@@ -195,6 +195,48 @@ enyo.kind({
 });
 
 enyo.kind({
+    name: "gx.EQSlider",
+    classes: "gx-valueslider",
+    kind: "FittableRows",
+    published: {
+	value: null,
+	obj: null,
+	varname: null,
+    },
+	components:[
+		{kind: "FittableColumns",  noStretch: true, fit: true, classes: "outer-box", components: [
+	    {kind: "gx.ValueDisplay", name: "display" , classes: "inner-box"},
+	    {name: "label", tag:"span", classes: "inner-box", classes: "fix-label-box"},
+	    {name: "slider", kind: "gx.SimpleSlider", onChanging: "doChanging", onChange: "doChanging", fit: true, classes: "inner-box"},
+	    ]},
+    ],
+    create: function() {
+	this.inherited(arguments);
+	this.varnameChanged();
+	this.objChanged();
+    },
+    varnameChanged: function() {
+	this.$.label.setContent(this.varname);
+    },
+    objChanged: function() {
+	if (this.obj === null) {
+	    return;
+	}
+	this.$.slider.setRange(this.obj);
+	var c = this.$.display;
+	c.setStep(this.obj.step);
+	c.setValue(this.obj.value[this.obj.id]);
+    },
+    doChanging: function(inSender, inEvent) {
+	this.$.display.setValue(inEvent.value);
+    },
+    valueChanged: function(old, val) {
+	this.$.display.setValue(val);
+	this.$.slider.setValue(val);
+    },
+});
+
+enyo.kind({
     name: "gx.ValueSlider",
     classes: "gx-valueslider",
     published: {
