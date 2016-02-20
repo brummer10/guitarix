@@ -67,6 +67,24 @@ static inline double asymclip(double x) {
     return copysign(f, -x);
 }
 
+static inline double asymclip2(double x) {
+	int table = 2;
+    if (x<0) table = 3;
+    const table1dc& clip = *cliptable[table];
+    double f = fabs(x);
+    f = (f/(3.0 + f) - clip.low) * clip.istep;
+    int i = static_cast<int>(f);
+    if (i < 0) {
+        f = clip.data[0];
+    } else if (i >= clip.size-1) {
+        f = clip.data[clip.size-1];
+    } else {
+	f -= i;
+	f = clip.data[i]*(1-f) + clip.data[i+1]*f;
+    }
+    return copysign(f, -x);
+}
+
 static inline double opamp(double x) {
 	int table = 4;
     const table1dc& clip = *cliptable[table];

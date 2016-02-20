@@ -109,6 +109,7 @@ def dirlist():
         'gx_wah.lv2',
         'gx_gcb_95.lv2',
         'gx_aclipper.lv2',
+        'gx_bmp.lv2',
        ]
 
     return subdirs

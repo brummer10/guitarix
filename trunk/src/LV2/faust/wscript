@@ -136,6 +136,7 @@ def build(bld):
         'voxwah.dsp',
         'gcb_95.dsp',
         'aclipper.dsp',
+        'bmp.dsp',
 
 
         # tone stacks

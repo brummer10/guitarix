@@ -22,7 +22,7 @@
 #include <iostream>
 
 #include <gtkmm.h>
-#include "gx_sceleton.h"
+#include "gx_bmp.h"
 #include "widget.h"
 
 
@@ -31,7 +31,7 @@
 
 using namespace std;
 
-class Gx_sceleton_GUI
+class Gx_bmp_GUI
 {
 private:
   Glib::ustring plugskin;
@@ -44,20 +44,20 @@ private:
 public:
 
   Widget* widget;
-  static void set_plug_name_static(Gx_sceleton_GUI *self, const char * plugin_uri)
+  static void set_plug_name_static(Gx_bmp_GUI *self, const char * plugin_uri)
   {
     self->set_plug_name(plugin_uri);
   }
-  static GtkWidget* make_gui_static(Gx_sceleton_GUI *self)
+  static GtkWidget* make_gui_static(Gx_bmp_GUI *self)
   {
     return self->make_gui();
   }
 
-  Gx_sceleton_GUI () {};
-  ~Gx_sceleton_GUI () {};
+  Gx_bmp_GUI () {};
+  ~Gx_bmp_GUI () {};
 } ;
 
-void Gx_sceleton_GUI::set_knob( Glib::ustring knob)
+void Gx_bmp_GUI::set_knob( Glib::ustring knob)
 {
   addKnob =   " style 'gx_";
   addKnob +=  plug_name;
@@ -87,7 +87,7 @@ void Gx_sceleton_GUI::set_knob( Glib::ustring knob)
   addKnob +=  "_dark_skin_icons' \n";
 }
 
-void Gx_sceleton_GUI::set_skin()
+void Gx_bmp_GUI::set_skin()
 {
   Glib::ustring toparse = "pixmap_path  ";
   toparse +=     " '";
@@ -135,7 +135,7 @@ void Gx_sceleton_GUI::set_skin()
     
                  "    GxPaintBox::bevel                  = 0.11\n"
                  "    GxPaintBox::inverse                = 0\n"
-                 "    GxPaintBox::alternate-box          = { 0, 0, 15, 15 }\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 60, 0 }\n"
 
                  "    fg[NORMAL]              = '#ff9000'\n"
                  "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"
@@ -247,22 +247,22 @@ void Gx_sceleton_GUI::set_skin()
   gtk_rc_parse_string (toparse.c_str());
 }
 
-void Gx_sceleton_GUI::set_plug_name( const char * plugin_uri)
+void Gx_bmp_GUI::set_plug_name( const char * plugin_uri)
 {
   addKnob = "";
 
-  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_sceleton_gui#_sceleton_", plugin_uri) == 0)
+  if (strcmp("http://guitarix.sourceforge.net/plugins/gx_bmp_gui#_bmp_", plugin_uri) == 0)
     {
-      plug_name = "EffectNAME";
+      plug_name = "BigMuffPi";
       //set_knob("nk-knob");
     }
   else
     {
-      plug_name = "EffectNAME";
+      plug_name = "BigMuffPi";
     }
 }
 
-GtkWidget* Gx_sceleton_GUI::make_gui()
+GtkWidget* Gx_bmp_GUI::make_gui()
 {
   // init the gxwmm library
   Gxw::init();
@@ -284,7 +284,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
                                 LV2UI_Widget * widget,
                                 const LV2_Feature * const * features)
 {
-  Gx_sceleton_GUI* self = new Gx_sceleton_GUI();
+  Gx_bmp_GUI* self = new Gx_bmp_GUI();
   if (self == NULL) return NULL;
   self->set_plug_name_static(self, plugin_uri);
   *widget = (LV2UI_Widget)self->make_gui_static(self);
@@ -295,7 +295,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 
 static void cleanup(LV2UI_Handle ui)
 {
-  Gx_sceleton_GUI *pluginGui = static_cast<Gx_sceleton_GUI*>(ui);
+  Gx_bmp_GUI *pluginGui = static_cast<Gx_bmp_GUI*>(ui);
   delete pluginGui->widget;
   delete pluginGui;
 }
@@ -306,14 +306,14 @@ static void port_event(LV2UI_Handle ui,
                        uint32_t format,
                        const void * buffer)
 {
-  Gx_sceleton_GUI *self = static_cast<Gx_sceleton_GUI*>(ui);
+  Gx_bmp_GUI *self = static_cast<Gx_bmp_GUI*>(ui);
   self->widget->set_value_static( port_index, buffer_size, format, buffer, self->widget);
   return;
 }
 
 static LV2UI_Descriptor descriptors[] =
 {
-  {GXPLUGIN_UI_URI"#_sceleton_", instantiate, cleanup, port_event, NULL}
+  {GXPLUGIN_UI_URI"#_bmp_", instantiate, cleanup, port_event, NULL}
 };
 
 const LV2UI_Descriptor * lv2ui_descriptor(uint32_t index)
