@@ -61,6 +61,7 @@ lib_sources = [ # put in static library linked with guitarix
     "axface.dsp",
     "aclipper.dsp",
     "bmp.dsp",
+    "mxrdist.dsp",
     ]
 
 def build(bld):

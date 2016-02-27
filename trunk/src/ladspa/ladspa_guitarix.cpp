@@ -1015,6 +1015,7 @@ void MonoEngine::load_static_plugins() {
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::ts9sim::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::aclipper::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::mxrdist::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::impulseresponse::plugin(), PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::compressor::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::overdrive::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
