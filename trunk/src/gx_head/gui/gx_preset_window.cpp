@@ -794,7 +794,7 @@ void PresetWindow::show_online_preset() {
 
   scrollbox->add(*Gtk::manage(( Glib::wrap(GTK_WIDGET(web_view )))));
   window->add(*Gtk::manage(scrollbox));
-  webkit_web_view_load_uri(web_view, "https://musical-artifacts.com/?apps=guitarix");
+  webkit_web_view_load_uri(web_view, "https://api.musical-artifacts.com/guitarix-presets/");
   g_signal_connect(G_OBJECT (web_view), "download-requested", G_CALLBACK(downloadRequested), this);
   g_signal_connect(G_OBJECT (web_view), "run-file-chooser", G_CALLBACK(uploadRequested), this);
   window->show_all();
