@@ -791,6 +791,11 @@ void PresetWindow::show_online_preset() {
   scrollbox->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
   window->set_default_size( 400, 400 );
   WebKitWebView * web_view =  WEBKIT_WEB_VIEW( webkit_web_view_new() );
+  WebKitWebSettings *settings = webkit_web_settings_new ();
+  g_object_set (G_OBJECT(settings), "enable-offline-web-application-cache", TRUE, NULL);
+  g_object_set (G_OBJECT(settings), "enable-page-cache", TRUE, NULL);
+  webkit_web_view_set_settings (WEBKIT_WEB_VIEW(web_view), settings);
+  
 
   scrollbox->add(*Gtk::manage(( Glib::wrap(GTK_WIDGET(web_view )))));
   window->add(*Gtk::manage(scrollbox));
