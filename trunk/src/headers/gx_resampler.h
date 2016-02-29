@@ -68,6 +68,7 @@ public:
     int up(int count, float *input, float *output);
     void down(float *input, float *output);
     int max_out_count(int in_count) {
+	if (inputRate > outputRate) return in_count;
 	return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
 };
 

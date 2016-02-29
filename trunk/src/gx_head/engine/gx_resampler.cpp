@@ -192,7 +192,7 @@ int FixedRateResampler::setup(int _inputRate, int _outputRate)
     const int qual = 16; // resulting in a total delay of 2*qual (0.7ms @44100)
     inputRate = _inputRate;
     outputRate = _outputRate;
-    if (inputRate == outputRate) {
+    if (inputRate >= outputRate) {
 	return 0;
     }
     // upsampler
@@ -222,7 +222,7 @@ int FixedRateResampler::setup(int _inputRate, int _outputRate)
 
 int FixedRateResampler::up(int count, float *input, float *output)
 {
-    if (inputRate == outputRate) {
+    if (inputRate >= outputRate) {
 	memcpy(output, input, count*sizeof(float));
 	r_down.out_count = count;
 	return count;
@@ -242,7 +242,7 @@ int FixedRateResampler::up(int count, float *input, float *output)
 
 void FixedRateResampler::down(float *input, float *output)
 {
-    if (inputRate == outputRate) {
+    if (inputRate >= outputRate) {
 	memcpy(output, input, r_down.out_count*sizeof(float));
 	return;
     }
