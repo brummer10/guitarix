@@ -65,7 +65,7 @@ ratdrive = component("filter.lib").iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = fs*(4.3384046341364e-10*fs - 8.99037897457717e-9) + 3.41041934946762e-8;
 };
 
-process = rat_in : X3 : rat_out : ratdrive : clip : rat_tone : *(gain)  with {
+process = rat_in : X3 : rat_out : ratdrive : asclip : rat_tone : *(gain)  with {
     R1 = 4700;
     R2 = 1000 + 500000 * drive;
     C = 0.047 * 1e-6;
@@ -78,7 +78,7 @@ process = rat_in : X3 : rat_out : ratdrive : clip : rat_tone : *(gain)  with {
     X2 = component("filter.lib").tf1(B0, B1, A1);
     opamp = ffunction(float opamp(float), "clipping.h", "");
     X3 = _ <: _ - opamp(X2-_) :> _ ;
-    asymclip = ffunction(float asymhardclip2(float), "clipping.h", "");
-    clip = asymclip(_);
+    asymclip = ffunction(float asymclip3(float), "clipping.h", "");
+    asclip = asymclip(_);
     gain = hslider("level[name:Level]", -2, -20, 12, 0.1) : component("music.lib").db2linear : component("filter.lib").smooth(s);
 };

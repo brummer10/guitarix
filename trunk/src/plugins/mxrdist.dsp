@@ -7,7 +7,7 @@ declare samplerate "96000";
 SR = component("math.lib").SR;
 s = 0.993;
 fs = float(SR);
-drive =  hslider("drive[name:Drive]", 0.5, 0, 1, 0.01) : component("filter.lib").smooth(s);
+drive =  0.75 + hslider("drive[name:Drive]", 0.5, 0, 1, 0.01) * 0.25 : component("filter.lib").smooth(s);
 
 mxr_in = component("filter.lib").iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     
@@ -42,7 +42,7 @@ mxr_out = component("filter.lib").iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
 };
 
 process = mxr_in : X3 : clip : mxr_out   with {
-    R1 = 4700;
+    R1 = 4700 + 500000 * (1.0 -drive);
     R2 = 5000 + 500000 * drive;
     C = 0.047 * 1e-6;
     a1 = (R1 + R2) * C * 2 * SR;
