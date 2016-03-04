@@ -751,9 +751,9 @@ static int cab_load_ui(const UiBuilder& builder, int format) {
 	{
 	    builder.insertSpacer();
 	    builder.create_selector_no_caption("cab.select");
-	    builder.create_small_rackknobr("cab.bass", "bass");
-	    builder.create_small_rackknobr("cab.treble", "treble");
-	    builder.create_mid_rackknob("cab.Level", "level");
+	    builder.create_small_rackknobr("cab.bass", "Bass");
+	    builder.create_small_rackknobr("cab.treble", "Treble");
+	    builder.create_mid_rackknob("cab.Level", "Level");
 	}
 	builder.closeBox();
     }
@@ -854,9 +854,9 @@ void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, Pl
 int CabinetConvolver::register_cab(const ParamReg& reg) {
     CabinetConvolver& cab = *static_cast<CabinetConvolver*>(reg.plugin);
     reg.registerIEnumVar("cab.select", "select", "B", "", cab.cab_names, &cab.cabinet, 0);
-    reg.registerVar("cab.Level", "",  "S", "", &cab.level,  1.0, 0.5, 5.0, 0.5);
-    reg.registerVar("cab.bass", "",   "S", "", &cab.bass,   0.0, -10.0, 10.0, 0.5);
-    reg.registerVar("cab.treble", "", "S", "", &cab.treble, 0.0, -10.0, 10.0, 0.5);
+    reg.registerVar("cab.Level", N_("Level"),  "S", N_("Level"), &cab.level,  1.0, 0.5, 5.0, 0.5);
+    reg.registerVar("cab.bass", N_("Bass"),   "S", N_("Bass"), &cab.bass,   0.0, -10.0, 10.0, 0.5);
+    reg.registerVar("cab.treble", N_("Treble"), "S", N_("Treble"), &cab.treble, 0.0, -10.0, 10.0, 0.5);
     cab.impf.register_par(reg);
     return 0;
 }
@@ -922,9 +922,9 @@ static int pre_load_ui(const UiBuilder& builder, int format) {
 	{
 	    builder.insertSpacer();
 	    builder.create_selector_no_caption("pre.select");
-	    builder.create_small_rackknobr("pre.bass", "bass");
-	    builder.create_small_rackknobr("pre.treble", "treble");
-	    builder.create_mid_rackknob("pre.Level", "level");
+	    builder.create_small_rackknobr("pre.bass", "Bass");
+	    builder.create_small_rackknobr("pre.treble", "Treble");
+	    builder.create_mid_rackknob("pre.Level", "Level");
 	}
 	builder.closeBox();
     }
@@ -1025,9 +1025,9 @@ void PreampConvolver::run_pre_conf(int count, float *input0, float *output0, Plu
 int PreampConvolver::register_pre(const ParamReg& reg) {
     PreampConvolver& pre = *static_cast<PreampConvolver*>(reg.plugin);
     reg.registerIEnumVar("pre.select", "select", "B", "", pre.pre_names, &pre.preamp, 0);
-    reg.registerVar("pre.Level", "",  "S", "", &pre.level,  1.0, 0.1, 2.1, 0.1);
-    reg.registerVar("pre.bass", "",   "S", "", &pre.bass,   0.0, -10.0, 10.0, 0.5);
-    reg.registerVar("pre.treble", "", "S", "", &pre.treble, 0.0, -10.0, 10.0, 0.5);
+    reg.registerVar("pre.Level", N_("Level"),  "S", N_("Level"), &pre.level,  1.0, 0.1, 2.1, 0.1);
+    reg.registerVar("pre.bass", N_("Bass"),   "S", N_("Bass"), &pre.bass,   0.0, -10.0, 10.0, 0.5);
+    reg.registerVar("pre.treble", N_("Treble"), "S", N_("Treble"), &pre.treble, 0.0, -10.0, 10.0, 0.5);
     pre.impf.register_par(reg);
     return 0;
 }
@@ -1562,12 +1562,12 @@ int smbPitchShift::register_par(const ParamReg& reg)
     reg.registerEnumVar("smbPitchShift.l",N_("compensate latency"),"S",N_("compensate latency"),latency_values,&l, 0.0f, 0.0f, 1.0f, 1.0f);
     static const value_pair latency_set[] = {{"high quality"},{"low quality"},{"realtime"},{0}};
     reg.registerIEnumVar("smbPitchShift.latency",N_("latency settings"),"B",N_("latency settings"),latency_set,&latency, 0);
-    reg.registerVar("smbPitchShift.wet", N_("wet amount"), "S", "", &wet, 50.0, 0.0, 100.0, 1);
-    reg.registerVar("smbPitchShift.dry", N_("dry amount"), "S", "", &dry, 50.0, 0.0, 100.0, 1);
-    reg.registerVar("smbPitchShift.a", N_("low"), "S", N_("low"), &a, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.b", N_("middle low"), "S", N_("middle low"), &b, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.c", N_("middle treble"), "S", N_("middle treble"), &c, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.d", N_("treble"), "S", N_("treble"), &d, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.wet", N_("Wet amount"), "S", N_("Wet amount"), &wet, 50.0, 0.0, 100.0, 1);
+    reg.registerVar("smbPitchShift.dry", N_("Dry amount"), "S", N_("Dry amount"), &dry, 50.0, 0.0, 100.0, 1);
+    reg.registerVar("smbPitchShift.a", N_("low"), "S", N_("Lo"), &a, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.b", N_("middle low"), "S", N_("LoMid"), &b, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.c", N_("middle treble"), "S", N_("HiMid"), &c, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.d", N_("treble"), "S", N_("Hi"), &d, 1.0, 0.0, 2.0, 0.01);
     param["smbPitchShift.latency"].signal_changed_int().connect(
         sigc::hide(sigc::mem_fun(this, &smbPitchShift::change_latency)));
     return 0;
@@ -1583,7 +1583,7 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
     if (form & UI_FORM_STACK) {
     b.openHorizontalhideBox("");
     {
-        b.create_master_slider("smbPitchShift.semitone","detune");
+        b.create_master_slider("smbPitchShift.semitone",N_("Detune"));
     }
     b.closeBox();
     b.openVerticalBox("");
@@ -1599,22 +1599,22 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
     b.insertSpacer();
     }
     b.closeBox();
-    b.create_mid_rackknob("smbPitchShift.semitone","detune");
-    b.create_small_rackknobr("smbPitchShift.dry","dry amount");
-    b.create_small_rackknobr("smbPitchShift.wet","wet amount");
+    b.create_mid_rackknob("smbPitchShift.semitone",N_("Detune"));
+    b.create_small_rackknobr("smbPitchShift.dry",N_("Dry amount"));
+    b.create_small_rackknobr("smbPitchShift.wet",N_("Wet amount"));
     }
     b.closeBox();
     b.insertSpacer();
     b.openHorizontalBox("");
     {
     b.set_next_flags(UI_LABEL_INVERSE);
-    b.create_small_rackknobr("smbPitchShift.a","low");
+    b.create_small_rackknobr("smbPitchShift.a",N_("Lo"));
     b.set_next_flags(UI_LABEL_INVERSE);
-    b.create_small_rackknobr("smbPitchShift.b","middle low");
+    b.create_small_rackknobr("smbPitchShift.b",N_("LoMid"));
     b.set_next_flags(UI_LABEL_INVERSE);
-    b.create_small_rackknobr("smbPitchShift.c","middle treble");
+    b.create_small_rackknobr("smbPitchShift.c",N_("HiMide"));
     b.set_next_flags(UI_LABEL_INVERSE);
-    b.create_small_rackknobr("smbPitchShift.d","treble");
+    b.create_small_rackknobr("smbPitchShift.d",N_("Hi"));
     }
     b.closeBox();
     }

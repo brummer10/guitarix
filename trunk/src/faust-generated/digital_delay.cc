@@ -475,8 +475,8 @@ int Dsp::register_params_static(const ParamReg& reg)
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
   <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
   <!-- interface-naming-policy project-wide -->\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
@@ -792,7 +792,6 @@ const char *Dsp::glade_def = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">True</property>\n\
                         <property name=\"receives_default\">True</property>\n\
-                        <property name=\"use_action_appearance\">False</property>\n\
                         <property name=\"use_stock\">True</property>\n\
                         <property name=\"var_id\">dide.Freeze</property>\n\
                         <property name=\"label_ref\">label31:rack_label_inverse</property>\n\
