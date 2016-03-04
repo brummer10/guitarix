@@ -114,7 +114,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double input = aver_out/count;
 		double band_out = 0;
 		p_eq1->sbs_process_band(j, &input, &band_out);
-		*fbargraph[j] = BARK_NUMBER_OF_BANDS*band_out*band_out;				
+		*fbargraph[j] = BARK_NUMBER_OF_BANDS*band_out;				
 	}
 }
 
