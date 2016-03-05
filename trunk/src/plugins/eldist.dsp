@@ -5,6 +5,7 @@ declare name "Electra Distortion";
 declare category "Distortion";
 declare shortname "Electra Dst";
 declare description "Electra Distortion";
+declare samplerate "96000";
 
 import("filter.lib");
 

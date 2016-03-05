@@ -5,6 +5,7 @@ declare name "Screaming Bird";
 declare category "Fuzz";
 declare shortname "Scream Bird";
 declare description "Screaming Bird";
+declare samplerate "96000";
 
 import("filter.lib");
 
@@ -14,7 +15,9 @@ process = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) : clip with {
     s = 0.993;
     fs = float(SR);
     pre = _;
-    clip(x) = min(0.4514,max(-0.2514,x));
+    //clip(x) = min(0.4514,max(-0.2514,x));
+    asymclip = ffunction(float asymclip(float), "clipping.h", "");
+    clip = asymclip(_);
 
     
         Scream = vslider("Scream[name:Scream]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);

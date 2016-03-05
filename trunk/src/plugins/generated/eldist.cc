@@ -10,6 +10,8 @@ namespace eldist {
 
 class Dsp: public PluginDef {
 private:
+	gx_resample::FixedRateResampler smp;
+	int samplingFreq;
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
 	double 	fRec0[2];
@@ -75,8 +77,10 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int RsamplingFreq)
 {
+	samplingFreq = 96000;
+	smp.setup(RsamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
 	fConst0 = double(min(192000, max(1, fSamplingFreq)));
 	fConst1 = (3.9949101411109e-05 * fConst0);
@@ -95,17 +99,20 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
+	FAUSTFLOAT buf[smp.max_out_count(count)];
+	int ReCount = smp.up(count, input0, buf);
 	double 	fSlow0 = (0.007000000000000006 * double(fslider0));
-	for (int i=0; i<count; i++) {
+	for (int i=0; i<ReCount; i++) {
 		fRec0[0] = (fSlow0 + (0.993 * fRec0[1]));
 		double fTemp0 = (fConst4 + (fConst2 * fRec0[0]));
 		double fTemp1 = (8.14686408743197e-08 * fRec0[0]);
-		fRec1[0] = ((double)input0[i] - ((fRec1[1] * (fConst6 + (fConst5 * fRec0[0]))) / fTemp0));
-		output0[i] = (FAUSTFLOAT)asymclip((fConst0 * (((fRec1[0] * ((0 - fTemp1) - 0.00018716364572377)) + (fRec1[1] * (0.00018716364572377 + fTemp1))) / fTemp0)));
+		fRec1[0] = ((double)buf[i] - ((fRec1[1] * (fConst6 + (fConst5 * fRec0[0]))) / fTemp0));
+		buf[i] = (FAUSTFLOAT)asymclip((fConst0 * (((fRec1[0] * ((0 - fTemp1) - 0.00018716364572377)) + (fRec1[1] * (0.00018716364572377 + fTemp1))) / fTemp0)));
 		// post processing
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];
 	}
+	smp.down(buf, output0);
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)

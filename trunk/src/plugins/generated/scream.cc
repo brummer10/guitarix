@@ -3,12 +3,15 @@
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
+#include "clipping.h"
 
 namespace pluginlib {
 namespace scream {
 
 class Dsp: public PluginDef {
 private:
+	gx_resample::FixedRateResampler smp;
+	int samplingFreq;
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
 	double 	fRec0[2];
@@ -75,8 +78,10 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int RsamplingFreq)
 {
+	samplingFreq = 96000;
+	smp.setup(RsamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
 	fConst0 = double(min(192000, max(1, fSamplingFreq)));
 	fConst1 = (3.64434266110822e-10 * fConst0);
@@ -96,16 +101,19 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
+	FAUSTFLOAT buf[smp.max_out_count(count)];
+	int ReCount = smp.up(count, input0, buf);
 	double 	fSlow0 = (0.007000000000000006 * double(fslider0));
-	for (int i=0; i<count; i++) {
+	for (int i=0; i<ReCount; i++) {
 		fRec0[0] = ((0.993 * fRec0[1]) + fSlow0);
 		double fTemp0 = ((0 - (6.82076449438528e-09 * fRec0[0])) - 6.82076449438528e-10);
-		fRec1[0] = ((double)input0[i] - (fConst6 * ((fConst4 * fRec1[1]) + (fConst2 * fRec1[2]))));
-		output0[i] = (FAUSTFLOAT)min(0.4514, max(-0.2514, (fConst7 * (((fRec1[0] * fTemp0) + (fRec1[1] * (1.36415289887706e-09 + (1.36415289887706e-08 * fRec0[0])))) + (fRec1[2] * fTemp0)))));
+		fRec1[0] = ((double)buf[i] - (fConst6 * ((fConst4 * fRec1[1]) + (fConst2 * fRec1[2]))));
+		buf[i] = (FAUSTFLOAT)asymclip((fConst7 * (((fRec1[0] * fTemp0) + (fRec1[1] * (1.36415289887706e-09 + (1.36415289887706e-08 * fRec0[0])))) + (fRec1[2] * fTemp0))));
 		// post processing
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];
 	}
+	smp.down(buf, output0);
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
