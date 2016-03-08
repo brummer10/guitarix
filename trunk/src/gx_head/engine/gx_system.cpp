@@ -464,6 +464,7 @@ CmdlineOptions::CmdlineOptions()
       liveplaygui(false),
       mute(false),
       setbank(),
+      tuner_tet(),
       sporadic_overload(0),
       idle_thread_timeout(0),
       convolver_watchdog(true),
@@ -556,6 +557,11 @@ CmdlineOptions::CmdlineOptions()
     opt_bank.set_long_name("bank");
     opt_bank.set_description("set bank and preset to load at startup");
     opt_bank.set_arg_description("BANK:PRESET (A:0-Z:9)");
+    Glib::OptionEntry opt_tuner_tet;
+    opt_tuner_tet.set_short_name('t');
+    opt_tuner_tet.set_long_name("tuner_tet");
+    opt_tuner_tet.set_description("set tuner temperament at startup");
+    opt_tuner_tet.set_arg_description("tuner temperament (12, 19, 24, 31, 53)");
     main_group.add_entry(opt_version, version);
     main_group.add_entry(opt_nogui, nogui);
     main_group.add_entry(opt_rpcport, rpcport);
@@ -564,6 +570,7 @@ CmdlineOptions::CmdlineOptions()
     main_group.add_entry(opt_liveplaygui, liveplaygui);
     main_group.add_entry(opt_mute, mute);
     main_group.add_entry(opt_bank, setbank);
+    main_group.add_entry(opt_tuner_tet, tuner_tet);
     set_main_group(main_group);
 
     // style options

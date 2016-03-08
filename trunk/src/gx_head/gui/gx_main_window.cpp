@@ -2114,6 +2114,20 @@ void MainWindow::set_tuning(Gxw::RackTuner& tuner) {
     }
 }
 
+void MainWindow::set_tuner_tet(Gxw::RackTuner& tuner) {
+    Glib::ustring tet = options.get_tuner_tet();
+    int t = 0;
+    if (tet.find("12") !=Glib::ustring::npos) t=0;
+    else if (tet.find("19") !=Glib::ustring::npos) t=1;
+    else if (tet.find("24") !=Glib::ustring::npos) t=2;
+    else if (tet.find("31") !=Glib::ustring::npos) t=3;
+    else if (tet.find("53") !=Glib::ustring::npos) t=4;
+    else t = tuner_temperament->get_value();
+    machine.set_parameter_value("racktuner.temperament", t);
+    tuner.set_temperament(tuner_temperament->get_value());
+    set_tuning(tuner);
+}
+
 void MainWindow::setup_tuner_temperament(Gxw::RackTuner& tuner) {
     tuner.set_temperament(tuner_temperament->get_value());
     set_tuning(tuner);
@@ -2997,6 +3011,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 		insert_image->set(pixbuf_insert_off);
 		machine.set_jack_insert(true);
 	}
+    if (!options.get_tuner_tet().empty()) set_tuner_tet(*racktuner);
 
     /*
      * Logo image
