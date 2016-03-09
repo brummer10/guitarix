@@ -2153,7 +2153,7 @@ void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
     tuner_reference_pitch->signal_value_changed().connect(
 	sigc::compose(
 	    sigc::mem_fun(tuner, &Gxw::RackTuner::set_reference_pitch),
-	    sigc::mem_fun(*tuner_reference_pitch, &Gxw::Wheel::get_value)));
+	    sigc::mem_fun(*tuner_reference_pitch, &Gxw::ValueDisplay::get_value)));
     tuner_tuning->signal_value_changed().connect(
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::set_tuning), sigc::ref(tuner)));
     tuner_temperament->signal_value_changed().connect(
