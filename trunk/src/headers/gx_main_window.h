@@ -735,6 +735,7 @@ private:
     void set_new_skin(const Glib::ustring& skin_name);
     void set_tuning(Gxw::RackTuner& tuner);
     void set_tuner_tet(Gxw::RackTuner& tuner);
+    void set_tuner_ref(Gxw::RackTuner& tuner);
     void setup_tuner_temperament(Gxw::RackTuner& tuner);
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);

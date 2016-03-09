@@ -2128,10 +2128,17 @@ void MainWindow::set_tuner_tet(Gxw::RackTuner& tuner) {
     set_tuning(tuner);
 }
 
+void MainWindow::set_tuner_ref(Gxw::RackTuner& tuner) {
+    Glib::ustring ref = options.get_tuner_ref();
+    float t = atof(ref.c_str());
+    machine.set_parameter_value("ui.tuner_reference_pitch", t);
+    tuner.set_reference_pitch(tuner_reference_pitch->get_value());
+    set_tuning(tuner);
+}
+
 void MainWindow::setup_tuner_temperament(Gxw::RackTuner& tuner) {
     tuner.set_temperament(tuner_temperament->get_value());
     set_tuning(tuner);
-
 }
 
 void MainWindow::setup_tuner(Gxw::RackTuner& tuner) {
@@ -3012,6 +3019,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 		machine.set_jack_insert(true);
 	}
     if (!options.get_tuner_tet().empty()) set_tuner_tet(*racktuner);
+    if (!options.get_tuner_ref().empty()) set_tuner_ref(*racktuner);
 
     /*
      * Logo image

@@ -121,7 +121,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     static const value_pair tuning_temperament[] = {{"12-ET"},{"19-ET"},{"24-ET"},{"31-ET"},{"53-ET"}, {0}};
     pmap.reg_non_midi_enum_par("racktuner.temperament", "Temperament", tuning_temperament, (int*)0, false, 0);
     pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
-    pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 427, 453, 0.1);
+    pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 225, 453, 0.1);
     //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
 
     pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);

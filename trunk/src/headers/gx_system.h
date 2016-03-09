@@ -417,6 +417,7 @@ private:
     bool mute;
     Glib::ustring setbank;
     Glib::ustring tuner_tet;
+    Glib::ustring tuner_ref;
     int sporadic_overload;
     int idle_thread_timeout;
     bool convolver_watchdog;
@@ -483,6 +484,7 @@ public:
     bool get_mute() const { return mute; }
     const Glib::ustring& get_setbank() { return setbank; }
     const Glib::ustring& get_tuner_tet() { return tuner_tet; }
+    const Glib::ustring& get_tuner_ref() { return tuner_ref; }
     int get_rpcport() const { return rpcport; }
     void set_rpcport(int port) { rpcport = port; }
     const Glib::ustring& get_rpcaddress() { return rpcaddress; }

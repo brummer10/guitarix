@@ -465,6 +465,7 @@ CmdlineOptions::CmdlineOptions()
       mute(false),
       setbank(),
       tuner_tet(),
+      tuner_ref(),
       sporadic_overload(0),
       idle_thread_timeout(0),
       convolver_watchdog(true),
@@ -562,6 +563,11 @@ CmdlineOptions::CmdlineOptions()
     opt_tuner_tet.set_long_name("tuner_tet");
     opt_tuner_tet.set_description("set tuner temperament at startup");
     opt_tuner_tet.set_arg_description("tuner temperament (12, 19, 24, 31, 53)");
+    Glib::OptionEntry opt_tuner_ref;
+    opt_tuner_ref.set_short_name('F');
+    opt_tuner_ref.set_long_name("reference_pitch");
+    opt_tuner_ref.set_description("set tuner reference pitch at startup");
+    opt_tuner_ref.set_arg_description("tuner reference pitch (225 - 453)");
     main_group.add_entry(opt_version, version);
     main_group.add_entry(opt_nogui, nogui);
     main_group.add_entry(opt_rpcport, rpcport);
@@ -571,6 +577,7 @@ CmdlineOptions::CmdlineOptions()
     main_group.add_entry(opt_mute, mute);
     main_group.add_entry(opt_bank, setbank);
     main_group.add_entry(opt_tuner_tet, tuner_tet);
+    main_group.add_entry(opt_tuner_ref, tuner_ref);
     set_main_group(main_group);
 
     // style options
