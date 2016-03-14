@@ -35,6 +35,7 @@ def build(bld):
         '../plugins/ts9sim.cc',
         '../plugins/aclipper.cc',
         '../plugins/mxrdist.cc',
+        '../plugins/bossds1.cc',
         '../plugins/flanger_gx.cc',
         '../plugins/mbc.cc',
         '../plugins/mbcs.cc',
