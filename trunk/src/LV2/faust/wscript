@@ -137,6 +137,8 @@ def build(bld):
         'gcb_95.dsp',
         'aclipper.dsp',
         'bmp.dsp',
+        'mxrdist.dsp',
+        'bossds1.dsp',
 
 
         # tone stacks
