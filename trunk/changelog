@@ -1,3 +1,75 @@
+guitarix2 (0.34.0) unstable; urgency=low
+
+  * Add BOSS OC-2 partial emulation LV2 plugin (by drgreenthumb)
+  * Add gx_hogsfoot.lv2 gx_mole.lv2 and gx_rangem.lv2
+  * Add gx_plugins AxeFace, BassFuzz, Buzz and the Mole
+  * Add Gx_Wah.lv2 plugin
+  * Add colorsound bass wah plugin emulation
+  * Add Roland Wah add Jen Bass Wah emulation
+  * Add bitdowner distortion plugin (by Viacheslav Lotsmanov)
+
+  * Add volume control to gcb95 plug
+  * Add file browser and file load support to dubber (livelooper) plugin
+  * Add play all button to the dubber (livelooper) plugin
+  * Add support to import LV2 plugin presets into guitarix
+  * Add 24-edo tuner option
+  * Add 53-edo tuner option
+
+  * Disable LILV_OPTION_DYN_MANIFEST to avoid crashes from
+    naspro-bridges (dssi).
+
+  * Add online preset download widget (requires libwebkit-1.0)
+    thanks to lfz for creating https://musical-artifacts.com/
+ 
+  * Fix GxAmplifier-x GxAmplifierStereo-X and GxCabinet for the new
+    ardour buffersize behave.
+
+  * Implement double click on plugin handle remove plugin from rack
+
+  * Fix guitarix build for the new libsigc++ library and the new GCC5
+    compiler. Guitarix use now the default build flag -std=c++11
+    (you can disable it, see ./waf --help for more optional flags)
+
+ -- 08.11.2015
+
+guitarix2 (0.33.0) unstable; urgency=low
+
+  * New Plugins in guitarix
+    - A new Wah plugin with manual/auto/alien mode and the following
+      emulated wah wah's to select from:
+      * Colorsond Wah
+      * DallasArbiter Wah
+      * Foxx Wah
+      * JEN Wah
+      * Maestro Boomer Wah
+      * Selmer Wah
+      * Vox Wah
+    - A new Fuzz section with emulations of the:
+      * Astrotone Fuzz
+      * Dunlop Fuzzface
+      * Fuzzface Roger Mayer Mods
+      * Fuzzface Fuller Mods
+      * Foxeylady
+      * Hornet
+      * Sustainer
+      * Muff
+      * Screaming Bird
+      * Colorsound Tonebender
+      * Vintage Fuzzmaster
+      * Ruiner
+      * Fat Furry Freak
+      * Fuzz Drive
+    - And emulations of:
+      * LPB-1 Linear power Booster
+      * High Frequency Brightener
+      * Hogs Foot
+      * Dallas Rangemaster
+      * Buffer Booster
+      * Transistor Buffer
+      * Colorsound Overdrive
+
+ -- 01.08.2015
+
 guitarix2 (0.32.3) unstable; urgency=low
   * fix some rcstyle bugs for KDE Qtcurve engine
   * add 2 new rc-styles (flat and green

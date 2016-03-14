@@ -372,7 +372,7 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
         } else if (!p->isSavable()) {
             gx_print_warning(
 		_("recall settings"),
-		_("non savable parameter ")+p->id()+_(" in settings"));
+		_("non saveable parameter ")+p->id()+_(" in settings"));
             jp.skip_object();
             continue;
 	}

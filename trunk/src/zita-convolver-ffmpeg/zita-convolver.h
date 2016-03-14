@@ -41,7 +41,7 @@ extern int zita_convolver_major_version (void);
 #undef ZCSEMA_IS_IMPLEMENTED
 #endif
 
-#if defined __linux__ || defined __FreeBSD__
+#ifndef __APPLE__
 #include <semaphore.h>
 
 class ZCsema
@@ -65,10 +65,10 @@ private:
 };
 
 #define ZCSEMA_IS_IMPLEMENTED
-#endif
 
 
-#ifdef __APPLE__
+
+#else
 
 // NOTE:  ***** I DO NOT REPEAT NOT PROVIDE SUPPORT FOR OSX *****
 // 

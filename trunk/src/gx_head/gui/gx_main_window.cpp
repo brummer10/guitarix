@@ -1237,7 +1237,7 @@ void gx_show_about() {
         about +=_("<b>Guitarix:gx_head</b> (");
         about += GX_VERSION;
         about +=
-            _(")\n\nThis Aplication is to a large extent provided"
+            _(")\n\nThis Application is to a large extent provided"
             "\nwith the marvelous faust compiler.Yann Orlary"
             "\n(http://faust.grame.fr/)"
             "\n\nA large part is based on the work of Julius Orion Smith"
