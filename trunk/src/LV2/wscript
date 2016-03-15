@@ -123,7 +123,8 @@ def configure(conf):
 
     for x in dirlist():
         conf.sub_config('%s' % x);
-        sub_file('./src/LV2/%s/manifest.ttl.in' % x, './src/LV2/%s/manifest.ttl' % x, (('@LIB_EXT@', '%s' % pa), ))
+        if conf.env['NOMODGUI']:
+            sub_file('./src/LV2/%s/manifest.ttl.in' % x, './src/LV2/%s/manifest.ttl' % x, (('@LIB_EXT@', '%s' % pa), (',\n        <modgui.ttl> ','%s' % ' '), (', <modgui.ttl>','%s' % ' '), (', <modguis.ttl>','%s' % ' ')))
 
 def build(bld):
     # faust folder keep out of dirlist
