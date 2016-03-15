@@ -218,6 +218,12 @@ def set_options(opt):
                     const=True,
                     help=("build only the lv2 plugins (Default no)"))
 
+    lv2.add_option('--no-mod-lv2',
+                    action='store_const',
+                    default=False,
+                    const=True,
+                    help=("don't install MOD lv2 GUI's (Default no)"))
+
     lv2.add_option('--disable-sse',
                     action='store_const',
                     default=False,
@@ -731,6 +737,7 @@ def configure(conf):
     conf.env['LV2'] =  not opt.no_lv2
     conf.env['LV2ONLY'] =  opt.lv2_only
     conf.env['NOLV2GUI'] = opt.no_lv2_gui
+    conf.env['NOMODGUI'] = opt.no_mod_lv2
     conf.env['NOSSE'] =  opt.disable_sse
     if not opt.no_lv2:
         if opt.lv2dir:
@@ -846,6 +853,7 @@ def configure(conf):
     display_feature("build ladspa plugins", conf.env['LADSPA'])
     display_feature("build lv2 plugins", conf.env['LV2'])
     display_feature("build lv2 plugin GUI's", not conf.env['NOLV2GUI'])
+    display_feature("install MOD lv2 plugin GUI's", not conf.env['NOMODGUI'])
     if not opt.no_lv2:
         display_feature("SSE2 support found", conf.env['SSE2'])
         display_feature("SSE2 support disabled", conf.env['NOSSE'])

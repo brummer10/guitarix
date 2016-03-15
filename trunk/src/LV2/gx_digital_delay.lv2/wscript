@@ -65,5 +65,8 @@ def build(bld):
         lv2_effetcs_gui.env['shlib_PATTERN'] = '%s.so'
    
     install_path = '${LV2DIR}/%s' % bundle,
-    bld.install_files('${LV2DIR}/gx_digital_delay.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
-    bld.install_files('${LV2DIR}/gx_digital_delay.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    if bld.env['NOMODGUI']:
+        bld.install_files('${LV2DIR}/gx_digital_delay.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
+    else:
+        bld.install_files('${LV2DIR}/gx_digital_delay.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
+        bld.install_files('${LV2DIR}/gx_digital_delay.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
