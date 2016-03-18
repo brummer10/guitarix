@@ -30,6 +30,7 @@ private:
 	double 	fRec0[3];
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
+	static const char *glade_def;
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
@@ -190,10 +191,10 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("eq.bandwidth1","","S",N_("bandwidth (hz)"),&fslider11, 41.0, 5.0, 2e+04, 1.0);
-	reg.registerVar("eq.bandwidth2","","S",N_("bandwidth (hz)"),&fslider8, 2.2e+02, 5.0, 2e+04, 1.0);
-	reg.registerVar("eq.bandwidth3","","S",N_("bandwidth (hz)"),&fslider5, 8.8e+02, 5.0, 2e+04, 1.0);
-	reg.registerVar("eq.bandwidth4","","S",N_("bandwidth (hz)"),&fslider2, 1.76e+03, 5.0, 2e+04, 1.0);
+	reg.registerVar("eq.bandwidth1",N_("Bandwidth"),"S",N_("bandwidth (hz)"),&fslider11, 41.0, 5.0, 2e+04, 1.0);
+	reg.registerVar("eq.bandwidth2",N_("Bandwidth"),"S",N_("bandwidth (hz)"),&fslider8, 2.2e+02, 5.0, 2e+04, 1.0);
+	reg.registerVar("eq.bandwidth3",N_("Bandwidth"),"S",N_("bandwidth (hz)"),&fslider5, 8.8e+02, 5.0, 2e+04, 1.0);
+	reg.registerVar("eq.bandwidth4",N_("Bandwidth"),"S",N_("bandwidth (hz)"),&fslider2, 1.76e+03, 5.0, 2e+04, 1.0);
 	reg.registerVar("eq.level1","","S",N_("gain (dB)"),&fslider10, 0.0, -5e+01, 5e+01, 0.1);
 	reg.registerVar("eq.level2","","S",N_("gain (dB)"),&fslider7, 0.0, -5e+01, 5e+01, 0.1);
 	reg.registerVar("eq.level3","","S",N_("gain (dB)"),&fslider4, 0.0, -5e+01, 5e+01, 0.1);
@@ -210,8 +211,295 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
+const char *Dsp::glade_def = "\
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<interface>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-naming-policy project-wide -->\n\
+  <object class=\"GtkWindow\" id=\"window1\">\n\
+    <property name=\"can_focus\">False</property>\n\
+    <child>\n\
+      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+        <property name=\"visible\">True</property>\n\
+        <property name=\"can_focus\">False</property>\n\
+        <child>\n\
+          <object class=\"GxPaintBox\" id=\"rackbox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <property name=\"paint_func\">box_uni_2_expose</property>\n\
+            <child>\n\
+              <object class=\"GtkTable\" id=\"table1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"n_rows\">4</property>\n\
+                <property name=\"n_columns\">4</property>\n\
+                <property name=\"column_spacing\">14</property>\n\
+                <child>\n\
+                  <object class=\"GxSmallKnob\" id=\"gxsmallknob1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.bandwidth1</property>\n\
+                    <property name=\"label_ref\">label1:rack_label_inverse</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"top_attach\">3</property>\n\
+                    <property name=\"bottom_attach\">4</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxSmallKnob\" id=\"gxsmallknob2\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.bandwidth2</property>\n\
+                    <property name=\"label_ref\">label2:rack_label_inverse</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">1</property>\n\
+                    <property name=\"right_attach\">2</property>\n\
+                    <property name=\"top_attach\">3</property>\n\
+                    <property name=\"bottom_attach\">4</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxSmallKnob\" id=\"gxsmallknob3\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.bandwidth3</property>\n\
+                    <property name=\"label_ref\">label3:rack_label_inverse</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">2</property>\n\
+                    <property name=\"right_attach\">3</property>\n\
+                    <property name=\"top_attach\">3</property>\n\
+                    <property name=\"bottom_attach\">4</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxSmallKnob\" id=\"gxsmallknob4\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.bandwidth4</property>\n\
+                    <property name=\"label_ref\">label4:rack_label_inverse</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">3</property>\n\
+                    <property name=\"right_attach\">4</property>\n\
+                    <property name=\"top_attach\">3</property>\n\
+                    <property name=\"bottom_attach\">4</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxVSlider\" id=\"gxvslider1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.level1</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"top_attach\">1</property>\n\
+                    <property name=\"bottom_attach\">2</property>\n\
+                    <property name=\"x_options\">GTK_EXPAND</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxVSlider\" id=\"gxvslider2\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.level2</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">1</property>\n\
+                    <property name=\"right_attach\">2</property>\n\
+                    <property name=\"top_attach\">1</property>\n\
+                    <property name=\"bottom_attach\">2</property>\n\
+                    <property name=\"x_options\">GTK_EXPAND</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxVSlider\" id=\"gxvslider3\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.level3</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">2</property>\n\
+                    <property name=\"right_attach\">3</property>\n\
+                    <property name=\"top_attach\">1</property>\n\
+                    <property name=\"bottom_attach\">2</property>\n\
+                    <property name=\"x_options\">GTK_EXPAND</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxVSlider\" id=\"gxvslider4\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.level4</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">3</property>\n\
+                    <property name=\"right_attach\">4</property>\n\
+                    <property name=\"top_attach\">1</property>\n\
+                    <property name=\"bottom_attach\">2</property>\n\
+                    <property name=\"x_options\">GTK_EXPAND</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxValueDisplay\" id=\"gxvaluedisplay1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.peak1</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"x_options\">GTK_EXPAND</property>\n\
+                    <property name=\"y_options\">GTK_EXPAND</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxValueDisplay\" id=\"gxvaluedisplay2\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.peak2</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">1</property>\n\
+                    <property name=\"right_attach\">2</property>\n\
+                    <property name=\"x_options\">GTK_EXPAND</property>\n\
+                    <property name=\"y_options\">GTK_EXPAND</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxValueDisplay\" id=\"gxvaluedisplay3\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.peak3</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">2</property>\n\
+                    <property name=\"right_attach\">3</property>\n\
+                    <property name=\"x_options\">GTK_EXPAND</property>\n\
+                    <property name=\"y_options\">GTK_EXPAND</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GxValueDisplay\" id=\"gxvaluedisplay4\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">eq.peak4</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">3</property>\n\
+                    <property name=\"right_attach\">4</property>\n\
+                    <property name=\"x_options\">GTK_EXPAND</property>\n\
+                    <property name=\"y_options\">GTK_EXPAND</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label1:rack_label_inverse\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"top_attach\">2</property>\n\
+                    <property name=\"bottom_attach\">3</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label2:rack_label_inverse\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">1</property>\n\
+                    <property name=\"right_attach\">2</property>\n\
+                    <property name=\"top_attach\">2</property>\n\
+                    <property name=\"bottom_attach\">3</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label3:rack_label_inverse\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">2</property>\n\
+                    <property name=\"right_attach\">3</property>\n\
+                    <property name=\"top_attach\">2</property>\n\
+                    <property name=\"bottom_attach\">3</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label4:rack_label_inverse\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">3</property>\n\
+                    <property name=\"right_attach\">4</property>\n\
+                    <property name=\"top_attach\">2</property>\n\
+                    <property name=\"bottom_attach\">3</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">False</property>\n\
+            <property name=\"fill\">False</property>\n\
+            <property name=\"position\">0</property>\n\
+          </packing>\n\
+        </child>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"minibox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <placeholder/>\n\
+            </child>\n\
+            <child>\n\
+              <placeholder/>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">True</property>\n\
+            <property name=\"position\">1</property>\n\
+          </packing>\n\
+        </child>\n\
+      </object>\n\
+    </child>\n\
+  </object>\n\
+</interface>\n\
+";
+
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
+        return 0;
+    }
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("eq" "." p)
 b.openHorizontalhideBox("");

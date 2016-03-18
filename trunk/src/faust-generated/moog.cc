@@ -25,6 +25,7 @@ private:
 	double 	fRec7[2];
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
+	static const char *glade_def;
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
@@ -146,8 +147,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("moog.Q","","S","",&fslider1, 1.0, 0.0, 4.0, 0.1);
-	reg.registerVar("moog.fr","","S","",&fslider0, 3e+03, 4.4e+02, 6e+03, 1e+01);
+	reg.registerVar("moog.Q",N_("Q"),"S","",&fslider1, 1.0, 0.0, 4.0, 0.1);
+	reg.registerVar("moog.fr",N_("Freq"),"S","",&fslider0, 3e+03, 4.4e+02, 6e+03, 1e+01);
 	return 0;
 }
 
@@ -156,8 +157,144 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
+const char *Dsp::glade_def = "\
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<interface>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-naming-policy project-wide -->\n\
+  <object class=\"GtkWindow\" id=\"window1\">\n\
+    <property name=\"can_focus\">False</property>\n\
+    <child>\n\
+      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+        <property name=\"visible\">True</property>\n\
+        <property name=\"can_focus\">False</property>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+                <property name=\"visible\">True</property>\n\
+                <property name=\"can_focus\">False</property>\n\
+                <property name=\"spacing\">10</property>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxSmallKnobR\" id=\"gxbigknob1\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">moog.Q</property>\n\
+                        <property name=\"label_ref\">label1:rack_label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxSmallKnobR\" id=\"gxbigknob2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">moog.fr</property>\n\
+                        <property name=\"label_ref\">label2:rack_label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+              </object>\n\
+              <packing>\n\
+                <property name=\"expand\">True</property>\n\
+                <property name=\"fill\">False</property>\n\
+                <property name=\"pack_type\">end</property>\n\
+                <property name=\"position\">0</property>\n\
+              </packing>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">False</property>\n\
+            <property name=\"position\">0</property>\n\
+          </packing>\n\
+        </child>\n\
+        <child>\n\
+          <object class=\"GtkHBox\" id=\"minibox\">\n\
+            <property name=\"visible\">True</property>\n\
+            <property name=\"can_focus\">False</property>\n\
+            <property name=\"spacing\">4</property>\n\
+            <child>\n\
+              <placeholder/>\n\
+            </child>\n\
+          </object>\n\
+          <packing>\n\
+            <property name=\"expand\">True</property>\n\
+            <property name=\"fill\">True</property>\n\
+            <property name=\"position\">1</property>\n\
+          </packing>\n\
+        </child>\n\
+      </object>\n\
+    </child>\n\
+  </object>\n\
+</interface>\n\
+";
+
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
+    if (form & UI_FORM_GLADE) {
+        b.load_glade(glade_def);
+        return 0;
+    }
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("moog" "." p)
 // moog filter
