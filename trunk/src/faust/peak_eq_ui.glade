@@ -19,9 +19,10 @@
               <object class="GtkTable" id="table1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="n_rows">4</property>
+                <property name="n_rows">5</property>
                 <property name="n_columns">4</property>
                 <property name="column_spacing">14</property>
+                <property name="row_spacing">3</property>
                 <child>
                   <object class="GxSmallKnob" id="gxsmallknob1">
                     <property name="visible">True</property>
@@ -31,8 +32,8 @@
                     <property name="label_ref">label1:rack_label_inverse</property>
                   </object>
                   <packing>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>
@@ -46,8 +47,8 @@
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>
@@ -61,8 +62,8 @@
                   <packing>
                     <property name="left_attach">2</property>
                     <property name="right_attach">3</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>
@@ -76,65 +77,69 @@
                   <packing>
                     <property name="left_attach">3</property>
                     <property name="right_attach">4</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GxVSlider" id="gxvslider1">
+                  <object class="GxSmallKnobR" id="gxvslider1">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">eq.level1</property>
+                    <property name="label_ref">label5:rack_label_inverse</property>
                   </object>
                   <packing>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
                     <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GxVSlider" id="gxvslider2">
+                  <object class="GxSmallKnobR" id="gxvslider2">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">eq.level2</property>
+                    <property name="label_ref">label6:rack_label_inverse</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
                     <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GxVSlider" id="gxvslider3">
+                  <object class="GxSmallKnobR" id="gxvslider3">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">eq.level3</property>
+                    <property name="label_ref">label7:rack_label_inverse</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
                     <property name="right_attach">3</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
                     <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GxVSlider" id="gxvslider4">
+                  <object class="GxSmallKnobR" id="gxvslider4">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">eq.level4</property>
+                    <property name="label_ref">label8:rack_label_inverse</property>
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
                     <property name="right_attach">4</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
                     <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
@@ -199,8 +204,8 @@
                     <property name="label" translatable="yes">label</property>
                   </object>
                   <packing>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
                   </packing>
                 </child>
                 <child>
@@ -212,8 +217,8 @@
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
                   </packing>
                 </child>
                 <child>
@@ -225,8 +230,8 @@
                   <packing>
                     <property name="left_attach">2</property>
                     <property name="right_attach">3</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
                   </packing>
                 </child>
                 <child>
@@ -238,8 +243,58 @@
                   <packing>
                     <property name="left_attach">3</property>
                     <property name="right_attach">4</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label5:rack_label_inverse">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">label</property>
+                  </object>
+                  <packing>
+                    <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label6:rack_label_inverse">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">label</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                    <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label7:rack_label_inverse">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">label</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="right_attach">3</property>
+                    <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label8:rack_label_inverse">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">label</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="right_attach">4</property>
+                    <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
                   </packing>
                 </child>
               </object>

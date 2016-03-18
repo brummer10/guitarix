@@ -21,11 +21,11 @@ with {
   mdepth = 2 ;//select2(vibr,depth,2); 
   
   invert   = 1 ;//checkbox("invert[enum:linear|invert]");
-  level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : db2linear;
+  level	 = hslider("level [name:Level][unit:dB]", 0, -60, 10, 0.1) : db2linear;
   
 };
 
-wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+wet = vslider("wet_dry[name:Dry/Wet][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
 dry = 1 - wet;
 
 process =  _<:*(dry),(*(wet): phaser_monogx ):>_;

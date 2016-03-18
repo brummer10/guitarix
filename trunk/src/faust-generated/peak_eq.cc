@@ -195,10 +195,10 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("eq.bandwidth2",N_("Bandwidth"),"S",N_("bandwidth (hz)"),&fslider8, 2.2e+02, 5.0, 2e+04, 1.0);
 	reg.registerVar("eq.bandwidth3",N_("Bandwidth"),"S",N_("bandwidth (hz)"),&fslider5, 8.8e+02, 5.0, 2e+04, 1.0);
 	reg.registerVar("eq.bandwidth4",N_("Bandwidth"),"S",N_("bandwidth (hz)"),&fslider2, 1.76e+03, 5.0, 2e+04, 1.0);
-	reg.registerVar("eq.level1","","S",N_("gain (dB)"),&fslider10, 0.0, -5e+01, 5e+01, 0.1);
-	reg.registerVar("eq.level2","","S",N_("gain (dB)"),&fslider7, 0.0, -5e+01, 5e+01, 0.1);
-	reg.registerVar("eq.level3","","S",N_("gain (dB)"),&fslider4, 0.0, -5e+01, 5e+01, 0.1);
-	reg.registerVar("eq.level4","","S",N_("gain (dB)"),&fslider1, 0.0, -5e+01, 5e+01, 0.1);
+	reg.registerVar("eq.level1",N_("Level"),"S",N_("gain (dB)"),&fslider10, 0.0, -5e+01, 5e+01, 0.1);
+	reg.registerVar("eq.level2",N_("Level"),"S",N_("gain (dB)"),&fslider7, 0.0, -5e+01, 5e+01, 0.1);
+	reg.registerVar("eq.level3",N_("Level"),"S",N_("gain (dB)"),&fslider4, 0.0, -5e+01, 5e+01, 0.1);
+	reg.registerVar("eq.level4",N_("Level"),"S",N_("gain (dB)"),&fslider1, 0.0, -5e+01, 5e+01, 0.1);
 	reg.registerVar("eq.peak1","","S",N_("frequency (hz)"),&fslider9, 1.1e+02, 2e+01, 2.2e+04, 1.0);
 	reg.registerVar("eq.peak2","","S",N_("frequency (hz)"),&fslider6, 4.4e+02, 2e+01, 2.2e+04, 1.0);
 	reg.registerVar("eq.peak3","","S",N_("frequency (hz)"),&fslider3, 1.76e+03, 2e+01, 2.2e+04, 1.0);
@@ -233,9 +233,10 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkTable\" id=\"table1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"n_rows\">4</property>\n\
+                <property name=\"n_rows\">5</property>\n\
                 <property name=\"n_columns\">4</property>\n\
                 <property name=\"column_spacing\">14</property>\n\
+                <property name=\"row_spacing\">3</property>\n\
                 <child>\n\
                   <object class=\"GxSmallKnob\" id=\"gxsmallknob1\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -245,8 +246,8 @@ const char *Dsp::glade_def = "\
                     <property name=\"label_ref\">label1:rack_label_inverse</property>\n\
                   </object>\n\
                   <packing>\n\
-                    <property name=\"top_attach\">3</property>\n\
-                    <property name=\"bottom_attach\">4</property>\n\
+                    <property name=\"top_attach\">4</property>\n\
+                    <property name=\"bottom_attach\">5</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -260,8 +261,8 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">1</property>\n\
                     <property name=\"right_attach\">2</property>\n\
-                    <property name=\"top_attach\">3</property>\n\
-                    <property name=\"bottom_attach\">4</property>\n\
+                    <property name=\"top_attach\">4</property>\n\
+                    <property name=\"bottom_attach\">5</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -275,8 +276,8 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">2</property>\n\
                     <property name=\"right_attach\">3</property>\n\
-                    <property name=\"top_attach\">3</property>\n\
-                    <property name=\"bottom_attach\">4</property>\n\
+                    <property name=\"top_attach\">4</property>\n\
+                    <property name=\"bottom_attach\">5</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -290,65 +291,69 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">3</property>\n\
                     <property name=\"right_attach\">4</property>\n\
-                    <property name=\"top_attach\">3</property>\n\
-                    <property name=\"bottom_attach\">4</property>\n\
+                    <property name=\"top_attach\">4</property>\n\
+                    <property name=\"bottom_attach\">5</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GxVSlider\" id=\"gxvslider1\">\n\
+                  <object class=\"GxSmallKnobR\" id=\"gxvslider1\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
                     <property name=\"var_id\">eq.level1</property>\n\
+                    <property name=\"label_ref\">label5:rack_label_inverse</property>\n\
                   </object>\n\
                   <packing>\n\
-                    <property name=\"top_attach\">1</property>\n\
-                    <property name=\"bottom_attach\">2</property>\n\
+                    <property name=\"top_attach\">2</property>\n\
+                    <property name=\"bottom_attach\">3</property>\n\
                     <property name=\"x_options\">GTK_EXPAND</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GxVSlider\" id=\"gxvslider2\">\n\
+                  <object class=\"GxSmallKnobR\" id=\"gxvslider2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
                     <property name=\"var_id\">eq.level2</property>\n\
+                    <property name=\"label_ref\">label6:rack_label_inverse</property>\n\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">1</property>\n\
                     <property name=\"right_attach\">2</property>\n\
-                    <property name=\"top_attach\">1</property>\n\
-                    <property name=\"bottom_attach\">2</property>\n\
+                    <property name=\"top_attach\">2</property>\n\
+                    <property name=\"bottom_attach\">3</property>\n\
                     <property name=\"x_options\">GTK_EXPAND</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GxVSlider\" id=\"gxvslider3\">\n\
+                  <object class=\"GxSmallKnobR\" id=\"gxvslider3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
                     <property name=\"var_id\">eq.level3</property>\n\
+                    <property name=\"label_ref\">label7:rack_label_inverse</property>\n\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">2</property>\n\
                     <property name=\"right_attach\">3</property>\n\
-                    <property name=\"top_attach\">1</property>\n\
-                    <property name=\"bottom_attach\">2</property>\n\
+                    <property name=\"top_attach\">2</property>\n\
+                    <property name=\"bottom_attach\">3</property>\n\
                     <property name=\"x_options\">GTK_EXPAND</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GxVSlider\" id=\"gxvslider4\">\n\
+                  <object class=\"GxSmallKnobR\" id=\"gxvslider4\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
                     <property name=\"var_id\">eq.level4</property>\n\
+                    <property name=\"label_ref\">label8:rack_label_inverse</property>\n\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">3</property>\n\
                     <property name=\"right_attach\">4</property>\n\
-                    <property name=\"top_attach\">1</property>\n\
-                    <property name=\"bottom_attach\">2</property>\n\
+                    <property name=\"top_attach\">2</property>\n\
+                    <property name=\"bottom_attach\">3</property>\n\
                     <property name=\"x_options\">GTK_EXPAND</property>\n\
                   </packing>\n\
                 </child>\n\
@@ -413,8 +418,8 @@ const char *Dsp::glade_def = "\
                     <property name=\"label\" translatable=\"yes\">label</property>\n\
                   </object>\n\
                   <packing>\n\
-                    <property name=\"top_attach\">2</property>\n\
-                    <property name=\"bottom_attach\">3</property>\n\
+                    <property name=\"top_attach\">3</property>\n\
+                    <property name=\"bottom_attach\">4</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -426,8 +431,8 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">1</property>\n\
                     <property name=\"right_attach\">2</property>\n\
-                    <property name=\"top_attach\">2</property>\n\
-                    <property name=\"bottom_attach\">3</property>\n\
+                    <property name=\"top_attach\">3</property>\n\
+                    <property name=\"bottom_attach\">4</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -439,8 +444,8 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">2</property>\n\
                     <property name=\"right_attach\">3</property>\n\
-                    <property name=\"top_attach\">2</property>\n\
-                    <property name=\"bottom_attach\">3</property>\n\
+                    <property name=\"top_attach\">3</property>\n\
+                    <property name=\"bottom_attach\">4</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -452,8 +457,58 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"left_attach\">3</property>\n\
                     <property name=\"right_attach\">4</property>\n\
-                    <property name=\"top_attach\">2</property>\n\
-                    <property name=\"bottom_attach\">3</property>\n\
+                    <property name=\"top_attach\">3</property>\n\
+                    <property name=\"bottom_attach\">4</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label5:rack_label_inverse\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"top_attach\">1</property>\n\
+                    <property name=\"bottom_attach\">2</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label6:rack_label_inverse\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">1</property>\n\
+                    <property name=\"right_attach\">2</property>\n\
+                    <property name=\"top_attach\">1</property>\n\
+                    <property name=\"bottom_attach\">2</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label7:rack_label_inverse\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">2</property>\n\
+                    <property name=\"right_attach\">3</property>\n\
+                    <property name=\"top_attach\">1</property>\n\
+                    <property name=\"bottom_attach\">2</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label8:rack_label_inverse\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"left_attach\">3</property>\n\
+                    <property name=\"right_attach\">4</property>\n\
+                    <property name=\"top_attach\">1</property>\n\
+                    <property name=\"bottom_attach\">2</property>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\

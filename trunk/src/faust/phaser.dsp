@@ -49,17 +49,17 @@ with {
   //freq  = hslider("Speed [unit:Hz] ", 0.5, 0, 10, 0.01);
   freq     = hslider("lfobpm[name:Speed (bpm)][tooltip:Speed in Beats per Minute]",30,24,360,1)/60;
   
-  depth	 = hslider("depth", 1, 0, 1, 0.01);
-  fb	 = hslider("feedback gain", 0, 0, 1, 0.01);
-  width  = hslider("Notch width [unit:Hz]", 1000, 10, 5000, 1);
+  depth	 = hslider("depth[name:Depth]", 1, 0, 1, 0.01);
+  fb	 = hslider("feedback gain[name:Feedback]", 0, 0, 1, 0.01);
+  width  = hslider("Notch width [name:Width][unit:Hz]", 1000, 10, 5000, 1);
   vibr   = checkbox("VibratoMode[enum:direct | vibrato]");
-  frqmin = hslider("MinNotch1Freq [unit:Hz] ", 100, 20, 5000, 1);
-  frqmax = hslider("MaxNotch1Freq [unit:Hz] ", 800, 20, 10000, 1) : max(frqmin);
-  fratio = hslider("NotchFreq", 1.5, 1.1, 4, 0.01);
+  frqmin = hslider("MinNotch1Freq [name:Freq][unit:Hz] ", 100, 20, 5000, 1);
+  frqmax = hslider("MaxNotch1Freq [name:Max Freq][unit:Hz] ", 800, 20, 10000, 1) : max(frqmin);
+  fratio = hslider("NotchFreq[name:Min Freq][unit:Hz]", 1.5, 1.1, 4, 0.01);
   mdepth = select2(vibr,depth,2); 
   
   invert   = checkbox("invert[enum:linear|invert]");
-  level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : db2linear;
+  level	 = hslider("level [name:Level][unit:dB]", 0, -60, 10, 0.1) : db2linear;
   
 };
 
