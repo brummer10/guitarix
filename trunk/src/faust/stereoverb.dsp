@@ -32,11 +32,11 @@ allpasstuningL2	= 441;
 allpasstuningL3	= 341;
 allpasstuningL4	= 225;
 
-roomsizeSlider 	= vslider("RoomSize", 0.5, 0, 1, 0.025)*0.28 + 0.7;
-dampslider 	= vslider("damp",0.5, 0, 1, 0.025);
+roomsizeSlider 	= vslider("RoomSize[name:Room Size]", 0.5, 0, 1, 0.025)*0.28 + 0.7;
+dampslider 	= vslider("damp[name:Damp]",0.5, 0, 1, 0.025);
 combfeed 	= roomsizeSlider;
 //wetslider 	= 0.5 + vslider("wet_dry[name:wet/dry]", 0, -0.5, 0.5, 0.1);
-wet_dry = vslider("wet_dry[name:wet/dry]",  50, 0, 100, 1) : /(100);
+wet_dry = vslider("wet_dry[name:Dry/Wet]",  50, 0, 100, 1) : /(100);
 dry = 1 - wet_dry;
 
 // Reverb components
@@ -61,7 +61,7 @@ monoReverb(fb1, fb2, damp, spread)
 
 lfol = component("oscillator.lib").oscrs; // sine for left channel
 
-freq	 = hslider("LFO freq [unit:Hz]", 0.2, 0, 5, 0.01);
+freq	 = hslider("LFO freq [name:LFO Freq][unit:Hz]", 0.2, 0, 5, 0.01);
 pingpong   = checkbox("invert[enum:linear|pingpong]");
 
 fxctrl(g,w,Fx) =  _ <: (*(g) <: _ + Fx ), *(1-w) +> _;
