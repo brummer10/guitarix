@@ -146,9 +146,9 @@ int Dsp::register_par(const ParamReg& reg)
 {
 	static const value_pair fcheckbox0_values[] = {{"triangle"},{"sine"},{"square"},{0}};
 	reg.registerEnumVar("tremolo.SINE","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("tremolo.depth","","S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("tremolo.freq","","S","",&fslider0, 5.0, 0.1, 5e+01, 0.1);
-	reg.registerVar("tremolo.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("tremolo.depth",N_("Depth"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("tremolo.freq",N_("Freq"),"S","",&fslider0, 5.0, 0.1, 5e+01, 0.1);
+	reg.registerVar("tremolo.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fslider2, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

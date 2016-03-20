@@ -111,13 +111,13 @@ filterbankN(lfreqs) = filterbank(3,lfreqs);
 
 //----------tone_controll---------
 
-t = vslider("Treble", 0., -5., 5, 0.01): db2linear : smoothi(0.999);
-m = vslider("Middle", 0., -5., 5, 0.01): db2linear : smoothi(0.999);
-l = vslider("Bass", 0., -5., 5, 0.01): db2linear : smoothi(0.999) ;
+t = vslider("Treble[name:Treble", 0., -5., 5, 0.01): db2linear : smoothi(0.999);
+m = vslider("Middle[name:Middle", 0., -5., 5, 0.01): db2linear : smoothi(0.999);
+l = vslider("Bass[name:Bass", 0., -5., 5, 0.01): db2linear : smoothi(0.999) ;
 
 
 //tstack = component("tonestack.dsp");
-sharp = vslider("sharper[name:sharper]", -2, -2.5, 5, 0.1);
+sharp = vslider("sharper[name:Sharp]", -2, -2.5, 5, 0.1);
 press = -5. * sharp;
 
 attack  = 0.005;
