@@ -49,8 +49,8 @@
       
     guiext:ui <http://guitarix.sourceforge.net/plugins/gx_room_simulator_#gui>;
       
-    lv2:minorVersion 28;
-    lv2:microVersion 3;
+    lv2:minorVersion 34;
+    lv2:microVersion 0;
     
 rdfs:comment """
 

@@ -60,8 +60,8 @@
     bufsz:maxBlockLength 8192 ;
     lv2:extensionData work:interface ;
 
-    lv2:minorVersion 28;
-    lv2:microVersion 3;
+    lv2:minorVersion 34;
+    lv2:microVersion 0;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_amp#gui>;
 

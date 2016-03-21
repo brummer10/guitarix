@@ -54,8 +54,8 @@
     bufsz:minBlockLength 64 ;
     bufsz:maxBlockLength 8192 ;
       
-    lv2:minorVersion 28;
-    lv2:microVersion 3;
+    lv2:minorVersion 34;
+    lv2:microVersion 0;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_jcm800pre_st#gui>;
     

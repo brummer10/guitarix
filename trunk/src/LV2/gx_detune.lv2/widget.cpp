@@ -83,9 +83,9 @@ plug_name(plugname)
   make_controller_box(&m_vbox[2], "WET",  0.0, 100.0, 1, WET);
   make_controller_box(&m_vbox[3], "DRY", 0.0, 100.0, 1, DRY);
   make_controller_box(&m_vbox[4], "LOW",  0.0, 2.0, 0.01, LOW);
-  make_controller_box(&m_vbox[5], "MIDDLELOW", 0.0, 2.0, 0.01, MIDDLELOW);
-  make_controller_box(&m_vbox[6], "MIDDLETREBLE",  0.0, 2.0, 0.01, MIDDLETREBLE);
-  make_controller_box(&m_vbox[7], "TREBLE",  0.0, 2.0, 0.01, TREBLE);
+  make_controller_box(&m_vbox[5], "Lo MID", 0.0, 2.0, 0.01, MIDDLELOW);
+  make_controller_box(&m_vbox[6], "Hi MID",  0.0, 2.0, 0.01, MIDDLETREBLE);
+  make_controller_box(&m_vbox[7], "High",  0.0, 2.0, 0.01, TREBLE);
   
   Glib::ustring octaves[] = {"no shift","octave up","octave down"};  
   static const size_t _size1 = sizeof(octaves) / sizeof(octaves[0]);

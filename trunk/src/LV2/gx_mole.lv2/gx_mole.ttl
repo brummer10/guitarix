@@ -47,8 +47,8 @@
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_mole_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
       
-    lv2:minorVersion 28;
-    lv2:microVersion 3;
+    lv2:minorVersion 34;
+    lv2:microVersion 0;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_mole_gui#_mole_>;
     
