@@ -1612,7 +1612,7 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
     b.set_next_flags(UI_LABEL_INVERSE);
     b.create_small_rackknobr("smbPitchShift.b",N_("LoMid"));
     b.set_next_flags(UI_LABEL_INVERSE);
-    b.create_small_rackknobr("smbPitchShift.c",N_("HiMide"));
+    b.create_small_rackknobr("smbPitchShift.c",N_("HiMid"));
     b.set_next_flags(UI_LABEL_INVERSE);
     b.create_small_rackknobr("smbPitchShift.d",N_("Hi"));
     }
