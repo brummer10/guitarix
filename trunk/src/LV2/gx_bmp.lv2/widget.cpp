@@ -62,15 +62,15 @@ logo(plugname)
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "gx_rack_unit_expose";
+  m_paintbox.property_paint_func() = "box_uni_2_expose";
   add(m_paintbox);
   // box for the controllers
   m_hbox_.set_spacing(25);
-  m_hbox_.set_border_width(24);
+ // m_hbox_.set_border_width(24);
   m_hbox_.set_homogeneous(false);
   // set a vertical box in the paintbox
-  m_vbox.set_border_width(14);
-  m_vbox1.set_border_width(14);
+ // m_vbox.set_border_width(14);
+ // m_vbox1.set_border_width(14);
   m_paintbox.pack_start(m_vbox_);
 
   // modify logo layout
@@ -81,7 +81,7 @@ logo(plugname)
 
   // and controller box on top
   //m_hbox1_.set_border_width(24);
-  m_hbox1_.set_spacing(64);
+ // m_hbox1_.set_spacing(64);
   logo.set_name("amplabel");
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_SHRINK);
   m_hbox1_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);
@@ -102,8 +102,8 @@ logo(plugname)
   m_hbox_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
 
   // connect expose handler as resize handler
-  m_paintbox.signal_expose_event().connect(
-    sigc::mem_fun(this, &Widget::_expose_event), true);
+ // m_paintbox.signal_expose_event().connect(
+ //   sigc::mem_fun(this, &Widget::_expose_event), true);
 
   set_app_paintable(true);
   show_all();

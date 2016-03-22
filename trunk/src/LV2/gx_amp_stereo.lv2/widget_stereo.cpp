@@ -104,35 +104,35 @@ pir(GX_LV2_STYLE_DIR"/logo.png")
   make_selector("Cabinets", cab, cab_size, 0, 1.0, C_MODEL);
 
   // create all controllers
-  make_controller_box(&m_vbox, "mastergain", -20, 20, 0.1, GAIN1);
-  make_controller_box(&m_vbox1, "pregain", -20, 20, 0.1, PREGAIN);
-  make_controller_box(&m_vbox2, "distortion", 1, 100, 1, WET_DRY);
-  make_controller_box(&m_vbox3, "drive", 0.01, 1, 0.01, DRIVE);
-  make_controller_box(&m_vbox4, "mid", 0, 1, 0.01, MIDDLE);
-  make_controller_box(&m_vbox5, "bass", 0, 1, 0.01, BASS);
-  make_controller_box(&m_vbox6, "treble", 0, 1, 0.01, TREBLE);
+  make_controller_box(&m_vbox, "Mastergain", -20, 20, 0.1, GAIN1);
+  make_controller_box(&m_vbox1, "Pregain", -20, 20, 0.1, PREGAIN);
+  make_controller_box(&m_vbox2, "Distortion", 1, 100, 1, WET_DRY);
+  make_controller_box(&m_vbox3, "Drive", 0.01, 1, 0.01, DRIVE);
+  make_controller_box(&m_vbox4, "Mid", 0, 1, 0.01, MIDDLE);
+  make_controller_box(&m_vbox5, "Bass", 0, 1, 0.01, BASS);
+  make_controller_box(&m_vbox6, "Treble", 0, 1, 0.01, TREBLE);
   // put cabinet selector above cab controller
   m_vbox7.pack_start(c_selector,Gtk::PACK_SHRINK);
-  make_controller_box(&m_vbox7, "cabinet", 1, 20, 1, CLevel);
-  make_controller_box(&m_vbox8, "presence", 1, 10, 1, ALevel);
+  make_controller_box(&m_vbox7, "Cabinet", 1, 20, 1, CLevel);
+  make_controller_box(&m_vbox8, "Presence", 1, 10, 1, ALevel);
 
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(30);
-  m_paintbox.set_spacing(12);
+ // m_paintbox.set_border_width(30);
+ // m_paintbox.set_spacing(12);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "gx_rack_unit_expose";
+  m_paintbox.property_paint_func() = "box_uni_2_expose";
   add(m_paintbox);
   // box for the controllers
   m_hbox_.set_spacing(12);
   m_hbox_.set_homogeneous(false);
   // this box set space for the upper part of the skin
-  m_hbox1_.set_spacing(12);
-  m_hbox1_.set_border_width(25);
+ // m_hbox1_.set_spacing(12);
+  m_hbox1_.set_border_width(10);
   m_hbox1_.pack_end(pir, Gtk::PACK_SHRINK);
   // set a vertical box in the paintbox
   m_paintbox.pack_start(m_vbox_);
-  m_vbox_.set_border_width(25);
+ // m_vbox_.set_border_width(25);
   // and put space box on top
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
   // and controller box on bottem
@@ -168,8 +168,8 @@ pir(GX_LV2_STYLE_DIR"/logo.png")
   m_hbox_.pack_start(m_vboxtonestack);
 
   // connect expose handler as resize handler
-  m_paintbox.signal_expose_event().connect(
-    sigc::mem_fun(this, &Widget::_expose_event), true);
+ // m_paintbox.signal_expose_event().connect(
+  //  sigc::mem_fun(this, &Widget::_expose_event), true);
 
   show_all();
 }
