@@ -389,31 +389,6 @@ static void set_box_color(GtkWidget *wi, cairo_pattern_t *pat)
 	gx_gradient_free(grad);
 }
 
-// set cairo color related to the used skin
-static void set_rack_color(GtkWidget *wi, cairo_pattern_t *pat)
-{
-	GxGradient *grad;
-	gtk_widget_style_get(wi, "rack-gradient", &grad, NULL);
-	if (!grad) {
-		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
-		cairo_pattern_add_color_stop_rgba(
-			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
-			cairo_clr(p1->blue), 0.8);
-		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
-		cairo_pattern_add_color_stop_rgba(
-			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
-			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
-			(cairo_clr(p1->blue)+cairo_clr(p2->blue))/2, 0.8);
-		return;
-	}
-	GSList *p;
-	for (p = grad->colors; p; p = g_slist_next(p)) {
-		GxGradientElement *el = (GxGradientElement*)p->data;
-		cairo_pattern_add_color_stop_rgba(pat, el->offset, el->red, el->green, el->blue, el->alpha);
-	}
-	gx_gradient_free(grad);
-}
-
 static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
 {
     int spf;
@@ -664,6 +639,13 @@ static void gx_rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
 static void gx_rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
     draw_skin(wi, ev);
+    draw_screws(wi, ev);
+}
+
+static void gx_lv2_unit_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+    draw_tiled(wi, ev, "background2");
+    draw_handles(wi, ev);
     draw_screws(wi, ev);
 }
 
@@ -1732,6 +1714,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = gx_rack_unit_shrink_expose;
 	} else if (strcmp(paint_func, "gx_rack_amp_expose") == 0) {
 		paint_box->expose_func = gx_rack_amp_expose;
+	} else if (strcmp(paint_func, "gx_lv2_unit_expose") == 0) {
+		paint_box->expose_func = gx_lv2_unit_expose;
 	} else if (strcmp(paint_func, "draw_skin") == 0) {
 		paint_box->expose_func = draw_skin;
 	} else if (strcmp(paint_func, "rack_expose") == 0) {

@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Deville";
-	name = N_("Deville");
+	name = N_("Deville Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

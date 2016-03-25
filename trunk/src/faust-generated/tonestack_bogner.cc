@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Triple Giant";
-	name = N_("Triple Giant");
+	name = N_("Triple Giant Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

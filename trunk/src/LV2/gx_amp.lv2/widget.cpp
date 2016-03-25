@@ -84,19 +84,19 @@ pir(GX_LV2_STYLE_DIR"/logo.png")
   m_hboxsel1.pack_start(m_hboxsel2,Gtk::PACK_EXPAND_PADDING);
   m_vboxsel.pack_start(m_hboxsel1,Gtk::PACK_EXPAND_PADDING);
 
-  Glib::ustring ts[] = {"default","Bassman","Twin Reverb","Princeton","JCM-800",
-  "JCM-2000","M-Lead","M2199","AC-30","Mesa Boogie","SOL 100","JTM-45","AC-15",
-  "Peavey","Ibanez","Roland","Ampeg","Rev.Rocket","MIG 100 H","Triple Giant",
-  "Trio Preamp","Hughes&Kettner","Fender Junior","Fender","Fender Deville",
-  "Gibsen", "Off",
+  Glib::ustring ts[] = {"default","Bassman Style","Twin Reverb Style","Princeton Style","JCM-800 Style",
+  "JCM-2000 Style","M-Lead Style","M2199 Style","AC-30 Style","Mesa Boogie Style","SOL 100 Style","JTM-45 Style","AC-15 Style",
+  "Peavey Style","Ibanez Style","Roland Style","Ampeg Style","Rev.Rocket Style","MIG 100 H Style","Triple Giant Style",
+  "Trio Preamp Style","Hughes&Kettner Style","Fender Junior Style","Fender Style","Fender Deville Style",
+  "Gibsen Style", "Off",
   };
   static const size_t ts_size = sizeof(ts) / sizeof(ts[0]);
   
   make_selector("Tonestacks", ts, ts_size, 0,1.0, T_MODEL);
 
 
-  Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain","Twin",
-  "Bassman","Marshall","AC30","Princeton","A2","1x15","Mesa","Briliant","Vitalize",
+  Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain Style","Twin Style",
+  "Bassman Style","Marshall Style","AC30 Style","Princeton Style","A2 Style","1x15","Mesa Style","Briliant","Vitalize",
   "Charisma","1x8", "Off",
   };
   static const size_t cab_size = sizeof(cab) / sizeof(cab[0]);

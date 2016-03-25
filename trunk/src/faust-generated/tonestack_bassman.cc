@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Bassman";
-	name = N_("Bassman");
+	name = N_("Bassman Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

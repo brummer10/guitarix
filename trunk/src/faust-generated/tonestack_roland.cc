@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Roland";
-	name = N_("Roland");
+	name = N_("Roland Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

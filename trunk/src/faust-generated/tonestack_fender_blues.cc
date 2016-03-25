@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Junior";
-	name = N_("Junior");
+	name = N_("Junior Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

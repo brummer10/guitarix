@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Trio Preamp";
-	name = N_("Trio Preamp");
+	name = N_("Trio Preamp Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "JCM-2000";
-	name = N_("JCM-2000");
+	name = N_("JCM-2000 Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

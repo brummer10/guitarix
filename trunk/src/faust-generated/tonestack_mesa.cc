@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Mesa Boogie";
-	name = N_("Mesa Boogie");
+	name = N_("Mesa Boogie Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

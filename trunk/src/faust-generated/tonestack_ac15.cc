@@ -43,7 +43,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "AC-15";
-	name = N_("AC-15");
+	name = N_("AC-15 Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

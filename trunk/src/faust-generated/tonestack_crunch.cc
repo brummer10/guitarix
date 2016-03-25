@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Hughes&Kettner";
-	name = N_("Hughes&Kettner");
+	name = N_("Hughes&Kettner Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

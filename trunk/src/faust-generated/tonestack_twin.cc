@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Twin Reverb";
-	name = N_("Twin Reverb");
+	name = N_("Twin Reverb Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

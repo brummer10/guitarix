@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "rev_rocket";
-	name = N_("Rev.Rocket");
+	name = N_("Rev.Rocket Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

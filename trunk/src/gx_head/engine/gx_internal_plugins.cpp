@@ -706,23 +706,23 @@ struct CabEntry {
     const char *value_label;
     CabDesc *data;
 } cab_table[] = {
-    { "4x12",        N_("4x12"),        &static_cast<CabDesc&>(cab_data_4x12) },
-    { "2x12",        N_("2x12"),        &static_cast<CabDesc&>(cab_data_2x12) },
-    { "1x12",        N_("1x12"),        &static_cast<CabDesc&>(cab_data_1x12) },
-    { "4x10",        N_("4x10"),        &static_cast<CabDesc&>(cab_data_4x10) },
-    { "2x10",        N_("2x10"),        &static_cast<CabDesc&>(cab_data_2x10) },
-    { "HighGain",    N_("HighGain"),    &static_cast<CabDesc&>(cab_data_HighGain) },
-    { "Twin",        N_("Twin"),        &static_cast<CabDesc&>(cab_data_Twin) },
-    { "Bassman",     N_("Bassman"),     &static_cast<CabDesc&>(cab_data_Bassman) },
-    { "Marshall",    N_("Marshall"),    &static_cast<CabDesc&>(cab_data_Marshall) },
-    { "AC-30",       N_("AC-30"),       &static_cast<CabDesc&>(cab_data_AC30) },
-    { "Princeton",   N_("Princeton"),   &static_cast<CabDesc&>(cab_data_Princeton) },
-    { "A2",          N_("A2"),          &static_cast<CabDesc&>(cab_data_A2) },
-    { "1x15",        N_("1x15"),        &static_cast<CabDesc&>(cab_data_1x15) },
-    { "Mesa Boogie", N_("Mesa Boogie"), &static_cast<CabDesc&>(cab_data_mesa) },
-    { "Briliant",    N_("Briliant"),    &static_cast<CabDesc&>(cab_data_briliant) },
-    { "Vitalize",     N_("Vitalize"),     &static_cast<CabDesc&>(cab_data_vitalize) },
-    { "Charisma",    N_("Charisma"),    &static_cast<CabDesc&>(cab_data_charisma) },
+    { "4x12",        N_("4x12"),              &static_cast<CabDesc&>(cab_data_4x12) },
+    { "2x12",        N_("2x12"),              &static_cast<CabDesc&>(cab_data_2x12) },
+    { "1x12",        N_("1x12"),              &static_cast<CabDesc&>(cab_data_1x12) },
+    { "4x10",        N_("4x10"),              &static_cast<CabDesc&>(cab_data_4x10) },
+    { "2x10",        N_("2x10"),              &static_cast<CabDesc&>(cab_data_2x10) },
+    { "HighGain",    N_("HighGain Style"),    &static_cast<CabDesc&>(cab_data_HighGain) },
+    { "Twin",        N_("Twin Style"),        &static_cast<CabDesc&>(cab_data_Twin) },
+    { "Bassman",     N_("Bassman Style"),     &static_cast<CabDesc&>(cab_data_Bassman) },
+    { "Marshall",    N_("Marshall Style"),    &static_cast<CabDesc&>(cab_data_Marshall) },
+    { "AC-30",       N_("AC-30 Style"),       &static_cast<CabDesc&>(cab_data_AC30) },
+    { "Princeton",   N_("Princeton Style"),   &static_cast<CabDesc&>(cab_data_Princeton) },
+    { "A2",          N_("A2 Style"),          &static_cast<CabDesc&>(cab_data_A2) },
+    { "1x15",        N_("1x15"),              &static_cast<CabDesc&>(cab_data_1x15) },
+    { "Mesa Boogie", N_("Mesa Boogie Style"), &static_cast<CabDesc&>(cab_data_mesa) },
+    { "Briliant",    N_("Briliant"),          &static_cast<CabDesc&>(cab_data_briliant) },
+    { "Vitalize",     N_("Vitalize"),         &static_cast<CabDesc&>(cab_data_vitalize) },
+    { "Charisma",    N_("Charisma"),          &static_cast<CabDesc&>(cab_data_charisma) },
 };
 static const unsigned int cab_table_size = sizeof(cab_table) / sizeof(cab_table[0]);
 
@@ -886,16 +886,16 @@ struct PreEntry {
     const char *value_label;
     PreDesc *data;
 } pre_table[] = {
-    { "AC30",        N_("AC30"),        &static_cast<PreDesc&>(pre_data_ac30) },
-    { "Bassman",     N_("Bassman"),     &static_cast<PreDesc&>(pre_data_bassman) },
-    { "Tube",        N_("Tube"),        &static_cast<PreDesc&>(pre_data_tube) },
-    { "Fender",      N_("Fender"),      &static_cast<PreDesc&>(pre_data_fender) },
-    { "JCM800",      N_("JCM800"),      &static_cast<PreDesc&>(pre_data_jcm800) },
-    { "JTM45",       N_("JTM45"),       &static_cast<PreDesc&>(pre_data_jtm45) },
-    { "Mesa Boogie", N_("Mesa Boogie"), &static_cast<PreDesc&>(pre_data_mesaboogie) },
-    { "Boutique",    N_("Boutique"),    &static_cast<PreDesc&>(pre_data_boutique) },
-    { "Ampeg",       N_("Ampeg"),       &static_cast<PreDesc&>(pre_data_ampeg) },
-    { "Rectifier",   N_("Rectifier"),   &static_cast<PreDesc&>(pre_data_rectifier) },
+    { "AC30",        N_("AC30 Style"),        &static_cast<PreDesc&>(pre_data_ac30) },
+    { "Bassman",     N_("Bassman Style"),     &static_cast<PreDesc&>(pre_data_bassman) },
+    { "Tube",        N_("Tube Style"),        &static_cast<PreDesc&>(pre_data_tube) },
+    { "Fender",      N_("Fender Style"),      &static_cast<PreDesc&>(pre_data_fender) },
+    { "JCM800",      N_("JCM800 Style"),      &static_cast<PreDesc&>(pre_data_jcm800) },
+    { "JTM45",       N_("JTM45 Style"),       &static_cast<PreDesc&>(pre_data_jtm45) },
+    { "Mesa Boogie", N_("Mesa Boogie Style"), &static_cast<PreDesc&>(pre_data_mesaboogie) },
+    { "Boutique",    N_("Boutique Style"),    &static_cast<PreDesc&>(pre_data_boutique) },
+    { "Ampeg",       N_("Ampeg Style"),       &static_cast<PreDesc&>(pre_data_ampeg) },
+    { "Rectifier",   N_("Rectifier Style"),   &static_cast<PreDesc&>(pre_data_rectifier) },
 };
 static const unsigned int pre_table_size = sizeof(pre_table) / sizeof(pre_table[0]);
 

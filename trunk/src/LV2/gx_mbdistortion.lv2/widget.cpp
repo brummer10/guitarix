@@ -76,16 +76,23 @@ plug_name(plugname)
 {
   m_fr[0].set_label("BAND 1");
   m_fr[0].add(m_lbox[0]);
+  m_fr[0].get_label_widget()->set_name(plug_name);
   m_fr[1].set_label("BAND 2");
   m_fr[1].add(m_lbox[1]);
+  m_fr[1].get_label_widget()->set_name(plug_name);
   m_fr[2].set_label("BAND 3");
   m_fr[2].add(m_lbox[2]);
+  m_fr[2].get_label_widget()->set_name(plug_name);
   m_fr[3].set_label("BAND 4");
   m_fr[3].add(m_lbox[3]);
+  m_fr[3].get_label_widget()->set_name(plug_name);
   m_fr[4].set_label("BAND 5");
   m_fr[4].add(m_lbox[4]);
+  m_fr[4].get_label_widget()->set_name(plug_name);
   m_fr[5].set_label("OUT");
+  m_fr[5].get_label_widget()->set_name(plug_name);
   m_fr[6].set_label("BAND PASS");
+  m_fr[6].get_label_widget()->set_name(plug_name);
   // create controllers for port name
   make_controller_box(&m_vbox[1], "DRIVE ", 0.0, 1.0, 0.01, DRIVE1, false);
   make_controller_box(&m_vbox[2], "DRIVE ", 0.0, 1.0, 0.01, DRIVE2, false);
@@ -115,7 +122,7 @@ plug_name(plugname)
   m_paintbox[0].set_spacing(6);
   m_paintbox[0].set_homogeneous(false);
   m_paintbox[0].set_name(plug_name);
-  m_paintbox[0].property_paint_func() = "gxhead_expose";
+  m_paintbox[0].property_paint_func() = "gx_lv2_unit_expose";
   add(m_paintbox[0]);
 
   for (uint32_t i = 0;i<5;i++) {

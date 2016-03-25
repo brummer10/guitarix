@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "M2199";
-	name = N_("M2199");
+	name = N_("M2199 Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

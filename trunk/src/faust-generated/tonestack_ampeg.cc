@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Ampeg";
-	name = N_("Ampeg");
+	name = N_("Ampeg Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

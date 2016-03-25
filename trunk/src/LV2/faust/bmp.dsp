@@ -150,6 +150,7 @@ antialiasing = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a
     a4 = fs*(7.55757331680132e-11*fs - 8.45438325675249e-7) + 0.000114185647251642;
 };
 
-    clip(x) = min(0.801341155829,max(-0.674681752538,x));
+    symclip = ffunction(float symclip(float), "clipping.h", "");
+    sclip = symclip(_);
 
-process = bpmin : bpmamp1 : clip : antialiasing : bpmamp2 : clip : antialiasing : bpmtone : bpmout;
+process = bpmin : bpmamp1 : sclip : antialiasing : bpmamp2 : sclip : antialiasing : bpmtone : bpmout;

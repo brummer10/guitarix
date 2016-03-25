@@ -112,7 +112,7 @@ void Gx_mbdistortion_GUI::set_skin()
                  "\n"
                  "style 'gx_head_expander_box' \n"
                  " { \n"
-                 "    fg[NORMAL] = '#c0c6d0' \n"
+                 "    fg[NORMAL] = '#97BB6D' \n"
                  "font_name = 'sans 7.5 bold' \n"
                  " }\n";
   toparse +=     addKnob;
@@ -122,10 +122,10 @@ void Gx_mbdistortion_GUI::set_skin()
                  "    GxPaintBox::inverse                = 0\n"
                  "    GxPaintBox::alternate-box          = { 0, 0, 30, 15 }\n"
 
-                 "    fg[NORMAL]              = '#999999'\n"
+                 "    fg[NORMAL]              = '#97BB6D'\n"
                  "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"
                  "    fg[PRELIGHT]            = { 1.0, 1.0, 1.0 }\n"
-                 "    fg[INSENSITIVE]         = { 0.5, 0.5, 0.5 }\n"
+                 "    fg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }\n"
                  "    fg[SELECTED]            = { 0.9, 0.9, 0.9 }\n"
     
                  "    bg[NORMAL]              = { 0.13, 0.13, 0.13 }\n"
@@ -134,7 +134,7 @@ void Gx_mbdistortion_GUI::set_skin()
                  "    bg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }\n"
                  "    bg[SELECTED]            = { 0.25, 0.25, 0.25 }\n"
     
-                 "    text[NORMAL]            = { 0.9, 0.9, 0.9 }\n"
+                 "    text[NORMAL]            = '#97BB6D'\n"
                  "    text[ACTIVE]            = '#ff9000'\n"
                  "    text[PRELIGHT]          = { 1.0, 1.0, 1.0 }\n"
                  "    text[INSENSITIVE]       = { 0.5, 0.5, 0.5 }\n"
@@ -160,7 +160,7 @@ void Gx_mbdistortion_GUI::set_skin()
   toparse +=     plug_name;
   toparse +=     "'\n"
                  " {\n"
-                 " fg[NORMAL] = '#c0c6d0'\n"
+                 " fg[NORMAL] = '#97BB6D'\n"
                  " GtkRange::trough-border = 2\n"
                  " GtkRange::stepper-size = 8\n"
                  " GtkRange::stepper-spacing = 2\n"
@@ -198,6 +198,23 @@ void Gx_mbdistortion_GUI::set_skin()
                  "   GxFastMeter::over       = '#ff0000'\n"
                  " }\n"
                  " class '*GxFastMeter' style:highest 'gx_fastmeter'\n";
+  toparse +=     " style 'guitarix_knobs' {\n"
+                 "    fg[INSENSITIVE] = '#211006'\n"
+                 "}\n"
+                 "class 'GxKnob' style:highest 'guitarix_knobs'\n"
+
+                 "style 'guitarix_small_knob' {\n"
+                 "    GxKnob::x_center          = -1\n"
+                 "    GxKnob::y_center          = -1\n"
+                 "    GxKnob::ring_radius       = 15\n"
+                 "    GxKnob::ring_width        = 2\n"
+                 "    GxKnob::ring_led_size     = 3\n"
+                 "    GxKnob::ring_led_distance = 2\n"
+                 "    GxKnob::indicator_radius  = 11\n"
+                 "    GxKnob::indicator_width   = 2\n"
+                 "    GxKnob::indicator_length  = 5\n"
+                 "}\n"
+                 "widget_class '*GxSmallKnob' style:highest 'guitarix_small_knob'\n";
 
   gtk_rc_parse_string (toparse.c_str());
 }

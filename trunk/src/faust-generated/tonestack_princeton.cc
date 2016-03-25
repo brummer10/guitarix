@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Princeton";
-	name = N_("Princeton");
+	name = N_("Princeton Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

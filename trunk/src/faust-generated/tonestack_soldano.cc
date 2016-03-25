@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "SOL 100";
-	name = N_("SOL 100");
+	name = N_("SOL 100 Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

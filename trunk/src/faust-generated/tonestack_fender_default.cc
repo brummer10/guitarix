@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Fender";
-	name = N_("Fender");
+	name = N_("Fender Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

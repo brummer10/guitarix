@@ -1,6 +1,7 @@
 // generated from file '../src/LV2/faust/bmp.dsp' by dsp2cc:
 // Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
+#include "clipping.h"
 
 namespace bmp {
 
@@ -226,9 +227,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp2 = (0.000146000960455196 + (fConst0 * ((fRec7[0] * (fConst31 + (fConst29 * fRec7[0]))) + fConst27)));
 		fRec9[0] = ((double)buf[i] - (fConst41 * ((fConst40 * fRec9[2]) + (0.000438032628543473 * fRec9[1]))));
 		fRec8[0] = ((fConst41 * ((fConst43 * fRec9[2]) + (fConst42 * fRec9[0]))) - (((fRec8[1] * (0.000292001920910392 + (fConst3 * ((fRec7[0] * ((2.26893039628251e-09 * fRec7[0]) - 2.24624109231969e-09)) - 2.5642240040786e-10)))) + (fRec8[2] * (0.000146000960455196 + (fConst0 * (fConst38 + (fRec7[0] * (fConst37 + (fConst36 * fRec7[0])))))))) / fTemp2));
-		fRec6[0] = (min(0.801341155829, max(-0.674681752538, (fConst0 * ((((fRec8[0] * (fConst45 + (fConst44 * fRec7[0]))) + (fConst0 * (fRec8[1] * ((0 - (4.52586774307001e-12 * fRec7[0])) - 4.52586774307001e-14)))) + (fRec8[2] * (fConst35 + (fConst33 * fRec7[0])))) / fTemp2)))) - (fConst21 * ((((fConst20 * fRec6[1]) + (fConst19 * fRec6[2])) + (fConst18 * fRec6[3])) + (fConst16 * fRec6[4]))));
+		fRec6[0] = (symclip((fConst0 * ((((fRec8[0] * (fConst45 + (fConst44 * fRec7[0]))) + (fConst0 * (fRec8[1] * ((0 - (4.52586774307001e-12 * fRec7[0])) - 4.52586774307001e-14)))) + (fRec8[2] * (fConst35 + (fConst33 * fRec7[0])))) / fTemp2))) - (fConst21 * ((((fConst20 * fRec6[1]) + (fConst19 * fRec6[2])) + (fConst18 * fRec6[3])) + (fConst16 * fRec6[4]))));
 		fRec5[0] = ((fConst21 * ((((fConst0 * ((fConst50 * fRec6[0]) + (1.48904334021213e-06 * fRec6[1]))) + (fConst49 * fRec6[2])) + (fConst48 * fRec6[3])) + (fConst47 * fRec6[4]))) - (fConst25 * ((fConst24 * fRec5[1]) + (fConst23 * fRec5[2]))));
-		fRec4[0] = (min(0.801341155829, max(-0.674681752538, (fConst25 * (((fConst54 * fRec5[0]) + (fConst53 * fRec5[1])) + (fConst52 * fRec5[2]))))) - (fConst21 * ((((fConst20 * fRec4[1]) + (fConst19 * fRec4[2])) + (fConst18 * fRec4[3])) + (fConst16 * fRec4[4]))));
+		fRec4[0] = (symclip((fConst25 * (((fConst54 * fRec5[0]) + (fConst53 * fRec5[1])) + (fConst52 * fRec5[2])))) - (fConst21 * ((((fConst20 * fRec4[1]) + (fConst19 * fRec4[2])) + (fConst18 * fRec4[3])) + (fConst16 * fRec4[4]))));
 		fRec3[0] = ((fConst21 * ((((fConst0 * ((fConst50 * fRec4[0]) + (1.48904334021213e-06 * fRec4[1]))) + (fConst49 * fRec4[2])) + (fConst48 * fRec4[3])) + (fConst47 * fRec4[4]))) - (fConst14 * ((fConst13 * fRec3[1]) + (fConst11 * fRec3[2]))));
 		fRec1[0] = ((fConst14 * (((fRec3[0] * (fTemp1 + fConst56)) + (fRec3[1] * (0.00802871828276969 + (fConst55 * fRec2[0])))) + (fRec3[2] * (fTemp1 + fConst8)))) - (fConst6 * ((fConst4 * fRec1[1]) + (fConst2 * fRec1[2]))));
 		buf[i] = (FAUSTFLOAT)(fConst57 * (((fRec1[0] * fTemp0) + (3.48651798046856e-09 * (fRec0[0] * fRec1[1]))) + (fRec1[2] * fTemp0)));

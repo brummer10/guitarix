@@ -54,8 +54,8 @@ plug_name(plugname)
 {
 
 
-  Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain","Twin",
-  "Bassman","Marshall","AC30","Princeton","A2","1x15","Mesa","Briliant","Vitalize",
+  Glib::ustring cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain Style","Twin Style",
+  "Bassman Style","Marshall Style","AC30 Style","Princeton Style","A2 Style","1x15","Mesa Style","Briliant","Vitalize",
   "Charisma","1x8", "Off",
   };
   static const size_t cab_size = sizeof(cab) / sizeof(cab[0]);

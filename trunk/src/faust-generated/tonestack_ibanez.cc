@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Ibanez";
-	name = N_("Ibanez");
+	name = N_("Ibanez Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

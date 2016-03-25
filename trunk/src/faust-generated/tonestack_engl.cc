@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "Engl";
-	name = N_("Engl");
+	name = N_("Engl Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category

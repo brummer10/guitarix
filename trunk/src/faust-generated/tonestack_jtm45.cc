@@ -39,7 +39,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "JTM-45";
-	name = N_("JTM-45");
+	name = N_("JTM-45 Style");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category
