@@ -87,7 +87,19 @@ inline std::string SCapture::get_ffilename() {
     if (!(stat(pPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
         mkdir(pPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     }
-    std::string name = is_wav ?  "guitarix_session0.wav" : "guitarix_session0.ogg" ;
+    std::string name = "guitarix_session0.wav";
+    switch(int(fformat)) {
+      case(0) :
+          break;
+      case(1) :
+          name = "guitarix_session0.ogg";
+          break;
+      case(2) :
+          name = "guitarix_session0.w64";
+          break;
+      default :
+          break;
+    }
     int i = 0;
     while (stat ((pPath+name).c_str(), &buffer) == 0) {
         name.replace(name.begin()+16,name.end()-4,gx_system::to_string(i)); 
@@ -182,7 +194,20 @@ SNDFILE *SCapture::open_stream(std::string fname)
     SF_INFO sfinfo ;
     sfinfo.channels = channel;
     sfinfo.samplerate = fSamplingFreq;
-    sfinfo.format = is_wav ? SF_FORMAT_WAV | SF_FORMAT_FLOAT : SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+    switch(int(fformat)) {
+      case(0) :
+          sfinfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+          break;
+      case(1) :
+          sfinfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+          break;
+      case(2) :
+          sfinfo.format = SF_FORMAT_W64 | SF_FORMAT_PCM_24;
+          break;
+      default :
+          sfinfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+          break;
+      }
     
     SNDFILE * sf = sf_open(fname.c_str(), SFM_WRITE, &sfinfo);
     if (sf) return sf;
@@ -342,15 +367,15 @@ void SCapture::compute_static_st(int count, float *input0, float *input1, float 
 
 int SCapture::register_par(const ParamReg& reg)
 {
-    static const value_pair fformat_values[] = {{"wav"},{"ogg"},{0}};
+    static const value_pair fformat_values[] = {{"wav"},{"ogg"},{"w64"},{0}};
     if (channel == 1) {
-    reg.registerEnumVar("recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 1.0, 1.0);
+    reg.registerEnumVar("recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 2.0, 1.0);
     reg.registerVar("recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
     reg.registerVar("recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
     reg.registerNonMidiFloatVar("recorder.clip",&fcheckbox1, false, true, 0.0, 0.0, 1.0, 1.0);
     reg.registerNonMidiFloatVar("recorder.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
     } else {
-    reg.registerEnumVar("st_recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 1.0, 1.0);
+    reg.registerEnumVar("st_recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 2.0, 1.0);
     reg.registerVar("st_recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
     reg.registerVar("st_recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
     reg.registerNonMidiFloatVar("st_recorder.clip",&fcheckbox1, false, true, 0.0, 0.0, 1.0, 1.0);
