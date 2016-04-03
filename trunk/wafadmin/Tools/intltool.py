@@ -56,7 +56,7 @@ def apply_intltool_po(self):
 				task.set_outputs(node.change_ext('.mo'))
 				if self.bld.is_install:task.install=install_translation
 	else:
-		Utils.pprint('RED',"Error no LINGUAS file found in po directory")
+		Utils.eprint('RED',"Error no LINGUAS file found in po directory")
 Task.simple_task_type('po','${POCOM} -o ${TGT} ${SRC}',color='BLUE',shell=False)
 Task.simple_task_type('intltool','${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}',color='BLUE',after="cc_link cxx_link",shell=False)
 def detect(conf):

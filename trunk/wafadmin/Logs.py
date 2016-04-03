@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import ansiterm
-import os,re,logging,traceback,sys
+import os,re,logging,traceback,types, sys
 from Constants import*
 zones=''
 verbose=0
@@ -11,7 +11,7 @@ got_tty=False
 term=os.environ.get('TERM','dumb')
 if not term in['dumb','emacs']:
 	try:
-		got_tty=sys.stderr.isatty()or(sys.platform=='win32'and term in['xterm','msys'])
+		got_tty=sys.stderr.isatty() or sys.stdout.isatty()
 	except AttributeError:
 		pass
 import Utils
@@ -25,6 +25,38 @@ class foo(object):
 		return get_color(a)
 	def __call__(self,a):
 		return get_color(a)
+class WafStdStream(logging.Handler):
+	def __init__(self):
+		logging.Handler.__init__(self)
+		self.strm_out = sys.stdout
+		self.strm_err = sys.stderr
+	def flush(self):
+		if self.strm_out and hasattr(self.strm_out, "flush"):
+			self.strm_out.flush()
+		if self.strm_err and hasattr(self.strm_err, "flush"):
+			self.strm_err.flush()
+	def emit(self, record):
+		try:
+			msg = self.format(record)
+			# anything with level WARNING or above goes to stderr, otherwise to stdout
+			stream = self.strm_err if record.levelno >= logging.WARNING else self.strm_out
+			fs = "%s\n"
+			if not hasattr(types, "UnicodeType"): #if no unicode support...
+				stream.write(fs % msg)
+			else:
+				try:
+					if (isinstance(msg, unicode) or
+						getattr(stream, 'encoding', None) is None):
+						stream.write(fs % msg)
+					else:
+						stream.write(fs % msg.encode(stream.encoding))
+				except UnicodeError:
+					stream.write(fs % msg.encode("UTF-8"))
+			stream.flush()
+		except (KeyboardInterrupt, SystemExit):
+			raise
+		except:
+			self.handleError(record)
 colors=foo()
 re_log=re.compile(r'(\w+): (.*)',re.M)
 class log_filter(logging.Filter):
@@ -89,6 +121,7 @@ def init_log():
 	log.handlers=[]
 	log.filters=[]
 	hdlr=logging.StreamHandler()
+	hdlr=WafStdStream()
 	hdlr.setFormatter(formatter())
 	log.addHandler(hdlr)
 	log.addFilter(log_filter())

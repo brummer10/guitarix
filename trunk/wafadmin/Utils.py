@@ -306,6 +306,10 @@ def h_fun(fun):
 			pass
 		return h
 def pprint(col,str,label='',sep='\n'):
+	"print messages in color on stdout"
+	sys.stdout.write("%s%s%s %s%s"%(Logs.colors(col),str,Logs.colors.NORMAL,label,sep))
+def eprint(col,str,label='',sep='\n'):
+	"print messages in color on stderr"
 	sys.stderr.write("%s%s%s %s%s"%(Logs.colors(col),str,Logs.colors.NORMAL,label,sep))
 def check_dir(dir):
 	try:

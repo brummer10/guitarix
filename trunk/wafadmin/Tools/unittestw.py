@@ -101,6 +101,7 @@ class unit_test(object):
 		if Options.options.progress_bar:sys.stdout.write(Logs.colors.cursor_on)
 	def print_results(self):
 		if not Options.commands[self.run_if_waf_does]:return
+		e=Utils.eprint
 		p=Utils.pprint
 		if self.total_num_tests==0:
 			p('YELLOW','No unit tests present')
@@ -118,9 +119,9 @@ class unit_test(object):
 			elif result:n+=7
 			else:n+=3
 			line='%s %s'%(label,'.'*n)
-			if err:p('RED','%sERROR'%line)
+			if err:e('RED','%sERROR'%line)
 			elif result:p('GREEN','%sOK'%line)
-			else:p('YELLOW','%sFAILED'%line)
+			else:e('YELLOW','%sFAILED'%line)
 		percentage_ok=float(self.num_tests_ok)/float(self.total_num_tests)*100.0
 		percentage_failed=float(self.num_tests_failed)/float(self.total_num_tests)*100.0
 		percentage_erroneous=float(self.num_tests_err)/float(self.total_num_tests)*100.0

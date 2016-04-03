@@ -639,7 +639,7 @@ class BuildContext(Utils.Context):
 			self.cwd=kw['cwd']=self.bldnode.abspath()
 		return Utils.exec_command(cmd,**kw)
 	def printout(self,s):
-		f=self.log or sys.stderr
+		f=self.log or sys.stdout
 		f.write(s)
 		f.flush()
 	def add_subdirs(self,dirs):

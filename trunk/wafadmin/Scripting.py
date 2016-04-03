@@ -108,6 +108,7 @@ def prepare(t,cwd,ver,wafdir):
 		sys.exit(1)
 	except KeyboardInterrupt:
 		Utils.pprint('RED','Interrupted')
+		Utils.eprint('RED','Interrupted')
 		sys.exit(68)
 def main():
 	global commands

@@ -263,10 +263,7 @@ def set_options(opt):
 #
 
 def print_msg(msg, nl=True):
-    if HEXVERSION > 0x10500:
-        s = sys.stderr
-    else:
-        s = sys.stdout
+    s = sys.stdout
     if nl:
         t = "\n"
     else:
@@ -285,7 +282,7 @@ def display_msg(msg, status = None, color = None):
         print_msg("%s" % msg.ljust(g_maxlen))
 
 def error_msg(msg):
-    Utils.pprint('RED', msg)
+    Utils.eprint('RED', msg)
 
 def display_feature(msg, build):
     if build:
