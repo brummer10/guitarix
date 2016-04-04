@@ -270,20 +270,26 @@ int Vibe::uiloader(const UiBuilder& b, int form) {
 	b.openVerticalBox("");
 	b.openHorizontalBox("");
     }
-    b.create_small_rackknob(univibe_freq,N_("Freq"));
-    b.create_small_rackknob(univibe_depth,N_("Depth"));
-    b.create_small_rackknob(univibe_width,N_("Width"));
-    b.create_small_rackknob(univibe_fb,NC_("Feedback", "Fb"));
+    b.create_small_rackknobr(univibe_freq,N_("Freq"));
+    b.create_small_rackknobr(univibe_depth,N_("Depth"));
+    b.create_small_rackknobr(univibe_width,N_("Width"));
+    b.create_small_rackknobr(univibe_fb,NC_("Feedback", "Fb"));
     if (self.Pstereo) {
 	b.closeBox();
+	b.insertSpacer();
+	b.insertSpacer();
 	b.openHorizontalBox("");
     }
     if (self.Pstereo) {
-	b.create_small_rackknob("univibe.stereo",N_("Stereo"));
-	b.create_small_rackknob("univibe.panning",N_("Pan"));
-	b.create_small_rackknob("univibe.lrcross",N_("L/R.Cr"));
+    b.set_next_flags(UI_LABEL_INVERSE);
+	b.create_small_rackknobr("univibe.stereo",N_("Stereo"));
+    b.set_next_flags(UI_LABEL_INVERSE);
+	b.create_small_rackknobr("univibe.panning",N_("Pan"));
+    b.set_next_flags(UI_LABEL_INVERSE);
+	b.create_small_rackknobr("univibe.lrcross",N_("L/R.Cr"));
+    b.set_next_flags(UI_LABEL_INVERSE);
     }
-    b.create_small_rackknob(univibe_wet_dry,N_("Wet/Dry"));
+    b.create_small_rackknobr(univibe_wet_dry,N_("Wet/Dry"));
     if (self.Pstereo) {
 	b.closeBox();
 	b.closeBox();
