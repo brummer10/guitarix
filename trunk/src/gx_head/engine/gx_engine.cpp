@@ -87,10 +87,10 @@ static plugindef_creator builtin_wah_plugins[] = {
 };
 
 static int load_wah_ui(const UiBuilder& builder, int format) {
-   // if (format & UI_FORM_GLADE) {
-	//builder.load_glade_file("wah_ui.glade");
-	//return 0;
-   // }
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("wah_ui.glade");
+	return 0;
+    }
     if (format & UI_FORM_STACK) {
 	builder.openHorizontalhideBox("");
 	builder.create_master_slider("wah.Wah", _("Wah"));
