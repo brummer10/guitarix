@@ -776,7 +776,7 @@ b.create_switch_no_caption(sw_pbutton,PARAM("playall"));
 b.closeBox();
 
 b.openHorizontalBox("");
-b.create_small_rackknobr(PARAM("gain"), "gain");
+b.create_big_rackknob(PARAM("gain"), "Gain");
 
 b.openTabBox("");
 
@@ -800,7 +800,7 @@ b.closeBox();
 b.closeBox();
 
 b.insertSpacer();
-b.create_port_display(PARAM("bar1"), "buffer");
+b.create_port_display(PARAM("bar1"), "Buffer");
 b.insertSpacer();
 b.closeBox();
 
@@ -808,9 +808,9 @@ b.openHorizontalBox("");
 b.insertSpacer();
 b.openVerticalBox("");
 
-b.create_feedback_slider(PARAM("clips1"), "cut");
-b.create_feedback_slider(PARAM("clip1"), "clip");
-b.create_master_slider(PARAM("speed1"), "speed");
+b.create_feedback_slider(PARAM("clips1"), "Cut");
+b.create_feedback_slider(PARAM("clip1"), "Clip");
+b.create_master_slider(PARAM("speed1"), "Speed");
 
 b.closeBox();
 b.insertSpacer();
@@ -818,7 +818,7 @@ b.insertSpacer();
 b.closeBox();
 
 b.closeBox();
-b.create_small_rackknobr(PARAM("level1"), "level");
+b.create_small_rackknobr(PARAM("level1"), "Level");
 
 b.closeBox();
 b.closeBox();
@@ -842,15 +842,15 @@ b.create_fload_switch(sw_fbutton,PARAM("load2"),PARAM("loadfile2"));
 b.closeBox();
 b.closeBox();
 b.insertSpacer();
-b.create_port_display(PARAM("bar2"), "buffer");
+b.create_port_display(PARAM("bar2"), "Buffer");
 b.insertSpacer();
 b.closeBox();
 b.openHorizontalBox("");
 b.insertSpacer();
 b.openVerticalBox("");
-b.create_feedback_slider(PARAM("clips2"), "cut");
-b.create_feedback_slider(PARAM("clip2"), "clip");
-b.create_master_slider(PARAM("speed2"), "speed");
+b.create_feedback_slider(PARAM("clips2"), "Cut");
+b.create_feedback_slider(PARAM("clip2"), "Clip");
+b.create_master_slider(PARAM("speed2"), "Speed");
 b.closeBox();
 b.insertSpacer();
 b.insertSpacer();
@@ -858,7 +858,7 @@ b.closeBox();
 
 b.closeBox();
 
-b.create_small_rackknobr(PARAM("level2"), "level");
+b.create_small_rackknobr(PARAM("level2"), "Level");
 b.closeBox();
 b.closeBox();
 
@@ -881,22 +881,22 @@ b.create_fload_switch(sw_fbutton,PARAM("load3"),PARAM("loadfile3"));
 b.closeBox();
 b.closeBox();
 b.insertSpacer();
-b.create_port_display(PARAM("bar3"), "buffer");
+b.create_port_display(PARAM("bar3"), "Buffer");
 b.insertSpacer();
 b.closeBox();
 b.openHorizontalBox("");
 b.insertSpacer();
 b.openVerticalBox("");
-b.create_feedback_slider(PARAM("clips3"), "cut");
-b.create_feedback_slider(PARAM("clip3"), "clip");
-b.create_master_slider(PARAM("speed3"), "speed");
+b.create_feedback_slider(PARAM("clips3"), "Cut");
+b.create_feedback_slider(PARAM("clip3"), "Clip");
+b.create_master_slider(PARAM("speed3"), "Speed");
 b.closeBox();
 b.insertSpacer();
 b.insertSpacer();
 b.closeBox();
 
 b.closeBox();
-b.create_small_rackknobr(PARAM("level3"), "level");
+b.create_small_rackknobr(PARAM("level3"), "Level");
 b.closeBox();
 b.closeBox();
 
@@ -919,28 +919,28 @@ b.create_fload_switch(sw_fbutton,PARAM("load4"),PARAM("loadfile4"));
 b.closeBox();
 b.closeBox();
 b.insertSpacer();
-b.create_port_display(PARAM("bar4"), "buffer");
+b.create_port_display(PARAM("bar4"), "Buffer");
 b.insertSpacer();
 b.closeBox();
 b.openHorizontalBox("");
 b.insertSpacer();
 b.openVerticalBox("");
-b.create_feedback_slider(PARAM("clips4"), "cut");
-b.create_feedback_slider(PARAM("clip4"), "clip");
-b.create_master_slider(PARAM("speed4"), "speed");
+b.create_feedback_slider(PARAM("clips4"), "Cut");
+b.create_feedback_slider(PARAM("clip4"), "Clip");
+b.create_master_slider(PARAM("speed4"), "Speed");
 b.closeBox();
 b.insertSpacer();
 b.insertSpacer();
 b.closeBox();
 
 b.closeBox();
-b.create_small_rackknobr(PARAM("level4"), "level");
+b.create_small_rackknobr(PARAM("level4"), "Level");
 b.closeBox();
 b.closeBox();
 
 b.closeBox();
 
-b.create_mid_rackknob(PARAM("mix"), "mix");
+b.create_big_rackknob(PARAM("mix"), "Mix");
 b.closeBox();
 
 #undef PARAM

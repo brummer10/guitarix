@@ -207,6 +207,7 @@ protected:
     static void openVerticalBox1_(const char* label);
     static void openVerticalBox2_(const char* label);
     static void openHorizontalBox_(const char* label);
+    static void openHorizontalBox_(const char* label, int spacing);
     static void openHorizontalhideBox_(const char* label);
     static void openHorizontalTableBox_(const char* label);
     static void openFrameBox_(const char *label);
@@ -217,6 +218,7 @@ protected:
     static void create_mid_rackknob_(const char *id, const char *label);
     static void create_small_rackknob_(const char *id, const char *label);
     static void create_small_rackknobr_(const char *id, const char *label);
+    static void create_big_rackknob_(const char *id, const char *label);
     static void create_master_slider_(const char *id, const char *label);
     static void create_feedback_slider_(const char *id, const char *label);
     static void create_selector_no_caption_(const char *id);

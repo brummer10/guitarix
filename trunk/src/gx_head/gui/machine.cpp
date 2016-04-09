@@ -1572,6 +1572,10 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 	    std::string id = next_string(jp);
 	    std::string lab = next_string(jp);
 	    builder.create_small_rackknobr(id.c_str(), lab.c_str());
+	} else if (jp->current_value() == "create_big_rackknob") {
+	    std::string id = next_string(jp);
+	    std::string lab = next_string(jp);
+	    builder.create_big_rackknob(id.c_str(), lab.c_str());
 	} else if (jp->current_value() == "create_master_slider") {
 	    std::string id = next_string(jp);
 	    std::string lab = next_string(jp);

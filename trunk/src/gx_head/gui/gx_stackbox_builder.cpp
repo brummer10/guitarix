@@ -212,7 +212,7 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
             Gxw::Switch *sw;
             bld->find_widget(fm, sw);
             sw->get_property("var_id",id);
-            sw->set_name("no_dim");
+            //sw->set_name("no_dim");
             if (!id.empty())
             Glib::signal_timeout().connect(sigc::bind<Gxw::Switch*>(sigc::bind<const std::string>(
                   sigc::mem_fun(*this, &StackBoxBuilder::set_engine_cp_value),id),sw), 60);
@@ -691,6 +691,17 @@ void StackBoxBuilder::create_small_rackknob(const std::string& id, const char *l
 
 void StackBoxBuilder::create_small_rackknobr(const std::string& id, const char *label) {
     UiReglerWithCaption<Gxw::SmallKnobR> *w = new UiReglerWithCaption<Gxw::SmallKnobR>(machine, id);
+    if (next_flags & UI_LABEL_INVERSE) {
+        w->set_rack_label_inverse(label);
+    } else {
+        w->set_rack_label(label);
+    }
+    check_set_flags(w->get_regler());
+    addwidget(w);
+}
+
+void StackBoxBuilder::create_big_rackknob(const std::string& id, const char *label) {
+    UiReglerWithCaption<Gxw::BigKnob> *w = new UiReglerWithCaption<Gxw::BigKnob>(machine, id);
     if (next_flags & UI_LABEL_INVERSE) {
         w->set_rack_label_inverse(label);
     } else {

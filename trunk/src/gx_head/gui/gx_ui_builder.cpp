@@ -79,6 +79,7 @@ UiBuilderImpl::UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<Plug
     create_mid_rackknob = create_mid_rackknob_;
     create_small_rackknob = create_small_rackknob_;
     create_small_rackknobr = create_small_rackknobr_;
+    create_big_rackknob = create_big_rackknob_;
     create_spin_value = create_spin_value_;
     create_switch = create_switch_;
     create_switch_no_caption = create_switch_no_caption_;
@@ -166,6 +167,10 @@ void UiBuilderImpl::create_small_rackknob_(const char *id, const char *label) {
 
 void UiBuilderImpl::create_small_rackknobr_(const char *id, const char *label) {
     intf->create_small_rackknobr(id, label);
+}
+
+void UiBuilderImpl::create_big_rackknob_(const char *id, const char *label) {
+    intf->create_big_rackknob(id, label);
 }
 
 void UiBuilderImpl::create_master_slider_(const char *id, const char *label) {

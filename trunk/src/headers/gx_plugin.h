@@ -84,6 +84,7 @@ struct UiBuilder {
     void (*create_master_slider)(const char *id, const char *label);
     void (*create_feedback_slider)(const char *id, const char *label);
     void (*create_small_rackknob)(const char *id, const char *label);
+    void (*create_big_rackknob)(const char *id, const char *label);
     void (*create_selector_no_caption)(const char *id);
     void (*create_switch_no_caption)(const char *sw_type,const char * id);
     void (*create_feedback_switch)(const char *sw_type,const char * id);

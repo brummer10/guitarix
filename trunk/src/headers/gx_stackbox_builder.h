@@ -80,7 +80,8 @@ private:
     void create_small_rackknob(const std::string& id, const char *label);
     void create_small_rackknobr(const std::string& id);
     void create_small_rackknobr(const std::string& id, const char *label);
-
+    void create_big_rackknob(const std::string& id, const char *label);
+    
     void openVerticalBox(const char* label = "");
     void openFrameBox(const char* label);
     void openHorizontalBox(const char* label = "");
