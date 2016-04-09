@@ -437,8 +437,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("panoram_enhancer.Delay width",N_("Delay"),"S","",&fslider0, 0.0, 0.0, 1.0, 0.01);
-	reg.registerVar("panoram_enhancer.Frequency width",N_("Frequency"),"S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("panoram_enhancer.Delay width",N_("Delay"),"S",N_("Delay Width"),&fslider0, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("panoram_enhancer.Frequency width",N_("Frequency"),"S",N_("Frequency Width"),&fslider1, 0.0, 0.0, 1.0, 0.01);
 	return 0;
 }
 
