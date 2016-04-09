@@ -124,8 +124,8 @@ int Dsp::register_params_static(const ParamReg& reg)
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
   <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
   <!-- interface-naming-policy project-wide -->\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
@@ -142,7 +142,6 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkHBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">10</property>\n\
                 <child>\n\
                   <object class=\"GxSelector\" id=\"gxselector1\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -153,6 +152,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"expand\">True</property>\n\
                     <property name=\"fill\">True</property>\n\
+                    <property name=\"padding\">8</property>\n\
                     <property name=\"position\">0</property>\n\
                   </packing>\n\
                 </child>\n\
@@ -173,7 +173,7 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GxSmallKnobR\" id=\"gxbigknob1\">\n\
+                      <object class=\"GxMidKnob\" id=\"gxbigknob1\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">True</property>\n\
                         <property name=\"receives_default\">True</property>\n\
@@ -197,6 +197,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -234,6 +235,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox4\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label3:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -267,10 +269,22 @@ const char *Dsp::glade_def = "\
                     <property name=\"position\">3</property>\n\
                   </packing>\n\
                 </child>\n\
+                <child>\n\
+                  <object class=\"GtkLabel\" id=\"label1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">             </property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">4</property>\n\
+                  </packing>\n\
+                </child>\n\
               </object>\n\
               <packing>\n\
                 <property name=\"expand\">True</property>\n\
-                <property name=\"fill\">True</property>\n\
+                <property name=\"fill\">False</property>\n\
                 <property name=\"pack_type\">end</property>\n\
                 <property name=\"position\">0</property>\n\
               </packing>\n\
