@@ -1,5 +1,5 @@
 declare id   "panoram_enhancer";
-declare name "Panoram enhancer";
+declare name "Panoram Enhancer";
 declare shortname "Panoram";
 declare category "Misc";
 
@@ -13,8 +13,8 @@ import("filter.lib");
 import("music.lib");
 
 //Controls
-delay_width = hslider("Delay width[name:Delay width]",0,0,1,0.01):smooth(0.999);
-freq_width = hslider("Frequency width[name:Frequency width]",0,0,1,0.01);
+delay_width = hslider("Delay width[name:Delay]",0,0,1,0.01):smooth(0.999);
+freq_width = hslider("Frequency width[name:Frequency]",0,0,1,0.01);
 
 //Constants
 dt_max_const = 65536; //Max length of all delay lines, to provide 200 ms at 192 kHz
@@ -50,4 +50,3 @@ process = _,_<:
 	(_,_:(_*0.5,_*0.5:>lowpass(4,fmain))<:_,_),
 	pa_filter_bank2(delay_width,freq_width)
 	:>_,_;
-

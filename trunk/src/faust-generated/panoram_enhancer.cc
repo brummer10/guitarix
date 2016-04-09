@@ -129,7 +129,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "panoram_enhancer";
-	name = N_("Panoram enhancer");
+	name = N_("Panoram Enhancer");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = N_("Misc");       // category
@@ -437,8 +437,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("panoram_enhancer.Delay width",N_("Delay width"),"S","",&fslider0, 0.0, 0.0, 1.0, 0.01);
-	reg.registerVar("panoram_enhancer.Frequency width",N_("Frequency width"),"S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("panoram_enhancer.Delay width",N_("Delay"),"S","",&fslider0, 0.0, 0.0, 1.0, 0.01);
+	reg.registerVar("panoram_enhancer.Frequency width",N_("Frequency"),"S","",&fslider1, 0.0, 0.0, 1.0, 0.01);
 	return 0;
 }
 
@@ -486,7 +486,7 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GxSmallKnobR\" id=\"gxbigknob1\">\n\
+                      <object class=\"GxMidKnob\" id=\"gxbigknob1\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">True</property>\n\
                         <property name=\"receives_default\">True</property>\n\
