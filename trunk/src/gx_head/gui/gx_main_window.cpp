@@ -2306,25 +2306,25 @@ bool MainWindow::on_refresh_oscilloscope() {
     if (!oc.bsize || oc.load != load) {
         oc.load = load;
         fWaveView.set_text(
-            (boost::format(_("dsp load  %1% %%")) % oc.load).str().c_str(),
+            (boost::format(_("DSP Load  %1% %%")) % oc.load).str().c_str(),
             Gtk::CORNER_TOP_LEFT);
     }
     if (!oc.bsize || oc.frames != frames) {
         oc.frames = frames;
         fWaveView.set_text(
-            (boost::format(_("ht frames %1%")) % oc.frames).str().c_str(),
+            (boost::format(_("HT Frames %1%")) % oc.frames).str().c_str(),
             Gtk::CORNER_BOTTOM_LEFT);
     }
     if (!oc.bsize || oc.rt != is_rt) {
         oc.rt = is_rt;
         fWaveView.set_text(
-            oc.rt ? _("RT mode  yes ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
+            oc.rt ? _("RT Mode  YES ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
             Gtk::CORNER_BOTTOM_RIGHT);
     }
     if (!oc.bsize || oc.bsize != bsize) {
 	oc.bsize = bsize;
         fWaveView.set_text(
-            (boost::format(_("latency    %1%")) % oc.bsize).str().c_str(),
+            (boost::format(_("Latency    %1%")) % oc.bsize).str().c_str(),
             Gtk::CORNER_TOP_RIGHT);
     }
     fWaveView.queue_draw();

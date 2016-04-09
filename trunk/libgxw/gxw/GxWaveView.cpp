@@ -122,17 +122,17 @@ static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
 	cairo_stroke (cr);
 	*/
 
-	cairo_set_line_width (crp, 1.5);
-	cairo_set_source_rgba (crp,1.0, 0.85, 0.0, 0.4);
-	cairo_move_to (crp, 0, 40);
-	cairo_line_to (crp, 280, 40);
-	cairo_stroke (crp);
+	cairo_set_line_width (crp, 1);
+	//cairo_set_source_rgba (crp,1.0, 0.85, 0.0, 0.4);
+	//cairo_move_to (crp, 0, 40);
+	//cairo_line_to (crp, 280, 40);
+	//cairo_stroke (crp);
+    
+	//cairo_set_source_rgba (crp,0.46, 0.6, 0.31, 0.4);
+	//cairo_rectangle (crp, 0, 0, 280.0, 80.0);
+	//cairo_stroke (crp);
 
-	cairo_set_source_rgba (crp,1.0, 0.85, 0.0, 0.4);
-	cairo_rectangle (crp, 0, 0, 280.0, 80.0);
-	cairo_stroke (crp);
-
-	int gitter = 0;
+	float gitter = 0.5;
 	for (int i=0; i<28; i++)
 	{
 		gitter += 10;
@@ -140,15 +140,15 @@ static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
 		cairo_line_to (crp, gitter-5, 80);
 	}
 
-	gitter = 0;
-	for (int i=0; i<8; i++)
+	gitter = 0.5;
+	for (int i=0; i<7; i++)
 	{
 		gitter += 10;
 		cairo_move_to (crp, 0, gitter);
 		cairo_line_to (crp, 280, gitter);
 	}
 
-	cairo_set_source_rgba (crp,0.2,  1.0, 0.2, 0.05);
+	cairo_set_source_rgba (crp,1, 1, 1, 0.1);
 	cairo_stroke (crp);
 	
 	
