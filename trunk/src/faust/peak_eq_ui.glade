@@ -10,11 +10,9 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
-          <object class="GxPaintBox" id="rackbox">
+          <object class="GtkHBox" id="rackbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="spacing">4</property>
-            <property name="paint_func">box_uni_2_expose</property>
             <child>
               <object class="GtkTable" id="table1">
                 <property name="visible">True</property>
@@ -32,8 +30,8 @@
                     <property name="label_ref">label1:rack_label_inverse</property>
                   </object>
                   <packing>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
                   </packing>
                 </child>
                 <child>
@@ -47,8 +45,8 @@
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
                   </packing>
                 </child>
                 <child>
@@ -62,8 +60,8 @@
                   <packing>
                     <property name="left_attach">2</property>
                     <property name="right_attach">3</property>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
                   </packing>
                 </child>
                 <child>
@@ -77,8 +75,8 @@
                   <packing>
                     <property name="left_attach">3</property>
                     <property name="right_attach">4</property>
-                    <property name="top_attach">4</property>
-                    <property name="bottom_attach">5</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
                   </packing>
                 </child>
                 <child>
@@ -87,7 +85,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">eq.level1</property>
-                    <property name="label_ref">label5:rack_label_inverse</property>
+                    <property name="label_ref">label5:rack_label</property>
                   </object>
                   <packing>
                     <property name="top_attach">2</property>
@@ -101,7 +99,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">eq.level2</property>
-                    <property name="label_ref">label6:rack_label_inverse</property>
+                    <property name="label_ref">label6:rack_label</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -117,7 +115,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">eq.level3</property>
-                    <property name="label_ref">label7:rack_label_inverse</property>
+                    <property name="label_ref">label7:rack_label</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -133,7 +131,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">eq.level4</property>
-                    <property name="label_ref">label8:rack_label_inverse</property>
+                    <property name="label_ref">label8:rack_label</property>
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
@@ -204,8 +202,8 @@
                     <property name="label" translatable="yes">label</property>
                   </object>
                   <packing>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>
@@ -217,8 +215,8 @@
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>
@@ -230,8 +228,8 @@
                   <packing>
                     <property name="left_attach">2</property>
                     <property name="right_attach">3</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>
@@ -243,12 +241,12 @@
                   <packing>
                     <property name="left_attach">3</property>
                     <property name="right_attach">4</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">5</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label5:rack_label_inverse">
+                  <object class="GtkLabel" id="label5:rack_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
@@ -259,7 +257,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label6:rack_label_inverse">
+                  <object class="GtkLabel" id="label6:rack_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
@@ -272,7 +270,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label7:rack_label_inverse">
+                  <object class="GtkLabel" id="label7:rack_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
@@ -285,7 +283,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label8:rack_label_inverse">
+                  <object class="GtkLabel" id="label8:rack_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
@@ -306,8 +304,8 @@
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
