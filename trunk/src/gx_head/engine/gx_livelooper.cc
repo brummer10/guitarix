@@ -776,7 +776,7 @@ b.create_switch_no_caption(sw_pbutton,PARAM("playall"));
 b.closeBox();
 
 b.openHorizontalBox("");
-b.create_big_rackknob(PARAM("gain"), "Gain");
+b.create_mid_rackknob(PARAM("gain"), "Gain");
 
 b.openTabBox("");
 
@@ -940,7 +940,7 @@ b.closeBox();
 
 b.closeBox();
 
-b.create_big_rackknob(PARAM("mix"), "Mix");
+b.create_mid_rackknob(PARAM("mix"), "Mix");
 b.closeBox();
 
 #undef PARAM
