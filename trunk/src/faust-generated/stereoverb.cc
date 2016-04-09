@@ -419,7 +419,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
-                    <property name=\"spacing\">4</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -470,7 +470,7 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GxSmallKnobR\" id=\"gxbigknob2\">\n\
+                      <object class=\"GxMidKnob\" id=\"gxbigknob2\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">True</property>\n\
                         <property name=\"receives_default\">True</property>\n\
@@ -494,6 +494,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox4\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label3:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -531,6 +532,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkVBox\" id=\"vbox5\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">5</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label4:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
