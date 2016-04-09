@@ -36,7 +36,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GxSmallKnobR" id="gxbigknob1">
+                      <object class="GxMidKnob" id="gxbigknob1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

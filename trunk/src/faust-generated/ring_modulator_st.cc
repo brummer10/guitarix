@@ -173,7 +173,7 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GxSmallKnobR\" id=\"gxbigknob1\">\n\
+                      <object class=\"GxMidKnob\" id=\"gxbigknob1\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">True</property>\n\
                         <property name=\"receives_default\">True</property>\n\
