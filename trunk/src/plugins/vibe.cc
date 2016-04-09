@@ -214,7 +214,7 @@ void Vibe::process_mono(int count, float *smps, float *efxout, PluginDef *plugin
 }
 
 int Vibe::registerparam(const ParamReg& reg) {
-    Vibe& self = *static_cast<Vibe*>(reg.plugin);
+	Vibe& self = *static_cast<Vibe*>(reg.plugin);
     if (self.Pstereo) {
 	vibe_lfo_sine::register_params(reg);
     } else {
@@ -227,7 +227,7 @@ int Vibe::registerparam(const ParamReg& reg) {
 	univibe_wet_dry = "univibe.wet_dry";
 	univibe_fb = "univibe.fb";
 	reg.registerVar("univibe.panning",N_("Pan"),"S",N_("panning of output (left / right)"),&self.Ppanning,0,-1,1,0.01);
-	reg.registerVar("univibe.lrcross",N_("L/R.Cr"),"S",N_("left/right channel crossing"),&self.flrcross,0,-1,1,0.01);
+	reg.registerVar("univibe.lrcross",N_("XOver"),"S",N_("left/right channel crossing"),&self.flrcross,0,-1,1,0.01);
     } else {
 	univibe_width = "univibe_mono.width";
 	univibe_depth = "univibe_mono.depth";
@@ -237,15 +237,23 @@ int Vibe::registerparam(const ParamReg& reg) {
     reg.registerVar(univibe_width,N_("Width"),"S",N_("LFO amplitude"),&self.Pwidth, 0.5, 0, 1, 0.01);
     reg.registerVar(univibe_depth,N_("Depth"),"S",N_("DC level in LFO"),&self.Pdepth,0.37,0,1,0.01);
     reg.registerVar(univibe_wet_dry,N_("Wet/Dry"),"S",N_("output mix (signal / effect)"),&self.wet_dry,1,0,1,0.01);
-    reg.registerVar(univibe_fb,NC_("Feedback", "Fb"),"S",N_("sound modification by feedback"),&self.fb,-0.6,-1,1,0.01);
+    reg.registerVar(univibe_fb,NC_("Feedback", "F/B"),"S",N_("sound modification by feedback"),&self.fb,-0.6,-1,1,0.01);
     return 0;
 }
 
 int Vibe::uiloader(const UiBuilder& b, int form) {
+	Vibe& self = *static_cast<Vibe*>(b.plugin);
+	if (form & UI_FORM_GLADE) {
+		if (self.Pstereo) {
+            b.load_glade_file("vibe_stereo_ui.glade");
+        } else {
+			b.load_glade_file("vibe_ui.glade");
+        }
+        return 0;
+    } 
     if (!(form & UI_FORM_STACK)) {
 	return -1;
     }
-    Vibe& self = *static_cast<Vibe*>(b.plugin);
     const char *univibe_freq, *univibe_width, *univibe_depth, *univibe_wet_dry, *univibe_fb;
     if (self.Pstereo) {
 	univibe_freq = "univibe.freq";
@@ -273,7 +281,7 @@ int Vibe::uiloader(const UiBuilder& b, int form) {
     b.create_small_rackknobr(univibe_freq,N_("Freq"));
     b.create_small_rackknobr(univibe_depth,N_("Depth"));
     b.create_small_rackknobr(univibe_width,N_("Width"));
-    b.create_small_rackknobr(univibe_fb,NC_("Feedback", "Fb"));
+    b.create_small_rackknobr(univibe_fb,NC_("Feedback", "F/B"));
     if (self.Pstereo) {
 	b.closeBox();
 	b.insertSpacer();
