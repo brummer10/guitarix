@@ -212,7 +212,7 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
             Gxw::Switch *sw;
             bld->find_widget(fm, sw);
             sw->get_property("var_id",id);
-            //sw->set_name("no_dim");
+            sw->set_name("effect_on_off");
             if (!id.empty())
             Glib::signal_timeout().connect(sigc::bind<Gxw::Switch*>(sigc::bind<const std::string>(
                   sigc::mem_fun(*this, &StackBoxBuilder::set_engine_cp_value),id),sw), 60);
@@ -499,8 +499,8 @@ void StackBoxBuilder::create_p_display(const std::string& id, const std::string&
 void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::string& id) {
 	Gtk::Widget *sw = UiSwitch::create(machine, sw_type, id);
 	Gxw::Switch *regler = static_cast<Gxw::Switch*>(sw);
-	regler->set_relief(Gtk::RELIEF_NONE);
-	regler->set_name("no_dim");
+	//regler->set_relief(Gtk::RELIEF_NONE);
+	regler->set_name("effect_on_off");
 	addwidget(sw);
     Glib::signal_timeout().connect(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
@@ -564,8 +564,8 @@ void StackBoxBuilder::create_fload_switch(const char *sw_type, const std::string
 	if (machine.get_jack()) {
 		Gtk::Widget *sw = UiSwitch::create(machine, sw_type, id);
 		Gxw::Switch *regler = static_cast<Gxw::Switch*>(sw);
-		regler->set_relief(Gtk::RELIEF_NONE);
-		regler->set_name("no_dim");
+		//regler->set_relief(Gtk::RELIEF_NONE);
+		regler->set_name("effect_on_off");
 		addwidget(sw);
 		gx_engine::Parameter& p = machine.get_parameter(id);
 		p.signal_changed_float().connect(sigc::hide(
