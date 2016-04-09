@@ -180,6 +180,43 @@ const char *Dsp::glade_def = "\
                 <property name=\"can_focus\">False</property>\n\
                 <property name=\"spacing\">10</property>\n\
                 <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxMidKnob\" id=\"gxbigknob2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">moog.fr</property>\n\
+                        <property name=\"label_ref\">label2:rack_label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">False</property>\n\
+                    <property name=\"fill\">False</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
                   <object class=\"GtkVBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
@@ -214,43 +251,6 @@ const char *Dsp::glade_def = "\
                     <property name=\"expand\">False</property>\n\
                     <property name=\"fill\">False</property>\n\
                     <property name=\"position\">0</property>\n\
-                  </packing>\n\
-                </child>\n\
-                <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
-                    <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
-                    <child>\n\
-                      <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">label</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">0</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GxSmallKnobR\" id=\"gxbigknob2\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">True</property>\n\
-                        <property name=\"receives_default\">True</property>\n\
-                        <property name=\"var_id\">moog.fr</property>\n\
-                        <property name=\"label_ref\">label2:rack_label</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">1</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                  </object>\n\
-                  <packing>\n\
-                    <property name=\"expand\">False</property>\n\
-                    <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">1</property>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\
