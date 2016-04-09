@@ -4000,7 +4000,7 @@ b.openHorizontalhideBox("");
 b.closeBox();
 b.openHorizontalBox("");
 
-    b.create_small_rackknobr(PARAM("P6v"), "Volume");
+    b.create_mid_rackknob(PARAM("P6v"), "Volume");
 b.closeBox();
 
     return 0;
