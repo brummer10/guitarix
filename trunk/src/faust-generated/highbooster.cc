@@ -40,7 +40,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "highbooster";
-	name = N_("Treble boost");
+	name = N_("Treble Boost");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = N_("Tone Control");       // category
