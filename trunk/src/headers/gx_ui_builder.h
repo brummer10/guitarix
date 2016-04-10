@@ -207,7 +207,7 @@ protected:
     static void openVerticalBox1_(const char* label);
     static void openVerticalBox2_(const char* label);
     static void openHorizontalBox_(const char* label);
-    static void openHorizontalBox_(const char* label, int spacing);
+    //static void openHorizontalBox_(const char* label, int spacing);
     static void openHorizontalhideBox_(const char* label);
     static void openHorizontalTableBox_(const char* label);
     static void openFrameBox_(const char *label);
