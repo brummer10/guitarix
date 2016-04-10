@@ -121,7 +121,7 @@ pir(GX_LV2_STYLE_DIR"/logo.png")
  // m_paintbox.set_spacing(12);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "box_uni_2_expose";
+  m_paintbox.property_paint_func() = "gx_lv2_unit_expose";
   add(m_paintbox);
   // box for the controllers
   m_hbox_.set_spacing(12);
@@ -131,7 +131,7 @@ pir(GX_LV2_STYLE_DIR"/logo.png")
   m_hbox1_.set_border_width(10);
   m_hbox1_.pack_end(pir, Gtk::PACK_SHRINK);
   // set a vertical box in the paintbox
-  m_paintbox.pack_start(m_vbox_);
+  m_paintbox.pack_start(m_vbox_, Gtk::PACK_EXPAND_PADDING, 35);
  // m_vbox_.set_border_width(25);
   // and put space box on top
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
@@ -156,8 +156,8 @@ pir(GX_LV2_STYLE_DIR"/logo.png")
   m_hboxtonestack1.pack_start(t_selector,Gtk::PACK_SHRINK);
   m_hboxtonestack1.pack_start(m_hboxtonestack2,Gtk::PACK_EXPAND_PADDING);
   
-  m_vboxtonestack.pack_start(m_hboxtonestack1);
-  m_vboxtonestack.pack_start(m_hbox);
+  m_vboxtonestack.pack_start(m_hboxtonestack1,Gtk::PACK_SHRINK);
+  m_vboxtonestack.pack_start(m_hbox,Gtk::PACK_EXPAND_PADDING);
   m_hbox.set_border_width(8);
   m_hbox.pack_start(m_vbox5);
   m_hbox.pack_start(m_vbox4);
