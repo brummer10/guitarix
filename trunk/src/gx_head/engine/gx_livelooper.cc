@@ -781,7 +781,6 @@ b.create_mid_rackknob(PARAM("gain"), "Gain");
 b.openTabBox("");
 
 b.openHorizontalBox(N_("Tape 1"));
-b.openpaintampBox("");
 
 b.openVerticalBox("");
 b.openHorizontalBox("");
@@ -821,10 +820,8 @@ b.closeBox();
 b.create_small_rackknobr(PARAM("level1"), "Level");
 
 b.closeBox();
-b.closeBox();
 
 b.openHorizontalBox(N_("Tape 2"));
-b.openpaintampBox("");
 b.openVerticalBox("");
 
 b.openHorizontalBox("");
@@ -860,10 +857,8 @@ b.closeBox();
 
 b.create_small_rackknobr(PARAM("level2"), "Level");
 b.closeBox();
-b.closeBox();
 
 b.openHorizontalBox(N_("Tape 3"));
-b.openpaintampBox("");
 b.openVerticalBox("");
 
 b.openHorizontalBox("");
@@ -898,10 +893,8 @@ b.closeBox();
 b.closeBox();
 b.create_small_rackknobr(PARAM("level3"), "Level");
 b.closeBox();
-b.closeBox();
 
 b.openHorizontalBox(N_("Tape 4"));
-b.openpaintampBox("");
 b.openVerticalBox("");
 
 b.openHorizontalBox("");
@@ -936,8 +929,6 @@ b.closeBox();
 b.closeBox();
 b.create_small_rackknobr(PARAM("level4"), "Level");
 b.closeBox();
-b.closeBox();
-
 b.closeBox();
 
 b.create_mid_rackknob(PARAM("mix"), "Mix");
