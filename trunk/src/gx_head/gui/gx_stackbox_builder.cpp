@@ -735,7 +735,7 @@ void StackBoxBuilder::addLiveWaveDisplay(const char* label) {
 void StackBoxBuilder::openVerticalBox1(const char* label) {
     GxVBox * box =  new GxVBox();
     box->set_homogeneous(false);
-    box->set_spacing(0);
+    box->set_spacing(2);
     box->set_border_width(0);
 
     if (!fBox.top_is_notebook() && label && label[0]) {
@@ -764,7 +764,7 @@ void StackBoxBuilder::openVerticalBox2(const char* label) {
     box->pack1(*Gtk::manage(static_cast<Gtk::Widget*>(pbox)),true,true);
     GxHBox * hbox =  new GxHBox();
     hbox->set_homogeneous(false);
-    hbox->set_spacing(0);
+    hbox->set_spacing(2);
     hbox->set_border_width(0);
     box->pack2(*Gtk::manage(static_cast<Gtk::Widget*>(hbox)),true,true);
     box->set_position(200);
@@ -984,7 +984,7 @@ void StackBoxBuilder::openHorizontalTableBox(const char* label) {
         fBox.push(fBox.add(manage(box), label));
     }
     box->set_homogeneous(false);
-    box->set_spacing(0);
+    box->set_spacing(2);
     box->set_border_width(0);
 }
 
@@ -1036,14 +1036,14 @@ void StackBoxBuilder::openHorizontalBox(const char* label) {
         fBox.push(fBox.add(manage(box), label));
     }
     box->set_homogeneous(false);
-    box->set_spacing(0);
+    box->set_spacing(2);
     box->set_border_width(0);
 }
 
 void StackBoxBuilder::openVerticalBox(const char* label) {
     GxVBox * box =  new GxVBox();
     box->set_homogeneous(false);
-    box->set_spacing(0);
+    box->set_spacing(2);
     box->set_border_width(0);
 
     if (!fBox.top_is_notebook() && label && label[0]) {
