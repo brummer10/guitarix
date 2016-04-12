@@ -2035,35 +2035,35 @@ msgid "zoom out (center: triangle at bottom of graph)"
 msgstr ""
 
 #: ../src/gx_head/ports.glade.h:1
-msgid "<b>I_nsert</b>"
+msgid "I_nsert"
 msgstr ""
 
 #: ../src/gx_head/ports.glade.h:2
-msgid "<b>Output _1</b>"
+msgid "Output _1"
 msgstr ""
 
 #: ../src/gx_head/ports.glade.h:3
-msgid "<b>Output _2</b>"
+msgid "Output _2"
 msgstr ""
 
 #: ../src/gx_head/ports.glade.h:4
-msgid "<b>_Audio</b>"
+msgid "_Audio"
 msgstr ""
 
 #: ../src/gx_head/ports.glade.h:5
-msgid "<b>_Input (Control)</b>"
+msgid "_Input (Control)"
 msgstr ""
 
 #: ../src/gx_head/ports.glade.h:6
-msgid "<b>_Input</b>"
+msgid "_Input"
 msgstr ""
 
 #: ../src/gx_head/ports.glade.h:7
-msgid "<b>_Midi</b>"
+msgid "_Midi"
 msgstr ""
 
 #: ../src/gx_head/ports.glade.h:8
-msgid "<b>_Output</b>"
+msgid "_Output"
 msgstr ""
 
 #: ../src/gx_head/ports.glade.h:9
@@ -2071,11 +2071,11 @@ msgid "guitarix port connections"
 msgstr ""
 
 #: ../src/midi.glade.h:1
-msgid "<big><b>MIDI Controller</b></big>"
+msgid "MIDI Controller"
 msgstr ""
 
 #: ../src/midi.glade.h:2
-msgid "Edit a MIDI name to choose you own"
+msgid "Edit a MIDI name to choose your own"
 msgstr ""
 
 #: ../src/midi.glade.h:3

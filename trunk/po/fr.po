@@ -2014,11 +2014,11 @@ msgid "_Delete Selected"
 msgstr "_Effacer la Sélection"
 
 #: ../src/gx_head/builder/midi.glade.h:9
-msgid "<big><b>MIDI Controller</b></big>"
-msgstr "<big><b>Contrôleur MIDI</b></big>"
+msgid "MIDI Controller"
+msgstr "Contrôleur MIDI"
 
 #: ../src/gx_head/builder/midi.glade.h:10
-msgid "Edit a MIDI name to choose you own"
+msgid "Edit a MIDI name to choose your own"
 msgstr "Personnaliser un nom MIDI"
 
 #: ../src/gx_head/builder/midi.glade.h:11
@@ -2042,7 +2042,7 @@ msgstr ""
 "avec la session principale."
 
 #: ../src/gx_head/builder/pluginpreset_inputwindow.glade.h:1
-msgid "Save current plugin setting under a name:"
+msgid "Save current plugin setting as:"
 msgstr "Sauver la configuration actuelle du plugin sous le nom :"
 
 #: ../src/gx_head/builder/ports.glade.h:1
@@ -2050,36 +2050,36 @@ msgid "guitarix port connections"
 msgstr "connexions des ports guitarix"
 
 #: ../src/gx_head/builder/ports.glade.h:2
-msgid "<b>_Input</b>"
-msgstr "<b>_Entrée</b>"
+msgid "_Input"
+msgstr "_Entrée"
 
 #: ../src/gx_head/builder/ports.glade.h:3
-msgid "<b>Output _1</b>"
-msgstr "<b>Sortie _1</b>"
+msgid "Output _1"
+msgstr "Sortie _1"
 
 #: ../src/gx_head/builder/ports.glade.h:4
-msgid "<b>Output _2</b>"
-msgstr "<b>Sortie _2</b>"
+msgid "Output _2"
+msgstr "Sortie _2"
 
 #: ../src/gx_head/builder/ports.glade.h:5
-msgid "<b>_Audio</b>"
-msgstr "<b>_Audio</b>"
+msgid "_Audio"
+msgstr "_Audio"
 
 #: ../src/gx_head/builder/ports.glade.h:6
-msgid "<b>_Output</b>"
-msgstr "<b>_Sortie</b>"
+msgid "_Output"
+msgstr "_Sortie"
 
 #: ../src/gx_head/builder/ports.glade.h:7
-msgid "<b>I_nsert</b>"
-msgstr "<b>I_nsert</b>"
+msgid "I_nsert"
+msgstr "I_nsert"
 
 #: ../src/gx_head/builder/ports.glade.h:8
-msgid "<b>_Input (Control)</b>"
-msgstr "<b>_Entrée (Contrôle)</b>"
+msgid "_Input (Control)"
+msgstr "_Entrée (Contrôle)"
 
 #: ../src/gx_head/builder/ports.glade.h:9
-msgid "<b>_Midi</b>"
-msgstr "<b>_MIDI</b>"
+msgid "_Midi"
+msgstr "_MIDI"
 
 #: ../src/gx_head/engine/gx_engine.cpp:57
 #: ../src/gx_head/engine/gx_engine.cpp:105

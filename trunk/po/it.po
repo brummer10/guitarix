@@ -1105,11 +1105,11 @@ msgid "▼"
 msgstr ""
 
 #: ../src/gx_head/builder/midi.glade.h:1
-msgid "<big><b>MIDI Controller</b></big>"
-msgstr "<big><b>MIDI Controller</b></big>"
+msgid "MIDI Controller"
+msgstr "MIDI Controller"
 
 #: ../src/gx_head/builder/midi.glade.h:2
-msgid "Edit a MIDI name to choose you own"
+msgid "Edit a MIDI name to choose your own"
 msgstr "Edita il nome MIDI per sceglierne uno personalizzato"
 
 #: ../src/gx_head/builder/midi.glade.h:3
@@ -1164,36 +1164,36 @@ msgstr ""
 
 #: ../src/gx_head/builder/pluginpreset_inputwindow.glade.h:1
 #, fuzzy
-msgid "Save current plugin setting under a name:"
+msgid "Save current plugin setting as:"
 msgstr "Preset corrente salvato nelle impostazioni principali"
 
 #: ../src/gx_head/builder/ports.glade.h:1
-msgid "<b>I_nsert</b>"
-msgstr "<b>I_nserisci</b>"
+msgid "I_nsert"
+msgstr "I_nserisci"
 
 #: ../src/gx_head/builder/ports.glade.h:2
-msgid "<b>Output _1</b>"
-msgstr "<b>Uscita _1</b>"
+msgid "Output _1"
+msgstr "Uscita _1"
 
 #: ../src/gx_head/builder/ports.glade.h:3
-msgid "<b>Output _2</b>"
-msgstr "<b>Uscita _2</b>"
+msgid "Output _2"
+msgstr "Uscita _2"
 
 #: ../src/gx_head/builder/ports.glade.h:4
-msgid "<b>_Audio</b>"
-msgstr "<b>_Audio</b>"
+msgid "_Audio"
+msgstr "_Audio"
 
 #: ../src/gx_head/builder/ports.glade.h:5
-msgid "<b>_Input (Control)</b>"
-msgstr "<b>_Ingresso (Controllo)</b>"
+msgid "_Input (Control)"
+msgstr "_Ingresso (Controllo)"
 
 #: ../src/gx_head/builder/ports.glade.h:6
-msgid "<b>_Input</b>"
-msgstr "<b>_Ingresso</b>"
+msgid "_Input"
+msgstr "_Ingresso"
 
 #: ../src/gx_head/builder/ports.glade.h:7
-msgid "<b>_Midi</b>"
-msgstr "<b>_Midi</b>"
+msgid "_Midi"
+msgstr "_Midi"
 
 #: ../src/gx_head/builder/ports.glade.h:8
 msgid "<b>_Output</b>"
