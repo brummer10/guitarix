@@ -776,162 +776,170 @@ b.create_switch_no_caption(sw_pbutton,PARAM("playall"));
 b.closeBox();
 
 b.openHorizontalBox("");
-b.create_mid_rackknob(PARAM("gain"), "Gain");
-
-b.openTabBox("");
-
-b.openHorizontalBox(N_("Tape 1"));
-
-b.openVerticalBox("");
-b.openHorizontalBox("");
-b.insertSpacer();
-b.openVerticalBox("");
-b.insertSpacer();
-b.create_p_display(PARAM("playh1"),PARAM("clips1"),PARAM("clip1"));
-b.insertSpacer();
-b.openHorizontalBox("");
-b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
-b.create_feedback_switch(sw_pbutton,PARAM("play1"));
-b.create_feedback_switch(sw_prbutton,PARAM("rplay1"));
-b.create_feedback_switch(sw_button,PARAM("reset1"));
-b.create_fload_switch(sw_fbutton,PARAM("load1"),PARAM("loadfile1"));
-b.closeBox();
-b.closeBox();
-
-b.insertSpacer();
-b.create_port_display(PARAM("bar1"), "Buffer");
-b.insertSpacer();
-b.closeBox();
-
-b.openHorizontalBox("");
-b.insertSpacer();
-b.openVerticalBox("");
-
-b.create_feedback_slider(PARAM("clips1"), "Cut");
-b.create_feedback_slider(PARAM("clip1"), "Clip");
-b.create_master_slider(PARAM("speed1"), "Speed");
-
-b.closeBox();
-b.insertSpacer();
-b.insertSpacer();
-b.closeBox();
-
-b.closeBox();
-b.create_small_rackknobr(PARAM("level1"), "Level");
-
-b.closeBox();
-
-b.openHorizontalBox(N_("Tape 2"));
-b.openVerticalBox("");
-
-b.openHorizontalBox("");
-b.insertSpacer();
-b.openVerticalBox("");
-b.insertSpacer();
-b.create_p_display(PARAM("playh2"),PARAM("clips2"),PARAM("clip2"));
-b.insertSpacer();
-b.openHorizontalBox("");
-b.create_feedback_switch(sw_rbutton,PARAM("rec2"));
-b.create_feedback_switch(sw_pbutton,PARAM("play2"));
-b.create_feedback_switch(sw_prbutton,PARAM("rplay2"));
-b.create_feedback_switch(sw_button,PARAM("reset2"));
-b.create_fload_switch(sw_fbutton,PARAM("load2"),PARAM("loadfile2"));
-b.closeBox();
-b.closeBox();
-b.insertSpacer();
-b.create_port_display(PARAM("bar2"), "Buffer");
-b.insertSpacer();
-b.closeBox();
-b.openHorizontalBox("");
-b.insertSpacer();
-b.openVerticalBox("");
-b.create_feedback_slider(PARAM("clips2"), "Cut");
-b.create_feedback_slider(PARAM("clip2"), "Clip");
-b.create_master_slider(PARAM("speed2"), "Speed");
-b.closeBox();
-b.insertSpacer();
-b.insertSpacer();
-b.closeBox();
-
-b.closeBox();
-
-b.create_small_rackknobr(PARAM("level2"), "Level");
-b.closeBox();
-
-b.openHorizontalBox(N_("Tape 3"));
-b.openVerticalBox("");
-
-b.openHorizontalBox("");
-b.insertSpacer();
-b.openVerticalBox("");
-b.insertSpacer();
-b.create_p_display(PARAM("playh3"),PARAM("clips3"),PARAM("clip3"));
-b.insertSpacer();
-b.openHorizontalBox("");
-b.create_feedback_switch(sw_rbutton,PARAM("rec3"));
-b.create_feedback_switch(sw_pbutton,PARAM("play3"));
-b.create_feedback_switch(sw_prbutton,PARAM("rplay3"));
-b.create_feedback_switch(sw_button,PARAM("reset3"));
-b.create_fload_switch(sw_fbutton,PARAM("load3"),PARAM("loadfile3"));
-b.closeBox();
-b.closeBox();
-b.insertSpacer();
-b.create_port_display(PARAM("bar3"), "Buffer");
-b.insertSpacer();
-b.closeBox();
-b.openHorizontalBox("");
-b.insertSpacer();
-b.openVerticalBox("");
-b.create_feedback_slider(PARAM("clips3"), "Cut");
-b.create_feedback_slider(PARAM("clip3"), "Clip");
-b.create_master_slider(PARAM("speed3"), "Speed");
-b.closeBox();
-b.insertSpacer();
-b.insertSpacer();
-b.closeBox();
-
-b.closeBox();
-b.create_small_rackknobr(PARAM("level3"), "Level");
-b.closeBox();
-
-b.openHorizontalBox(N_("Tape 4"));
-b.openVerticalBox("");
-
-b.openHorizontalBox("");
-b.insertSpacer();
-b.openVerticalBox("");
-b.insertSpacer();
-b.create_p_display(PARAM("playh4"),PARAM("clips4"),PARAM("clip4"));
-b.insertSpacer();
-b.openHorizontalBox("");
-b.create_feedback_switch(sw_rbutton,PARAM("rec4"));
-b.create_feedback_switch(sw_pbutton,PARAM("play4"));
-b.create_feedback_switch(sw_prbutton,PARAM("rplay4"));
-b.create_feedback_switch(sw_button,PARAM("reset4"));
-b.create_fload_switch(sw_fbutton,PARAM("load4"),PARAM("loadfile4"));
-b.closeBox();
-b.closeBox();
-b.insertSpacer();
-b.create_port_display(PARAM("bar4"), "Buffer");
-b.insertSpacer();
-b.closeBox();
-b.openHorizontalBox("");
-b.insertSpacer();
-b.openVerticalBox("");
-b.create_feedback_slider(PARAM("clips4"), "Cut");
-b.create_feedback_slider(PARAM("clip4"), "Clip");
-b.create_master_slider(PARAM("speed4"), "Speed");
-b.closeBox();
-b.insertSpacer();
-b.insertSpacer();
-b.closeBox();
-
-b.closeBox();
-b.create_small_rackknobr(PARAM("level4"), "Level");
-b.closeBox();
-b.closeBox();
-
-b.create_mid_rackknob(PARAM("mix"), "Mix");
+    b.create_mid_rackknob(PARAM("gain"), "Gain");
+    
+    b.openTabBox("");
+    
+        b.openHorizontalBox(N_("Tape 1"));
+        
+            b.openVerticalBox("");
+                b.openHorizontalBox("");
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_p_display(PARAM("playh1"),PARAM("clips1"),PARAM("clip1"));
+                        b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
+                        b.create_feedback_switch(sw_pbutton,PARAM("play1"));
+                        b.create_feedback_switch(sw_prbutton,PARAM("rplay1"));
+                        b.create_feedback_switch(sw_button,PARAM("reset1"));
+                        b.create_fload_switch(sw_fbutton,PARAM("load1"),PARAM("loadfile1"));
+                        b.closeBox();
+                        b.closeBox();
+                        
+                        b.insertSpacer();
+                        b.create_port_display(PARAM("bar1"), "Buffer");
+                        b.insertSpacer();
+                        b.closeBox();
+                        
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.openVerticalBox("");
+                        
+                        b.create_feedback_slider(PARAM("clips1"), "Cut");
+                        b.create_feedback_slider(PARAM("clip1"), "Clip");
+                        b.create_master_slider(PARAM("speed1"), "Speed");
+                        
+                    b.closeBox();
+                    b.insertSpacer();
+                b.closeBox();
+            
+            b.closeBox();
+            b.openVerticalBox("");
+                b.insertSpacer();
+                b.create_small_rackknobr(PARAM("level1"), "Level");
+            b.closeBox();
+        b.closeBox();
+            
+        b.openHorizontalBox(N_("Tape 2"));
+            b.openVerticalBox("");
+            
+                b.openHorizontalBox("");
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_p_display(PARAM("playh2"),PARAM("clips2"),PARAM("clip2"));
+                        b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.create_feedback_switch(sw_rbutton,PARAM("rec2"));
+                        b.create_feedback_switch(sw_pbutton,PARAM("play2"));
+                        b.create_feedback_switch(sw_prbutton,PARAM("rplay2"));
+                        b.create_feedback_switch(sw_button,PARAM("reset2"));
+                        b.create_fload_switch(sw_fbutton,PARAM("load2"),PARAM("loadfile2"));
+                        b.closeBox();
+                        b.closeBox();
+                        b.insertSpacer();
+                        b.create_port_display(PARAM("bar2"), "Buffer");
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.openVerticalBox("");
+                        b.create_feedback_slider(PARAM("clips2"), "Cut");
+                        b.create_feedback_slider(PARAM("clip2"), "Clip");
+                        b.create_master_slider(PARAM("speed2"), "Speed");
+                    b.closeBox();
+                    b.insertSpacer();
+                b.closeBox();
+                
+            b.closeBox();
+            
+            b.openVerticalBox("");
+                b.insertSpacer();
+                b.create_small_rackknobr(PARAM("level2"), "Level");
+            b.closeBox();
+        b.closeBox();
+        
+        b.openHorizontalBox(N_("Tape 3"));
+            b.openVerticalBox("");
+            
+                b.openHorizontalBox("");
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_p_display(PARAM("playh3"),PARAM("clips3"),PARAM("clip3"));
+                        b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.create_feedback_switch(sw_rbutton,PARAM("rec3"));
+                        b.create_feedback_switch(sw_pbutton,PARAM("play3"));
+                        b.create_feedback_switch(sw_prbutton,PARAM("rplay3"));
+                        b.create_feedback_switch(sw_button,PARAM("reset3"));
+                        b.create_fload_switch(sw_fbutton,PARAM("load3"),PARAM("loadfile3"));
+                        b.closeBox();
+                        b.closeBox();
+                        b.insertSpacer();
+                        b.create_port_display(PARAM("bar3"), "Buffer");
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.openVerticalBox("");
+                        b.create_feedback_slider(PARAM("clips3"), "Cut");
+                        b.create_feedback_slider(PARAM("clip3"), "Clip");
+                        b.create_master_slider(PARAM("speed3"), "Speed");
+                    b.closeBox();
+                    b.insertSpacer();
+                b.closeBox();
+                
+            b.closeBox();
+            b.openVerticalBox("");
+                b.insertSpacer();
+                b.create_small_rackknobr(PARAM("level3"), "Level");
+            b.closeBox();
+        b.closeBox();
+        
+        b.openHorizontalBox(N_("Tape 4"));
+            b.openVerticalBox("");
+            
+                b.openHorizontalBox("");
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_p_display(PARAM("playh4"),PARAM("clips4"),PARAM("clip4"));
+                        b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.create_feedback_switch(sw_rbutton,PARAM("rec4"));
+                        b.create_feedback_switch(sw_pbutton,PARAM("play4"));
+                        b.create_feedback_switch(sw_prbutton,PARAM("rplay4"));
+                        b.create_feedback_switch(sw_button,PARAM("reset4"));
+                        b.create_fload_switch(sw_fbutton,PARAM("load4"),PARAM("loadfile4"));
+                        b.closeBox();
+                        b.closeBox();
+                        b.insertSpacer();
+                        b.create_port_display(PARAM("bar4"), "Buffer");
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.openVerticalBox("");
+                        b.create_feedback_slider(PARAM("clips4"), "Cut");
+                        b.create_feedback_slider(PARAM("clip4"), "Clip");
+                        b.create_master_slider(PARAM("speed4"), "Speed");
+                    b.closeBox();
+                    b.insertSpacer();
+                b.closeBox();
+                
+            b.closeBox();
+            b.openVerticalBox("");
+                b.insertSpacer();
+                b.create_small_rackknobr(PARAM("level4"), "Level");
+            b.closeBox();
+        b.closeBox();
+        
+    b.closeBox();
+    
+    b.create_mid_rackknob(PARAM("mix"), "Mix");
 b.closeBox();
 
 #undef PARAM
