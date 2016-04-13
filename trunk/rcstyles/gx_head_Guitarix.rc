@@ -416,6 +416,7 @@ style "guitarix_fastmeter" {
     GxFastMeter::bevel         = 0.12
 }
 widget_class "*GxFastMeter" style:highest "guitarix_fastmeter"
+widget "*meterframe*" style:highest "guitarix_fastmeter"
 
 style "guitarix_simplemeter" {
     
