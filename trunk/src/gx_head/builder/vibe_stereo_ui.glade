@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gxwidgets 0.0 -->
   <requires lib="gtk+" version="2.20"/>
+  <!-- interface-requires gxwidgets 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
@@ -18,7 +18,6 @@
               <object class="GtkHBox" id="hbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="spacing">6</property>
                 <child>
                   <object class="GtkVBox" id="vbox21">
                     <property name="visible">True</property>
