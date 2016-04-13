@@ -708,14 +708,14 @@ static void request_vertical_meter(GtkWidget *widget)
     // overall background
     float r, g, b;
     gx_get_color(widget, "bg", NULL, &r, &g, &b);
-    if (type) {
+    //if (type) {
     gx_create_rectangle(cr, x_, y_, w_, h_, rad);
 	cairo_set_source_rgb(cr, r, g, b);
 	cairo_fill(cr);
     
     if (bevel)
         gx_bevel(cr, x_, y_, w_, h_, rad, bevel);
-    }
+    //}
     // inner background
     w_ = hrz ? width - 2 * xs : lb + dim * (lw + lb);
     h_ = hrz ? lb + dim * (lw + lb) : height - 2 * ys;
