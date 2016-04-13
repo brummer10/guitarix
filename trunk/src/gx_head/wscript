@@ -125,6 +125,7 @@ def build(bld):
         './builder/vibe_stereo_ui.glade',
         './builder/gx_distortion_ui.glade',
         './builder/gx_record_ui.glade',
+        './builder/gx_st_record_ui.glade',
         './builder/amp.tonestack_ui.glade',
         './builder/ampimpulse_ui.glade',
         './builder/cabinet_ui.glade',

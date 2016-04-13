@@ -1074,9 +1074,9 @@ inline int SCapture::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         if (channel == 1) {
-            b.load_glade(glade_def);
+            b.load_glade_file("gx_record_ui.glade");
         } else {
-            b.load_glade(glade_def_st);
+            b.load_glade_file("gx_st_record_ui.glade");
         }
         return 0;
     }
