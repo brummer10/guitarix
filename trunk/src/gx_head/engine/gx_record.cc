@@ -1129,4 +1129,3 @@ void SCapture::del_instance(PluginDef *p)
 {
     delete static_cast<SCapture*>(p);
 }
-
