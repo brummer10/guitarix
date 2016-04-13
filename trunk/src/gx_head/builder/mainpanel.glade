@@ -1356,7 +1356,7 @@
                                   <object class="GtkLabel" id="spacer_widget">
                                     <property name="label" translatable="yes"></property>
                                     <property name="can_focus">false</property>
-                                    <property name="width_request">590</property>
+                                    <property name="width_request">600</property>
                                     <property name="height_request">1</property>
                                     <property name="visible">True</property>
                                   </object>
