@@ -353,6 +353,14 @@ int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& 
 #endif
 #endif
 
+#ifdef NDEBUG
+// switch off GTK warnings in Release build
+static void null_handler(const char *log_domain, GLogLevelFlags log_level,
+                         const gchar *msg, gpointer user_data ) {
+    return ;
+}
+#endif
+
 static void mainHeadless(int argc, char *argv[]) {
     Glib::init();
     Gio::init();
@@ -452,6 +460,7 @@ static void mainGtk(int argc, char *argv[]) {
     GxSplashBox * Splash = NULL;
 #ifdef NDEBUG
     Splash =  new GxSplashBox();
+    g_log_set_handler("Gtk",G_LOG_LEVEL_WARNING,null_handler,NULL);
 #endif
     GxExit::get_instance().signal_msg().connect(
 	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
@@ -505,6 +514,7 @@ static void mainFront(int argc, char *argv[]) {
     GxSplashBox * Splash = NULL;
 #ifdef NDEBUG
     Splash =  new GxSplashBox();
+    g_log_set_handler("Gtk",G_LOG_LEVEL_WARNING,null_handler,NULL);
 #endif
     GxExit::get_instance().signal_msg().connect(
 	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
