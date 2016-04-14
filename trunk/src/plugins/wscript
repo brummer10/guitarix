@@ -33,6 +33,7 @@ lib_sources = [ # put in static library linked with guitarix
     "mbe.dsp",
     "mbdel.dsp",
     "mbchor.dsp",
+    "mbclipper.dsp",
     "gcb_95.dsp",
     "fuzzfacerm.dsp",
     "fuzzfacefm.dsp",
@@ -120,7 +121,7 @@ def build(bld):
     bld.add_group()
     have_pluginlib = len(lib_sources) != 0
     bld.env["HAVE_PLUGINLIB"] = have_pluginlib
-    incl = [".","../headers"]
+    incl = [".","../headers", "../gx_head/engine"]
     if not bld.env['ZITA_RESAMPLER']:
         incl.append('../zita-resampler-1.1.0')
     
@@ -136,7 +137,7 @@ def build(bld):
             features = ['cxx', 'cshlib'],
             type = 'cshlib',
             cxxflags = ["-fvisibility=hidden"],
-            includes = [".","../headers"],
+            includes = [".","../headers", "../gx_head/engine"],
             source = [s.replace(".dsp",".cc")],
             target = s.replace(".dsp",""),
             )
@@ -151,7 +152,7 @@ def build(bld):
             features = ['cxx', 'cshlib'],
             type = 'cshlib',
             cxxflags = ["-fvisibility=hidden"],
-            includes = ["../headers"],
+            includes = ["../headers", "../gx_head/engine"],
             source = s,
             target = s.replace(".cc",""),
             uselib = uselib,
