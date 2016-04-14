@@ -65,6 +65,15 @@
                     <property name="column_spacing">6</property>
                     <property name="row_spacing">4</property>
                     <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
                       <object class="GxSelector" id="gxselector1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -95,28 +104,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label6:rack_label">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Model</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="y_options"/>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label5:rack_label_inverse">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Mode</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
-                        <property name="y_options"/>
-                      </packing>
+                      <placeholder/>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label2">
@@ -126,12 +114,6 @@
                       <packing>
                         <property name="y_options"/>
                       </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>
