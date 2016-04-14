@@ -526,7 +526,7 @@ const char *Dsp::glade_def = "\
                                   <object class=\"GtkLabel\" id=\"label_81:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
                                     <property name=\"expand\">False</property>\n\
@@ -668,7 +668,7 @@ const char *Dsp::glade_def = "\
                                   <object class=\"GtkLabel\" id=\"label_8:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
                                     <property name=\"expand\">False</property>\n\
@@ -834,7 +834,7 @@ const char *Dsp::glade_def = "\
                                   <object class=\"GtkLabel\" id=\"label_82:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
                                     <property name=\"expand\">False</property>\n\
@@ -1000,7 +1000,7 @@ const char *Dsp::glade_def = "\
                                   <object class=\"GtkLabel\" id=\"label_83:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
                                     <property name=\"expand\">False</property>\n\
@@ -1166,7 +1166,7 @@ const char *Dsp::glade_def = "\
                                   <object class=\"GtkLabel\" id=\"label_84:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
                                     <property name=\"expand\">False</property>\n\
@@ -1271,6 +1271,12 @@ const char *Dsp::glade_def = "\
                                 <property name=\"top_attach\">1</property>\n\
                                 <property name=\"bottom_attach\">2</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                             <child>\n\
                               <placeholder/>\n\

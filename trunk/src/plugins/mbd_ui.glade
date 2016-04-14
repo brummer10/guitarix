@@ -39,7 +39,7 @@
                                   <object class="GtkLabel" id="label_81:rack_label">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Gain</property>
+                                    <property name="label" translatable="yes">Drive</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -181,7 +181,7 @@
                                   <object class="GtkLabel" id="label_8:rack_label">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Gain</property>
+                                    <property name="label" translatable="yes">Drive</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -347,7 +347,7 @@
                                   <object class="GtkLabel" id="label_82:rack_label">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Gain</property>
+                                    <property name="label" translatable="yes">Drive</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -513,7 +513,7 @@
                                   <object class="GtkLabel" id="label_83:rack_label">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Gain</property>
+                                    <property name="label" translatable="yes">Drive</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -679,7 +679,7 @@
                                   <object class="GtkLabel" id="label_84:rack_label">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">Gain</property>
+                                    <property name="label" translatable="yes">Drive</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -784,6 +784,12 @@
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
                               </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
                             </child>
                             <child>
                               <placeholder/>
