@@ -91,6 +91,12 @@ def set_options(opt):
                     dest='ldflags',
                     help='C++ base linker flags ')
 
+    comp.add_option('--enable-lfs',
+                    action='store_const',
+                    default=False, 
+                    const=True,
+                    help='enable Large File Support (LFS)  ')
+
     comp.add_option('--optimization',
                     action='store_const',
                     default=False, #'-fomit-frame-pointer -ffast-math -fstrength-reduce -pipe',
@@ -759,6 +765,8 @@ def configure(conf):
         cxxflags += opt.cxxflags_debug.split()
     else:
         cxxflags += opt.cxxflags_release.split()
+    if  opt.enable_lfs:
+        cxxflags.append ("-D_FILE_OFFSET_BITS=64")
     cpu_model = None
     if opt.optimization:
         check_cloop(conf)
@@ -768,7 +776,6 @@ def configure(conf):
     if not opt.disable_cxx11:
         cxxflags.append ("-std=c++11")
     conf.env['CXXFLAGS'] += cxxflags
-    
 
     if opt.no_desktop_update:
         conf.env["NO_UPDATE_DESKTOP_DATA_BASE"] = True
@@ -805,9 +812,12 @@ def configure(conf):
             sub_file('./libgxwmm/gxwmm.pc.in', './libgxwmm/gxwmm.pc', (('prefix=/path', 'prefix=%s' % pa), ))
             sub_file('./libgxwmm/gxwmm.pc', './libgxwmm/gxwmm.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
 
+    if opt.jobs:
+        conf.env['JOBS'] = str(opt.jobs)
+
     # writing config.h
     conf.write_config_header('config.h')
-
+    
     # some output
     print("")
     display_msg("==================")
@@ -825,6 +835,8 @@ def configure(conf):
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
     display_msg("Link flags", " ".join(conf.env['LINKFLAGS']), 'CYAN')
     display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
+    if opt.jobs:
+        display_msg("Parallel build jobs", conf.env['JOBS'], 'CYAN')
     display_feature("Use prebuild faust files", not conf.env['FAUST'])
     if not opt.faust_float:
         display_msg("Use faust precision", "double", 'CYAN')
@@ -901,6 +913,9 @@ def post(ctx):
         Utils.exec_command('/sbin/ldconfig')
 
 def build(bld):
+    if bld.env['JOBS'] and Options.options.jobs == Options.default_jobs:
+        Options.options.jobs = int(bld.env['JOBS'])
+
     if bld.env['INTLTOOL']:
         obj = bld.new_task_gen ('intltool_po')
         obj.podir = 'po'
