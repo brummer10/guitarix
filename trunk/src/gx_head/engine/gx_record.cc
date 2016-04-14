@@ -256,7 +256,7 @@ void always_inline SCapture::compute(int count, float *input0, float *output0)
 {
     if (err) fcheckbox0 = 0.0;
     int     iSlow0 = int(fcheckbox0);
-    fcheckbox1 = 1-int(fRecb2[0]);
+    fcheckbox1 = int(fRecb2[0]);
     float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
     for (int i=0; i<count; i++) {
         float fTemp0 = (float)input0[i];
@@ -310,7 +310,7 @@ void always_inline SCapture::compute_st(int count, float *input0, float *input1,
 {
     if (err) fcheckbox0 = 0.0;
     int iSlow0 = int(fcheckbox0);
-    fcheckbox1 = 1-int(fRecb2[0]);
+    fcheckbox1 = int(fRecb2[0]);
     float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fslider0)));
     for (int i=0; i<count; i++) {
         float fTemp0 = (float)input0[i];

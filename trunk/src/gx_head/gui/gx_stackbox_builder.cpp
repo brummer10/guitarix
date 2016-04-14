@@ -190,6 +190,21 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
         }
     }
     for (int i = 1; i<12;++i) {
+        Glib::ustring fm = "gxfastmeter" + gx_system::to_string(i)+ ":meterframe";
+        if (bld->has_object(fm)) {
+            Gxw::FastMeter *fastmeter;
+            bld->find_widget(fm, fastmeter);
+            fastmeter->get_property("var_id",id);
+            //fastmeter->set_name("meterframe");
+            if (!id.empty())
+            Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
+                  sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
+            fastmeter->set_by_power(0.0001);        
+        } else {
+            break;
+        }
+    }
+    for (int i = 1; i<12;++i) {
         Glib::ustring fm = "gxcompressormeter" + gx_system::to_string(i);
         if (bld->has_object(fm)) {
             Gxw::FastMeter *fastmeter;
