@@ -36,10 +36,9 @@ private:
 	FAUSTFLOAT 	fslider1;
 	double 	fRec4[2];
 	double 	fConst16;
-	double 	fConst17;
 	double 	fRec3[2];
 	double 	fRec1[3];
-	double 	fConst18;
+	double 	fConst17;
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -120,8 +119,7 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	fConst14 = (0 - (8.58548719632772e-10 * fConst4));
 	fConst15 = (fConst1 * (6.43911539724579e-10 + fConst12));
 	fConst16 = (9.4e-08 * iConst0);
-	fConst17 = (0.047 * iConst0);
-	fConst18 = (fConst1 / fConst6);
+	fConst17 = (fConst1 / fConst6);
 	clear_state_f();
 }
 
@@ -143,13 +141,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec0[0] = fTemp0;
 		double fTemp1 = (fConst11 * fVec0[0]);
 		fRec4[0] = (fSlow1 + (0.993 * fRec4[1]));
-		double fTemp2 = (1.0 - fRec4[0]);
-		double fTemp3 = (fConst16 * (4700 + (500000 * fTemp2)));
+		double fTemp2 = (1000000 * (1.0 - fRec4[0]));
+		double fTemp3 = (fConst16 * (4700 + fTemp2));
 		double fTemp4 = (1 + fTemp3);
-		double fTemp5 = (fConst17 * (0.0194 + (fRec4[0] + fTemp2)));
+		double fTemp5 = (fConst16 * (1004700 + fTemp2));
 		fRec3[0] = ((fRec3[1] * (0 - ((1 - fTemp3) / fTemp4))) + (fConst11 * (((fVec0[0] * (1 + fTemp5)) + (fVec0[1] * (1 - fTemp5))) / fTemp4)));
-		fRec1[0] = (asymhardclip2((fTemp1 - opamp2((fRec3[0] - fTemp1)))) - (fConst7 * ((fConst5 * fRec1[1]) + (fConst3 * fRec1[2]))));
-		buf[i] = (FAUSTFLOAT)(fConst18 * ((fRec1[2] * (0 - (7.03343695930453e-06 * fRec0[0]))) + (7.03343695930453e-06 * (fRec1[0] * fRec0[0]))));
+		fRec1[0] = (fTemp1 - (opamp2((fRec3[0] - fTemp1)) + (fConst7 * ((fConst5 * fRec1[1]) + (fConst3 * fRec1[2])))));
+		buf[i] = (FAUSTFLOAT)(fConst17 * ((fRec1[2] * (0 - (7.03343695930453e-06 * fRec0[0]))) + (7.03343695930453e-06 * (fRec1[0] * fRec0[0]))));
 		// post processing
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
 		fRec3[1] = fRec3[0];
