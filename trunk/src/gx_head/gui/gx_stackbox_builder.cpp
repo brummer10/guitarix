@@ -281,7 +281,7 @@ void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWind
     font.set_weight(Pango::WEIGHT_NORMAL);
     lab->modify_font(font);
     button->add(*manage(lab));
-    lab->set_name("rack_label_inverse");
+    //lab->set_name("rack_label_inverse");
     lab->set_padding(5,0);
     fBox.add(manage(button), label);
     lab->show();
@@ -344,12 +344,12 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
     button->set_can_default(false);
     button->set_can_focus(false);
     Gtk::Label *lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style()->get_font();
-    font.set_size(10*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_NORMAL);
-    lab->modify_font(font);
+    //Pango::FontDescription font = lab->get_style()->get_font();
+    //font.set_size(10*Pango::SCALE);
+    //font.set_weight(Pango::WEIGHT_NORMAL);
+    //lab->modify_font(font);
     button->add(*manage(lab));
-    lab->set_name("rack_label_inverse");
+    //lab->set_name("rack_label_inverse");
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
     al->add(*manage(button));
     al->show_all();

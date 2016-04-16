@@ -203,11 +203,11 @@ int Dsp::register_par(const ParamReg& reg)
 {
 	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	reg.registerEnumVar("stereoecho.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("stereoecho.lbpm",N_("Time (bpm)"),"S",N_("Echo in Beats per Minute"),&fslider1, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
-	reg.registerVar("stereoecho.lfobpm",N_("LFO Freq (bpm)"),"S",N_("LFO in Beats per Minute"),&fslider0, 24.0f, 24.0f, 3.6e+02f, 1.0f);
-	reg.registerVar("stereoecho.percent_l",N_("Left"),"S","",&fslider2, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.percent_r",N_("Right"),"S","",&fslider4, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.rbpm",N_("Time (bpm)"),"S",N_("Echo in Beats per Minute"),&fslider3, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
+	reg.registerVar("stereoecho.lbpm",N_("Time L"),"S",N_("Echo in Beats per Minute"),&fslider1, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
+	reg.registerVar("stereoecho.lfobpm",N_("LFO Freq"),"S",N_("LFO in Beats per Minute"),&fslider0, 24.0f, 24.0f, 3.6e+02f, 1.0f);
+	reg.registerVar("stereoecho.percent_l",N_("Release L"),"S","",&fslider2, 0.0f, 0.0f, 1e+02f, 0.1f);
+	reg.registerVar("stereoecho.percent_r",N_("Release R"),"S","",&fslider4, 0.0f, 0.0f, 1e+02f, 0.1f);
+	reg.registerVar("stereoecho.rbpm",N_("Time R"),"S",N_("Echo in Beats per Minute"),&fslider3, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
 	return 0;
 }
 
@@ -237,7 +237,20 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkHBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">10</property>\n\
+                <property name=\"spacing\">2</property>\n\
+                <child>\n\
+                  <object class=\"GxSelector\" id=\"gxselector1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"receives_default\">True</property>\n\
+                    <property name=\"var_id\">stereoecho.invert</property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">0</property>\n\
+                  </packing>\n\
+                </child>\n\
                 <child>\n\
                   <object class=\"GtkVBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -272,7 +285,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"expand\">False</property>\n\
                     <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">0</property>\n\
+                    <property name=\"position\">1</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -309,7 +322,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"expand\">False</property>\n\
                     <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">1</property>\n\
+                    <property name=\"position\">2</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -343,24 +356,11 @@ const char *Dsp::glade_def = "\
                         <property name=\"position\">1</property>\n\
                       </packing>\n\
                     </child>\n\
-                    <child>\n\
-                      <object class=\"GxSelector\" id=\"gxselector1\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">True</property>\n\
-                        <property name=\"receives_default\">True</property>\n\
-                        <property name=\"var_id\">stereoecho.invert</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">True</property>\n\
-                        <property name=\"fill\">True</property>\n\
-                        <property name=\"position\">2</property>\n\
-                      </packing>\n\
-                    </child>\n\
                   </object>\n\
                   <packing>\n\
                     <property name=\"expand\">False</property>\n\
                     <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">2</property>\n\
+                    <property name=\"position\">3</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -397,7 +397,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"expand\">False</property>\n\
                     <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">3</property>\n\
+                    <property name=\"position\">4</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -434,7 +434,7 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"expand\">False</property>\n\
                     <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">4</property>\n\
+                    <property name=\"position\">5</property>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\

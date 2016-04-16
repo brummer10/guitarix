@@ -209,6 +209,13 @@ style "guitarix_ampdetails" {
     GxPaintBox::alternate-box = { 0, 0, 0, 0 }
     GxPaintBox::inverse = 0
 }
+
+style "guitarix_liveplay" {
+    bg[NORMAL]   = { 0.05, 0.05, 0.05 }
+}
+widget "*LivePlay*" style:highest "guitarix_liveplay"
+
+
 widget "*ampdetails" style:highest "guitarix_ampdetails"
 
 
@@ -242,12 +249,13 @@ style "guitarix_buttons" {
 }
 class "GtkButton" style:highest "guitarix_buttons"
 
-
-style "guitarix_liveplay" {
-    bg[NORMAL]   = { 0.05, 0.05, 0.05 }
+style "guitarix_plugin_button" {
+    fg[NORMAL] = "#ff9000"
+    fg[PRELIGHT] = "#ffffff"
+    xthickness     = 8
+    ythickness     = 4
 }
-widget "*LivePlay*" style:highest "guitarix_liveplay"
-
+widget "*rackcontainer*GtkButton*" style:highest "guitarix_plugin_button"
 
 style "guitarix_rack_button" {
     fg[NORMAL] = "#ff9000"
@@ -460,14 +468,14 @@ style "guitarix_notebook" {
 widget "*tab_rack" style:highest "guitarix_notebook"
 
 style "guitarix_notebook_buttons" {
-    fg[NORMAL] = "#ff9900"
+    fg[NORMAL] = "#ff9000"
     fg[ACTIVE] = "#555555"
 }
 widget "*tab_rack*GtkLabel" style:highest "guitarix_notebook_buttons"
 
 
 style "guitarix_notebook_labels" {
-    fg[NORMAL] = "#aaaaaa"
+    fg[NORMAL] = "#00aaaa"
 }
 widget "*tab_rack*label" style:highest "guitarix_notebook_labels"
 
