@@ -1,6 +1,6 @@
 declare id     "low_highpass";
-declare name   "low high pass";
-declare shortname "L/H/Filter";
+declare name   "Low/High Filter";
+declare shortname "L/H Filter";
 declare category "Tone Control";
 declare groups ".low_high_pass.lhp[low_highpass], .low_high_pass.lhc[low_highcutoff]";
 

@@ -56,11 +56,11 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "low_highpass";
-	name = N_("low high pass");
+	name = N_("Low/High Filter");
 	groups = parm_groups;
 	description = ""; // description (tooltip)
 	category = N_("Tone Control");       // category
-	shortname = N_("L/H/Filter");     // shortname
+	shortname = N_("L/H Filter");     // shortname
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
@@ -208,6 +208,55 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkHBox\" id=\"hbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkVBox\" id=\"vbox6\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label2\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GxSwitch\" id=\"gxswitch1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">True</property>\n\
+                            <property name=\"receives_default\">True</property>\n\
+                            <property name=\"use_action_appearance\">False</property>\n\
+                            <property name=\"var_id\">low_high_pass.lhp.on_off</property>\n\
+                            <property name=\"base_name\">switch</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">False</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label4\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">2</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
                     <child>\n\
                       <object class=\"GtkVBox\" id=\"vbox2\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -242,7 +291,7 @@ const char *Dsp::glade_def = "\
                       <packing>\n\
                         <property name=\"expand\">False</property>\n\
                         <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">0</property>\n\
+                        <property name=\"position\">1</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
@@ -279,37 +328,6 @@ const char *Dsp::glade_def = "\
                       <packing>\n\
                         <property name=\"expand\">False</property>\n\
                         <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">1</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox6\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <child>\n\
-                          <placeholder/>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GxSwitch\" id=\"gxswitch1\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">low_high_pass.lhp.on_off</property>\n\
-                            <property name=\"base_name\">switchit</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <placeholder/>\n\
-                        </child>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">True</property>\n\
-                        <property name=\"fill\">True</property>\n\
                         <property name=\"position\">2</property>\n\
                       </packing>\n\
                     </child>\n\
@@ -321,9 +339,22 @@ const char *Dsp::glade_def = "\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
+                  <object class=\"GtkLabel\" id=\"label1\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"label\" translatable=\"yes\">    </property>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
                   <object class=\"GtkHBox\" id=\"hbox3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
                     <child>\n\
                       <object class=\"GtkVBox\" id=\"vbox4\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -403,15 +434,24 @@ const char *Dsp::glade_def = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
                         <child>\n\
-                          <placeholder/>\n\
+                          <object class=\"GtkLabel\" id=\"label3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">False</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
                         </child>\n\
                         <child>\n\
                           <object class=\"GxSwitch\" id=\"gxswitch2\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">True</property>\n\
                             <property name=\"receives_default\">True</property>\n\
+                            <property name=\"use_action_appearance\">False</property>\n\
                             <property name=\"var_id\">low_high_pass.lhc.on_off</property>\n\
-                            <property name=\"base_name\">switchit</property>\n\
+                            <property name=\"base_name\">switch</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">False</property>\n\
@@ -420,7 +460,15 @@ const char *Dsp::glade_def = "\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
-                          <placeholder/>\n\
+                          <object class=\"GtkLabel\" id=\"label5\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">2</property>\n\
+                          </packing>\n\
                         </child>\n\
                       </object>\n\
                       <packing>\n\
@@ -433,13 +481,13 @@ const char *Dsp::glade_def = "\
                   <packing>\n\
                     <property name=\"expand\">True</property>\n\
                     <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">1</property>\n\
+                    <property name=\"position\">2</property>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\
               <packing>\n\
                 <property name=\"expand\">True</property>\n\
-                <property name=\"fill\">True</property>\n\
+                <property name=\"fill\">False</property>\n\
                 <property name=\"pack_type\">end</property>\n\
                 <property name=\"position\">0</property>\n\
               </packing>\n\
