@@ -210,6 +210,10 @@ void ReverseDelay::process(int count, float *input, float *output, PluginDef *pl
 }
 
 int ReverseDelay::uiloader(const UiBuilder& b, int form) {
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file("reversedelay_ui.glade");
+        return 0;
+    }
     if (!(form & UI_FORM_STACK)) {
     return -1;
     }

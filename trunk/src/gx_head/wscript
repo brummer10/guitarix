@@ -123,6 +123,7 @@ def build(bld):
         './builder/wah_ui.glade',
         './builder/vibe_ui.glade',
         './builder/vibe_stereo_ui.glade',
+        './builder/reversedelay_ui.glade',
         './builder/gx_distortion_ui.glade',
         './builder/gx_record_ui.glade',
         './builder/gx_st_record_ui.glade',
