@@ -113,7 +113,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "dattorros_progenitor";
-	name = N_("Plate reverb");
+	name = N_("Plate Reverb");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = N_("Reverb");       // category
@@ -319,13 +319,13 @@ int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("dattorros_progenitor.bandwidth",N_("Bandwidth"),"S","",&fslider4, 0.9, 0.1, 0.95, 0.0005);
 	reg.registerVar("dattorros_progenitor.damping",N_("HF Damp"),"S","",&fslider6, 0.0005, 0.1, 0.95, 0.0005);
-	reg.registerVar("dattorros_progenitor.decay diff 1",N_("Dec Diff 1"),"S","",&fslider0, 0.1, 0.0, 0.7, 0.01);
-	reg.registerVar("dattorros_progenitor.decay diff 2",N_("Dec Diff 2"),"S","",&fslider8, 0.1, 0.0, 0.5, 0.01);
+	reg.registerVar("dattorros_progenitor.decay diff 1",N_("Decay 1"),"S","",&fslider0, 0.1, 0.0, 0.7, 0.01);
+	reg.registerVar("dattorros_progenitor.decay diff 2",N_("Decay 2"),"S","",&fslider8, 0.1, 0.0, 0.5, 0.01);
 	reg.registerVar("dattorros_progenitor.decay",N_("Decay"),"S","",&fslider7, 0.1, 0.0, 0.5, 0.01);
 	reg.registerVar("dattorros_progenitor.dry/wet",N_("Dry/Wet"),"S","",&fslider9, 0.5, 0.0, 1.0, 0.05);
 	reg.registerVar("dattorros_progenitor.excursion",N_("Excursion"),"S","",&fslider5, 0.0, 0.0, 16.0, 0.5);
-	reg.registerVar("dattorros_progenitor.input diff 1",N_("In Diff 1"),"S","",&fslider2, 0.1, 0.0, 0.75, 0.01);
-	reg.registerVar("dattorros_progenitor.input diff 2",N_("In Diff 2"),"S","",&fslider1, 0.1, 0.0, 0.625, 0.01);
+	reg.registerVar("dattorros_progenitor.input diff 1",N_("Input 1"),"S","",&fslider2, 0.1, 0.0, 0.75, 0.01);
+	reg.registerVar("dattorros_progenitor.input diff 2",N_("Input 2"),"S","",&fslider1, 0.1, 0.0, 0.625, 0.01);
 	reg.registerVar("dattorros_progenitor.predelay ms",N_("Predelay"),"S","",&fslider3, 0.0, 0.0, 2e+02, 1e+01);
 	return 0;
 }
@@ -338,8 +338,8 @@ int Dsp::register_params_static(const ParamReg& reg)
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
   <requires lib=\"gtk+\" version=\"2.20\"/>\n\
+  <!-- interface-requires gxwidgets 0.0 -->\n\
   <!-- interface-naming-policy project-wide -->\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
@@ -353,33 +353,31 @@ const char *Dsp::glade_def = "\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
             <child>\n\
-              <object class=\"GtkVBox\" id=\"vbox2\">\n\
+              <object class=\"GtkVBox\" id=\"vbox13\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">6</property>\n\
                 <child>\n\
-                  <object class=\"GtkLabel\" id=\"label5\">\n\
-                    <property name=\"height_request\">10</property>\n\
+                  <object class=\"GtkHBox\" id=\"hbox3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
-                  </object>\n\
-                  <packing>\n\
-                    <property name=\"expand\">True</property>\n\
-                    <property name=\"fill\">True</property>\n\
-                    <property name=\"position\">0</property>\n\
-                  </packing>\n\
-                </child>\n\
-                <child>\n\
-                  <object class=\"GtkHBox\" id=\"hbox2\">\n\
-                    <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
-                    <property name=\"spacing\">8</property>\n\
+                    <property name=\"spacing\">4</property>\n\
                     <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox8\">\n\
+                      <object class=\"GtkVBox\" id=\"vbox4\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
                         <child>\n\
-                          <object class=\"GtkLabel\" id=\"label11:rack_label\">\n\
+                          <object class=\"GtkLabel\" id=\"label1\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <property name=\"label\" translatable=\"yes\">label</property>\n\
@@ -387,21 +385,32 @@ const char *Dsp::glade_def = "\
                           <packing>\n\
                             <property name=\"expand\">False</property>\n\
                             <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">0</property>\n\
+                            <property name=\"position\">1</property>\n\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob6\">\n\
+                          <object class=\"GxMidKnob\" id=\"gxmidknob1\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">True</property>\n\
                             <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.bandwidth</property>\n\
-                            <property name=\"label_ref\">label11:rack_label</property>\n\
+                            <property name=\"var_id\">dattorros_progenitor.decay</property>\n\
+                            <property name=\"label_ref\">label2:rack_label</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">False</property>\n\
                             <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
+                            <property name=\"position\">2</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label2\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">3</property>\n\
                           </packing>\n\
                         </child>\n\
                       </object>\n\
@@ -412,14 +421,163 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox9\">\n\
+                      <object class=\"GtkVBox\" id=\"vbox2\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
+                        <property name=\"spacing\">6</property>\n\
                         <child>\n\
-                          <object class=\"GtkLabel\" id=\"label21:rack_label\">\n\
+                          <object class=\"GtkHBox\" id=\"hbox2\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
-                            <property name=\"label\" translatable=\"yes\">label</property>\n\
+                            <property name=\"spacing\">3</property>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxbigknob1\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"var_id\">dattorros_progenitor.predelay ms</property>\n\
+                                    <property name=\"label_ref\">label1:rack_label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">False</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox8\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label11:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxbigknob6\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"var_id\">dattorros_progenitor.bandwidth</property>\n\
+                                    <property name=\"label_ref\">label11:rack_label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">False</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox9\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label21:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxbigknob7\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"var_id\">dattorros_progenitor.damping</property>\n\
+                                    <property name=\"label_ref\">label21:rack_label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">False</property>\n\
+                                <property name=\"position\">2</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkVBox\" id=\"vbox7\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label5:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxbigknob5\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">True</property>\n\
+                                    <property name=\"receives_default\">True</property>\n\
+                                    <property name=\"var_id\">dattorros_progenitor.excursion</property>\n\
+                                    <property name=\"label_ref\">label5:rack_label</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">False</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">False</property>\n\
+                                <property name=\"position\">3</property>\n\
+                              </packing>\n\
+                            </child>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">False</property>\n\
@@ -428,128 +586,201 @@ const char *Dsp::glade_def = "\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob7\">\n\
+                          <object class=\"GtkFrame\" id=\"frame1:frame_inversed\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.damping</property>\n\
-                            <property name=\"label_ref\">label21:rack_label</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"label_xalign\">0</property>\n\
+                            <child>\n\
+                              <object class=\"GtkHBox\" id=\"hbox4\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkVBox\" id=\"vbox5\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <child>\n\
+                                      <object class=\"GxSmallKnob\" id=\"gxbigknob3\">\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">True</property>\n\
+                                        <property name=\"receives_default\">True</property>\n\
+                                        <property name=\"var_id\">dattorros_progenitor.input diff 1</property>\n\
+                                        <property name=\"label_ref\">label3:rack_label_inverse</property>\n\
+                                      </object>\n\
+                                      <packing>\n\
+                                        <property name=\"expand\">False</property>\n\
+                                        <property name=\"fill\">False</property>\n\
+                                        <property name=\"position\">0</property>\n\
+                                      </packing>\n\
+                                    </child>\n\
+                                    <child>\n\
+                                      <object class=\"GtkLabel\" id=\"label3:rack_label_inverse\">\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">False</property>\n\
+                                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                                      </object>\n\
+                                      <packing>\n\
+                                        <property name=\"expand\">False</property>\n\
+                                        <property name=\"fill\">False</property>\n\
+                                        <property name=\"position\">1</property>\n\
+                                      </packing>\n\
+                                    </child>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GtkVBox\" id=\"vbox6\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <child>\n\
+                                      <object class=\"GxSmallKnob\" id=\"gxbigknob4\">\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">True</property>\n\
+                                        <property name=\"receives_default\">True</property>\n\
+                                        <property name=\"var_id\">dattorros_progenitor.input diff 2</property>\n\
+                                        <property name=\"label_ref\">label4:rack_label_inverse</property>\n\
+                                      </object>\n\
+                                      <packing>\n\
+                                        <property name=\"expand\">False</property>\n\
+                                        <property name=\"fill\">False</property>\n\
+                                        <property name=\"position\">0</property>\n\
+                                      </packing>\n\
+                                    </child>\n\
+                                    <child>\n\
+                                      <object class=\"GtkLabel\" id=\"label4:rack_label_inverse\">\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">False</property>\n\
+                                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                                      </object>\n\
+                                      <packing>\n\
+                                        <property name=\"expand\">False</property>\n\
+                                        <property name=\"fill\">False</property>\n\
+                                        <property name=\"position\">1</property>\n\
+                                      </packing>\n\
+                                    </child>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GtkVBox\" id=\"vbox10\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <child>\n\
+                                      <object class=\"GxSmallKnob\" id=\"gxbigknob8\">\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">True</property>\n\
+                                        <property name=\"receives_default\">True</property>\n\
+                                        <property name=\"var_id\">dattorros_progenitor.decay diff 1</property>\n\
+                                        <property name=\"label_ref\">label31:rack_label_inverse</property>\n\
+                                      </object>\n\
+                                      <packing>\n\
+                                        <property name=\"expand\">False</property>\n\
+                                        <property name=\"fill\">False</property>\n\
+                                        <property name=\"position\">0</property>\n\
+                                      </packing>\n\
+                                    </child>\n\
+                                    <child>\n\
+                                      <object class=\"GtkLabel\" id=\"label31:rack_label_inverse\">\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">False</property>\n\
+                                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                                      </object>\n\
+                                      <packing>\n\
+                                        <property name=\"expand\">False</property>\n\
+                                        <property name=\"fill\">False</property>\n\
+                                        <property name=\"position\">1</property>\n\
+                                      </packing>\n\
+                                    </child>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">2</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GtkVBox\" id=\"vbox11\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <child>\n\
+                                      <object class=\"GxSmallKnob\" id=\"gxbigknob9\">\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">True</property>\n\
+                                        <property name=\"receives_default\">True</property>\n\
+                                        <property name=\"var_id\">dattorros_progenitor.decay diff 2</property>\n\
+                                        <property name=\"label_ref\">label41:rack_label_inverse</property>\n\
+                                      </object>\n\
+                                      <packing>\n\
+                                        <property name=\"expand\">False</property>\n\
+                                        <property name=\"fill\">False</property>\n\
+                                        <property name=\"position\">0</property>\n\
+                                      </packing>\n\
+                                    </child>\n\
+                                    <child>\n\
+                                      <object class=\"GtkLabel\" id=\"label41:rack_label_inverse\">\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">False</property>\n\
+                                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                                      </object>\n\
+                                      <packing>\n\
+                                        <property name=\"expand\">False</property>\n\
+                                        <property name=\"fill\">False</property>\n\
+                                        <property name=\"position\">1</property>\n\
+                                      </packing>\n\
+                                    </child>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">3</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                            </child>\n\
+                            <child type=\"label\">\n\
+                              <object class=\"GtkLabel\" id=\"label300:rack_label_inverse\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"label\" translatable=\"yes\">Diffusion</property>\n\
+                                <property name=\"use_markup\">True</property>\n\
+                              </object>\n\
+                            </child>\n\
                           </object>\n\
                           <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
                             <property name=\"position\">1</property>\n\
                           </packing>\n\
                         </child>\n\
                       </object>\n\
                       <packing>\n\
-                        <property name=\"expand\">False</property>\n\
+                        <property name=\"expand\">True</property>\n\
                         <property name=\"fill\">False</property>\n\
                         <property name=\"position\">1</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkLabel\" id=\"label1\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">   </property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">True</property>\n\
-                        <property name=\"fill\">True</property>\n\
-                        <property name=\"position\">2</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox10\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <child>\n\
-                          <object class=\"GtkLabel\" id=\"label31:rack_label\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"label\" translatable=\"yes\">label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">0</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob8\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.decay diff 1</property>\n\
-                            <property name=\"label_ref\">label31:rack_label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">3</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox11\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <child>\n\
-                          <object class=\"GtkLabel\" id=\"label41:rack_label\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"label\" translatable=\"yes\">label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">0</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob9\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.decay diff 2</property>\n\
-                            <property name=\"label_ref\">label41:rack_label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">4</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkLabel\" id=\"label2\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">   </property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">True</property>\n\
-                        <property name=\"fill\">True</property>\n\
-                        <property name=\"position\">5</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
                       <object class=\"GtkVBox\" id=\"vbox12\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
+                        <child>\n\
+                          <object class=\"GtkLabel\" id=\"label3\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">0</property>\n\
+                          </packing>\n\
+                        </child>\n\
                         <child>\n\
                           <object class=\"GtkLabel\" id=\"label51:rack_label\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -559,11 +790,11 @@ const char *Dsp::glade_def = "\
                           <packing>\n\
                             <property name=\"expand\">False</property>\n\
                             <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">0</property>\n\
+                            <property name=\"position\">1</property>\n\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob10\">\n\
+                          <object class=\"GxMidKnob\" id=\"gxmidknob2\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">True</property>\n\
                             <property name=\"receives_default\">True</property>\n\
@@ -571,244 +802,34 @@ const char *Dsp::glade_def = "\
                             <property name=\"label_ref\">label51:rack_label</property>\n\
                           </object>\n\
                           <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">6</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                  </object>\n\
-                  <packing>\n\
-                    <property name=\"expand\">True</property>\n\
-                    <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">1</property>\n\
-                  </packing>\n\
-                </child>\n\
-                <child>\n\
-                  <object class=\"GtkHBox\" id=\"hbox1\">\n\
-                    <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
-                    <property name=\"spacing\">8</property>\n\
-                    <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox3\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob1\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.predelay ms</property>\n\
-                            <property name=\"label_ref\">label1:rack_label_inverse</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">0</property>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">2</property>\n\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
-                          <object class=\"GtkLabel\" id=\"label1:rack_label_inverse\">\n\
+                          <object class=\"GtkLabel\" id=\"label4\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
-                            <property name=\"label\" translatable=\"yes\">label</property>\n\
                           </object>\n\
                           <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">3</property>\n\
                           </packing>\n\
                         </child>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"expand\">False</property>\n\
                         <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">0</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox4\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob2\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.decay</property>\n\
-                            <property name=\"label_ref\">label2:rack_label_inverse</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">0</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GtkLabel\" id=\"label2:rack_label_inverse\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"label\" translatable=\"yes\">label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">1</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkLabel\" id=\"label4\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">   </property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">True</property>\n\
-                        <property name=\"fill\">True</property>\n\
                         <property name=\"position\">2</property>\n\
                       </packing>\n\
                     </child>\n\
-                    <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox5\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob3\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.input diff 1</property>\n\
-                            <property name=\"label_ref\">label3:rack_label_inverse</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">0</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GtkLabel\" id=\"label3:rack_label_inverse\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"label\" translatable=\"yes\">label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">3</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox6\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob4\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.input diff 2</property>\n\
-                            <property name=\"label_ref\">label4:rack_label_inverse</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">0</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GtkLabel\" id=\"label4:rack_label_inverse\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"label\" translatable=\"yes\">label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">4</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkLabel\" id=\"label3\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">   </property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">True</property>\n\
-                        <property name=\"fill\">True</property>\n\
-                        <property name=\"position\">5</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox7\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <child>\n\
-                          <object class=\"GxSmallKnobR\" id=\"gxbigknob5\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">dattorros_progenitor.excursion</property>\n\
-                            <property name=\"label_ref\">label5:rack_label_inverse</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">0</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GtkLabel\" id=\"label5:rack_label_inverse\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"label\" translatable=\"yes\">label</property>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">False</property>\n\
-                            <property name=\"fill\">False</property>\n\
-                            <property name=\"position\">1</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">6</property>\n\
-                      </packing>\n\
-                    </child>\n\
                   </object>\n\
                   <packing>\n\
                     <property name=\"expand\">True</property>\n\
-                    <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">2</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">0</property>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\
@@ -820,7 +841,7 @@ const char *Dsp::glade_def = "\
             </child>\n\
           </object>\n\
           <packing>\n\
-            <property name=\"expand\">True</property>\n\
+            <property name=\"expand\">False</property>\n\
             <property name=\"fill\">False</property>\n\
             <property name=\"position\">0</property>\n\
           </packing>\n\
@@ -853,7 +874,7 @@ const char *Dsp::glade_def = "\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
                 <property name=\"xalign\">0</property>\n\
-                <property name=\"label\" translatable=\"yes\">Level</property>\n\
+                <property name=\"label\" translatable=\"yes\">Dry/Wet</property>\n\
               </object>\n\
               <packing>\n\
                 <property name=\"expand\">False</property>\n\

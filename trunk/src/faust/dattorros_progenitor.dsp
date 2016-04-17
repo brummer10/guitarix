@@ -1,5 +1,5 @@
 declare id  	"dattorros_progenitor";
-declare name "Plate reverb";
+declare name "Plate Reverb";
 declare category "Reverb";
 
 //------------------------------------
@@ -18,10 +18,10 @@ max_predelay_ms = 200;
 predelay = hslider("predelay ms[name:Predelay]", 0, 0, max_predelay_ms, 10);
 excursion = hslider("excursion[name:Excursion]", 0, 0, 16, 0.5);
 decay = hslider("decay[name:Decay]", 0.1, 0, 0.5, 0.01);
-decay_diffusion1 = hslider("decay diff 1[name:Dec Diff 1]", 0.1, 0, 0.7, 0.01);
-decay_diffusion2 = hslider("decay diff 2[name:Dec Diff 2]", 0.1, 0, 0.5, 0.01);
-input_diffusion1 = hslider("input diff 1[name:In Diff 1]", 0.1, 0, 0.75, 0.01);
-input_diffusion2 = hslider("input diff 2[name:In Diff 2]", 0.1, 0, 0.625, 0.01);
+decay_diffusion1 = hslider("decay diff 1[name:Decay 1]", 0.1, 0, 0.7, 0.01);
+decay_diffusion2 = hslider("decay diff 2[name:Decay 2]", 0.1, 0, 0.5, 0.01);
+input_diffusion1 = hslider("input diff 1[name:Input 1]", 0.1, 0, 0.75, 0.01);
+input_diffusion2 = hslider("input diff 2[name:Input 2]", 0.1, 0, 0.625, 0.01);
 bandwidth = hslider("bandwidth[name:Bandwidth]", 0.9, 0.1, 0.95, 0.0005);
 damping = hslider("damping[name:HF Damp]", 0.0005, 0.1, 0.95, 0.0005);
 dry_wet = hslider("dry/wet[name:Dry/Wet]", 0.5, 0, 1, 0.05);
