@@ -1555,18 +1555,18 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
 
 int smbPitchShift::register_par(const ParamReg& reg) 
 {
-    reg.registerVar("smbPitchShift.semitone", N_("detune"), "S", "", &semitones, 0.0, -12., 12., 0.1);
+    reg.registerVar("smbPitchShift.semitone", N_("Detune"), "S", "", &semitones, 0.0, -12., 12., 0.1);
     static const value_pair octave_values[] = {{"unison"},{"octave up"},{"octave down"},{0}};
     reg.registerIEnumVar("smbPitchShift.octave",N_("add harmonics"),"B",N_("add harmonics"),octave_values,&octave, 0);
     static const value_pair latency_values[] = {{"latency "},{"compensate"},{0}};
     reg.registerEnumVar("smbPitchShift.l",N_("compensate latency"),"S",N_("compensate latency"),latency_values,&l, 0.0f, 0.0f, 1.0f, 1.0f);
     static const value_pair latency_set[] = {{"high quality"},{"low quality"},{"realtime"},{0}};
     reg.registerIEnumVar("smbPitchShift.latency",N_("latency settings"),"B",N_("latency settings"),latency_set,&latency, 0);
-    reg.registerVar("smbPitchShift.wet", N_("Wet amount"), "S", N_("Wet amount"), &wet, 50.0, 0.0, 100.0, 1);
-    reg.registerVar("smbPitchShift.dry", N_("Dry amount"), "S", N_("Dry amount"), &dry, 50.0, 0.0, 100.0, 1);
-    reg.registerVar("smbPitchShift.a", N_("low"), "S", N_("Lo"), &a, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.b", N_("middle low"), "S", N_("LoMid"), &b, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.c", N_("middle treble"), "S", N_("HiMid"), &c, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.wet", N_("Wet"), "S", N_("Wet amount"), &wet, 50.0, 0.0, 100.0, 1);
+    reg.registerVar("smbPitchShift.dry", N_("Dry"), "S", N_("Dry amount"), &dry, 50.0, 0.0, 100.0, 1);
+    reg.registerVar("smbPitchShift.a", N_("low"), "S", N_("Sub"), &a, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.b", N_("middle low"), "S", N_("Low"), &b, 1.0, 0.0, 2.0, 0.01);
+    reg.registerVar("smbPitchShift.c", N_("middle treble"), "S", N_("Mid"), &c, 1.0, 0.0, 2.0, 0.01);
     reg.registerVar("smbPitchShift.d", N_("treble"), "S", N_("Hi"), &d, 1.0, 0.0, 2.0, 0.01);
     param["smbPitchShift.latency"].signal_changed_int().connect(
         sigc::hide(sigc::mem_fun(this, &smbPitchShift::change_latency)));
@@ -1580,6 +1580,10 @@ int smbPitchShift::registerparam(const ParamReg& reg)
 
 int smbPitchShift::load_ui_f(const UiBuilder& b, int form) 
 {
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file("gx_detune_ui.glade");
+        return 0;
+    }
     if (form & UI_FORM_STACK) {
     b.openHorizontalhideBox("");
     {
@@ -1600,8 +1604,8 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
     }
     b.closeBox();
     b.create_mid_rackknob("smbPitchShift.semitone",N_("Detune"));
-    b.create_small_rackknobr("smbPitchShift.dry",N_("Dry amount"));
-    b.create_small_rackknobr("smbPitchShift.wet",N_("Wet amount"));
+    b.create_small_rackknobr("smbPitchShift.dry",N_("Dry"));
+    b.create_small_rackknobr("smbPitchShift.wet",N_("Wet"));
     }
     b.closeBox();
     b.insertSpacer();
