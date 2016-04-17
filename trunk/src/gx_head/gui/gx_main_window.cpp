@@ -33,9 +33,9 @@
 
 // color depending on msg type
 TextLoggingBox::tab_table TextLoggingBox::tagdefs[] = {
-    {"colinfo", "#0000ff"},
-    {"colwarn", "#ff8800"},
-    {"colerr", "#ff0000"},
+    {"colinfo", "#cccccc"},
+    {"colwarn", "#77994f"},
+    {"colerr", "#ff8800"},
 };
 
 TextLoggingBox::TextLoggingBox()
@@ -47,7 +47,7 @@ TextLoggingBox::TextLoggingBox()
       highest_unseen_msg_level(-1),
       msg_level_changed() {
 
-    set_default_size(600, 200);
+    set_default_size(640, 320);
     set_decorated(true);
     set_resizable(true);
     set_gravity(Gdk::GRAVITY_SOUTH);
@@ -57,7 +57,7 @@ TextLoggingBox::TextLoggingBox()
     set_border_width(4);
 
     box.set_border_width(0);
-    scrollbox.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+    scrollbox.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 
     add(box);
 
