@@ -209,8 +209,8 @@ int Dsp::register_params_static(const ParamReg& reg)
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
 <interface>\n\
-  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
   <!-- interface-requires gxwidgets 0.0 -->\n\
+  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
   <!-- interface-naming-policy project-wide -->\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
@@ -227,11 +227,12 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkHBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">10</property>\n\
+                <property name=\"spacing\">15</property>\n\
                 <child>\n\
                   <object class=\"GtkVBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -258,6 +259,19 @@ const char *Dsp::glade_def = "\
                         <property name=\"position\">1</property>\n\
                       </packing>\n\
                     </child>\n\
+                    <child>\n\
+                      <object class=\"GxSelector\" id=\"gxselector1\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">phaser.invert</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">2</property>\n\
+                      </packing>\n\
+                    </child>\n\
                   </object>\n\
                   <packing>\n\
                     <property name=\"expand\">False</property>\n\
@@ -273,7 +287,8 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkHBox\" id=\"hbox2\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"spacing\">5</property>\n\
+                        <property name=\"spacing\">2</property>\n\
+                        <property name=\"homogeneous\">True</property>\n\
                         <child>\n\
                           <object class=\"GtkVBox\" id=\"vbox4\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -291,7 +306,7 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <object class=\"GxSmallKnob\" id=\"gxsmallknob1\">\n\
+                              <object class=\"GxSmallKnobR\" id=\"gxsmallknob1\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">True</property>\n\
                                 <property name=\"receives_default\">True</property>\n\
@@ -328,7 +343,7 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <object class=\"GxSmallKnob\" id=\"gxsmallknob2\">\n\
+                              <object class=\"GxSmallKnobR\" id=\"gxsmallknob2\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">True</property>\n\
                                 <property name=\"receives_default\">True</property>\n\
@@ -365,7 +380,7 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <object class=\"GxSmallKnob\" id=\"gxsmallknob3\">\n\
+                              <object class=\"GxSmallKnobR\" id=\"gxsmallknob3\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">True</property>\n\
                                 <property name=\"receives_default\">True</property>\n\
@@ -385,154 +400,6 @@ const char *Dsp::glade_def = "\
                             <property name=\"position\">2</property>\n\
                           </packing>\n\
                         </child>\n\
-                        <child>\n\
-                          <object class=\"GtkVBox\" id=\"vbox7\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <child>\n\
-                              <object class=\"GtkLabel\" id=\"label5:rack_label\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
-                                <property name=\"label\" translatable=\"yes\">label</property>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">0</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <object class=\"GxSmallKnob\" id=\"gxsmallknob4\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
-                                <property name=\"var_id\">phaser.NotchFreq</property>\n\
-                                <property name=\"label_ref\">label5:rack_label</property>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">1</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">True</property>\n\
-                            <property name=\"fill\">True</property>\n\
-                            <property name=\"position\">3</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GtkVBox\" id=\"vbox8\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <child>\n\
-                              <object class=\"GtkLabel\" id=\"label6:rack_label\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
-                                <property name=\"label\" translatable=\"yes\">label</property>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">0</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <object class=\"GxSmallKnob\" id=\"gxsmallknob5\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
-                                <property name=\"var_id\">phaser.MaxNotch1Freq</property>\n\
-                                <property name=\"label_ref\">label6:rack_label</property>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">1</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">True</property>\n\
-                            <property name=\"fill\">True</property>\n\
-                            <property name=\"position\">4</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GtkVBox\" id=\"vbox9\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <child>\n\
-                              <object class=\"GtkLabel\" id=\"label7:rack_label\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
-                                <property name=\"label\" translatable=\"yes\">label</property>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">0</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <object class=\"GxSmallKnob\" id=\"gxsmallknob6\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
-                                <property name=\"var_id\">phaser.MinNotch1Freq</property>\n\
-                                <property name=\"label_ref\">label7:rack_label</property>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">1</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">True</property>\n\
-                            <property name=\"fill\">True</property>\n\
-                            <property name=\"position\">5</property>\n\
-                          </packing>\n\
-                        </child>\n\
-                        <child>\n\
-                          <object class=\"GtkVBox\" id=\"vbox10\">\n\
-                            <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <child>\n\
-                              <object class=\"GtkLabel\" id=\"label8:rack_label\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
-                                <property name=\"label\" translatable=\"yes\">label</property>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">0</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                            <child>\n\
-                              <object class=\"GxSmallKnob\" id=\"gxsmallknob7\">\n\
-                                <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
-                                <property name=\"var_id\">phaser.lfobpm</property>\n\
-                                <property name=\"label_ref\">label8:rack_label</property>\n\
-                              </object>\n\
-                              <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
-                                <property name=\"position\">1</property>\n\
-                              </packing>\n\
-                            </child>\n\
-                          </object>\n\
-                          <packing>\n\
-                            <property name=\"expand\">True</property>\n\
-                            <property name=\"fill\">True</property>\n\
-                            <property name=\"position\">6</property>\n\
-                          </packing>\n\
-                        </child>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"expand\">True</property>\n\
@@ -544,30 +411,117 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkHBox\" id=\"hbox3\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
+                        <property name=\"spacing\">2</property>\n\
+                        <property name=\"homogeneous\">True</property>\n\
                         <child>\n\
-                          <object class=\"GxSelector\" id=\"gxselector1\">\n\
+                          <object class=\"GtkVBox\" id=\"vbox7\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">phaser.invert</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnobR\" id=\"gxsmallknob4\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">phaser.NotchFreq</property>\n\
+                                <property name=\"label_ref\">label5:rack_label_inverse</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label5:rack_label_inverse\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"label\" translatable=\"yes\">label</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
-                            <property name=\"fill\">False</property>\n\
+                            <property name=\"fill\">True</property>\n\
                             <property name=\"position\">0</property>\n\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
-                          <object class=\"GxSelector\" id=\"gxselector2\">\n\
+                          <object class=\"GtkVBox\" id=\"vbox8\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">True</property>\n\
-                            <property name=\"receives_default\">True</property>\n\
-                            <property name=\"var_id\">phaser.VibratoMode</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnobR\" id=\"gxsmallknob5\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">phaser.MaxNotch1Freq</property>\n\
+                                <property name=\"label_ref\">label6:rack_label_inverse</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label6:rack_label_inverse\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"label\" translatable=\"yes\">label</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
-                            <property name=\"fill\">False</property>\n\
+                            <property name=\"fill\">True</property>\n\
                             <property name=\"position\">1</property>\n\
+                          </packing>\n\
+                        </child>\n\
+                        <child>\n\
+                          <object class=\"GtkVBox\" id=\"vbox9\">\n\
+                            <property name=\"visible\">True</property>\n\
+                            <property name=\"can_focus\">False</property>\n\
+                            <child>\n\
+                              <object class=\"GxSmallKnobR\" id=\"gxsmallknob6\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">phaser.MinNotch1Freq</property>\n\
+                                <property name=\"label_ref\">label7:rack_label_inverse</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">0</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\" id=\"label7:rack_label_inverse\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"label\" translatable=\"yes\">label</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">True</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                          </object>\n\
+                          <packing>\n\
+                            <property name=\"expand\">True</property>\n\
+                            <property name=\"fill\">True</property>\n\
+                            <property name=\"position\">2</property>\n\
                           </packing>\n\
                         </child>\n\
                       </object>\n\
@@ -582,6 +536,57 @@ const char *Dsp::glade_def = "\
                     <property name=\"expand\">True</property>\n\
                     <property name=\"fill\">True</property>\n\
                     <property name=\"position\">1</property>\n\
+                  </packing>\n\
+                </child>\n\
+                <child>\n\
+                  <object class=\"GtkVBox\" id=\"vbox10\">\n\
+                    <property name=\"visible\">True</property>\n\
+                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"spacing\">4</property>\n\
+                    <child>\n\
+                      <object class=\"GtkLabel\" id=\"label8:rack_label\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"label\" translatable=\"yes\">label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">0</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxMidKnob\" id=\"gxsmallknob7\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">phaser.lfobpm</property>\n\
+                        <property name=\"label_ref\">label8:rack_label</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">False</property>\n\
+                        <property name=\"fill\">False</property>\n\
+                        <property name=\"position\">1</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                    <child>\n\
+                      <object class=\"GxSelector\" id=\"gxselector2\">\n\
+                        <property name=\"visible\">True</property>\n\
+                        <property name=\"can_focus\">True</property>\n\
+                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"var_id\">phaser.VibratoMode</property>\n\
+                      </object>\n\
+                      <packing>\n\
+                        <property name=\"expand\">True</property>\n\
+                        <property name=\"fill\">True</property>\n\
+                        <property name=\"position\">2</property>\n\
+                      </packing>\n\
+                    </child>\n\
+                  </object>\n\
+                  <packing>\n\
+                    <property name=\"expand\">True</property>\n\
+                    <property name=\"fill\">True</property>\n\
+                    <property name=\"position\">2</property>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\
