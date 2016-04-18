@@ -163,10 +163,10 @@ MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Gli
     machine.signal_parameter_value<bool>("system.midi_in_preset").connect(sigc::mem_fun(*this, &MidiControllerTable::set));
     g_signal_connect(GTK_OBJECT(togglebutton), "toggled",
                      G_CALLBACK(toggleButtonSetSwitch), (gpointer)&p);
-    g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
-    g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox2"),"expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+    //g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
+                     //G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+    //g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox2"),"expose-event",
+                     //G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
     selection = gtk_tree_view_get_selection(
         GTK_TREE_VIEW(gtk_builder_get_object(builder, "treeview1")));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);

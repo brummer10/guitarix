@@ -576,20 +576,20 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_jack::GxJac
     bld->find_widget("button1",b);
     assert(b);
     b->set_name("rack_button");
-    Gtk::VBox *vbox1;
-    bld->find_widget("dialog-vbox1", vbox1);
-    g_signal_connect(GTK_WIDGET(vbox1->gobj()), "expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+    //Gtk::VBox *vbox1;
+    //bld->find_widget("dialog-vbox1", vbox1);
+    //g_signal_connect(GTK_WIDGET(vbox1->gobj()), "expose-event",
+                     //G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
    // vbox1->signal_expose_event().connect(
 	//sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox1->gobj()),sigc::_1,(void*)0),false);
-    Gtk::VBox *vbox2;
-    bld->find_widget("dialog-vbox2", vbox2);
-    g_signal_connect(GTK_WIDGET(vbox2->gobj()), "expose-event",
-                     G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
+    //Gtk::VBox *vbox2;
+    //bld->find_widget("dialog-vbox2", vbox2);
+    //g_signal_connect(GTK_WIDGET(vbox2->gobj()), "expose-event",
+                     //G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
   //  vbox2->signal_expose_event().connect(
 //	sigc::group(&gx_cairo::rectangle_skin_color_expose,GTK_WIDGET(vbox2->gobj()),sigc::_1,(void*)0),false);
-    vbox1->set_redraw_on_allocate(true);
-    vbox2->set_redraw_on_allocate(true);
+    //vbox1->set_redraw_on_allocate(true);
+    //vbox2->set_redraw_on_allocate(true);
     for (int i = 0; i < number_of_ports; ++i) {
         portsection[i].port_attr = &gx_head_ports[i];
         char name[30];
