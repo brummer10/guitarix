@@ -5,6 +5,7 @@ gxstyle_files = [
     'gx_head_Guitarix.rc',
     'background1.png',
     'background2.png',
+    'live_wallpaper.png',
 
     'clear.rc',
     'tactile_knob_large_151f.png',

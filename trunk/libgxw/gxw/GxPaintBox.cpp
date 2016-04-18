@@ -764,8 +764,49 @@ static void rack_expose (GtkWidget *wi, GdkEventExpose *ev) {
 }
 
 static void live_box_expose (GtkWidget *wi, GdkEventExpose *ev) {
-    rectangle_skin_color_expose(wi, ev);
-    draw_watermark(wi, ev);
+    cairo_t *cr;
+	/* create a cairo context */
+	cr = gdk_cairo_create(wi->window);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+	gdk_cairo_region (cr, region);
+	cairo_clip (cr);
+    GxPaintBox *paintbox = GX_PAINT_BOX(wi);
+	gint w      = wi->allocation.width;
+	gint h      = wi->allocation.height;
+    static int spf, opf, rel = 0;
+    gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
+    
+    static double ne_w = 0.;
+	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
+		ne_w = w*h;
+        opf = spf;
+        while (G_IS_OBJECT(paintbox-> gxr_image)) {
+			g_object_unref(paintbox->gxr_image);
+		}
+        GdkPixbuf  *stock_image = gtk_widget_render_icon(
+            wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
+        paintbox->gxr_image = gdk_pixbuf_scale_simple(
+			stock_image,wi->allocation.width ,wi->allocation.height , GDK_INTERP_NEAREST);
+        g_object_unref(stock_image);
+    }
+	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
+	guchar *pb_pixel = gdk_pixbuf_get_pixels (paintbox->gxr_image);
+	gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (paintbox->gxr_image);
+	gint width = gdk_pixbuf_get_width (paintbox->gxr_image);
+	gint height = gdk_pixbuf_get_height (paintbox->gxr_image);
+	cairo_surface_t *s_image =
+		cairo_image_surface_create_for_data
+		(pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
+
+    cairo_set_source_surface (cr, s_image, 0, 0);
+    cairo_paint (cr);
+	cairo_surface_destroy(s_image);
+	cairo_destroy(cr);
+    gdk_region_destroy (region);  
 }
 
 static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)

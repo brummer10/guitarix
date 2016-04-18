@@ -19,6 +19,7 @@ style "guitarix-paintbox"
   GxPaintBox::width =600
   GxPaintBox::height =180
   GxPaintBox::icon-set =7
+  stock['gxhead'] = {{"live_wallpaper.png"}}
 }
 
 class "*GxPaintBox" style "guitarix-paintbox"
