@@ -57,34 +57,58 @@ void StackBoxBuilder::make_rackbox_oscilloscope() {
 void StackBoxBuilder::make_rackbox_jconv_mono() {
     static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create("jconv_mono", window_icon, machine, accels, 1);
     openHorizontalhideBox("");
-	create_master_slider("jconv_mono.wet_dry", _("Dry/Wet"));
-    openSpaceBox("");
-	closeBox();
-	openSpaceBox("");
-	closeBox();
-	addSmallJConvFavButton(C_("Setup", "S"), irw);
+        create_master_slider("jconv_mono.wet_dry", _("Dry/Wet"));
+        openSpaceBox("");
+        closeBox();
+        openSpaceBox("");
+        closeBox();
+        addSmallJConvFavButton(C_("Setup", "S"), irw);
     closeBox();
     openVerticalBox("");
     {
-	openSetMonoLabelBox();
-	closeBox();
-	openSpaceBox("");
-	closeBox();
-	openHorizontalBox("");
-	{
-	    openSpaceBox("");
-	    closeBox();
-	    create_small_rackknobr("jconv_mono.gain", _("Gain"));
-	    openSpaceBox("");
-	    closeBox();
-	    create_small_rackknobr("jconv_mono.wet_dry", _("Dry/Wet"));
-	    openSpaceBox("");
-	    closeBox();
-	    addJConvButton(_("Setup"), irw);
-	    openSpaceBox("");
-	    closeBox();
-	}
-	closeBox();
+        openSetMonoLabelBox();
+        closeBox();
+        openSpaceBox("");
+        closeBox();
+        openHorizontalBox("");
+        {
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            create_mid_rackknob("jconv_mono.gain", _("Gain"));
+            create_small_rackknobr("jconv_mono.wet_dry", _("Dry/Wet"));
+            openVerticalBox("");
+                openSpaceBox("");
+                closeBox();
+                openSpaceBox("");
+                closeBox();
+                addJConvButton(_("Setup"), irw);
+                openSpaceBox("");
+                closeBox();
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+            openSpaceBox("");
+            closeBox();
+        }
+        closeBox();
     }
     closeBox();
 }
