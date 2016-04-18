@@ -476,7 +476,7 @@ widget "*tab_rack*GtkLabel" style:highest "guitarix_notebook_buttons"
 
 
 style "guitarix_notebook_labels" {
-    fg[NORMAL] = "#00aaaa"
+    fg[NORMAL] = "#aaaaaa"
 }
 widget "*tab_rack*label" style:highest "guitarix_notebook_labels"
 
