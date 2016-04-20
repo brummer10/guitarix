@@ -5,3 +5,9 @@ style "guitarix_default" {
     stock["background2"]    = {{"oak2.png"}}
 }
 class "GtkWidget" style:highest "guitarix_default"
+
+style "guitarix-paintbox"
+{
+  stock['gxhead'] = {{"live_wallpaper_guitarix_oak.png"}}
+}
+class "*GxPaintBox" style "guitarix-paintbox"

@@ -33,3 +33,9 @@ style "guitarix_frame" {
 class "*GtkFrame" style:highest "guitarix_frame"
 class "*GtkVSeparator" style:highest "guitarix_frame"
 class "*GtkHSeparator" style:highest "guitarix_frame"
+
+style "guitarix-paintbox"
+{
+  stock['gxhead'] = {{"live_wallpaper_camouflage.png"}}
+}
+class "*GxPaintBox" style "guitarix-paintbox"

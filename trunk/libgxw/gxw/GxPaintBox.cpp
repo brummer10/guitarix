@@ -792,7 +792,7 @@ static void live_box_expose (GtkWidget *wi, GdkEventExpose *ev) {
 			stock_image,wi->allocation.width ,wi->allocation.height , GDK_INTERP_NEAREST);
         g_object_unref(stock_image);
     }
-	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+	//cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
 	guchar *pb_pixel = gdk_pixbuf_get_pixels (paintbox->gxr_image);
 	gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (paintbox->gxr_image);
@@ -800,7 +800,7 @@ static void live_box_expose (GtkWidget *wi, GdkEventExpose *ev) {
 	gint height = gdk_pixbuf_get_height (paintbox->gxr_image);
 	cairo_surface_t *s_image =
 		cairo_image_surface_create_for_data
-		(pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
+		(pb_pixel,CAIRO_FORMAT_ARGB32 ,width, height,pixbuf_rowstride);
 
     cairo_set_source_surface (cr, s_image, 0, 0);
     cairo_paint (cr);
