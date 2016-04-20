@@ -512,7 +512,7 @@ widget "*frame_inversed" style:highest "guitarix_frame_inversed"
 style "guitarix_iredit"
 {
   GxIREdit::shade-alpha = 0.6
-  GxIREdit::gain-line-color = { 30463, 39167, 20223,6914062, 65535 }
+  GxIREdit::gain-line-color = { 30463, 39167, 20223, 65535 }
   #GxIREdit::zoom-marker-color
   GxIREdit::no-data-color = { 65535, 36000, 0, 65535 }
   GxIREdit::sample-graph-color = { 65535, 36000, 0, 65535 }
