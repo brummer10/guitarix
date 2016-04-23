@@ -99,7 +99,9 @@ gint gx_nchoice_dialog_without_entry(
     gtk_alignment_set_padding(GTK_ALIGNMENT(al), 10, 10, 10, 10);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), al);
     
-    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(dialog))), image);
+    GtkWidget * ial = gtk_alignment_new(1.0, 0.5, 0.0, 0.0);
+    gtk_container_add(GTK_CONTAINER(ial), image);
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(dialog))), ial);
     for (guint i = 0; i < nchoice; i++)
         gtk_dialog_add_button(GTK_DIALOG(dialog), label[i], resp[i]);
 
@@ -112,6 +114,7 @@ gint gx_nchoice_dialog_without_entry(
     gtk_widget_show(text_label);
     gtk_widget_show(image);
     gtk_widget_show(al);
+    gtk_widget_show(ial);
     g_signal_connect(dialog, "map", G_CALLBACK(on_gx_nchoice_map), NULL);
 
     // --- run dialog and check response
