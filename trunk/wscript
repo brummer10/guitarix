@@ -24,7 +24,7 @@ blddir = 'build'
 use_2to3 = True
 
 # used by waf dist and waf build
-VERSION='0.35.0'
+VERSION='0.35.0git'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.58','0.9.65']
@@ -1032,7 +1032,7 @@ def update_pot(ctx):
 
 dir_prefix = "guitarix"
 tar_prefix = "guitarix2"
-tar_ext = ".tar.bz2"
+tar_ext = ".tar.xz"
 
 def _make_dict():
     import Options
@@ -1064,13 +1064,14 @@ def _make_dict():
 
 def dist(ctx):
     "makes a tarball for redistributing the sources"
+    Utils.exec_command("git config tar.tar.xz.command \"xz -c\"")
     Utils.exec_command(
-        "git archive --prefix=%(d)s-%(v)s/ %(t)s ."
-        " | bzip2 > %(p)s-%(v)s%(e)s" % _make_dict())
+        "git archive --format=tar.xz --prefix=%(d)s-%(v)s/ %(t)s ."
+        " > %(p)s-%(v)s%(e)s" % _make_dict())
 
 def distcheck(ctx):
     '''checks if the sources compile (tarball from 'dist')'''
-    import tempfile, tarfile
+    import tempfile, tarfile, lzma, contextlib
     waf = os.path.abspath(sys.argv[0])
     d = _make_dict()
     tarball = "%(p)s-%(v)s%(e)s" % d
@@ -1087,10 +1088,11 @@ def distcheck(ctx):
         shutil.rmtree(path)
     print("creating tarball and extracting files into %s" % path)
     dist(ctx)
-    t = tarfile.open(tarball)
-    for x in t:
-        t.extract(x)
-    t.close()
+    with contextlib.closing(lzma.LZMAFile(tarball)) as xz:
+        with tarfile.open(fileobj=xz) as t:
+            for x in t:
+                t.extract(x)
+        t.close()
     build_path = path
     instdir = tempfile.mkdtemp('.inst', path)
     cmdargs = [waf,'configure','build','install','uninstall', '--destdir='+instdir]
