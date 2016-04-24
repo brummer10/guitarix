@@ -1,3 +1,39 @@
+guitarix2 (0.35.0) unstable; urgency=low
+  * New UI design/style
+  * disable Gtk warnings in non debug build
+  * add option to enable LSF support in guitarix
+  * add new MultiBand Clipper
+  * patch waf to use stdout as default output and write only error messages to stderr.
+  * add format .w64 to recorder
+  * add configure flag to disable installation of the MOD stuff
+  * add MXR Distortion and Boss DS1 as LV2 plugins
+  * add new plugin emulated Boss DS1 distortion
+  * apply patches from Víctor Cuadrado (Debian Multimedia team)
+  * add new comandline option -F (set tuner reference pitch at startup)
+  * add comandline option -t (set tuner temperament)
+  * disable Fixrate resampler when jack sample rate is higher then the fixed rate
+  * use 96kHz internal samplerate for main amp simulation
+  * use fixed samplerate (41000Hz) in Pitchtracker to fix tracking of low frequencys at high samplerate
+  * use the new Musical Artifacts Interface for Online Presets
+  * Add MXR Distortion plus guitarix plugin
+  * add BigMuffPi guitarix and LV2 plugin
+  * add gx_aclipper.lv2 (RAT)
+  * add bypass mode for jack insert ports
+  * fix Guitarix starts with 19-tet tuner, while stating 12-tet
+  * add new configure option group style with option --install-roboto-font
+  * add check if roboto condensed is installed
+  * add warning when roboto condensed isn't installed and --install-roboto-font isn't choosen
+  * use <Control S> to save changes to current preset, use <Alt s> for show/hide values.
+  * fix detune for inplace processing
+  * add new distortion gx plugin "RAT"
+  * new French translation by Frédéric Rech (many thanks fred)
+  * Add new modgui artwork data (even bigger commit)
+  * Add new modgui ttl files (big commit)
+  * Add references to new modgui files
+  * fix guitarix crash when plugin fail to instantiate
+ 
+ -- brummer <brummer-@web.de>  Tue, 24 Apr 2016 06:30:35 +0200 
+
 guitarix2 (0.34.0) unstable; urgency=low
 
   * Add BOSS OC-2 partial emulation LV2 plugin (by drgreenthumb)
