@@ -789,7 +789,7 @@ void PresetWindow::show_online_preset() {
   Gtk::Window *window = new Gtk::Window();
   Gtk::ScrolledWindow *scrollbox = Gtk::manage(new Gtk::ScrolledWindow());
   scrollbox->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-  window->set_default_size( 400, 400 );
+  window->set_default_size( 800, 500 );
   WebKitWebView * web_view =  WEBKIT_WEB_VIEW( webkit_web_view_new() );
   WebKitWebSettings *settings = webkit_web_settings_new ();
   g_object_set (G_OBJECT(settings), "enable-offline-web-application-cache", TRUE, NULL);
