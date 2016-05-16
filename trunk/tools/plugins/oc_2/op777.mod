@@ -1,5 +1,11 @@
-*
-* Based at http://www.ecircuitcenter.com/OpModels/OpampModels.htm
+*-----------------------------------------------------
+* name : "guitarix"
+* version : "0.35.0"
+* author : "drgreenthumb" 
+* license : "GPL v.2"
+* copyright : "(c)drgreenthumb 2016"
+* reference : "http://www.ecircuitcenter.com/OpModels/OpampModels.htm"
+*-----------------------------------------------------
 *
 * Device Pins    In+ In- Vcc Vdd Vout
 .SUBCKT OP777    1   2   3   4   5
