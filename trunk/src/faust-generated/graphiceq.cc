@@ -1051,17 +1051,17 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("graphiceq.g10","","S",N_("gain (dB) at 16 kHz"),&fslider9, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g11","","S",N_("gain (dB) above 16 kHz"),&fslider10, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g1","","S",N_("gain (dB) below 31.25 Hz"),&fslider0, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g2","","S",N_("gain (dB) at 62.5 Hz"),&fslider1, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g3","","S",N_("gain (dB) at 125 Hz"),&fslider2, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g4","","S",N_("gain (dB) at 250 Hz"),&fslider3, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g5","","S",N_("gain (dB) at 500 Hz"),&fslider4, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g6","","S",N_("gain (dB) at 1 kHz"),&fslider5, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g7","","S",N_("gain (dB) at 2 kHz"),&fslider6, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g8","","S",N_("gain (dB) at 4 kHz"),&fslider7, 0.0, -3e+01, 5.2, 0.1);
-	reg.registerVar("graphiceq.g9","","S",N_("gain (dB) at 8 kHz"),&fslider8, 0.0, -3e+01, 5.2, 0.1);
+	reg.registerVar("graphiceq.g10","","S",N_("gain (dB) at 16 kHz"),&fslider9, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g11","","S",N_("gain (dB) above 16 kHz"),&fslider10, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g1","","S",N_("gain (dB) below 31.25 Hz"),&fslider0, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g2","","S",N_("gain (dB) at 62.5 Hz"),&fslider1, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g3","","S",N_("gain (dB) at 125 Hz"),&fslider2, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g4","","S",N_("gain (dB) at 250 Hz"),&fslider3, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g5","","S",N_("gain (dB) at 500 Hz"),&fslider4, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g6","","S",N_("gain (dB) at 1 kHz"),&fslider5, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g7","","S",N_("gain (dB) at 2 kHz"),&fslider6, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g8","","S",N_("gain (dB) at 4 kHz"),&fslider7, 0.0, -3e+01, 2e+01, 0.1);
+	reg.registerVar("graphiceq.g9","","S",N_("gain (dB) at 8 kHz"),&fslider8, 0.0, -3e+01, 2e+01, 0.1);
 	reg.registerNonMidiFloatVar("graphiceq.v10",&fbargraph9, false, true, -70.0, -70.0, 4.0, 0.00001);
 	reg.registerNonMidiFloatVar("graphiceq.v11",&fbargraph10, false, true, -70.0, -70.0, 4.0, 0.00001);
 	reg.registerNonMidiFloatVar("graphiceq.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
