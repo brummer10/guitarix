@@ -150,6 +150,9 @@ style "guitarix_default" {
     GtkButton::child-displacement-x       = 0
     GtkButton::child-displacement-y       = 0
     
+    GtkTreeView::even-row-color = "#000000"
+    GtkTreeView::odd-row-color  = "#000000"
+       
     fg[NORMAL]              = { 0.85, 0.85, 0.85 }
     fg[ACTIVE]              = { 1.0, 1.0, 1.0 }
     fg[PRELIGHT]            = { 1.0, 1.0, 1.0 }
@@ -205,7 +208,6 @@ style "guitarix_default" {
 }
 class "*GtkWidget*" style:highest "guitarix_default"
 
-
 style "guitarix_ampdetails" {
     GxPaintBox::alternate-box = { 0, 0, 0, 0 }
     GxPaintBox::inverse = 0
@@ -246,7 +248,9 @@ widget_class "*Scrollbar*" style:highest "guitarix_scrollbars"
 
 
 style "guitarix_buttons" {
-    bg[NORMAL]   = { 0.175, 0.175, 0.175 }
+    bg[NORMAL]     = { 0.175, 0.175, 0.175 }
+   # base[NORMAL]   = { 0.175, 0.175, 0.175 }
+   # base[SELECTED] = { 0.2, 0.2, 0.2 }
 }
 class "GtkButton" style:highest "guitarix_buttons"
 
@@ -519,7 +523,6 @@ style "guitarix_iredit"
   GxIREdit::sample-graph-color-out = { 65535, 36000, 0, 36000 }
 }
 class "*GxIREdit" style:highest "guitarix_iredit"
-
 
 
 
