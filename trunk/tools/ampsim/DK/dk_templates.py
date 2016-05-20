@@ -1082,7 +1082,11 @@ process = pre : iir((@b_list),(@a_list)) with {
     pre = @pre_filter;
 
     %for @sl in @sliders:
+        %if (@sl.loga)
         @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : smooth(s);
+        %else
+        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : smooth(s);
+        %end
     %end
 
     @coeffs

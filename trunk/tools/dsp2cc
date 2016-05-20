@@ -284,8 +284,10 @@ class Parser(object):
             nm = make_name_int(stack)
             stack.pop()
             if nm.startswith("."):
-                return nm[1:]
-            return nm
+                if self.toplevel == "low_highpass" :
+                    return nm[1:].replace("0x00","low_high_pass")
+                return nm[1:].replace("0x00",self.toplevel)
+            return nm.replace("0x00",self.toplevel)
 
         nextbox = {}
         for line in self.lines:
@@ -303,6 +305,7 @@ class Parser(object):
                     # ignore all other attributes for now
                     nextbox = {}
                 if not stack:
+                    print self.toplevel
                     if self.toplevel and grp == self.modname:
                         grp = self.toplevel
                     if not self.topname:
@@ -497,6 +500,8 @@ class Parser(object):
         var_decl = self.copy(r"  public:")
         self.skip_until(r"^\s*static\s+void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
         self.readMeta2(r"\s*}\s*\n$")
+        if self.toplevel is None :
+            self.toplevel = self.modname
         self.numInputs = self.getIO("In")
         self.numOutputs = self.getIO("Out")
         self.skip_until(r"\s*static void classInit")
