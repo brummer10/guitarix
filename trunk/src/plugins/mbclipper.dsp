@@ -41,6 +41,25 @@ clip(drive) = *(pregain) : clip : *(postgain) with {
     clip = ffunction(float symclip(float), "clipping.h", "");
     postgain = max(1.0,1.0/pregain);
 };
+    
+eclip(drive) = *(pregain) : clip : *(postgain) with {
+    pregain = pow(10.0,2*drive);    
+    clip(x) = ((exp(x*4)-exp(-x*4*1.2))/(exp(x*4)+exp(-x*4)))/4;
+    postgain = max(1.0,1.0/(pregain*2.5));
+};
+
+cclip(drive) = *(pregain) : clip : *(postgain) with {
+    pregain = pow(10.0,drive);
+    clip(x) = tanh((drive+0.0001)*x)/tanh(drive+0.0001);
+    postgain = max(1.0,1.0/pregain);
+};
+
+aclip(drive) = *(pregain) : clip : *(postgain) with {
+    pregain = pow(10.0,2*drive);
+    clip(x) = atan(x)/PI;
+    postgain = max(1.0,1.0/pregain);
+};
+
 
 process    = _: +(anti_denormal_ac): geq: ( dist5s , dist4s , dist3s, dist2s, dist1s) :> *(gain1) with { 
     dist1s = clip(drive1: smooth(0.999)) : vmeter1;

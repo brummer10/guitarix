@@ -20,9 +20,9 @@ process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/
     clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 
     
-        //Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        //Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = Sustain*pow(fs,3)*(fs*(4.07249439024394e-27*fs - 1.34118849842818e-20) + 1.23525177556824e-15) + (Sustain*pow(fs,3)*(fs*(-3.9514408494262e-27*fs + 1.26300907176988e-20) + 2.68904213585766e-17) + pow(fs,3)*(fs*(-3.9514408494262e-29*fs + 1.26300907176988e-22) + 2.68904213585766e-19)) + pow(fs,3)*(fs*(4.07249439024394e-29*fs - 1.34118849842818e-22) + 1.23525177556824e-17);
 

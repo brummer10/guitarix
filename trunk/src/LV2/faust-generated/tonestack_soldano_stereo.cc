@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/tonestack_soldano_stereo.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 
 namespace tonestack_soldano_stereo {

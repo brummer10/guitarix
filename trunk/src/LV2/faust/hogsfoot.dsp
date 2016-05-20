@@ -18,7 +18,7 @@ process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a
     dry = 1 - wet;
 
     
-        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = -9.64632260709932e-11*Volume*pow(fs,2) - 9.64632260709932e-13*pow(fs,2);
 

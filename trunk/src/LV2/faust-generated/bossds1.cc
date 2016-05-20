@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/bossds1.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 #include "clipping.h"
 
@@ -238,7 +238,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
 	double 	fSlow0 = (0.007000000000000006 * double(fslider0));
-	double 	fSlow1 = (0.007000000000000006 * double(fslider1));
+	double 	fSlow1 = (0.002198000000000002 * double(fslider1));
 	double 	fSlow2 = (0.007000000000000006 * pow(10,(0.05 * double(fslider2))));
 	for (int i=0; i<ReCount; i++) {
 		fRec1[0] = ((0.993 * fRec1[1]) + fSlow0);
@@ -296,10 +296,10 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case LEVEL: 
-		fslider2_ = (float*)data; // , -2.0, -2e+01, 12.0, 0.1 
+		fslider2_ = (float*)data; // , 3.0, -2e+01, 12.0, 0.1 
 		break;
 	case TONE: 
-		fslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fslider0_ = (float*)data; // , 0.7, 0.0, 1.0, 0.01 
 		break;
 	case DRIVE: 
 		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 

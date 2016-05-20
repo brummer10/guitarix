@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/foxeylady.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -141,7 +141,7 @@ Dsp::Dsp()
 	id = "foxeylady";
 	name = N_("Foxey Lady");
 	groups = 0;
-	description = N_("Foxey Lady fuzz pedal"); // description (tooltip)
+	description = N_("Foxey Lady fuzz pedal simulation"); // description (tooltip)
 	category = N_("Fuzz");       // category
 	shortname = N_("Foxey Lady");     // shortname
 	mono_audio = compute_static;

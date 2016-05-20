@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/fumaster.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -131,7 +131,7 @@ Dsp::Dsp()
 	id = "fumaster";
 	name = N_("Fuzz Master");
 	groups = 0;
-	description = N_("Vintage Fuzz Master"); // description (tooltip)
+	description = N_("Vintage Fuzz Master simulation"); // description (tooltip)
 	category = N_("Fuzz");       // category
 	shortname = N_("Fuzz Master");     // shortname
 	mono_audio = compute_static;

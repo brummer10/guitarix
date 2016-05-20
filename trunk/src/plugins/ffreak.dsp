@@ -24,13 +24,13 @@ process = pre :  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4
     //wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
    // dry = 1 - wet;
     
-        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Gate = vslider("Gate[name:Gate]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Gate = vslider("Gate[name:Gate]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        // Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : *(0.5) : Inverted(0) : LogPot(0) : smooth(s);
+        // Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : *(0.5) : Inverted(0) : smooth(s);
     
     b0 = Gate*(Tone*(Fuzz*pow(fs,4)*(2.3166360517034e-21*fs + 1.15904771305196e-17) + pow(fs,3)*(fs*(-3.33595591445278e-21*fs - 1.66926037039994e-17) - 1.15904771305196e-17)) + (Fuzz*pow(fs,3)*(1.5588772005669e-18*fs + 1.29589876827259e-14) + pow(fs,2)*(fs*(-2.24478316881626e-18*fs - 1.86625011403253e-14) - 1.29589876827259e-14))) + Tone*(Fuzz*pow(fs,4)*(-2.79019064029245e-21*fs - 1.39597416617602e-17) + pow(fs,3)*(fs*(4.01337447559171e-21*fs + 2.00823037773142e-17) + 1.39597416617602e-17)) + (Fuzz*pow(fs,3)*(-1.87753470001854e-18*fs - 1.56079959618259e-14) + pow(fs,2)*(fs*(2.70062186191777e-18*fs + 2.24522189930045e-14) + 1.56079959618259e-14));
 

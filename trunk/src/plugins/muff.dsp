@@ -20,9 +20,9 @@ process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/
     //clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 
 
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        //Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01): *(0.8) : Inverted(0) : LogPot(0) : smooth(s);
+        //Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01): *(0.8) : Inverted(0) : smooth(s);
     
     b0 = Tone*pow(fs,3)*(fs*(fs*(-1.29955117406144e-31*fs + 3.73173380397863e-25) + 1.11415567049164e-24) - 3.19936025718332e-18) + (Tone*pow(fs,3)*(fs*(fs*(-5.90705079118838e-30*fs + 1.6962426381721e-23) + 5.06434395678016e-23) - 1.45425466235606e-16) + pow(fs,3)*(fs*(-1.38925083422393e-26*fs + 3.98287967295002e-20) + 1.84690342119219e-16)) + pow(fs,3)*(fs*(-3.05635183529265e-28*fs + 8.76233528049005e-22) + 4.06318752662282e-18);
 

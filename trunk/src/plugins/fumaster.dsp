@@ -4,7 +4,7 @@ declare id "fumaster";
 declare name "Fuzz Master";
 declare category "Fuzz";
 declare shortname "Fuzz Master";
-declare description "Vintage Fuzz Master";
+declare description "Vintage Fuzz Master simulation";
 declare insert_p "tranyclipper";
 declare drywetbox "true";
 declare volume_p "Level";
@@ -22,9 +22,9 @@ process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/
     //dry = 1 - wet;
     //clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
     
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 0.99, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.5, 0, 0.99, 0.01) : Inverted(0) : smooth(s);
     
-        //Level = vslider("Level[name:Level]", 0.1, 0, 1, 0.01) : *(0.8) : Inverted(0) : LogPot(0) : smooth(s);
+        //Level = vslider("Level[name:Level]", 0.1, 0, 1, 0.01) : *(0.8) : Inverted(0) : smooth(s);
     
     b0 = Tone*(pow(fs,5)*(-1.41775270516311e-27*fs + 4.71779589725812e-22) + pow(fs,5)*(-1.41775270516311e-29*fs + 4.71779589725812e-24)) + (0.1)*pow(fs,4)*(fs*(1.41775270516311e-27*fs - 4.70999825737972e-22) - 2.59478774349197e-19) + pow(fs,4)*(fs*(1.41775270516311e-29*fs - 4.70999825737972e-24) - 2.59478774349197e-21);
 

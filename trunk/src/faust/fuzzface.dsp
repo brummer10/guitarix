@@ -4,21 +4,22 @@ declare id "fuzzface";
 declare name "Fuzz Face";
 declare category "Fuzz";
 declare description "J Hendrix Fuzz Face simulation";
+declare insert_p "clipper";
 
 import("filter.lib");
-import("trany.lib");
+//import("trany.lib");
 
-process = pre :  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : clip  with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+
+process = pre :  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0))   with {
     Inverted(b, x) = if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
     pre = _;
-    clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
+   // clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
    
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(1)  : smooth(s);
     
-        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(1)  : smooth(s);
     
     b0 = Fuzz*(Fuzz*(Level*pow(fs,3)*(4.76991513499346e-20*fs + 5.38351707988916e-15) + pow(fs,3)*(-4.76991513499346e-20*fs - 5.38351707988916e-15)) + Level*pow(fs,3)*(-4.76991513499346e-20*fs + 5.00346713698171e-13) + pow(fs,3)*(4.76991513499346e-20*fs - 5.00346713698171e-13)) + Level*pow(fs,2)*(-5.05730339185222e-13*fs - 1.16162215422261e-12) + pow(fs,2)*(5.05730339185222e-13*fs + 1.16162215422261e-12);
 

@@ -17,11 +17,11 @@ process =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) : clip
     clip(x) = (0.4 * (min(0.7514,max(-0.4514,x))));
 
 
-        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = Fuzz*(Fuzz*Volume*pow(fs,3)*(-3.36831187151837e-20*fs - 1.75582214579149e-16) + Volume*pow(fs,3)*(9.4649563589667e-21*fs + 4.93386022967413e-17)) + Sustain*(Fuzz*(Fuzz*Volume*pow(fs,3)*(2.89798007739403e-18*fs + 1.51064918927987e-14) + Volume*pow(fs,3)*(2.28655633153439e-18*fs + 1.19192830048069e-14)) + Volume*pow(fs,2)*(fs*(1.45891323583538e-19*fs + 7.40489463150802e-16) - 1.04296301457845e-13)) + Volume*pow(fs,2)*(fs*(2.4218162356217e-20*fs + 1.26859583357635e-16) + 3.21091305171869e-15);
 

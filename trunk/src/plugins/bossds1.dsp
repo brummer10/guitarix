@@ -1,24 +1,24 @@
 // generated automatically
 // DO NOT MODIFY!
 declare id          "bossds1";
-declare name        "Boss DS1";
+declare name        "DS1";
 declare category    "Distortion";
 declare shortname   "DS1";
-declare description "Boss DS1";
-//declare samplerate  "96000";
+declare description "DS1 simulation";
+declare samplerate  "96000";
 
 import("filter.lib");
 
 ds1_in = iir((b0/a0,b1/a0),(a1/a0)) with {
     fs = float(SR);
 
-    b0 = 2.07110717442793e-5*fs;
+    b0 = 2.06179485600366e-5*fs;
 
-    b1 = -2.07110717442793e-5*fs;
+    b1 = -2.06179485600366e-5*fs;
 
-    a0 = 2.08232145615427e-5*fs + 0.000485701045951343;
+    a0 = 2.08223456923865e-5*fs + 0.000527406765446517;
 
-    a1 = -2.08232145615427e-5*fs + 0.000485701045951343;
+    a1 = -2.08223456923865e-5*fs + 0.000527406765446517;
 };
 
 ds1_boost= iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
@@ -132,7 +132,8 @@ process = ds1_in : ds1_boost : ds1_drive : sclip : ds1_ampin : X1 : X3  : clip :
     X2 = component("filter.lib").tf1(B0, B1, A1);
     s = 0.993;
     symclip = ffunction(float asymclip3(float), "clipping.h", "");
-    sclip = symclip(_);
+    //sclip = symclip(_);
+    sclip(x) = atan(x)/PI;
     opamp = ffunction(float opamp(float), "clipping.h", "");
     X1 = _ <: _ - opamp(_) :> _ ;
     X3 = _ <: _ - opamp(X2-_) :> _ ;

@@ -18,7 +18,7 @@ process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a
     dry = 1 - wet;
 
     
-        Boost = vslider("Boost[name:Boost]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+        Boost = vslider("Boost[name:Boost]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
     
     b0 = Boost*pow(fs,2)*(8.31466608544754e-13*fs + 2.24531902904193e-12) + pow(fs,2)*(-8.32852386225662e-13*fs - 2.24906122742367e-12);
 

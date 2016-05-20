@@ -19,11 +19,11 @@ process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clip with {
     clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 
     
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Attack = vslider("Attack[name:Attack]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Attack = vslider("Attack[name:Attack]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = Attack*Volume*(1.00499515996459e-12*Tone*pow(fs,3) - 1.18589428875822e-12*pow(fs,3));
 

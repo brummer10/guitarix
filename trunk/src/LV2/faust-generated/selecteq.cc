@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/selecteq.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 
 namespace selecteq {
@@ -216,7 +216,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow38 = double(fslider19);
 	double 	fSlow39 = (pow(10,(0.05 * (0 - double(fslider20)))) / fSlow38);
 	double 	fSlow40 = (1 + (fSlow36 * (fSlow36 - fSlow39)));
-	double 	fSlow41 = (1.0 / (1 + ((fSlow36 + fSlow39) * fSlow36)));
+	double 	fSlow41 = (1.0 / (1 + (fSlow36 * (fSlow36 + fSlow39))));
 	double 	fSlow42 = tan((fConst0 * double(fslider21)));
 	double 	fSlow43 = (2 * (faustpower<2>(fSlow42) - 1));
 	double 	fSlow44 = double(fslider22);

@@ -39,7 +39,7 @@ bpmamp1 = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     pre = _;
 
     
-        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = Sustain*fs*(2.26293387153501e-12*fs - 1.17905906929765e-5) + fs*(2.26293387153501e-14*fs - 1.17905906929765e-7);
 
@@ -83,7 +83,7 @@ bpmtone = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     pre = _;
 
     
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = Tone*(3.68688858465455e-10*pow(fs,2) - 0.00316091270975185) + 8.67101574539126e-7*fs + 0.00401435914138484;
 
@@ -106,7 +106,7 @@ bpmout = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     pre = _;
 
     
-        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = -1.74325899023428e-9*Volume*pow(fs,2);
 

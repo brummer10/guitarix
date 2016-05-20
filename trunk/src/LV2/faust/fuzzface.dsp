@@ -18,9 +18,9 @@ process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/
     //clip(x) = 0.4 * (min(0.7514,max(-0.4514,x)));
 
     
-        Level = 1.0 - vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Level = 1.0 - vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Fuzz = 1.0 - vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Fuzz = 1.0 - vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = Fuzz*(Fuzz*(Level*pow(fs,3)*(4.76991513499346e-20*fs + 5.38351707988916e-15) + pow(fs,3)*(-4.76991513499346e-20*fs - 5.38351707988916e-15)) + Level*pow(fs,3)*(-4.76991513499346e-20*fs + 5.00346713698171e-13) + pow(fs,3)*(4.76991513499346e-20*fs - 5.00346713698171e-13)) + Level*pow(fs,2)*(-5.05730339185222e-13*fs - 1.16162215422261e-12) + pow(fs,2)*(5.05730339185222e-13*fs + 1.16162215422261e-12);
 

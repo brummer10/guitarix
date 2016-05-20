@@ -16,12 +16,12 @@ import("trany.lib");
     wet = vslider("wet_dry[name:Wet/Dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
-    //Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+    //Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     gain = hslider("Level[name:Level]", -2, -20, 12, 0.1) : component("music.lib").db2linear : smooth(s);
     
-    Fuzz = 0.5 ; //vslider("Fuzz[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+    Fuzz = 0.5 ; //vslider("Fuzz[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
 
-    Distortion = vslider("Distortion[name:Drive]", 0.5, 0, 0.99, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+    Distortion = vslider("Distortion[name:Drive]", 0.5, 0, 0.99, 0.01) : Inverted(1) : smooth(s);
 
     clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 

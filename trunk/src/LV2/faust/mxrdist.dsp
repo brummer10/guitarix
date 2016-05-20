@@ -41,7 +41,18 @@ mxr_out = component("filter.lib").iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = fs*(1.40668739186091e-10*fs - 1.40739073555684e-5) + 0.000351671847965227;
 };
 
-process = mxr_in : X3 : clip : mxr_out   with {
+mxr_drive = component("filter.lib").iir((b0/a0,b1/a0),(a1/a0)) with {
+
+    b0 = -1.38434672619083e-5*(1.0-drive)*fs + 1.39085315580392e-5*fs + 0.000147270928318173;
+
+    b1 = 1.38434672619083e-5*(1.0-drive)*fs - 1.39085315580392e-5*fs + 0.000147270928318173;
+
+    a0 = -1.38434672619083e-5*(1.0-drive)*fs + 2.77519988199475e-5*fs + 0.000147270928318173;
+
+    a1 = 1.38434672619083e-5*(1.0-drive)*fs - 2.77519988199475e-5*fs + 0.000147270928318173;
+};
+
+process = mxr_in : X3 : lf : mxr_out   with {
     R1 = 4700 + 500000 * (1.0 -drive);
     R2 = 5000 + 500000 * drive;
     C = 0.047 * 1e-6;
@@ -55,4 +66,5 @@ process = mxr_in : X3 : clip : mxr_out   with {
     X3 = _ <: _ - opamp(X2-_) :> _ ;
     asymclip = ffunction(float asymhardclip2(float), "clipping.h", "");
     clip = asymclip(_);
+    lf = component("filter.lib").lowpass(3,16200.);
 };

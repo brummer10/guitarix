@@ -1,10 +1,10 @@
 // generated from file '../src/plugins/fuzzfacefm.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
 
-#include "trany.h"
+#include "clipping.h"
 
 namespace pluginlib {
 namespace fuzzfacefm {
@@ -127,27 +127,6 @@ private:
 
 	int samplingFreq;
 	gx_resample::FixedRateResampler smpCl;
-	double 	fVecCl0[2];
-	double 	fRecCl7[2];
-	double 	fRecCl6[3];
-	int 	iConstCl0;
-	double 	fConstCl1;
-	double 	fConstCl2;
-	double 	fConstCl3;
-	double 	fConstCl4;
-	double 	fRecCl8[2];
-	double 	fRecCl5[3];
-	double 	fConstCl5;
-	double 	fConstCl6;
-	double 	fConstCl7;
-	double 	fConstCl8;
-	double 	fConstCl9;
-	double 	fRecCl4[2];
-	double 	fRecCl3[2];
-	double 	fRecCl2[3];
-	double 	fRecCl9[2];
-	double 	fRecCl1[3];
-	double 	fRecCl0[2];
 
 	FAUSTFLOAT 	fsliderV0;
 	double 	fRecV0[2];
@@ -201,17 +180,6 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<4; i++) fRec3[i] = 0;
 
-	for (int i=0; i<2; i++) fVecCl0[i] = 0;
-	for (int i=0; i<2; i++) fRecCl7[i] = 0;
-	for (int i=0; i<3; i++) fRecCl6[i] = 0;
-	for (int i=0; i<2; i++) fRecCl8[i] = 0;
-	for (int i=0; i<3; i++) fRecCl5[i] = 0;
-	for (int i=0; i<2; i++) fRecCl4[i] = 0;
-	for (int i=0; i<2; i++) fRecCl3[i] = 0;
-	for (int i=0; i<3; i++) fRecCl2[i] = 0;
-	for (int i=0; i<2; i++) fRecCl9[i] = 0;
-	for (int i=0; i<3; i++) fRecCl1[i] = 0;
-	for (int i=0; i<2; i++) fRecCl0[i] = 0;
 
 	for (int i=0; i<2; i++) fRecV0[i] = 0;
 }
@@ -333,16 +301,6 @@ inline void Dsp::init(unsigned int samplingFreq)
 	samplingFreq = 96000;
 	smpCl.setup(fSamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
-	iConstCl0 = min(192000, max(1, fSamplingFreq));
-	fConstCl1 = (1.0 / tan((270.1769682087222 / double(iConstCl0))));
-	fConstCl2 = (1 + fConstCl1);
-	fConstCl3 = (0.027 / fConstCl2);
-	fConstCl4 = (0 - ((1 - fConstCl1) / fConstCl2));
-	fConstCl5 = (1.0 / tan((97.38937226128358 / double(iConstCl0))));
-	fConstCl6 = (0 - fConstCl5);
-	fConstCl7 = (1 + fConstCl5);
-	fConstCl8 = (0.025 / fConstCl7);
-	fConstCl9 = (0 - ((1 - fConstCl5) / fConstCl7));
 
 	clear_state_f();
 }
@@ -376,31 +334,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	FAUSTFLOAT bufCl[smpCl.max_out_count(count)];
 	int ReCount = smpCl.up(count, output0, bufCl);
 	for (int i=0; i<ReCount; i++) {
-		double fTemp0 = (double)bufCl[i];
-		fVecCl0[0] = fTemp0;
-		fRecCl7[0] = ((0.9302847925323914 * (fVecCl0[0] + fVecCl0[1])) - (0.8605695850647829 * fRecCl7[1]));
-		fRecCl6[0] = (fRecCl7[0] - ((1.8405051250752198 * fRecCl6[1]) + (0.8612942439318627 * fRecCl6[2])));
-		fRecCl8[0] = ((fConstCl4 * fRecCl8[1]) + (fConstCl3 * (fRecCl5[1] + fRecCl5[2])));
-		fRecCl5[0] = (Ftrany(TRANY_TABLE_KT88_68k, ((fRecCl8[0] + (0.9254498422517706 * (fRecCl6[2] + (fRecCl6[0] + (2.0 * fRecCl6[1]))))) - 5.562895)) - 43.96685185185183);
-		fRecCl4[0] = ((fConstCl9 * fRecCl4[1]) + (fConstCl8 * ((fConstCl5 * fRecCl5[0]) + (fConstCl6 * fRecCl5[1]))));
-		fRecCl3[0] = ((0.9302847925323914 * (fRecCl4[0] + fRecCl4[1])) - (0.8605695850647829 * fRecCl3[1]));
-		fRecCl2[0] = (fRecCl3[0] - ((1.8405051250752198 * fRecCl2[1]) + (0.8612942439318627 * fRecCl2[2])));
-		fRecCl9[0] = ((fConstCl4 * fRecCl9[1]) + (fConstCl3 * (fRecCl1[1] + fRecCl1[2])));
-		fRecCl1[0] = (Ftrany(TRANY_TABLE_KT88_68k, ((fRecCl9[0] + (0.9254498422517706 * (fRecCl2[2] + (fRecCl2[0] + (2.0 * fRecCl2[1]))))) - 5.562895)) - 43.96685185185183);
-		fRecCl0[0] = ((fConstCl9 * fRecCl0[1]) + (fConstCl8 * ((fConstCl5 * fRecCl1[0]) + (fConstCl6 * fRecCl1[1]))));
-		bufCl[i] = (FAUSTFLOAT)fRecCl0[0];
-		// post processing
-		fRecCl0[1] = fRecCl0[0];
-		fRecCl1[2] = fRecCl1[1]; fRecCl1[1] = fRecCl1[0];
-		fRecCl9[1] = fRecCl9[0];
-		fRecCl2[2] = fRecCl2[1]; fRecCl2[1] = fRecCl2[0];
-		fRecCl3[1] = fRecCl3[0];
-		fRecCl4[1] = fRecCl4[0];
-		fRecCl5[2] = fRecCl5[1]; fRecCl5[1] = fRecCl5[0];
-		fRecCl8[1] = fRecCl8[0];
-		fRecCl6[2] = fRecCl6[1]; fRecCl6[1] = fRecCl6[0];
-		fRecCl7[1] = fRecCl7[0];
-		fVecCl0[1] = fVecCl0[0];
+		bufCl[i] = (FAUSTFLOAT)asymclip4((double)bufCl[i]);
 	}
 	smpCl.down(bufCl, output0);
 

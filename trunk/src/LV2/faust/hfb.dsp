@@ -16,9 +16,9 @@ process = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     pre = _;
 
     
-        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
     
-        Intensity = vslider("Intensity[name:Intensity]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Intensity = vslider("Intensity[name:Intensity]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = Intensity*(5.12666523663255e-23*Intensity*pow(fs,2) - 1.59041010538546e-9*pow(fs,2)) - 3.18082021077091e-10*Volume*pow(fs,2) - 1.06027340359031e-6*fs;
 

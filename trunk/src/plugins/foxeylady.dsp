@@ -4,7 +4,7 @@ declare id "foxeylady";
 declare name "Foxey Lady";
 declare category "Fuzz";
 declare shortname "Foxey Lady";
-declare description "Foxey Lady fuzz pedal";
+declare description "Foxey Lady fuzz pedal simulation";
 declare insert_p "tranyclipper";
 
 import("filter.lib");
@@ -18,9 +18,9 @@ process =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4
     pre = _;
     //clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
     
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
     
     b0 = Fuzz*(Level*pow(fs,2)*(fs*(fs*(fs*(6.42669378638762e-27*fs + 2.86240593005591e-23) + 1.79551930386446e-19) + 3.55668379874028e-17) + 4.84302033942378e-16) + pow(fs,2)*(fs*(fs*(fs*(6.42669378638762e-29*fs + 2.86240593005591e-25) + 1.79551930386446e-21) + 3.55668379874028e-19) + 4.84302033942378e-18)) + Level*pow(fs,2)*(fs*(fs*(fs*(-3.28344197367049e-28*fs - 1.8701619702637e-23) - 2.16157324062859e-19) - 4.33524374895714e-17) - 5.90848481409701e-16) + pow(fs,2)*(fs*(fs*(fs*(-3.28344197367049e-30*fs - 1.8701619702637e-25) - 2.16157324062859e-21) - 4.33524374895714e-19) - 5.90848481409701e-18);
 

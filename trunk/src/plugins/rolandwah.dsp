@@ -27,7 +27,7 @@ fuzz = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0,
     //clip(x) = 0.4 * (min(0.7514,max(-0.4514,x)));
 
 
-    Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+    Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     
     b0 = Fuzz*pow(fs,4)*(fs*(fs*(8.60349117319693e-33*fs + 7.42470650533226e-26) + 3.80828462584721e-23) + 8.28085042193987e-22) + pow(fs,3)*(fs*(fs*(fs*(-2.62267793598193e-32*fs - 2.30252524666021e-25) - 1.21809214941527e-22) - 4.47006878788668e-21) - 4.14042521096994e-20);

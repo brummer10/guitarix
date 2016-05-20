@@ -55,20 +55,20 @@ logo(plugname)
   make_controller_box(&m_vboxc[1], "DRIVE", 0.0, 1.0, 0.01, DRIVE);
 
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(10);
+ //  m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "gx_rack_unit_expose";
+  m_paintbox.property_paint_func() = "gx_lv2_unit_expose";
   add(m_paintbox);
   // box for the controllers
   m_hbox_.set_spacing(25);
-  m_hbox_.set_border_width(24);
+  // m_hbox_.set_border_width(24);
   m_hbox_.set_homogeneous(false);
   // set a vertical box in the paintbox
   m_vbox.set_border_width(14);
   m_vbox1.set_border_width(14);
-  m_paintbox.pack_start(m_vbox_);
+  m_paintbox.pack_start(m_vbox_, Gtk::PACK_EXPAND_PADDING, 35);
 
   // modify logo layout
   Pango::FontDescription font_desc = logo.get_style()->get_font();
@@ -78,7 +78,7 @@ logo(plugname)
 
   // and controller box on top
   //m_hbox1_.set_border_width(24);
-  m_hbox1_.set_spacing(64);
+  //m_hbox1_.set_spacing(64);
   logo.set_name("amplabel");
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_SHRINK);
   m_hbox1_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);

@@ -1,3 +1,4 @@
+declare id        "bitdowner";
 declare name      "BitDowner";
 declare category  "Distortion";
 declare author    "Viacheslav Lotsmanov (unclechu)";

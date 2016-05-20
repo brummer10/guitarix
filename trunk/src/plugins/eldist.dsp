@@ -20,7 +20,7 @@ process = pre : iir((b0/a0,b1/a0),(a1/a0)) : clip with {
     clip = asymclip(_);
 
     
-        Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = -8.14686408743197e-8*Drive*fs - 0.00018716364572377*fs;
 

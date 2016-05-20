@@ -46,7 +46,7 @@ ds1_tone = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
 
     fs = float(SR);
 
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.7, 0, 1, 0.01) : smooth(s);
     
     b0 = Tone*(fs*(-2.18842400636233e-10*fs + 5.20602596669238e-8) + 0.000537812599864916) + (fs*(2.18842400636233e-10*fs + 2.33324618325395e-7) + 0.000182856283954071);
 
@@ -94,9 +94,9 @@ ds1_drive = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
 };
 
     s = 0.993;
-    drive =  hslider("drive[name:Drive]", 0.5, 0, 1, 0.01) : component("filter.lib").smooth(s);
+    drive =  hslider("drive[name:Drive]", 0.5, 0, 1, 0.01) : *(0.314): component("filter.lib").smooth(s);
 
-process = ds1_in : ds1_boost : ds1_drive : sclip : hf : X1 : X3 : lf : clip : ds1_tone : ds1_out : *(gain)  with {
+process = ds1_in : ds1_boost : ds1_drive : sclip : hf : X1 : X3 : lf  : clip  : ds1_tone : ds1_out : *(gain)  with {
     R1 = 4700 + 100000 * (1.0 - drive);
     R2 = 100000 + 100000 * drive;
     C = 0.047 * 1e-6;
@@ -116,5 +116,5 @@ process = ds1_in : ds1_boost : ds1_drive : sclip : hf : X1 : X3 : lf : clip : ds
     X3 = _ <: _ - opamp(X2-_) :> _ ;
     asymclip = ffunction(float asymhardclip2(float), "clipping.h", "");
     clip = asymclip(_);
-    gain = hslider("Level[name:Level]", -2, -20, 12, 0.1) : component("music.lib").db2linear : component("filter.lib").smooth(s);
+    gain = hslider("Level[name:Level]", 3, -20, 12, 0.1) : component("music.lib").db2linear : component("filter.lib").smooth(s);
 };

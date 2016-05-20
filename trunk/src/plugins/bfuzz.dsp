@@ -20,11 +20,11 @@ process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a
     clip = tranystageb(TB_7199P_68k,86.0,2700.0,5.571981) : tranystageb(TB_7199P_68k,86.0,2700.0,5.571981) ;
 
     
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Thickness = vslider("Thickness[name:Thickness]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Thickness = vslider("Thickness[name:Thickness]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = Drive*Level*pow(fs,2)*(-1.65780932898435e-16*fs - 8.29281439339673e-13) + Level*pow(fs,2)*(-7.76911913609341e-14*fs - 3.88632527694127e-10) + Thickness*(1.65780932898435e-16*Drive*Level*pow(fs,3) + 7.76911913609341e-14*Level*pow(fs,3));
 

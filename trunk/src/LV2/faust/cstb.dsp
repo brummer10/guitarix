@@ -20,9 +20,9 @@ process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a
     clip = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) : tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
     //clip(x) = 0.3 * (min(0.7514,max(-0.4514,x)));
         
-        Level =  vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Level =  vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        Attack = vslider("Attack[name:Attack]", 0.5, 0, 0.95, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Attack = vslider("Attack[name:Attack]", 0.5, 0, 0.95, 0.01) : Inverted(0) : smooth(s);
     
     b0 = Attack*(Attack*(2.34677954600673e-19*Level*pow(fs,4) + 2.34677954600673e-22*pow(fs,4)) - 2.35728909376724e-17*Level*pow(fs,4) - 2.35728909376724e-20*pow(fs,4)) - 2.50775435507154e-15*Level*pow(fs,3) - 2.50775435507154e-18*pow(fs,3);
 

@@ -40,8 +40,9 @@ struct table1dc_imp {
 #include "clipt1.cc"
 #include "clipt2.cc"
 #include "clipt3.cc"
+#include "clipt4.cc"
 
-table1dc *cliptable[8] = {
+table1dc *cliptable[10] = {
     &static_cast<table1dc&>(clippingtable[0]),
     &static_cast<table1dc&>(clippingtable[1]),
     &static_cast<table1dc&>(clippingtable2[0]),
@@ -50,6 +51,8 @@ table1dc *cliptable[8] = {
     &static_cast<table1dc&>(clippingtable3[1]),
     &static_cast<table1dc&>(clippingtable1[0]),
     &static_cast<table1dc&>(clippingtable1[1]),
+    &static_cast<table1dc&>(clippingtable4[0]),
+    &static_cast<table1dc&>(clippingtable4[1]),
 };
 
 static inline double asymclip(double x) {
@@ -106,6 +109,24 @@ static inline double asymclip3(double x) {
     return copysign(f, -x);
 }
 
+static inline double asymclip4(double x) {
+	int table = 6;
+    if (x<0) table = 1;
+    const table1dc& clip = *cliptable[table];
+    double f = fabs(x);
+    f = (f/(3.0 + f) - clip.low) * clip.istep;
+    int i = static_cast<int>(f);
+    if (i < 0) {
+        f = clip.data[0];
+    } else if (i >= clip.size-1) {
+        f = clip.data[clip.size-1];
+    } else {
+	f -= i;
+	f = clip.data[i]*(1-f) + clip.data[i+1]*f;
+    }
+    return copysign(f, -x);
+}
+
 static inline double opamp(double x) {
 	int table = 4;
     const table1dc& clip = *cliptable[table];
@@ -123,8 +144,26 @@ static inline double opamp(double x) {
     return copysign(f, -x);
 }
 
+static inline double opamp1(double x) {
+	int table = 9;
+    if (x<0) table = 8;
+    const table1dc& clip = *cliptable[table];
+    double f = fabs(x);
+    f = (f/(3.0 + f) - clip.low) * clip.istep;
+    int i = static_cast<int>(f);
+    if (i < 0) {
+        f = clip.data[0];
+    } else if (i >= clip.size-1) {
+        f = clip.data[clip.size-1];
+    } else {
+	f -= i;
+	f = clip.data[i]*(1-f) + clip.data[i+1]*f;
+    }
+    return copysign(f, -x);
+}
+
 static inline double opamp2(double x) {
-	int table = 5;
+	int table = 8;
     const table1dc& clip = *cliptable[table];
     double f = fabs(x);
     f = (f/(3.0 + f) - clip.low) * clip.istep;

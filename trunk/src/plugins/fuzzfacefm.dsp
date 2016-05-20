@@ -5,7 +5,7 @@ declare name "Fuzz Face Fuller";
 declare category "Fuzz";
 declare shortname "FF Fuller";
 declare description "Micke Fuller Fuzz Face simulation";
-declare insert_p "tranyclipper3";
+declare insert_p "clipper";
 declare volume_p "Level";
 
 import("filter.lib");
@@ -18,15 +18,14 @@ process =  iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0))   with {
     fs = float(SR);
     pre = _;
     //clip = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) : tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
-
     
-        Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+        Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
     
-        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
     
-        Input = vslider("Input[name:Input]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Input = vslider("Input[name:Input]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
-        //Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+        //Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
     
     b0 = Drive*(Fuzz*(Fuzz*(-1.12927979815576e-15*pow(fs,3) + 1.4115997476947e-15*pow(fs,3)) - 1.11420586447254e-13*pow(fs,3) + 1.39275733059067e-13*pow(fs,3)) + pow(fs,2)*(1.12549866245409e-13*fs + 2.58361695553557e-12) + pow(fs,2)*(-1.40687332806762e-13*fs - 3.22952119441946e-12)) + Fuzz*(Fuzz*(1.66004130328897e-15*pow(fs,3) - 2.07505162911121e-15*pow(fs,3)) + 1.63788262077463e-13*pow(fs,3) - 2.04735327596828e-13*pow(fs,3)) + pow(fs,2)*(-1.65448303380752e-13*fs - 3.79791692463729e-12) + pow(fs,2)*(2.0681037922594e-13*fs + 4.74739615579661e-12);
 

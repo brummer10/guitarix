@@ -1,5 +1,5 @@
 // generated from file '../src/faust/colbwah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 
 namespace colbwah {
@@ -225,7 +225,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec0[0] = fRec1[0];
 		double fTemp0 = (double)input0[i];
 		double fTemp1 = fabs(fTemp0);
-		fRec4[0] = ((fConst5 * max(fTemp1, fRec4[1])) + (fConst6 * fTemp1));
+		fRec4[0] = max(fTemp1, ((fConst5 * fRec4[1]) + (fConst6 * fTemp1)));
 		fRec3[0] = ((fConst7 * fRec3[1]) + (fConst8 * fRec4[0]));
 		fRec5[0] = ((0.993 * fRec5[1]) + fSlow1);
 		double fTemp2 = ((iSlow2==0)? fRec5[0] : ((iSlow2==1)?max(0.02, min((double)1, fRec3[0])):(1 - max(0.02, min(0.98, (0.5 * (1 + fRec0[0])))))) );

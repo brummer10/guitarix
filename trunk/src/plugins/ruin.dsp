@@ -23,9 +23,9 @@ process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/
     //clip2 = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
 
     
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : *(0.3) : Inverted(0) : LogPot(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : *(0.3) : Inverted(0) : smooth(s);
     
-        Intensity = vslider("Intensity[name:Intensity]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(0) : smooth(s);
+        Intensity = vslider("Intensity[name:Intensity]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
     
     b0 = 4.66576522119352e-14*Level*pow(fs,3) + 4.66576522119352e-16*pow(fs,3);
 

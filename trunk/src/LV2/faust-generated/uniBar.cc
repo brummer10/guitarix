@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/uniBar.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 
 namespace uniBar {
@@ -69,7 +69,7 @@ public:
 Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;
-	id = "Basic Parameters";
+	id = "uniBar";
 	name = N_("Nonlinear Banded Waveguide Models");
 	mono_audio = compute_static;
 	stereo_audio = 0;

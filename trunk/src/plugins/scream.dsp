@@ -20,7 +20,7 @@ process = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) : clip with {
     clip = asymclip(_);
 
     
-        Scream = vslider("Scream[name:Scream]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+        Scream = vslider("Scream[name:Scream]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
     
     b0 = -6.82076449438528e-9*Scream*pow(fs,2) - 6.82076449438528e-10*pow(fs,2);
 
