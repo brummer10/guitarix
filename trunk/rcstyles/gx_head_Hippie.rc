@@ -1,0 +1,30 @@
+include "gx_head_Guitarix.rc"
+
+style "guitarix_default" {
+    stock["background1"]    = {{"hippie.png"}}
+    stock["background2"]    = {{"hippie2.png"}}
+    
+    stock["smallknob"]      = {{"knob_small_hippie.png"}}
+    stock["smallknobr"]     = {{"knob_small_r_hippie.png"}}
+    stock["midknob"]        = {{"knob_mid_hippie.png"}}
+    stock["bigknob"]        = {{"knob_big_hippie.png"}}
+}
+class "GtkWidget" style:highest "guitarix_default"
+
+style "guitarix_frame" {
+    bg[NORMAL]              = "#000000"
+    engine "clearlooks" {
+        contrast            = 1.2
+        radius              = 4.0
+        disable_focus       = TRUE
+    }
+}
+class "*GtkFrame" style:highest "guitarix_frame"
+class "*GtkVSeparator" style:highest "guitarix_frame"
+class "*GtkHSeparator" style:highest "guitarix_frame"
+
+style "guitarix-paintbox"
+{
+  stock['gxhead'] = {{"live_wallpaper_copper.png"}}
+}
+class "*GxPaintBox" style "guitarix-paintbox"

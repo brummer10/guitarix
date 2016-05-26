@@ -73,6 +73,15 @@ gxstyle_files = [
     'gx_head_Olive.rc',
     'olive.png',
     
+    ###HIPPIE THEME
+    'gx_head_Hippie.rc',
+    'hippie.png',
+    'hippie2.png',
+    'knob_small_hippie.png',
+    'knob_small_r_hippie.png',
+    'knob_mid_hippie.png',
+    'knob_big_hippie.png',
+    
     ###ALUMINIUM THEME
     'gx_head_Aluminium.rc',
     'aluminium1.png',
