@@ -1095,7 +1095,7 @@ bool ContrastConvolver::start(bool force) {
 
 void ContrastConvolver::check_update() {
     if (sum_changed()) {
-	do_update();
+	//do_update();
     }
 }
 
@@ -1106,11 +1106,23 @@ int ContrastConvolver::register_con(const ParamReg& reg) {
     return 0;
 }
 
+inline void ContrastConvolver::dry_wet(int count, float *input0, float *input1, float *output0)
+{
+	double 	fSlow0 = (0.2 * level);
+	double 	fSlow1 = (1 - fSlow0);
+	for (int i=0; i<count; i++) {
+		output0[i] = ((fSlow0 * (double)input1[i]) + (fSlow1 * (double)input0[i]));
+	}
+}
+
 void ContrastConvolver::run_contrast(int count, float *input0, float *output0, PluginDef *p) {
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(p);
-    if (!self.conv.compute(count, output0)) {
+	float wet_out[count];
+	float *con_wet = wet_out;
+    if (!self.conv.compute(count,input0, con_wet)) {
 	self.engine.overload(EngineControl::ov_Convolver, "contrast");
     }
+    self.dry_wet(count, input0, con_wet, output0);
 }
 
 /****************************************************************

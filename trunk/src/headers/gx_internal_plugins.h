@@ -504,6 +504,7 @@ private:
     float sum;
     presence_level::Dsp presl;
     static void run_contrast(int count, float *input, float *output, PluginDef*);
+    inline void dry_wet(int count, float *input0, float *input1, float *output0);
     static int register_con(const ParamReg& reg);
     inline void update_sum() { sum = level; }
     virtual void check_update();

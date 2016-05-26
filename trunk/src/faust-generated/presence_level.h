@@ -8,8 +8,6 @@ namespace presence_level {
 class Dsp {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
 
 public:
 	void init(unsigned int samplingFreq);
