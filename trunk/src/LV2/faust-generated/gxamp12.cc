@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxamp12.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -294,10 +294,10 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst40 = (1 + ((1.0000000000000004 + fConst38) / fConst35));
 	fConst41 = (1.0 / fConst40);
 	fConst42 = tan((47123.8898038469 / double(iConst0)));
-	fConst43 = (2 * (1 - (1.0 / faustpower<2>(fConst42))));
-	fConst44 = (1.0 / fConst42);
-	fConst45 = (1 + ((fConst44 - 1.414213562373095) / fConst42));
-	fConst46 = (1 + ((1.414213562373095 + fConst44) / fConst42));
+	fConst43 = (1.0 / fConst42);
+	fConst44 = (1 + ((fConst43 - 1.414213562373095) / fConst42));
+	fConst45 = (2 * (1 - (1.0 / faustpower<2>(fConst42))));
+	fConst46 = (1 + ((1.414213562373095 + fConst43) / fConst42));
 	fConst47 = (1.0 / fConst46);
 	fConst48 = (1.0 / (fConst7 * fConst46));
 	fConst49 = (1 + fConst38);
@@ -381,7 +381,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp6 = (1e-15 + (fRec7[0] * fRec6[0]));
 		double fTemp7 = (fRec7[0] * (1 - fRec6[0]));
 		double fTemp8 = (1e-15 + fTemp7);
-		fRec32[0] = (fTemp6 - (fConst47 * ((fConst45 * fRec32[2]) + (fConst43 * fRec32[1]))));
+		fRec32[0] = (fTemp6 - (fConst47 * ((fConst45 * fRec32[1]) + (fConst44 * fRec32[2]))));
 		double fTemp9 = (fRec32[2] + (fRec32[0] + (2 * fRec32[1])));
 		fVec6[0] = fTemp9;
 		fRec31[0] = ((fConst9 * fRec31[1]) + (fConst48 * ((fConst5 * fVec6[0]) + (fConst6 * fVec6[1]))));

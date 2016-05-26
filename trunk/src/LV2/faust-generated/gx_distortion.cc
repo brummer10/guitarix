@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_distortion.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace gx_distortion {
@@ -323,7 +323,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec22[0] = (fRec23[0] - (fSlow23 * ((fSlow21 * fRec22[2]) + (fSlow19 * fRec22[1]))));
 		fRec21[0] = ((fSlow23 * (((fSlow18 * fRec22[0]) + (fSlow57 * fRec22[1])) + (fSlow18 * fRec22[2]))) - (fSlow55 * ((fSlow54 * fRec21[2]) + fTemp13)));
 		fRec20[0] = ((fRec21[2] + (fSlow55 * (fTemp13 + (fSlow54 * fRec21[0])))) - (fSlow48 * ((fSlow47 * fRec20[2]) + fTemp12)));
-		double fTemp14 = max((double)-1, min((double)1, (fSlow40 + (fSlow58 * (fRec20[2] + (fSlow48 * ((fSlow47 * fRec20[0]) + fTemp12)))))));
+		double fTemp14 = max((double)-1, min((double)1, (fSlow40 + (fSlow58 * (fRec20[2] + (fSlow48 * (fTemp12 + (fSlow47 * fRec20[0]))))))));
 		fRec24[0] = ((0.999 * fRec24[1]) + fSlow59);
 		double fTemp15 = (((((fRec24[0] * fTemp14) * (1 - (0.3333333333333333 * faustpower<2>(fTemp14)))) + ((fRec19[0] * fTemp11) * (1 - (0.3333333333333333 * faustpower<2>(fTemp11))))) + ((fRec15[0] * fTemp9) * (1 - (0.3333333333333333 * faustpower<2>(fTemp9))))) + ((fRec12[0] * fTemp8) * (1 - (0.3333333333333333 * faustpower<2>(fTemp8)))));
 		fVec5[0] = fTemp15;

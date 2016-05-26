@@ -1,5 +1,5 @@
 // generated from file '../src/faust/vibe_mono_lfo_sine.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 namespace vibe_mono_lfo_sine {
 static int 	iVec0[2];

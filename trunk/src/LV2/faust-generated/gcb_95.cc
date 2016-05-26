@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gcb_95.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace gcb_95 {

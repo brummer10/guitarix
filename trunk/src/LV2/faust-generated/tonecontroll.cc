@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/tonecontroll.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace tonecontroll {
@@ -232,7 +232,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp10 = (fConst3 * fRec19[1]);
 		fRec21[0] = ((fConst16 * fRec21[1]) + (fConst15 * ((fConst10 * fVec2[0]) + (fConst24 * fVec2[1]))));
 		fRec20[0] = (fRec21[0] - (fConst13 * ((fConst11 * fRec20[2]) + (fConst9 * fRec20[1]))));
-		fRec19[0] = ((fConst13 * (((fConst25 * fRec20[1]) + (fConst8 * fRec20[0])) + (fConst8 * fRec20[2]))) - (fConst23 * ((fConst22 * fRec19[2]) + fTemp10)));
+		fRec19[0] = ((fConst13 * (((fConst8 * fRec20[0]) + (fConst25 * fRec20[1])) + (fConst8 * fRec20[2]))) - (fConst23 * ((fConst22 * fRec19[2]) + fTemp10)));
 		double fTemp11 = ((fRec11[0] * (fRec19[2] + (fConst23 * (fTemp10 + (fConst22 * fRec19[0]))))) + (fConst6 * ((fRec7[0] * (((fConst2 * fRec17[0]) + (fConst21 * fRec17[1])) + (fConst2 * fRec17[2]))) + (fRec4[0] * (fRec13[2] + (fRec13[0] + (2 * fRec13[1])))))));
 		double fTemp12 = max((double)1, fabs(fTemp11));
 		double fTemp13 = ((fConst27 * (fRec22[1] < fTemp12)) + (fConst26 * (fRec22[1] >= fTemp12)));

@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/aclipper.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -172,7 +172,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp6 = (fConst18 * (5700 + (500000 * fRec2[0])));
 		fRec6[0] = ((fConst22 * fRec6[1]) + (fConst21 * ((fVec0[0] * (1 + fTemp6)) + (fVec0[1] * (1 - fTemp6)))));
 		fRec4[0] = (0 - ((opamp((fRec6[0] - fTemp5)) + (fConst17 * fRec4[1])) - fTemp5));
-		fRec3[0] = ((fConst24 * ((fConst15 * fRec4[0]) + (fConst23 * fRec4[1]))) - (fConst7 * ((fConst5 * fRec3[1]) + (fConst3 * fRec3[2]))));
+		fRec3[0] = ((fConst24 * ((fConst23 * fRec4[1]) + (fConst15 * fRec4[0]))) - (fConst7 * ((fConst5 * fRec3[1]) + (fConst3 * fRec3[2]))));
 		fRec1[0] = (asymclip3((fConst25 * (((fRec3[0] * fTemp3) + (1.85360131346578e-09 * (fRec3[1] * fTemp2))) + (fRec3[2] * fTemp3)))) - ((fRec1[1] * (0.0593824228028504 + (fConst1 * (fTemp0 - 3.91923990498812e-05)))) / fTemp1));
 		fRec7[0] = ((0.993 * fRec7[1]) + fSlow2);
 		buf[i] = (FAUSTFLOAT)(0.0593824228028504 * ((fRec7[0] * (fRec1[0] + fRec1[1])) / fTemp1));

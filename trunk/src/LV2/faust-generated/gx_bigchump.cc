@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_bigchump.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -289,7 +289,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec1[0] = ((fConst35 * fRec1[1]) + (fConst34 * ((fConst31 * fRec2[0]) + (fConst32 * fRec2[1]))));
 		double fTemp8 = (1e-15 + (fTemp5 * (fTemp5 <= 0.0)));
 		fVec7[0] = fTemp8;
-		fRec28[0] = ((0.9302847925323914 * (fVec7[1] + fVec7[0])) - (0.8605695850647829 * fRec28[1]));
+		fRec28[0] = ((0.9302847925323914 * (fVec7[0] + fVec7[1])) - (0.8605695850647829 * fRec28[1]));
 		fRec27[0] = (fRec28[0] - ((1.8405051250752198 * fRec27[1]) + (0.8612942439318627 * fRec27[2])));
 		double fTemp9 = (1e-15 + (0.00818 * fRec26[1]));
 		fVec8[0] = fTemp9;

@@ -1,5 +1,5 @@
 // generated from file '../src/faust/dallaswah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 
 namespace dallaswah {
@@ -227,7 +227,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec0[0] = fRec1[0];
 		double fTemp0 = (double)input0[i];
 		double fTemp1 = fabs(fTemp0);
-		fRec5[0] = max(fTemp1, ((fConst5 * fRec5[1]) + (fConst6 * fTemp1)));
+		fRec5[0] = ((fConst5 * max(fTemp1, fRec5[1])) + (fConst6 * fTemp1));
 		fRec4[0] = ((fConst7 * fRec4[1]) + (fConst8 * fRec5[0]));
 		fRec3[0] = ((0.993 * fRec3[1]) + (0.007000000000000006 * max(0.02, min((double)1, fRec4[0]))));
 		fRec6[0] = ((0.993 * fRec6[1]) + fSlow1);

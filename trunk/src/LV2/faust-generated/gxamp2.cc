@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxamp2.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -241,11 +241,11 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst7 = (1 + ((fConst6 - 1.0000000000000004) / fConst3));
 	fConst8 = (1.0 / (1 + ((1.0000000000000004 + fConst6) / fConst3)));
 	fConst9 = tan((3769.9111843077517 / double(iConst0)));
-	fConst10 = (1.0 / faustpower<2>(fConst9));
-	fConst11 = (2 * (1 - fConst10));
-	fConst12 = (1.0 / fConst9);
-	fConst13 = (1 + ((fConst12 - 1.0000000000000004) / fConst9));
-	fConst14 = (1 + ((1.0000000000000004 + fConst12) / fConst9));
+	fConst10 = (1.0 / fConst9);
+	fConst11 = (1 + ((fConst10 - 1.0000000000000004) / fConst9));
+	fConst12 = (1.0 / faustpower<2>(fConst9));
+	fConst13 = (2 * (1 - fConst12));
+	fConst14 = (1 + ((1.0000000000000004 + fConst10) / fConst9));
 	fConst15 = (1.0 / fConst14);
 	fConst16 = tan((10053.096491487338 / double(iConst0)));
 	fConst17 = (1.0 / faustpower<2>(fConst16));
@@ -268,18 +268,18 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst34 = (1 + fConst19);
 	fConst35 = (1.0 / fConst34);
 	fConst36 = (0 - ((1 - fConst19) / fConst34));
-	fConst37 = (1 + fConst12);
+	fConst37 = (1 + fConst10);
 	fConst38 = (1.0 / (fConst37 * fConst21));
-	fConst39 = (0 - ((1 - fConst12) / fConst37));
+	fConst39 = (0 - ((1 - fConst10) / fConst37));
 	fConst40 = (1 + fConst6);
 	fConst41 = (1.0 / (fConst40 * fConst14));
 	fConst42 = (0 - ((1 - fConst6) / fConst40));
 	fConst43 = (1 + ((fConst6 - 1.0) / fConst3));
 	fConst44 = (1.0 / (1 + ((1.0 + fConst6) / fConst3)));
-	fConst45 = (0 - fConst12);
-	fConst46 = (2 * (0 - fConst10));
-	fConst47 = (1 + ((fConst12 - 1.0) / fConst9));
-	fConst48 = (1.0 / (1 + ((1.0 + fConst12) / fConst9)));
+	fConst45 = (0 - fConst10);
+	fConst46 = (2 * (0 - fConst12));
+	fConst47 = (1 + ((fConst10 - 1.0) / fConst9));
+	fConst48 = (1.0 / (1 + ((1.0 + fConst10) / fConst9)));
 	fConst49 = (0 - fConst19);
 	fConst50 = (2 * (0 - fConst17));
 	fConst51 = (0 - fConst6);
@@ -344,19 +344,19 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp5 = (fRec22[2] + (fRec22[0] + (2 * fRec22[1])));
 		fVec1[0] = fTemp5;
 		fRec21[0] = ((fConst39 * fRec21[1]) + (fConst38 * (fVec1[0] + fVec1[1])));
-		fRec20[0] = (fRec21[0] - (fConst15 * ((fConst13 * fRec20[2]) + (fConst11 * fRec20[1]))));
+		fRec20[0] = (fRec21[0] - (fConst15 * ((fConst13 * fRec20[1]) + (fConst11 * fRec20[2]))));
 		double fTemp6 = (fRec20[2] + (fRec20[0] + (2 * fRec20[1])));
 		fVec2[0] = fTemp6;
 		fRec19[0] = ((fConst42 * fRec19[1]) + (fConst41 * (fVec2[0] + fVec2[1])));
 		fRec18[0] = (fRec19[0] - (fConst8 * ((fConst7 * fRec18[2]) + (fConst5 * fRec18[1]))));
 		double fTemp7 = max((double)-1, min((double)1, (fSlow6 * (fRec18[2] + (fRec18[0] + (2 * fRec18[1]))))));
 		double fTemp8 = (fConst5 * fRec26[1]);
-		fRec28[0] = ((fConst39 * fRec28[1]) + (fConst38 * ((fConst12 * fVec1[0]) + (fConst45 * fVec1[1]))));
-		fRec27[0] = (fRec28[0] - (fConst15 * ((fConst13 * fRec27[2]) + (fConst11 * fRec27[1]))));
-		fRec26[0] = ((fConst15 * (((fConst10 * fRec27[0]) + (fConst46 * fRec27[1])) + (fConst10 * fRec27[2]))) - (fConst44 * ((fConst43 * fRec26[2]) + fTemp8)));
+		fRec28[0] = ((fConst39 * fRec28[1]) + (fConst38 * ((fConst10 * fVec1[0]) + (fConst45 * fVec1[1]))));
+		fRec27[0] = (fRec28[0] - (fConst15 * ((fConst11 * fRec27[2]) + (fConst13 * fRec27[1]))));
+		fRec26[0] = ((fConst15 * (((fConst12 * fRec27[0]) + (fConst46 * fRec27[1])) + (fConst12 * fRec27[2]))) - (fConst44 * ((fConst43 * fRec26[2]) + fTemp8)));
 		double fTemp9 = max((double)-1, min((double)1, (fSlow7 * (fRec26[2] + (fConst44 * (fTemp8 + (fConst43 * fRec26[0])))))));
 		double fTemp10 = (fConst5 * fRec29[1]);
-		double fTemp11 = (fConst11 * fRec30[1]);
+		double fTemp11 = (fConst13 * fRec30[1]);
 		fRec32[0] = ((fConst36 * fRec32[1]) + (fConst35 * ((fConst19 * fRec24[0]) + (fConst49 * fRec24[1]))));
 		fRec31[0] = (fRec32[0] - (fConst22 * ((fConst20 * fRec31[2]) + (fConst18 * fRec31[1]))));
 		fRec30[0] = ((fConst22 * (((fConst17 * fRec31[0]) + (fConst50 * fRec31[1])) + (fConst17 * fRec31[2]))) - (fConst48 * ((fConst47 * fRec30[2]) + fTemp11)));

@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxamp11.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -394,7 +394,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec26[0] = (fTemp13 - (fConst26 * ((fConst24 * fRec26[2]) + (fConst22 * fRec26[1]))));
 		double fTemp14 = (fRec26[2] + (fRec26[0] + (2 * fRec26[1])));
 		fVec1[0] = fTemp14;
-		fRec25[0] = ((fConst33 * fRec25[1]) + (fConst32 * ((fConst30 * fVec1[1]) + (fConst29 * fVec1[0]))));
+		fRec25[0] = ((fConst33 * fRec25[1]) + (fConst32 * ((fConst29 * fVec1[0]) + (fConst30 * fVec1[1]))));
 		fRec24[0] = ((fConst36 * fRec24[1]) + (fConst35 * (fRec25[0] + fRec25[1])));
 		fRec23[0] = (fRec24[0] - (fConst20 * ((fConst18 * fRec23[2]) + (fConst16 * fRec23[1]))));
 		double fTemp15 = (fRec23[2] + (fRec23[0] + (2 * fRec23[1])));

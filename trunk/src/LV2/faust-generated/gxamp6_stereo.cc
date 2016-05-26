@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxamp6_stereo.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.65 (http://faust.grame.fr)
 
 #include "valve.h"
 
@@ -837,7 +837,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp79 = (fConst36 * fRec130[1]);
 		fRec132[0] = ((fConst66 * fRec132[1]) + (fConst65 * ((fConst43 * fVec33[0]) + (fConst72 * fVec33[1]))));
 		fRec131[0] = (fRec132[0] - (fConst46 * ((fConst44 * fRec131[2]) + (fConst42 * fRec131[1]))));
-		fRec130[0] = ((fConst46 * (((fConst41 * fRec131[0]) + (fConst73 * fRec131[1])) + (fConst41 * fRec131[2]))) - (fConst71 * ((fConst70 * fRec130[2]) + fTemp79)));
+		fRec130[0] = ((fConst46 * ((fConst41 * fRec131[2]) + ((fConst41 * fRec131[0]) + (fConst73 * fRec131[1])))) - (fConst71 * ((fConst70 * fRec130[2]) + fTemp79)));
 		double fTemp80 = max((double)-1, min((double)1, (fSlow8 * (fRec130[2] + (fConst71 * (fTemp79 + (fConst70 * fRec130[0])))))));
 		double fTemp81 = (fConst36 * fRec133[1]);
 		double fTemp82 = (fConst42 * fRec134[1]);
