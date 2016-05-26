@@ -22,8 +22,6 @@ private:
 	double 	fConst5;
 	double 	fConst6;
 	double 	fRec0[3];
-	FAUSTFLOAT 	fslider2;
-	FAUSTFLOAT	*fslider2_;
 
 public:
 	void clear_state_f();

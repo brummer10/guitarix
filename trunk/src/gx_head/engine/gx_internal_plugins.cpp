@@ -844,11 +844,23 @@ void CabinetConvolver::check_update() {
     } 
 }
 
+inline void CabinetConvolver::dry_wet(int count, float *input0, float *input1, float *output0)
+{
+	double 	fSlow0 = (0.2 * level);
+	double 	fSlow1 = (1 - fSlow0);
+	for (int i=0; i<count; i++) {
+		output0[i] = ((fSlow0 * (double)input1[i]) + (fSlow1 * (double)input0[i]));
+	}
+}
+
 void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, PluginDef *p) {
     CabinetConvolver& self = *static_cast<CabinetConvolver*>(p);
-    if (!self.conv.compute(count, output0)) {
+	float wet_out[count];
+	float *con_wet = wet_out;
+    if (!self.conv.compute(count,input0, con_wet)) {
 	self.engine.overload(EngineControl::ov_Convolver, "cab");
     }
+    self.dry_wet(count, input0, con_wet, output0);
 }
 
 int CabinetConvolver::register_cab(const ParamReg& reg) {
@@ -1015,11 +1027,23 @@ void PreampConvolver::check_update() {
     }
 }
 
+inline void PreampConvolver::dry_wet(int count, float *input0, float *input1, float *output0)
+{
+	double 	fSlow0 = (0.4762 * level);
+	double 	fSlow1 = (1 - fSlow0);
+	for (int i=0; i<count; i++) {
+		output0[i] = ((fSlow0 * (double)input1[i]) + (fSlow1 * (double)input0[i]));
+	}
+}
+
 void PreampConvolver::run_pre_conf(int count, float *input0, float *output0, PluginDef *p) {
     PreampConvolver& self = *static_cast<PreampConvolver*>(p);
-    if (!self.conv.compute(count, output0)) {
+	float wet_out[count];
+	float *con_wet = wet_out;
+    if (!self.conv.compute(count, input0, con_wet)) {
 	self.engine.overload(EngineControl::ov_Convolver, "pre");
     }
+    self.dry_wet(count, input0, con_wet, output0);
 }
 
 int PreampConvolver::register_pre(const ParamReg& reg) {
