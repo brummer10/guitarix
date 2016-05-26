@@ -75,7 +75,8 @@ gxstyle_files = [
     
     ###ALUMINIUM THEME
     'gx_head_Aluminium.rc',
-    'aluminium.png',
+    'aluminium1.png',
+    'aluminium2.png',
     
     ###OAK THEME
     'gx_head_Oak.rc',
