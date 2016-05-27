@@ -305,7 +305,6 @@ class Parser(object):
                     # ignore all other attributes for now
                     nextbox = {}
                 if not stack:
-                    print self.toplevel
                     if self.toplevel and grp == self.modname:
                         grp = self.toplevel
                     if not self.topname:
