@@ -18,6 +18,11 @@ gxstyle_files = [
     'live_wallpaper_sky.png',
     'live_wallpaper_white_oak.png',
     'live_wallpaper_burl.png',
+    'live_wallpaper_psycedelic.png',
+    'live_wallpaper_hippie.png',
+    'live_wallpaper_grungy_sun.png',
+    'live_wallpaper_grungy_sun_dark.png',
+    'live_wallpaper_grandma.png',
     
     'clear.rc',
     'tactile_knob_large_151f.png',
@@ -81,6 +86,24 @@ gxstyle_files = [
     'knob_small_r_hippie.png',
     'knob_mid_hippie.png',
     'knob_big_hippie.png',
+    
+    ###PSYCEDELIC THEME
+    'gx_head_Psycedelic.rc',
+    'psycedelic.png',
+    
+    ###GRANDMA THEME
+    'gx_head_Grandma.rc',
+    'grandma.png',
+    
+    ###GRUNGY SUN THEME
+    'gx_head_Grungy_Sun_Dark.rc',
+    'grungy_sun_dark.png',
+    'grungy_sun_dark2.png',
+    
+    ###GRUNGY SUN THEME
+    'gx_head_Grungy_Sun.rc',
+    'grungy_sun.png',
+    'grungy_sun2.png',
     
     ###ALUMINIUM THEME
     'gx_head_Aluminium.rc',

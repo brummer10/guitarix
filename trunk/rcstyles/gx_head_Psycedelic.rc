@@ -1,13 +1,7 @@
 include "gx_head_Guitarix.rc"
 
 style "guitarix_default" {
-    stock["background1"]    = {{"hippie.png"}}
-    stock["background2"]    = {{"hippie2.png"}}
-    
-    stock["smallknob"]      = {{"knob_small_hippie.png"}}
-    stock["smallknobr"]     = {{"knob_small_r_hippie.png"}}
-    stock["midknob"]        = {{"knob_mid_hippie.png"}}
-    stock["bigknob"]        = {{"knob_big_hippie.png"}}
+    stock["background1"]    = {{"psycedelic.png"}}
 }
 class "GtkWidget" style:highest "guitarix_default"
 
@@ -25,6 +19,6 @@ class "*GtkHSeparator" style:highest "guitarix_frame"
 
 style "guitarix-paintbox"
 {
-  stock['gxhead'] = {{"live_wallpaper_hippie.png"}}
+  stock['gxhead'] = {{"live_wallpaper_psycedelic.png"}}
 }
 class "*GxPaintBox" style "guitarix-paintbox"

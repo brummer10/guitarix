@@ -1,0 +1,13 @@
+include "gx_head_Guitarix.rc"
+
+style "guitarix_default" {
+    stock["background1"]    = {{"grungy_sun.png"}}
+    stock["background2"]    = {{"grungy_sun2.png"}}
+}
+class "GtkWidget" style:highest "guitarix_default"
+
+style "guitarix-paintbox"
+{
+  stock['gxhead'] = {{"live_wallpaper_grungy_sun.png"}}
+}
+class "*GxPaintBox" style "guitarix-paintbox"

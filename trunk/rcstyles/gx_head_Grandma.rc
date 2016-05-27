@@ -1,0 +1,42 @@
+include "gx_head_Guitarix.rc"
+
+style "guitarix_effect_title" {
+    font_name = "Roboto Condensed Regular 10"
+    fg[NORMAL] = "#ffffff"
+}
+widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
+
+style "guitarix_font" {
+    font_name = "Roboto Condensed Regular 8"
+    fg[NORMAL] =  "#ffffff"
+}
+widget "*.rack_label" style:highest "guitarix_font"
+widget "*Value" style:highest "guitarix_font"
+widget "*ampbox*label" style:highest "guitarix_font"
+widget "*beffekt_label" style:highest "guitarix_font"
+widget "*rack_effect_label" style:highest "guitarix_font"
+
+
+style "guitarix_default" {
+    stock["background1"]    = {{"grandma.png"}}
+}
+class "GtkWidget" style:highest "guitarix_default"
+
+style "guitarix_frame" {
+    bg[NORMAL]              = "#807E4E"
+    engine "clearlooks" {
+        contrast            = 1.9
+        radius              = 4.0
+        disable_focus       = TRUE
+    }
+}
+class "*GtkFrame" style:highest "guitarix_frame"
+class "*GtkVSeparator" style:highest "guitarix_frame"
+class "*GtkHSeparator" style:highest "guitarix_frame"
+
+
+style "guitarix-paintbox"
+{
+  stock['gxhead'] = {{"live_wallpaper_grandma.png"}}
+}
+class "*GxPaintBox" style "guitarix-paintbox"
