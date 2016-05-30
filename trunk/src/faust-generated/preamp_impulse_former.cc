@@ -1,5 +1,5 @@
 // generated from file '../src/faust/preamp_impulse_former.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 
 namespace preamp_impulse_former {
@@ -35,6 +35,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
+#define fslider2 (*fslider2_)
 	double 	fSlow0 = pow(10,(0.025 * double(fslider0)));
 	double 	fSlow1 = (fConst2 * sqrt(fSlow0));
 	double 	fSlow2 = (fConst3 * (fSlow0 - 1));
@@ -59,12 +60,14 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow21 = (2 * (0 - ((1 + fSlow18) - fSlow12)));
 	double 	fSlow22 = (fSlow17 - (fSlow14 + fSlow13));
 	double 	fSlow23 = (1.0 / ((1 + (fSlow12 + fSlow13)) - fSlow14));
+	double 	fSlow24 = double(fslider2);
+	double 	fSlow25 = (fSlow24 * pow(10,(0 - (0.1 * fSlow24))));
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
 		fRec1[0] = (fSlow11 * ((fSlow0 * (((fSlow10 * fVec0[0]) + (fSlow9 * fVec0[1])) + (fSlow8 * fVec0[2]))) - ((fSlow7 * fRec1[1]) + (fSlow4 * fRec1[2]))));
 		fRec0[0] = (fSlow23 * ((0 - ((fSlow22 * fRec0[2]) + (fSlow21 * fRec0[1]))) + (((fSlow20 * fRec1[0]) + (fSlow19 * fRec1[1])) + (fSlow16 * fRec1[2]))));
-		output0[i] = (FAUSTFLOAT)(1.2948495039091124 * fRec0[0]);
+		output0[i] = (FAUSTFLOAT)(fSlow25 * fRec0[0]);
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
@@ -72,10 +75,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	}
 #undef fslider0
 #undef fslider1
+#undef fslider2
 }
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	fslider2_ = reg.registerVar("pre.Level","","SA","",&fslider2, 1.0, 0.1, 2.1, 0.1);
 	fslider0_ = reg.registerVar("pre.bass",N_("bass"),"SA","",&fslider0, 0.0, -1e+01, 1e+01, 0.5);
 	fslider1_ = reg.registerVar("pre.treble",N_("treble"),"SA","",&fslider1, 0.0, -1e+01, 1e+01, 0.5);
 	return 0;

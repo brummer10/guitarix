@@ -1,5 +1,5 @@
 // generated from file '../src/faust/cabinet_impulse_former.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 #define FAUSTFLOAT float
 
@@ -22,6 +22,8 @@ private:
 	double 	fConst5;
 	double 	fConst6;
 	double 	fRec0[3];
+	FAUSTFLOAT 	fslider2;
+	FAUSTFLOAT	*fslider2_;
 
 public:
 	void clear_state_f();

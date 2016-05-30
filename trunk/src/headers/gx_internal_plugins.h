@@ -448,15 +448,14 @@ private:
     value_pair *cab_names;
     cabinet_impulse_former::Dsp impf;
     static void run_cab_conf(int count, float *input, float *output, PluginDef*);
-    inline void dry_wet(int count, float *input0, float *input1, float *output0);
     static int register_cab(const ParamReg& reg);
     bool do_update();
     virtual void check_update();
     virtual bool start(bool force = false);
     bool cabinet_changed() { return current_cab != cabinet; }
     void update_cabinet() { current_cab = cabinet; }
-    bool sum_changed() { return abs(sum - (bass + treble)) > 0.01; }
-    void update_sum() { sum = bass + treble; }
+    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
+    void update_sum() { sum = level + bass + treble; }
 public:
     CabinetConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
     ~CabinetConvolver();
@@ -480,15 +479,14 @@ private:
     value_pair *pre_names;
     preamp_impulse_former::Dsp impf;
     static void run_pre_conf(int count, float *input, float *output, PluginDef*);
-    inline void dry_wet(int count, float *input0, float *input1, float *output0);
     static int register_pre(const ParamReg& reg);
     bool do_update();
     virtual void check_update();
     virtual bool start(bool force = false);
     bool preamp_changed() { return current_pre != preamp; }
     void update_preamp() { current_pre = preamp; }
-    bool sum_changed() { return abs(sum - (bass + treble)) > 0.01; }
-    void update_sum() { sum = bass + treble; }
+    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
+    void update_sum() { sum = level + bass + treble; }
 public:
     PreampConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
     ~PreampConvolver();
@@ -506,7 +504,6 @@ private:
     float sum;
     presence_level::Dsp presl;
     static void run_contrast(int count, float *input, float *output, PluginDef*);
-    inline void dry_wet(int count, float *input0, float *input1, float *output0);
     static int register_con(const ParamReg& reg);
     inline void update_sum() { sum = level; }
     virtual void check_update();
