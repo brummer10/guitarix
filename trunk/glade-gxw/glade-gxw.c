@@ -53,6 +53,7 @@ GType gx_paint_func_get_type(void)
             {18, "box_uni_2_expose", "box_uni_2_expose" },
             {19, "box_skin_expose", "box_skin_expose" },
             {20, "live_box_expose", "live_box_expose" },
+            {20, "logo_expose", "logo_expose" },
 			{ 0, NULL, NULL }
 		};
 		etype = g_enum_register_static (g_intern_static_string ("GxPaintFunc"), values);

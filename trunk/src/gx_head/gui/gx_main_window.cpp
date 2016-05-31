@@ -3021,20 +3021,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     if (!options.get_tuner_tet().empty()) set_tuner_tet(*racktuner);
     if (!options.get_tuner_ref().empty()) set_tuner_ref(*racktuner);
 
-    /*
-     * Logo image
-     */
-    GdkPixbuf * pb_ = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "logo", (GtkIconSize)-1, NULL);
-    if (pb_) {
-        logo = gtk_image_new_from_pixbuf(pb_);
-        g_object_unref(pb_);
-        Gtk::Table *al;
-        bld->find_widget("tableampright", al);
-        al->attach(*Glib::wrap(logo), 0, 1, 0, 1, Gtk::FILL|Gtk::EXPAND, Gtk::FILL, 0, 0);
-        gtk_misc_set_alignment(GTK_MISC(logo), 1.f, 0.f);
-        gtk_widget_show(logo);
-    }
-}
+ }
 
 MainWindow::~MainWindow() {
 #if false   // set true to generate a new keyboard accel file

@@ -70,6 +70,7 @@ static image_entry image_data[] = {
     { "portdisplay", pb_portdisplay },
 	{ "guitarix", pb_guitarix },
     { "screw", pb_screw },
+    { "logo", pb_logo },
 
     { "background1", pb_background1 },
     { "background2", pb_background2 },

@@ -49,6 +49,7 @@ G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
 #define get_widget_id2(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id2)
 #define get_widget_id3(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id3)
 #define get_amp_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->amp_id)
+#define get_logo_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->logo_id)
 
 
 static void gx_paint_box_class_init (GxPaintBoxClass *klass)
@@ -66,6 +67,7 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
     klass->widget_id2 = "gxplate2";
     klass->widget_id3 = "gxplate3";
     klass->amp_id = "gxhead";
+    klass->logo_id = "logo";
 	g_object_class_install_property(
 		gobject_class, PROP_PAINT_FUNC,
 		g_param_spec_string("paint-func",
@@ -235,6 +237,7 @@ static void gx_paint_box_init (GxPaintBox *paint_box)
 	set_paint_func(paint_box, NULL);
 	paint_box->gxh_image = NULL;
 	paint_box->gxr_image = NULL;
+	paint_box->logo_image = NULL;
 	paint_box->icon_set = 0;
     paint_box->force_reload = 0;
 }
@@ -254,6 +257,10 @@ static void gx_paint_box_destroy(GtkObject *object)
         g_object_unref(paint_box->gxr_image);
 	}
 	paint_box->gxr_image = NULL;
+	while (G_IS_OBJECT(paint_box->logo_image)) {
+        g_object_unref(paint_box->logo_image);
+	}
+	paint_box->logo_image = NULL;
 	GTK_OBJECT_CLASS(gx_paint_box_parent_class)->destroy(object);
 }
 
@@ -922,6 +929,45 @@ static void rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	rectangle_skin_color_expose(wi, ev);
 	rack_handle_expose(wi, ev);
+}
+
+static void logo_expose(GtkWidget *wi, GdkEventExpose *ev)
+{
+    GdkRegion *region;
+	region = gdk_region_rectangle (&wi->allocation);
+	gdk_region_intersect (region, ev->region);
+    GxPaintBox *paintbox = GX_PAINT_BOX(wi);
+    gint x0      = wi->allocation.x;
+	gint y0      = wi->allocation.y;
+	gint w      = wi->allocation.width;
+	gint h      = wi->allocation.height;
+	static double x1 ;
+	static double y1 ;
+	static double align_right; ;
+	
+    static int spf, opf, rel = 0;
+    gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+    gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
+    
+    static double ne_w = 0.;
+	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> logo_image))) {
+		ne_w = w*h;
+        opf = spf;
+        if (G_IS_OBJECT(paintbox-> logo_image)) {
+			g_object_unref(paintbox->logo_image);
+		}
+	    paintbox->logo_image = NULL;
+        paintbox->logo_image = gtk_widget_render_icon(
+            wi,get_logo_id(wi),(GtkIconSize)-1,NULL);
+	    y1 = gdk_pixbuf_get_height(paintbox->logo_image);
+	    x1 = gdk_pixbuf_get_width(paintbox->logo_image);
+	    align_right = x0+w-x1;
+    }
+    gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+	                paintbox-> logo_image, 0, 0,
+	                align_right, y0, x1, y1,
+	                GDK_RGB_DITHER_NORMAL, 0, 0);
+    gdk_region_destroy (region);  
 }
 
 static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
@@ -1761,6 +1807,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->expose_func = box_skin_expose;
     } else if (strcmp(paint_func, "live_box_expose") == 0) {
 		paint_box->expose_func = live_box_expose;
+    } else if (strcmp(paint_func, "logo_expose") == 0) {
+		paint_box->expose_func = logo_expose;
     } else {
 		paint_box->expose_func = 0;
 	}

@@ -42,6 +42,7 @@ struct _GxPaintBox {
 	void (*expose_func)(GtkWidget*, GdkEventExpose*);
 	GdkPixbuf *gxh_image;
 	GdkPixbuf *gxr_image;
+	GdkPixbuf *logo_image;
 	guint GSEAL(icon_set);
     guint GSEAL(force_reload);
 };
@@ -53,6 +54,7 @@ struct _GxPaintBoxClass {
 	const gchar *widget_id2;
     const gchar *widget_id3;
     const gchar *amp_id;
+    const gchar *logo_id;
 };
 
 GType gx_paint_box_get_type(void) G_GNUC_CONST;

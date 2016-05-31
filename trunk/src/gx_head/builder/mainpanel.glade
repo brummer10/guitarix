@@ -502,7 +502,14 @@
                       <placeholder />
                     </child>
                     <child>
-                      <placeholder />
+                      <object class="GxPaintBox" id="gxlogobox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="paint_func">logo_expose</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
                     </child>
                   </object>
                   <packing>

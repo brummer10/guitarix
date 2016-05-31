@@ -2,13 +2,13 @@ include "gx_head_Guitarix.rc"
 
 style "guitarix_effect_title" {
     font_name = "Roboto Condensed Regular 10"
-    fg[NORMAL] = "#ffffff"
+    fg[NORMAL] = "#999999"
 }
 widget "*rackcontainer*effect_title" style:highest "guitarix_effect_title"
 
 style "guitarix_font" {
     font_name = "Roboto Condensed Regular 8"
-    fg[NORMAL] =  "#ffffff"
+    fg[NORMAL] =  "#999999"
 }
 widget "*.rack_label" style:highest "guitarix_font"
 widget "*Value" style:highest "guitarix_font"
@@ -16,14 +16,27 @@ widget "*ampbox*label" style:highest "guitarix_font"
 widget "*beffekt_label" style:highest "guitarix_font"
 widget "*rack_effect_label" style:highest "guitarix_font"
 
-style "guitarix_default" {
-    stock["background1"]    = {{"camouflage.png"}}
-    stock["logo"]           = {{"logo_white.png"}}
+style "guitarix_plain_dark" {
+    stock["logo"]           = {{"logo_orange.png"}}
+    stock["background1"]    = {{"background2.png"}}
 }
-class "GtkWidget" style:highest "guitarix_default"
+class "GtkWidget" style:highest "guitarix_plain_dark"
+
+style "guitarix_notebook" {
+    xthickness = 5
+    ythickness = 5
+    bg[ACTIVE] = "#222222"
+    bg[NORMAL] = "#222222"
+    engine "clearlooks" {
+        contrast            = 0.66
+        radius              = 3.0
+        style               = GLOSSY #INVERTED CLASSIC GLOSSY GUMMY
+    }
+}
+widget "*tab_rack" style:highest "guitarix_notebook"
 
 style "guitarix_frame" {
-    bg[NORMAL]              = "#292727"
+    bg[NORMAL]              = "#222222"
     engine "clearlooks" {
         contrast            = 1.9
         radius              = 4.0
@@ -36,7 +49,7 @@ class "*GtkHSeparator" style:highest "guitarix_frame"
 
 style "guitarix-paintbox"
 {
-  GxPaintBox::icon-set =1
-  stock['gxhead'] = {{"live_wallpaper_camouflage.png"}}
+  GxPaintBox::icon-set =2
+  stock['gxhead'] = {{"live_wallpaper_dark.png"}}
 }
 class "*GxPaintBox" style "guitarix-paintbox"

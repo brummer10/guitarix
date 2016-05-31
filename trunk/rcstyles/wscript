@@ -131,9 +131,15 @@ gxstyle_files = [
     #'oak2.png',
     
     ###DARK THEME
+    'gx_head_Plain_Dark.rc',
     'gx_head_Dark.rc',
     'dark.png',
-    
+
+    ###NEBULA THEMA
+    'gx_head_Nebula.rc',
+    'nebula.png',
+    'nebula2.png',
+
     ###CAMOUFLAGE THEME
     'gx_head_Camouflage.rc',
     'camouflage.png',

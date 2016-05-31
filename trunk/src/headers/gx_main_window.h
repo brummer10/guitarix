@@ -665,7 +665,6 @@ private:
     Gtk::Container *channel2_box;
     Gtk::RadioButton *channel3_button;
     Gtk::Container *channel3_box;
-    GtkWidget *logo;
     Gtk::Alignment *vbam;
     GdkPixbuf *hanl;
     GdkPixbuf *hanr;
