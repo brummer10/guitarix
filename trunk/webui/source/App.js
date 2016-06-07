@@ -24,7 +24,7 @@ enyo.kind({
 	    localStorage.setItem(name, JSON.stringify(obj));
 	},
 	get: function(name){
-	    return JSON.parse(localStorage.getItem(name));
+	    return JSON.parse(localStorage ? localStorage.getItem(name) : null);
 	},
 	remove: function(name){
 	    localStorage.remove(name);
@@ -89,7 +89,7 @@ enyo.kind({
 	    h = document.location.hostname||'localhost';
 	}
 	if (typeof(p) !== "number" || !(p > 0)) {
-	    p = 8000;
+	    p = document.location.port||80;
 	}
 	return {host: h, port: p};
     },
