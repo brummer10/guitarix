@@ -38,9 +38,9 @@ IRWindow *IRWindow::create(const std::string& unit_id,
     Gtk::Widget *w;
     if (!machine.get_jack()) {
 	bld->find_widget("file_selector_box", w);
-	w->hide();
-	bld->find_widget("dir_combo:rack_button", w);
-	w->show();
+	//w->hide();
+	//bld->find_widget("dir_combo:rack_button", w);
+	//w->show();
     }
     gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter(unit_id+".convolver"));
     assert(jcp);
@@ -547,11 +547,12 @@ void IRWindow::on_min_scale_reached(bool v) {
 
 void IRWindow::on_open() {
     Gtk::FileChooserDialog d(*gtk_window, "Select Impulse Response");
+    d.set_local_only(false);
     d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
-    d.add_shortcut_folder(GX_SOUND_BPA_DIR);
-    d.add_shortcut_folder(GX_SOUND_BPB_DIR);
-    d.add_shortcut_folder(string(getenv("HOME")) + string("/.config/guitarix/IR"));
+    d.add_shortcut_folder_uri(Glib::filename_to_uri(GX_SOUND_BPA_DIR));
+    d.add_shortcut_folder_uri(Glib::filename_to_uri(GX_SOUND_BPB_DIR));
+    d.add_shortcut_folder_uri(Glib::filename_to_uri(string(getenv("HOME")) + string("/.config/guitarix/IR")));
     Gtk::FileFilter wav;
     wav.set_name("WAV Files");
     wav.add_pattern("*.wav");
@@ -567,14 +568,14 @@ void IRWindow::on_open() {
     all.set_name("All Files");
     d.add_filter(all);
     if (!filename.empty()) {
-        d.set_filename(filename);
+        d.set_uri(Glib::filename_to_uri (filename));
     } else {
-        d.set_current_folder(string(getenv("HOME")) + string("/"));
+        d.set_current_folder_uri(Glib::filename_to_uri (string(getenv("HOME")) + string("/")));
     }
     if (d.run() != Gtk::RESPONSE_OK) {
         return;
     }
-    filename = d.get_filename();
+    filename = Glib::filename_from_uri(d.get_uri());
     Gtk::RecentManager::Data data;
     bool result_uncertain;
     data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);

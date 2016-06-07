@@ -119,6 +119,7 @@ private:
     bool set_regler_cp_value(Gxw::Regler *w,const std::string id);
     bool set_pd_value(Gxw::PortDisplay *w, const std::string id, const std::string& idl, const std::string& idh);
     void load_file(const std::string& id, const std::string& idf);
+    void load_file_f(const std::string& id, const std::string& idf);
     void create_port_display(const std::string& id, const char *label);
     void create_p_display(const std::string& id, const std::string& idl, const std::string& idh);
     void create_feedback_switch(const char *sw_type, const std::string& id);
