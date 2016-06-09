@@ -546,13 +546,19 @@ void IRWindow::on_min_scale_reached(bool v) {
 }
 
 void IRWindow::on_open() {
-    Gtk::FileChooserDialog d(*gtk_window, "Select Impulse Response");
+    static Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+          (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
+    Glib::ustring title = hostname + ": Select Impulse Response";
+    Gtk::FileChooserDialog d(*gtk_window, title);
     d.set_local_only(false);
     d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
     d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
-    d.add_shortcut_folder_uri(Glib::filename_to_uri(GX_SOUND_BPA_DIR));
-    d.add_shortcut_folder_uri(Glib::filename_to_uri(GX_SOUND_BPB_DIR));
-    d.add_shortcut_folder_uri(Glib::filename_to_uri(string(getenv("HOME")) + string("/.config/guitarix/IR")));
+    d.add_shortcut_folder_uri(Glib::filename_to_uri(GX_SOUND_BPA_DIR, hostname));
+    d.add_shortcut_folder_uri(Glib::filename_to_uri(GX_SOUND_BPB_DIR, hostname));
+    d.add_shortcut_folder_uri(Glib::filename_to_uri(string(getenv("HOME")) + string("/.config/guitarix/IR"), hostname));
     Gtk::FileFilter wav;
     wav.set_name("WAV Files");
     wav.add_pattern("*.wav");
@@ -568,14 +574,14 @@ void IRWindow::on_open() {
     all.set_name("All Files");
     d.add_filter(all);
     if (!filename.empty()) {
-        d.set_uri(Glib::filename_to_uri (filename));
+        d.set_uri(Glib::filename_to_uri (filename, hostname));
     } else {
-        d.set_current_folder_uri(Glib::filename_to_uri (string(getenv("HOME")) + string("/")));
+        d.set_current_folder_uri(Glib::filename_to_uri (string(getenv("HOME")) + string("/"), hostname));
     }
     if (d.run() != Gtk::RESPONSE_OK) {
         return;
     }
-    filename = Glib::filename_from_uri(d.get_uri());
+    filename = Glib::filename_from_uri(d.get_uri(), hostname);
     Gtk::RecentManager::Data data;
     bool result_uncertain;
     data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);

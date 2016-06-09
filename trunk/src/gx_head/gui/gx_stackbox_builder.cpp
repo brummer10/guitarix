@@ -523,16 +523,22 @@ void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::str
 
 void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
 	static Glib::ustring recent_filename = "";
+	static Glib::ustring hostname = "localhost";
+	if (! machine.get_jack()) {
+		hostname = Gio::Resolver::get_default()->lookup_by_address
+				(Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+	}
     if (machine.parameter_hasId(id)) {
 		if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
 			if (machine.get_parameter_value<float>(id)>0) {
 				Glib::ustring filename = machine.get_parameter_value<string>(idf);
-				Gtk::FileChooserDialog d( "Select loop file");
+				Glib::ustring title = hostname + ": Select loop file";
+				Gtk::FileChooserDialog d( title);
 				d.set_local_only(false);
 				d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 				d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
 				Glib::ustring loop_dir = machine.get_options().get_loop_dir();
-				d.add_shortcut_folder_uri(Glib::filename_to_uri(loop_dir));
+				d.add_shortcut_folder_uri(Glib::filename_to_uri(loop_dir, hostname));
 				Gtk::FileFilter wav;
 				wav.set_name("WAV Files");
 				wav.add_mime_type("audio/x-vorbis+ogg");
@@ -551,18 +557,18 @@ void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
 				all.set_name("All Files");
 				d.add_filter(all);
 				if (!recent_filename.empty()) {
-					d.set_uri(Glib::filename_to_uri (recent_filename));
+					d.set_uri(Glib::filename_to_uri (recent_filename, hostname));
 				} else if ((filename.find("tape") != Glib::ustring::npos) && (!filename.empty())) {
-					d.set_uri(Glib::filename_to_uri (loop_dir + filename + string(".wav")));
+					d.set_uri(Glib::filename_to_uri (loop_dir + filename + string(".wav"), hostname));
 				} else {
-					d.set_current_folder_uri(Glib::filename_to_uri (loop_dir));
+					d.set_current_folder_uri(Glib::filename_to_uri (loop_dir, hostname));
 				}
 				if (d.run() != Gtk::RESPONSE_OK) {
 					machine.set_parameter_value(id,0.0);
 					machine.signal_parameter_value<float>(id)(0.0);
 					return;
 				}
-				filename = Glib::filename_from_uri(d.get_uri());
+				filename = Glib::filename_from_uri(d.get_uri(), hostname);
 				recent_filename = filename;
 				Gtk::RecentManager::Data data;
 				bool result_uncertain;
