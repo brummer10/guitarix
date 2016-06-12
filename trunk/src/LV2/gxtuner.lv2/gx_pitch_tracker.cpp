@@ -50,6 +50,7 @@ PitchTracker::PitchTracker()
       m_pthr(0),
       resamp(),
       m_sampleRate(),
+      fixed_sampleRate(41000),
       m_freq(-1),
       signal_threshold_on(SIGNAL_THRESHOLD_ON),
       signal_threshold_off(SIGNAL_THRESHOLD_OFF),
@@ -114,7 +115,7 @@ bool PitchTracker::setParameters(int priority, int policy, int sampleRate, int b
     if (error) {
         return false;
     }
-    m_sampleRate = sampleRate / DOWNSAMPLE;
+    m_sampleRate = fixed_sampleRate / DOWNSAMPLE;
     resamp.setup(sampleRate, m_sampleRate, 1, 16); // 16 == least quality
 
     if (m_buffersize != buffersize) {

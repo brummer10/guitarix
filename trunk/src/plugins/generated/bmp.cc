@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/bmp.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -205,7 +205,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp2 = (0.000146000960455196 + (fConst0 * ((fRec5[0] * (fConst24 + (fConst22 * fRec5[0]))) + fConst20)));
 		fRec7[0] = ((double)buf[i] - (fConst34 * ((fConst33 * fRec7[2]) + (0.000438032628543473 * fRec7[1]))));
 		fRec6[0] = ((fConst34 * ((fConst36 * fRec7[2]) + (fConst35 * fRec7[0]))) - (((fRec6[1] * (0.000292001920910392 + (fConst3 * ((fRec5[0] * ((2.26893039628251e-09 * fRec5[0]) - 2.24624109231969e-09)) - 2.5642240040786e-10)))) + (fRec6[2] * (0.000146000960455196 + (fConst0 * (fConst31 + (fRec5[0] * (fConst30 + (fConst29 * fRec5[0])))))))) / fTemp2));
-		fRec4[0] = (symclip((fConst0 * ((((fRec6[0] * (fConst38 + (fConst37 * fRec5[0]))) + (fConst0 * (fRec6[1] * ((0 - (4.52586774307001e-12 * fRec5[0])) - 4.52586774307001e-14)))) + (fRec6[2] * (fConst28 + (fConst26 * fRec5[0])))) / fTemp2))) - (fConst18 * ((fConst17 * fRec4[1]) + (fConst16 * fRec4[2]))));
+		fRec4[0] = ((0.3183098861837907 * atan((fConst0 * ((((fRec6[0] * (fConst38 + (fConst37 * fRec5[0]))) + (fConst0 * (fRec6[1] * ((0 - (4.52586774307001e-12 * fRec5[0])) - 4.52586774307001e-14)))) + (fRec6[2] * (fConst28 + (fConst26 * fRec5[0])))) / fTemp2)))) - (fConst18 * ((fConst17 * fRec4[1]) + (fConst16 * fRec4[2]))));
 		fRec3[0] = (symclip((fConst18 * (((fConst42 * fRec4[0]) + (fConst41 * fRec4[1])) + (fConst40 * fRec4[2])))) - (fConst14 * ((fConst13 * fRec3[1]) + (fConst11 * fRec3[2]))));
 		fRec1[0] = ((fConst14 * (((fRec3[0] * (fTemp1 + fConst44)) + (fRec3[1] * (0.00802871828276969 + (fConst43 * fRec2[0])))) + (fRec3[2] * (fTemp1 + fConst8)))) - (fConst6 * ((fConst4 * fRec1[1]) + (fConst2 * fRec1[2]))));
 		buf[i] = (FAUSTFLOAT)(fConst45 * (((fRec1[0] * fTemp0) + (3.48651798046856e-09 * (fRec0[0] * fRec1[1]))) + (fRec1[2] * fTemp0)));

@@ -1,10 +1,9 @@
 // generated from file '../src/plugins/fuzzfacefm.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
 
-#include "clipping.h"
 
 namespace pluginlib {
 namespace fuzzfacefm {
@@ -127,6 +126,15 @@ private:
 
 	int samplingFreq;
 	gx_resample::FixedRateResampler smpCl;
+	double 	fConstCl0;
+	double 	fConstCl1;
+	double 	fConstCl2;
+	double 	fConstCl3;
+	double 	fConstCl4;
+	double 	fConstCl5;
+	double 	fRecCl0[3];
+	double 	fConstCl6;
+	double 	fConstCl7;
 
 	FAUSTFLOAT 	fsliderV0;
 	double 	fRecV0[2];
@@ -180,6 +188,7 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<4; i++) fRec3[i] = 0;
 
+	for (int i=0; i<3; i++) fRecCl0[i] = 0;
 
 	for (int i=0; i<2; i++) fRecV0[i] = 0;
 }
@@ -301,6 +310,14 @@ inline void Dsp::init(unsigned int samplingFreq)
 	samplingFreq = 96000;
 	smpCl.setup(fSamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
+	fConstCl0 = tan((138230.07675795088 / double(min(192000, max(1, fSamplingFreq)))));
+	fConstCl1 = (2 * (1 - (1.0 / faustpower<2>(fConstCl0))));
+	fConstCl2 = (1.0 / fConstCl0);
+	fConstCl3 = (1 + ((fConstCl2 - 1.414213562373095) / fConstCl0));
+	fConstCl4 = (1 + ((1.414213562373095 + fConstCl2) / fConstCl0));
+	fConstCl5 = (1.0 / fConstCl4);
+	fConstCl6 = (1.0001 / fConstCl4);
+	fConstCl7 = (1.0 / tanh(1.0001));
 
 	clear_state_f();
 }
@@ -334,7 +351,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	FAUSTFLOAT bufCl[smpCl.max_out_count(count)];
 	int ReCount = smpCl.up(count, output0, bufCl);
 	for (int i=0; i<ReCount; i++) {
-		bufCl[i] = (FAUSTFLOAT)asymclip4((double)bufCl[i]);
+		fRecCl0[0] = ((double)bufCl[i] - (fConstCl5 * ((fConstCl3 * fRecCl0[2]) + (fConstCl1 * fRecCl0[1]))));
+		bufCl[i] = (FAUSTFLOAT)(fConstCl7 * tanh((fConstCl6 * (fRecCl0[2] + (fRecCl0[0] + (2 * fRecCl0[1]))))));
+		// post processing
+		fRecCl0[2] = fRecCl0[1]; fRecCl0[1] = fRecCl0[0];
 	}
 	smpCl.down(bufCl, output0);
 

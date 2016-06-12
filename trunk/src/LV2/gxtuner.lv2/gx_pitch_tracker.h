@@ -55,6 +55,7 @@ class PitchTracker {
     pthread_t       m_pthr;
     Resampler       resamp;
     int             m_sampleRate;
+    int             fixed_sampleRate;
     float           m_freq;
     // Value of the threshold above which
     // the processing is activated.

@@ -1,5 +1,5 @@
 // generated from file '../src/faust/autowah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 
 namespace autowah {
@@ -111,7 +111,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		float fTemp1 = fabsf(fTemp0);
-		fRec3[0] = ((fConst1 * max(fTemp1, fRec3[1])) + (fConst2 * fTemp1));
+		fRec3[0] = max(fTemp1, ((fConst1 * fRec3[1]) + (fConst2 * fTemp1)));
 		fRec2[0] = ((fConst3 * fRec2[1]) + (fConst4 * fRec3[0]));
 		float fTemp2 = min((float)1, fRec2[0]);
 		fRec1[0] = ((0.999f * fRec1[1]) + (0.0001000000000000001f * powf(4.0f,fTemp2)));

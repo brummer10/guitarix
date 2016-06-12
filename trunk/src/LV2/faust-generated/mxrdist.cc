@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/mxrdist.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 #include "clipping.h"
 
@@ -109,11 +109,11 @@ inline void Dsp::init(uint32_t RsamplingFreq)
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = double(iConst0);
-	fConst2 = (1.40668739186091e-10 * fConst1);
-	fConst3 = (0.000351671847965227 + (fConst1 * (fConst2 - 1.40739073555684e-05)));
-	fConst4 = faustpower<2>(fConst1);
-	fConst5 = (0.000703343695930453 - (2.81337478372181e-10 * fConst4));
-	fConst6 = (0.000351671847965227 + (fConst1 * (1.40739073555684e-05 + fConst2)));
+	fConst2 = faustpower<2>(fConst1);
+	fConst3 = (0.000703343695930453 - (2.81337478372181e-10 * fConst2));
+	fConst4 = (1.40668739186091e-10 * fConst1);
+	fConst5 = (0.000351671847965227 + (fConst1 * (fConst4 - 1.40739073555684e-05)));
+	fConst6 = (0.000351671847965227 + (fConst1 * (1.40739073555684e-05 + fConst4)));
 	fConst7 = (1.0 / fConst6);
 	fConst8 = tan((50893.800988154646 / double(iConst0)));
 	fConst9 = (2 * (1 - (1.0 / faustpower<2>(fConst8))));
@@ -122,11 +122,11 @@ inline void Dsp::init(uint32_t RsamplingFreq)
 	fConst12 = (1.0 / (1 + ((1.0000000000000004 + fConst10) / fConst8)));
 	fConst13 = (4.3356710341455e-10 * fConst1);
 	fConst14 = (2.14637179908193e-08 + (fConst1 * (fConst13 - 2.2111922274142e-08)));
-	fConst15 = (4.29274359816386e-08 - (8.671342068291e-10 * fConst4));
+	fConst15 = (4.29274359816386e-08 - (8.671342068291e-10 * fConst2));
 	fConst16 = (1.0 / (2.14637179908193e-08 + (fConst1 * (2.2111922274142e-08 + fConst13))));
 	fConst17 = (4.29274359816386e-10 * fConst1);
 	fConst18 = (fConst1 * (fConst17 - 6.43911539724579e-10));
-	fConst19 = (0 - (8.58548719632772e-10 * fConst4));
+	fConst19 = (0 - (8.58548719632772e-10 * fConst2));
 	fConst20 = (fConst1 * (6.43911539724579e-10 + fConst17));
 	fConst21 = (9.4e-08 * iConst0);
 	fConst22 = (0.047 * iConst0);
@@ -166,7 +166,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec1[0] = fTemp6;
 		fRec3[0] = ((fConst25 * fRec3[1]) + (fConst24 * (fVec1[0] + fVec1[1])));
 		fRec2[0] = (fRec3[0] - (fConst12 * ((fConst11 * fRec2[2]) + (fConst9 * fRec2[1]))));
-		fRec1[0] = ((fConst12 * (fRec2[2] + (fRec2[0] + (2 * fRec2[1])))) - (fConst7 * ((fConst5 * fRec1[1]) + (fConst3 * fRec1[2]))));
+		fRec1[0] = ((fConst12 * (fRec2[2] + (fRec2[0] + (2 * fRec2[1])))) - (fConst7 * ((fConst5 * fRec1[2]) + (fConst3 * fRec1[1]))));
 		buf[i] = (FAUSTFLOAT)(fConst26 * ((fRec1[2] * (0 - (7.03343695930453e-06 * fRec0[0]))) + (7.03343695930453e-06 * (fRec1[0] * fRec0[0]))));
 		// post processing
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];

@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/duck_delay_st.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 
 namespace duck_delay_st {
@@ -275,7 +275,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec14[0] = ((fConst24 * (((fConst18 * fRec15[0]) + (fConst29 * fRec15[1])) + (fConst18 * fRec15[2]))) - (fConst22 * ((fConst21 * fRec14[2]) + (fConst19 * fRec14[1]))));
 		fRec17[0] = ((0.999 * fRec17[1]) + fSlow8);
 		double fTemp12 = fabs(fTemp0);
-		fRec20[0] = ((fSlow9 * max(fTemp12, fRec20[1])) + (fSlow10 * fTemp12));
+		fRec20[0] = max(fTemp12, ((fSlow9 * fRec20[1]) + (fSlow10 * fTemp12)));
 		fRec19[0] = ((fSlow11 * fRec19[1]) + (fSlow12 * fRec20[0]));
 		fRec18[0] = ((fConst9 * fRec18[1]) + (fConst10 * (1 - ((fSlow13 * fRec19[0]) > 1))));
 		output0[i] = (FAUSTFLOAT)(fTemp0 + (0.1778279410038923 * ((fRec18[0] * fRec17[0]) * ((fConst22 * ((((fConst18 * fRec14[0]) + (fConst29 * fRec14[1])) + (fConst18 * fRec14[2])) + (fSlow7 * (fRec11[2] + (fRec11[0] + (2 * fRec11[1])))))) + (fConst6 * ((fRec8[2] + (fRec8[0] + (2 * fRec8[1]))) + (fSlow6 * (((fConst2 * fRec0[0]) + (fConst16 * fRec0[1])) + (fConst2 * fRec0[2])))))))));
@@ -293,7 +293,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec31[0] = (fRec32[0] - (fConst24 * ((fConst23 * fRec31[2]) + (fConst19 * fRec31[1]))));
 		fRec30[0] = ((fConst24 * (((fConst18 * fRec31[0]) + (fConst29 * fRec31[1])) + (fConst18 * fRec31[2]))) - (fConst22 * ((fConst21 * fRec30[2]) + (fConst19 * fRec30[1]))));
 		double fTemp14 = fabs(fTemp9);
-		fRec35[0] = ((fSlow9 * max(fTemp14, fRec35[1])) + (fSlow10 * fTemp14));
+		fRec35[0] = max(fTemp14, ((fSlow9 * fRec35[1]) + (fSlow10 * fTemp14)));
 		fRec34[0] = ((fSlow11 * fRec34[1]) + (fSlow12 * fRec35[0]));
 		fRec33[0] = ((fConst9 * fRec33[1]) + (fConst10 * (1 - ((fSlow13 * fRec34[0]) > 1))));
 		output1[i] = (FAUSTFLOAT)(fTemp9 + (0.1778279410038923 * ((fRec17[0] * fRec33[0]) * ((fConst22 * ((((fConst18 * fRec30[0]) + (fConst29 * fRec30[1])) + (fConst18 * fRec30[2])) + (fSlow7 * (fRec27[2] + (fRec27[0] + (2 * fRec27[1])))))) + (fConst6 * ((fRec24[2] + (fRec24[0] + (2 * fRec24[1]))) + (fSlow6 * (((fConst2 * fRec21[0]) + (fConst16 * fRec21[1])) + (fConst2 * fRec21[2])))))))));

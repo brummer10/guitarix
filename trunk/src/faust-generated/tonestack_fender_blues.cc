@@ -1,5 +1,5 @@
 // generated from file '../src/faust/tonestack_fender_blues.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 
 namespace tonestack_fender_blues {

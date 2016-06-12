@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/rolandwah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -406,7 +406,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec14[0] = ((fSlow0 * fTemp0) - (((((((((fRec14[1] * (2.41229775594467e-16 + (fConst1 * (fConst35 + (fConst34 * fRec13[0]))))) + (fRec14[2] * (8.44304214580633e-16 + (fConst1 * (fConst33 + (fConst32 * fRec13[0])))))) + (fRec14[3] * (1.68860842916127e-15 + (fConst1 * (fConst31 + (fConst30 * fRec13[0])))))) + (fRec14[4] * (2.11076053645158e-15 + (fConst16 * (fConst29 + (fConst28 * fRec13[0])))))) + (fRec14[5] * (1.68860842916127e-15 + (fConst1 * (fConst27 + (fConst25 * fRec13[0])))))) + (fRec14[6] * (8.44304214580633e-16 + (fConst1 * (fConst23 + (fConst21 * fRec13[0])))))) + (fRec14[7] * (2.41229775594467e-16 + (fConst1 * (fConst19 + (fConst17 * fRec13[0])))))) + (fRec14[8] * (3.01537219493083e-17 + (fConst1 * (fConst14 + (fConst13 * fRec13[0])))))) / fTemp1));
 		double fTemp2 = (fConst60 * ((((((((((fRec14[0] * (fConst59 + (fConst58 * fRec13[0]))) + (fRec14[1] * (fConst57 + (fConst56 * fRec13[0])))) + (fRec14[2] * (fConst55 + (fConst54 * fRec13[0])))) + (fRec14[3] * (fConst53 + (fConst52 * fRec13[0])))) + (fConst1 * (fRec14[4] * (fConst51 + (fConst50 * fRec13[0]))))) + (fRec14[5] * (fConst49 + (fConst47 * fRec13[0])))) + (fRec14[6] * (fConst45 + (fConst42 * fRec13[0])))) + (fRec14[7] * (fConst39 + (fConst37 * fRec13[0])))) + (fRec14[8] * (fConst12 + (fConst10 * fRec13[0])))) / fTemp1));
 		double fTemp3 = fabs(fTemp2);
-		fRec12[0] = ((fConst61 * max(fTemp3, fRec12[1])) + (fConst62 * fTemp3));
+		fRec12[0] = max(fTemp3, ((fConst61 * fRec12[1]) + (fConst62 * fTemp3)));
 		fRec11[0] = ((fConst63 * fRec11[1]) + (fConst64 * fRec12[0]));
 		fRec15[0] = ((0.993 * fRec15[1]) + fSlow4);
 		double fTemp4 = ((iSlow5==0)? fRec15[0] : ((iSlow5==1)?max(0.09, min(0.9, fRec11[0])):(1 - max(0.09, min(0.9, (0.5 * (1 + fRec8[0])))))) );

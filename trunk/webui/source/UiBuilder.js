@@ -237,6 +237,7 @@ UiBuilder.prototype.if_create_selector = UiBuilder.prototype.create_selector;
 UiBuilder.prototype.if_create_switch_no_caption = UiBuilder.prototype.create_switch;  // label === undefined
 UiBuilder.prototype.if_create_feedback_switch = UiBuilder.prototype.create_switch;  // label === undefined
 UiBuilder.prototype.if_create_switch = UiBuilder.prototype.create_switch;
+UiBuilder.prototype.if_create_feedback_switch = UiBuilder.prototype.create_switch;
 UiBuilder.prototype.if_create_wheel = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_port_display = UiBuilder.prototype.create_slider;
 UiBuilder.prototype.if_create_p_display = UiBuilder.prototype.create_p_meter;

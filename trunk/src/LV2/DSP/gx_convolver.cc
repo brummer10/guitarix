@@ -269,6 +269,12 @@ void GxSimpleConvolver::run_static(uint32_t n_samples, GxSimpleConvolver *p, flo
     printf("convolver didn't run\n");
 }
 
+void GxSimpleConvolver::run_static(uint32_t n_samples, GxSimpleConvolver *p, float *input, float *output)
+{
+  if (!p->compute((int32_t)n_samples, input, output))
+    printf("convolver didn't run\n");
+}
+
 //////////////stero/////////////////
 
 bool GxSimpleConvolver::configure_stereo(int32_t count, float *impresp, uint32_t imprate)

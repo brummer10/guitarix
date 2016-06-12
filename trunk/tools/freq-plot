@@ -13,4 +13,5 @@ echo "process=1-1':component(\"$inp\");" | faust -a plot.cpp -o $tmpdir/plot_out
 cd $tmpdir
 g++ plot_out.cpp -o plot_out
 ./plot_out "$@" > plot_out.mat
-octave -q --persist --eval "load plot_out.mat; freqz(plot_out,1,[],[],44100)"
+octave --no-gui -q --persist --eval "load plot_out.mat; freqz(plot_out,1,[],[],44100); print ('freq.png') "
+

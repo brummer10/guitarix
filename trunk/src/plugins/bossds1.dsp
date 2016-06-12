@@ -120,6 +120,22 @@ ds1_drive = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     s = 0.993;
     drive =  hslider("drive[name:Drive]", 0.5, 0, 1, 0.01) : *(0.314): component("filter.lib").smooth(s);
 
+out_filter = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    fs = float(SR);
+
+    b0 = fs*(1.53935536722449e-12*fs - 3.51811088946986e-5);
+
+    b1 = -3.07871073444898e-12*pow(fs,2);
+
+    b2 = fs*(1.53935536722449e-12*fs + 3.51811088946986e-5);
+
+    a0 = fs*(1.00951608665768e-11*fs + 2.02317674756392e-5) + 0.00561591053272674;
+
+    a1 = -2.01903217331536e-11*pow(fs,2) + 0.0112318210654535;
+
+    a2 = fs*(1.00951608665768e-11*fs - 2.02317674756392e-5) + 0.00561591053272674;
+};
+
 process = ds1_in : ds1_boost : ds1_drive : sclip : ds1_ampin : X1 : X3  : clip : ds1_ampout : *(cgain) : ds1_tone : ds1_out : *(gain)  with {
     R1 = 4700 + 100000 * (1.0 - drive);
     R2 = 100000 + 100000 * drive;

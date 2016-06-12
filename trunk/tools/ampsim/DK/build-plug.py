@@ -32,6 +32,34 @@ if not module_id:
 print ("module_id: %s" % module_id )
 mod = os.path.join(path, module_id+".so")
 
+
+def calc_highpass_f0(c1, c2):
+    from scipy.optimize import curve_fit
+    sig = Signal()
+    s = c1.make_signal_vector(sig(0.01*sig.impulse(), timespan=1))
+    f0 = numpy.zeros(11)
+    fl = numpy.logspace(numpy.log10(s.start_freq), numpy.log10(s.stop_freq), 200)
+    w = 2 * numpy.pi * fl / s.fs
+    for i, Level in enumerate(numpy.linspace(0, 1, 11)):
+        c1.set_pot_variable('Level', Level)
+        c1.stream(s)
+        h1 = s.get_spectrum(c1.last_output[:,0], w)
+
+        c2.set_pot_variable('Level', Level)
+        c2.stream(s)
+        h2 = s.get_spectrum(c2.last_output[:,0], w)
+
+        ydata = numpy.log(abs(h1/h2))
+        e = numpy.exp(-1j*w)
+        a1 = -1
+        def f(e, a1):
+            return numpy.log(abs((1-a1)/2 * (1 - e) / (1 + a1 * e)))
+        res = curve_fit(f, e, ydata, a1)
+
+        a1 = res[0][0]
+        f0[i] = s.fs*(1 + a1)/(numpy.pi*(1 - a1))
+    return numpy.mean(f0)
+
 #set_log_level(DEBUG)
 # create plugin
 c1 = Circuit()
@@ -52,6 +80,10 @@ c1.plugindef.id = module_id
 c1.set_module_id(module_id)
 c1.read_gschem(workfile)
 #c1.linearize("T1", "T2", keep_dc=False)
+
+#c0 = Circuit(c1)
+#f0 = calc_highpass_f0(c0, c1)
+#print ("calc_highpass: %s" % f0 )
 print ("build plugin from: %s" % args.input)
 if not prefilter:
     c1.create_faust_module()

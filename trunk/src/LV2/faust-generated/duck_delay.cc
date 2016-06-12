@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/duck_delay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.65 (http://faust.grame.fr)
+// Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
 
 namespace duck_delay {
@@ -112,7 +112,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		double fTemp1 = fabs(fTemp0);
-		fRec2[0] = ((fSlow0 * max(fTemp1, fRec2[1])) + (fSlow1 * fTemp1));
+		fRec2[0] = max(fTemp1, ((fSlow0 * fRec2[1]) + (fSlow1 * fTemp1)));
 		fRec1[0] = ((fSlow2 * fRec1[1]) + (fSlow3 * fRec2[0]));
 		fRec0[0] = ((fConst2 * fRec0[1]) + (fConst3 * (1 - ((fSlow4 * fRec1[0]) > 1))));
 		double fTemp2 = (fTemp0 + (fSlow5 * fRec3[1]));

@@ -93,7 +93,7 @@ device=VARIABLE_RESISTOR
 T 44750 44600 5 10 1 1 180 6 1
 refdes=P1
 T 47200 44800 5 10 1 1 180 0 1
-value=value=100k,var=Boost
+value=value=100k,var=Level
 T 45000 43900 5 10 0 0 0 0 2
 comment=100k
 Log.

@@ -8,6 +8,7 @@ declare description "Micke Fuller Fuzz Face simulation";
 declare insert_p "clipper";
 declare volume_p "Level";
 
+
 import("filter.lib");
 import("trany.lib");
 

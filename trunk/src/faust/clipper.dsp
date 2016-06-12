@@ -3,6 +3,8 @@ declare name "Clip";
 declare category "Fuzz";
 declare samplerate "96000";
 
+import("filter.lib");
+
 asymclip = ffunction(float asymclip(float), "clipping.h", "");
 asclip = asymclip(_);
 
@@ -28,4 +30,12 @@ sclip = symclip(_);
 symclip2 = ffunction(float symclip2(float), "clipping.h", "");
 sclip2 = symclip2(_);
 
-process = asclip4;
+preclip = min(1) : max(-0.6);
+
+clip(x) = if ((x > 0), (1 - exp(-x)), (-1 + exp(x)));
+
+eclip(x) = ((exp(x*4)-exp(-x*4*1.2))/(exp(x*4)+exp(-x*4)))/4;
+tclip(x) = tanh((1.0001)*x)/tanh(1.0001);
+
+
+process =  lowpass(2,44000) : tclip;
