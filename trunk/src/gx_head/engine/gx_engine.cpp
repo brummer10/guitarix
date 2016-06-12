@@ -387,6 +387,7 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::mbe::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbdel::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbclipper::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::bassboom::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbchor::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::jcm800pre::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::gcb_95::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
