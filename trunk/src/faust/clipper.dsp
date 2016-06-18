@@ -38,4 +38,4 @@ eclip(x) = ((exp(x*4)-exp(-x*4*1.2))/(exp(x*4)+exp(-x*4)))/4;
 tclip(x) = tanh((1.0001)*x)/tanh(1.0001);
 
 
-process =  lowpass(2,44000) : tclip;
+process =  asclip4;
