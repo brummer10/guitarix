@@ -837,14 +837,14 @@ Glib::ustring CmdlineOptions::get_jack_output(unsigned int n) const {
 }
 
 string CmdlineOptions::get_opskin() {
+    // GTK options: rc style (aka skin)
+    string opskin("Style to use");
+
     // initialize number of skins. We just count the number of rc files
     unsigned int n = skin.skin_list.size();
     if (n < 1) {
-        gx_print_fatal(_("main"), string(_("number of skins is 0")));
+        return opskin;
     }
-
-    // GTK options: rc style (aka skin)
-    string opskin("Style to use");
 
     vector<Glib::ustring>::iterator it;
 
@@ -918,6 +918,10 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(plugin_dir);
 
     skin.set_styledir(style_dir);
+    unsigned int n = skin.skin_list.size();
+    if (n < 1) {
+        gx_print_fatal(_("main"), string(_("number of skins is 0")));
+    }
     if (!rcset.empty()) {
 	if (skin.is_in_list(rcset)) {
 	    skin_name = rcset;
