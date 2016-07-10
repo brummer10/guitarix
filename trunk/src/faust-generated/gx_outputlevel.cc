@@ -89,7 +89,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("amp.out_master",N_("Level"),"S","",&fslider0, 0.0, -5e+01, 4.0, 0.1);
+	reg.registerVar("amp.out_master",N_("Level"),"S",N_("Overall Rack output Volume"),&fslider0, 0.0, -5e+01, 4.0, 0.1);
 	return 0;
 }
 

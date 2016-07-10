@@ -2818,7 +2818,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     for (unsigned int i = 0; i < sizeof(fastmeter)/sizeof(fastmeter[0]); ++i) {
         fastmeter[i]->signal_button_release_event().connect(
             sigc::mem_fun(*this, &MainWindow::on_meter_button_release));
-        fastmeter[i]->set_tooltip_text(_("gx_head output"));
+        fastmeter[i]->set_tooltip_text(_("Overall Rack output"));
     }
     const float meter_falloff = 27; // in dB/sec.
     const float meter_display_timeout = 60; // in millisec
