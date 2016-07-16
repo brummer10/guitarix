@@ -394,7 +394,7 @@ string JsonParser::readnumber(char c) {
         case 'n': case 'a': case 'i': case 'f':
 			++count_dn;
 			if (count_dn >=3) {
-				gx_print_warning("JsonParser", "DENORMAL VALUE DETECTED");
+				gx_print_warning("JsonParser", Glib::ustring::compose("DENORMAL VALUE DETECTED in %1", log_tok));
 				count_dn = 0;
 			}
 			break;
@@ -459,7 +459,7 @@ void JsonParser::read_next() {
         case ',': continue;
 
         case '"':
-            next_str = readstring();
+            next_str = log_tok = readstring();
              *is >> c;
             if (!is->good())
                 throw JsonExceptionEOF("eof");

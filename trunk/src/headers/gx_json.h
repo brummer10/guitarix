@@ -181,6 +181,7 @@ class JsonParser {
     int next_depth;
     token next_tok;
     string next_str;
+    string log_tok;
     streampos next_pos;
     const char* readcode();
     string readstring();
