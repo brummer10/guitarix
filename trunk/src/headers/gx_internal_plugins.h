@@ -462,6 +462,31 @@ public:
 };
 
 
+class CabinetStereoConvolver: public BaseConvolver {
+private:
+    int current_cab;
+    float level;
+    int cabinet;
+    float bass;
+    float treble;
+    float sum;
+    value_pair *cab_names;
+    cabinet_impulse_former::Dsp impf;
+    static void run_cab_conf(int count, float *input, float *input1, float *output, float *output1, PluginDef*);
+    static int register_cab(const ParamReg& reg);
+    bool do_update();
+    virtual void check_update();
+    virtual bool start(bool force = false);
+    bool cabinet_changed() { return current_cab != cabinet; }
+    void update_cabinet() { current_cab = cabinet; }
+    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
+    void update_sum() { sum = level + bass + treble; }
+public:
+    CabinetStereoConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
+    ~CabinetStereoConvolver();
+};
+
+
 /****************************************************************
  ** class PreampConvolver
  */

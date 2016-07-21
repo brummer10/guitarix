@@ -131,6 +131,7 @@ def build(bld):
         './builder/amp.tonestack_ui.glade',
         './builder/ampimpulse_ui.glade',
         './builder/cabinet_ui.glade',
+        './builder/cabinet_stereo_ui.glade',
         './builder/tremolo_ui.glade',
         './builder/pluginpreset_inputwindow.glade',
         './builder/pluginpreset_listwindow.glade',

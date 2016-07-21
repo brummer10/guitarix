@@ -861,6 +861,132 @@ int CabinetConvolver::register_cab(const ParamReg& reg) {
     return 0;
 }
 
+//// STEREO /////
+
+static int cab_load_stereo_ui(const UiBuilder& builder, int format) {
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("cabinet_stereo_ui.glade");
+    return 0;
+    } else if (format & UI_FORM_STACK) {
+    builder.openHorizontalhideBox("");
+    builder.create_selector_no_caption("cab_st.select");
+    builder.closeBox();
+    builder.openVerticalBox("");
+    {
+	builder.openHorizontalBox("");
+	{
+	    builder.insertSpacer();
+	    builder.create_selector_no_caption("cab_st.select");
+	    builder.create_small_rackknobr("cab_st.bass", "Bass");
+	    builder.create_small_rackknobr("cab_st.treble", "Treble");
+	    builder.create_mid_rackknob("cab_st.Level", "Level");
+	}
+	builder.closeBox();
+    }
+    builder.closeBox();
+    return 0;
+    } else {
+    return -1;
+    }
+
+}
+
+CabinetStereoConvolver::CabinetStereoConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp):
+    BaseConvolver(engine, sync, resamp),
+    current_cab(-1),
+    level(0),
+    cabinet(0),
+    bass(0),
+    treble(0),
+    sum(no_sum),
+    cab_names(new value_pair[cab_table_size+1]),
+    impf() {
+    for (unsigned int i = 0; i < cab_table_size; ++i) {
+	CabEntry& cab = getCabEntry(i);
+	cab_names[i].value_id = cab.value_id;
+	cab_names[i].value_label = cab.value_label;
+    }
+    cab_names[cab_table_size].value_id = 0;
+    cab_names[cab_table_size].value_label = 0;
+    id = "cab_st";
+    name = N_("Cabinet");
+    category = N_("Tone Control");
+    load_ui = cab_load_stereo_ui;
+    stereo_audio = run_cab_conf;
+    register_params = register_cab;
+}
+
+CabinetStereoConvolver::~CabinetStereoConvolver() {
+    delete[] cab_names;
+}
+
+bool CabinetStereoConvolver::do_update() {
+    bool configure = cabinet_changed();
+    if (conv.is_runnable()) {
+	conv.set_not_runnable();
+	sync();
+	conv.stop_process();
+    }
+    CabDesc& cab = *getCabEntry(cabinet).data;
+    if (current_cab == -1) {
+	impf.init(cab.ir_sr);
+    }
+    float cab_irdata_c[cab.ir_count];
+    impf.clear_state_f();
+    impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
+    while (!conv.checkstate());
+    if (configure) {
+	if (!conv.configure_stereo(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+	    return false;
+	}
+    } else {
+	if (!conv.update_stereo(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+	    return false;
+	}
+    }
+    update_cabinet();
+    update_sum();
+    return conv_start();
+}
+
+bool CabinetStereoConvolver::start(bool force) {
+    if (force) {
+	current_cab = -1;
+    }
+    if (cabinet_changed() || sum_changed()) {
+	return do_update();
+    } else {
+	while (!conv.checkstate());
+	if (!conv.is_runnable()) {
+	    return conv_start();
+	}
+	return true;
+    }
+}
+
+void CabinetStereoConvolver::check_update() {
+    if (cabinet_changed() || sum_changed()) {
+	do_update();
+    } 
+}
+
+void CabinetStereoConvolver::run_cab_conf(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p) {
+    CabinetStereoConvolver& self = *static_cast<CabinetStereoConvolver*>(p);
+    if (!self.conv.compute_stereo(count,output0,output1)) {
+	self.engine.overload(EngineControl::ov_Convolver, "cab_st");
+    }
+}
+
+int CabinetStereoConvolver::register_cab(const ParamReg& reg) {
+    CabinetStereoConvolver& cab = *static_cast<CabinetStereoConvolver*>(reg.plugin);
+    reg.registerIEnumVar("cab_st.select", "select", "B", "", cab.cab_names, &cab.cabinet, 0);
+    reg.registerVar("cab_st.Level", N_("Level"),  "S", N_("Level"), &cab.level,  1.0, 0.5, 5.0, 0.5);
+    reg.registerVar("cab_st.bass", N_("Bass"),   "S", N_("Bass"), &cab.bass,   0.0, -10.0, 10.0, 0.5);
+    reg.registerVar("cab_st.treble", N_("Treble"), "S", N_("Treble"), &cab.treble, 0.0, -10.0, 10.0, 0.5);
+    cab.impf.register_par(reg);
+    return 0;
+}
+
 /****************************************************************
  ** class PreampConvolver
  */

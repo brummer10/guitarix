@@ -161,6 +161,14 @@ public:
     bool compute(int count, float* buffer) {
         return is_runnable() ? compute(count, buffer, buffer) : true;
     }
+  
+    bool configure_stereo(int count, float *impresp, unsigned int imprate);
+    bool update_stereo(int count, float *impresp, unsigned int imprate);
+    bool compute_stereo(int count, float* input, float* input1, float *output, float *output1);
+    bool compute_stereo(int count, float* buffer, float* buffer1)
+    {
+      return is_runnable() ? compute_stereo(count, buffer, buffer1, buffer, buffer1) : true;
+    }
 };
 
 } /* end of gx_engine namespace */

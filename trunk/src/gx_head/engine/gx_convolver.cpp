@@ -599,4 +599,111 @@ bool __rt_func GxSimpleConvolver::compute(int count, float* input, float *output
     return flags == 0;
 }
 
+//////////////stero/////////////////
+
+bool GxSimpleConvolver::configure_stereo(int count, float *impresp, unsigned int imprate)
+{
+  //printf("try configure()\n");
+  CheckResample r(resamp);
+  impresp = r.resample(&count, impresp, imprate, samplerate);
+  if (!impresp)
+    {
+      printf("no impresp\n");
+      return false;
+    }
+  cleanup();
+  unsigned int bufsize = buffersize;
+  if (bufsize < Convproc::MINPART)
+    {
+      bufsize = Convproc::MINPART;
+    }
+  if (Convproc::configure(2, 2, count, buffersize,
+                          bufsize, bufsize)) // Convproc::MAXPART
+    {
+      printf("no configure\n");
+      return false;
+    }
+  if (impdata_create(0, 0, 1, impresp, 0, count) & impdata_create(1, 1, 1, impresp, 0, count))
+    {
+      printf("no impdata_create()\n");
+      return false;
+    }
+  //printf("configure()\n");
+
+  return true;
+}
+
+bool GxSimpleConvolver::update_stereo(int count, float *impresp, unsigned int imprate)
+{
+  CheckResample r(resamp);
+  impresp = r.resample(&count, impresp, imprate, samplerate);
+  if (!impresp)
+    {
+      return false;
+    }
+  if (impdata_update(0, 0, 1, impresp, 0, count) & impdata_update(1, 1, 1, impresp, 0, count))
+    {
+      return false;
+    }
+  return true;
+}
+
+bool __rt_func GxSimpleConvolver::compute_stereo(int count, float* input, float* input1, float *output, float *output1)
+{
+  // printf("try run\n");
+  if (state() != Convproc::ST_PROC)
+    {
+      //printf("state() != ST_PROC\n");
+      if (input != output)
+        {
+          memcpy(output, input, count * sizeof(float));
+          memcpy(output1, input1, count * sizeof(float));
+        }
+      if (state() == Convproc::ST_WAIT)
+        {
+          //printf("state() == ST_WAIT\n");
+          check_stop();
+        }
+      if (state() == ST_STOP)
+        {
+          //printf("state() == ST_STOP\n");
+          ready = false;
+        }
+      return true;
+    }
+  int flags = 0;
+  if (static_cast<unsigned int>(count) == buffersize)
+    {
+      memcpy(inpdata(0), input, count * sizeof(float));
+      memcpy(inpdata(1), input1, count * sizeof(float));
+
+      flags = process(sync);
+
+      memcpy(output, outdata(0), count * sizeof(float));
+      memcpy(output1, outdata(1), count * sizeof(float));
+    } else {
+        float *in, *in1, *out, *out1;
+      in = inpdata(0);
+      in1 = inpdata(1);
+      out = outdata(0);
+      out1 = outdata(1);
+      unsigned int b = 0;
+      unsigned int c = 1;
+      for(int i = 0; i<count; ++i){
+        in[b] = input[i];
+        in1[b] = input1[i];
+        if(++b == buffersize) {
+          b=0;
+          flags = process();
+          for(unsigned int d = 0; d<buffersize; ++d) {
+            output[d*c] = out[d];
+            output1[d*c] = out1[d];
+          }
+          ++c;
+        }
+      }
+    }
+  return flags == 0;
+}
+
 }

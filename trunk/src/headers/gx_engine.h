@@ -90,6 +90,7 @@ public:
     ConvolverMonoAdapter mono_convolver;
     ConvolverStereoAdapter stereo_convolver;
     CabinetConvolver cabinet;
+    CabinetStereoConvolver cabinet_st;
     PreampConvolver preamp;
     ContrastConvolver contrast;
     LiveLooper loop;

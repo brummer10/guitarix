@@ -247,6 +247,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), get_param()),
       stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), get_param()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      cabinet_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
@@ -354,8 +355,8 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::bitdowner::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::ts9sim::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::aclipper::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(pluginlib::mxrdist::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(pluginlib::bossds1::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::mxrdist::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::bossds1::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::bmp::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::impulseresponse::plugin(), PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::compressor::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
@@ -387,7 +388,7 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::mbe::plugin(),              PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbdel::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbclipper::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(pluginlib::bassboom::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::bassboom::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbchor::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::jcm800pre::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::gcb_95::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
@@ -420,8 +421,8 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::eldist::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::mole::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::buzz::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::bfuzz::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::axface::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::bfuzz::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::axface::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
@@ -443,6 +444,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::bass_enhancer::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::ring_modulator_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay_st::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&cabinet_st.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
 }
 
 static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {
