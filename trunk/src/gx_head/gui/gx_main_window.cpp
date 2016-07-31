@@ -2175,13 +2175,9 @@ bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
 bool MainWindow::on_toggle_insert(GdkEventButton* ev) {
     if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
 	if (machine.get_parameter_value<bool>("engine.insert")) {
-		insert_image->set(pixbuf_insert_off);
 		machine.set_parameter_value("engine.insert",false);
-		machine.set_jack_insert(true);
 	} else {
-		insert_image->set(pixbuf_insert_on);
 		machine.set_parameter_value("engine.insert",true);
-		machine.set_jack_insert(false);
 	}
 	}
     return true;
@@ -2189,9 +2185,9 @@ bool MainWindow::on_toggle_insert(GdkEventButton* ev) {
 
 void MainWindow::on_insert_jack_changed(bool s) {
     if (s) {
-	insert_image->set(pixbuf_insert_on);
-    } else {
 	insert_image->set(pixbuf_insert_off);
+    } else {
+	insert_image->set(pixbuf_insert_on);
     }
 }
 
