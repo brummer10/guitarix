@@ -139,7 +139,10 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     p.signal_changed().connect(
 	sigc::bind(sigc::ptr_fun(on_engine_mute_changed), sigc::ref(engine)));
     pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false);
-    pmap.reg_par("engine.insert", N_("switch insert ports on/off"), (bool*)0, false, false);
+    BoolParameter& ip = pmap.reg_par(
+      "engine.insert", N_("switch insert ports on/off"), (bool*)0, false, false)->getBool();
+    ip.signal_changed().connect(
+	sigc::mem_fun(this, &GxMachine::set_jack_insert));
 
 #ifndef NDEBUG
     // ------ time measurement (debug) ------

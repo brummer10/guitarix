@@ -2187,6 +2187,14 @@ bool MainWindow::on_toggle_insert(GdkEventButton* ev) {
     return true;
 }
 
+void MainWindow::on_insert_jack_changed(bool s) {
+    if (s) {
+	insert_image->set(pixbuf_insert_on);
+    } else {
+	insert_image->set(pixbuf_insert_off);
+    }
+}
+
 bool MainWindow::on_jackserverconnection(GdkEventButton* ev) {
     if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
     bool v = actions.jackserverconnection->get_active();
@@ -2885,6 +2893,8 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     gx_gui::connect_midi_controller(insert_image->get_parent(), "engine.insert", machine);
     insert_image->get_parent()->signal_button_press_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_toggle_insert));
+    gx_engine::BoolParameter& ip = machine.get_parameter("engine.insert").getBool();
+    ip.signal_changed().connect(sigc::mem_fun(*this, &MainWindow::on_insert_jack_changed));
 
     /*
     ** connect buttons with actions

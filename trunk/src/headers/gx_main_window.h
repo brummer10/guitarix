@@ -739,6 +739,7 @@ private:
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);
     bool on_toggle_insert(GdkEventButton* ev);
+    void on_insert_jack_changed(bool s);
     bool on_jackserverconnection(GdkEventButton* ev);
     void on_msg_level_changed();
     void on_ampdetail_switch(bool compress, bool setparam);
