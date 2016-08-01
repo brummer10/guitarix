@@ -75,6 +75,16 @@ void on_engine_mute_changed(bool s, GxEngine& engine) {
     }
 }
 
+void on_engine_bypass_changed(bool s, GxEngine& engine) {
+    if (s) {
+	engine.set_state(kEngineBypass);
+    } else {
+	if (engine.get_state() == kEngineBypass) {
+	    engine.set_state(kEngineOn);
+	}
+    }
+}
+
 GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     GxMachineBase(),
     options(options_),
@@ -138,6 +148,12 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 	sigc::bind(sigc::ptr_fun(set_engine_mute), sigc::ref(p)));
     p.signal_changed().connect(
 	sigc::bind(sigc::ptr_fun(on_engine_mute_changed), sigc::ref(engine)));
+    BoolParameter& pb = pmap.reg_par(
+	"engine.bypass", "Bypass", 0, engine.get_state() == gx_engine::kEngineBypass
+	)->getBool();
+    pb.setSavable(false);
+    pb.signal_changed().connect(
+	sigc::bind(sigc::ptr_fun(on_engine_bypass_changed), sigc::ref(engine)));
     pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false);
     BoolParameter& ip = pmap.reg_par(
       "engine.insert", N_("switch insert ports on/off"), (bool*)0, false, false)->getBool();

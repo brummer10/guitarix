@@ -115,6 +115,12 @@ void TextLoggingBox::on_hide() {
     Gtk::Window::on_hide();
 }
 
+void TextLoggingBox::reset_msg_level() {
+    highest_unseen_msg_level = GxLogger::kMessageTypeCount;
+    msg_level_changed();
+    highest_unseen_msg_level = -1;
+}
+
 void TextLoggingBox::show_msg(string msgbuf, GxLogger::MsgType msgtype, bool plugged) {
     assert(0 <= msgtype && msgtype < GxLogger::kMessageTypeCount);
 
@@ -1318,7 +1324,24 @@ bool MainWindow::on_log_activated(GdkEventButton* ev) {
         fLoggingWindow.hide();
         actions.loggingbox->set_active(false);
     }
+	}else if (ev->type == GDK_BUTTON_PRESS && ev->button == 2) {
+        fLoggingWindow.reset_msg_level();
 	}
+    return true;
+}
+
+bool MainWindow::on_log_scrolled(GdkEventScroll* ev) {
+    if (!actions.loggingbox->get_active()) {
+		actions.loggingbox->set_active(true);
+        gint rxorg, ryorg;
+        window->get_position(rxorg, ryorg);
+        fLoggingWindow.move(rxorg+5, ryorg+272);
+        fLoggingWindow.show_all();
+        on_msg_level_changed();
+    } else {
+        fLoggingWindow.hide();
+        actions.loggingbox->set_active(false);
+    }
     return true;
 }
 
@@ -1337,6 +1360,12 @@ void MainWindow::on_engine_toggled() {
 void MainWindow::set_switcher_controller() {
     if (!machine.midi_get_config_mode()) {
 	new gx_main_midi::MidiConnect(0, machine.get_parameter("ui.live_play_switcher"), machine);
+    }
+}
+
+void MainWindow::set_bypass_controller() {
+    if (!machine.midi_get_config_mode()) {
+	new gx_main_midi::MidiConnect(0, machine.get_parameter("engine.bypass"), machine);
     }
 }
 
@@ -1561,6 +1590,9 @@ void MainWindow::create_actions() {
 
     actions.group->add(Gtk::Action::create("SetPresetSwitcher", _("L_iveplay Midi Switch")),
 		     sigc::mem_fun(this, &MainWindow::set_switcher_controller));
+
+    actions.group->add(Gtk::Action::create("SetBypassSwitcher", _("B_ypass Midi Switch")),
+		     sigc::mem_fun(this, &MainWindow::set_bypass_controller));
 
     /*
     ** Help and About
@@ -2172,6 +2204,28 @@ bool MainWindow::on_toggle_mute(GdkEventButton* ev) {
     return true;
 }
 
+bool MainWindow::on_scroll_toggle(GdkEventScroll* ev) {
+    if (ev->direction == GDK_SCROLL_UP) {
+	if (machine.get_state() == gx_engine::kEngineOff) {
+	    machine.set_state(gx_engine::kEngineOn);
+	} else if (machine.get_state() == gx_engine::kEngineOn) {
+	    machine.set_state(gx_engine::kEngineBypass);
+	} else {
+	    machine.set_state(gx_engine::kEngineOff);
+	}
+    } else if (ev->direction == GDK_SCROLL_DOWN) {
+	if (machine.get_state() == gx_engine::kEngineOff) {
+	    machine.set_state(gx_engine::kEngineBypass);
+	} else if (machine.get_state() == gx_engine::kEngineBypass) {
+	    machine.set_state(gx_engine::kEngineOn);
+	} else {
+	    machine.set_state(gx_engine::kEngineOff);
+	}
+    }
+    
+    return true;
+}
+
 bool MainWindow::on_toggle_insert(GdkEventButton* ev) {
     if (ev->type == GDK_BUTTON_PRESS && ev->button == 1) {
 	if (machine.get_parameter_value<bool>("engine.insert")) {
@@ -2179,6 +2233,15 @@ bool MainWindow::on_toggle_insert(GdkEventButton* ev) {
 	} else {
 		machine.set_parameter_value("engine.insert",true);
 	}
+	}
+    return true;
+}
+
+bool MainWindow::on_scroll_toggle_insert(GdkEventScroll* ev) {
+	if (machine.get_parameter_value<bool>("engine.insert")) {
+		machine.set_parameter_value("engine.insert",false);
+	} else {
+		machine.set_parameter_value("engine.insert",true);
 	}
     return true;
 }
@@ -2196,6 +2259,12 @@ bool MainWindow::on_jackserverconnection(GdkEventButton* ev) {
     bool v = actions.jackserverconnection->get_active();
     actions.jackserverconnection->set_active(!v);
     }
+    return true;
+}
+
+bool MainWindow::on_jackserverconnection_scroll(GdkEventScroll* ev) {
+    bool v = actions.jackserverconnection->get_active();
+    actions.jackserverconnection->set_active(!v);
     return true;
 }
 
@@ -2780,8 +2849,11 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     */
     if (jack) {
 	jackd_image->set(pixbuf_jack_disconnected);
+    jackd_image->get_parent()->add_events(Gdk::SCROLL_MASK);
     jackd_image->get_parent()->signal_button_press_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_jackserverconnection));
+    jackd_image->get_parent()->signal_scroll_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_jackserverconnection_scroll));
 	//jackd_image->get_parent()->signal_button_press_event().connect(
 	//    sigc::bind_return(
 	//	sigc::group(
@@ -2877,18 +2949,24 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     ** init status image widget
     */
     status_image->set(pixbuf_on);
+    status_image->get_parent()->add_events(Gdk::SCROLL_MASK);
     gx_gui::connect_midi_controller(status_image->get_parent(), "engine.mute", machine);
     status_image->get_parent()->signal_button_press_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_toggle_mute));
+    status_image->get_parent()->signal_scroll_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_scroll_toggle));
     on_engine_state_change(machine.get_state());
 
     /*
     ** init insert image widget
     */
     insert_image->set(pixbuf_insert_on);
+    insert_image->get_parent()->add_events(Gdk::SCROLL_MASK);
     gx_gui::connect_midi_controller(insert_image->get_parent(), "engine.insert", machine);
     insert_image->get_parent()->signal_button_press_event().connect(
 	sigc::mem_fun(*this, &MainWindow::on_toggle_insert));
+    insert_image->get_parent()->signal_scroll_event().connect(
+	sigc::mem_fun(*this, &MainWindow::on_scroll_toggle_insert));
     gx_engine::BoolParameter& ip = machine.get_parameter("engine.insert").getBool();
     ip.signal_changed().connect(sigc::mem_fun(*this, &MainWindow::on_insert_jack_changed));
 
@@ -2932,8 +3010,11 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    sigc::mem_fun(actions.loggingbox.operator->(), &Gtk::ToggleAction::set_active),
 	    false));
     on_msg_level_changed();
+    logstate_image->get_parent()->add_events(Gdk::SCROLL_MASK);
     logstate_image->get_parent()->signal_button_press_event().connect(
     sigc::mem_fun(*this, &MainWindow::on_log_activated));
+    logstate_image->get_parent()->signal_scroll_event().connect(
+    sigc::mem_fun(*this, &MainWindow::on_log_scrolled));
     
     //logstate_image->get_parent()->signal_button_press_event().connect(
 	//sigc::bind_return(

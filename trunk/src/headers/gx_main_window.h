@@ -428,6 +428,7 @@ private:
 public:
     TextLoggingBox();
     ~TextLoggingBox();
+    void reset_msg_level();
     int get_unseen_msg_level() { return highest_unseen_msg_level; }
     sigc::signal<void>& signal_msg_level_changed() { return msg_level_changed; }
 };
@@ -728,6 +729,7 @@ private:
     void delete_select_jack_control();
     void on_log_activate();
     bool on_log_activated(GdkEventButton* ev);
+    bool on_log_scrolled(GdkEventScroll* ev);
     void do_program_change(int pgm);
     void on_engine_toggled();
     void on_engine_state_change(gx_engine::GxEngineState state);
@@ -738,9 +740,12 @@ private:
     void setup_tuner_temperament(Gxw::RackTuner& tuner);
     void setup_tuner(Gxw::RackTuner& tuner);
     bool on_toggle_mute(GdkEventButton* ev);
+    bool on_scroll_toggle(GdkEventScroll* ev);
     bool on_toggle_insert(GdkEventButton* ev);
+    bool on_scroll_toggle_insert(GdkEventScroll* ev);
     void on_insert_jack_changed(bool s);
     bool on_jackserverconnection(GdkEventButton* ev);
+    bool on_jackserverconnection_scroll(GdkEventScroll* ev);
     void on_msg_level_changed();
     void on_ampdetail_switch(bool compress, bool setparam);
     void on_show_oscilloscope(bool v);
@@ -762,6 +767,7 @@ private:
     void show_selected_preset();
     void on_select_preset(int idx);
     void set_switcher_controller();
+    void set_bypass_controller();
     void set_vpaned_handle();
     void rebuild_preset_menu();
     bool on_key_press_event(GdkEventKey *event);

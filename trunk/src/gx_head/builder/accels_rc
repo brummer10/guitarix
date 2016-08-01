@@ -42,6 +42,7 @@
 (gtk_accel_path "<Actions>/Main/ResetAll" "")
 (gtk_accel_path "<Actions>/Main/Save" "<Control>s")
 (gtk_accel_path "<Actions>/Main/SetPresetSwitcher" "")
+(gtk_accel_path "<Actions>/Main/SetBypassSwitcher" "")
 (gtk_accel_path "<Actions>/Main/ShowPluginBar" "<Control>b")
 (gtk_accel_path "<Actions>/Main/ShowRack" "<Control>r")
 (gtk_accel_path "<Actions>/Main/ShowTooltips" "")

@@ -46,6 +46,7 @@
       <menuitem action="ResetAll" />
       <menuitem action="Animations" />
       <menuitem action="SetPresetSwitcher" />
+      <menuitem action="SetBypassSwitcher" />
     </menu>
     <menu action="AboutMenu">
       <menuitem action="About"/>
