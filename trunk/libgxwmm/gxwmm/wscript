@@ -30,6 +30,12 @@ def set_options(opt):
                    const=True,
                    help=('re-generate the pre-built c++ library wrapper files (Developers only!!)'),
                    )
+    grp.add_option('--generate-resources',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('re-generate the pre-built gresources file (Developers only!!)'),
+                   )
 
 def configure(conf):
     conf.check_tool('misc')

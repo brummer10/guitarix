@@ -704,6 +704,8 @@ def configure(conf):
         if Options.options.faust_options:
             display_msg("configuration error", " can't use --faust-options without faust", 'RED')
             sys.exit(1)
+    if Options.options.generate_resources:
+        conf.find_program('glib-compile-resources', var='HAVE_GLIB')
 
     # directory
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'
@@ -849,6 +851,7 @@ def configure(conf):
     if opt.faust_options:
         display_msg("Additional faust options", conf.env['FAUST_OPTIONS'], 'CYAN')
     display_feature("Use prebuild gperf files", not conf.env["HAVE_GPERF"])
+    display_feature("Use prebuild gresouce file", not conf.env["HAVE_GLIB"])
     display_feature("Avahi service discovery", conf.env["HAVE_AVAHI"])
     display_feature("Bluetooth rfcomm", conf.env["HAVE_BLUEZ"])
     display_feature("Use Webkit", conf.env["HAVE_WEBKIT"])

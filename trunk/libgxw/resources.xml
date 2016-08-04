@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/icons">
+        <file>button_off.png</file>
+        <file>button_on.png</file>
+        <file>eqslider.png</file>
+        <file>levelslider.png</file>
+        <file>knob_big.png</file>
+        <file>knob_mid.png</file>
+        <file>knob_small.png</file>
+        <file>knob_small_r.png</file>
+        <file>led_off.png</file>
+        <file>led_on.png</file>
+        <file>minislider.png</file>
+        <file>minitoggle_off.png</file>
+        <file>minitoggle_on.png</file>
+        <file>hslider.png</file>
+        <file>switchit_off.png</file>
+        <file>switchit_on.png</file>
+        <file>switch_off.png</file>
+        <file>switch_on.png</file>
+        <file>switch_mid_off.png</file>
+        <file>switch_mid_on.png</file>
+        <file>switch_min_off.png</file>
+        <file>switch_min_on.png</file>
+        <file>pbutton_on.png</file>
+        <file>pbutton_off.png</file>
+        <file>rbutton_on.png</file>
+        <file>rbutton_off.png</file>
+        <file>prbutton_on.png</file>
+        <file>prbutton_off.png</file>
+        <file>fbutton_on.png</file>
+        <file>fbutton_off.png</file>
+        <file>frbutton_on.png</file>
+        <file>frbutton_off.png</file>
+        <file>vslider.png</file>
+        <file>wheel_back.png</file>
+        <file>wheel_vertical_back.png</file>
+        <file>wheel_fringe.png</file>
+        <file>wheel_pointer.png</file>
+        <file>gxhead.png</file>
+        <file>gxplate.png</file>
+        <file>gxplate2.png</file>
+        <file>gxplate3.png</file>
+        <file>portdisplay.png</file>
+        <file>guitarix.png</file>
+        <file>screw.png</file>
+
+        <file>background1.png</file>
+        <file>background2.png</file>
+        <file>handle_left.png</file>
+        <file>handle_right.png</file>
+        <file>selector_icon.png</file>
+        <file>insert.png</file>
+        <file>watermark.png</file>
+        <file>logo.png</file>
+    </gresource>
+</gresources>

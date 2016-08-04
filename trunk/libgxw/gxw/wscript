@@ -1,7 +1,7 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
-import Logs, Utils, Configure, Options, os.path
+import Logs, Utils, Configure, Options, os.path, shutil
 
 def set_options(opt):
     pass
@@ -11,75 +11,34 @@ def configure(conf):
         conf.check_tool("libtool")
 
 def img2c(task):
-    mkname = lambda v: "pb_" + os.path.splitext(os.path.basename(str(v)))[0]
-    sources = " ".join(["'%s' '%s'" % (mkname(v), v.srcpath(task.env)) for v in task.inputs])
-    dst = task.outputs[0].bldpath(task.env)
-    cmd = ("gdk-pixbuf-csource --raw --build-list %s > %s" % (sources, dst))
+    sources = "../libgxw/resources.xml"
+    dst = "../libgxw/gximages.cc"
+    dstdir = task.outputs[0].bldpath(task.env)
+
+    cmd = ("glib-compile-resources --sourcedir=../libgxw/icons/ --target=%s  --generate-source %s" % ( dst, sources))
     Logs.debug("runner: system command -> %s" % cmd)
-    return Utils.exec_command(cmd, shell=True)
+    ret = Utils.exec_command(cmd, shell=True)
+    shutil.copy2(dst,dstdir)
+    return ret
 
 def build_stock_images(bld):
-    images = [
-        "button_off.png",
-        "button_on.png",
-        "eqslider.png",
-        "levelslider.png",
-        "knob_big.png",
-        "knob_mid.png",
-        "knob_small.png",
-        "knob_small_r.png",
-        "led_off.png",
-        "led_on.png",
-        "minislider.png",
-        "minitoggle_off.png",
-        "minitoggle_on.png",
-        "hslider.png",
-        "switchit_off.png",
-        "switchit_on.png",
-        "switch_off.png",
-        "switch_on.png",
-        "switch_mid_off.png",
-        "switch_mid_on.png",
-        "switch_min_off.png",
-        "switch_min_on.png",
-        "pbutton_on.png",
-        "pbutton_off.png",
-        "rbutton_on.png",
-        "rbutton_off.png",
-        "prbutton_on.png",
-        "prbutton_off.png",
-        "fbutton_on.png",
-        "fbutton_off.png",
-        "frbutton_on.png",
-        "frbutton_off.png",
-        "vslider.png",
-        "wheel_back.png",
-        "wheel_vertical_back.png",
-        "wheel_fringe.png",
-        "wheel_pointer.png",
-        "gxhead.png",
-        "gxplate.png",
-        "gxplate2.png",
-        "gxplate3.png",
-        "portdisplay.png",
-        "guitarix.png",
-        "screw.png",
 
-        "background1.png",
-        "background2.png",
-        "handle_left.png",
-        "handle_right.png",
-        "selector_icon.png",
-        "insert.png",
-        "watermark.png",
-        "logo.png"
-       ]
+    # generate gresourcefile from resources.xml, to add images add them in
+    # gxinit.cpp and ../resources.xml, then use the --generate-resources flag
+    # to re-generate the gximages.cc file
 
-    bld(name = "img2c",
-        target = "gximages.cc",
-        rule = img2c,
-        source = ["../icons/"+v for v in images],
-        )
+    if bld.env["HAVE_GLIB"]:
+        bld(name = "generate-resources",
+            target = "gximages.cc",
+            rule = img2c,
+            source = "../resources.xml",
+            )
+    else:
+        bld(name = "copy-resources",
+            rule = "cp ${SRC} ${TGT}",
+            source = "../gximages.cc",
+            target = 'gximages.cc',
+            )
     bld.add_group()
 
 def build(bld):
