@@ -30,16 +30,16 @@ static image_entry image_data[] = {
 	{ "button_on" },
 	{ "eqslider" },
 	{ "levelslider" },
-	{ "knob_big" },
-	{ "knob_mid" },
+	{ "bigknob" },
+	{ "midknob" },
 	{ "led_off" },
 	{ "led_on" },
 	{ "minislider" },
 	{ "minitoggle_off" },
 	{ "minitoggle_on" },
 	{ "hslider" },
-	{ "knob_small" },
-	{ "knob_small_r" },
+	{ "smallknob" },
+	{ "smallknobr" },
 	{ "switchit_off" },
 	{ "switchit_on" },
 	{ "switch_off" },
@@ -87,8 +87,9 @@ void gxw_init()
 #if !GLIB_CHECK_VERSION(2, 36, 0) 
 	g_type_init();
 #endif
-    gchar *path = NULL;
+    gchar *path =NULL;
 
+G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	GtkIconFactory *factory = gtk_icon_factory_new();
 	for (image_entry *p = image_data; p->icon_name; p++) {
 		path = g_strdup_printf ("/icons/%s.png", p->icon_name);

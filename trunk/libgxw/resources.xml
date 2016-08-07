@@ -5,10 +5,10 @@
         <file>button_on.png</file>
         <file>eqslider.png</file>
         <file>levelslider.png</file>
-        <file>knob_big.png</file>
-        <file>knob_mid.png</file>
-        <file>knob_small.png</file>
-        <file>knob_small_r.png</file>
+        <file>bigknob.png</file>
+        <file>midknob.png</file>
+        <file>smallknob.png</file>
+        <file>smallknobr.png</file>
         <file>led_off.png</file>
         <file>led_on.png</file>
         <file>minislider.png</file>
