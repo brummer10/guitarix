@@ -89,7 +89,6 @@ void gxw_init()
 #endif
     gchar *path =NULL;
 
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	GtkIconFactory *factory = gtk_icon_factory_new();
 	for (image_entry *p = image_data; p->icon_name; p++) {
 		path = g_strdup_printf ("/icons/%s.png", p->icon_name);
@@ -101,4 +100,3 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 	}
 	gtk_icon_factory_add_default(factory);
 }
-G_GNUC_END_IGNORE_DEPRECATIONS
