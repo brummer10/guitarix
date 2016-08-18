@@ -229,28 +229,25 @@ private:
   float                        *alevel;
   float                        alevel_;
   float                        pre;
-  float                        val;
   bool                         doit;
   float*                       schedule_ok;
   float                        schedule_ok_;
   volatile int32_t             schedule_wait;
   
   bool cab_changed()
-    {return abs(cab - (clevel_ + c_model_)) > 0.1;}
+    {return abs(cab - clevel_ ) > 0.1;}
   bool buffsize_changed() 
     {return abs(bufsize - cur_bufsize) != 0;}
   void update_cab()
-    {cab = (clevel_ + c_model_); c_old_model_ = c_model_;}
+    {cab = (clevel_ ); c_old_model_ = c_model_;}
   bool change_cab()
     {return abs(c_old_model_ - c_model_) > 0.1;}
   bool pre_changed()
     {return abs(pre - alevel_) > 0.1;}
   void update_pre()
     {pre = (alevel_);}
-  bool val_changed()
-    {return abs(val - ((*alevel) + (*clevel) + (*c_model))) > 0.1;}
-  void update_val()
-    {val = (alevel_) + (clevel_) + (c_model_);}
+  inline bool val_changed() 
+    {return  abs(alevel_ - (*alevel)) > 0.1 || abs(clevel_ - (*clevel)) > 0.1 || abs(c_model_ - (*c_model)) > 0.1;}
 
   // LV2 stuff
   LV2_URID_Map*                map;
@@ -323,7 +320,6 @@ GxPluginStereo::GxPluginStereo() :
   alevel(NULL),
   alevel_(0),
   pre(0),
-  val(0),
   schedule_ok(NULL),
   schedule_ok_(0)
 {
@@ -379,7 +375,7 @@ void GxPluginStereo::do_work_stereo()
      if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver update buffersize fail\n");
    }
-  if (cab_changed())
+  if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())
         {
@@ -432,7 +428,6 @@ void GxPluginStereo::do_work_stereo()
       update_pre();
       //printf("presence convolver updated\n");
     }
-  update_val();
   atomic_set(&schedule_wait,0);
 }
 

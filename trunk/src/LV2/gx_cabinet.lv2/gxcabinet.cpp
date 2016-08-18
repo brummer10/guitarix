@@ -94,28 +94,27 @@ private:
   float                        cbass_;
   float                        *ctreble;
   float                        ctreble_;
-  float                        cab;
+  float                        cab_bass;
+  float                        cab_treble;
+  float                        cab_level;
   float                        *c_model;
   float                        c_model_;
   float                        c_old_model_;
-  float                        val;
   bool                         doit;
   float*                       schedule_ok;
   float                        schedule_ok_;
   volatile int32_t             schedule_wait;
 
   inline bool cab_changed() 
-    {return abs(cab - (cbass_ + ctreble_ + clevel_ + c_model_)) > 0.1;}
+    {return abs(cab_bass - cbass_) > 0.1 || abs(cab_treble - ctreble_) > 0.1 || abs(cab_level - clevel_) > 0.1;}
   inline bool buffsize_changed() 
     {return abs(bufsize - cur_bufsize) != 0;}
   inline void update_cab() 
-    {cab = (cbass_ + ctreble_ + clevel_ + c_model_); c_old_model_ = c_model_;}
+    {cab_bass = cbass_; cab_treble = ctreble_; cab_level = clevel_; c_old_model_ = c_model_;}
   inline bool change_cab() 
     {return abs(c_old_model_ - c_model_) > 0.1;}
   inline bool val_changed() 
-    {return abs(val - ((*cbass) + (*ctreble) + (*clevel) + (*c_model))) > 0.1;}
-  inline void update_val() 
-    {val = (cbass_) + (ctreble_) + (clevel_) + (c_model_);}
+    {return abs(cbass_ - (*cbass)) > 0.1 || abs(ctreble_ != (*ctreble)) > 0.1 || abs(clevel_ != (*clevel)) > 0.1 ||  abs(c_model_ != (*c_model)) > 0.1;}
 
   // LV2 stuff
   LV2_URID_Map*                map;
@@ -174,11 +173,12 @@ GxCabinet::GxCabinet() :
   cbass_(0),
   ctreble(NULL),
   ctreble_(0),
-  cab(0),
+  cab_bass(0),
+  cab_treble(0),
+  cab_level(0),
   c_model(NULL),
   c_model_(0),
   c_old_model_(0),
-  val(0),
   schedule_ok(NULL),
   schedule_ok_(0)
 {
@@ -217,7 +217,7 @@ void GxCabinet::do_work_mono()
      if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver update buffersize fail\n");
    }
-  if (cab_changed())
+  if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())
         {
@@ -254,7 +254,6 @@ void GxCabinet::do_work_mono()
       //printf("cabinet convolver updated\n");
     } // else printf("cabinet convolver disabled\n");
     }
-  update_val();
   atomic_set(&schedule_wait,0);
 }
 

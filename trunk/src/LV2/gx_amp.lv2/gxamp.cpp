@@ -229,18 +229,17 @@ private:
   float                        *alevel;
   float                        alevel_;
   float                        pre;
-  float                        val;
   bool                         doit;
   float*                       schedule_ok;
   float                        schedule_ok_;
   volatile int32_t             schedule_wait;
 
   inline bool cab_changed() 
-    {return abs(cab - (clevel_ + c_model_)) > 0.1;}
+    {return abs(cab - clevel_ ) > 0.1;}
   inline bool buffsize_changed() 
     {return abs(bufsize - cur_bufsize) != 0;}
   inline void update_cab() 
-    {cab = (clevel_ + c_model_); c_old_model_ = c_model_;}
+    {cab = clevel_ ; c_old_model_ = c_model_;}
   inline bool change_cab() 
     {return abs(c_old_model_ - c_model_) > 0.1;}
   inline bool pre_changed() 
@@ -248,9 +247,7 @@ private:
   inline void update_pre() 
     {pre = (alevel_);}
   inline bool val_changed() 
-    {return abs(val - ((*alevel) + (*clevel) + (*c_model))) > 0.1;}
-  inline void update_val() 
-    {val = (alevel_) + (clevel_) + (c_model_);}
+    {return  abs(alevel_ - (*alevel)) > 0.1 || abs(clevel_ - (*clevel)) > 0.1 || abs(c_model_ - (*c_model)) > 0.1;}
 
   // LV2 stuff
   LV2_URID_Map*                map;
@@ -318,7 +315,6 @@ GxPluginMono::GxPluginMono() :
   alevel(NULL),
   alevel_(0),
   pre(0),
-  val(0),
   schedule_ok(NULL),
   schedule_ok_(0)
 {
@@ -337,6 +333,7 @@ GxPluginMono::~GxPluginMono()
 
 void GxPluginMono::do_work_mono()
 {
+  
   if (buffsize_changed()) 
    {
      printf("buffersize changed to %u\n",cur_bufsize);
@@ -372,7 +369,7 @@ void GxPluginMono::do_work_mono()
      if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver update buffersize fail\n");
    }
-  if (cab_changed())
+  if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())
         {
@@ -393,7 +390,6 @@ void GxPluginMono::do_work_mono()
         cabconv.set_samplerate(s_rate);
         cabconv.set_buffersize(bufsize);
         cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
-        //printf("cabconv.changed.\n");
       }
       float cab_irdata_c[cabconv.cab_count];
       float adjust_1x8 = 1;
@@ -406,7 +402,6 @@ void GxPluginMono::do_work_mono()
       if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver disabled\n");
       update_cab();
-      //printf("cabinet convolver updated\n");
     } // else printf("cabinet convolver disabled\n");
     }
   if (pre_changed())
@@ -424,9 +419,7 @@ void GxPluginMono::do_work_mono()
       if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver disabled\n");
       update_pre();
-      //printf("presence convolver updated\n");
     }
-  update_val();
   atomic_set(&schedule_wait,0);
 }
 
