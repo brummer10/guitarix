@@ -715,6 +715,8 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
 
     int num_inputs = lilv_plugin_get_num_ports_of_class(plugin, loader.lv2_AudioPort, loader.lv2_InputPort, 0);
     int num_outputs = lilv_plugin_get_num_ports_of_class(plugin, loader.lv2_AudioPort, loader.lv2_OutputPort, 0);
+    int num_controls = lilv_plugin_get_num_ports_of_class(plugin, loader.lv2_ControlPort, 0);
+
     bool mono;
     if (num_inputs == 1 && num_outputs == 1) {
 	mono = true;
@@ -729,7 +731,19 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
 	lilv_node_free(nm);
 	return NULL;
     }
-    return new Lv2Dsp(plug, plugin, loader, mono);
+    Lv2Dsp* self = new Lv2Dsp(plug, plugin, loader, mono);
+    int desk_controls = 0;
+    for (std::vector<paradesc*>::const_iterator it = self->pd->names.begin(); it != self->pd->names.end(); ++it, ++desk_controls) ;
+    if (num_controls != desk_controls) {
+	LilvNode *nm = lilv_plugin_get_name(plugin);
+	gx_print_error(
+	    "lv2loader",ustring::compose(
+		_("LV2 plugin %1 has changed it's ports, this may result in errors!!\n please un-load the plugin and press 'save'.\n After this you could re-load it with it's new ports"),
+		lilv_node_as_string(nm)));
+	lilv_node_free(nm);
+		
+	}    
+    return self;
 }
 
 Lv2Dsp::Lv2Dsp(const plugdesc *plug, const LilvPlugin* plugin_, const LadspaLoader& loader_, bool mono)
@@ -909,7 +923,9 @@ int Lv2Dsp::registerparam(const ParamReg& reg) {
     int n = 0;
     int cnt_in_row = 0;
     int left = 0;
+    int num_controls = lilv_plugin_get_num_ports_of_class(self.plugin, self.loader.lv2_ControlPort, 0);
     for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
+	if (n>=num_controls) break;
 	paradesc *d = *it;
 	if (d->tp != tp_none) {
 	    left -= 1;
@@ -994,7 +1010,9 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	}
     n = 0;
     int row = 0;
+    int num_controls = lilv_plugin_get_num_ports_of_class(self.plugin, self.loader.lv2_ControlPort, 0);
     for (std::vector<paradesc*>::const_iterator it = self.pd->names.begin(); it != self.pd->names.end(); ++it, ++n) {
+	    if (n>=num_controls) break;
 	if ((*it)->newrow) {
 	    b.closeBox();
 	    if ( (rows == 1) || ( rows > 1 && row > 0 )) {
