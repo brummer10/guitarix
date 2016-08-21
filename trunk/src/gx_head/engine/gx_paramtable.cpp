@@ -270,6 +270,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
 
 bool MidiController::set_midi(int n, int last_value) {
     bool ret = false;
+    if (param->get_midi_blocked()) return ret;
     if (toggle) {
 	bool s_o = (2*last_value > 127);
 	bool s_n = (2*n > 127);
@@ -281,17 +282,19 @@ bool MidiController::set_midi(int n, int last_value) {
 	    }
 	}
     } else {
-        //fprintf(stderr,"%s \n",param->id().c_str());
+        //fprintf(stderr,"continues %s \n",param->id().c_str());
         //fprintf(stderr,"%f \n",(127.*log10f(double(n+1.)))/2.1072);
-       // fprintf(stderr,"%f \n",double(n * double(double(n+1.)/128)));
+        //fprintf(stderr,"%f \n",double(n * double(double(n+1.)/128)));
         
 	ret = param->midi_set(n, 127, _lower, _upper);
     }
+    param->trigger_changed();
     return ret;
 }
 
 bool MidiController::set_trans(int n, int last_value) {
     bool ret = false;
+    if (param->get_blocked()) return ret;
     if (strcmp(param->id().c_str(), "engine.mute")==0) {
         if ( n == 0) n = 127;
         else n = 0;
@@ -302,6 +305,7 @@ bool MidiController::set_trans(int n, int last_value) {
 
 bool MidiController::set_bpm(int n, int last_value) {
     bool ret = false;
+    if (param->get_blocked()) return ret;
     if (toggle) {
 	bool s_o = (2*last_value > 360);
 	bool s_n = (2*n > 360);

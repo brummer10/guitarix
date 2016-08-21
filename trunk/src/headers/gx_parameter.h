@@ -122,6 +122,7 @@ protected:
     bool controllable      : 1;
     bool do_not_save       : 1;
     bool blocked           : 1;
+    bool midi_blocked      : 1;
     bool used              : 1; // debug
 protected:
     void range_warning(float value, float lower, float upper);
@@ -142,6 +143,7 @@ public:
         controllable(ctrl),
 	do_not_save(false),
 	blocked(false),
+	midi_blocked(false),
         used(false) {}
     Parameter(gx_system::JsonParser& jp);
     virtual ~Parameter();
@@ -178,6 +180,8 @@ public:
     bool is_log_display() { return d_flags & dtp_log; }
     void set_blocked(bool v) { blocked = v; }
     bool get_blocked() { return blocked; }
+    void set_midi_blocked(bool v) { midi_blocked = v; }
+    bool get_midi_blocked() { return midi_blocked; }
     bool operator==(const Parameter& p) const { return &p == this; }
     virtual void stdJSON_value() = 0;
     virtual bool on_off_value() = 0; //RT

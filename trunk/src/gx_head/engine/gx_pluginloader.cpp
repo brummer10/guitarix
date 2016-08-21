@@ -294,6 +294,7 @@ void Plugin::register_vars(ParamMap& param, EngineControl& seq) {
     if (!(pdef->load_ui || (pdef->flags & PGN_GUI))) {
 	p_on_off->setSavable(false);
     }
+    p_on_off->set_midi_blocked(true);
     p_on_off->signal_changed_bool().connect(
 	sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
     if ((pdef->load_ui || pdef->flags & PGN_GUI) &&
@@ -698,8 +699,15 @@ void PluginList::ordered_mono_list(list<Plugin*>& mono, int mode) {
 	if (pl->get_on_off() && pl->get_pdef()->mono_audio && (pl->get_pdef()->flags & mode)) {
 	    mono.push_back(pl);
 	}
+    pl->p_on_off->set_midi_blocked(!(pl->get_box_visible()));
     }
     mono.sort(plugin_order);
+    
+    // print active plugins
+    // for (list<Plugin*>::const_iterator i = mono.begin(); i != mono.end(); ++i) {
+	// printf("mono_list %s\n", (*i)->get_pdef()->id);
+	// }
+	// printf("\n");
 }
 
 void PluginList::ordered_stereo_list(list<Plugin*>& stereo, int mode) {
@@ -709,6 +717,7 @@ void PluginList::ordered_stereo_list(list<Plugin*>& stereo, int mode) {
 	if (pl->get_on_off() && pl->get_pdef()->stereo_audio && (pl->get_pdef()->flags & mode)) {
 	    stereo.push_back(pl);
 	}
+    pl->p_on_off->set_midi_blocked(!(pl->get_box_visible()));
     }
     stereo.sort(plugin_order);
 }
