@@ -738,7 +738,7 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
 	LilvNode *nm = lilv_plugin_get_name(plugin);
 	gx_print_error(
 	    "lv2loader",ustring::compose(
-		_("LV2 plugin %1 has changed it's ports, this may result in errors!!\n please un-load the plugin and press 'save'.\n After this you could re-load it with it's new ports"),
+		_("LV2 plugin %1 has changed it's ports, this may result in errors!!\nPlease go to the LADSPA/LV2 loader and select %1\nSelect 'Show Details' and press 'Restore Defaults'\nUn-load %1 (un-tick the box) and press 'save'.\nAfter this you could re-load %1 with it's new ports"),
 		lilv_node_as_string(nm)));
 	lilv_node_free(nm);
 		
