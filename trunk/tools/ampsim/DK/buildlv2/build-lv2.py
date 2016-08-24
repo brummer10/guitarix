@@ -99,7 +99,7 @@ if not prefilter:
     dspfile = module_id+".dsp"
     dspfilepath = "./buildlv2/"
     dspfp = dspfilepath+dspfile
-    c1.save_faust_code(filename=str(dspfile))
+    c1.save_faust_code(filename=str(dspfp))
 else:
     c1.create_faust_module(pre_filter=prefilter)
 
