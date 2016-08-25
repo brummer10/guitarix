@@ -244,6 +244,7 @@ function make_ttl() {
     j=$[j+1]
     enum_var1=""
   done < ports >> gx_$bname.ttl
+  echo " ." >> gx_$bname.ttl
 
   if [ ! -z "$effect_category" ]; then
     sed -i 's/EffectPlugin/'${effect_category}'/g'  gx_${bname}.ttl
