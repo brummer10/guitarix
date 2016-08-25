@@ -244,6 +244,16 @@ function make_ttl() {
     j=$[j+1]
     enum_var1=""
   done < ports >> gx_$bname.ttl
+
+  if [ ! -z "$effect_category" ]; then
+    sed -i 's/EffectPlugin/'${effect_category}'/g'  gx_${bname}.ttl
+    echo -e "set plugin class to "$BLUE"$effect_category"$NONE
+  fi
+  if [ ! -z "$effect_name" ]; then
+    sed -i 's/EffectNAME/'"${effect_name}"'/g'  gx_${bname}.ttl
+  else
+    sed -i 's/EffectNAME/'${bname}'/g'  gx_${bname}.ttl
+  fi
  
   rm -rf ports
   rm -rf enums
