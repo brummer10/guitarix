@@ -6384,14 +6384,14 @@
       "highbooster.pp": "pre",
       "jconv.balance": 0,
       "jconv.convolver": {
-        "jconv.IRFile": "orange_2_mics.wav",
-        "jconv.IRDir": "/home/sonnie/Dropbox/MB-nicht-loeschen/Impulsantworten/GTR",
+        "jconv.IRFile": "",
+        "jconv.IRDir": "",
         "jconv.Gain": 0.44431,
         "jconv.GainCor": 0,
         "jconv.Offset": 0,
-        "jconv.Length": 44101,
+        "jconv.Length": 0,
         "jconv.Delay": 0,
-        "jconv.gainline": [[0, 0], [44100, 0]]
+        "jconv.gainline": []
       },
       "jconv.diff_delay": 0,
       "jconv.gain": -13.2,
