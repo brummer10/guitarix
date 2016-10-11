@@ -685,8 +685,9 @@ int __rt_func GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 	    get_float_buf(self.ports.input.port, nframes),
 	    obuf);
 
-    if (self.bypass_insert) 
+    if (self.bypass_insert) {
         memcpy(self.insert_buffer, obuf, nframes*sizeof(float));
+    }
         // midi input processing
 	if (self.ports.midi_input.port) {
 	    self.engine.controller_map.compute_midi_in(

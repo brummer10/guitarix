@@ -1895,6 +1895,9 @@ Glib::ustring MainWindow::add_plugin_menu_entry(PluginUI *pui) {
 }
 
 void MainWindow::register_plugin(PluginUI *pui) {
+	//FIXME UPDATE LV2 PLUGIN when needed
+	//if (pui->plugin->get_pdef()->flags & gx_engine::PGNI_NEED_UPDATE)
+	//fprintf(stderr,"UPDATE NEEDED for %s\n",pui->get_name());
     plugin_dict.add(pui);
     Gtk::ToolItemGroup *gw = add_plugin_category(pui->get_category());
     Glib::ustring actionname = add_plugin_menu_entry(pui);

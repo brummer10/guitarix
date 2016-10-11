@@ -1622,7 +1622,7 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std:
                                      "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
         Glib::RefPtr<Gio::FileInfo> file_info;
 
-        while ((file_info = child_enumeration->next_file()) != 0) {
+        while ((file_info = child_enumeration->next_file())) {
             if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "application/x-sharedlib") {
                 std::string nm = file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME);
                 if (lib_is_blacklisted(nm)) {
@@ -1650,7 +1650,7 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std:
                                      "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
         Glib::RefPtr<Gio::FileInfo> file_info;
 
-        while ((file_info = child_enumeration->next_file()) != 0) {
+        while ((file_info = child_enumeration->next_file())) {
 	    //if not f.endswith((".rdf",".rdfs")):
             if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "application/rdf+xml") {
                 std::string nm = file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME);

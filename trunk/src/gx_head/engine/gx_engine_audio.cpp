@@ -47,8 +47,8 @@ ProcessingChainBase::ProcessingChainBase():
 }
 
 void ProcessingChainBase::set_samplerate(int samplerate) {
-    steps_down = (256 * samplerate) / 48000;
-    steps_up = 8 * steps_down;
+    steps_down = 8 * (256 * samplerate) / 48000;
+    steps_up = steps_down;
     //steps_down = (64 * samplerate) / 48000;
     //steps_up = 4 * steps_down;
     steps_up_dead = 0;

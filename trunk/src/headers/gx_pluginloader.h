@@ -38,6 +38,7 @@ enum {			       // additional flags for PluginDef (used internally)
     PGNI_DYN_POSITION = 0x10000, // plugin is part of dynamically ordered rack
     PGNI_NOT_OWN      = 0x20000, // not owned by PluginList
     PGNI_UI_REG       = 0x40000, // Plugin registered in user interface
+    PGNI_NEED_UPDATE  = 0x80000, // Plugin needs update
 };
 
 class Plugin {

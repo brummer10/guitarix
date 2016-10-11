@@ -329,7 +329,7 @@ IRFileListing::IRFileListing(const std::string& path) {
 				       "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
 				       "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
         Glib::RefPtr<Gio::FileInfo> file_info;
-        while ((file_info = child_enumeration->next_file()) != 0) {
+        while ((file_info = child_enumeration->next_file())) {
 	    if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-wav") {
 		listing.push_back(
 		    FileName(
@@ -349,7 +349,7 @@ static void list_subdirs(const Glib::RefPtr<Gio::File>& file, std::vector<FileNa
 	file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
 				 "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME);
     Glib::RefPtr<Gio::FileInfo> file_info;
-    while ((file_info = child_enumeration->next_file()) != 0) {
+    while ((file_info = child_enumeration->next_file())) {
 	if (file_info->get_file_type() == Gio::FILE_TYPE_DIRECTORY) {
 	    Glib::RefPtr<Gio::File> child = file->get_child(
 		file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME));

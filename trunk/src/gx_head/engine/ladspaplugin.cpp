@@ -741,7 +741,8 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
 		_("LV2 plugin %1 has changed it's ports, this may result in errors!!\nPlease go to the LADSPA/LV2 loader and select %1\nSelect 'Show Details' and press 'Restore Defaults'\nUn-load %1 (un-tick the box) and press 'save'.\nAfter this you could re-load %1 with it's new ports"),
 		lilv_node_as_string(nm)));
 	lilv_node_free(nm);
-		
+	PluginDef& pl = *static_cast<PluginDef*>(self);
+	pl.flags |=PGNI_NEED_UPDATE;
 	}    
     return self;
 }

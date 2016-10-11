@@ -489,8 +489,9 @@ void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
     
 	gint new_top = (gint)floor((hrz ? b.width : b.height) * fm->current_level);
     new_top -= new_top % (lh + lb);
-    if (new_top)
+    if (new_top) {
         new_top += (lh + lb);
+    }
 	rect.x       = b.x + widget->allocation.x;
 	rect.width   = hrz ? new_top : b.width;
 	rect.height  = hrz ? b.width : new_top;
