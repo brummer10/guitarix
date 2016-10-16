@@ -566,7 +566,7 @@ void MainWindow::rebuild_preset_menu() {
 	preset_list_actiongroup->add(
 	    action, sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
 	if (idx <= 9) {
-	    char c = (idx == 9 ? '0' : '1'+idx);
+	    char c = '0' + idx;
 	    Gtk::AccelMap::change_entry(action->get_accel_path(), c, Gdk::ModifierType(0), true);
 	}
 	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
@@ -2621,11 +2621,11 @@ bool MainWindow::on_key_press_event(GdkEventKey *event) {
 	return false;
     }
     if (event->keyval >= GDK_KEY_0 && event->keyval <= GDK_KEY_9) {
-	keyswitch.process_preset_key(event->keyval == GDK_KEY_0 ? 9 : event->keyval - GDK_KEY_1);
+	keyswitch.process_preset_key(event->keyval - GDK_KEY_0);
 	return true;
     }
     if (event->keyval >= GDK_KEY_KP_0 && event->keyval <= GDK_KEY_KP_9) {
-	keyswitch.process_preset_key(event->keyval == GDK_KEY_KP_0 ? 9 : event->keyval - GDK_KEY_KP_1);
+	keyswitch.process_preset_key(event->keyval - GDK_KEY_KP_0);
 	return true;
     }
     if (event->keyval >= GDK_KEY_a && event->keyval <= GDK_KEY_z) {

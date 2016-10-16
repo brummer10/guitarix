@@ -119,16 +119,12 @@ bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
 
 bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *acceleratable,
 					 guint keyval, GdkModifierType modifier, Liveplay& self) {
-    if (keyval == GDK_KEY_0 || keyval == GDK_KEY_KP_0) {
-	self.keyswitch.process_preset_key(9);
+    if (keyval >= GDK_KEY_0 && keyval <= GDK_KEY_9) {
+	self.keyswitch.process_preset_key(keyval - GDK_KEY_0);
 	return true;
     }
-    if (keyval >= GDK_KEY_1 && keyval <= GDK_KEY_9) {
-	self.keyswitch.process_preset_key(keyval - GDK_KEY_1);
-	return true;
-    }
-    if (keyval >= GDK_KEY_KP_1 && keyval <= GDK_KEY_KP_9) {
-	self.keyswitch.process_preset_key(keyval - GDK_KEY_KP_1);
+    if (keyval >= GDK_KEY_KP_0 && keyval <= GDK_KEY_KP_9) {
+	self.keyswitch.process_preset_key(keyval - GDK_KEY_KP_0);
 	return true;
     }
     if (keyval >= GDK_KEY_a && keyval <= GDK_KEY_z) {
