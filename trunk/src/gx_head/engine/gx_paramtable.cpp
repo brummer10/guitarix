@@ -446,6 +446,7 @@ MidiControllerList::MidiControllerList()
     : map(),
       last_midi_control_value(),
       last_midi_control(-2),
+      changed_midi_control_value(),
       program_change(-1),
       mute_change(-1),
       bank_change(-1),
@@ -462,6 +463,7 @@ MidiControllerList::MidiControllerList()
       midi_value_changed() {
     for (int i = 0; i < ControllerArray::array_size; ++i) {
 	last_midi_control_value[i] = -1;
+	changed_midi_control_value[i] = 0;
     }
     pgm_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_pgm_chg));
     mute_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_mute_chg));
@@ -473,7 +475,8 @@ MidiControllerList::MidiControllerList()
 bool MidiControllerList::check_midi_values() {
     static int saved_values[ControllerArray::array_size];
     for (unsigned int n = 0; n < ControllerArray::array_size; ++n) {
-	if (saved_values[n] != last_midi_control_value[n]) {
+	if (changed_midi_control_value[n]) {
+	    changed_midi_control_value[n] = 0;
 	    saved_values[n] = last_midi_control_value[n];
 	    midi_value_changed(n, saved_values[n]);
 	    if (!get_config_mode()) {

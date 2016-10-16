@@ -732,6 +732,7 @@ private:
     ControllerArray        map; //RT
     int                    last_midi_control_value[ControllerArray::array_size]; //RT
     int                    last_midi_control; //RT
+    int                    changed_midi_control_value[ControllerArray::array_size]; //RT
     volatile gint          program_change; //RT
     volatile gint          mute_change; //RT
     volatile gint          bank_change; //RT
@@ -770,7 +771,7 @@ public:
     int get_last_midi_control_value(unsigned int n) {
 	assert(n < ControllerArray::array_size); return last_midi_control_value[n]; } //RT
     void set_last_midi_control_value(unsigned int n, int v) {
-	assert(n < ControllerArray::array_size); last_midi_control_value[n] = v; } //RT
+	assert(n < ControllerArray::array_size); last_midi_control_value[n] = v; changed_midi_control_value[n] = 1; } //RT
     void set_controller_array(const ControllerArray& m);
     void remove_controlled_parameters(paramlist& plist, const ControllerArray *m);
     sigc::signal<void>& signal_changed() { return changed; }
