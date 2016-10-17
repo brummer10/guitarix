@@ -94,7 +94,7 @@ rdfs:comment """
         lv2:name "Volume";
         lv2:default 0.0 ;
         lv2:minimum -20.0 ;
-        lv2:maximum 20.0 ;
+        lv2:maximum 10.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -168,26 +168,26 @@ rdfs:comment """
         lv2:index 0 ;
         lv2:symbol "Gain" ;
         lv2:name "Gain";
-        lv2:default 5.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 10.0 ;
+        lv2:default 0.0 ;
+        lv2:minimum -20.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 1 ;
         lv2:symbol "Tone" ;
         lv2:name "Tone";
-        lv2:default 0.0 ;
-        lv2:minimum -6.0 ;
-        lv2:maximum 6.0 ;
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 2 ;
         lv2:symbol "Volume" ;
         lv2:name "Volume";
-        lv2:default 5.0 ;
-        lv2:minimum 0.0 ;
+        lv2:default 0.0 ;
+        lv2:minimum -20.0 ;
         lv2:maximum 10.0 ;
     ] , [
         a lv2:InputPort ,
@@ -262,26 +262,26 @@ rdfs:comment """
         lv2:index 0 ;
         lv2:symbol "Gain" ;
         lv2:name "Gain";
-        lv2:default 5.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 10.0 ;
+        lv2:default 0.0 ;
+        lv2:minimum -20.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 1 ;
         lv2:symbol "Tone" ;
         lv2:name "Tone";
-        lv2:default 0.0 ;
-        lv2:minimum -6.0 ;
-        lv2:maximum 6.0 ;
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 2 ;
         lv2:symbol "Volume" ;
         lv2:name "Volume";
-        lv2:default 5.0 ;
-        lv2:minimum 0.0 ;
+        lv2:default 0.0 ;
+        lv2:minimum -20.0 ;
         lv2:maximum 10.0 ;
     ] , [
         a lv2:InputPort ,
