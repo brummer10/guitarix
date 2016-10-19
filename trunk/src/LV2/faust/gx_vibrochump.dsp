@@ -92,7 +92,7 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
     lfo = select2(SINE, trianglewave(freq), sine(freq));
 };
 
-effect =  (tremolo(vslider("speed[style:knob]",5,0.1,10,0.1),vslider("intensity[style:knob]",5,0,10,0.1)/10));
+effect =  (tremolo(vslider("speed[style:knob]",5,0.1,10,0.1),vslider("intensity[style:knob]",5,0,10,0.1)/10.2));
 
 
 // After some playing it seems that tubestage() phase inverts
