@@ -1043,8 +1043,8 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
     }
     // vowel mutation lead to a Glib::markup error when building the menu action,
     // so check for it and avoid them
-    if (newname.find_first_of("ÜüÖöÄä") != Glib::ustring::npos) {
-	gx_print_error("PresetWindow", "Vowel mutation isn't allowed in preset names, please choose a name without (ÜüÖöÄä)");
+    if (newname.find_first_of("ÜüÖöÄäæǣāøø̄ūȳēī&%$§!?*#|<>/") != Glib::ustring::npos) {
+	gx_print_error("PresetWindow", "Vowel mutation isn't allowed in preset names, please choose a name without (ÜüÖöÄääæǣāøø̄ūȳēī&%$§!?*#|<>/)");
     reset_edit(*preset_treeview->get_column(0));
 	return;        
     }
