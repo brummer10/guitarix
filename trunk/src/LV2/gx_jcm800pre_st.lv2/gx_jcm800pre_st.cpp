@@ -196,7 +196,11 @@ void Gx_jcm800pre_::deactivate_f()
 void Gx_jcm800pre_::run_dsp_(uint32_t n_samples)
 {
   downtomono->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1,  downtomono);
-  jcm800pre->mono_audio(static_cast<int>(n_samples), output, output, jcm800pre);
+  if(n_samples == bufsize) {
+    jcm800pre->mono_audio(static_cast<int>(n_samples), output, output, jcm800pre);
+  } else {
+    memcpy(output, input, n_samples * sizeof(float));
+  }
   tonestack_jcm800->mono_audio(static_cast<int>(n_samples), output, output, tonestack_jcm800);
   // run presence convolver
   presence.run_static(n_samples, &presence, output);

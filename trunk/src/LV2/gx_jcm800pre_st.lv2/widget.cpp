@@ -54,33 +54,36 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 }
 
 Widget::Widget(Glib::ustring plugname):
-plug_name(plugname)
+plug_name(plugname),
+pir(GX_LV2_STYLE_DIR"/logo.png")
 {
 
   // create all controllers
-  make_controller_box(&m_vbox, "MASTER", -20, 20, 0.1, GAIN);
-  make_controller_box(&m_vbox1, "PRE-AMP", 0, 1, 0.01, P6v);
-  make_controller_box(&m_vbox2, "PRESENCE", 1, 100, 1, WET_DRY);
+  make_controller_box(&m_vbox1, "MASTER", -20, 20, 0.1, GAIN);
+  make_controller_box(&m_vbox2, "PRE-AMP", 0, 1, 0.01, P6v);
+  make_controller_box(&m_vbox, "PRESENCE", 1, 100, 1, WET_DRY);
   make_controller_box(&m_vbox3, "MIDDLE", 0, 1, 0.01, MIDDLE);
   make_controller_box(&m_vbox4, "BASS", 0, 1, 0.01, BASS);
   make_controller_box(&m_vbox5, "TREBLE", 0, 1, 0.01, TREBLE);
 
   // set propertys for the main paintbox holding the skin
-  m_paintbox.set_border_width(30);
+ // m_paintbox.set_border_width(30);
   m_paintbox.set_spacing(12);
   m_paintbox.set_homogeneous(false);
   m_paintbox.set_name(plug_name);
-  m_paintbox.property_paint_func() = "amp_skin_expose";
+  m_paintbox.property_paint_func() = "gx_rack_unit_expose";
   add(m_paintbox);
   // box for the controllers
-  m_hbox_.set_spacing(36);
-  m_hbox_.set_border_width(12);
+  m_hbox_.set_spacing(26);
+ // m_hbox_.set_border_width(12);
   m_hbox_.set_homogeneous(false);
   // this box set space for the upper part of the skin
   m_hbox1_.set_spacing(12);
-  m_hbox1_.set_border_width(65);
+  // m_hbox1_.set_border_width(65);
+  m_hbox1_.pack_end(pir, Gtk::PACK_SHRINK);
   // set a vertical box in the paintbox
-  m_paintbox.pack_start(m_vbox_);
+  // m_paintbox.pack_start(m_vbox_);
+  m_paintbox.pack_start(m_vbox_, Gtk::PACK_EXPAND_PADDING, 35);
   // and put space box on top
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);
   // and controller box on bottem

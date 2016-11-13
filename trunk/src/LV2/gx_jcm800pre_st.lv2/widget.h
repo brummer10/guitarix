@@ -84,14 +84,15 @@ protected:
   Gtk::VBox          m_vbox3;
   Gtk::VBox          m_vbox4;
   Gtk::VBox          m_vbox5;
+  Gtk::Image         pir;
 
   Gxw::PaintBox      m_paintbox;
   Gxw::BigKnob       m_bigknob;
   Gxw::BigKnob       m_bigknob1;
   Gxw::BigKnob       m_bigknob2;
-  Gxw::SmallKnob     m_smallknob1;
-  Gxw::SmallKnob     m_smallknob2;
-  Gxw::SmallKnob     m_smallknob3;
+  Gxw::SmallKnobR    m_smallknob1;
+  Gxw::SmallKnobR    m_smallknob2;
+  Gxw::SmallKnobR    m_smallknob3;
 };
 
 #endif //SRC_HEADERS_WIDGET_H_

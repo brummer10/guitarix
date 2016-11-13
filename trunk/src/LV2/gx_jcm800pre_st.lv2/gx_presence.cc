@@ -197,7 +197,7 @@ bool __rt_func GxPresence::compute(int32_t count, float* input, float *output)
 	  b=0;
 	  flags = process();
 	  for(uint32_t d = 0; d<buffersize; ++d) {
-		float fTemp0 = output[d*c];
+		float fTemp0 = input[d*c];
 		fRec0[0] = ((0.999f * fRec0[1]) + fSlow3);
 		output[d*c] = fRec0[0] * ((fSlow2 * fTemp0) + (fSlow1 * out[d]));
 		// post processing
