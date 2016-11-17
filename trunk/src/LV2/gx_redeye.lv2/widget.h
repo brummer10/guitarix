@@ -88,6 +88,7 @@ protected:
   Gtk::VBox      m_vbox12_;
   Gtk::VBox      m_vbox13_;
   Gtk::VBox      m_vbox14_;
+  Gtk::VBox      m_vbox21_;
 
 
 Gtk::VBox      m_vbox15_;
@@ -121,6 +122,7 @@ Gtk::VBox      m_vbox20_;
 
   Gxw::Switch	     m_switch;
   Gxw::Switch	     m_switch1;
+  Gxw::Switch	     m_switch2;
 
   // stores port values we're currently at.
   float              gain;
@@ -130,6 +132,7 @@ Gtk::VBox      m_vbox20_;
   float              speed;
   float              intensity;
   float		sinewave ;
+  float		vibe ;
   bool		vibrochump ;
 };
 

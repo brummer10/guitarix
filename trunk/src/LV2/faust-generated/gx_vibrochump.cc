@@ -25,6 +25,8 @@ private:
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
 	double 	fRec6[2];
+	FAUSTFLOAT 	fcheckbox1;
+	FAUSTFLOAT	*fcheckbox1_;
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
 	double 	fRec13[2];
@@ -35,8 +37,8 @@ private:
 	double 	fConst8;
 	double 	fConst9;
 	double 	fConst10;
-	FAUSTFLOAT 	fcheckbox1;
-	FAUSTFLOAT	*fcheckbox1_;
+	FAUSTFLOAT 	fcheckbox2;
+	FAUSTFLOAT	*fcheckbox2_;
 	double 	fVec1[2];
 	double 	fConst11;
 	double 	fConst12;
@@ -265,8 +267,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider0 (*fslider0_)
 #define fcheckbox0 (*fcheckbox0_)
 #define fslider1 (*fslider1_)
-#define fslider2 (*fslider2_)
 #define fcheckbox1 (*fcheckbox1_)
+#define fslider2 (*fslider2_)
+#define fcheckbox2 (*fcheckbox2_)
 #define fslider3 (*fslider3_)
 #define fslider4 (*fslider4_)
 	double 	fSlow0 = double(fslider0);
@@ -275,11 +278,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow3 = (fConst3 * fSlow0);
 	int 	iSlow4 = int(double(fcheckbox0));
 	double 	fSlow5 = double(fslider1);
-	double 	fSlow6 = (0.007000000000000006 * pow(10,(0.05 * double(fslider2))));
-	double 	fSlow7 = double(fcheckbox1);
-	double 	fSlow8 = (fConst7 * fSlow7);
-	double 	fSlow9 = (0.007000000000000006 * double(fslider3));
-	double 	fSlow10 = (0.007000000000000006 * pow(10,(0.05 * double(fslider4))));
+	int 	iSlow6 = int(double(fcheckbox1));
+	double 	fSlow7 = (0.007000000000000006 * pow(10,(0.05 * double(fslider2))));
+	double 	fSlow8 = double(fcheckbox2);
+	double 	fSlow9 = (fConst7 * fSlow8);
+	double 	fSlow10 = (0.007000000000000006 * double(fslider3));
+	double 	fSlow11 = (0.007000000000000006 * pow(10,(0.05 * double(fslider4))));
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
 		double fTemp0 = (fRec6[1] * (1 - (fConst1 / (fConst1 + (0.06 * exp((0 - (2.4849066497880004 * fRec6[1]))))))));
@@ -289,14 +293,14 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec10[0] = ((1 + (fRec10[1] + (fSlow3 * fRec11[0]))) - iVec0[1]);
 		fRec9[0] = fRec10[0];
 		fRec6[0] = (fTemp0 + (fConst1 * (pow((1 + (fSlow5 * ((0.09803921568627452 * ((iSlow4)?max((double)0, (0.5 * (1 + fRec9[0]))):(fSlow2 * iRec7[0]))) - 0.09803921568627452))),1.9) / (fConst1 + (0.06 * exp((0 - (2.4849066497880004 * fTemp0))))))));
-		fRec13[0] = ((0.993 * fRec13[1]) + fSlow6);
-		double fTemp1 = (fSlow7 * fRec14[1]);
+		fRec13[0] = ((0.993 * fRec13[1]) + fSlow7);
+		double fTemp1 = (fSlow8 * fRec14[1]);
 		fVec1[0] = fTemp1;
-		fRec21[0] = ((fConst14 * fRec21[1]) + (fConst13 * ((fSlow8 * fRec14[1]) + (fConst11 * fVec1[1]))));
+		fRec21[0] = ((fConst14 * fRec21[1]) + (fConst13 * ((fSlow9 * fRec14[1]) + (fConst11 * fVec1[1]))));
 		fRec20[0] = (fRec21[0] - (fConst10 * ((fConst8 * fRec20[2]) + (fConst6 * fRec20[1]))));
 		fRec23[0] = ((fConst14 * fRec23[1]) + (fConst13 * (fVec1[0] + fVec1[1])));
 		fRec22[0] = (fRec23[0] - (fConst10 * ((fConst8 * fRec22[2]) + (fConst6 * fRec22[1]))));
-		fRec24[0] = ((0.993 * fRec24[1]) + fSlow9);
+		fRec24[0] = ((0.993 * fRec24[1]) + fSlow10);
 		double fTemp2 = (fConst21 * fRec24[0]);
 		double fTemp3 = ((double)input0[i] + 1e-15);
 		fVec2[0] = fTemp3;
@@ -308,7 +312,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec27[0] = (Ftube(TUBE_TABLE_12AX7_68k, ((fRec30[0] + (0.9254498422517706 * (fRec28[2] + (fRec28[0] + (2.0 * fRec28[1]))))) - 1.581656)) - 191.42014814814814);
 		fRec26[0] = ((fConst35 * fRec26[1]) + (fConst34 * ((fConst31 * fRec27[0]) + (fConst32 * fRec27[1]))));
 		fRec25[0] = (fRec26[0] - (fConst26 * ((fConst25 * fRec25[1]) + (fConst23 * fRec25[2]))));
-		fRec31[0] = ((0.993 * fRec31[1]) + fSlow10);
+		fRec31[0] = ((0.993 * fRec31[1]) + fSlow11);
 		double fTemp5 = ((fConst26 * (fRec31[0] * (((fRec25[0] * (fTemp2 + fConst37)) + (fRec25[1] * (0.00802871828276969 + (fConst36 * fRec24[0])))) + (fRec25[2] * (fTemp2 + fConst19))))) - (fConst16 * ((fRec22[2] + (fRec22[0] + (2 * fRec22[1]))) + (1.4125375446227544 * (((fConst5 * fRec20[0]) + (fConst15 * fRec20[1])) + (fConst5 * fRec20[2]))))));
 		fVec4[0] = fTemp5;
 		fRec19[0] = ((fConst14 * fRec19[1]) + (fConst13 * (fVec4[0] + fVec4[1])));
@@ -325,7 +329,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp8 = (fRec14[0] * fRec13[0]);
 		fVec7[0] = fTemp8;
 		fRec12[0] = ((fConst14 * fRec12[1]) + (fConst13 * (fVec7[0] + fVec7[1])));
-		double fTemp9 = (1e-15 + (2700 * (fRec12[0] / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec6[0])))))))));
+		double fTemp9 = (1e-15 + (fRec12[0] * ((iSlow6)?1.0:(double(2700) / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec6[0]))))))))));
 		fVec8[0] = fTemp9;
 		fRec5[0] = ((0.9302847925323914 * (fVec8[0] + fVec8[1])) - (0.8605695850647829 * fRec5[1]));
 		fRec4[0] = (fRec5[0] - ((1.8405051250752198 * fRec4[1]) + (0.8612942439318627 * fRec4[2])));
@@ -386,8 +390,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider0
 #undef fcheckbox0
 #undef fslider1
-#undef fslider2
 #undef fcheckbox1
+#undef fslider2
+#undef fcheckbox2
 #undef fslider3
 #undef fslider4
 }
@@ -416,13 +421,17 @@ void Dsp::connect(uint32_t port,void* data)
 		fslider2_ = (float*)data; // , 0.0, -2e+01, 1e+01, 0.1 
 		break;
 	case FEEDBACK: 
-		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		fcheckbox2_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case INTENSITY: 
 		fslider1_ = (float*)data; // , 5.0, 0.0, 1e+01, 0.1 
 		break;
 	case SPEED: 
 		fslider0_ = (float*)data; // , 5.0, 0.1, 1e+01, 0.1 
+		break;
+	// static const value_pair fcheckbox1_values[] = {{"On"},{"Off"},{0}};
+	case VIBE: 
+		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	default:
 		break;
@@ -454,6 +463,7 @@ typedef enum
    FEEDBACK, 
    INTENSITY, 
    SPEED, 
+   VIBE, 
 } PortIndex;
 */
 

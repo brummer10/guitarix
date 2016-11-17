@@ -94,6 +94,8 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
 
 effect =  (tremolo(vslider("speed[style:knob]",5,0.1,10,0.1),vslider("intensity[style:knob]",5,0,10,0.1)/10.2));
 
+vof =checkbox("vibe[enum:On|Off]");
+vibe = select2(vof, effect, 1.0);
 
 // After some playing it seems that tubestage() phase inverts
 // so if presence is wrapped around odd number of tubestages no need to reverse
@@ -110,7 +112,7 @@ process =  stage1:bmptone:*(preamp): stage2:transformer with {
 	// master 0 - > 20 Either 0.75 or 0.5
 	// How to do in Faust!
 	atten = 0.5; // Seems to need at least this much!
-	stage2 =  ( + : lowpass(1,6531.0):tubestage(TB_12AX7_250k,100.0,1500.0,1.204285) )~feedback:*(volume):lowpass(1,6531.0):*(effect):tubestage(TB_6V6_250k,120.0,820.0,1.130462):*(atten); 
+	stage2 =  ( + : lowpass(1,6531.0):tubestage(TB_12AX7_250k,100.0,1500.0,1.204285) )~feedback:*(volume):lowpass(1,6531.0):*(vibe):tubestage(TB_6V6_250k,120.0,820.0,1.130462):*(atten); 
        transformer = lowpass( 1, 6531 ):highpass( 1, 120) ;
 	feedback = *(checkbox("feedback") ):high_shelf( 3, 6531 ): *(-0.5);
       cabinet = lowpass(2,5500):peak_eq(-15.0,400.0,400):highpass(2,120);

@@ -108,6 +108,16 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 4 ;
+        lv2:symbol "Vibe" ;
+        lv2:name "Vibe";
+        lv2:portProperty lv2:notOnGUI;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
         lv2:symbol "Speed" ;
         lv2:name "Speed";
         lv2:portProperty lv2:notOnGUI;
@@ -117,7 +127,7 @@ rdfs:comment """
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 5 ;
+        lv2:index 6 ;
         lv2:symbol "Intensity" ;
         lv2:name "Intensity";
         lv2:portProperty lv2:notOnGUI;
@@ -127,7 +137,7 @@ rdfs:comment """
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 6 ;
+        lv2:index 7 ;
         lv2:symbol "Sinewave" ;
         lv2:name "Sinewave";
         lv2:portProperty lv2:notOnGUI;
@@ -137,13 +147,13 @@ rdfs:comment """
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 7 ;
+        lv2:index 8 ;
         lv2:symbol "out" ;
         lv2:name "Out"
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 8 ;
+        lv2:index 9 ;
         lv2:symbol "in" ;
         lv2:name "in"
     ] .
@@ -205,6 +215,16 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 4 ;
+        lv2:symbol "Vibe" ;
+        lv2:name "Vibe";
+        lv2:portProperty lv2:notOnGUI;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
         lv2:symbol "Speed" ;
         lv2:name "Speed";
         lv2:portProperty lv2:notOnGUI;
@@ -214,7 +234,7 @@ rdfs:comment """
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 5 ;
+        lv2:index 6 ;
         lv2:symbol "Intensity" ;
         lv2:name "Intensity";
         lv2:portProperty lv2:notOnGUI;
@@ -224,7 +244,7 @@ rdfs:comment """
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 6 ;
+        lv2:index 7 ;
         lv2:symbol "Sinewave" ;
         lv2:name "Sinewave";
         lv2:portProperty lv2:notOnGUI;
@@ -234,13 +254,13 @@ rdfs:comment """
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 7 ;
+        lv2:index 8 ;
         lv2:symbol "out" ;
         lv2:name "Out"
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 8 ;
+        lv2:index 9 ;
         lv2:symbol "in" ;
         lv2:name "in"
     ] .
@@ -302,6 +322,17 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 4 ;
+        lv2:symbol "Vibe" ;
+        lv2:name "Vibe";
+        lv2:portProperty lv2:toggled;
+        lv2:portProperty lv2:integer;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
         lv2:symbol "Speed" ;
         lv2:name "Speed";
         lv2:default 5 ;
@@ -310,7 +341,7 @@ rdfs:comment """
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 5 ;
+        lv2:index 6 ;
         lv2:symbol "Intensity" ;
         lv2:name "Intensity";
         lv2:default 0 ;
@@ -319,7 +350,7 @@ rdfs:comment """
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 6 ;
+        lv2:index 7 ;
         lv2:symbol "Sinewave" ;
         lv2:name "Sinewave";
         lv2:portProperty lv2:toggled;
@@ -330,13 +361,13 @@ rdfs:comment """
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 7 ;
+        lv2:index 8 ;
         lv2:symbol "out" ;
         lv2:name "Out"
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 8 ;
+        lv2:index 9 ;
         lv2:symbol "in" ;
         lv2:name "in"
     ] .

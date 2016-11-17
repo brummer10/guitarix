@@ -42,6 +42,7 @@ typedef enum
   TONE,
   VOLUME,
   FEEDBACK,
+  VIBE,
   SPEED,
   INTENSITY,
   SINEWAVE,

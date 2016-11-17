@@ -109,7 +109,7 @@ Widget::Widget(Glib::ustring plug_name)
   	m_vbox_.pack_start( m_hbox1_ ) ;
   }
  // Wrapper for lower layer with knobs in centre
-  m_hbox3_.set_spacing(20); // Calculate more accurately
+  m_hbox3_.set_spacing(6); // Calculate more accurately
   m_hbox3_.set_border_width(0);
   m_hbox3_.set_homogeneous(false);
   m_hbox3_.set_size_request(678,72);
@@ -119,7 +119,7 @@ Widget::Widget(Glib::ustring plug_name)
   m_vbox5_.set_border_width(0);
   m_vbox5_.set_homogeneous(false);
   if( vibrochump ){
-	m_vbox5_.set_size_request(36);
+	m_vbox5_.set_size_request(16);
   }else{
   	m_vbox5_.set_size_request(146);
   }
@@ -172,6 +172,11 @@ Widget::Widget(Glib::ustring plug_name)
   // This is for the Vibro amps
 
   if( vibrochump ){
+	  m_vbox21_.set_spacing(0);
+	  m_vbox21_.set_border_width(0);
+	  m_vbox21_.set_homogeneous(false);
+	  make_switch_box( &m_vbox21_, &m_switch2, "vibe", 0.0, 1.0, 1.0, vibe, VIBE, plug_name);
+          m_hbox3_.pack_start( m_vbox21_ ) ;
 	  m_vbox10_.set_spacing(0);
 	  m_vbox10_.set_border_width(0);
 	  m_vbox10_.set_homogeneous(false);
@@ -205,7 +210,7 @@ Widget::Widget(Glib::ustring plug_name)
   m_vbox14_.set_border_width(0);
   m_vbox14_.set_homogeneous(false);
   if( vibrochump ){
-	m_vbox14_.set_size_request(36);
+	m_vbox14_.set_size_request(16);
   }else{
   	m_vbox14_.set_size_request(146);
   }
@@ -393,6 +398,10 @@ void Widget::set_value(uint32_t port_index,
           sinewave = value;
           m_switch1.cp_set_value(sinewave);
           break;
+        case VIBE:
+          vibe = value;
+          m_switch2.cp_set_value(vibe);
+          break;
         default:
           break;
         }
@@ -428,6 +437,13 @@ void Widget::on_value_changed(uint32_t port_index)
    //   std::cout << "speed = " << speed << std::endl;
       write_function(controller, (PortIndex)SPEED,
                  sizeof(float), 0, (const void*)&speed);
+      break;
+
+   case VIBE:
+      vibe = m_switch2.cp_get_value();
+      //std::cout << "sinewave = " << sinewave << std::endl;
+      write_function(controller, (PortIndex)VIBE,
+                 sizeof(float), 0, (const void*)&vibe);
       break;
     case INTENSITY:
       intensity = m_bigknob4.get_value();
