@@ -94,8 +94,8 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
 
 effect =  (tremolo(vslider("speed[style:knob]",5,0.1,10,0.1),vslider("intensity[style:knob]",5,0,10,0.1)/10.2));
 
-vof =checkbox("vibe[enum:On|Off]");
-vibe = select2(vof, effect, 1.0);
+vof =checkbox("vibe[enum:Off|On]");
+vibe = select2(vof, 1.0, effect);
 
 // After some playing it seems that tubestage() phase inverts
 // so if presence is wrapped around odd number of tubestages no need to reverse

@@ -329,7 +329,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp8 = (fRec14[0] * fRec13[0]);
 		fVec7[0] = fTemp8;
 		fRec12[0] = ((fConst14 * fRec12[1]) + (fConst13 * (fVec7[0] + fVec7[1])));
-		double fTemp9 = (1e-15 + (fRec12[0] * ((iSlow6)?1.0:(double(2700) / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec6[0]))))))))));
+		double fTemp9 = (1e-15 + (fRec12[0] * ((iSlow6)?(double(2700) / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec6[0]))))))):1.0)));
 		fVec8[0] = fTemp9;
 		fRec5[0] = ((0.9302847925323914 * (fVec8[0] + fVec8[1])) - (0.8605695850647829 * fRec5[1]));
 		fRec4[0] = (fRec5[0] - ((1.8405051250752198 * fRec4[1]) + (0.8612942439318627 * fRec4[2])));
@@ -429,7 +429,7 @@ void Dsp::connect(uint32_t port,void* data)
 	case SPEED: 
 		fslider0_ = (float*)data; // , 5.0, 0.1, 1e+01, 0.1 
 		break;
-	// static const value_pair fcheckbox1_values[] = {{"On"},{"Off"},{0}};
+	// static const value_pair fcheckbox1_values[] = {{"Off"},{"On"},{0}};
 	case VIBE: 
 		fcheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
