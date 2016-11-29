@@ -478,7 +478,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec8[0] = (fRec9[0] - ((1.8405051250752198 * fRec8[1]) + (0.8612942439318627 * fRec8[2])));
 		double fTemp20 = (1e-15 + (0.015 * fRec7[1]));
 		fVec8[0] = fTemp20;
-		fRec36[0] = ((fConst63 * fRec36[1]) + (fConst62 * (fVec8[0] + fVec8[1])));
+		fRec36[0] = ((fConst63 * fRec36[1]) + (fConst62 * (fVec8[1] + fVec8[0])));
 		fRec7[0] = (Ftube(TUBE_TABLE_12AT7_250k, ((fRec36[0] + (0.9254498422517706 * (fRec8[2] + (fRec8[0] + (2.0 * fRec8[1]))))) - 1.887332)) - 124.17786666666666);
 		fRec6[0] = ((fConst31 * fRec6[1]) + (fConst59 * ((fConst27 * fRec7[0]) + (fConst28 * fRec7[1]))));
 		double fTemp21 = (fRec11[0] * fRec6[0]);

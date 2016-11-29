@@ -11,11 +11,14 @@ import("music.lib");
 import("oscillator.lib");
 
 import("guitarix.lib");
+import("redeye.lib");
+
 /* vactrol model */
 
 R1 = 2700;
 Ra = 1e6;
 Rb = 300;
+
 b = exp(log(Ra)/log(Rb)) - exp(1);
 dTC = 0.06;
 minTC = log(0.005/dTC);
@@ -45,8 +48,6 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
     lfo = select2(SINE, trianglewave(freq), sine(freq));
 };
 
-stage1 = tubestage(TB_12AX7_68k,2.1,1500.0,1.204541) ; // Gain 2.9   2nd -29.8 3rd -26.24
-stage2 = tubestage(TB_12AX7_250k,2.1,1500.0,1.204285) ; //  Gain 2.41 2nd -34.34 3rd -23.36
-gain = vslider("Gain[style:knob]", 0, -12, 12, 0.1):db2linear: smoothi(0.999);
 
-process = stage1:*(tremolo(vslider("speed[style:knob]",5,0.1,20,0.1),vslider("depth[style:knob]",0.5,0,1,0.01))):*(gain):stage2;
+process = input12at7:*(tremolo(vslider("speed[style:knob]",5,0.1,14,0.1),vslider("depth[style:knob]",0.5,0,1,0.01))):output12au7;
+

@@ -27,14 +27,26 @@
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxtubetremelo"
 #define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxtubetremelo#gui"
 
-
+/*
 typedef enum
 {
 	SINEWAVE,
+	DRIVE,
 	DEPTH,
 	SPEED,
 	GAIN,
   EFFECTS_OUTPUT,
+  EFFECTS_INPUT,
+} PortIndex;
+*/
+typedef enum
+{
+   DRIVE, 
+   GAIN, 
+   SINEWAVE, 
+   DEPTH, 
+   SPEED, 
+     EFFECTS_OUTPUT,
   EFFECTS_INPUT,
 } PortIndex;
 

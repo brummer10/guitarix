@@ -34,12 +34,14 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 {
   switch ((PortIndex)port_index )
   {
-    case DRIVE:
+    case BODY:
       return &m_bigknob;
-    case GAIN:
-      return &m_bigknob1;
     case TONE:
+      return &m_bigknob1;
+    case DRIVE:
       return &m_bigknob2;
+    case LEVEL:
+      return &m_bigknob3;
     default:
       return NULL;
   } 
@@ -49,9 +51,10 @@ Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
   // create controllers for port name
-  make_controller_box(&m_vbox2, "DRIVE", 0, 20.0, 0.1, DRIVE);
-  make_controller_box(&m_vbox3, "GAIN", 0.0, 20.0, 0.1, GAIN);
-  make_controller_box(&m_vbox4, "TONE", 0.0, 1.0, 0.01, TONE);
+  make_controller_box(&m_vbox2, "BODY", 0, 1.0, 0.01, BODY);
+  make_controller_box(&m_vbox3, "TONE", 0.0, 1.0, 0.01, TONE);
+  make_controller_box(&m_vbox4, "DRIVE", 0.0, 1.0, 0.01, DRIVE);
+  make_controller_box(&m_vbox5, "LEVEL", 0.0, 1.0, 0.01, LEVEL);
   
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(0);
@@ -80,11 +83,13 @@ plug_name(plugname)
   m_vbox2.set_spacing(6);
   m_vbox3.set_spacing(6);
   m_vbox4.set_spacing(6);
+  m_vbox5.set_spacing(6);
 
   m_hbox1_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
   m_hbox1_.pack_start(m_vbox2);
   m_hbox1_.pack_start(m_vbox3);
   m_hbox1_.pack_start(m_vbox4);
+  m_hbox1_.pack_start(m_vbox5);
   m_hbox1_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
 
   m_vbox_.pack_start(m_hbox1_, Gtk::PACK_EXPAND_PADDING);

@@ -94,8 +94,7 @@ class Test(object):
         smpl = lambda tm: int(round(tm*self.FS))
         if pre is None:
             pre = span/2
-        s, d = dk_lib.genlogsweep(
-            start, stop, self.FS, smpl(pre), smpl(span), smpl(post))
+        s, d = dk_lib.genlogsweep(start, stop, self.FS, smpl(pre), smpl(span), smpl(post))
         s *= magnitude
         n = dk_lib.pow2roundup(len(s))
         #d /= np.mean(abs(np.fft.fft(dk_lib.fft_convolve(d, s), n))[n*start/self.FS:n*stop/self.FS])
@@ -839,6 +838,12 @@ class Triode1_test(Test): # triode test
 Tubes = {
     "12ax7": dict(mu = 100.0, Ex = 1.4, Kp = 600.0, Kvb = 300.0, Kg1 = 1060.0, Gco = -0.2, Gcf = 1e-5),
     "EL34": dict(mu = 8.7, Ex = 1.35, Kp = 48.0, Kvb = 12.0, Kg1 = 1460.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    "12au7": dict(mu = 21.5, Ex = 1.3, Kp = 84.0, Kvb = 300.0, Kg1 = 1180.0, Gco = 0, Gcf = 12e-5),
+    "12at7": dict(mu = 60.0, Ex = 1.35, Kp = 300.0, Kvb = 300.0, Kg1 = 460.0, Gco = -0.5, Gcf = 12e-5),
+    "12ay7": dict(mu = 44.16, Ex = 1.11, Kp = 409.96, Kvb = 300.0, Kg1 = 1192.4, Gco = -0.5, Gcf = 12e-5),
+    "6V6": dict(mu = 8.7, Ex = 1.35, Kp = 48.0, Kvb = 12.0, Kg1 = 1460.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+
+
     }
 
 class Triode2_test(Test): # triode test 2

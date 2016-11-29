@@ -112,6 +112,10 @@ def dirlist():
         'gx_bmp.lv2',
         'gx_bossds1.lv2',
         'gx_mxrdist.lv2',
+        'gxtape.lv2',
+        'gxtape_st.lv2',	
+        'gx_alembic.lv2',	
+        
        ]
 
     return subdirs

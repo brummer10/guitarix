@@ -34,14 +34,16 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 {
   switch ((PortIndex)port_index )
   {
-    case INPUTGAIN:
+    case DRIVE:
       return &m_bigknob;
     case SWELL:
       return &m_bigknob1;
     case SUSTAIN:
       return &m_bigknob2;
-    case OUTPUTGAIN:
+    case GAIN:
       return &m_bigknob3;
+    case BPM:
+      return &m_bigknob4;
     case HEAD1:
       return &m_switch;
     case HEAD2:
@@ -57,15 +59,15 @@ Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
   // create controllers for port name
-  make_controller_box(&m_vbox2, "GAIN", 0, 1.0, 0.01, INPUTGAIN);
+  make_controller_box(&m_vbox2, "INPUT", 0, 1.0, 0.01, DRIVE);
   make_controller_box(&m_vbox3, "SWELL", 0, 1.0, 0.01, SWELL);
   make_controller_box(&m_vbox4, "SUSTAIN", 0, 1.0, 0.01, SUSTAIN);
-  make_controller_box(&m_vbox5, "OUTPUT", 0, 1.0, 0.01, OUTPUTGAIN);
-
+  make_controller_box(&m_vbox5, "OUTPUT", 0, 1.0, 0.01, GAIN);
+  make_controller_box(&m_vbox9, "BPM",  24, 360, 0.1,BPM);
   make_switch_box(&m_vbox6, "1",  HEAD1);
   make_switch_box(&m_vbox7, "2",  HEAD2);
   make_switch_box(&m_vbox8, "3",  HEAD3);
-  //make_switch_box(&m_vbox9, "HEAD4",  HEAD4);
+  //
   
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(0);
@@ -96,9 +98,11 @@ plug_name(plugname)
   m_vbox3.set_spacing(6);
   m_vbox4.set_spacing(6);
   m_vbox5.set_spacing(6);
+  m_vbox9.set_spacing(6);
 
   m_hbox1_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
   m_hbox1_.pack_start(m_vbox2);
+  m_hbox1_.pack_start(m_vbox9);
   m_hbox1_.pack_start(m_vbox3);
   m_hbox1_.pack_start(m_vbox4);
   m_hbox1_.pack_start(m_vbox5);
@@ -275,6 +279,7 @@ void Widget::set_value(uint32_t port_index,
                        uint32_t format,
                        const void * buffer)
 {
+	std::cout << "Index " << port_index << std::endl ;
   if ( format == 0 )
   {
     Gxw::Regler *regler = static_cast<Gxw::Regler*>(
@@ -282,6 +287,7 @@ void Widget::set_value(uint32_t port_index,
     if (regler)
     {
       float value = *static_cast<const float*>(buffer);
+	std::cout << "Value " << value << std::endl ;
       regler->cp_set_value(value);
     }
   }
@@ -292,9 +298,11 @@ void Widget::on_value_changed(uint32_t port_index)
 {
   Gxw::Regler *regler = static_cast<Gxw::Regler*>(
                                     get_controller_by_port(port_index));
+ std::cout << "Index " << port_index << std::endl ;
   if (regler)
   {
     float value = regler->cp_get_value();
+ 	std::cout << "Value " << value << std::endl ;
     write_function(controller, port_index, sizeof(float), 0,
                                     static_cast<const void*>(&value));
   }

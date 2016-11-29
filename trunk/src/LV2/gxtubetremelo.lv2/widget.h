@@ -93,6 +93,7 @@ protected:
   Gxw::BigKnob      m_bigknob;
   Gxw::BigKnob      m_bigknob1;
   Gxw::BigKnob      m_bigknob2;
+  Gxw::BigKnob      m_bigknob3;
   Gxw::Switch       m_switch;
 };
 

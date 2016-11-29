@@ -84,9 +84,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow1 = double(fslider1);
 	double 	fSlow2 = (2.9448437500000003e-06 * fSlow1);
 	double 	fSlow3 = (((fSlow1 * (((2.9448437500000007e-05 * fSlow0) - 8.731718750000001e-06) - fSlow2)) + (0.00011998125000000002 * fSlow0)) + 1.2916875000000002e-05);
-	double 	fSlow4 = ((2.5703125000000004e-09 * fSlow0) - (2.5703125000000003e-10 * fSlow1));
-	double 	fSlow5 = (7.343750000000001e-09 * fSlow0);
-	double 	fSlow6 = (7.343750000000001e-10 + (fSlow5 + (fSlow1 * (fSlow4 - 4.773437500000001e-10))));
+	double 	fSlow4 = (7.343750000000001e-09 * fSlow0);
+	double 	fSlow5 = ((2.5703125000000004e-09 * fSlow0) - (2.5703125000000003e-10 * fSlow1));
+	double 	fSlow6 = (7.343750000000001e-10 + ((fSlow1 * (fSlow5 - 4.773437500000001e-10)) + fSlow4));
 	double 	fSlow7 = (fConst0 * fSlow6);
 	double 	fSlow8 = (0.0250625 * fSlow0);
 	double 	fSlow9 = (0.001175 * fSlow1);
@@ -98,7 +98,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
 	double 	fSlow16 = double(fslider2);
 	double 	fSlow17 = ((((9.187500000000001e-07 * fSlow16) + (fSlow1 * (3.0182812500000004e-06 - fSlow2))) + (fSlow0 * (2.48125e-06 + (2.9448437500000007e-05 * fSlow1)))) + 2.48125e-07);
-	double 	fSlow18 = ((fSlow1 * (2.5703125000000003e-10 + fSlow4)) + (fSlow16 * (fSlow5 + (7.343750000000001e-10 - (7.343750000000001e-10 * fSlow1)))));
+	double 	fSlow18 = ((fSlow1 * (2.5703125000000003e-10 + fSlow5)) + (fSlow16 * (fSlow4 + (7.343750000000001e-10 - (7.343750000000001e-10 * fSlow1)))));
 	double 	fSlow19 = (fConst0 * fSlow18);
 	double 	fSlow20 = ((fSlow8 + (fSlow9 + (6.25e-05 * fSlow16))) + 0.0025062500000000002);
 	double 	fSlow21 = (fConst0 * fSlow20);

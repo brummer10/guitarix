@@ -30,11 +30,12 @@
 
 typedef enum
 {
-	DRIVE,
-	GAIN,
+	BODY,
 	TONE,
-  EFFECTS_OUTPUT,
-  EFFECTS_INPUT,
+	DRIVE,
+	LEVEL,
+  	EFFECTS_OUTPUT,
+  	EFFECTS_INPUT,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

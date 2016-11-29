@@ -10,6 +10,7 @@ LFO to modulate delay	- LFO 5 - 14Hz
 import("music.lib");
 import("oscillator.lib");
 import("guitarix.lib");
+import("redeye.lib");
 
 
 /* triangle oscillator (not bandlimited, frequency is approximate) */
@@ -38,7 +39,11 @@ delayed  = sdelay(65536, interp, vibrato*SR/1000.0) with{
 //	interp 	= hslider("interpolation[unit:ms][style:knob]",10,1,100,0.1)*SR/1000.0; 
 	dtime	= hslider("delay[unit:ms][style:knob]", 0, 0, 14, 0.1)*SR/1000.0;
 };
-stage1 = tubestage(TB_12AX7_68k,120,1500.0,1.204541) ; // Gain 2.9   2nd -29.8 3rd -26.24
-stage2 = lowpass( 1, 6531 ):tubestage(TB_12AX7_250k,80,1500.0,1.204285) ; //  Gain 2.41 2nd -34.34 3rd -23.36
-drive = vslider("gain[style:knob]", 0, -64, 6, 0.1) :db2linear: smoothi(0.999);
-process = stage1:delayed:*(drive):stage2;
+
+
+
+//stage1 = tubestage(TB_12AX7_68k,120,1500.0,1.204541) ; // Gain 2.9   2nd -29.8 3rd -26.24
+//stage2 = lowpass( 1, 6531 ):tubestage(TB_12AX7_250k,80,1500.0,1.204285) ; //  Gain 2.41 2nd -34.34 3rd -23.36
+//drive = vslider("gain[style:knob]", 0, -64, 6, 0.1) :db2linear: smoothi(0.999);
+//process = stage1:delayed:*(drive):stage2;
+process = input12au7:delayed:output12au7;

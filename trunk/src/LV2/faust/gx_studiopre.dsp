@@ -17,7 +17,7 @@ import("effect.lib");
 import("guitarix.lib");
 
 //  Based on simple Alembic F-2B vstudio preamp
-//  2 sectionos of 12AX7 together with tonestack and volume
+//  2 sections of 12AX7 together with tonestack and volume
 // This is an identical circuit apart from coupling caps whcih could do with filters
 // 1st cathode cap gives aroudn 2Hz !
 // Coupling cap sat end gives cutoff 1.6Hz!

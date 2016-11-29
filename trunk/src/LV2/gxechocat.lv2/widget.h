@@ -100,6 +100,7 @@ protected:
   Gxw::BigKnob      m_bigknob2;
   Gxw::BigKnob      m_bigknob3;
   Gxw::BigKnob      m_bigknob4;
+  Gxw::BigKnob      m_bigknob5;
   Gxw::Switch       m_switch;
   Gxw::Switch       m_switch1;
   Gxw::Switch       m_switch2;

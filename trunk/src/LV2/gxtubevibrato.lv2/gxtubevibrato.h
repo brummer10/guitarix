@@ -30,10 +30,17 @@
 
 typedef enum
 {
-	SINEWAVE,
-	DEPTH,
-	SPEED,
-	GAIN,
+DRIVE, 
+   GAIN, 
+   SINEWAVE, 
+   DEPTH, 
+   SPEED, 
+   /*
+	 SINEWAVE, 
+   DEPTH, 
+   DRIVE, 
+   GAIN, 
+   SPEED,*/ 
   EFFECTS_OUTPUT,
   EFFECTS_INPUT,
 } PortIndex;

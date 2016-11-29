@@ -32,13 +32,30 @@
 class Widget : public Gtk::HBox
 {
 private:
-  void make_controller_box(Gtk::VBox *box,
-                           Gxw::Regler *regler,
+
+	Gtk::Widget* get_controller_by_port(uint32_t port_index);
+
+  void on_value_changed(uint32_t port_index);
+
+  void make_controller_box(Gtk::Box *box,
                            Glib::ustring label,
                            float min, float max,
-                           float digits, float value,
-                           Glib::ustring plug_name);
+                           float digits,
+                           PortIndex port_name);
+
+  void make_selector(Glib::ustring label,
+                     Glib::ustring tables[],
+                     size_t _size,
+                     float min, float digits,
+                     PortIndex port_name);
+
+  void make_switch_box(Gtk::Box *box,
+                       Glib::ustring label,
+                       Glib::ustring label2,
+                       PortIndex port_name);
+  void  make_image(Gtk::Box *box,Glib::ustring label, bool start );
   bool _expose_event(GdkEventExpose *event);
+
   void set_value(uint32_t port_index,
                  uint32_t format,
                  const void * buffer);
@@ -55,10 +72,13 @@ public:
     self->set_value(port_index,format,buffer);
   }
 
-  Widget(Glib::ustring plug_name);
+  Widget(Glib::ustring plugname);
   ~Widget();
 
+
 protected:
+  Glib::ustring     plug_name;
+
   Gtk::VBox      m_vbox_;
   Gtk::HBox      m_hbox_;
   Gtk::HBox      m_hbox1_;
@@ -67,6 +87,8 @@ protected:
   Gtk::VBox      m_vbox2;
   Gtk::VBox      m_vbox3;
   Gtk::VBox      m_vbox4;
+  Gtk::VBox      m_vbox5;
+  Gtk::VBox      m_vbox6;
   
   Gxw::PaintBox  m_paintbox;
   Gtk::HBox      m_hbox;
@@ -74,12 +96,11 @@ protected:
   Gxw::BigKnob   m_bigknob1;
   Gxw::BigKnob   m_bigknob2;
   Gxw::BigKnob   m_bigknob3;
+  Gxw::BigKnob   m_bigknob4;
   
-  void on_knob_value_changed();
-  void on_knob1_value_changed();
-  void on_knob2_value_changed();
-  void on_knob3_value_changed();
-  // stores port values we're currently at.
+ 
+  // stores port values we're currently at maybe not needed.
+  float          drive;
   float          gain;
   float          delay;
   float          feedback;

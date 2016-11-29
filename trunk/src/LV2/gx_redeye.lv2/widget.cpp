@@ -130,7 +130,7 @@ Widget::Widget(Glib::ustring plug_name)
   m_vbox6_.set_border_width(0);
   m_vbox6_.set_homogeneous(false);
 
-  make_controller_box(&m_vbox6_, &m_bigknob, "gain", -20, 20, 0.1,
+  make_controller_box(&m_vbox6_, &m_bigknob, "gain", 0, 1, 0.01,
                       gain,GAIN, plug_name);
 
   m_hbox3_.pack_start( m_vbox6_ ) ;
@@ -153,7 +153,7 @@ Widget::Widget(Glib::ustring plug_name)
   m_vbox8_.set_border_width(0);
   m_vbox8_.set_homogeneous(false);
 
-  make_controller_box(&m_vbox8_, &m_bigknob2, "volume", -20, 20, 0.1,
+  make_controller_box(&m_vbox8_, &m_bigknob2, "volume", 0, 1, 0.01,
                       volume,VOLUME, plug_name);
    
   m_hbox3_.pack_start( m_vbox8_ ) ;

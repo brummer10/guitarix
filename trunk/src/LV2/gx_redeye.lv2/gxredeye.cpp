@@ -153,7 +153,7 @@ void GxPluginMono::set_amp_mono(const LV2_Descriptor*     descriptor)
     {
       printf("vibrochump\n");
       a_model_ =  2 ;	
-      c_model_ = 17.0 ;	// 1x8 
+      c_model_ = 1.0 ;	// 2x12
     }
 }
 
@@ -192,11 +192,12 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
       float cab_irdata_c[cabconv.cab_count];
 	
       // Taken from Hermann's gx_amp code....
-      float adjust_1x8 = 1;
-      if ( c_model_ == 17.0) adjust_1x8 = 0.5;
+      float adjust_1x8 = 0.25;
+//      if ( c_model_ == 17.0) adjust_1x8 = 0.5;
 
-      // Here we arte at present hardwiring the cab volume so need to experiment
-      impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, 10.0*adjust_1x8);
+      // Here we are at present hard wiring the cab volume so need to experiment
+      //impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, 10.0*adjust_1x8);
+      impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, 1.0);
       cabconv.cab_data_new = cab_irdata_c;
 
       while (!cabconv.checkstate());
