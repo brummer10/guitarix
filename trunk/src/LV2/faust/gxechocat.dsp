@@ -86,4 +86,4 @@ machine = vgroup( "Tape Heads", highpass( 4, 40 )<:head1,head2,head3:>lowpass( 1
 
 fbloop = lowpass( 1, 7500 ):*(feedback):*(0.5):highpass( 1, 125 )  ;
 
-process = input12au7<:_,(+:_<:machine :>_)~fbloop:>output12au7 ;
+process = input12au7<:_,(+:_<:machine :>_)~fbloop:>output12au7:*(0.1) ;

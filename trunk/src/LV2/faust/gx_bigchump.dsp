@@ -12,10 +12,9 @@ trannie = coil1,coil2:>_ with {
 	coil2 = lowpass( 1, 8925 ):highpass( 1, 76) ;
 }; 
 
-
-process = chumpPreamp:*(volume):amp with {
+process = chumpPreamp:*(0.1):*(volume):amp with {
 	
-	volume = vslider("Volume[2][alias][style:knob]",0.5, 0, 1,0.01) : smoothi(0.999);
+	volume = vslider("Volume[2][alias][style:knob]",0.5, 0.0, 1.0,0.01) : smoothi(0.999);
 	// Look into these so we can more accurately copy PP 6V6 design
 	pp1 = tubestage(TB_6V6_250k,60.0,822.0,1.130462); 
 	pp2 = tubestage(TB_6V6_250k,60.0,818.0,1.130462); 

@@ -161,11 +161,14 @@ Widget::Widget(Glib::ustring plug_name)
 
 // Vbox 9 is container for switch widget and label
 // Make this a hbox and put 2 in, one for Chump Logo one for switch
+
   m_vbox9_.set_spacing(0);
   m_vbox9_.set_border_width(0);
   m_vbox9_.set_homogeneous(false);
 
+ if( strcmp( "bigchump", plug_name.c_str() ) == 0 ){
   make_switch_box( &m_vbox9_, &m_switch, "feedback", 0.0, 1.0, 1.0, feedback, FEEDBACK, plug_name);
+ }
    
   m_hbox3_.pack_start( m_vbox9_ ) ;
 
@@ -410,58 +413,59 @@ void Widget::set_value(uint32_t port_index,
 // write value changes to the host->engine
 void Widget::on_value_changed(uint32_t port_index)
 {
+//  	std::cout << "Port = " << port_index << std::endl;
   switch ((PortIndex)port_index )
     {
     case GAIN:
       gain = m_bigknob.get_value();
- //     std::cout << "gain = " << gain << std::endl;
+      //std::cout << "gain = " << gain << std::endl;
       write_function(controller, (PortIndex)GAIN,
                  sizeof(float), 0, (const void*)&gain);
       break;
     case TONE:
        tone = m_bigknob1.get_value();
- //      std::cout << "tone = " << tone << std::endl;
+       //std::cout << "tone = " << tone << std::endl;
        write_function(controller, (PortIndex)TONE,
                  sizeof(float), 0, (const void*)&tone);
       break;
 
     case VOLUME:
       volume = m_bigknob2.get_value();
-  //    std::cout << "volume = " << volume << std::endl;
+      //std::cout << "volume = " << volume << std::endl;
       write_function(controller, (PortIndex)VOLUME,
                  sizeof(float), 0, (const void*)&volume);
       break;
 
     case SPEED:
       speed = m_bigknob3.get_value();
-   //   std::cout << "speed = " << speed << std::endl;
+      //std::cout << "speed = " << speed << std::endl;
       write_function(controller, (PortIndex)SPEED,
                  sizeof(float), 0, (const void*)&speed);
       break;
 
    case VIBE:
       vibe = m_switch2.cp_get_value();
-      //std::cout << "sinewave = " << sinewave << std::endl;
+     // std::cout << "vibe = " << sinewave << std::endl;
       write_function(controller, (PortIndex)VIBE,
                  sizeof(float), 0, (const void*)&vibe);
       break;
     case INTENSITY:
       intensity = m_bigknob4.get_value();
-     // std::cout << "intensity = " << intensity << std::endl;
+   //   std::cout << "intensity = " << intensity << std::endl;
       write_function(controller, (PortIndex)INTENSITY,
                  sizeof(float), 0, (const void*)&intensity);
       break;
 
    case SINEWAVE:
       sinewave = m_switch1.cp_get_value();
-      //std::cout << "sinewave = " << sinewave << std::endl;
+   //   std::cout << "sinewave = " << sinewave << std::endl;
       write_function(controller, (PortIndex)SINEWAVE,
                  sizeof(float), 0, (const void*)&sinewave);
       break;
  
     case FEEDBACK:
       feedback = m_switch.cp_get_value();
-      //std::cout << "feedback = " << feedback << std::endl;
+ //     std::cout << "feedback = " << feedback << std::endl;
       write_function(controller, (PortIndex)FEEDBACK,
                  sizeof(float), 0, (const void*)&feedback);
       break;

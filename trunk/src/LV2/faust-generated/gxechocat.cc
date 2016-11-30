@@ -209,7 +209,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst36 = (1 + fConst35);
 	fConst37 = (1.0 / (fConst36 * fConst14));
 	fConst38 = (0 - ((1 - fConst35) / fConst36));
-	fConst39 = (fConst1 / fConst3);
+	fConst39 = (0.1 * (fConst1 / fConst3));
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
