@@ -365,7 +365,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst10 = (2.08237299868718e-05 * fConst6);
 	fConst11 = (0.000460960630154374 + fConst10);
 	fConst12 = ((0.000460960630154374 - fConst10) / fConst11);
-	fConst13 = (fConst6 / fConst11);
+	fConst13 = (0.1 * (fConst6 / fConst11));
 	fConst14 = (1.0 / tan((14137.16694115407 / double(iConst0))));
 	fConst15 = (1 + fConst14);
 	fConst16 = (1.0 / fConst15);
@@ -397,7 +397,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst42 = (1 + ((fConst30 - 1.0000000000000004) / fConst28));
 	fConst43 = (1 + ((fConst30 + 1.0000000000000004) / fConst28));
 	fConst44 = (1.0 / fConst43);
-	fConst45 = (fConst6 / (fConst15 * fConst11));
+	fConst45 = (0.1 * (fConst6 / (fConst15 * fConst11)));
 	fConst46 = (1 + fConst30);
 	fConst47 = (1.0 / fConst46);
 	fConst48 = (0 - ((1 - fConst30) / fConst46));
@@ -742,7 +742,7 @@ void Dsp::connect(uint32_t port,void* data)
 		fslider5_ = (float*)data; // , 0.0, 0.0, 0.03, 0.001 
 		break;
 	case WOWFREQ: 
-		fslider4_ = (float*)data; // , 0.0, 0.0, 6.0, 0.1 
+		fslider4_ = (float*)data; // , 0.0, 0.0, 4.0, 0.1 
 		break;
 	case SPEED: 
 		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 

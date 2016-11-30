@@ -104,7 +104,7 @@ void GxtapeGUI::set_skin()
                  "{ 52428, 0, 0, 0, 52428 },\n"
                  "{ 13107, 0, 0, 13107, 13107 }}\n"
                  "    GxPaintBox::icon-set =4\n"
-                 "    stock['amp_skin'] = {{'";
+                 "    stock['gxhead'] = {{'";
   toparse +=     plugskin;
   toparse +=     "'}}\n"
                  " }\n"
@@ -135,7 +135,7 @@ void GxtapeGUI::set_skin()
               "GtkButton::child-displacement-y = 0\n"
               " }\n"
               "widget '*.";
-  toparse +=  plug_name;
+  toparse +=  "chump";
   toparse +=  "' style:highest 'gx_switch'";
 
   gtk_rc_parse_string (toparse.c_str());
@@ -156,7 +156,6 @@ void GxtapeGUI::set_plug_name( const char * plugin_uri)
       plugskin = "gxtape.png";
       plug_name = "gxtape";
     }
-        std::cout << plugskin << std::endl ;
 
 }
 

@@ -20,7 +20,7 @@ import("redeye.lib");
 // ((( lfo + 1 ) *5)+5) from vibrato
 //wow = sine( freq )* depth with{
 wow =  sdelay(N, interp, delaytime) with{
-	freq =  hgroup( "Wow Control",vslider("wowfreq[style:knob]",0.0,0.0,6.0,0.1) );
+	freq =  hgroup( "Wow Control",vslider("wowfreq[style:knob]",0.0,0.0,4.0,0.1) );
 	depth =  hgroup( "Wow Control",vslider("wowdepth[style:knob]",0.0,0.0,0.03,0.001) );
 	sine(freq) = (oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy what is range of this
 	modulation = (( sine( freq ) + 1 ) * 5)* depth ; // This should give number between 0-10 ms ??
@@ -105,6 +105,6 @@ delaystage = component( "delaystage.dsp").delaystage ;
 iec_in = lowpass( 1, 4500 );
 iec_out = sub~lowpass( 1, 4500 );
 
-channel = input12au7:BP(iec_in:machine:iec_out):output12au7:lowpass( 2, 20000);
+channel = input12au7:*(0.1):BP(iec_in:machine:iec_out):output12au7:lowpass( 2, 20000);
 //process = channel,channel;
 

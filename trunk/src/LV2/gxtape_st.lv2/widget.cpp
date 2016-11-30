@@ -70,11 +70,11 @@ plug_name(plugname)
   // create controllers for port name
   make_controller_box(&m_vbox2, "Input", 0, 1.0, 0.01, DRIVE);
 
-  make_controller_box(&m_vbox3, "depth", 0, 0.05, 0.001, WOWDEPTH);
-  make_controller_box(&m_vbox4, "freq", 0.1, 6.0, 0.01, WOWFREQ);
+  make_controller_box(&m_vbox3, "depth", 0, 0.03, 0.001, WOWDEPTH);
+  make_controller_box(&m_vbox4, "freq", 0.0, 4.0, 0.01, WOWFREQ);
 
-  make_controller_box(&m_vbox5, "depth", 0, 0.05, 0.001, FLUTTERDEPTH);
-  make_controller_box(&m_vbox6, "freq", 0.1, 6.0, 0.01, FLUTTERFREQ);
+  make_controller_box(&m_vbox5, "depth", 0, 0.03, 0.001, FLUTTERDEPTH);
+  make_controller_box(&m_vbox6, "freq", 4.0, 60.0, 0.01, FLUTTERFREQ);
 
   make_controller_box(&m_vbox7, "noise", 0, 1.0, 0.01, TAPEHISS);
   make_switch_box(&m_vbox8, "Mach. 1","Mach. 2", TAPETYPE);
@@ -82,7 +82,7 @@ plug_name(plugname)
   make_controller_box(&m_vbox9, "Output", 0, 1.0, 0.01, GAIN);
 
 // This is bodge
-  make_controller_box(&m_vbox10, "", -20.0, 10.0, 0.01, METERLEVEL);
+//  make_controller_box(&m_vbox10, "", -20.0, 10.0, 0.01, METERLEVEL);
   make_switch_box(&m_vbox11, "ON", "OFF", ON);
   make_switch_box(&m_vbox12, "7.5 ips", "15 ips", SPEED);
 
@@ -102,7 +102,7 @@ plug_name(plugname)
   add(m_paintbox);
 
   // One vertical box to wrap all in
-  m_vbox_.set_spacing(40);
+  m_vbox_.set_spacing(65);
   m_vbox_.set_border_width(0);
   m_vbox_.set_homogeneous(true);
   
@@ -306,6 +306,7 @@ void Widget::make_switch_box(Gtk::Box *box,
 
     regler->set_name(plug_name);
     regler->set_base_name( "button" );
+    regler->set_relief(Gtk::RELIEF_NONE);
     Gtk::VBox* b1 = new Gtk::VBox();
     box->pack_start( *Gtk::manage(b1), Gtk::PACK_EXPAND_PADDING);
     box->pack_start( *Gtk::manage(pr),Gtk::PACK_SHRINK); 
