@@ -49,5 +49,5 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
 };
 
 
-process = input12at7:*(tremolo(vslider("speed[style:knob]",5,0.1,14,0.1),vslider("depth[style:knob]",0.5,0,1,0.01))):output12au7;
+process = input12at7:*(0.1):*(tremolo(vslider("speed[style:knob]",5,0.1,14,0.1),vslider("depth[style:knob]",0.5,0,1,0.01))):output12au7;
 

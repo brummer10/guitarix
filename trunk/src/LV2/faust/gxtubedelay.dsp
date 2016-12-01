@@ -21,6 +21,6 @@ delayed = sdelay(N, interp, dtime) ;
 // and a low/highpass filter section in the feedback loop
 // to avoid self oscillation
 
-process = input12au7:_<:((+:_<:_ ,( delayed:*(level)) :>_)~(*(feedback): highpass(1,120):lowpass(1,12000))):>_:output12au7;
+process = input12au7:*(0.1):_<:((+:_<:_ ,( delayed:*(level)) :>_)~(*(feedback): highpass(1,120):lowpass(1,12000))):>_:output12au7;
 
 

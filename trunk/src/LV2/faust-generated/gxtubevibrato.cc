@@ -130,7 +130,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst10 = (0.5 * iConst0);
 	fConst11 = (6.283185307179586 / double(iConst0));
 	fConst12 = (0.005 * iConst0);
-	fConst13 = (fConst1 / fConst6);
+	fConst13 = (0.1 * (fConst1 / fConst6));
 	fConst14 = (fConst1 / fConst3);
 }
 

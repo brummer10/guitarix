@@ -46,4 +46,4 @@ delayed  = sdelay(65536, interp, vibrato*SR/1000.0) with{
 //stage2 = lowpass( 1, 6531 ):tubestage(TB_12AX7_250k,80,1500.0,1.204285) ; //  Gain 2.41 2nd -34.34 3rd -23.36
 //drive = vslider("gain[style:knob]", 0, -64, 6, 0.1) :db2linear: smoothi(0.999);
 //process = stage1:delayed:*(drive):stage2;
-process = input12au7:delayed:output12au7;
+process = input12au7:*(0.1):delayed:output12au7;
