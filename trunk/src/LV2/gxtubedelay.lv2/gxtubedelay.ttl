@@ -24,6 +24,9 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix time: <http://lv2plug.in/ns/ext/time#>.
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix log: <http://lv2plug.in/ns/ext/port-props#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -74,8 +77,8 @@ rdfs:comment """
         lv2:default 160.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 2500.0 ;
-        unit:unit unit:ms ;
-        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#logarithmic> ;
+        units:unit units:ms ;
+        lv2:portProperty log:logarithmic ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -119,6 +122,5 @@ rdfs:comment """
 
 <http://guitarix.sourceforge.net/plugins/gxtubedelay#gui>
   a guiext:GtkUI;
-  guiext:binary <gxtubedelay_gui.so>;
   guiext:binary <gxtubedelay_gui.so>;
   guiext:requiredFeature guiext:makeResident .
