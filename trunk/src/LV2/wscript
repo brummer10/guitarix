@@ -114,7 +114,9 @@ def dirlist():
         'gx_mxrdist.lv2',
         'gxtape.lv2',
         'gxtape_st.lv2',	
-        'gx_alembic.lv2',	
+        'gx_alembic.lv2',
+        'gx_w20.lv2',
+        	
         
        ]
 

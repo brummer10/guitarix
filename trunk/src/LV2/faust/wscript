@@ -141,6 +141,7 @@ def build(bld):
         'mxrdist.dsp',
         'bossds1.dsp',
 			'gx_alembic.dsp',
+			'gx_w20.dsp',
 
         # tone stacks
         'tonestack_default.dsp',
