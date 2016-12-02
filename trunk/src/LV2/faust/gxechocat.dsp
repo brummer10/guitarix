@@ -5,6 +5,7 @@ import("music.lib");
 import("effect.lib");
 import("oscillator.lib");
 import("guitarix.lib");
+import("redeye.lib");
 
 /*
 HEAD SPACING
@@ -40,25 +41,27 @@ may have same effect as in real amp of creating a resonance an will try same sol
 // so tape speed in inches per second
 // distance from record head in inches
 // thus we get delay in milliseconds
-speed = 7.5 ;
+//speed = 7.5 ;
+
+bpm = hgroup( "Echo", vslider("BPM[style:knob]", 120, 24, 360, 0.1)) ;
+
+
 // The wow should be preset by experiment...
 // Lets introduce just a little
 sine(freq) = (oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy
 freq= 4 ; // 4Hz
 depth = 0.005 ;	// Play with this
 wow =  sine( freq) * depth ;
+speed = ( 72/(2*bpm))  ;
 tapespeed = hgroup( "Tape Control",speed + wow ); 
 
-// Control input level
-input = hgroup( "Input", vslider("InputGain[style:knob]", 0, 0, 1.0, 0.01) );
-gain = hgroup( "Output", vslider("OutputGain[style:knob]", 0, 0, 1.0, 0.01));
-echo = hgroup( "Echo", vslider("Swell[style:knob]", 0, 0, 1, 0.1)) ;
+echo = hgroup( "Echo", vslider("Swell[style:knob]", 0, 0, 1, 0.01)) ;
 feedback = hgroup( "Echo", vslider("Sustain[style:knob]", 0, 0.0, 0.95, 0.01));
 
-dtime1 = SR*( 1.5/tapespeed) ;
-dtime2 = SR*( 3.0/tapespeed) ;
-dtime3 = SR*( 4.5/tapespeed ) ;
-dtime4 = SR*( 6.0/tapespeed ) ;
+dtime1 = SR*( 60/bpm) ;
+dtime2 = SR*( 120/ bpm) ;
+dtime3 = SR*( 180/bpm ) ;
+dtime4 = SR*( 240/bpm ) ;
 
 head1 = sdelay(N, interp, dtime1):*(checkbox("Head1")) with {
 	interp = SR/10.0; // 100*SER/1000
@@ -77,23 +80,10 @@ head4 = sdelay(N, interp, dtime4):*(checkbox("Head4")) with {
  	N = int( 2^19 ) ;
 };
 
-// Added gain reduction to get unity gain at 0dB ( trial and error for each stage )
-// Real tube values 
-//	Fk		Rk			Vk
-//			1500		1.3
-//			2700		1,83
-//			820			0.96
-stage1 = tubestage(TB_12AX7_68k,2.1,1500.0,1.204541) ; // Gain 2.9   2nd -29.8 3rd -26.24
-// End amp is 2 stages of 12AX7 with 100K anode and 3k3 and then 2k2 cathode!
-// Tube details 3k3 cathode res 2.637334 vk0
-// Tube details 2k2 cathode res 2.426864 vk0
-stage2 =tubestage(TB_12AX7_250k,2.1,3300.0,2.637334) ; 
-stage3 =tubestage(TB_12AX7_250k,2.1, 2200.0,2.426864) ; 
 
 // IN real machine the ECHO level control is after the last 2 stages of valves
 machine = vgroup( "Tape Heads", highpass( 4, 40 )<:head1,head2,head3:>lowpass( 1, 6500 ):dcblocker:*(echo) );
 
 fbloop = lowpass( 1, 7500 ):*(feedback):*(0.5):highpass( 1, 125 )  ;
 
-process = highpass( 1, 80 ):*(input):stage1<:_,(+:_<:machine :>stage2:stage3)~fbloop:>*(gain);
-
+process = input12au7<:_,(+:_<:machine :>_)~fbloop:>output12au7:*(0.1) ;

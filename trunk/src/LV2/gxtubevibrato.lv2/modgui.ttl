@@ -24,10 +24,14 @@
             lv2:name "Speed" ;
         ] , [
             lv2:index 2 ;
+            lv2:symbol "drive" ;
+            lv2:name "Drive" ;
+        ] , [
+            lv2:index 3 ;
             lv2:symbol "gain" ;
             lv2:name "Level" ;
         ] , [
-            lv2:index 3 ;
+            lv2:index 4 ;
             lv2:symbol "sinewave" ;
             lv2:name "Wave" ;
         ] ;

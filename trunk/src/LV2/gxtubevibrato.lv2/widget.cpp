@@ -38,8 +38,10 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &m_bigknob;
     case SPEED:
       return &m_bigknob1;
-    case GAIN:
+    case DRIVE:
       return &m_bigknob2;
+    case GAIN:
+      return &m_bigknob3;
     case SINEWAVE:
       return &m_switch;
     default:
@@ -51,10 +53,11 @@ Widget::Widget(Glib::ustring plugname):
 plug_name(plugname)
 {
   // create controllers for port name
-  make_controller_box(&m_vbox2, "DEPTH", 0, 1.0, 0.01, DEPTH);
-  make_controller_box(&m_vbox3, "SPEED", 0.1, 14.0, 0.01, SPEED);
-  make_controller_box(&m_vbox4, "GAIN", -12, 22, 0.1, GAIN);
-  make_switch_box(&m_vbox5, "SINE", "TRIANGLE", SINEWAVE);
+  make_controller_box(&m_vbox2, "DRIVE", 0, 1.0, 0.01, DRIVE);
+  make_controller_box(&m_vbox3, "DEPTH", 0, 1.0, 0.01, DEPTH);
+  make_controller_box(&m_vbox4, "SPEED", 0.1, 14.0, 0.01, SPEED);
+  make_controller_box(&m_vbox5, "GAIN", 0.0, 1.0, 0.01, GAIN);
+  make_switch_box(&m_vbox6, "SINE", "TRIANGLE", SINEWAVE);
   
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(0);
@@ -85,12 +88,14 @@ plug_name(plugname)
   m_vbox3.set_spacing(6);
   m_vbox4.set_spacing(6);
   m_vbox5.set_spacing(6);
+  m_vbox6.set_spacing(6);
 
   m_hbox1_.pack_start(m_vbox1, Gtk::PACK_EXPAND_PADDING);
   m_hbox1_.pack_start(m_vbox2);
   m_hbox1_.pack_start(m_vbox3);
   m_hbox1_.pack_start(m_vbox4);
   m_hbox1_.pack_start(m_vbox5);
+  m_hbox1_.pack_start(m_vbox6);
   m_hbox1_.pack_start(m_vbox, Gtk::PACK_EXPAND_PADDING);
 
   // Npow put all layers in main vbox
@@ -263,8 +268,7 @@ void Widget::set_value(uint32_t port_index,
 {
   if ( format == 0 )
   {
-    Gxw::Regler *regler = static_cast<Gxw::Regler*>(
-                                    get_controller_by_port(port_index));
+    Gxw::Regler *regler = static_cast<Gxw::Regler*>( get_controller_by_port(port_index));
     if (regler)
     {
       float value = *static_cast<const float*>(buffer);
@@ -276,13 +280,11 @@ void Widget::set_value(uint32_t port_index,
 // write (UI) controller value changes to the host->engine
 void Widget::on_value_changed(uint32_t port_index)
 {
-  Gxw::Regler *regler = static_cast<Gxw::Regler*>(
-                                    get_controller_by_port(port_index));
+  Gxw::Regler *regler = static_cast<Gxw::Regler*>(get_controller_by_port(port_index));
   if (regler)
   {
     float value = regler->cp_get_value();
-    write_function(controller, port_index, sizeof(float), 0,
-                                    static_cast<const void*>(&value));
+    write_function(controller, port_index, sizeof(float), 0,static_cast<const void*>(&value));
   }
 }
 

@@ -106,6 +106,7 @@ def read_netlist(fname):
         inp = []
         for line in f:
             line = line.split()
+            print line
             sym = line[0]
             dev = line[1]
             val = line[2]

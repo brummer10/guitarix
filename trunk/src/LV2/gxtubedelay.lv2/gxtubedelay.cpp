@@ -29,6 +29,7 @@ namespace gx_tubedelay {
 #include "noiser.cc"
 #endif
 
+
 ////////////////////////////// PLUG-IN CLASS ///////////////////////////
 
 class GxTubeDelay
@@ -38,6 +39,22 @@ private:
   float*                       output;
   float*                       input;
   PluginLV2*                   tubedelay;
+	float* inv;
+	float* sync;
+	float* time;
+	float* divisor;
+	float* wetdry;
+	float* feedback;
+	float* lpf;
+	float* gain;
+	
+	float* delaytime;
+	float* enable;
+
+	float srate;
+	float bpm;
+	float beatunit;
+	int bpmvalid;
 #ifndef __SSE__
   PluginLV2*                   wn;
 #endif

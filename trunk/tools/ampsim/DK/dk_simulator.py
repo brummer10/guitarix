@@ -782,7 +782,7 @@ class EquationSystem(object):
         if self.jacobi_par is not None:
             J, Jc, select, unselect = self.jacobi_par
             self.S = parser.S - self.Nnr[unselect].T * J[unselect][:,unselect] * self.Nnl[unselect]
-            self.CV = self.CV + (Nnr[unselect].T * Jc[unselect]).T
+            self.CV = self.CV + (self.Nnr[unselect].T * Jc[unselect]).T
             self.Nnr = self.Nnr[select]
             self.Nnl = self.Nnl[select]
             self.nn = len(select)

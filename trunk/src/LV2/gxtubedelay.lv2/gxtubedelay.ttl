@@ -24,6 +24,9 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix time: <http://lv2plug.in/ns/ext/time#>.
+@prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix log: <http://lv2plug.in/ns/ext/port-props#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -60,48 +63,59 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 0 ;
-        lv2:symbol "fslider0_" ;
-        lv2:name "gain";
-        lv2:default -40.0 ;
-        lv2:minimum  -40.0;
-        lv2:maximum 16.0 ;
+        lv2:symbol "drive" ;
+        lv2:name "Drive";
+        lv2:default 0.5 ;
+        lv2:minimum  0.0;
+        lv2:maximum 1.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 1 ;
-        lv2:symbol "fslider1_" ;
-        lv2:name "feedback";
-        lv2:default 0.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 10.0 ;
+        lv2:symbol "delay" ;
+        lv2:name "Delay";
+        lv2:default 160.0 ;
+        lv2:minimum 1.0 ;
+        lv2:maximum 2500.0 ;
+        units:unit units:ms ;
+        lv2:portProperty log:logarithmic ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 2 ;
-        lv2:symbol "fslider2_" ;
-        lv2:name "delay";
-        lv2:default 0.1 ;
-        lv2:minimum 0.1 ;
-        lv2:maximum 5000.0 ;
+        lv2:symbol "feedback" ;
+        lv2:name "Feedback";
+        lv2:default 0.0 ;
+        lv2:minimum 0.01 ;
+        lv2:maximum 1.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
-        lv2:symbol "fslider3_" ;
-        lv2:name "level";
-        lv2:default -60.0 ;
-        lv2:minimum -60.0 ;
-        lv2:maximum 0.0 ;
-    ] , [
+        lv2:symbol "level" ;
+        lv2:name "Level";
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1.0 ;
+    ], [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 4 ;
+        lv2:symbol "gain" ;
+        lv2:name "Gain";
+        lv2:default 0.2 ;
+        lv2:minimum  0.0;
+        lv2:maximum 1.0 ;
+    ] ,  [
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 4 ;
+        lv2:index 5 ;
         lv2:symbol "out" ;
         lv2:name "Out"
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 5 ;
+        lv2:index 6 ;
         lv2:symbol "in" ;
         lv2:name "in"
     ] .

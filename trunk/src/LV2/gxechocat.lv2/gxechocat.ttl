@@ -62,8 +62,8 @@ A tape delay simulation plugin.
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 0 ;
-        lv2:symbol "input_gain" ;
-        lv2:name "Input Gain";
+        lv2:symbol "drive" ;
+        lv2:name "Drive";
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
@@ -89,15 +89,24 @@ A tape delay simulation plugin.
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
-        lv2:symbol "outputgain" ;
-        lv2:name "OutputGain";
+        lv2:symbol "gain" ;
+        lv2:name "Gain";
         lv2:default 0.5 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
-    ] , [
+    ] ,[
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 4 ;
+        lv2:symbol "bpm" ;
+        lv2:name "BPM";
+        lv2:default 120 ;
+        lv2:minimum 24;
+        lv2:maximum 360 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 5 ;
         lv2:symbol "head1" ;
         lv2:name "Head 1";
           lv2:portProperty lv2:integer;
@@ -108,7 +117,7 @@ A tape delay simulation plugin.
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 5 ;
+        lv2:index 6 ;
         lv2:symbol "head2" ;
         lv2:name "Head 2";
           lv2:portProperty lv2:integer;
@@ -119,7 +128,7 @@ A tape delay simulation plugin.
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
-        lv2:index 6 ;
+        lv2:index 7 ;
         lv2:symbol "head3" ;
         lv2:name "Head 3";
           lv2:portProperty lv2:integer;
@@ -130,16 +139,16 @@ A tape delay simulation plugin.
     ] ,[
         a lv2:AudioPort ,
             lv2:OutputPort ;
-        lv2:index 7 ;
+        lv2:index 8 ;
         lv2:symbol "out" ;
         lv2:name "Out"
     ] , [
         a lv2:AudioPort ,
             lv2:InputPort ;
-        lv2:index 8 ;
+        lv2:index 9 ;
         lv2:symbol "in" ;
         lv2:name "In"
-    ] .
+    ].
 
 
 <http://guitarix.sourceforge.net/plugins/gxechocat#gui>

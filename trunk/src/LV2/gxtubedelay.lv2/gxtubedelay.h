@@ -23,19 +23,27 @@
 #define SRC_HEADERS_GXEFFECTS_H_
 
 #include <lv2.h>
+#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
+#include "lv2/lv2plug.in/ns/ext/atom/atom.h"
+#include "lv2/lv2plug.in/ns/ext/time/time.h"
+#include "lv2/lv2plug.in/ns/ext/atom/forge.h"
+#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gxtubedelay"
 #define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gxtubedelay#gui"
 
 
 typedef enum
-{
-  GAIN=0,
-  FEEDBACK,
-  DELAY,
-  LEVEL,
-  EFFECTS_OUTPUT,
-  EFFECTS_INPUT,
+{ DRIVE, 
+   GAIN, 
+   DELAY, 
+   FEEDBACK, 
+   LEVEL, 
+  	EFFECTS_OUTPUT,
+  	EFFECTS_INPUT,
+  	BPM_IN,
+  	BPM_SYNC,
+  	BPM_DIV
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

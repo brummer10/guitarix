@@ -17,7 +17,11 @@
  * --------------------------------------------------------------------------
  */
 
-
+#include "lv2/lv2plug.in/ns/ext/atom/atom.h"
+#include "lv2/lv2plug.in/ns/ext/atom/util.h"
+#include "lv2/lv2plug.in/ns/ext/time/time.h"
+#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
+#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
 
 #include "gx_common.h"      // faust support and denormal protection (SSE)
@@ -37,6 +41,8 @@ private:
   // internal stuff
   float*                       output;
   float*                       input;
+     
+        
   PluginLV2*                   echocat;
 #ifndef __SSE__
   PluginLV2*                   wn;

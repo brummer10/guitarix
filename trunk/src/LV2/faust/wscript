@@ -65,7 +65,8 @@ def build(bld):
         'gxechocat.dsp',
         'mbdel.dsp',
         'mbe.dsp',
-        
+        'gxtape.dsp',
+        'gxtape_st.dsp',
         ]
 
     sources_plugin = [
@@ -139,7 +140,8 @@ def build(bld):
         'bmp.dsp',
         'mxrdist.dsp',
         'bossds1.dsp',
-
+			'gx_alembic.dsp',
+			'gx_w20.dsp',
 
         # tone stacks
         'tonestack_default.dsp',

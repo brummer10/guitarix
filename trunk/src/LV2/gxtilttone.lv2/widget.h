@@ -80,6 +80,7 @@ protected:
   Gtk::VBox         m_vbox1_;
   Gtk::VBox         m_vbox2_;
   Gtk::VBox         m_vbox3_;
+  Gtk::VBox         m_vbox4_;
   
   Gtk::VBox         m_vbox;
   Gtk::VBox         m_vbox1;
@@ -97,6 +98,7 @@ protected:
   Gxw::BigKnob      m_bigknob;
   Gxw::BigKnob      m_bigknob1;
   Gxw::BigKnob      m_bigknob2;
+  Gxw::BigKnob      m_bigknob3;
   Gxw::Switch       m_switch;
 };
 
