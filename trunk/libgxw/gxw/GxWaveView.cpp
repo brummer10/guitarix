@@ -225,7 +225,8 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	for (int i = 0; i < waveview->frame_size; i++)
 	{
 		float x_in = waveview->frame[i];
-		cairo_line_to (cr, sc1 - sc*(i+1), sc2 + x_in*waveview->m_wave);
+		cairo_line_to (cr, sc1 - sc*(i+1), sc2 - x_in*waveview->m_wave);
+		//cairo_line_to (cr, sc1 - sc*(i+1), sc2 + x_in*waveview->m_wave);
 		wave_go = fmax(wave_go, fabs(x_in));
 	}
 
