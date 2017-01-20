@@ -682,6 +682,97 @@ int BaseConvolver::conv_start() {
 }
 
 /****************************************************************
+ ** class FixedBaseConvolver
+ */
+
+
+FixedBaseConvolver::FixedBaseConvolver(EngineControl& engine_, sigc::slot<void> sync_, gx_resample::BufferResampler& resamp)
+    : PluginDef(),
+      conv(resamp),
+      activate_mutex(),
+      engine(engine_),
+      sync(sync_),
+      activated(false),
+      SamplingFreq(0),
+      buffersize(0),
+      bz(0.0),
+      plugin() {
+    version = PLUGINDEF_VERSION;
+    set_samplerate = init;
+    activate_plugin = activate;
+    plugin = this;
+    engine.signal_buffersize_change().connect(
+	sigc::mem_fun(*this, &FixedBaseConvolver::change_buffersize));
+}
+
+FixedBaseConvolver::~FixedBaseConvolver() {
+    update_conn.disconnect();
+}
+
+void FixedBaseConvolver::change_buffersize(unsigned int bufsize) {
+    boost::mutex::scoped_lock lock(activate_mutex);
+    buffersize = bufsize;
+    conv.set_buffersize(static_cast<int>(ceil((bufsize*bz))));
+    if (activated) {
+	if (!bufsize) {
+	    conv.stop_process();
+	} else {
+	    start(true);
+	}
+    }
+}
+
+void FixedBaseConvolver::init(unsigned int samplingFreq, PluginDef *p) {
+    FixedBaseConvolver& self = *static_cast<FixedBaseConvolver*>(p);
+    boost::mutex::scoped_lock lock(self.activate_mutex);
+    self.SamplingFreq = samplingFreq;
+    self.bz = 96000.0/samplingFreq;
+    self.conv.set_buffersize(static_cast<int>(ceil((self.buffersize*self.bz))));
+    self.conv.set_samplerate(96000);
+    if (self.activated) {
+	self.start(true);
+    }
+}
+
+bool FixedBaseConvolver::check_update_timeout() {
+    if (!activated || !plugin.get_on_off()) {
+	return false;
+    }
+    check_update();
+    return true;
+}
+
+int FixedBaseConvolver::activate(bool start, PluginDef *p) {
+    FixedBaseConvolver& self = *static_cast<FixedBaseConvolver*>(p);
+    boost::mutex::scoped_lock lock(self.activate_mutex);
+    if (start) {
+	if (!self.conv.get_buffersize()) {
+	    start = false;
+	}
+    }
+    if (start == self.activated) {
+	return 0;
+    }
+    if (start) {
+	if (!self.start()) {
+	    return -1;
+	}
+	self.update_conn = Glib::signal_timeout().connect(
+	    sigc::mem_fun(self, &FixedBaseConvolver::check_update_timeout), 200);
+    } else {
+	self.conv.stop_process();
+    }
+    self.activated = start;
+    return 0;
+}
+
+int FixedBaseConvolver::conv_start() {
+    int policy, priority;
+    engine.get_sched_priority(policy, priority);
+    return conv.start(policy, priority);
+}
+
+/****************************************************************
  ** class CabinetConvolver
  */
 
@@ -1164,11 +1255,12 @@ int PreampConvolver::register_pre(const ParamReg& reg) {
 
 #include "faust/presence_level.cc"
 
-ContrastConvolver::ContrastConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp):
-    BaseConvolver(engine, sync, resamp),
+ContrastConvolver::ContrastConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp, gx_resample::FixedRateResampler& smp_):
+    FixedBaseConvolver(engine, sync, resamp),
     level(0),
     sum(no_sum),
-    presl() {
+    presl(),
+    smp(smp_) {
     id = "con";
     name = N_("Contrast convolver");
     mono_audio = run_contrast;
@@ -1186,6 +1278,7 @@ bool ContrastConvolver::do_update() {
 	conv.stop_process();
     }
     if (configure) {
+	smp.setup(getSamplingFreq(), 96000);
 	presl.init(contrast_ir_desc.ir_sr);
     }
     float contrast_irdata_c[contrast_ir_desc.ir_count];
@@ -1234,9 +1327,13 @@ int ContrastConvolver::register_con(const ParamReg& reg) {
 
 void ContrastConvolver::run_contrast(int count, float *input0, float *output0, PluginDef *p) {
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(p);
-    if (!self.conv.compute(count,output0)) {
+	FAUSTFLOAT buf[self.smp.max_out_count(count)];
+	int ReCount = self.smp.up(count, output0, buf);
+    if (!self.conv.compute(ReCount,buf)) {
 	self.engine.overload(EngineControl::ov_Convolver, "contrast");
     }
+	self.smp.down(buf, output0);
+    
 }
 
 /****************************************************************

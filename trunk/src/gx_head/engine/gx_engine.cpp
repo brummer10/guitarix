@@ -219,6 +219,7 @@ static const char* ampstack_groups[] = {
 GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options)
     : ModuleSequencer(),
       resamp(),
+      smp(),
       plugin_changed(),
       ladspaloader(options),
       controller_map(),
@@ -249,7 +250,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       cabinet_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp, smp),
       loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
       record(*this, 1), record_st(*this, 2),
       detune(get_param(), *this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {

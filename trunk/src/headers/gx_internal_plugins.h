@@ -432,6 +432,38 @@ public:
 };
 
 /****************************************************************
+ ** class FixedBaseConvolver
+ */
+
+
+class FixedBaseConvolver: protected PluginDef {
+protected:
+    GxSimpleConvolver conv;
+    boost::mutex activate_mutex;
+    EngineControl& engine;
+    sigc::slot<void> sync;
+    bool activated;
+    unsigned int SamplingFreq;
+    unsigned int buffersize;
+    double bz;
+    sigc::connection update_conn;
+    static void init(unsigned int samplingFreq, PluginDef *p);
+    unsigned int getSamplingFreq() { return SamplingFreq;};
+    static int activate(bool start, PluginDef *pdef);
+    void change_buffersize(unsigned int);
+    int conv_start();
+    bool check_update_timeout();
+    virtual void check_update() = 0;
+    virtual bool start(bool force = false) = 0;
+public:
+    Plugin plugin;
+public:
+    FixedBaseConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
+    virtual ~FixedBaseConvolver();
+    inline void set_sync(bool val) { conv.set_sync(val); }
+};
+
+/****************************************************************
  ** class CabinetConvolver
  */
 
@@ -523,11 +555,13 @@ public:
 
 #include "faust/presence_level.h"
 
-class ContrastConvolver: public BaseConvolver {
+class ContrastConvolver: public FixedBaseConvolver {
 private:
     float level;
     float sum;
     presence_level::Dsp presl;
+    gx_resample::FixedRateResampler& smp;
+    static void init(unsigned int samplingFreq, PluginDef *p);
     static void run_contrast(int count, float *input, float *output, PluginDef*);
     static int register_con(const ParamReg& reg);
     inline void update_sum() { sum = level; }
@@ -536,7 +570,7 @@ private:
     inline bool sum_changed() { return abs(sum - level) > 0.01; }
     virtual bool start(bool force = false);
 public:
-    ContrastConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
+    ContrastConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp, gx_resample::FixedRateResampler& smp_);
     ~ContrastConvolver();
 };
 

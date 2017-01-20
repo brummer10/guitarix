@@ -729,6 +729,7 @@ void LadspaGuitarix::PresetLoader::remove_instance(LadspaGuitarix* i) {
 class MonoEngine: public EngineControl {
 private:
     gx_resample::BufferResampler resamp;
+    gx_resample::FixedRateResampler smp;
     void load_static_plugins();
     void sr_changed(unsigned int);
     void bs_changed(unsigned int);
@@ -907,6 +908,7 @@ static const char* ampstack_groups[] = {
 MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, ParameterGroups& groups)
     : EngineControl(),
       resamp(),
+      smp(),
       // ModuleSelector's
       crybaby(
 	  *this, "crybaby", N_("Crybaby"), "", builtin_crybaby_plugins,
@@ -926,7 +928,7 @@ MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, Paramet
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), get_param()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp, smp),
       loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync), loop_dir),
       record(*this, 1), detune(get_param(), *this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
 
