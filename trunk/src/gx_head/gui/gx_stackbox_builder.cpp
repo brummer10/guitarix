@@ -535,6 +535,7 @@ void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
 				Glib::ustring title = hostname + ": Select loop file";
 				Gtk::FileChooserDialog d( title);
 				d.set_local_only(false);
+				d.property_destroy_with_parent().set_value(true);
 				d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 				d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
 				Glib::ustring loop_dir = machine.get_options().get_loop_dir();
@@ -563,26 +564,64 @@ void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
 				} else {
 					d.set_current_folder_uri(Glib::filename_to_uri (loop_dir, hostname));
 				}
-				if (d.run() != Gtk::RESPONSE_OK) {
-					machine.set_parameter_value(id,0.0);
-					machine.signal_parameter_value<float>(id)(0.0);
-					return;
+				d.signal_response().connect(sigc::bind<Gtk::FileChooserDialog*>(sigc::bind<const std::string>(
+					sigc::bind<const std::string>(sigc::mem_fun(*this, &StackBoxBuilder::on_file_chooser_response),idf),id), &d) );
+				d.show();
+				while(machine.get_parameter_value<float>(id)>0) {
+				    //g_main_context_iteration (NULL, true);
+					if (Gtk::Main::iteration(false)) {
+						machine.set_parameter_value(id,0.0);
+						machine.signal_parameter_value<float>(id)(0.0);	
+					}
 				}
-				filename = Glib::filename_from_uri(d.get_uri(), hostname);
-				recent_filename = filename;
-				Gtk::RecentManager::Data data;
-				bool result_uncertain;
-				data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);
-				data.app_name = "guitarix";
-				data.groups.push_back("loopfiles");
-				Gtk::RecentManager::get_default()->add_item(d.get_uri(), data);
-				machine.set_parameter_value(idf,filename);
-				machine.set_parameter_value(id,0.0);
-				machine.signal_parameter_value<float>(id)(0.0);
+				
+			//	if (d.run() != Gtk::RESPONSE_OK) {
+			//		machine.set_parameter_value(id,0.0);
+			//		machine.signal_parameter_value<float>(id)(0.0);
+			//		return;
+			//	}
+			//	filename = Glib::filename_from_uri(d.get_uri(), hostname);
+			//	recent_filename = filename;
+			//	Gtk::RecentManager::Data data;
+			//	bool result_uncertain;
+			//	data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);
+			//	data.app_name = "guitarix";
+			//	data.groups.push_back("loopfiles");
+			//	Gtk::RecentManager::get_default()->add_item(d.get_uri(), data);
+			//	machine.set_parameter_value(idf,filename);
+			//	machine.set_parameter_value(id,0.0);
+			//	machine.signal_parameter_value<float>(id)(0.0);
 			}
 		}
 	}
 }
+
+void StackBoxBuilder::on_file_chooser_response(int response_id, Gtk::FileChooserDialog *d, const std::string& id, const std::string& idf)
+{
+	if( response_id == Gtk::RESPONSE_OK) {
+		static Glib::ustring hostname = "localhost";
+		if (! machine.get_jack()) {
+			hostname = Gio::Resolver::get_default()->lookup_by_address
+					(Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+		}
+		Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
+		Glib::ustring recent_filename = filename;
+		Gtk::RecentManager::Data data;
+		bool result_uncertain;
+		data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);
+		data.app_name = "guitarix";
+		data.groups.push_back("loopfiles");
+		Gtk::RecentManager::get_default()->add_item(d->get_uri(), data);
+		d->hide();
+		machine.set_parameter_value(idf,filename);
+		machine.set_parameter_value(id,0.0);
+		machine.signal_parameter_value<float>(id)(0.0);	
+	} else {
+		d->hide();
+		machine.set_parameter_value(id,0.0);
+		machine.signal_parameter_value<float>(id)(0.0);
+	}
+ }
 
 void StackBoxBuilder::load_file_f(const std::string& id, const std::string& idf) {
     Glib::signal_timeout().connect_once(
