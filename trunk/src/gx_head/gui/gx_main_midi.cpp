@@ -214,7 +214,7 @@ void MidiConnect::midi_response_cb(GtkWidget *widget, gint response_id, gpointer
             float upper = gtk_adjustment_get_value(m->adj_upper);
             m->machine.midi_modifyCurrent(m->param, lower, upper, false, gx_engine::Parameter::toggle_type::OnOff);
         } else {
-	    bool toggle = gtk_toggle_button_get_active(m->use_toggle);
+            bool toggle = gtk_toggle_button_get_active(m->use_toggle);
             int toggle_behaviour = gtk_combo_box_get_active(GTK_COMBO_BOX(m->toggle_behaviours));
             m->machine.midi_modifyCurrent(m->param, 0, 0, toggle, toggle_behaviour);
         }
@@ -399,9 +399,9 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_, gx
                                        "cell-background", 0, "text", 1, NULL);
         gtk_combo_box_set_active(GTK_COMBO_BOX(toggle_behaviours), gx_engine::Parameter::toggle_type::OnOff);
         if (nctl != -1) {
-	    gtk_toggle_button_set_active(use_toggle, pctrl->is_toggle());
+            gtk_toggle_button_set_active(use_toggle, pctrl->is_toggle());
             gtk_combo_box_set_active(GTK_COMBO_BOX(toggle_behaviours), pctrl->toggle_behaviour());
-	}
+        }
         int b = gtk_toggle_button_get_active(use_toggle);
         gtk_widget_set_sensitive(gtk_widget_get_parent(toggle_behaviours), b);
     }

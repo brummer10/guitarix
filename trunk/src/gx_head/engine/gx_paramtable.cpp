@@ -179,7 +179,7 @@ void MidiController::writeJSON(gx_system::JsonWriter& jw) const {
         jw.write(_upper);
     } else {
         assert(param->getControlType() == Parameter::Switch);
-	jw.write(toggle);
+        jw.write(toggle);
         jw.write(_toggle_behaviour);
     }
     jw.end_array();
@@ -204,62 +204,62 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
     if (pm.getControlType() == Parameter::Continuous ||
         pm.getControlType() == Parameter::Enum) {
         if (jp.peek() == gx_system::JsonParser::value_number) {
-	    jp.next(gx_system::JsonParser::value_number);
-	    if (jp.peek() == gx_system::JsonParser::value_number) {
-		// two numbers -> range
-		float pmin, pmax;
-		if (pm.hasRange()) {
-		    pmin = pm.getLowerAsFloat();
-		    pmax = pm.getUpperAsFloat();
-		} else {
-		    bad = true;
-		    pmin = pmax = 0;
-		}
-		lower = jp.current_value_float();
-		jp.next(gx_system::JsonParser::value_number);
-		upper = jp.current_value_float();
-		if (lower > pmax) {
-		    lower = pmax;
-		    chg = true;
-		} else if (lower < pmin) {
-		    lower = pmin;
-		    chg = true;
-		}
-		if (upper > pmax) {
-		    upper = pmax;
-		    chg = true;
-		} else if (upper < pmin) {
-		    upper = pmin;
-		    chg = true;
-		}
-	    } else {
-		// just one number -> switch (new format)
-		bad = true;
-	    }
-	} else {
-	    // no number -> switch (old format)
-	    bad = true;
-	}
+            jp.next(gx_system::JsonParser::value_number);
+            if (jp.peek() == gx_system::JsonParser::value_number) {
+                // two numbers -> range
+                float pmin, pmax;
+                if (pm.hasRange()) {
+                    pmin = pm.getLowerAsFloat();
+                    pmax = pm.getUpperAsFloat();
+                } else {
+                    bad = true;
+                    pmin = pmax = 0;
+                }
+                lower = jp.current_value_float();
+                jp.next(gx_system::JsonParser::value_number);
+                upper = jp.current_value_float();
+                if (lower > pmax) {
+                    lower = pmax;
+                    chg = true;
+                } else if (lower < pmin) {
+                    lower = pmin;
+                    chg = true;
+                }
+                if (upper > pmax) {
+                    upper = pmax;
+                    chg = true;
+                } else if (upper < pmin) {
+                    upper = pmin;
+                    chg = true;
+                }
+            } else {
+                // just one number -> switch (new format)
+                bad = true;
+            }
+        } else {
+            // no number -> switch (old format)
+            bad = true;
+        }
     } else if (pm.getControlType() == Parameter::Switch) {
-	if (jp.peek() == gx_system::JsonParser::value_number) {
-	    jp.next(gx_system::JsonParser::value_number);
+        if (jp.peek() == gx_system::JsonParser::value_number) {
+            jp.next(gx_system::JsonParser::value_number);
             int _toggle = jp.current_value_int();
-	    if (jp.peek() == gx_system::JsonParser::value_number) {
+            if (jp.peek() == gx_system::JsonParser::value_number) {
                 jp.next(gx_system::JsonParser::value_number);
                 if (jp.current_value_int() < Parameter::toggle_type::_Count) {
                    toggle = _toggle;
                    toggle_behaviour = jp.current_value_int();
                 } else {
-		// two numbers -> range
-		bad = true;
+                   // two numbers -> range
+                   bad = true;
                 }
-	    } else {
+            } else {
                 toggle = _toggle;
-	    }
-	}
+            }
+        }
     } else {
-	// bad control type
-	bad = true;
+        // bad control type
+        bad = true;
     }
     assert(jp.peek() == gx_system::JsonParser::end_array);
     while (jp.next() != gx_system::JsonParser::end_array); // be tolerant (non-debug mode)
@@ -283,15 +283,15 @@ bool MidiController::set_midi(int n, int last_value) {
     if (toggle) {
         switch (_toggle_behaviour) {
             case Parameter::toggle_type::OnOff: {
-	bool s_o = (2*last_value > 127);
-	bool s_n = (2*n > 127);
-	if (!s_o && s_n) {
-	    if (param->on_off_value()) {
-		ret = param->midi_set(0, 127, _lower, _upper);
-	    } else {
-		ret = param->midi_set(127, 127, _lower, _upper);
-	    }
-	}
+                bool s_o = (2*last_value > 127);
+                bool s_n = (2*n > 127);
+                if (!s_o && s_n) {
+                    if (param->on_off_value()) {
+                        ret = param->midi_set(0, 127, _lower, _upper);
+                    } else {
+                        ret = param->midi_set(127, 127, _lower, _upper);
+                    }
+                }
                 break;
             }
             case Parameter::toggle_type::Constant: {
@@ -309,7 +309,7 @@ bool MidiController::set_midi(int n, int last_value) {
         //fprintf(stderr,"continues %s \n",param->id().c_str());
         //fprintf(stderr,"%f \n",(127.*log10f(double(n+1.)))/2.1072);
         //fprintf(stderr,"%f \n",double(n * double(double(n+1.)/128)));
-	ret = param->midi_set(n, 127, _lower, _upper);
+        ret = param->midi_set(n, 127, _lower, _upper);
     }
     param->trigger_changed();
     return ret;
@@ -321,7 +321,7 @@ bool MidiController::set_trans(int n, int last_value) {
     if (strcmp(param->id().c_str(), "engine.mute")==0) {
         if ( n == 0) n = 127;
         else n = 0;
-    } 
+    }
     ret = param->midi_set(n, 127, _lower, _upper);
     return ret;
 }
@@ -498,21 +498,21 @@ MidiControllerList::MidiControllerList()
 bool MidiControllerList::check_midi_values() {
     static int saved_values[ControllerArray::array_size];
     for (unsigned int n = 0; n < ControllerArray::array_size; ++n) {
-	if (changed_midi_control_value[n]) {
-	    changed_midi_control_value[n] = 0;
-	    saved_values[n] = last_midi_control_value[n];
-	    midi_value_changed(n, saved_values[n]);
-	    if (!get_config_mode()) {
-		midi_controller_list& ctr_list = map[n];
-		for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
+        if (changed_midi_control_value[n]) {
+            changed_midi_control_value[n] = 0;
+            saved_values[n] = last_midi_control_value[n];
+            midi_value_changed(n, saved_values[n]);
+            if (!get_config_mode()) {
+                midi_controller_list& ctr_list = map[n];
+                for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
                     if (i->is_toggle()
                         && i->toggle_behaviour() == Parameter::toggle_type::Constant) {
                         midi_value_changed(n, i->getParameter().on_off_value() * 127);
                     }
-		    i->trigger_changed();
-		}
-	    }
-	}
+                    i->trigger_changed();
+                }
+            }
+        }
     }
     return true;
 }
@@ -598,15 +598,15 @@ void MidiControllerList::modifyCurrent(Parameter &param,
 
 void MidiControllerList::request_midi_value_update() {
     for (unsigned int n = 0; n < ControllerArray::array_size; ++n) {
-	int v = last_midi_control_value[n];
+        int v = last_midi_control_value[n];
         midi_controller_list& ctr_list = map[n];
         for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
             if (i->is_toggle()
                 && i->toggle_behaviour() == Parameter::toggle_type::Constant) {
                 v = i->getParameter().on_off_value() * 127;
             }
-	    midi_value_changed(n, v);
-	}
+            midi_value_changed(n, v);
+        }
     }
 }
 
@@ -617,7 +617,7 @@ void MidiControllerList::set_ctr_val(int ctr, int val) {
         midi_controller_list& ctr_list = map[ctr];
         for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
             i->set_midi(val, get_last_midi_control_value(ctr));
-	}
+        }
     }
     MidiControllerList::set_last_midi_control_value(ctr, val);
 }
