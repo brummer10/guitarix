@@ -180,6 +180,7 @@ void MidiController::writeJSON(gx_system::JsonWriter& jw) const {
     } else {
         assert(param->getControlType() == Parameter::Switch);
 	jw.write(toggle);
+        jw.write(_toggle_behaviour);
     }
     jw.end_array();
 }
@@ -197,6 +198,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
     Parameter& pm = pmap[id];
     float lower = 0, upper = 0;
     bool toggle = false;
+    int toggle_behaviour = 0;
     bool bad = false;
     bool chg = false;
     if (pm.getControlType() == Parameter::Continuous ||
@@ -241,11 +243,18 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
     } else if (pm.getControlType() == Parameter::Switch) {
 	if (jp.peek() == gx_system::JsonParser::value_number) {
 	    jp.next(gx_system::JsonParser::value_number);
+            int _toggle = jp.current_value_int();
 	    if (jp.peek() == gx_system::JsonParser::value_number) {
+                jp.next(gx_system::JsonParser::value_number);
+                if (jp.current_value_int() < Parameter::toggle_type::_Count) {
+                   toggle = _toggle;
+                   toggle_behaviour = jp.current_value_int();
+                } else {
 		// two numbers -> range
 		bad = true;
+                }
 	    } else {
-		toggle = jp.current_value_int();
+                toggle = _toggle;
 	    }
 	}
     } else {
@@ -265,13 +274,15 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
             _("recall MIDI state"),
             _("Parameter range outside bounds, changed: ") + id);
     }
-    return new MidiController(pm, lower, upper, toggle);
+    return new MidiController(pm, lower, upper, toggle, toggle_behaviour);
 }
 
 bool MidiController::set_midi(int n, int last_value) {
     bool ret = false;
     if (param->get_midi_blocked()) return ret;
     if (toggle) {
+        switch (_toggle_behaviour) {
+            case Parameter::toggle_type::OnOff: {
 	bool s_o = (2*last_value > 127);
 	bool s_n = (2*n > 127);
 	if (!s_o && s_n) {
@@ -281,11 +292,23 @@ bool MidiController::set_midi(int n, int last_value) {
 		ret = param->midi_set(127, 127, _lower, _upper);
 	    }
 	}
+                break;
+            }
+            case Parameter::toggle_type::Constant: {
+                if (n == last_value || last_value == -1) {
+                    if (param->on_off_value()) {
+                        ret = param->midi_set(0, n, _lower, _upper);
+                    } else {
+                        ret = param->midi_set(127, n, _lower, _upper);
+                    }
+                }
+                break;
+            }
+        }
     } else {
         //fprintf(stderr,"continues %s \n",param->id().c_str());
         //fprintf(stderr,"%f \n",(127.*log10f(double(n+1.)))/2.1072);
         //fprintf(stderr,"%f \n",double(n * double(double(n+1.)/128)));
-        
 	ret = param->midi_set(n, 127, _lower, _upper);
     }
     param->trigger_changed();
@@ -482,6 +505,10 @@ bool MidiControllerList::check_midi_values() {
 	    if (!get_config_mode()) {
 		midi_controller_list& ctr_list = map[n];
 		for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
+                    if (i->is_toggle()
+                        && i->toggle_behaviour() == Parameter::toggle_type::Constant) {
+                        midi_value_changed(n, i->getParameter().on_off_value() * 127);
+                    }
 		    i->trigger_changed();
 		}
 	    }
@@ -554,7 +581,7 @@ void MidiControllerList::deleteParameter(Parameter& p) {
 }
 
 void MidiControllerList::modifyCurrent(Parameter &param,
-                                       float lower, float upper, bool toggle) {
+                                       float lower, float upper, bool toggle, int toggle_behaviour) {
     if (!get_config_mode()) {
 	assert(false);
 	return;	// keep rt thread away from table
@@ -564,7 +591,7 @@ void MidiControllerList::modifyCurrent(Parameter &param,
     if (last_midi_control < 0)
         return;
     // add zone to controller
-    map[last_midi_control].push_front(MidiController(param, lower, upper, toggle));
+    map[last_midi_control].push_front(MidiController(param, lower, upper, toggle, toggle_behaviour));
     update_from_controller(last_midi_control);
     changed();
 }
@@ -572,7 +599,12 @@ void MidiControllerList::modifyCurrent(Parameter &param,
 void MidiControllerList::request_midi_value_update() {
     for (unsigned int n = 0; n < ControllerArray::array_size; ++n) {
 	int v = last_midi_control_value[n];
-	if (v >= 0) {
+        midi_controller_list& ctr_list = map[n];
+        for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
+            if (i->is_toggle()
+                && i->toggle_behaviour() == Parameter::toggle_type::Constant) {
+                v = i->getParameter().on_off_value() * 127;
+            }
 	    midi_value_changed(n, v);
 	}
     }

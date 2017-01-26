@@ -784,8 +784,9 @@ void GxMachine::midi_set_current_control(int v) {
     engine.controller_map.set_current_control(v);
 }
 
-void GxMachine::midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle) {
-    engine.controller_map.modifyCurrent(param, lower, upper, toggle);
+void GxMachine::midi_modifyCurrent(Parameter& param, float lower, float upper,
+                                   bool toggle, int toggle_behaviour) {
+    engine.controller_map.modifyCurrent(param, lower, upper, toggle, toggle_behaviour);
 }
 
 int GxMachine::midi_param2controller(Parameter& param, const MidiController** p) {
@@ -2502,12 +2503,13 @@ void GxMachineRemote::midi_set_current_control(int v) {
     SEND();
 }
 
-void GxMachineRemote::midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle) {
+void GxMachineRemote::midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle, int toggle_behaviour) {
     START_NOTIFY(midi_modifyCurrent);
     jw->write(param.id());
     jw->write(lower);
     jw->write(upper);
     jw->write(toggle);
+    jw->write(toggle_behaviour);
     SEND();
 }
 

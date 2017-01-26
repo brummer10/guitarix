@@ -970,7 +970,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
     PROCEDURE(midi_modifyCurrent) {
 	serv.jack.get_engine().controller_map.modifyCurrent(
 	    serv.settings.get_param()[params[0]->getString()], params[1]->getFloat(),
-	    params[2]->getFloat(), params[3]->getInt());
+	    params[2]->getFloat(), params[3]->getInt(), params[4]->getInt());
     }
 
     PROCEDURE(set) {
