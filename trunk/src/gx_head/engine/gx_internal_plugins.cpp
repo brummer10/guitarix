@@ -726,9 +726,9 @@ void FixedBaseConvolver::init(unsigned int samplingFreq, PluginDef *p) {
     FixedBaseConvolver& self = *static_cast<FixedBaseConvolver*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     self.SamplingFreq = samplingFreq;
-    self.bz = 96000.0/samplingFreq;
+    self.bz = 96000/samplingFreq;
     self.conv.set_buffersize(static_cast<int>(ceil((self.buffersize*self.bz))));
-    self.conv.set_samplerate(96000);
+    self.conv.set_samplerate(self.bz*self.SamplingFreq);
     if (self.activated) {
 	self.start(true);
     }
@@ -1278,7 +1278,11 @@ bool ContrastConvolver::do_update() {
 	conv.stop_process();
     }
     if (configure) {
-	smp.setup(getSamplingFreq(), 96000);
+	unsigned int sr = getSamplingFreq();
+	unsigned int sru = 96000;
+	unsigned int fact = sru/sr;
+	
+	smp.setup(sr, fact*sr);
 	presl.init(contrast_ir_desc.ir_sr);
     }
     float contrast_irdata_c[contrast_ir_desc.ir_count];

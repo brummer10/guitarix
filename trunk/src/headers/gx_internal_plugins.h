@@ -445,7 +445,7 @@ protected:
     bool activated;
     unsigned int SamplingFreq;
     unsigned int buffersize;
-    double bz;
+    unsigned int bz;
     sigc::connection update_conn;
     static void init(unsigned int samplingFreq, PluginDef *p);
     unsigned int getSamplingFreq() { return SamplingFreq;};
