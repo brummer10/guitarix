@@ -601,8 +601,7 @@ void MidiControllerList::request_midi_value_update() {
         int v = last_midi_control_value[n];
         midi_controller_list& ctr_list = map[n];
         for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
-            if (i->is_toggle()
-                && i->toggle_behaviour() == Parameter::toggle_type::Constant) {
+            if (i->is_toggle()) {
                 v = i->getParameter().on_off_value() * 127;
             }
             midi_value_changed(n, v);
