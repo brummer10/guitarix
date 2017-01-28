@@ -75,6 +75,12 @@ class MidiControllerTable: public sigc::trackable {
 class MidiConnect {
  private:
     enum { RESPONSE_DELETE = 1 };
+    std::map<gx_engine::Parameter::toggle_type, const char*> toggle_behaviour_descriptions {
+        { gx_engine::Parameter::toggle_type::OnOff, "off /on states transition toggle" },
+        { gx_engine::Parameter::toggle_type::Constant, "constant state toggle" }
+    };
+    GtkTreeSelection* selection;
+    GtkListStore* store;
     gx_engine::Parameter &param;
     gx_engine::GxMachineBase& machine;
     int current_control;
@@ -85,12 +91,14 @@ class MidiConnect {
     GtkWidget* dialog;
     GtkWidget* entry_new;
     GtkWidget* label_desc;
+    GtkWidget* toggle_behaviours;
     static string ctr_desc(int ctr);
     static const char *ctl_to_str(int n);
  public:
     MidiConnect(GdkEventButton *event, gx_engine::Parameter& param, gx_engine::GxMachineBase& machine);
     static void midi_response_cb(GtkWidget *widget, gint response_id, gpointer data);
     static void midi_destroy_cb(GtkWidget *widget, gpointer data);
+    static void toggle_behaviours_visibility(GtkWidget *widget, gpointer data);
     static gboolean check_midi_cb(gpointer);
     static void changed_text_handler(GtkEditable *entry, gpointer data);
 };

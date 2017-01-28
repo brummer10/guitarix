@@ -105,6 +105,7 @@ class FileParameter;
 class Parameter: boost::noncopyable {
 public:
     enum ctrl_type { None, Continuous, Switch, Enum };
+    enum toggle_type { OnOff = 0, Constant = 1, _Count = 2 };
 private:
     virtual bool midi_set(float n, float high, float llimit, float ulimit); //RT
     virtual bool midi_set_bpm(float n, float high, float llimit, float ulimit); //RT
@@ -672,12 +673,15 @@ class MidiController {
     Parameter *param; //RT
     float _lower, _upper; //RT
     bool toggle; //RT
+    int _toggle_behaviour;
+
  public:
-    MidiController(Parameter& p, float l, float u, bool t=false):
-        param(&p), _lower(l), _upper(u), toggle(t) {}
+    MidiController(Parameter& p, float l, float u, bool t=false, int tt=0):
+        param(&p), _lower(l), _upper(u), toggle(t), _toggle_behaviour(tt) {}
     float lower() const { return _lower; }
     float upper() const { return _upper; }
     bool is_toggle() const { return toggle; }
+    int toggle_behaviour() const { return _toggle_behaviour; }
     bool hasParameter(const Parameter& p) const { return *param == p; }
     Parameter& getParameter() const { return *param; }
     static MidiController *readJSON(gx_system::JsonParser& jp, ParamMap& param);
@@ -764,7 +768,7 @@ public:
     void set_ctr_val(int ctr, int val); //RT
     void set_bpm_val(unsigned int val); //RT
     void deleteParameter(Parameter& param);
-    void modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
+    void modifyCurrent(Parameter& param, float lower, float upper, bool toggle, int toggle_behaviour);
     int param2controller(Parameter& param, const MidiController** p) {
 	return map.param2controller(param, p); }
     void writeJSON(gx_system::JsonWriter& jw) const { map.writeJSON(jw); }

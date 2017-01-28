@@ -175,7 +175,7 @@ public:
     virtual midi_controller_list& midi_get(int n) = 0;
     virtual void midi_deleteParameter(Parameter& param) = 0;
     virtual void midi_set_current_control(int v) = 0;
-    virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle) = 0;
+    virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle, int toggle_behaviour) = 0;
     virtual int midi_param2controller(Parameter& param, const MidiController** p) = 0;
     // Convolver
     virtual void reload_impresp_list(const std::string& path) = 0;
@@ -356,7 +356,7 @@ public:
     virtual midi_controller_list& midi_get(int n);
     virtual void midi_deleteParameter(Parameter& param);
     virtual void midi_set_current_control(int v);
-    virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
+    virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle, int toggle_behaviour);
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
     // Convolver
     virtual void reload_impresp_list(const std::string& path);
@@ -535,7 +535,7 @@ public:
     virtual midi_controller_list& midi_get(int n);
     virtual void midi_deleteParameter(Parameter& param);
     virtual void midi_set_current_control(int v);
-    virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle);
+    virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle, int toggle_behaviour);
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
     // Convolver
     virtual void reload_impresp_list(const std::string& path);
