@@ -21,6 +21,7 @@
 
 #include <gxw/gainpoints.h>
 #include <vector>
+#include <cmath>
 
 inline bool operator==(const gain_points& p1, const gain_points& p2) { return p1.i == p2.i && std::abs(p1.g - p2.g) < 1e-4 * (p1.g + p2.g); }
 inline bool operator!=(const gain_points& p1, const gain_points& p2) { return !(p1 == p2); }
