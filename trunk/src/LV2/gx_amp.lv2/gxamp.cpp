@@ -237,7 +237,7 @@ private:
   inline bool cab_changed() 
     {return abs(cab - clevel_ ) > 0.1;}
   inline bool buffsize_changed() 
-    {return abs(bufsize - cur_bufsize) != 0;}
+    {return bufsize != cur_bufsize;}
   inline void update_cab() 
     {cab = clevel_ ; c_old_model_ = c_model_;}
   inline bool change_cab() 

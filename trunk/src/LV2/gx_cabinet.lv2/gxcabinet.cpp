@@ -108,7 +108,7 @@ private:
   inline bool cab_changed() 
     {return abs(cab_bass - cbass_) > 0.1 || abs(cab_treble - ctreble_) > 0.1 || abs(cab_level - clevel_) > 0.1;}
   inline bool buffsize_changed() 
-    {return abs(bufsize - cur_bufsize) != 0;}
+    {return bufsize != cur_bufsize;}
   inline void update_cab() 
     {cab_bass = cbass_; cab_treble = ctreble_; cab_level = clevel_; c_old_model_ = c_model_;}
   inline bool change_cab() 
