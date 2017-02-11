@@ -3851,6 +3851,8 @@ private:
     Array<double, 6, 1> K5;
     Array<double, 6, 1> Y;
     Array<double, 6, 1> X;
+    bool resamp;
+    unsigned int bufsize;
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     DKPlugin();
@@ -3891,11 +3893,13 @@ int DKPlugin::registerparam(const ParamReg& reg) {
 }
 
 void DKPlugin::init(unsigned int samplingFreq, PluginDef *plugin) {
-    smp.setup(samplingFreq, 96000);
     DKPlugin& self = *static_cast<DKPlugin*>(plugin);
+    if(samplingFreq != 96000) self.resamp = true;
+    else self.resamp = false;
+    if( self.resamp) smp.setup(samplingFreq, 96000);
     self.X.setZero();
-   self.Y.setZero();
-   unsigned int fs = samplingFreq;
+    self.Y.setZero();
+    unsigned int fs = samplingFreq;
        self.K5(0) = 1.75171807136529e-7*pow(fs,2);
        self.K4(0) = -7.00687228546118e-7*pow(fs,2);
        self.K3(0) = 1.05103084281918e-6*pow(fs,2) + 0.000200534456453583*fs;
@@ -3959,11 +3963,22 @@ void DKPlugin::process(int n, float *u, float *o, PluginDef *plugin) {
     Matrix<creal, 8, 1> mp;
     Array<creal, 8, 1> p_val;
     nonlin_param par(&mp, &mi, &g_v, &g_info, &g_nfev, &fnorm, &p_val);
-    float buf[smp.max_out_count(n)];
-    n = smp.up(n, u, buf);
+    
+    if( self.resamp) {
+        self.bufsize = smp.max_out_count(n);
+    } else {
+        self.bufsize = n;
+    }
+    float buf[self.bufsize];
+    if( self.resamp) {
+        n = smp.up(n, u, buf);
+    } else {
+        memcpy(buf, u, n * sizeof(float));
+    }
+     
 #define GET_U (buf+j*1)
-    for (int j = 0; j < n; j++) {
 #define DTP_U float
+    for (int j = 0; j < n; j++) {
         
         Matrix<creal, 8, 1> dp;
         dp << self.x_last, Map<Matrix<float,1,1> >(GET_U).cast<creal>();
@@ -3983,10 +3998,11 @@ void DKPlugin::process(int n, float *u, float *o, PluginDef *plugin) {
             buf[j] = y;
         }
 
+    }
 #undef GET_U
 #undef DTP_U
-    }
-    smp.down(buf, o);
+    if (self.resamp) smp.down(buf, o);
+    else memcpy(o, buf, n * sizeof(float));
 // end copied code
 }
 
