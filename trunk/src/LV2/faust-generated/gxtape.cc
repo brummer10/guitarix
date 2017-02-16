@@ -448,7 +448,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp4 = (fRec17[2] + (fRec17[0] + (2 * fRec17[1])));
 		fVec3[0] = fTemp4;
 		fRec16[0] = ((fConst53 * fRec16[1]) + (fConst52 * ((fConst49 * fVec3[0]) + (fConst50 * fVec3[1]))));
-		fRec15[0] = ((fConst53 * fRec15[1]) + (fConst54 * ((fConst49 * fRec16[0]) + (fConst50 * fRec16[1]))));
+		fRec15[0] = ((fConst53 * fRec15[1]) + (fConst54 * ((fConst50 * fRec16[1]) + (fConst49 * fRec16[0]))));
 		fRec14[0] = (fRec15[0] - (fConst41 * ((fConst39 * fRec14[2]) + fTemp3)));
 		double fTemp5 = ((fTemp3 + (fConst57 * fRec14[0])) + (fConst56 * fRec14[2]));
 		fVec4[0] = fTemp5;
@@ -563,7 +563,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider7
 #undef fcheckbox1
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);

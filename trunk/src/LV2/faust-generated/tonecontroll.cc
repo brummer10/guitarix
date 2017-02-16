@@ -230,7 +230,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec18[0] = ((fConst19 * fRec18[1]) + (fConst18 * ((fConst4 * fVec3[0]) + (fConst20 * fVec3[1]))));
 		fRec17[0] = (fRec18[0] - (fConst6 * ((fConst5 * fRec17[2]) + (fConst3 * fRec17[1]))));
 		double fTemp10 = (fConst3 * fRec19[1]);
-		fRec21[0] = ((fConst16 * fRec21[1]) + (fConst15 * ((fConst24 * fVec2[1]) + (fConst10 * fVec2[0]))));
+		fRec21[0] = ((fConst16 * fRec21[1]) + (fConst15 * ((fConst10 * fVec2[0]) + (fConst24 * fVec2[1]))));
 		fRec20[0] = (fRec21[0] - (fConst13 * ((fConst11 * fRec20[2]) + (fConst9 * fRec20[1]))));
 		fRec19[0] = ((fConst13 * (((fConst8 * fRec20[0]) + (fConst25 * fRec20[1])) + (fConst8 * fRec20[2]))) - (fConst23 * ((fConst22 * fRec19[2]) + fTemp10)));
 		double fTemp11 = ((fRec11[0] * (fRec19[2] + (fConst23 * (fTemp10 + (fConst22 * fRec19[0]))))) + (fConst6 * ((fRec7[0] * (((fConst2 * fRec17[0]) + (fConst21 * fRec17[1])) + (fConst2 * fRec17[2]))) + (fRec4[0] * (fRec13[2] + (fRec13[0] + (2 * fRec13[1])))))));
@@ -275,7 +275,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 #undef fslider3
 #undef fcheckbox0
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);

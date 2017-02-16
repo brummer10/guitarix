@@ -422,7 +422,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec3[0] = ((0.9302847925323914 * (fRec4[0] + fRec4[1])) - (0.8605695850647829 * fRec3[1]));
 		fRec2[0] = (fRec3[0] - ((1.8405051250752198 * fRec2[1]) + (0.8612942439318627 * fRec2[2])));
 		fRec18[0] = ((fConst127 * fRec18[1]) + (fConst126 * (fRec1[1] + fRec1[2])));
-		fRec1[0] = (Ftrany(TRANY_TABLE_KT88_68k, ((fRec18[0] + (0.9254498422517706 * ((fRec2[0] + fRec2[2]) + (2.0 * fRec2[1])))) - 5.562895)) - 43.96685185185183);
+		fRec1[0] = (Ftrany(TRANY_TABLE_KT88_68k, ((fRec18[0] + (0.9254498422517706 * (fRec2[2] + (fRec2[0] + (2.0 * fRec2[1]))))) - 5.562895)) - 43.96685185185183);
 		fRec0[0] = ((fConst132 * fRec0[1]) + (fConst131 * ((fConst128 * fRec1[0]) + (fConst129 * fRec1[1]))));
 		output0[i] = (FAUSTFLOAT)(fRec0[0] + (fSlow1 * fTemp0));
 		// post processing
@@ -449,7 +449,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iVec0[1] = iVec0[0];
 	}
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);

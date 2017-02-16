@@ -158,7 +158,7 @@ void GXPluginGUI::set_skin()
                  "style 'guitarix_mid_knob' {\n"
                  "    GxKnob::x_center          = -1\n"
                  "    GxKnob::y_center          = -1\n"
-                 "    GxKnob::ring_radius       = 40\n"
+                 "    GxKnob::ring_radius       = 35\n"
                  "    GxKnob::ring_width        = 6\n"
                  "    GxKnob::ring_led_size     = 2\n"
                  "    GxKnob::ring_led_distance = 2\n"

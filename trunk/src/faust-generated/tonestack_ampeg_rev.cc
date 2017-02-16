@@ -90,9 +90,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow1 = double(fslider1);
 	double 	fSlow2 = (4.7047000000000006e-07 * fSlow1);
 	double 	fSlow3 = (((fSlow1 * (((1.1761750000000001e-05 * fSlow0) - 4.217780000000001e-06) - fSlow2)) + (0.00011849250000000002 * fSlow0)) + 5.107200000000001e-06);
-	double 	fSlow4 = ((4.1125e-10 * fSlow0) - (1.645e-11 * fSlow1));
-	double 	fSlow5 = (2.9375000000000002e-09 * fSlow0);
-	double 	fSlow6 = (1.175e-10 + (fSlow5 + (fSlow1 * (fSlow4 - 1.0105e-10))));
+	double 	fSlow4 = (2.9375000000000002e-09 * fSlow0);
+	double 	fSlow5 = ((4.1125e-10 * fSlow0) - (1.645e-11 * fSlow1));
+	double 	fSlow6 = (1.175e-10 + ((fSlow1 * (fSlow5 - 1.0105e-10)) + fSlow4));
 	double 	fSlow7 = (fConst0 * fSlow6);
 	double 	fSlow8 = (0.025025000000000002 * fSlow0);
 	double 	fSlow9 = (0.00047000000000000004 * fSlow1);
@@ -104,7 +104,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
 	double 	fSlow16 = double(fslider2);
 	double 	fSlow17 = ((((3.675000000000001e-07 * fSlow16) + (fSlow1 * (4.8222e-07 - fSlow2))) + (fSlow0 * (9.925e-07 + (1.1761750000000001e-05 * fSlow1)))) + 3.9700000000000005e-08);
-	double 	fSlow18 = ((fSlow1 * (1.645e-11 + fSlow4)) + (fSlow16 * (fSlow5 + (1.175e-10 - (1.175e-10 * fSlow1)))));
+	double 	fSlow18 = ((fSlow1 * (1.645e-11 + fSlow5)) + (fSlow16 * (fSlow4 + (1.175e-10 - (1.175e-10 * fSlow1)))));
 	double 	fSlow19 = (fConst0 * fSlow18);
 	double 	fSlow20 = ((fSlow8 + (fSlow9 + (2.5e-05 * fSlow16))) + 0.001001);
 	double 	fSlow21 = (fConst0 * fSlow20);
@@ -124,7 +124,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider1
 #undef fslider2
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);

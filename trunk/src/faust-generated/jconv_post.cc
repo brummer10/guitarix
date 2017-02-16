@@ -93,7 +93,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	}
 #undef fslider4
 }
-
+		
 int Dsp::register_par(const ParamReg& reg)
 {
 	fslider4_ = reg.registerVar("amp.balance",N_("Balance"),"SA","",&fslider4, 0.0f, -1.0f, 1.0f, 0.1f);

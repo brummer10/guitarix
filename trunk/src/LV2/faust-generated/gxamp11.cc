@@ -414,7 +414,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp20 = (fConst3 * fRec34[1]);
 		double fTemp21 = (fConst9 * fRec35[1]);
 		fRec37[0] = ((fConst36 * fRec37[1]) + (fConst35 * ((fConst17 * fRec25[0]) + (fConst49 * fRec25[1]))));
-		fRec36[0] = (fRec37[0] - (fConst20 * ((fConst18 * fRec36[2]) + (fConst16 * fRec36[1]))));
+		fRec36[0] = (fRec37[0] - (fConst20 * ((fConst16 * fRec36[1]) + (fConst18 * fRec36[2]))));
 		fRec35[0] = ((fConst20 * (((fConst15 * fRec36[0]) + (fConst50 * fRec36[1])) + (fConst15 * fRec36[2]))) - (fConst48 * ((fConst47 * fRec35[2]) + fTemp21)));
 		fRec34[0] = ((fRec35[2] + (fConst48 * (fTemp21 + (fConst47 * fRec35[0])))) - (fConst44 * ((fConst43 * fRec34[2]) + fTemp20)));
 		double fTemp22 = max((double)-1, min((double)1, (fSlow6 * (fRec34[2] + (fConst44 * (fTemp20 + (fConst43 * fRec34[0])))))));
@@ -554,7 +554,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider2
 #undef fslider3
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);

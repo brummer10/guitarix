@@ -97,7 +97,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow14 = ((fConst1 * (fSlow3 + fSlow12)) - (3 + fSlow10));
 	double 	fSlow15 = (1.0 / (0 - (1 + (fSlow10 + (fConst1 * (fSlow3 + fSlow7))))));
 	double 	fSlow16 = double(fslider2);
-	double 	fSlow17 = (1.0633750000000002e-07 + (((3.2900000000000005e-07 * fSlow16) + (fSlow1 * (1.4614062500000001e-06 - fSlow2))) + (fSlow0 * (1.0633750000000002e-06 + (1.38796875e-05 * fSlow1)))));
+	double 	fSlow17 = ((((3.2900000000000005e-07 * fSlow16) + (fSlow1 * (1.4614062500000001e-06 - fSlow2))) + (fSlow0 * (1.0633750000000002e-06 + (1.38796875e-05 * fSlow1)))) + 1.0633750000000002e-07);
 	double 	fSlow18 = ((fSlow1 * (1.0561781250000003e-10 + fSlow5)) + (fSlow16 * (fSlow4 + (1.9328750000000007e-10 - (1.9328750000000007e-10 * fSlow1)))));
 	double 	fSlow19 = (fConst0 * fSlow18);
 	double 	fSlow20 = ((fSlow8 + (fSlow9 + (6.25e-05 * fSlow16))) + 0.00118125);
@@ -118,7 +118,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider1
 #undef fslider2
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);

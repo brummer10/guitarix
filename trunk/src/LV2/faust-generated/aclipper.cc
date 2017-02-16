@@ -7,6 +7,13 @@ namespace aclipper {
 
 class Dsp: public PluginLV2 {
 private:
+	double 	fLowVec0[2];
+	uint32_t 	iLowConst0;
+	double 	fLowConst1;
+	double 	fLowConst2;
+	double 	fLowConst3;
+	double 	fLowConst4;
+	double 	fLowRec0[2];
 	gx_resample::FixedRateResampler smp;
 	uint32_t samplingFreq;
 	uint32_t fSamplingFreq;
@@ -96,6 +103,8 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<3; i++) fRec3[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec7[i] = 0;
+	for (int i=0; i<2; i++) fLowVec0[i] = 0;
+	for (int i=0; i<2; i++) fLowRec0[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -107,6 +116,11 @@ inline void Dsp::init(uint32_t RsamplingFreq)
 {
 	samplingFreq = 96000;
 	smp.setup(RsamplingFreq, samplingFreq);
+	iLowConst0 = min(192000, max(1, RsamplingFreq));
+	fLowConst1 = (1.0 / tan((1.5707963267948966 * (double(iLowConst0) / double(iLowConst0)))));
+	fLowConst2 = (1 + fLowConst1);
+	fLowConst3 = (1.0 / fLowConst2);
+	fLowConst4 = (0 - ((1 - fLowConst1) / fLowConst2));
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = double(iConst0);
@@ -147,8 +161,17 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
+	for (int i=0; i<count; i++) {
+		double fLowTemp0 = (double)input0[i];
+		fLowVec0[0] = fLowTemp0;
+		fLowRec0[0] = ((fLowConst4 * fLowRec0[1]) + (fLowConst3 * (fLowVec0[0] + fLowVec0[1])));
+		output0[i] = (FAUSTFLOAT)fLowRec0[0];
+		// post processing
+		fLowRec0[1] = fLowRec0[0];
+		fLowVec0[1] = fLowVec0[0];
+	}
 	FAUSTFLOAT buf[smp.max_out_count(count)];
-	int ReCount = smp.up(count, input0, buf);
+	int ReCount = smp.up(count, output0, buf);
 	double 	fSlow0 = (0.007000000000000006 * (1.0 - double(fslider0)));
 	double 	fSlow1 = (0.007000000000000006 * double(fslider1));
 	double 	fSlow2 = (0.007000000000000006 * pow(10,(0.05 * double(fslider2))));
@@ -186,7 +209,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider1
 #undef fslider2
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);

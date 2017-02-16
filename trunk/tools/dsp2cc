@@ -206,7 +206,7 @@ class Parser(object):
         return [l[n:] for l in cp]
 
     def get_section_list(self):
-        return "includes", "var-decl", "alias-defines", "alias-undefines", "var-init", "var-free", "ui", "compute"
+        return "includes", "var-decl", "alias-defines", "alias-undefines", "var-init", "var-free", "ui", "compute", "post_compute"
 
     def getIO(self, s):
         e = r"\s*virtual int getNum%sputs\(\)\s*{\s*return\s*(\d+);\s*}" % s
@@ -426,6 +426,8 @@ class Parser(object):
         out_defines = []
         out_undefines = []
         for l in lines:
+            if '% ' in l:
+                l = l.replace(u'%','%%')
             m = param_matcher(l);
             if m:
                 var = m.group(1)
@@ -519,6 +521,8 @@ class Parser(object):
             self.has_vector = True
         else:
             s["compute"] = self.replace_ioref_scalar(self.copy(r"\t}$"))
+        self.skip_until(r"\s*};")
+        s["post_compute"] = self.replace_mydsp(self.copy(r"\s*END USER SECTION$"))
         self.sections = s
         if self.oversample is not None:
             self.has_oversample = True
@@ -580,6 +584,27 @@ class Parser(object):
                         line=re.sub("input1",'bufs',line)
                         line=re.sub("output1",'bufs',line)
                 l.append(line)            
+        return l
+
+    def replace_mydsp(self, lines):
+        l = []
+        for line in lines:
+            if not 'mydsp::ftbl' in line:
+                line=re.sub("mydsp",'Dsp',line)
+                z = 0
+                f = ''
+                for item in line:
+                    if item in '}':
+                        f = f + ("\n\t")
+                    if z == 5:
+                        f = f + ("\n\t")
+                        z = 0
+                    f = f + item
+                    if item in ',':
+                        z +=1
+                    if item in '{':
+                        f = f + ("\n\t")
+                l.append(f)            
         return l
 
     def checkfor(self, re_exp, sect):
@@ -776,6 +801,7 @@ static void __rt_func compute(int %(countname)s%(compute_args)s, PluginDef *)
 {
 %(compute_body)s\
 }
+%(post_compute_body)s\
 
 static int register_params(const ParamReg& reg)
 {
@@ -1140,6 +1166,7 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 #endif
 %(undefines)s\
 }
+%(post_compute_body)s\
 
 #if %(has_plugindef)s
 void __rt_func Dsp::compute_static(int %(countname)s%(compute_args)s, PluginDef *p)
@@ -1265,6 +1292,13 @@ class Dsp {
 #endif
 private:
 #if %(has_oversample)s
+	double 	fLowVec0[2];
+	uint32_t 	iLowConst0;
+	double 	fLowConst1;
+	double 	fLowConst2;
+	double 	fLowConst3;
+	double 	fLowConst4;
+	double 	fLowRec0[2];
 	gx_resample::FixedRateResampler smp;
 #if %(has_stereo)s
 	gx_resample::FixedRateResampler smps;
@@ -1368,6 +1402,10 @@ Dsp::~Dsp() {
 inline void Dsp::clear_state_f()
 {
 %(state_init)s\
+#if %(has_oversample)s
+	for (int i=0; i<2; i++) fLowVec0[i] = 0;
+	for (int i=0; i<2; i++) fLowRec0[i] = 0;
+#endif
 #if %(has_insert_p)s
 %(insert_p_clearstate)s
 #endif
@@ -1389,6 +1427,11 @@ inline void Dsp::init(uint32_t RsamplingFreq)
 {
 	samplingFreq = %(oversample)s;
 	smp.setup(RsamplingFreq, samplingFreq);
+	iLowConst0 = min(192000, max(1, RsamplingFreq));
+	fLowConst1 = (1.0 / tan((1.5707963267948966 * (double(iLowConst0) / double(iLowConst0)))));
+	fLowConst2 = (1 + fLowConst1);
+	fLowConst3 = (1.0 / fLowConst2);
+	fLowConst4 = (0 - ((1 - fLowConst1) / fLowConst2));
 #if %(has_stereo)s
 	smps.setup(RsamplingFreq, samplingFreq);
 #endif
@@ -1458,6 +1501,15 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 %(volume_pre)s
 #endif
 #if %(has_oversample)s
+	for (int i=0; i<count; i++) {
+		double fLowTemp0 = (double)input0[i];
+		fLowVec0[0] = fLowTemp0;
+		fLowRec0[0] = ((fLowConst4 * fLowRec0[1]) + (fLowConst3 * (fLowVec0[0] + fLowVec0[1])));
+		output0[i] = (FAUSTFLOAT)fLowRec0[0];
+		// post processing
+		fLowRec0[1] = fLowRec0[0];
+		fLowVec0[1] = fLowVec0[0];
+	}
 	FAUSTFLOAT buf[smp.max_out_count(%(countname)s)];
 #if %(has_stereo)s
 	FAUSTFLOAT bufs[smps.max_out_count(%(countname)s)];
@@ -1470,7 +1522,7 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 #if %(has_vector)s
 	int ReCount = smp.up(%(countname)s, inputX0, buf);
 #else
-	int ReCount = smp.up(%(countname)s, input0, buf);
+	int ReCount = smp.up(%(countname)s, output0, buf);
 #endif
 #endif
 %(compute_body)s\
@@ -1501,6 +1553,7 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 #endif
 %(undefines)s\
 }
+%(post_compute_body)s\
 
 #if %(has_plugindef)s
 void __rt_func Dsp::compute_static(int %(countname)s%(compute_args)s, PluginLV2 *p)
@@ -1633,7 +1686,7 @@ class Output(object):
         self.options = options
         self.has_activate = len(self.parser.memlist) > 0
         if self.options.vectorize:
-            self.countname = "fullcount"
+            self.countname = "count"
             self.inputdecl = ", FAUSTFLOAT *inputX%d"
             self.outputdecl = ", FAUSTFLOAT *outputX%d"
             self.inputcall = ", inputX%d"
@@ -1886,6 +1939,7 @@ class Output(object):
             compute_call_args = compute_call_args,
             defines = self.parser_sect("alias-defines", 0),
             compute_body = self.parser_sect("compute", 1),
+            post_compute_body = self.parser_sect("post_compute", 1),
             undefines = self.parser_sect("alias-undefines", 0),
             register_body = self.parser_ui(has_lv2, "reg."),
             port_body     = self.parser_lv2(""),

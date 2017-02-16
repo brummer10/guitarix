@@ -136,7 +136,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 #undef fslider0
 #undef fslider1
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);

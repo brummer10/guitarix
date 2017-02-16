@@ -7,6 +7,13 @@ namespace bossds1 {
 
 class Dsp: public PluginLV2 {
 private:
+	double 	fLowVec0[2];
+	uint32_t 	iLowConst0;
+	double 	fLowConst1;
+	double 	fLowConst2;
+	double 	fLowConst3;
+	double 	fLowConst4;
+	double 	fLowRec0[2];
 	gx_resample::FixedRateResampler smp;
 	uint32_t samplingFreq;
 	uint32_t fSamplingFreq;
@@ -143,6 +150,8 @@ inline void Dsp::clear_state_f()
 	for (int i=0; i<3; i++) fRec2[i] = 0;
 	for (int i=0; i<3; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) fRec10[i] = 0;
+	for (int i=0; i<2; i++) fLowVec0[i] = 0;
+	for (int i=0; i<2; i++) fLowRec0[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -154,6 +163,11 @@ inline void Dsp::init(uint32_t RsamplingFreq)
 {
 	samplingFreq = 96000;
 	smp.setup(RsamplingFreq, samplingFreq);
+	iLowConst0 = min(192000, max(1, RsamplingFreq));
+	fLowConst1 = (1.0 / tan((1.5707963267948966 * (double(iLowConst0) / double(iLowConst0)))));
+	fLowConst2 = (1 + fLowConst1);
+	fLowConst3 = (1.0 / fLowConst2);
+	fLowConst4 = (0 - ((1 - fLowConst1) / fLowConst2));
 	fSamplingFreq = samplingFreq;
 	iConst0 = min(192000, max(1, fSamplingFreq));
 	fConst1 = double(iConst0);
@@ -178,11 +192,11 @@ inline void Dsp::init(uint32_t RsamplingFreq)
 	fConst20 = (0.00107562519972983 - (5.31143379426527e-10 * fConst4));
 	fConst21 = ((5.79288707566498e-10 * fConst4) - 0.00107562519972983);
 	fConst22 = tan((72.25663103256524 / double(iConst0)));
-	fConst23 = (1.0 / fConst22);
-	fConst24 = (1 + ((fConst23 - 1.414213562373095) / fConst22));
-	fConst25 = (1.0 / faustpower<2>(fConst22));
-	fConst26 = (2 * (1 - fConst25));
-	fConst27 = (1.0 / (1 + ((1.414213562373095 + fConst23) / fConst22)));
+	fConst23 = (1.0 / faustpower<2>(fConst22));
+	fConst24 = (2 * (1 - fConst23));
+	fConst25 = (1.0 / fConst22);
+	fConst26 = (1 + ((fConst25 - 1.414213562373095) / fConst22));
+	fConst27 = (1.0 / (1 + ((1.414213562373095 + fConst25) / fConst22)));
 	fConst28 = (1.49503874539434e-11 * fConst1);
 	fConst29 = (1.66555708487018e-05 + fConst28);
 	fConst30 = (3.0314296262996e-10 * fConst1);
@@ -207,7 +221,7 @@ inline void Dsp::init(uint32_t RsamplingFreq)
 	fConst49 = (0 - fConst48);
 	fConst50 = (7.50903344506575e-07 + fConst28);
 	fConst51 = (1.59012835323858e-05 + fConst30);
-	fConst52 = (2 * (0 - fConst25));
+	fConst52 = (2 * (0 - fConst23));
 	fConst53 = tan((22619.46710584651 / double(iConst0)));
 	fConst54 = (2 * (1 - (1.0 / faustpower<2>(fConst53))));
 	fConst55 = (1.0 / fConst53);
@@ -235,8 +249,17 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
+	for (int i=0; i<count; i++) {
+		double fLowTemp0 = (double)input0[i];
+		fLowVec0[0] = fLowTemp0;
+		fLowRec0[0] = ((fLowConst4 * fLowRec0[1]) + (fLowConst3 * (fLowVec0[0] + fLowVec0[1])));
+		output0[i] = (FAUSTFLOAT)fLowRec0[0];
+		// post processing
+		fLowRec0[1] = fLowRec0[0];
+		fLowVec0[1] = fLowVec0[0];
+	}
 	FAUSTFLOAT buf[smp.max_out_count(count)];
-	int ReCount = smp.up(count, input0, buf);
+	int ReCount = smp.up(count, output0, buf);
 	double 	fSlow0 = (0.007000000000000006 * double(fslider0));
 	double 	fSlow1 = (0.002198000000000002 * double(fslider1));
 	double 	fSlow2 = (0.007000000000000006 * pow(10,(0.05 * double(fslider2))));
@@ -250,8 +273,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec8[0] = ((double)buf[i] - (fConst44 * fRec8[1]));
 		fRec7[0] = ((fConst47 * ((fConst46 * fRec8[1]) + (fConst45 * fRec8[0]))) - (fConst41 * (((fConst40 * fRec7[1]) + (fConst39 * fRec7[2])) + (fConst37 * fRec7[3]))));
 		fRec6[0] = ((fConst41 * ((((fConst49 * fRec7[0]) + (fConst48 * fRec7[1])) + (fConst48 * fRec7[2])) + (fConst49 * fRec7[3]))) - (((fRec6[1] * (0.000338397180940324 + fTemp3)) + (fRec6[2] * (0.000169198590470162 + (fConst1 * (fConst35 + (fRec5[0] * (fTemp1 + fConst34))))))) / fTemp2));
-		fRec4[0] = (asymclip3(((((fRec6[0] * (0.000169198590470161 + (fConst1 * ((fRec5[0] * (fTemp1 + fConst51)) + fConst50)))) + (fRec6[1] * (0.000338397180940323 + fTemp3))) + (fRec6[2] * (0.000169198590470161 + (fConst1 * (fConst33 + (fRec5[0] * (fConst32 + fTemp1))))))) / fTemp2)) - (fConst27 * ((fConst26 * fRec4[1]) + (fConst24 * fRec4[2]))));
-		double fTemp4 = (fConst27 * (((fConst25 * fRec4[0]) + (fConst52 * fRec4[1])) + (fConst25 * fRec4[2])));
+		fRec4[0] = (asymclip3(((((fRec6[0] * (0.000169198590470161 + (fConst1 * ((fRec5[0] * (fTemp1 + fConst51)) + fConst50)))) + (fRec6[1] * (0.000338397180940323 + fTemp3))) + (fRec6[2] * (0.000169198590470161 + (fConst1 * (fConst33 + (fRec5[0] * (fConst32 + fTemp1))))))) / fTemp2)) - (fConst27 * ((fConst26 * fRec4[2]) + (fConst24 * fRec4[1]))));
+		double fTemp4 = (fConst27 * (((fConst23 * fRec4[0]) + (fConst52 * fRec4[1])) + (fConst23 * fRec4[2])));
 		double fTemp5 = opamp(fTemp4);
 		double fTemp6 = (1.0 - fRec5[0]);
 		double fTemp7 = (fConst58 * (4700 + (100000 * fTemp6)));
@@ -284,7 +307,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider1
 #undef fslider2
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);

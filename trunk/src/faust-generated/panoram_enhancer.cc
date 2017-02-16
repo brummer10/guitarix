@@ -352,9 +352,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		int iTemp11 = (1 + iTemp10);
 		int iTemp12 = int((int(iTemp11) & 65535));
 		double fTemp13 = (fTemp9 - iTemp10);
-		int iTemp14 = int((iTemp10 & 65535));
-		double fTemp15 = (iTemp11 - fTemp9);
-		fRec20[0] = (((fTemp15 * fVec1[(IOTA-iTemp14)&65535]) + (fTemp13 * fVec1[(IOTA-iTemp12)&65535])) - (fConst48 * ((fConst47 * fRec20[2]) + (fConst3 * fRec20[1]))));
+		double fTemp14 = (iTemp11 - fTemp9);
+		int iTemp15 = int((iTemp10 & 65535));
+		fRec20[0] = (((fVec1[(IOTA-iTemp15)&65535] * fTemp14) + (fTemp13 * fVec1[(IOTA-iTemp12)&65535])) - (fConst48 * ((fConst47 * fRec20[2]) + (fConst3 * fRec20[1]))));
 		fRec19[0] = ((fConst48 * (((fConst2 * fRec20[0]) + (fConst49 * fRec20[1])) + (fConst2 * fRec20[2]))) - (fConst46 * ((fConst45 * fRec19[2]) + (fConst3 * fRec19[1]))));
 		fRec18[0] = ((fConst46 * (((fConst2 * fRec19[0]) + (fConst49 * fRec19[1])) + (fConst2 * fRec19[2]))) - (fConst44 * ((fConst43 * fRec18[2]) + (fConst3 * fRec18[1]))));
 		fRec17[0] = ((fConst44 * (((fConst2 * fRec18[0]) + (fConst49 * fRec18[1])) + (fConst2 * fRec18[2]))) - (fConst39 * ((fConst38 * fRec17[2]) + (fConst32 * fRec17[1]))));
@@ -370,7 +370,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec23[0] = ((fSlow24 * (((fSlow20 * fRec24[0]) + (fSlow29 * fRec24[1])) + (fSlow20 * fRec24[2]))) - (fSlow18 * ((fSlow17 * fRec23[2]) + (fSlow10 * fRec23[1]))));
 		fRec22[0] = ((fSlow18 * (fRec23[2] + (fRec23[0] + (2 * fRec23[1])))) - (fSlow16 * ((fSlow15 * fRec22[2]) + (fSlow10 * fRec22[1]))));
 		fRec21[0] = ((fSlow16 * (fRec22[2] + (fRec22[0] + (2 * fRec22[1])))) - (fSlow14 * ((fSlow12 * fRec21[2]) + (fSlow10 * fRec21[1]))));
-		fRec32[0] = (((fTemp15 * fVec0[(IOTA-iTemp14)&65535]) + (fTemp13 * fVec0[(IOTA-iTemp12)&65535])) - (fSlow18 * ((fSlow17 * fRec32[2]) + (fSlow10 * fRec32[1]))));
+		fRec32[0] = (((fTemp14 * fVec0[(IOTA-iTemp15)&65535]) + (fTemp13 * fVec0[(IOTA-iTemp12)&65535])) - (fSlow18 * ((fSlow17 * fRec32[2]) + (fSlow10 * fRec32[1]))));
 		fRec31[0] = ((fSlow18 * (((fSlow9 * fRec32[0]) + (fSlow42 * fRec32[1])) + (fSlow9 * fRec32[2]))) - (fSlow16 * ((fSlow15 * fRec31[2]) + (fSlow10 * fRec31[1]))));
 		fRec30[0] = ((fSlow16 * (((fSlow9 * fRec31[0]) + (fSlow42 * fRec31[1])) + (fSlow9 * fRec31[2]))) - (fSlow14 * ((fSlow12 * fRec30[2]) + (fSlow10 * fRec30[1]))));
 		fRec29[0] = ((fSlow14 * (((fSlow9 * fRec30[0]) + (fSlow42 * fRec30[1])) + (fSlow9 * fRec30[2]))) - (fSlow41 * ((fSlow40 * fRec29[2]) + (fSlow33 * fRec29[1]))));
@@ -382,7 +382,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec38[0] = (((fVec0[(IOTA-int((iTemp20 & 65535)))&65535] * (iTemp21 - fTemp19)) + ((fTemp19 - iTemp20) * fVec0[(IOTA-int((int(iTemp21) & 65535)))&65535])) - (fSlow41 * ((fSlow40 * fRec38[2]) + (fSlow33 * fRec38[1]))));
 		fRec37[0] = ((fSlow41 * (((fSlow32 * fRec38[0]) + (fSlow54 * fRec38[1])) + (fSlow32 * fRec38[2]))) - (fSlow39 * ((fSlow38 * fRec37[2]) + (fSlow33 * fRec37[1]))));
 		fRec36[0] = ((fSlow39 * (((fSlow32 * fRec37[0]) + (fSlow54 * fRec37[1])) + (fSlow32 * fRec37[2]))) - (fSlow37 * ((fSlow35 * fRec36[2]) + (fSlow33 * fRec36[1]))));
-		fRec35[0] = ((fSlow37 * (((fSlow32 * fRec36[0]) + (fSlow54 * fRec36[1])) + (fSlow32 * fRec36[2]))) - (fSlow53 * ((fSlow52 * fRec35[2]) + (fSlow45 * fRec35[1]))));
+		fRec35[0] = ((fSlow37 * (((fSlow32 * fRec36[0]) + (fSlow54 * fRec36[1])) + (fSlow32 * fRec36[2]))) - (fSlow53 * ((fSlow45 * fRec35[1]) + (fSlow52 * fRec35[2]))));
 		fRec34[0] = ((fSlow53 * (fRec35[2] + (fRec35[0] + (2 * fRec35[1])))) - (fSlow51 * ((fSlow50 * fRec34[2]) + (fSlow45 * fRec34[1]))));
 		fRec33[0] = ((fSlow51 * (fRec34[2] + (fRec34[0] + (2 * fRec34[1])))) - (fSlow49 * ((fSlow47 * fRec33[2]) + (fSlow45 * fRec33[1]))));
 		output1[i] = (FAUSTFLOAT)((fSlow55 * (fRec33[2] + (fRec33[0] + (2 * fRec33[1])))) + ((fSlow43 * (fRec27[2] + (fRec27[0] + (2 * fRec27[1])))) + (fTemp2 + (fSlow30 * (fRec21[2] + (fRec21[0] + (2 * fRec21[1])))))));
@@ -429,7 +429,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		IOTA = IOTA+1;
 	}
 }
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);

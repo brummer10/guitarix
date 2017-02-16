@@ -34,7 +34,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec0[1] = fRec0[0];
 	}
 }
-
+		
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("jconv_mono.gain",N_("Gain"),"S",N_("gain trim for processed signal (unit: dB)"),&fslider0, 0.0, -2e+01, 2e+01, 0.1);
