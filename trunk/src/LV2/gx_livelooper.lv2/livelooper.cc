@@ -528,7 +528,7 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
     float speed3 = fspeed3;
     float speed4 = fspeed4;
     // engine var settings
-	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * gain)));
+	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fgain)));
 	float 	fSlow1 = gain_out;
     int 	iSlow3 = int(record1);
 	int 	iSlow4 = int((1 - freset1));
