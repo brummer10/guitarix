@@ -831,9 +831,10 @@ Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptio
     Gtk::Label *effect_label = new Gtk::Label(effect_name);
     effect_label->set_alignment(0.0, 0.5);
     effect_label->set_name("effect_title");
-    if (plugin.get_type() == PLUGIN_TYPE_STEREO)
+    if (plugin.get_type() == PLUGIN_TYPE_STEREO) {
         effect_label->set_markup("◗◖ " + effect_label->get_label()); //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
-	return effect_label;
+    }
+    return effect_label;
 }
 
 Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
