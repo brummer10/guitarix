@@ -928,7 +928,7 @@ MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, Paramet
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), get_param()),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp, smp),
+      contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync), loop_dir),
       record(*this, 1), detune(get_param(), *this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
 

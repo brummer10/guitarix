@@ -69,7 +69,6 @@ struct PluginChange {
 class GxEngine: public ModuleSequencer {
 private:
     gx_resample::BufferResampler resamp;
-    gx_resample::FixedRateResampler smp;
     sigc::signal<void,Plugin*,PluginChange::pc> plugin_changed;
     LadspaLoader ladspaloader;
     void load_static_plugins();

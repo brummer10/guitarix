@@ -38,6 +38,7 @@ def build(bld):
         'jconv_post_mono.dsp',
         'presence_level.dsp',
         'cabinet_impulse_former.dsp',
+        'cabinet_impulse_former_st.dsp',
         'preamp_impulse_former.dsp',
         ]
 

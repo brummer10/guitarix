@@ -469,7 +469,7 @@ public:
 
 #include "faust/cabinet_impulse_former.h"
 
-class CabinetConvolver: public BaseConvolver {
+class CabinetConvolver: public FixedBaseConvolver {
 private:
     int current_cab;
     float level;
@@ -479,6 +479,7 @@ private:
     float sum;
     value_pair *cab_names;
     cabinet_impulse_former::Dsp impf;
+    gx_resample::FixedRateResampler smp;
     static void run_cab_conf(int count, float *input, float *output, PluginDef*);
     static int register_cab(const ParamReg& reg);
     bool do_update();
@@ -489,12 +490,14 @@ private:
     bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
     void update_sum() { sum = level + bass + treble; }
 public:
-    CabinetConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
+    CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
+       gx_resample::BufferResampler& resamp);
     ~CabinetConvolver();
 };
 
+#include "faust/cabinet_impulse_former_st.h"
 
-class CabinetStereoConvolver: public BaseConvolver {
+class CabinetStereoConvolver: public FixedBaseConvolver {
 private:
     int current_cab;
     float level;
@@ -503,7 +506,9 @@ private:
     float treble;
     float sum;
     value_pair *cab_names;
-    cabinet_impulse_former::Dsp impf;
+    cabinet_impulse_former_st::Dsp impf;
+    gx_resample::FixedRateResampler smp;
+    gx_resample::FixedRateResampler smps;
     static void run_cab_conf(int count, float *input, float *input1, float *output, float *output1, PluginDef*);
     static int register_cab(const ParamReg& reg);
     bool do_update();
@@ -511,10 +516,11 @@ private:
     virtual bool start(bool force = false);
     bool cabinet_changed() { return current_cab != cabinet; }
     void update_cabinet() { current_cab = cabinet; }
-    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
+    bool sum_changed() { return fabs(sum - (level + bass + treble)) > 0.01; }
     void update_sum() { sum = level + bass + treble; }
 public:
-    CabinetStereoConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
+    CabinetStereoConvolver(EngineControl& engine, sigc::slot<void> sync,
+       gx_resample::BufferResampler& resamp);
     ~CabinetStereoConvolver();
 };
 
@@ -525,7 +531,7 @@ public:
 
 #include "faust/preamp_impulse_former.h"
 
-class PreampConvolver: public BaseConvolver {
+class PreampConvolver: public FixedBaseConvolver {
 private:
     int current_pre;
     float level;
@@ -535,6 +541,7 @@ private:
     float sum;
     value_pair *pre_names;
     preamp_impulse_former::Dsp impf;
+    gx_resample::FixedRateResampler smp;
     static void run_pre_conf(int count, float *input, float *output, PluginDef*);
     static int register_pre(const ParamReg& reg);
     bool do_update();
@@ -545,7 +552,8 @@ private:
     bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
     void update_sum() { sum = level + bass + treble; }
 public:
-    PreampConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp);
+    PreampConvolver(EngineControl& engine, sigc::slot<void> sync,
+       gx_resample::BufferResampler& resamp);
     ~PreampConvolver();
 };
 
@@ -560,8 +568,7 @@ private:
     float level;
     float sum;
     presence_level::Dsp presl;
-    gx_resample::FixedRateResampler& smp;
-    static void init(unsigned int samplingFreq, PluginDef *p);
+    gx_resample::FixedRateResampler smp;
     static void run_contrast(int count, float *input, float *output, PluginDef*);
     static int register_con(const ParamReg& reg);
     inline void update_sum() { sum = level; }
@@ -570,7 +577,8 @@ private:
     inline bool sum_changed() { return abs(sum - level) > 0.01; }
     virtual bool start(bool force = false);
 public:
-    ContrastConvolver(EngineControl& engine, sigc::slot<void> sync, gx_resample::BufferResampler& resamp, gx_resample::FixedRateResampler& smp_);
+    ContrastConvolver(EngineControl& engine, sigc::slot<void> sync,
+       gx_resample::BufferResampler& resamp);
     ~ContrastConvolver();
 };
 
