@@ -112,7 +112,7 @@ function copy_sceleton() {
   if [ "$stereo" == "false" ] ; then
     echo -e "copy gx_sceleton.lv2 to "$BLUE"gx_$bname.lv2"$NONE" and rename/replace strings to "$BLUE"$bname"$NONE
     cp -r gx_sceleton.lv2/* gx_${bname}.lv2/ 
-    j=2
+    j=3
   else
     echo -e "copy gx_sceleton_stereo.lv2 to "$BLUE"gx_$bname.lv2"$NONE" and rename/replace strings to "$BLUE"$bname"$NONE
     cp -r gx_sceleton_stereo.lv2/* gx_${bname}.lv2/ 
@@ -126,7 +126,7 @@ function grep_ports_enums() {
   cat "$bname.cc" | sed -n '/enum/,/PortIndex/p' |  sed '/enum/d;/PortIndex/d;/{/d;/}/d'>ports
 
   if [ "$stereo" == "false" ] ; then
-    sed -i -e '/EFFECTS_INPUT/r ports' "gx_$bname.h"
+    sed -i -e '/BYPASS/r ports' "gx_$bname.h"
   else
     sed -i -e '/EFFECTS_INPUT1/r ports' "gx_$bname.h"
   fi
@@ -138,6 +138,7 @@ function grep_ports_enums() {
 function make_ui() {
   echo "generate GUI"
   COUNTER=0
+  PCOUNTER=0
   ECOUNTER=0
   match=0
   enum_var1=""
@@ -171,6 +172,26 @@ function make_ui() {
       fi
     done < enums1
     if (($match==1)); then
+      conts+='    ui->adj['${COUNTER}'] = gtk_adjustment_new( '${line[0]}', '${line[1]}', '${line[2]}', '${line[3]}', '${line[3]}'*10.0, 0);\n'
+      conts+='    ui->knob['${COUNTER}'] = gtk_switch_new_with_adjustment(GTK_ADJUSTMENT(ui->adj['${COUNTER}']));\n'
+      conts+='    ui->label['${COUNTER}'] = gtk_label_new(\"'${line[4]}'\");\n'
+      conts+='    ui->vkbox['${COUNTER}'] = gtk_vbox_new(FALSE, 0);\n\n'
+      conts+='    gtk_widget_modify_fg (ui->label['${COUNTER}'], GTK_STATE_NORMAL, \&color);\n'
+      conts+='    style = gtk_widget_get_style(ui->label['${COUNTER}']);\n'
+      conts+='    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);\n'
+      conts+='    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);\n'
+      conts+='    gtk_widget_modify_font(ui->label['${COUNTER}'], style->font_desc);\n\n'
+
+      conts+='    gtk_box_pack_start(GTK_BOX(ui->hbox), ui->vkbox['${COUNTER}'], TRUE, TRUE, 0);\n'
+      conts+='    gtk_box_pack_start(GTK_BOX(ui->vkbox['${COUNTER}']), ui->knob['${COUNTER}'], TRUE, TRUE, 0);\n'
+      conts+='    gtk_box_pack_start(GTK_BOX(ui->vkbox['${COUNTER}']), ui->label['${COUNTER}'], FALSE, FALSE, 0);\n'
+      conts+='    ui->args['${COUNTER}'] = (struct gx_args*) malloc(sizeof(struct gx_args));\n'
+      conts+='    ui->args['${COUNTER}']->ui = ui;\n'
+      conts+='    ui->args['${COUNTER}']->port_index = (int)'${line[4]}';\n'
+      conts+='    g_signal_connect(G_OBJECT(ui->adj['${COUNTER}']), "value-changed",\n'
+      conts+='          G_CALLBACK(ref_value_changed),(gpointer*)ui->args['${COUNTER}']);\n\n'
+      let COUNTER=COUNTER+1 
+
       enum_var+='  '$enum_var2
       enum_var+="  static const size_t enum"${line[4]}"_size = sizeof(enum"${line[4]}") / sizeof(enum"${line[4]}"[0]);\n"
       enum_var+="  make_selector_box(\&m_vboxs["${ECOUNTER}"],\""${line[4]}"\", enum"${line[4]}", enum"${line[4]}"_size, 0,1.0, "${line[4]}");\n"
@@ -180,19 +201,61 @@ function make_ui() {
       match=0
     else
       enum_var1=""
-      conts+='  make_controller_box(\&m_vboxc['${COUNTER}'], \"'${line[4]}'\", '${line[1]}', '${line[2]}', '${line[3]}', '${line[4]}');\n'
+      conts+='    ui->adj['${COUNTER}'] = gtk_adjustment_new( '${line[0]}', '${line[1]}', '${line[2]}', '${line[3]}', '${line[3]}'*10.0, 0);\n'
+      conts+='    ui->knob['${COUNTER}'] = gtk_knob_new_with_adjustment(GTK_ADJUSTMENT(ui->adj['${COUNTER}']));\n'
+      conts+='    ui->label['${COUNTER}'] = gtk_label_new(\"'${line[4]}'\");\n'
+      conts+='    ui->vkbox['${COUNTER}'] = gtk_vbox_new(FALSE, 0);\n\n'
+      conts+='    gtk_widget_modify_fg (ui->label['${COUNTER}'], GTK_STATE_NORMAL, \&color);\n'
+      conts+='    style = gtk_widget_get_style(ui->label['${COUNTER}']);\n'
+      conts+='    pango_font_description_set_size(style->font_desc, 10*PANGO_SCALE);\n'
+      conts+='    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);\n'
+      conts+='    gtk_widget_modify_font(ui->label['${COUNTER}'], style->font_desc);\n\n'
+
+      conts+='    gtk_box_pack_start(GTK_BOX(ui->hbox), ui->vkbox['${COUNTER}'], TRUE, TRUE, 0);\n'
+      conts+='    gtk_box_pack_start(GTK_BOX(ui->vkbox['${COUNTER}']), ui->knob['${COUNTER}'], TRUE, TRUE, 0);\n'
+      conts+='    gtk_box_pack_start(GTK_BOX(ui->vkbox['${COUNTER}']), ui->label['${COUNTER}'], FALSE, FALSE, 0);\n'
+      conts+='    ui->args['${COUNTER}'] = (struct gx_args*) malloc(sizeof(struct gx_args));\n'
+      conts+='    ui->args['${COUNTER}']->ui = ui;\n'
+      conts+='    ui->args['${COUNTER}']->port_index = (int)'${line[4]}';\n'
+      conts+='    g_signal_connect(G_OBJECT(ui->adj['${COUNTER}']), "value-changed",\n'
+      conts+='          G_CALLBACK(ref_value_changed),(gpointer*)ui->args['${COUNTER}']);\n\n'
+
+    #  conts+='    make_controller_box(ui->vkbox['${COUNTER}'], ui->knob['${COUNTER}'], ui->adj['${COUNTER}'], ui->label['${COUNTER}'], (const char*)\"'${line[4]}'\", ui, ui->args['${COUNTER}'], '${line[4]}');\n'
       ports+='    case '${line[4]}':\n      return \&m_bigknob['${COUNTER}'];\n'
       let COUNTER=COUNTER+1 
     fi
   done < ports
-  sed -i "s/PORTS/${ports}/g;s/CONTS/${conts}/g;s/VARI/${COUNTER}/g;s#ENUMS#${enum_var}#g;s/VAI/${ECOUNTER}/g;" widget.cpp  
-  sed -i "s/VAR/${COUNTER}/g;s/VAI/${ECOUNTER}/g;" widget.h
+  #let PCOUNTER=COUNTER-1
+  sed -i "s/PORTS/${ports}/g;s/CONTS/${conts}/g;s/VARI/${COUNTER}/g;s#ENUMS#${enum_var}#g;s/VAI/${ECOUNTER}/g;" gx_${bname}_ui.c  
+ #  sed -i "s/VAR/${PCOUNTER}/g;s/VAI/${ECOUNTER}/g;" gx_${bname}_ui.c
   rm -rf enums1
   if [ ! -z "$effect_name" ]; then
-    sed -i 's/EffectNAME/'"${effect_name}"'/g'  gx_${bname}_gui.cpp
+    EFNAME=${effect_name^^}
+    efname=${effect_name}
+    sed -i 's/EffectNAME/'"${effect_name}"'/g'  gx_${bname}_ui.c
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gx_${bname}_ui.c
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gtkknob.cc
+    sed -i 's/efname/'"${efname}"'/g'  gtkknob.cc
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gtkknob.h
+    sed -i 's/efname/'"${efname}"'/g'  gtkknob.h
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  paintbox.cpp
+    sed -i 's/efname/'"${efname}"'/g'  paintbox.cpp
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  paintbox.h
+    sed -i 's/efname/'"${efname}"'/g'  paintbox.h
     echo -e "set plugin name to "$BLUE"Gx$effect_name"$NONE
   else
-    sed -i 's/EffectNAME/'${bname}'/g'  gx_${bname}_gui.cpp
+    EFNAME=${bname^^}
+    efname=${bname}
+    sed -i 's/EffectNAME/'${bname}'/g'  gx_${bname}_ui.c
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gx_${bname}_ui.c
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gtkknob.cc
+    sed -i 's/efname/'"${efname}"'/g'  gtkknob.cc
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gtkknob.h
+    sed -i 's/efname/'"${efname}"'/g'  gtkknob.h
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  paintbox.cpp
+    sed -i 's/efname/'"${efname}"'/g'  paintbox.cpp
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  paintbox.h
+    sed -i 's/efname/'"${efname}"'/g'  paintbox.h
     echo -e "set plugin name to "$BLUE"Gx$bname"$NONE
   fi
 }
@@ -244,7 +307,13 @@ function make_ttl() {
     j=$[j+1]
     enum_var1=""
   done < ports >> gx_$bname.ttl
-  echo " ." >> gx_$bname.ttl
+  echo " .
+
+<http://guitarix.sourceforge.net/plugins/gx_${bname}_gui#_${bname}_>
+  a guiext:GtkUI;
+  guiext:binary <gx_${bname}_ui.so>;
+  guiext:requiredFeature guiext:makeResident;
+  ." >> gx_$bname.ttl
 
   if [ ! -z "$effect_category" ]; then
     sed -i 's/EffectPlugin/'${effect_category}'/g'  gx_${bname}.ttl
@@ -363,7 +432,7 @@ check_dir
 dsptocc
 copy_sceleton
 grep_ports_enums
-#make_ui
+make_ui
 make_ttl
 byby
 

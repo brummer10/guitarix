@@ -75,10 +75,23 @@ class Gx_sceleton_
 {
 private:
   // pointer to buffer
-  float*      output;
-  float*      input;
+  float*          output;
+  float*          input;
   // pointer to dsp class
-  PluginLV2*  sceleton;
+  PluginLV2*      sceleton;
+
+  // bypass ramping
+  float*          bypass;
+  uint32_t        bypass_;
+ 
+  bool            needs_ramp_down;
+  bool            needs_ramp_up;
+  float           ramp_down;
+  float           ramp_up;
+  float           ramp_up_step;
+  float           ramp_down_step;
+  bool            bypassed;
+
   // private functions
   inline void run_dsp_(uint32_t n_samples);
   inline void connect_(uint32_t port,void* data);
@@ -108,7 +121,12 @@ public:
 Gx_sceleton_::Gx_sceleton_() :
   output(NULL),
   input(NULL),
-  sceleton(sceleton::plugin()) {};
+  sceleton(sceleton::plugin()),
+  bypass(0),
+  bypass_(0),
+  needs_ramp_down(false),
+  needs_ramp_up(false),
+  bypassed(false) {};
 
 // destructor
 Gx_sceleton_::~Gx_sceleton_()
@@ -125,6 +143,12 @@ Gx_sceleton_::~Gx_sceleton_()
 
 void Gx_sceleton_::init_dsp_(uint32_t rate)
 {
+  // set values for internal ramping
+  ramp_down_step = 32 * (256 * rate) / 48000; 
+  ramp_up_step = ramp_down_step;
+  ramp_down = ramp_down_step;
+  ramp_up = 0.0;
+
   sceleton->set_samplerate(rate, sceleton); // init the DSP class
 }
 
@@ -138,6 +162,9 @@ void Gx_sceleton_::connect_(uint32_t port,void* data)
       break;
     case EFFECTS_INPUT:
       input = static_cast<float*>(data);
+      break;
+    case BYPASS: 
+      bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
       break;
     default:
       break;
@@ -167,7 +194,47 @@ void Gx_sceleton_::deactivate_f()
 
 void Gx_sceleton_::run_dsp_(uint32_t n_samples)
 {
-  sceleton->mono_audio(static_cast<int>(n_samples), input, output, sceleton);
+  // do inplace processing at default
+  memcpy(output, input, n_samples*sizeof(float));
+  // check if bypass is pressed
+  if (bypass_ != static_cast<uint32_t>(*(bypass))) {
+    bypass_ = static_cast<uint32_t>(*(bypass));
+    ramp_down = ramp_down_step;
+    ramp_up = 0.0;    
+    if (!bypass_) needs_ramp_down = true;
+    else needs_ramp_up = true;
+  }
+  // check if raming is needed
+  if (needs_ramp_down) {
+    for (uint32_t i=0; i<n_samples; i++) {
+      if (ramp_down >= 0.0) {
+        --ramp_down;
+      }
+      output[i] = (output[i] * ramp_down) /ramp_down_step ;
+    }
+
+    if (ramp_down <= 0.0) {
+      // when ramped down, clear buffer from sceleton class
+      sceleton->clear_state(sceleton);
+      needs_ramp_down = false;
+      bypassed = true;
+      //needs_ramp_up = true;
+      //ramp_down = ramp_down_step;
+    }
+  } else if (needs_ramp_up) {
+    bypassed = false;
+    for (uint32_t i=0; i<n_samples; i++) {
+      if (ramp_up <= ramp_up_step) {
+        ++ramp_up;
+      }
+      output[i] = (output[i] * ramp_up) /ramp_up_step;
+    }
+    if (ramp_up >= ramp_up_step) {
+      needs_ramp_up = false;
+     //ramp_up = 0.0;
+    }
+  }
+  if (!bypassed) sceleton->mono_audio(static_cast<int>(n_samples), output, output, sceleton);
 }
 
 void Gx_sceleton_::connect_all__ports(uint32_t port, void* data)
@@ -187,10 +254,9 @@ Gx_sceleton_::instantiate(const LV2_Descriptor* descriptor,
 {
   // init the plug-in class
   Gx_sceleton_ *self = new Gx_sceleton_();
-  if (!self)
-    {
-      return NULL;
-    }
+  if (!self) {
+    return NULL;
+  }
 
   self->init_dsp_((uint32_t)rate);
 
