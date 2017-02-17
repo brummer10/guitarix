@@ -516,7 +516,7 @@ void Widget::make_switch_box(Gtk::Box *box,
     regler->cp_set_var("no_log");
     regler->set_name(plug_name);
     regler->set_base_name( basename );
-    regler->set_relief(Gtk::RELIEF_NONE);
+    //regler->set_relief(Gtk::RELIEF_NONE);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
     regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
         *this, &Widget::on_value_changed), port_name));
@@ -538,7 +538,7 @@ void Widget::make_reset_switch_box(Gtk::Box *box,
     regler->cp_set_var("no_log");
     regler->set_name(plug_name);
     regler->set_base_name( basename );
-    regler->set_relief(Gtk::RELIEF_NONE);
+    //regler->set_relief(Gtk::RELIEF_NONE);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
     regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
         *this, &Widget::on_value_changed), port_name));
@@ -579,7 +579,7 @@ void Widget::make_radio_switch_box(Gtk::Box *box,
     regler->cp_set_var("no_log");
     regler->set_name(plug_name);
     regler->set_base_name( basename );
-    regler->set_relief(Gtk::RELIEF_NONE);
+    //regler->set_relief(Gtk::RELIEF_NONE);
     box->pack_start(*regler,Gtk::PACK_SHRINK);
     regler->signal_toggled().connect(sigc::bind(sigc::mem_fun(
         *this, &Widget::on_value_changed), port_name));

@@ -201,14 +201,19 @@ void Gx_livelooper_GUI::set_skin()
               "{\n"
               "xthickness = 0\n"
               "ythickness = 0\n"
-              "GtkButton::inner-border = {0, 0, 0, 0}\n"
+              "GtkButton::inner-border = {5, 5, 5, 5}\n"
               "GtkButton::default-border = {0, 0, 0, 0}\n"
               "GtkButton::focus-line-width = 0\n"
               "GtkButton::focus-padding = 0\n"
               "GtkButton::interior-focus = 0\n"
               "GtkButton::child-displacement-x = 0\n"
               "GtkButton::child-displacement-y = 0\n"
+              "GtkButton::button_relief = GTK_RELIEF_NORMAL\n"
+              "engine 'clearlooks' {\n"
+              "  #disable_focus = TRUE\n"
+              " style = CLASSIC\n"
               " }\n"
+              "}\n"
               "widget '*.";
   toparse +=  plug_name;
   toparse +=  "' style:highest 'gx_switch'";
