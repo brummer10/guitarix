@@ -125,9 +125,13 @@ public:
 
 protected:
   Glib::ustring     plug_name;
+  Gtk::Label        logo;
   Gtk::VBox         m_vbox[9];
   Gtk::HBox         m_hbox[17];
   Gtk::Frame        m_fr[4];
+  Gtk::HBox         m_hbox1_;
+  Gtk::VBox         m_vbox1_;
+  Gtk::VBox         m_vbox2_;
 
   Gxw::PaintBox     m_paintbox[5];
   Gxw::Switch       m_switch[16];

@@ -139,7 +139,7 @@ void Gx_echo_stereoGUI::set_skin()
     
                  "    GxPaintBox::bevel                  = 0.11\n"
                  "    GxPaintBox::inverse                = 0\n"
-                 "    GxPaintBox::alternate-box          = { 0, 0, 15, 15 }\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 10, 10 }\n"
 
                  "    fg[NORMAL]              = '#999999'\n"
                  "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"

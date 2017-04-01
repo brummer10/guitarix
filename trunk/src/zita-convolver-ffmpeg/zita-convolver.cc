@@ -461,7 +461,7 @@ void Convlevel::impdata_create (unsigned int inp,
 	memset (M->_fftb, 0, _npar * sizeof (fftwf_complex *));
     }
 
-    norm = 1.0f / _parsize;
+    norm = 1.0f / _parsize; //FIXME
     for (k = 0; k < _npar; k++)
     {
 	i1 = i0 + _parsize;
@@ -514,7 +514,7 @@ void Convlevel::impdata_update (unsigned int inp,
     i1 = i0 + _npar * _parsize;
     if ((i0 >= n) || (i1 <= 0)) return;
 
-    norm = 1.0f / _parsize;
+    norm = 1.0f / _parsize; // FIXME
     for (k = 0; k < _npar; k++)
     {
 	i1 = i0 + _parsize;

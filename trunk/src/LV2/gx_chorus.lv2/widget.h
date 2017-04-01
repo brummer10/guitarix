@@ -75,6 +75,7 @@ public:
 
 protected:
   Glib::ustring     plug_name;
+  Gtk::Label        logo;
   Gtk::VBox         m_vbox_;
   Gtk::VBox         m_vbox;
   Gtk::VBox         m_vbox1;
@@ -83,6 +84,9 @@ protected:
   Gtk::VBox         m_vbox4;
   Gtk::VBox         m_vbox5;
   Gtk::HBox         m_hbox_;
+  Gtk::HBox         m_hbox1_;
+  Gtk::VBox         m_vbox1_;
+  Gtk::VBox         m_vbox2_;
 
   Gxw::PaintBox     m_paintbox;
   Gxw::BigKnob      m_bigknob;

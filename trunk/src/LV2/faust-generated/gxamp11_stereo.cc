@@ -627,7 +627,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp48 = (40.1 * fTemp47);
 		double fTemp49 = max((double)-600, fTemp48);
 		double fTemp50 = (0 - fTemp49);
-		double fTemp51 = (((int((fabs(fTemp48) > 0.0001)))?((int((fTemp49 < -50)))?(fTemp50 * exp(fTemp49)):(fTemp49 / (1 - exp(fTemp50)))):(1 + (fTemp47 * (20.05 + (134.00083333333336 * fTemp47))))) - ((int((fabs(fTemp44) > 0.0001)))?((int((fTemp45 < -50)))?(exp(fTemp45) * fTemp46):(fTemp45 / (1 - exp(fTemp46)))):(1 + (fTemp43 * (20.05 + (134.00083333333336 * fTemp43))))));
+		double fTemp51 = (((int((fabs(fTemp48) > 0.0001)))?((int((fTemp49 < -50)))?(fTemp50 * exp(fTemp49)):(fTemp49 / (1 - exp(fTemp50)))):(1 + (fTemp47 * (20.05 + (134.00083333333336 * fTemp47))))) - ((int((fabs(fTemp44) > 0.0001)))?((int((fTemp45 < -50)))?(fTemp46 * exp(fTemp45)):(fTemp45 / (1 - exp(fTemp46)))):(1 + (fTemp43 * (20.05 + (134.00083333333336 * fTemp43))))));
 		double fTemp52 = (0.024937655860349125 * (fRec30[0] * fTemp51));
 		fRec77[0] = (fTemp52 - (fConst26 * ((fConst24 * fRec77[2]) + (fConst22 * fRec77[1]))));
 		double fTemp53 = (fRec77[2] + (fRec77[0] + (2 * fRec77[1])));

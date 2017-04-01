@@ -49,7 +49,8 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 }
 
 Widget::Widget(Glib::ustring plugname):
-plug_name(plugname)
+plug_name(plugname),
+logo("Stero Chorus")
 {
   // create controllers for port name
   make_controller_box(&m_vbox2, "level", 0, 1, 0.01, LEVEL);
@@ -64,6 +65,11 @@ plug_name(plugname)
   m_paintbox.set_name(plug_name);
   m_paintbox.property_paint_func() = "gx_rack_unit_expose";
   add(m_paintbox);
+  // modify logo layout
+  Pango::FontDescription font_desc = logo.get_style()->get_font();
+  font_desc.set_size(int(14*Pango::SCALE));
+  font_desc.set_weight(Pango::WEIGHT_BOLD);
+  logo.modify_font(font_desc);
   // box for the controllers
   m_hbox_.set_spacing(64);
   m_hbox_.set_border_width(5);
@@ -73,6 +79,13 @@ plug_name(plugname)
   m_vbox1.set_border_width(2);
   m_paintbox.pack_start(m_vbox_);
   // and controller box on top
+  m_hbox1_.set_spacing(64);
+  logo.set_name("amplabel");
+  m_vbox_.pack_start(m_hbox1_, Gtk::PACK_SHRINK);
+  m_hbox1_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);
+  m_hbox1_.pack_end(m_vbox2_, Gtk::PACK_SHRINK);
+  m_hbox1_.pack_end(logo, Gtk::PACK_SHRINK);
+  m_vbox_.set_homogeneous(false);
   m_vbox_.pack_start(m_hbox_, Gtk::PACK_SHRINK);
    // put boxed controllers into controller box
   m_hbox_.pack_start(m_vbox,Gtk::PACK_EXPAND_PADDING);

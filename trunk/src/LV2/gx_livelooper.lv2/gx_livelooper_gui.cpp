@@ -136,12 +136,16 @@ void Gx_livelooper_GUI::set_skin()
   toparse +=     "' style 'gx_";
   toparse +=     plug_name;
   toparse +=     "_dark-paintbox' ";
+  toparse +=     "style 'logo' {\n"
+                 "    fg[NORMAL] = '#222222' \n"
+                 "}\n"
+                 "widget '*logo' style:highest 'logo'\n";
 
   toparse +=     "style 'guitarix_default' {\n"
     
                  "    GxPaintBox::bevel                  = 0.11\n"
                  "    GxPaintBox::inverse                = 0\n"
-                 "    GxPaintBox::alternate-box          = { 0, 0, 15, 10 }\n"
+                 "    GxPaintBox::alternate-box          = { 0, 0, 20, 10 }\n"
 
                  "    fg[NORMAL]              = '#999999'\n"
                  "    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }\n"

@@ -1,4 +1,4 @@
 #! /bin/sh
 pip install .
-update-mime-database /usr/local/share/mime
+update-mime-database /usr/share/mime
 update-desktop-database

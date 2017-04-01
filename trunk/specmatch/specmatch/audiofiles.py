@@ -56,6 +56,8 @@ except ImportError:
                 f = 2**23 - 1
             elif self.data.dtype == np.int16:
                 f = 2**15 - 1
+            else :
+                f = 1
             return np.array(self.data[self.offset:n], dtype=np.float64) / f
         def read(self, channel, n):
             a = self.read_frames(n)

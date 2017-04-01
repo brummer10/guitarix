@@ -71,7 +71,8 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 }
 
 Widget::Widget(Glib::ustring plugname):
-plug_name(plugname)
+plug_name(plugname),
+logo("Digital Delay")
 {
   // create controllers for port name
   make_controller_box(&m_vbox[1], "BPM",  24.0, 3.6e+02, 1.0 , BPM);
@@ -104,6 +105,17 @@ plug_name(plugname)
   m_vbox[8].set_border_width(7);
   m_vbox[10].set_border_width(7);
   m_paintbox.pack_start(m_vbox[9]);
+  // modify logo layout
+  Pango::FontDescription font_desc = logo.get_style()->get_font();
+  font_desc.set_size(int(14*Pango::SCALE));
+  font_desc.set_weight(Pango::WEIGHT_BOLD);
+  logo.modify_font(font_desc);
+  m_hbox1_.set_spacing(64);
+  logo.set_name("amplabel");
+  m_vbox[9].pack_start(m_hbox1_, Gtk::PACK_SHRINK);
+  m_hbox1_.pack_start(m_vbox1_, Gtk::PACK_EXPAND_PADDING);
+  m_hbox1_.pack_end(m_vbox2_, Gtk::PACK_SHRINK);
+  m_hbox1_.pack_end(logo, Gtk::PACK_SHRINK);
   // and controller box on top
   m_vbox[9].pack_start(m_hbox, Gtk::PACK_SHRINK);
   // put boxed controllers into controller box
