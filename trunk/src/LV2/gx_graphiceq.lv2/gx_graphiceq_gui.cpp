@@ -107,6 +107,8 @@ void Gx_graphiceq_GUI::set_skin()
   toparse +=     "_dark-paintbox' "
                  "style 'gx_fastmeter'\n"
                  " {\n"
+                 "   xthickness = 0\n"
+                 "   ythickness = 0\n"
                  "   base[NORMAL]     = '#000000'      \n"
                  "   GxFastMeter::clr-bottom = '#003808'\n"
                  "   GxFastMeter::clr-middle = '#00ff00'\n"

@@ -198,6 +198,8 @@ void Gx_digital_delay_GUI::set_skin()
 
   toparse +=     "style 'gx_fastmeter'\n"
                  " {\n"
+                 "   xthickness = 0\n"
+                 "   ythickness = 0\n"
                  "   GxFastMeter::clr-bottom = '#003808'\n"
                  "   GxFastMeter::clr-middle = '#00ff00'\n"
                  "   GxFastMeter::clr-top    = '#ff0000'\n"

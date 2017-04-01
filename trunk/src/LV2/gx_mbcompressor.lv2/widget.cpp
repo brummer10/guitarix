@@ -255,7 +255,7 @@ plug_name(plugname)
   m_paintbox[0].set_spacing(6);
   m_paintbox[0].set_homogeneous(false);
   m_paintbox[0].set_name(plug_name);
-  m_paintbox[0].property_paint_func() = "gxhead_expose";
+  m_paintbox[0].property_paint_func() = "gx_lv2_unit_expose";
   add(m_paintbox[0]);
 
   // set propertys and stack fastmeters
@@ -287,6 +287,7 @@ plug_name(plugname)
   m_hbox[0].set_homogeneous(false);
   m_vbox[0].pack_start(m_hbox[0]);
   m_fr[5].add(m_hbox[1]);
+  m_fr[5].set_border_width(25);
   m_vbox[0].pack_start(m_fr[5]);
   m_vbox[0].pack_start(m_hbox[2]);
   // put boxed controllers into controller box
