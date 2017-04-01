@@ -2535,10 +2535,13 @@ void qform(real *q, int	ldq, real *wa)
     real sum, temp;
 
     /* Parameter adjustments */
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Warray-bounds"
     --wa;
     q_dim1 = ldq;
     q_offset = 1 + q_dim1 * 1;
     q -= q_offset;
+#pragma GCC diagnostic pop
 
     /* Function Body */
 
@@ -3327,6 +3330,8 @@ int hybrdX(root_fcn *fcn_nn, void *p, real *x, real *
     int info;
 
     /* Parameter adjustments */
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Warray-bounds"
     --wa4;
     --wa3;
     --wa2;
@@ -3339,6 +3344,7 @@ int hybrdX(root_fcn *fcn_nn, void *p, real *x, real *
     fjac_offset = 1 + fjac_dim1 * 1;
     fjac -= fjac_offset;
     --r;
+#pragma GCC diagnostic pop
 
     /* Function Body */
 
