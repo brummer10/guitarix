@@ -365,10 +365,6 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
 	_("Jack init"),
 	boost::format(_("The jack buffer size is %1%/frames ... "))
 	% jack_bs);
-    gx_print_info(
-	_("Jack init"),
-	boost::format(_("The power of two is %1%/frames ... "))
-	% is_power_of_two(jack_bs));
 	}
 		
 	// create buffer to bypass the insert ports
