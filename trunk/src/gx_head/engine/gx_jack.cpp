@@ -231,6 +231,10 @@ void GxJack::write_connections(gx_system::JsonWriter& w) {
 /****************************************************************
  ** client connection init and cleanup
  */
+int GxJack::is_power_of_two (unsigned int x)
+{
+    return ((x != 0) && ((x & (~x + 1)) == x));
+}
 
 // ----- pop up a dialog for starting jack
 bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_system::CmdlineOptions& opt) {
@@ -351,10 +355,22 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
 	boost::format(_("The jack sample rate is %1%/sec")) % jack_sr);
 
     jack_bs = jack_get_buffer_size(client); // jack buffer size
+	if (!is_power_of_two(jack_bs)) {
+    gx_print_warning(
+	_("Jack init"),
+	boost::format(_("The jack buffer size is %1%/frames is not power of two, Convolver wont run"))
+	% jack_bs);
+	} else {
     gx_print_info(
 	_("Jack init"),
 	boost::format(_("The jack buffer size is %1%/frames ... "))
 	% jack_bs);
+    gx_print_info(
+	_("Jack init"),
+	boost::format(_("The power of two is %1%/frames ... "))
+	% is_power_of_two(jack_bs));
+	}
+		
 	// create buffer to bypass the insert ports
     insert_buffer = new float[jack_bs];
     

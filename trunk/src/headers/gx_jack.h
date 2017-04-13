@@ -157,6 +157,7 @@ class GxJack: public sigc::trackable {
 	gx_system::JsonWriter& w, const char *key, const PortConnection& pc, bool replace=false);
     std::string make_clientvar(const std::string& s);
     std::string replace_clientvar(const std::string& s);
+    int is_power_of_two (unsigned int x);
     bool                gx_jack_init(bool startserver, int wait_after_connect,
 				     const gx_system::CmdlineOptions& opt);
     void                gx_jack_init_port_connection(const gx_system::CmdlineOptions& opt);
