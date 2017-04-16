@@ -103,10 +103,25 @@ style "guitarix_switch"
   GtkButton::child-displacement-x = 0
   GtkButton::child-displacement-y = 0
   GtkButton::button_relief = GTK_RELIEF_NORMAL
-  engine "clearlooks" {
-    #disable_focus = TRUE
-    style = CLASSIC
-  }
+
+    engine "murrine"  {
+    }
+
+    engine "nodoka"  {
+    }
+
+    engine "aurora" {
+        menubarstyle    = 0 # 0 = flat, 1 = gradient, 2 = sunken
+        curvature       = 2.0
+        arrowsize       = 1.0# controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize)
+        old_arrowstyle  = FALSE #set to TRUE for original circled arrows
+        animation       = TRUE # FALSE = disabled, TRUE = enabled
+    }
+
+    engine "clearlooks" {
+        #disable_focus = TRUE
+        style = CLASSIC
+    }
 }
 
 class "*GxSwitch" style:highest "guitarix_switch"
@@ -123,6 +138,20 @@ style "gx_effect_switch"
     #bg[NORMAL]     = "#7d9c57"
     #bg[ACTIVE]     = "#7e9e59"
     #bg[PRELIGHT]   = "#86a765"
+
+    engine "murrine"  {
+    }
+
+    engine "nodoka"  {
+    }
+
+    engine "aurora" {
+        menubarstyle    = 0 # 0 = flat, 1 = gradient, 2 = sunken
+        curvature       = 2.0
+        arrowsize       = 1.0# controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize)
+        old_arrowstyle  = FALSE #set to TRUE for original circled arrows
+        animation       = TRUE # FALSE = disabled, TRUE = enabled
+  }
     
     engine "clearlooks" {
         focus_color         = { 0, 0, 0 }
@@ -133,6 +162,7 @@ style "gx_effect_switch"
         disable_focus       = TRUE
         style               = INVERTED #CLASSIC GLOSSY GUMMY INVERTED
     }
+
 }
 
 widget "*effect_on_off" style:highest "gx_effect_switch"
@@ -195,6 +225,53 @@ style "guitarix_default" {
     stock["smallknobr"]     = {{"knob_small_r.png"}}
     stock["midknob"]        = {{"knob_mid.png"}}
     stock["bigknob"]        = {{"knob_big.png"}}
+
+    engine "murrine"  {
+        scrollbarstyle      = 2
+        contrast            = 0.8
+        glazestyle          = 0 # 0 = flat hilight, 1 = curved hilight (default), 2 = concave style
+        gradient_shades     = {1.15,1.07,1.02,0.9} # default: {1.1,1.0,1.0,1.1}
+        glowstyle           = 4 
+        roundness           = 2 # 0 = squared, 1 = smooth squared, >= 2 round
+        menubarstyle        = 2 # 0 = flat, 1 = glassy, 2 = gradient, 3 = striped
+        listviewheaderstyle = 1 # 0 = flat, 1 = glass
+        menuitemstyle       = 0 # 0 = flat, 1 = glassy, 2 = striped
+        menubaritemstyle    = 1 # 0 = menuitem look, 1 = button look
+        menustyle           = 0     # 0 = no vertical menu stripe, 1 = display vertical menu stripe
+        animation           = TRUE
+        rgba = TRUE
+        sliderstyle         = 1     # 0 = nothing added, 1 = handles
+        stepperstyle        = 1     # 0 = standard, 1 = integrated stepper handles, 2 = unknown
+        toolbarstyle        = 1    # 0 = flat, 1 = glassy, 2 = gradient
+        reliefstyle         = 0     # 0 = flat, 1 = inset, 2 = shadow
+        listviewstyle       = 1     # 0 = nothing, 1 = dotted
+        highlight_shade     = 1.07  # set highlight amount for buttons or widgets
+        lightborder_shade   = 1.36   # sets lightborder amount for buttons or widgets
+        lightborderstyle    = 1     # 0 = lightborder on top side, 1 = lightborder on all sides
+    }
+
+    engine "nodoka"
+    {
+        animation           = TRUE # FALSE = disabled, TRUE = enabled
+        listviewheaderstyle = 0 # 0 = flat, 1 = gradient, 2 = raised
+        listviewstyle       = 1 # 0 = nothing, 1 = dotted
+        menubarstyle        = 0 # 0 = flat, 1 = normal raised gradient, 2 = normal lowered gradient, 3 = menubar gradient
+        toolbarstyle        = 0 # 0 = flat, 1 = normal raised gradient, 2 = normal lowered gradient, 3 = menubar gradient
+        roundness           = 3 # 0 = squared, 1 = old default, more will increase roundness
+        scrollbarstyle      = 1 # 0 = nothing, 1 = circles, 2 = bars
+        stripes             = TRUE # enable or disable stripes in progressbars
+        bullet_color        = { 0.85, 0.85, 0.85 }
+        focus_fill          = TRUE # enable or disable focus overlay fill
+        focus_inner         = FALSE    # TRUE = secondary focus ring inside, FALSE = secondary focus ring outside widgets
+    }
+
+    engine "aurora" {
+        menubarstyle    = 0 # 0 = flat, 1 = gradient, 2 = sunken
+        curvature       = 2.0
+        arrowsize       = 0.5# controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize)
+        old_arrowstyle  = FALSE #set to TRUE for original circled arrows
+        animation       = TRUE # FALSE = disabled, TRUE = enabled
+  }
     
     engine "clearlooks" {
         focus_color         = { 0, 0, 0 }
@@ -205,6 +282,7 @@ style "guitarix_default" {
         disable_focus       = TRUE
         style               = INVERTED #CLASSIC GLOSSY GUMMY INVERTED
     }
+
 }
 class "*GtkWidget*" style:highest "guitarix_default"
 
@@ -236,13 +314,29 @@ class "GxPaintBox*" style:highest "rack_devices"
 
 style "guitarix_scrollbars" {
     
-    engine "clearlooks" {
-        scrollbar_color = "#333333"
-    }
     bg[NORMAL]   = { 0.10, 0.10, 0.10 }
     bg[PRELIGHT] = { 0.3, 0.3, 0.3 }
     bg[ACTIVE]   = { 0.3, 0.3, 0.3 }
     bg[INSENSITIVE] = { 0.2, 0.2, 0.2 }
+
+    engine "murrine"  {
+    }
+
+    engine "nodoka"  {
+    }
+
+    engine "aurora" {
+        menubarstyle    = 0 # 0 = flat, 1 = gradient, 2 = sunken
+        curvature       = 2.0
+        arrowsize       = 1.0# controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize)
+        old_arrowstyle  = FALSE #set to TRUE for original circled arrows
+        animation       = TRUE # FALSE = disabled, TRUE = enabled
+    }
+
+    engine "clearlooks" {
+        scrollbar_color = "#333333"
+    }
+
 }
 widget_class "*Scrollbar*" style:highest "guitarix_scrollbars"
 
@@ -464,6 +558,21 @@ style "guitarix_notebook" {
     ythickness = 5
     bg[ACTIVE] = { 0.10, 0.10, 0.10 }
     bg[NORMAL] = { 0.10, 0.10, 0.10 }
+
+    engine "murrine"  {
+    }
+
+    engine "nodoka"  {
+    }
+
+    engine "aurora" {
+        menubarstyle    = 0 # 0 = flat, 1 = gradient, 2 = sunken
+        curvature       = 2.0
+        arrowsize       = 1.0# controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize)
+        old_arrowstyle  = FALSE #set to TRUE for original circled arrows
+        animation       = TRUE # FALSE = disabled, TRUE = enabled
+    }
+
     engine "clearlooks" {
         contrast            = 0.75
         radius              = 3.0
@@ -487,6 +596,17 @@ widget "*tab_rack*label" style:highest "guitarix_notebook_labels"
 
 style "guitarix_frame" {
     bg[NORMAL]              = "#97BB6D"
+
+    engine "murrine"  {
+    }
+
+    engine "nodoka"  {
+    }
+
+    engine "aurora" {
+        menubarstyle    = 0 # 0 = flat, 1 = gradient, 2 = sunken
+        curvature       = 0.0
+    }
     engine "clearlooks" {
         contrast            = 1.2
         radius              = 4.0
@@ -504,6 +624,18 @@ class "*GtkVSeparator" style:highest "guitarix_vsep"
 
 style "guitarix_frame_inversed" {
     bg[NORMAL]              = "#292727"
+
+    engine "murrine"  {
+    }
+
+    engine "nodoka"  {
+    }
+
+    engine "aurora" {
+        menubarstyle    = 0 # 0 = flat, 1 = gradient, 2 = sunken
+        curvature       = 0.0
+    }
+
     engine "clearlooks" {
         contrast            = 1.9
         radius              = 4.0
