@@ -89,7 +89,7 @@ logo("Digital Delay")
   make_selector("MODE", modes, _size1, 0, 1.0, MODE);
   Glib::ustring notes[] = {"Dotted 1/2 note","1/2 note","1/2 note triplets"," Dotted 1/4 note","1/4 note","1/4 note triplets","Dotted 1/8 note","1/8 note","1/8 note triplets"," Dotted 1/16 note","1/16 note","1/16 note triplets","Dotted 1/32 note","1/32 note","1/32 note triplets"," Dotted 1/64 note","1/64 note","1/64 note triplets"};  
   static const size_t _size2 = sizeof(notes) / sizeof(notes[0]);
-  make_selector("NOTES", notes, _size2, 0, 1.0, NOTES);
+  make_selector("NOTES", notes, _size2, 1.0, 1.0, NOTES);
   Glib::ustring mode[] = {"BPM free scale","BPM host sync"};  
   static const size_t _size3 = sizeof(mode) / sizeof(mode[0]);
   make_selector("BPM SYNC", mode, _size3, 0, 1.0, SYNC);

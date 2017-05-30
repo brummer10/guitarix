@@ -59,7 +59,7 @@ public:
   // static wrapper to private functions
   static void deactivate(LV2_Handle instance);
   static void cleanup(LV2_Handle instance);
-  static void update_position(Gx_digital_delay_* self, const LV2_Atom_Object* obj);
+  static void update_bpm(Gx_digital_delay_* self, const LV2_Atom_Object* obj);
   static void run(LV2_Handle instance, uint32_t n_samples);
   static void activate(LV2_Handle instance);
   static void connect_port(LV2_Handle instance, uint32_t port, void* data);
@@ -138,7 +138,7 @@ void Gx_digital_delay_::deactivate_f()
     digital_delay->activate_plugin(false, digital_delay);
 }
 
-void Gx_digital_delay_::update_position(Gx_digital_delay_* self, const LV2_Atom_Object* obj)
+void Gx_digital_delay_::update_bpm(Gx_digital_delay_* self, const LV2_Atom_Object* obj)
 {
   const GxDDURIs* uris = &self->uris;
 
@@ -247,7 +247,7 @@ void Gx_digital_delay_::run(LV2_Handle instance, uint32_t n_samples)
       const LV2_Atom_Object* obj = (const LV2_Atom_Object*)&ev->body;
       if (obj->body.otype == uris->time_Position) {
         // Received position information, update
-        update_position(self, obj);
+        update_bpm(self, obj);
       }
     }
   }
