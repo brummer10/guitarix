@@ -65,6 +65,8 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
       return &m_selector[0];
     case NOTES:
       return &m_selector[1];
+    case SYNC:
+      return &m_selector[2];
    default:
       return NULL;
   } 
@@ -88,8 +90,12 @@ logo("Digital Delay")
   Glib::ustring notes[] = {"Dotted 1/2 note","1/2 note","1/2 note triplets"," Dotted 1/4 note","1/4 note","1/4 note triplets","Dotted 1/8 note","1/8 note","1/8 note triplets"," Dotted 1/16 note","1/16 note","1/16 note triplets","Dotted 1/32 note","1/32 note","1/32 note triplets"," Dotted 1/64 note","1/64 note","1/64 note triplets"};  
   static const size_t _size2 = sizeof(notes) / sizeof(notes[0]);
   make_selector("NOTES", notes, _size2, 0, 1.0, NOTES);
+  Glib::ustring mode[] = {"BPM free scale","BPM host sync"};  
+  static const size_t _size3 = sizeof(mode) / sizeof(mode[0]);
+  make_selector("BPM SYNC", mode, _size3, 0, 1.0, SYNC);
   m_vbox[0].pack_start(m_selector[0]);
   m_vbox[0].pack_start(m_selector[1]);
+  m_vbox[0].pack_start(m_selector[2]);
   // set propertys for the main paintbox holding the skin
   m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(6);
@@ -342,6 +348,17 @@ void Widget::set_value(uint32_t port_index,
           regler->cp_set_value(log10(value));
       } else {
           regler->cp_set_value(value);
+      }
+    }
+    if (port_index == DD_NOTIFY)
+    {
+      Gxw::Regler *regl = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(SYNC));
+      if (regl->cp_get_value()) {
+        float value = *static_cast<const float*>(buffer); 
+        Gxw::Regler *regler = static_cast<Gxw::Regler*>(
+                                    get_controller_by_port(BPM));
+        regler->cp_set_value(value);
       }
     }
   }

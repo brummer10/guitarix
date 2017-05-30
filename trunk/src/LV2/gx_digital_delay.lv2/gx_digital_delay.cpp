@@ -32,6 +32,13 @@ namespace digital_delay {
 class Gx_digital_delay_
 {
 private:
+  LV2_URID_Map* map;   // URID map feature
+  GxDDURIs     uris;  // Cache of mapped URIDs
+  LV2_Atom_Sequence* control;
+  // Variables to keep track of the tempo information sent by the host
+  float  bpm;    // Beats per minute (tempo)
+  float  speed;  // Transport speed (usually 0=stop, 1=play)
+  float* bpm_set;
   // pointer to buffer
   float*      output;
   float*      input;
@@ -52,6 +59,7 @@ public:
   // static wrapper to private functions
   static void deactivate(LV2_Handle instance);
   static void cleanup(LV2_Handle instance);
+  static void update_position(Gx_digital_delay_* self, const LV2_Atom_Object* obj);
   static void run(LV2_Handle instance, uint32_t n_samples);
   static void activate(LV2_Handle instance);
   static void connect_port(LV2_Handle instance, uint32_t port, void* data);
@@ -98,6 +106,12 @@ void Gx_digital_delay_::connect_(uint32_t port,void* data)
     case EFFECTS_INPUT:
       input = static_cast<float*>(data);
       break;
+    case DD_CONTROL:
+      control = (LV2_Atom_Sequence*)data;
+      break;
+    case DD_NOTIFY:
+      bpm_set = static_cast<float*>(data);
+      break;
     default:
       break;
     }
@@ -124,8 +138,28 @@ void Gx_digital_delay_::deactivate_f()
     digital_delay->activate_plugin(false, digital_delay);
 }
 
+void Gx_digital_delay_::update_position(Gx_digital_delay_* self, const LV2_Atom_Object* obj)
+{
+  const GxDDURIs* uris = &self->uris;
+
+  // Received new transport position/speed
+  LV2_Atom *beat = NULL, *bpm = NULL, *speed = NULL;
+  lv2_atom_object_get(obj, uris->time_barBeat, &beat,
+                      uris->time_beatsPerMinute, &bpm,
+                      uris->time_speed, &speed, NULL);
+  if (bpm && bpm->type == uris->atom_Float) {
+    // Tempo changed, update BPM
+    self->bpm = ((LV2_Atom_Float*)bpm)->body;
+  }
+  if (speed && speed->type == uris->atom_Float) {
+    // Speed changed, e.g. 0 (stop) to 1 (play)
+    self->speed = ((LV2_Atom_Float*)speed)->body;
+  }
+}
+
 void Gx_digital_delay_::run_dsp_(uint32_t n_samples)
 {
+  if (*(bpm_set) != bpm) *(bpm_set) = bpm;
   digital_delay->mono_audio(static_cast<int>(n_samples), input, output, digital_delay);
 }
 
@@ -150,6 +184,34 @@ Gx_digital_delay_::instantiate(const LV2_Descriptor* descriptor,
     {
       return NULL;
     }
+  // Scan host features for URID map
+  LV2_URID_Map* map = NULL;
+  for (int i = 0; features[i]; ++i) {
+    if (!strcmp(features[i]->URI, LV2_URID_URI "#map")) {
+      map = (LV2_URID_Map*)features[i]->data;
+    }
+  }
+  if (!map) {
+    fprintf(stderr, "Host does not support urid:map.\n");
+    free(self);
+    return NULL;
+  }
+
+ // Map URIS
+  GxDDURIs* const uris = &self->uris;
+  self->map = map;
+  uris->atom_Blank          = map->map(map->handle, LV2_ATOM__Blank);
+  uris->atom_Float          = map->map(map->handle, LV2_ATOM__Float);
+  uris->atom_Object         = map->map(map->handle, LV2_ATOM__Object);
+  uris->atom_Path           = map->map(map->handle, LV2_ATOM__Path);
+  uris->atom_Resource       = map->map(map->handle, LV2_ATOM__Resource);
+  uris->atom_Sequence       = map->map(map->handle, LV2_ATOM__Sequence);
+  uris->time_Position       = map->map(map->handle, LV2_TIME__Position);
+  uris->time_barBeat        = map->map(map->handle, LV2_TIME__barBeat);
+  uris->time_beatsPerMinute = map->map(map->handle, LV2_TIME__beatsPerMinute);
+  uris->time_speed          = map->map(map->handle, LV2_TIME__speed);
+
+  self->bpm        = 120.0;
 
   self->init_dsp_((uint32_t)rate);
 
@@ -171,8 +233,26 @@ void Gx_digital_delay_::activate(LV2_Handle instance)
 
 void Gx_digital_delay_::run(LV2_Handle instance, uint32_t n_samples)
 {
+  Gx_digital_delay_* self = static_cast<Gx_digital_delay_*>(instance);
+  const GxDDURIs* uris = &self->uris;
+
+  // Work forwards in time frame by frame, handling events as we go
+  const LV2_Atom_Sequence* in     = self->control;
+  for (const LV2_Atom_Event* ev = lv2_atom_sequence_begin(&in->body);
+             !lv2_atom_sequence_is_end(&in->body, in->atom.size, ev);
+             ev = lv2_atom_sequence_next(ev)) {
+    // Check if this event is an Object
+    // (or deprecated Blank to tolerate old hosts)
+    if (ev->body.type == uris->atom_Object || ev->body.type == uris->atom_Blank) {
+      const LV2_Atom_Object* obj = (const LV2_Atom_Object*)&ev->body;
+      if (obj->body.otype == uris->time_Position) {
+        // Received position information, update
+        update_position(self, obj);
+      }
+    }
+  }
   // run dsp
-  static_cast<Gx_digital_delay_*>(instance)->run_dsp_(n_samples);
+  self->run_dsp_(n_samples);
 }
 
 void Gx_digital_delay_::deactivate(LV2_Handle instance)

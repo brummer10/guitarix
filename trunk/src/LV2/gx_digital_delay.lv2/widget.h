@@ -90,7 +90,7 @@ protected:
   Gtk::VBox         m_vbox2_;
 
   Gxw::PaintBox     m_paintbox;
-  Gxw::Selector     m_selector[2];
+  Gxw::Selector     m_selector[3];
   Gxw::BigKnob      m_bigknob[7];
 };
 

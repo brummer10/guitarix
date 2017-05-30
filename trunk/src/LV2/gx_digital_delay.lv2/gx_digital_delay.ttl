@@ -18,6 +18,7 @@
 #
 
 
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
 @prefix doap: <http://usefulinc.com/ns/doap#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix lv2: <http://lv2plug.in/ns/lv2core#> .
@@ -27,6 +28,7 @@
 @prefix time: <http://lv2plug.in/ns/ext/time#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 @prefix log: <http://lv2plug.in/ns/ext/port-props#> .
+@prefix urid: <http://lv2plug.in/ns/ext/urid#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -46,6 +48,7 @@
     doap:name "Gxdigital_delay";
     doap:license <http://opensource.org/licenses/isc> ;
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_digital_delay_> ;
+    lv2:requiredFeature urid:map ;
     lv2:optionalFeature lv2:hardRTCapable ;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_digital_delay_#gui>;
@@ -174,6 +177,35 @@ rdfs:comment """
         lv2:scalePoint [rdfs:label "1/64note"; rdf:value 17];
         lv2:scalePoint [rdfs:label "1/64notetriplets"; rdf:value 18];
 
+    ] , [
+        a lv2:InputPort ,
+            atom:AtomPort ;
+        atom:bufferType atom:Sequence ;
+        atom:supports time:Position ;
+        lv2:index 10 ;
+        lv2:symbol "DD_CONTROL" ;
+        lv2:name "DD_CONTROL" ;
+    ] , [
+        a lv2:OutputPort ,
+            lv2:ControlPort ;
+        lv2:index 11 ;
+        lv2:symbol "DD_NOTIFY" ;
+        lv2:name "DD_NOTIFY";
+        lv2:portProperty lv2:integer;
+        lv2:default 120.0 ;
+        lv2:minimum 24.0 ;
+        lv2:maximum 360.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 12 ;
+        lv2:symbol "SYNC" ;
+        lv2:name "SYNC" ;
+        lv2:portProperty lv2:integer,
+          lv2:toggled;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_digital_delay_#gui>
