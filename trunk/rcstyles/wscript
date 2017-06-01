@@ -23,6 +23,7 @@ gxstyle_files = [
     'live_wallpaper_grungy_sun.png',
     'live_wallpaper_grungy_sun_dark.png',
     'live_wallpaper_grandma.png',
+    'live_wallpaper_rust.png',
     
     'clear.rc',
     'tactile_knob_large_151f.png',
@@ -147,6 +148,11 @@ gxstyle_files = [
     ###ORANGE THEME
     'gx_head_Orange.rc',
     'orange.png',
+    
+    ###WOOD THEME
+    'gx_head_Rust.rc',
+    'rust.png',
+    'rust2.png',
     
      ]
 

@@ -227,6 +227,7 @@ style "guitarix_default" {
     stock["bigknob"]        = {{"knob_big.png"}}
 
     engine "murrine"  {
+        focusstyle          = 1
         scrollbarstyle      = 2
         contrast            = 0.8
         glazestyle          = 0 # 0 = flat hilight, 1 = curved hilight (default), 2 = concave style
@@ -261,7 +262,7 @@ style "guitarix_default" {
         scrollbarstyle      = 1 # 0 = nothing, 1 = circles, 2 = bars
         stripes             = TRUE # enable or disable stripes in progressbars
         bullet_color        = { 0.85, 0.85, 0.85 }
-        focus_fill          = TRUE # enable or disable focus overlay fill
+        focus_fill          = FALSE # enable or disable focus overlay fill
         focus_inner         = FALSE    # TRUE = secondary focus ring inside, FALSE = secondary focus ring outside widgets
     }
 
@@ -271,7 +272,7 @@ style "guitarix_default" {
         arrowsize       = 0.5# controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize)
         old_arrowstyle  = FALSE #set to TRUE for original circled arrows
         animation       = TRUE # FALSE = disabled, TRUE = enabled
-  }
+    }
     
     engine "clearlooks" {
         focus_color         = { 0, 0, 0 }
@@ -595,6 +596,9 @@ widget "*tab_rack*label" style:highest "guitarix_notebook_labels"
 
 
 style "guitarix_frame" {
+    xthickness = 2
+    ythickness = 2
+
     bg[NORMAL]              = "#97BB6D"
 
     engine "murrine"  {
