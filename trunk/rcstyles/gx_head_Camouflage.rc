@@ -24,6 +24,10 @@ class "GtkWidget" style:highest "guitarix_default"
 
 style "guitarix_frame" {
     bg[NORMAL]              = "#292727"
+
+    engine "murrine"  {
+    }
+
     engine "clearlooks" {
         contrast            = 1.9
         radius              = 4.0

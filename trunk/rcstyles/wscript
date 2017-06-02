@@ -23,6 +23,7 @@ gxstyle_files = [
     'live_wallpaper_grungy_sun.png',
     'live_wallpaper_grungy_sun_dark.png',
     'live_wallpaper_grandma.png',
+    'live_wallpaper_nebula.png',
     'live_wallpaper_rust.png',
     
     'clear.rc',

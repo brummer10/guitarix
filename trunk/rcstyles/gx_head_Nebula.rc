@@ -38,6 +38,10 @@ widget "*tab_rack" style:highest "guitarix_notebook"
 
 style "guitarix_frame" {
     bg[NORMAL]              = "#222222"
+
+    engine "murrine"  {
+    }
+
     engine "clearlooks" {
         contrast            = 1.9
         radius              = 4.0
@@ -51,6 +55,6 @@ class "*GtkHSeparator" style:highest "guitarix_frame"
 style "guitarix-paintbox"
 {
   GxPaintBox::icon-set =1
-  stock['gxhead'] = {{"live_wallpaper_dark.png"}}
+  stock['gxhead'] = {{"live_wallpaper_nebula.png"}}
 }
 class "*GxPaintBox" style "guitarix-paintbox"

@@ -47,6 +47,9 @@ style "guitarix_frame" {
     ythickness = 2
 
     bg[NORMAL]              = "#c37142"
+
+    engine "murrine"  {
+    }
 }
 class "*GtkFrame" style:highest "guitarix_frame"
 class "*GtkVSeparator" style:highest "guitarix_frame"

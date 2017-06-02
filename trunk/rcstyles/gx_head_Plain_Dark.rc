@@ -37,6 +37,10 @@ widget "*tab_rack" style:highest "guitarix_notebook"
 
 style "guitarix_frame" {
     bg[NORMAL]              = "#222222"
+
+    engine "murrine"  {
+    }
+
     engine "clearlooks" {
         contrast            = 1.9
         radius              = 4.0
