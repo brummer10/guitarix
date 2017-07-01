@@ -15,6 +15,10 @@ def set_options(opt):
         '--no-bluez', action='store_const', default=False, const=True,
         help=('Do not build with bluez support for remote'
               ' / connection to Guitarix server instances  [Default: no]'))
+    guitarix_prog.add_option(
+        '--no-webkit', action='store_const', default=False, const=True,
+        help=('Do not build with webkit support'
+              ' to download Guitarix presets [Default: no]'))
 
 def configure(conf):
     if not Options.options.no_avahi:

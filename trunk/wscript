@@ -676,7 +676,8 @@ def configure(conf):
         conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
         conf.check(header_name='ladspa.h', mandatory=1)
         conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
-        conf.check_cfg(package='webkit-1.0', args='--cflags --libs', uselib_store='WEBKIT', mandatory=0, define_name='HAVE_WEBKIT')
+        if not (opt.no_webkit):
+            conf.check_cfg(package='webkit-1.0', args='--cflags --libs', uselib_store='WEBKIT', mandatory=0, define_name='HAVE_WEBKIT')
         check_boost(conf)
         if not (opt.install_roboto_font):
             check_roboto_font(conf)
