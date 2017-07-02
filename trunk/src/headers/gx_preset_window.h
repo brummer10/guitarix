@@ -146,8 +146,8 @@ private:
     void on_new_bank();
     void on_preset_save();
     const std::string pdir() { return options.get_preset_dir();}
-#ifdef HAVE_WEBKIT
     void on_online_preset();
+#ifdef HAVE_WEBKIT
     void show_online_preset();
     static bool downloadRequested(WebKitWebView* webView, WebKitDownload *download,gpointer data );
     static bool uploadRequested(WebKitWebView* webView, WebKitFileChooserRequest *request,gpointer data );

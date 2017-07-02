@@ -81,13 +81,13 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     //actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_presets_close));
     //gtk_activatable_set_related_action(GTK_ACTIVATABLE(close_preset->gobj()), act->gobj());
     close_preset->hide(); // disable (maybe remove later)
-#ifdef HAVE_WEBKIT
+//#ifdef HAVE_WEBKIT
     actions.online_preset_bank = Gtk::Action::create("OnlineBank");
     actions.group->add(actions.online_preset_bank, sigc::mem_fun(*this, &PresetWindow::on_online_preset));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(online_preset->gobj()), actions.online_preset_bank->gobj());
-#else
-    online_preset->set_sensitive(false);
-#endif
+//#else
+//    online_preset->set_sensitive(false);
+//#endif
     bank_treeview->set_model(Gtk::ListStore::create(bank_col));
     bank_treeview->set_name("PresetView");
     bank_treeview->get_selection()->set_select_function(
@@ -807,6 +807,18 @@ void PresetWindow::show_online_preset() {
 
 void PresetWindow::on_online_preset() {
     Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PresetWindow::show_online_preset));
+}
+
+#else
+
+void PresetWindow::on_online_preset() {
+  // FIXME add message window to explain preset download
+  if (run_message_dialog(
+    *online_preset, " This will start your browser and point it to \n"
+    " https://api.musical-artifacts.com/guitarix-presets/ \n"
+    " Just drag'n'drop presets (Download Button) into the bank list widget ")) {
+      system("x-www-browser https://api.musical-artifacts.com/guitarix-presets/");
+  }
 }
 
 #endif
