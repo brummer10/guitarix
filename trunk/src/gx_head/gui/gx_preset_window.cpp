@@ -812,12 +812,18 @@ void PresetWindow::on_online_preset() {
 #else
 
 void PresetWindow::on_online_preset() {
-  // FIXME add message window to explain preset download
   if (run_message_dialog(
-    *online_preset, " This will start your browser and point it to \n"
-    " https://api.musical-artifacts.com/guitarix-presets/ \n"
-    " Just drag'n'drop presets (Download Button) into the bank list widget ")) {
-      system("x-www-browser https://api.musical-artifacts.com/guitarix-presets/");
+    *online_preset, "This will start your browser and point it to \n"
+    "   https://api.musical-artifacts.com/guitarix-presets/ \n"
+    "To download, drag'n'drop presets (Download Button) into the bank list widget ")) {
+    GError *error = NULL;
+    gtk_show_uri(gdk_screen_get_default(), "https://api.musical-artifacts.com/guitarix-presets/",
+    gtk_get_current_event_time(), &error);
+    if (error) {
+        gx_print_error("guitarix online presets",
+            _("failed to load online preset site   "));
+        g_error_free(error);
+    }
   }
 }
 
