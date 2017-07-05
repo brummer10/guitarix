@@ -39,6 +39,8 @@ private:
   float  bpm;    // Beats per minute (tempo)
   float  speed;  // Transport speed (usually 0=stop, 1=play)
   float* bpm_set;
+  float bpm_sync_;
+  float* bpm_sync;
   // pointer to buffer
   float*      output;
   float*      input;
@@ -72,6 +74,10 @@ public:
 
 // constructor
 Gx_digital_delay_::Gx_digital_delay_() :
+  bpm(0),
+  bpm_set(NULL),
+  bpm_sync_(0),
+  bpm_sync(NULL),
   output(NULL),
   input(NULL),
   digital_delay(digital_delay::plugin()) {};
@@ -112,6 +118,9 @@ void Gx_digital_delay_::connect_(uint32_t port,void* data)
     case DD_NOTIFY:
       bpm_set = static_cast<float*>(data);
       break;
+    case SYNC:
+      bpm_sync = static_cast<float*>(data);
+      break;
     default:
       break;
     }
@@ -138,28 +147,12 @@ void Gx_digital_delay_::deactivate_f()
     digital_delay->activate_plugin(false, digital_delay);
 }
 
-void Gx_digital_delay_::update_bpm(Gx_digital_delay_* self, const LV2_Atom_Object* obj)
-{
-  const GxDDURIs* uris = &self->uris;
-
-  // Received new transport position/speed
-  LV2_Atom *beat = NULL, *bpm = NULL, *speed = NULL;
-  lv2_atom_object_get(obj, uris->time_barBeat, &beat,
-                      uris->time_beatsPerMinute, &bpm,
-                      uris->time_speed, &speed, NULL);
-  if (bpm && bpm->type == uris->atom_Float) {
-    // Tempo changed, update BPM
-    self->bpm = ((LV2_Atom_Float*)bpm)->body;
-  }
-  if (speed && speed->type == uris->atom_Float) {
-    // Speed changed, e.g. 0 (stop) to 1 (play)
-    self->speed = ((LV2_Atom_Float*)speed)->body;
-  }
-}
-
 void Gx_digital_delay_::run_dsp_(uint32_t n_samples)
 {
-  if (*(bpm_set) != bpm) *(bpm_set) = bpm;
+  bpm_sync_ = *(bpm_sync);
+  if (bpm_sync_) {
+    if (*(bpm_set) != bpm) *(bpm_set) = bpm;
+  }
   digital_delay->mono_audio(static_cast<int>(n_samples), input, output, digital_delay);
 }
 
@@ -229,6 +222,25 @@ void Gx_digital_delay_::activate(LV2_Handle instance)
 {
   // allocate needed mem
   static_cast<Gx_digital_delay_*>(instance)->activate_f();
+}
+
+void Gx_digital_delay_::update_bpm(Gx_digital_delay_* self, const LV2_Atom_Object* obj)
+{
+  const GxDDURIs* uris = &self->uris;
+
+  // Received new transport position/speed
+  LV2_Atom *beat = NULL, *bpm = NULL, *speed = NULL;
+  lv2_atom_object_get(obj, uris->time_barBeat, &beat,
+                      uris->time_beatsPerMinute, &bpm,
+                      uris->time_speed, &speed, NULL);
+  if (bpm && bpm->type == uris->atom_Float) {
+    // Tempo changed, update BPM
+    self->bpm = ((LV2_Atom_Float*)bpm)->body;
+  }
+  if (speed && speed->type == uris->atom_Float) {
+    // Speed changed, e.g. 0 (stop) to 1 (play)
+    self->speed = ((LV2_Atom_Float*)speed)->body;
+  }
 }
 
 void Gx_digital_delay_::run(LV2_Handle instance, uint32_t n_samples)

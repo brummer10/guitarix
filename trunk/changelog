@@ -1,3 +1,15 @@
+guitarix2 (0.35.4) unstable; urgency=low
+
+  * remove webkit
+
+ -- brummer <brummer-@web.de>  Mon, 05 Jul 2017 11:03:15 +0200 
+
+guitarix2 (0.35.3) unstable; urgency=low
+
+  * maintaince
+
+ -- brummer <brummer-@web.de>  Mon, 08 May 2017 06:30:35 +0200 
+
 guitarix2 (0.35.0) unstable; urgency=low
   * New UI design/style
   * disable Gtk warnings in non debug build

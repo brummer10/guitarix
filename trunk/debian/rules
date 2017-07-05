@@ -17,7 +17,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	./waf configure --prefix=/usr --no-faust --cxxflags="$(shell dpkg-buildflags --get CXXFLAGS) \
+	./waf configure --prefix=/usr --no-faust --includeresampler --convolver-ffmpeg --optimization --cxxflags="$(shell dpkg-buildflags --get CXXFLAGS) \
 	 $(shell dpkg-buildflags --get CPPFLAGS)" \
 	 --ldflags="$(shell dpkg-buildflags --get LDFLAGS)"
 	touch configure-stamp
