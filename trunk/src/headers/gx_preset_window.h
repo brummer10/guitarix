@@ -25,9 +25,6 @@
  ** class PresetWindow
  */
 
-#ifdef HAVE_WEBKIT
-#include <webkit/webkit.h>
-#endif
 
 class PresetStore: public Gtk::ListStore {
 public:
@@ -147,13 +144,10 @@ private:
     void on_preset_save();
     const std::string pdir() { return options.get_preset_dir();}
     void on_online_preset();
-#ifdef HAVE_WEBKIT
+    void replace_inline(std::string& l, const std::string& s, const std::string& r);
     void show_online_preset();
-    static bool downloadRequested(WebKitWebView* webView, WebKitDownload *download,gpointer data );
-    static bool uploadRequested(WebKitWebView* webView, WebKitFileChooserRequest *request,gpointer data );
-    static bool insertRequested(const char* uri, gpointer data );
-    static void download_status(GObject* object, GParamSpec* pspec, gpointer data);
-#endif
+    void downloadPreset(Gtk::Menu *presetMenu,std::string uri);
+    void create_preset_menu( std::vector< std::tuple<std::string,std::string,std::string> >& olp);
     bool on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
     void on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     void on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);

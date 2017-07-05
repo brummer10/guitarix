@@ -15,10 +15,6 @@ def set_options(opt):
         '--no-bluez', action='store_const', default=False, const=True,
         help=('Do not build with bluez support for remote'
               ' / connection to Guitarix server instances  [Default: no]'))
-    guitarix_prog.add_option(
-        '--no-webkit', action='store_const', default=False, const=True,
-        help=('Do not build with webkit support'
-              ' to download Guitarix presets [Default: no]'))
 
 def configure(conf):
     if not Options.options.no_avahi:
@@ -161,7 +157,7 @@ def build(bld):
     lib = []
     if not sys.platform.startswith("darwin"):
         lib.append('dl')
-    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT', 'WEBKIT',
+    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
               'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'LILV', 'BOOST_SYSTEM']
     if bld.env["HAVE_AVAHI"]:
         uselib += ['AVAHI_GOBJECT', 'AVAHI_GLIB', 'AVAHI_CLIENT']

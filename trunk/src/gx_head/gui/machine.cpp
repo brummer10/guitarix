@@ -499,6 +499,10 @@ void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& n
 #endif
 }
 
+void GxMachine::load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
+    settings.load_online_presets(olp);
+}
+
 void GxMachine::loadstate() {
     settings.loadstate();
 	if (!options.get_setbank().empty()) {
@@ -1930,6 +1934,10 @@ void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustr
     }
     msend_midi_cc(0xC0, pf->get_index(name),0,2);
 #endif
+}
+
+void GxMachineRemote::load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
+    // FIXME
 }
 
 void GxMachineRemote::loadstate() {

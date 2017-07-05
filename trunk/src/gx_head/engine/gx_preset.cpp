@@ -417,6 +417,46 @@ void PresetIO::write_parameters(gx_system::JsonWriter &w, bool preset) {
     w.end_object(true);
 }
 
+
+void PresetIO::read_online(gx_system::JsonParser &jp, std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
+    std::string NAME_;
+    std::string FILE_;
+    std::string INFO_;
+    std::string AUTHOR_;
+    ifstream is(opt.get_online_config_filename().c_str());
+    if (!is.fail()) {
+        gx_system::JsonParser jp(&is);
+        try {
+            jp.next(gx_system::JsonParser::begin_array);
+            do {
+                jp.next(gx_system::JsonParser::begin_object);
+                do {
+                    jp.next(gx_system::JsonParser::value_key);
+                    if (jp.current_value() == "name") {
+                        jp.read_kv("name", NAME_);
+                    } else if (jp.current_value() == "description") {
+                        jp.read_kv("description", INFO_);
+                    } else if (jp.current_value() == "author") {
+                        jp.read_kv("author", AUTHOR_);
+                    } else if (jp.current_value() == "file") {
+                        jp.read_kv("file", FILE_);
+                        INFO_ += "Author : " + AUTHOR_;
+                        olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
+                    } else {
+                       //gx_print_warning("read_online", "unknown key: " + jp.current_value());
+                        jp.skip_object();
+                    }
+                } while (jp.peek() == gx_system::JsonParser::value_key);
+                jp.next(gx_system::JsonParser::end_object);
+            } while (jp.peek() == gx_system::JsonParser::begin_object);
+        } catch (gx_system::JsonException e) {
+            cerr << "JsonException: " << e.what() << ": '" << jp.current_value() << "'" << endl;
+            assert(false);
+        }
+        is.close();
+    }
+}
+
 void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_system::SettingsFileHeader& head) {
     bool use_midi = (has_midi != 0) || midi_in_preset();
     if (has_midi) {

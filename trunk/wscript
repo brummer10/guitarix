@@ -676,8 +676,6 @@ def configure(conf):
         conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
         conf.check(header_name='ladspa.h', mandatory=1)
         conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
-        if not (opt.no_webkit):
-            conf.check_cfg(package='webkit-1.0', args='--cflags --libs', uselib_store='WEBKIT', mandatory=0, define_name='HAVE_WEBKIT')
         check_boost(conf)
         if not (opt.install_roboto_font):
             check_roboto_font(conf)
@@ -855,7 +853,6 @@ def configure(conf):
     display_feature("Use prebuild gresouce file", not conf.env["HAVE_GLIB"])
     display_feature("Avahi service discovery", conf.env["HAVE_AVAHI"])
     display_feature("Bluetooth rfcomm", conf.env["HAVE_BLUEZ"])
-    display_feature("Use Webkit", conf.env["HAVE_WEBKIT"])
     display_feature("Use internal zita-resampler", not conf.env['ZITA_RESAMPLER'])
     if conf.env['CONVOLVER_FFMPEG']:
         display_feature("Use zita-convolver-ffmpeg", True)

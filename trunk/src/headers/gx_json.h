@@ -404,6 +404,7 @@ class AbstractPresetIO {
 public:
     virtual ~AbstractPresetIO();
     virtual void read_preset(JsonParser&,const SettingsFileHeader&) = 0;
+    virtual void read_online(JsonParser&, std::vector< std::tuple<std::string,std::string,std::string> >& olp) = 0;
     virtual void commit_preset() = 0;
     virtual void write_preset(JsonWriter&) = 0;
     virtual void copy_preset(JsonParser&,const SettingsFileHeader&,JsonWriter&) = 0;
@@ -494,6 +495,7 @@ public:
     void insert_before(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
     void insert_after(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
     void load_preset(PresetFile *pf, const Glib::ustring& name);
+    void load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp);
     bool rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
     bool remove_bank(const Glib::ustring& bank);
     bool rename_preset(PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname);

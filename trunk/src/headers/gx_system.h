@@ -477,6 +477,7 @@ public:
     const std::string& get_temp_dir() const { return temp_dir; }
     const std::string& get_factory_dir() const { return factory_dir; }
     std::string get_ladspa_config_filename() const { return get_user_filepath("ladspa_defs.js"); }
+    std::string get_online_config_filename() const { return get_user_filepath("musical-artifacts.js"); }
     const Glib::ustring& get_rcset() const { return rcset; }
     bool get_clear_rc() const { return clear; }
     bool get_nogui() const { return nogui; }

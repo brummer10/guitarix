@@ -1727,6 +1727,7 @@ bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
 	    gx_print_info(
 		_("loaded preset"),
 		boost::format(_("%1% from file %2%")) % name % p->get_filename());
+		
 	} else {
 	    JsonParser *jp = statefile.create_reader();
 	    state_io->read_state(*jp, statefile.get_header());
@@ -1751,6 +1752,19 @@ bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
 	}
 	return false;
     }
+}
+
+void GxSettingsBase::load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
+    PresetFile *p = get_current_bank_file();
+    JsonParser *jp = 0;
+    jp = p->create_reader(0);
+    try {
+	    preset_io->read_online(*jp, olp);
+    } catch(JsonException& e) {
+	    gx_print_error(
+		_("load online preset"),
+		boost::format(_("error loading online presets")) );
+	}
 }
 
 void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {

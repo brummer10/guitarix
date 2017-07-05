@@ -81,13 +81,10 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     //actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_presets_close));
     //gtk_activatable_set_related_action(GTK_ACTIVATABLE(close_preset->gobj()), act->gobj());
     close_preset->hide(); // disable (maybe remove later)
-//#ifdef HAVE_WEBKIT
     actions.online_preset_bank = Gtk::Action::create("OnlineBank");
     actions.group->add(actions.online_preset_bank, sigc::mem_fun(*this, &PresetWindow::on_online_preset));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(online_preset->gobj()), actions.online_preset_bank->gobj());
-//#else
-//    online_preset->set_sensitive(false);
-//#endif
+    if (!machine.get_jack()) online_preset->set_sensitive(false);
     bank_treeview->set_model(Gtk::ListStore::create(bank_col));
     bank_treeview->set_name("PresetView");
     bank_treeview->get_selection()->set_select_function(
@@ -696,138 +693,101 @@ void PresetWindow::on_new_bank() {
     start_edit(m->get_path(edit_iter), *bank_treeview->get_column(1), *bank_cellrenderer);
 }
 
-#ifdef HAVE_WEBKIT
+void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
 
-bool PresetWindow::insertRequested(const char *ur, gpointer data)
-{
-    PresetWindow& self = *reinterpret_cast<PresetWindow*>(data);
-	const char *file_name = strrchr( ur, '/' ) + 1;
+    const char *f_name = uri.c_str();
+    const char *file_name = strrchr( f_name, '/' ) + 1;
     const gchar* dest = g_strdup_printf("file:///tmp/%s",file_name);
+
+    Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(uri);
+    Glib::RefPtr<Gio::File> desti = Gio::File::create_for_uri(dest);
+    try {
+        rem->copy(desti,Gio::FILE_COPY_OVERWRITE);
+    } catch (Gio::Error& e) {
+        gx_print_error(e.what().c_str(), _("can't download preset from https://musical-artifacts.com/"));
+        return;
+    }
+
     //fprintf(stderr,"insert %s\n",dest);
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(self.bank_treeview->get_model());
-    gx_system::PresetFileGui *f = self.machine.bank_insert_uri(dest, false);
+    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
+    gx_system::PresetFileGui *f = machine.bank_insert_uri(dest, false);
     if (f) {
         Gtk::TreeIter i = ls->prepend();
-        self.set_row_for_presetfile(i,f);
-        self.bank_treeview->set_cursor(ls->get_path(i));
-        self.bank_treeview->get_selection()->select(i);
+        set_row_for_presetfile(i,f);
+        bank_treeview->set_cursor(ls->get_path(i));
+        bank_treeview->get_selection()->select(i);
     }
-    return TRUE;
+    
 }
 
-void PresetWindow::download_status(GObject* object, GParamSpec* pspec, gpointer data) { 
-    WebKitDownload *download;
-    WebKitDownloadStatus status;
-    const char *uri;
+void PresetWindow::create_preset_menu( std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
 
-    download = WEBKIT_DOWNLOAD(object);
-    status = webkit_download_get_status(download);
-    uri = webkit_download_get_uri(download);
-
-    switch (status) {
-      case WEBKIT_DOWNLOAD_STATUS_ERROR:
-          gx_print_error(_("Download Status"),
-            boost::format(_("ERROR download %1%")) % uri);
-          break;
-      case WEBKIT_DOWNLOAD_STATUS_CREATED:
-          //printf("download created: %s\n", uri);
-          break;
-      case WEBKIT_DOWNLOAD_STATUS_STARTED:
-          //printf("download started: %s\n", uri);
-          break;
-      case WEBKIT_DOWNLOAD_STATUS_CANCELLED:
-           gx_print_info(_("Download Status"),
-            boost::format(_("download cancelled %1%")) % uri);
-          break;
-      case WEBKIT_DOWNLOAD_STATUS_FINISHED:
-          gx_print_info(_("Download Status"),
-            boost::format(_("download finished %1%")) % uri);
-          insertRequested(uri, data);
-          break;
-      default:
-          g_assert_not_reached();
+    Gtk::MenuItem* item;
+    Gtk::Menu *presetMenu = Gtk::manage(new Gtk::Menu());
+    presetMenu->set_size_request (-1, 400);
+    for(std::vector<std::tuple<std::string,std::string,std::string> >::iterator it = olp.begin(); it != olp.end(); it++) {
+        item = Gtk::manage(new Gtk::MenuItem(get<0>(*it), true));
+        item->set_tooltip_text(get<2>(*it));
+        std::string f = get<1>(*it);
+        item->signal_activate().connect(sigc::bind(sigc::bind(sigc::mem_fun(
+          *this, &PresetWindow::downloadPreset),f),presetMenu));
+        presetMenu->append(*item);
+            
     }
+    presetMenu->show_all();
+    presetMenu->popup(0,gtk_get_current_event_time());
 }
 
-bool PresetWindow::downloadRequested(WebKitWebView* webView, WebKitDownload *download, gpointer data)
-{
-    const char *ur = webkit_download_get_uri (download);
-    const char *file_name = strrchr( ur, '/' ) + 1;
-    const gchar* dest = g_strdup_printf("file:///tmp/%s",file_name); 
-    webkit_download_set_destination_uri(download, dest);
-    g_signal_connect(download, "notify::status", G_CALLBACK(download_status), data);
-    return TRUE;
-}
-
-bool PresetWindow::uploadRequested(WebKitWebView* webView, WebKitFileChooserRequest *request,gpointer data )
-{
-    Gtk::FileChooserDialog d( "Select upload file");
-    d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-    d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
-    d.add_shortcut_folder(string(getenv("HOME")) + string("/.config/guitarix/bamks"));
-    Gtk::FileFilter banks;
-    banks.set_name("Bank Files");
-    banks.add_pattern("*.gx");
-    d.add_filter(banks);
-    Gtk::FileFilter all;
-    all.add_pattern("*");
-    all.set_name("All Files");
-    d.add_filter(all);
-    d.set_current_folder(string(getenv("HOME")) + string("/.config/guitarix/banks"));
-
-    if (d.run() != Gtk::RESPONSE_OK) {
-        return FALSE;
+void PresetWindow::replace_inline(std::string& subject, const std::string& search,
+                          const std::string& replace) {
+    size_t pos = 0;
+    while ((pos = subject.find(search, pos)) != std::string::npos) {
+         subject.replace(pos, search.length(), replace);
+         pos += replace.length();
     }
-    Glib::ustring  filename = d.get_filename();
-    const gchar*  f[2] = {filename.c_str(),0};
-    webkit_file_chooser_request_select_files (request, f);
-    return TRUE;
 }
 
 void PresetWindow::show_online_preset() {
 
-  Gtk::Window *window = new Gtk::Window();
-  Gtk::ScrolledWindow *scrollbox = Gtk::manage(new Gtk::ScrolledWindow());
-  scrollbox->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-  window->set_default_size( 800, 500 );
-  WebKitWebView * web_view =  WEBKIT_WEB_VIEW( webkit_web_view_new() );
-  WebKitWebSettings *settings = webkit_web_settings_new ();
-  g_object_set (G_OBJECT(settings), "enable-offline-web-application-cache", TRUE, NULL);
-  g_object_set (G_OBJECT(settings), "enable-page-cache", TRUE, NULL);
-  webkit_web_view_set_settings (WEBKIT_WEB_VIEW(web_view), settings);
-  
+    static bool load_new = true;
+    if (load_new) {
+        Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),
+         "Do you wont to check for new presets from\n https://musical-artifacts.com ? \n Note, that may take a while",
+          false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
+        d.set_position(Gtk::WIN_POS_MOUSE);
+        if (d.run() == Gtk::RESPONSE_OK) {
+            try {
+                Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri("https://musical-artifacts.com/artifacts.json?apps=guitarix");  
+                // replace "null" with "[]"
+                Glib::RefPtr<Gio::DataInputStream> in = Gio::DataInputStream::create(rem->read());
+                std::string line;
+                Glib::ustring result;
+                const std::string fromStr="null";
+                const std::string toStr="[]";
+                while (in->read_line(line)) {
+                    replace_inline(line,fromStr,toStr);
+                    result += line;
+                }
+                Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri("file://"+options.get_online_config_filename());
+                Glib::RefPtr<Gio::DataOutputStream> out = Gio::DataOutputStream::create(dest->replace());
+                out->put_string(result);
 
-  scrollbox->add(*Gtk::manage(( Glib::wrap(GTK_WIDGET(web_view )))));
-  window->add(*Gtk::manage(scrollbox));
-  webkit_web_view_load_uri(web_view, "https://api.musical-artifacts.com/guitarix-presets/");
-  g_signal_connect(G_OBJECT (web_view), "download-requested", G_CALLBACK(downloadRequested), this);
-  g_signal_connect(G_OBJECT (web_view), "run-file-chooser", G_CALLBACK(uploadRequested), this);
-  window->show_all();
+            } catch (Gio::Error& e) {
+                gx_print_error(e.what().c_str(), _("can't download https://musical-artifacts.com/"));
+                return;
+            }
+        }
+    }
+    load_new = false;
+
+    std::vector< std::tuple<std::string,std::string,std::string> > olp;
+    machine.load_online_presets(olp);
+    create_preset_menu(olp);
 }
 
 void PresetWindow::on_online_preset() {
     Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PresetWindow::show_online_preset));
 }
-
-#else
-
-void PresetWindow::on_online_preset() {
-  if (run_message_dialog(
-    *online_preset, "This will start your browser and point it to \n"
-    "   https://api.musical-artifacts.com/guitarix-presets/ \n"
-    "To download, drag'n'drop presets (Download Button) into the bank list widget ")) {
-    GError *error = NULL;
-    gtk_show_uri(gdk_screen_get_default(), "https://api.musical-artifacts.com/guitarix-presets/",
-    gtk_get_current_event_time(), &error);
-    if (error) {
-        gx_print_error("guitarix online presets",
-            _("failed to load online preset site   "));
-        g_error_free(error);
-    }
-  }
-}
-
-#endif
 
 bool PresetWindow::on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
     Gtk::Widget *source_widget = Gtk::Widget::drag_get_source_widget(context);
