@@ -458,11 +458,8 @@ void PresetIO::read_online(gx_system::JsonParser &jp) {
         is.close();
         os.close();
     } else {
-            gx_print_warning(
-		_("load online"),
-		_("fail to open: "));
-		
-	}
+        gx_print_warning(_("load online"),_("fail to open: "));
+    }
 }
 
 void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_system::SettingsFileHeader& head) {

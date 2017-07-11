@@ -708,6 +708,11 @@ void DownloadWatch::run () {
     }
 }
 
+void DownloadWatch::f_progress(goffset read, goffset total)
+{
+  //std::cout << read << "/" << total << std::endl;
+}
+
 void PresetWindow::go_watch () {
     if(watch != NULL) return;
     watch = new DownloadWatch();
@@ -737,7 +742,7 @@ void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
         Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(uri);
         Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(ff, hostname));
         try {
-           rem->copy(dest, slot, watch->cancellable,Gio::FILE_COPY_OVERWRITE);
+           rem->copy(dest, watch->file_state, watch->cancellable,Gio::FILE_COPY_OVERWRITE);
         } catch (Gio::Error& e) {
             if (watch->cancellable->is_cancelled())
                 gx_print_error( _("Time out, download cancelled"), _("the server on https://musical-artifacts.com/ takes to long to respond"));
@@ -861,12 +866,13 @@ void PresetWindow::show_online_preset() {
             Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri("https://musical-artifacts.com/artifacts.json?apps=guitarix");  
             Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_config_filename(), hostname));
             try {
-                rem->copy(dest, slot, watch->cancellable,Gio::FILE_COPY_OVERWRITE);
+                rem->copy(dest, watch->file_state, watch->cancellable,Gio::FILE_COPY_OVERWRITE);
             } catch (Gio::Error& e) {
                 if (watch->cancellable->is_cancelled())
                     gx_print_error( _("Time out, download cancelled"), _("the server on https://musical-artifacts.com/ takes to long to respond"));
                 else
                     gx_print_error(e.what().c_str(), _("can't download preset list from https://musical-artifacts.com/"));
+                window->set_cursor(); 
                 return;
             }
             if (watch) watch_done();

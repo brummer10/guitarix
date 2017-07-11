@@ -71,9 +71,12 @@ class DownloadWatch {
 public:
     DownloadWatch() : thread(0), stop(false) {}
     Glib::RefPtr<Gio::Cancellable>  cancellable;
+    Gio::File::SlotFileProgress  file_state;
+    static void f_progress(goffset read, goffset total);
     void start () {
-      thread = Glib::Thread::create(sigc::mem_fun(*this, &DownloadWatch::run), true);
       cancellable = Gio::Cancellable::create ();
+      file_state = sigc::ptr_fun(&f_progress);
+      thread = Glib::Thread::create(sigc::mem_fun(*this, &DownloadWatch::run), true);
     }
     ~DownloadWatch() {
       {
@@ -104,7 +107,6 @@ private:
     gx_engine::GxMachineBase& machine;
     GxActions& actions;
     DownloadWatch *watch;
-    Gio::File::SlotFileProgress  slot;
     void go_watch ();
     void watch_done();
     bool in_edit;
