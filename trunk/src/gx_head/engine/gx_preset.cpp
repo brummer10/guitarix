@@ -418,13 +418,14 @@ void PresetIO::write_parameters(gx_system::JsonWriter &w, bool preset) {
 }
 
 
-void PresetIO::read_online(gx_system::JsonParser &jp, std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
+void PresetIO::read_online(gx_system::JsonParser &jp) {
     std::string NAME_;
     std::string FILE_;
     std::string INFO_;
     std::string AUTHOR_;
     ifstream is(opt.get_online_config_filename().c_str());
-    if (!is.fail()) {
+    ofstream os(opt.get_online_presets_filename().c_str());
+    if (!is.fail() && !os.fail()) {
         gx_system::JsonParser jp(&is);
         try {
             jp.next(gx_system::JsonParser::begin_array);
@@ -441,7 +442,8 @@ void PresetIO::read_online(gx_system::JsonParser &jp, std::vector< std::tuple<st
                     } else if (jp.current_value() == "file") {
                         jp.read_kv("file", FILE_);
                         INFO_ += "Author : " + AUTHOR_;
-                        olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
+                       // olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
+                        os << "\n<<NAME>> \n" << NAME_ << "\n<<FILE>> \n" << FILE_ << "\n<<INFO>> \n" << INFO_ << "\n<<END>> \n" << "\n";
                     } else {
                        //gx_print_warning("read_online", "unknown key: " + jp.current_value());
                         jp.skip_object();
@@ -454,7 +456,13 @@ void PresetIO::read_online(gx_system::JsonParser &jp, std::vector< std::tuple<st
             assert(false);
         }
         is.close();
-    }
+        os.close();
+    } else {
+            gx_print_warning(
+		_("load online"),
+		_("fail to open: "));
+		
+	}
 }
 
 void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_system::SettingsFileHeader& head) {

@@ -1754,12 +1754,12 @@ bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
     }
 }
 
-void GxSettingsBase::load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
+void GxSettingsBase::load_online_presets() {
     PresetFile *p = get_current_bank_file();
     JsonParser *jp = 0;
     jp = p->create_reader(0);
     try {
-	    preset_io->read_online(*jp, olp);
+	    preset_io->read_online(*jp);
     } catch(JsonException& e) {
 	    gx_print_error(
 		_("load online preset"),

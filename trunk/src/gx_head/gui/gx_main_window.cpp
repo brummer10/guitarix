@@ -3102,14 +3102,13 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 
     // set insert_image state
 	if (machine.get_parameter_value<bool>("engine.insert")) {
-		insert_image->set(pixbuf_insert_on);
-		machine.set_jack_insert(false);
-	} else {
 		insert_image->set(pixbuf_insert_off);
 		machine.set_jack_insert(true);
+	} else {
+		insert_image->set(pixbuf_insert_on);
+		machine.set_jack_insert(false);
 	}
     if (!options.get_tuner_tet().empty()) set_tuner_tet(*racktuner);
-    if (!options.get_tuner_ref().empty()) set_tuner_ref(*racktuner);
 
  }
 

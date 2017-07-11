@@ -499,8 +499,8 @@ void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& n
 #endif
 }
 
-void GxMachine::load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
-    settings.load_online_presets(olp);
+void GxMachine::load_online_presets() {
+    settings.load_online_presets();
 }
 
 void GxMachine::loadstate() {
@@ -1936,7 +1936,9 @@ void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustr
 #endif
 }
 
-void GxMachineRemote::load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
+void GxMachineRemote::load_online_presets() {
+    START_NOTIFY(set_online_presets);
+    SEND();
     // FIXME
 }
 

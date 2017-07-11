@@ -307,6 +307,7 @@ bool IRWindow::load_data(Glib::ustring f, int offset, int delay, int length, con
     case gx_engine::Audiofile::TYPE_OTHER: enc = "???"; break;
     case gx_engine::Audiofile::TYPE_CAF: enc = "CAF"; break;
     case gx_engine::Audiofile::TYPE_WAV: enc = "WAV"; break;
+    case gx_engine::Audiofile::TYPE_AIFF: enc = "AIFF"; break;
     case gx_engine::Audiofile::TYPE_AMB: enc = "AMB"; break;
     }
     enc += " ";
@@ -561,9 +562,8 @@ void IRWindow::on_open() {
     d.add_shortcut_folder_uri(Glib::filename_to_uri(string(getenv("HOME")) + string("/.config/guitarix/IR"), hostname));
     Gtk::FileFilter wav;
     wav.set_name("WAV Files");
-    wav.add_pattern("*.wav");
-    wav.add_pattern("*.WAV");
-    wav.add_pattern("*.Wav");
+    wav.add_mime_type("audio/x-wav");
+    wav.add_mime_type("audio/x-aiff");
     d.add_filter(wav);
     Gtk::FileFilter audio;
     audio.set_name("Audio Files");

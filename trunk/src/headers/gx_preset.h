@@ -86,7 +86,7 @@ public:
     PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
 	     gx_engine::ParamMap& param, gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
     ~PresetIO();
-    void read_online(gx_system::JsonParser &jp, std::vector< std::tuple<std::string,std::string,std::string> >& olp);
+    void read_online(gx_system::JsonParser &jp);
     void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_preset();
     void write_preset(gx_system::JsonWriter& jw);

@@ -41,6 +41,7 @@ public:
         TYPE_OTHER,
         TYPE_CAF,
         TYPE_WAV,
+        TYPE_AIFF,
         TYPE_AMB
     };
 

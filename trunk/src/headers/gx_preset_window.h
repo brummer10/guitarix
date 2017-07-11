@@ -66,6 +66,32 @@ public:
     using Gtk::TreeView::on_drag_motion;
 };
 
+
+class DownloadWatch {
+public:
+    DownloadWatch() : thread(0), stop(false) {}
+    Glib::RefPtr<Gio::Cancellable>  cancellable;
+    void start () {
+      thread = Glib::Thread::create(sigc::mem_fun(*this, &DownloadWatch::run), true);
+      cancellable = Gio::Cancellable::create ();
+    }
+    ~DownloadWatch() {
+      {
+        Glib::Mutex::Lock lock (mutex);
+        stop = true;
+      }
+      if (thread) thread->join(); 
+    }
+    Glib::Dispatcher sig_done;
+
+protected:
+    void run ();
+    Glib::Thread * thread;
+    Glib::Mutex mutex;
+    bool stop;
+};
+
+
 struct GxActions;
 
 class PresetWindow: public sigc::trackable {
@@ -77,6 +103,10 @@ private:
     };
     gx_engine::GxMachineBase& machine;
     GxActions& actions;
+    DownloadWatch *watch;
+    Gio::File::SlotFileProgress  slot;
+    void go_watch ();
+    void watch_done();
     bool in_edit;
     Gtk::TreeModel::iterator edit_iter;
     Glib::RefPtr<Gdk::Pixbuf> pb_edit;
@@ -147,7 +177,7 @@ private:
     void replace_inline(std::string& l, const std::string& s, const std::string& r);
     void show_online_preset();
     void downloadPreset(Gtk::Menu *presetMenu,std::string uri);
-    void create_preset_menu( std::vector< std::tuple<std::string,std::string,std::string> >& olp);
+    void create_preset_menu();
     bool on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
     void on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     void on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);

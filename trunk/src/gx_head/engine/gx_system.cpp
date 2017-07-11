@@ -330,7 +330,9 @@ IRFileListing::IRFileListing(const std::string& path) {
 				       "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
         Glib::RefPtr<Gio::FileInfo> file_info;
         while ((file_info = child_enumeration->next_file())) {
-	    if (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-wav") {
+			// fprintf(stderr,"G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE == %s\n",file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE).c_str());
+	    if ((file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-wav") ||
+	        (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-aiff")){
 		listing.push_back(
 		    FileName(
 			file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME),

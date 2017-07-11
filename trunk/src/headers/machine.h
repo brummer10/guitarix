@@ -112,7 +112,7 @@ public:
     virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const = 0;
     virtual Glib::ustring get_bank_name(int n) = 0;
     virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) = 0;
-    virtual void load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp) = 0;
+    virtual void load_online_presets()  = 0;
     virtual void msend_midi_cc(int cc, int pgn, int bgn, int num) = 0;
     virtual void loadstate() = 0;
     virtual int bank_size() = 0;
@@ -295,7 +295,7 @@ public:
     virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const;
     virtual Glib::ustring get_bank_name(int n);
     virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name);
-    virtual void load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp);
+    virtual void load_online_presets() ;
     virtual void msend_midi_cc(int cc, int pgn, int bgn, int num);
     virtual void loadstate();
     virtual int bank_size();
@@ -475,7 +475,7 @@ public:
     virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const;
     virtual Glib::ustring get_bank_name(int n);
     virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name);
-    virtual void load_online_presets(std::vector< std::tuple<std::string,std::string,std::string> >& olp);
+    virtual void load_online_presets() ;
     virtual void msend_midi_cc(int cc, int pgn, int bgn, int num);
     virtual void loadstate();
     virtual int bank_size();

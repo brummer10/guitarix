@@ -66,6 +66,9 @@ int Audiofile::open_read(string name) {
     case SF_FORMAT_WAV:
         _type = TYPE_WAV;
         break;
+    case SF_FORMAT_AIFF:
+        _type = TYPE_AIFF;
+        break;
     case SF_FORMAT_WAVEX:
 #ifdef     SFC_WAVEX_GET_AMBISONIC
         if (sf_command(_sndfile, SFC_WAVEX_GET_AMBISONIC, 0, 0) == SF_AMBISONIC_B_FORMAT)

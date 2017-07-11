@@ -24,6 +24,7 @@ enum jsonrpc_method {
 	RPCM_list,
 	RPCM_banks,
 	RPNM_setpreset,
+	RPNM_set_online_presets,
 	RPNM_sendcc,
 	RPCM_bank_insert_content,
 	RPCM_bank_insert_new,

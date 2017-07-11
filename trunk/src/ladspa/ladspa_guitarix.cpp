@@ -165,7 +165,7 @@ public:
     PresetIO(ParamMap& param, ConvolverStereoAdapter* stereo_convolver,ConvolverMonoAdapter* mono_convolver, ControlParameter& cp);
     ~PresetIO();
     void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
-    void read_online(gx_system::JsonParser &jp, std::vector< std::tuple<std::string,std::string,std::string> >& olp);
+    void read_online(gx_system::JsonParser &jp);
     void commit_preset();
     void clear();
     void write_preset(gx_system::JsonWriter& jw);
@@ -195,7 +195,7 @@ void PresetIO::clear() {
     jcset = 0;
 }
 
-void PresetIO::read_online(gx_system::JsonParser &jp, std::vector< std::tuple<std::string,std::string,std::string> >& olp) {
+void PresetIO::read_online(gx_system::JsonParser &jp) {
 }
 
 void PresetIO::read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader& head) {
