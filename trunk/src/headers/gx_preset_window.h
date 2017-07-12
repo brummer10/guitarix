@@ -73,18 +73,8 @@ public:
     Glib::RefPtr<Gio::Cancellable>  cancellable;
     Gio::File::SlotFileProgress  file_state;
     static void f_progress(goffset read, goffset total);
-    void start () {
-      cancellable = Gio::Cancellable::create ();
-      file_state = sigc::ptr_fun(&f_progress);
-      thread = Glib::Thread::create(sigc::mem_fun(*this, &DownloadWatch::run), true);
-    }
-    ~DownloadWatch() {
-      {
-        Glib::Mutex::Lock lock (mutex);
-        stop = true;
-      }
-      if (thread) thread->join(); 
-    }
+    void start ();
+    ~DownloadWatch();
     Glib::Dispatcher sig_done;
 
 protected:
@@ -179,6 +169,8 @@ private:
     void replace_inline(std::string& l, const std::string& s, const std::string& r);
     void show_online_preset();
     void downloadPreset(Gtk::Menu *presetMenu,std::string uri);
+    bool download_file(Glib::ustring from_uri, Glib::ustring to_path);
+    Glib::ustring resolve_hostname();
     void create_preset_menu();
     bool on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
     void on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);

@@ -695,6 +695,12 @@ void PresetWindow::on_new_bank() {
 
 // Online Preset Downloader
 
+void DownloadWatch::start () {
+    cancellable = Gio::Cancellable::create ();
+    file_state = sigc::ptr_fun(&f_progress);
+    thread = Glib::Thread::create(sigc::mem_fun(*this, &DownloadWatch::run), true);
+}
+
 void DownloadWatch::run () {
     while(true) {
         {
@@ -713,6 +719,14 @@ void DownloadWatch::f_progress(goffset read, goffset total)
   //std::cout << read << "/" << total << std::endl;
 }
 
+DownloadWatch::~DownloadWatch() {
+    {
+        Glib::Mutex::Lock lock (mutex);
+        stop = true;
+    }
+    if (thread) thread->join(); 
+}
+
 void PresetWindow::go_watch () {
     if(watch != NULL) return;
     watch = new DownloadWatch();
@@ -726,6 +740,32 @@ void PresetWindow::watch_done() {
     watch = NULL;
 }
 
+Glib::ustring PresetWindow::resolve_hostname() {
+    static Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
+    return hostname;
+}
+
+bool PresetWindow::download_file(Glib::ustring from_uri, Glib::ustring to_path) {
+
+    go_watch();
+    Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(from_uri);
+    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(to_path, resolve_hostname()));
+    try {
+        rem->copy(dest, watch->file_state, watch->cancellable,Gio::FILE_COPY_OVERWRITE);
+    } catch (Gio::Error& e) {
+        if (watch->cancellable->is_cancelled())
+            gx_print_error( _("Time out, download cancelled"), _("the server on https://musical-artifacts.com/ takes to long to respond"));
+        else
+            gx_print_error(e.what().c_str(), Glib::ustring::compose("can't download '%1 ' from https://musical-artifacts.com/", from_uri));
+        return false;
+    }
+    return true;
+}
+
 void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
 
     std::string::size_type n = uri.find_last_of('/');
@@ -733,32 +773,16 @@ void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
         std::string fn = uri.substr(n);
         std::string ff = "/tmp"+fn;
 
-        static Glib::ustring hostname = "localhost";
-        if (! machine.get_jack()) {
-            hostname = Gio::Resolver::get_default()->lookup_by_address
-            (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
-        }
-        go_watch();
-        Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(uri);
-        Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(ff, hostname));
-        try {
-           rem->copy(dest, watch->file_state, watch->cancellable,Gio::FILE_COPY_OVERWRITE);
-        } catch (Gio::Error& e) {
-            if (watch->cancellable->is_cancelled())
-                gx_print_error( _("Time out, download cancelled"), _("the server on https://musical-artifacts.com/ takes to long to respond"));
-            else
-                gx_print_error(e.what().c_str(), _("can't download preset from https://musical-artifacts.com/"));
-            return;
-        }
-
-        //fprintf(stderr,"insert %s\n",dest);
-        Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
-        gx_system::PresetFileGui *f = machine.bank_insert_uri(Glib::filename_to_uri(ff, hostname), false);
-        if (f) {
-            Gtk::TreeIter i = ls->prepend();
-            set_row_for_presetfile(i,f);
-            bank_treeview->set_cursor(ls->get_path(i));
-            bank_treeview->get_selection()->select(i);
+        if (download_file(uri, ff)) {
+            if (watch) watch_done();
+            Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
+            gx_system::PresetFileGui *f = machine.bank_insert_uri(Glib::filename_to_uri(ff, resolve_hostname()), false);
+            if (f) {
+                Gtk::TreeIter i = ls->prepend();
+                set_row_for_presetfile(i,f);
+                bank_treeview->set_cursor(ls->get_path(i));
+                bank_treeview->get_selection()->select(i);
+            }
         }
     } else {
         gx_print_error("downloadPreset", _("can't download preset from https://musical-artifacts.com/"));
@@ -769,12 +793,7 @@ void PresetWindow::create_preset_menu() {
 
     std::vector< std::tuple<std::string,std::string,std::string> > olpa;
 
-    static Glib::ustring hostname = "localhost";
-    if (! machine.get_jack()) {
-        hostname = Gio::Resolver::get_default()->lookup_by_address
-        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
-    }
-    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_presets_filename(), hostname));
+    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_presets_filename(), resolve_hostname()));
     Glib::RefPtr<Gio::DataInputStream> in = Gio::DataInputStream::create(dest->read());    
     
     std::string NAME_;
@@ -854,34 +873,20 @@ void PresetWindow::show_online_preset() {
         window->set_cursor(cursor);
         Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),
          "Do you wont to check for new presets from\n https://musical-artifacts.com ? \n Note, that may take a while",
-          false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL, true);
+          false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
         d.set_position(Gtk::WIN_POS_MOUSE);
         if (d.run() == Gtk::RESPONSE_OK) {
-            go_watch();
-            static Glib::ustring hostname = "localhost";
-            if (! machine.get_jack()) {
-                hostname = Gio::Resolver::get_default()->lookup_by_address
-                (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
-            }
-            Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri("https://musical-artifacts.com/artifacts.json?apps=guitarix");  
-            Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_config_filename(), hostname));
-            try {
-                rem->copy(dest, watch->file_state, watch->cancellable,Gio::FILE_COPY_OVERWRITE);
-            } catch (Gio::Error& e) {
-                if (watch->cancellable->is_cancelled())
-                    gx_print_error( _("Time out, download cancelled"), _("the server on https://musical-artifacts.com/ takes to long to respond"));
-                else
-                    gx_print_error(e.what().c_str(), _("can't download preset list from https://musical-artifacts.com/"));
+            if (download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {
+                if (watch) watch_done();
+                machine.load_online_presets();
+            } else {
                 window->set_cursor(); 
                 return;
-            }
-            if (watch) watch_done();
-            machine.load_online_presets();
+            } 
         }
-    }
     window->set_cursor(); 
+    }
     load_new = false;
-
     create_preset_menu();
 }
 
