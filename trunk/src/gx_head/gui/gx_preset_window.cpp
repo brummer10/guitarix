@@ -757,12 +757,15 @@ bool PresetWindow::download_file(Glib::ustring from_uri, Glib::ustring to_path) 
     try {
         rem->copy(dest, watch->file_state, watch->cancellable,Gio::FILE_COPY_OVERWRITE);
     } catch (Gio::Error& e) {
-        if (watch->cancellable->is_cancelled())
+        if (watch->cancellable->is_cancelled()) {
             gx_print_error( _("Time out, download cancelled"), _("the server on https://musical-artifacts.com/ takes to long to respond"));
-        else
+        } else {
             gx_print_error(e.what().c_str(), Glib::ustring::compose("can't download '%1 ' from https://musical-artifacts.com/", from_uri));
+            if (watch) watch_done();
+        }
         return false;
     }
+    if (watch) watch_done();
     return true;
 }
 
@@ -774,7 +777,6 @@ void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
         std::string ff = "/tmp"+fn;
 
         if (download_file(uri, ff)) {
-            if (watch) watch_done();
             Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
             gx_system::PresetFileGui *f = machine.bank_insert_uri(Glib::filename_to_uri(ff, resolve_hostname()), false);
             if (f) {
@@ -875,9 +877,8 @@ void PresetWindow::show_online_preset() {
          "Do you wont to check for new presets from\n https://musical-artifacts.com ? \n Note, that may take a while",
           false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
         d.set_position(Gtk::WIN_POS_MOUSE);
-        if (d.run() == Gtk::RESPONSE_OK) {
+        if (d.run() == Gtk::RESPONSE_YES) {
             if (download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {
-                if (watch) watch_done();
                 machine.load_online_presets();
             } else {
                 window->set_cursor(); 
