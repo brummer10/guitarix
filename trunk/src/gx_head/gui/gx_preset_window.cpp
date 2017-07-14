@@ -791,9 +791,7 @@ void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
     }
 }
 
-void PresetWindow::create_preset_menu() {
-
-    std::vector< std::tuple<std::string,std::string,std::string> > olpa;
+void PresetWindow::read_preset_menu() {
 
     Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_presets_filename(), resolve_hostname()));
     Glib::RefPtr<Gio::DataInputStream> in = Gio::DataInputStream::create(dest->read());    
@@ -829,7 +827,7 @@ void PresetWindow::create_preset_menu() {
             set_name = false;
             set_file = false;
             set_info = false;
-            olpa.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
+            olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
             NAME_ = "";
             FILE_ = "";
             INFO_ = "";
@@ -840,11 +838,20 @@ void PresetWindow::create_preset_menu() {
         else if ( set_info ) INFO_ += line+"\n";
     }
     in->close ();
-    
+}
+
+void PresetWindow::create_preset_menu(bool is_new) {
+
+    static bool read_new = true;
+    if (read_new || is_new) {
+        read_preset_menu();
+        read_new = false;
+    }
+   
     Gtk::MenuItem* item;
     Gtk::Menu *presetMenu = Gtk::manage(new Gtk::Menu());
     presetMenu->set_size_request (-1, 600);
-    for(std::vector<std::tuple<std::string,std::string,std::string> >::iterator it = olpa.begin(); it != olpa.end(); it++) {
+    for(std::vector<std::tuple<std::string,std::string,std::string> >::iterator it = olp.begin(); it != olp.end(); it++) {
         item = Gtk::manage(new Gtk::MenuItem(get<0>(*it), true));
         item->set_tooltip_text(get<2>(*it));
         std::string f = get<1>(*it);
@@ -868,16 +875,21 @@ void PresetWindow::replace_inline(std::string& subject, const std::string& searc
 
 void PresetWindow::show_online_preset() {
 
+    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_presets_filename(), resolve_hostname()));
     static bool load_new = true;
+    static bool load = false;
     Glib::RefPtr<Gdk::Window> window = preset_scrolledbox->get_toplevel()->get_window();
-    if (load_new) {
+    if (load_new || ! dest->query_exists()) {
         Gdk::Cursor cursor(Gdk::WATCH);
         window->set_cursor(cursor);
-        Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),
-         "Do you wont to check for new presets from\n https://musical-artifacts.com ? \n Note, that may take a while",
-          false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
-        d.set_position(Gtk::WIN_POS_MOUSE);
-        if (d.run() == Gtk::RESPONSE_YES) {
+        if (dest->query_exists()) {
+            Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),
+             "Do you wont to check for new presets from\n https://musical-artifacts.com ? \n Note, that may take a while",
+              false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
+            d.set_position(Gtk::WIN_POS_MOUSE);
+            if (d.run() == Gtk::RESPONSE_YES) load = true;
+        }
+        if (load || ! dest->query_exists()) {
             if (download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {
                 machine.load_online_presets();
             } else {
@@ -888,7 +900,7 @@ void PresetWindow::show_online_preset() {
     window->set_cursor(); 
     }
     load_new = false;
-    create_preset_menu();
+    create_preset_menu(load_new);
 }
 
 void PresetWindow::on_online_preset() {

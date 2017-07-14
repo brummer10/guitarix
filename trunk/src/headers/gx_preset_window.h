@@ -171,7 +171,9 @@ private:
     void downloadPreset(Gtk::Menu *presetMenu,std::string uri);
     bool download_file(Glib::ustring from_uri, Glib::ustring to_path);
     Glib::ustring resolve_hostname();
-    void create_preset_menu();
+    void create_preset_menu(bool is_new);
+    void read_preset_menu();
+    std::vector< std::tuple<std::string,std::string,std::string> > olp;
     bool on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
     void on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     void on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
