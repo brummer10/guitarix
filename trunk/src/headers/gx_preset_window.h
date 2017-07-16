@@ -69,18 +69,19 @@ public:
 
 class DownloadWatch {
 public:
-    DownloadWatch() : thread(0), stop(false) {}
+    DownloadWatch() : watcher(0), stop(false) {}
     Glib::RefPtr<Gio::Cancellable>  cancellable;
     Gio::File::SlotFileProgress  file_state;
     static void f_progress(goffset read, goffset total);
     void start ();
     ~DownloadWatch();
-    Glib::Dispatcher sig_done;
+    Glib::Dispatcher timeout;
 
 protected:
-    void run ();
-    Glib::Thread * thread;
-    Glib::Mutex mutex;
+    void watch ();
+    void load ();
+    Glib::Thread * watcher;
+    Glib::Mutex w_mutex;
     bool stop;
 };
 
@@ -168,6 +169,7 @@ private:
     void on_online_preset();
     void replace_inline(std::string& l, const std::string& s, const std::string& r);
     void show_online_preset();
+    void popup_pos( int& x, int& y, bool& push_in );
     void downloadPreset(Gtk::Menu *presetMenu,std::string uri);
     bool download_file(Glib::ustring from_uri, Glib::ustring to_path);
     Glib::ustring resolve_hostname();

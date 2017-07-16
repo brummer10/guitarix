@@ -698,18 +698,18 @@ void PresetWindow::on_new_bank() {
 void DownloadWatch::start () {
     cancellable = Gio::Cancellable::create ();
     file_state = sigc::ptr_fun(&f_progress);
-    thread = Glib::Thread::create(sigc::mem_fun(*this, &DownloadWatch::run), true);
+    watcher = Glib::Thread::create(sigc::mem_fun(*this, &DownloadWatch::watch), true);
 }
 
-void DownloadWatch::run () {
+void DownloadWatch::watch () {
     while(true) {
         {
-          Glib::Mutex::Lock lock (mutex);
+          Glib::Mutex::Lock lock (w_mutex);
           if (stop) break;
         }
         sleep(15); // time out for the server response
         cancellable->cancel();
-        if (!stop) sig_done();
+        if (!stop) timeout();
         break;
     }
 }
@@ -721,16 +721,16 @@ void DownloadWatch::f_progress(goffset read, goffset total)
 
 DownloadWatch::~DownloadWatch() {
     {
-        Glib::Mutex::Lock lock (mutex);
+        Glib::Mutex::Lock lock (w_mutex);
         stop = true;
     }
-    if (thread) thread->join(); 
+    if (watcher) watcher->join(); 
 }
 
 void PresetWindow::go_watch () {
     if(watch != NULL) return;
     watch = new DownloadWatch();
-    watch->sig_done.connect(sigc::mem_fun(*this, &PresetWindow::watch_done));
+    watch->timeout.connect(sigc::mem_fun(*this, &PresetWindow::watch_done));
     watch->start();
 }
 
@@ -840,6 +840,13 @@ void PresetWindow::read_preset_menu() {
     in->close ();
 }
 
+void PresetWindow::popup_pos( int& x, int& y, bool& push_in ){
+    online_preset->get_window()->get_origin( x, y );
+    x +=150;
+    y -= 450;
+    push_in = false;
+}
+ 
 void PresetWindow::create_preset_menu(bool is_new) {
 
     static bool read_new = true;
@@ -861,7 +868,8 @@ void PresetWindow::create_preset_menu(bool is_new) {
             
     }
     presetMenu->show_all();
-    presetMenu->popup(0,gtk_get_current_event_time());
+    presetMenu->popup(Gtk::Menu::SlotPositionCalc(sigc::mem_fun(
+       *this, &PresetWindow::popup_pos ) ),0,gtk_get_current_event_time());
 }
 
 void PresetWindow::replace_inline(std::string& subject, const std::string& search,
