@@ -50,7 +50,7 @@ Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
 
 Widget::Widget(Glib::ustring plugname):
 plug_name(plugname),
-logo("Stero Chorus")
+logo("Stereo Chorus")
 {
   // create controllers for port name
   make_controller_box(&m_vbox2, "level", 0, 1, 0.01, LEVEL);
