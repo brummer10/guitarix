@@ -716,6 +716,8 @@ void DownloadWatch::watch () {
 
 void DownloadWatch::f_progress(goffset read, goffset total)
 {
+    if(Gtk::Main::events_pending())
+        Gtk::Main::iteration(false); 
   //std::cout << read << "/" << total << std::endl;
 }
 
@@ -891,11 +893,12 @@ void PresetWindow::show_online_preset() {
         Gdk::Cursor cursor(Gdk::WATCH);
         window->set_cursor(cursor);
         if (dest->query_exists()) {
-            Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),
+            Gtk::MessageDialog *d = new Gtk::MessageDialog(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),
              "Do you wont to check for new presets from\n https://musical-artifacts.com ? \n Note, that may take a while",
               false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
-            d.set_position(Gtk::WIN_POS_MOUSE);
-            if (d.run() == Gtk::RESPONSE_YES) load = true;
+            d->set_position(Gtk::WIN_POS_MOUSE);
+            if (d->run() == Gtk::RESPONSE_YES) load = true;
+            delete d;
         }
         if (load || ! dest->query_exists()) {
             if (download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {

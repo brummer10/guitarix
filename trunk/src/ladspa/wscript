@@ -49,6 +49,7 @@ def build(bld):
         '../plugins/hogsfoot.cc',
         '../plugins/lpbboost.cc',
         '../plugins/rolandwah.cc',
+        '../plugins/metronome.cc',
     ]
     
     src = ['ladspa_guitarix.cpp'] + bsources

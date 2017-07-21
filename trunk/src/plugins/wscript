@@ -15,9 +15,10 @@ sources = [ # generate .so files that can be loaded by guitarix
 lib_csource_defs = [ # put in static library linked with guitarix
     ["vibe.cc", ("plugin_mono", "plugin_stereo")],
     #"dubbe.cc",
+    "metronome.cc",
     "abgate.cc",
     "jcm800pre.cpp",
-	"reversedelay.cc",
+    "reversedelay.cc",
     ]
 
 lib_float_sources = [ # put in static library linked with guitarix
