@@ -1013,6 +1013,11 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 		    gx_system::JsonSubParser jps = v->getSubParser();
 		    s.readJSON(jps);
 		    dynamic_cast<gx_engine::JConvParameter*>(&p)->set(s);
+		} else if (dynamic_cast<gx_engine::SeqParameter*>(&p) != 0) {
+		    gx_engine::GxSeqSettings s;
+		    gx_system::JsonSubParser jps = v->getSubParser();
+		    s.readJSON(jps);
+		    dynamic_cast<gx_engine::SeqParameter*>(&p)->set(s);
 		} else {
 		    throw RpcError(-32602, "Invalid param -- unknown variable");
 		}
@@ -1880,6 +1885,11 @@ void GxService::connect_value_changed_signal(gx_engine::Parameter *p) {
 	    sigc::hide(
 		sigc::bind(
 		    sigc::mem_fun(this, &GxService::on_param_value_changed), p)));
+    } else if (dynamic_cast<gx_engine::SeqParameter*>(p) != 0) {
+	dynamic_cast<gx_engine::SeqParameter*>(p)->signal_changed().connect(
+	    sigc::hide(
+		sigc::bind(
+		    sigc::mem_fun(this, &GxService::on_param_value_changed), p)));
     }
 }
 
@@ -1915,6 +1925,8 @@ void GxService::on_param_value_changed(gx_engine::Parameter *p) {
 	jw->write(p->getString().get_value());
     } else if (dynamic_cast<gx_engine::JConvParameter*>(p) != 0) {
 	dynamic_cast<gx_engine::JConvParameter*>(p)->get_value().writeJSON(*jw);
+    } else if (dynamic_cast<gx_engine::SeqParameter*>(p) != 0) {
+	dynamic_cast<gx_engine::SeqParameter*>(p)->get_value().writeJSON(*jw);
     } else {
 	assert(false);
     }

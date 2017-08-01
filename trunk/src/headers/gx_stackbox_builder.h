@@ -141,6 +141,7 @@ private:
     void openSetMonoLabelBox();
     void addJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void addJConvButton(const char* label, gx_jconv::IRWindow *irw);
+    void addSeqButton(const char* label, gx_seq::SEQWindow *seqw);
     void set_next_flags(int flags);
 private:
     // functions used indirectly
@@ -159,6 +160,7 @@ public:
     void make_rackbox_oscilloscope();
     void make_rackbox_jconv_mono();
     void make_rackbox_midi_out();
+    void make_rackbox_sequencer();
     // stereo
     void make_rackbox_jconv();
 };

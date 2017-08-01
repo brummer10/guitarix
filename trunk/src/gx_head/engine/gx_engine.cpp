@@ -251,7 +251,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
-      record(*this, 1), record_st(*this, 2),
+      record(*this, 1), record_st(*this, 2), dseq(get_param()),
       detune(get_param(), *this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
@@ -351,6 +351,7 @@ void GxEngine::load_static_plugins() {
     pl.add(&loop.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&record.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&detune.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&dseq.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::bitdowner::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::ts9sim::plugin(),           PLUGIN_POS_RACK, PGN_GUI);

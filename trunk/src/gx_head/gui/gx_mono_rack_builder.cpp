@@ -53,6 +53,28 @@ void StackBoxBuilder::make_rackbox_oscilloscope() {
     }
     closeBox();
 }
+void StackBoxBuilder::make_rackbox_sequencer() {
+    static gx_seq::SEQWindow *seqw = gx_seq::SEQWindow::create("seq", machine);
+    openHorizontalhideBox("");
+    closeBox();
+    openVerticalBox("");
+    {
+	openFrameBox("");
+	closeBox();
+	openHorizontalBox("");
+	{
+	    openFrameBox("");
+	    closeBox();
+	    openFrameBox("");
+        addSeqButton(_("Setup"), seqw);
+	    closeBox();
+	}
+	closeBox();
+	openFrameBox("");
+	closeBox();
+    }
+    closeBox();
+}
 
 void StackBoxBuilder::make_rackbox_jconv_mono() {
     static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create("jconv_mono", window_icon, machine, accels, 1);

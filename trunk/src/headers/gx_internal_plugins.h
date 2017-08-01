@@ -250,6 +250,59 @@ public:
 
 
 /****************************************************************
+ ** class GxSeqSettings
+ */
+
+class GxSeqSettings {
+ private:
+
+    std::vector<int>        seqline;
+    void read_seqline(gx_system::JsonParser& jp);
+    friend class SequencerAdapter;
+    friend class ParameterV<GxSeqSettings>;
+ public:
+    GxSeqSettings();
+    GxSeqSettings& operator=(GxSeqSettings const& seqset);
+    bool operator==(const GxSeqSettings& seqset) const;
+    // getters and setters
+    inline const std::vector<int>& getseqline() const    { return seqline; }
+
+    inline void setseqline(const std::vector<int>& seq) { seqline    = seq; }
+
+ public:
+    void readJSON(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& w) const;
+};
+
+template<>
+class ParameterV<GxSeqSettings>: public Parameter {
+private:
+    GxSeqSettings json_value;
+    GxSeqSettings *value;
+    GxSeqSettings std_value;
+    GxSeqSettings value_storage;
+    sigc::signal<void, const GxSeqSettings*> changed;
+public:
+    ParameterV(const string& id, GxSeqSettings *v);
+    ParameterV(gx_system::JsonParser& jp);
+    ~ParameterV();
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
+    sigc::signal<void, const GxSeqSettings*>& signal_changed() { return changed; }
+    static ParameterV<GxSeqSettings> *insert_param(
+	ParamMap &pmap, const string& id, GxSeqSettings *v);
+    bool set(const GxSeqSettings& val) const;
+    const GxSeqSettings& get_value() const { return *value; }
+    virtual void stdJSON_value();
+    virtual bool on_off_value();
+    virtual void writeJSON(gx_system::JsonWriter& jw) const;
+    virtual bool compareJSON_value();
+    virtual void setJSON_value();
+    virtual void readJSON_value(gx_system::JsonParser& jp);
+};
+
+typedef ParameterV<GxSeqSettings> SeqParameter;
+
+/****************************************************************
  ** class GxJConvSettings
  */
 
@@ -906,6 +959,264 @@ public:
     ~SCapture();
 };
 
+/****************************************************************
+ ** class DrumSequencer
+ */
+
+
+class DrumSequencer: public PluginDef {
+private:
+	int fSamplingFreq;
+	FAUSTFLOAT 	ftact;
+	FAUSTFLOAT 	fsliderbpm;
+	FAUSTFLOAT 	fslidersnare;
+	int 	iVec0[2];
+	double 	fRec0[2];
+	int 	iConst0;
+	double 	fConst1;
+	double 	fConst2;
+	double 	fVec1[2];
+	double 	fRec3[2];
+	int 	iRec1[2];
+	double 	fConst3;
+	double 	fConst4;
+	double 	fRec2[2];
+	double 	fConst5;
+	double 	fConst6;
+	double 	fConst7;
+	double 	fRec4[2];
+	double 	fConst8;
+	double 	fRec5[2];
+	double 	fVec2[2];
+	int 	iRec6[2];
+	double 	fConst9;
+	double 	fRec7[2];
+	double 	fConst10;
+	double 	fConst11;
+	double 	fConst12;
+	double 	fRec8[2];
+	double 	fConst13;
+	double 	fRec9[2];
+	double 	fConst14;
+	double 	fConst15;
+	double 	fConst16;
+	double 	fConst17;
+	double 	fConst18;
+	int 	iRec12[2];
+	double 	fConst19;
+	double 	fConst20;
+	double 	fConst21;
+	double 	fRec11[2];
+	double 	fRec10[3];
+	int 	iRec13[2];
+	double 	fConst22;
+	double 	fRec14[2];
+	double 	fConst23;
+	double 	fConst24;
+	double 	fConst25;
+	double 	fConst26;
+	double 	fConst27;
+	double 	fConst28;
+	double 	fConst29;
+	double 	fConst30;
+	double 	fConst31;
+	double 	fConst32;
+	double 	fRec16[2];
+	double 	fRec15[3];
+	double 	fConst33;
+	int 	iRec17[2];
+	double 	fConst34;
+	double 	fRec18[2];
+	FAUSTFLOAT 	fsliderhat;
+	double 	fRec19[2];
+	double 	fConst35;
+	double 	fVec3[2];
+	double 	fRec20[2];
+	double 	fConst36;
+	double 	fConst37;
+	double 	fRec25[2];
+	double 	fVec4[2];
+	int 	IOTA;
+	double 	fVec5[64];
+	double 	fConst38;
+	int 	iConst39;
+	int 	iConst40;
+	int 	iConst41;
+	double 	fConst42;
+	double 	fConst43;
+	double 	fConst44;
+	double 	fConst45;
+	double 	fConst46;
+	double 	fRec26[2];
+	double 	fConst47;
+	double 	fRec27[2];
+	double 	fConst48;
+	double 	fConst49;
+	double 	fRec23[2];
+	double 	fRec24[2];
+	double 	fConst50;
+	double 	fConst51;
+	double 	fConst52;
+	double 	fRec30[2];
+	double 	fConst53;
+	double 	fRec31[2];
+	double 	fConst54;
+	double 	fRec28[2];
+	double 	fRec29[2];
+	double 	fConst55;
+	double 	fConst56;
+	double 	fConst57;
+	double 	fRec34[2];
+	double 	fConst58;
+	double 	fRec35[2];
+	double 	fConst59;
+	double 	fRec32[2];
+	double 	fRec33[2];
+	double 	fConst60;
+	double 	fConst61;
+	double 	fConst62;
+	double 	fRec38[2];
+	double 	fConst63;
+	double 	fRec39[2];
+	double 	fConst64;
+	double 	fRec36[2];
+	double 	fRec37[2];
+	double 	fVec6[2];
+	double 	fRec22[2];
+	double 	fRec21[3];
+	double 	fConst65;
+	double 	fRec42[2];
+	int 	iRec40[2];
+	double 	fConst66;
+	double 	fConst67;
+	double 	fRec41[2];
+	double 	fConst68;
+	double 	fConst69;
+	double 	fRec43[3];
+	FAUSTFLOAT 	fsliderkick;
+	double 	fRec44[2];
+	double 	fConst70;
+	double 	fVec7[2];
+	double 	fRec45[2];
+	double 	fConst71;
+	double 	fConst72;
+	double 	fConst73;
+	double 	fConst74;
+	double 	fConst75;
+	double 	fConst76;
+	double 	fConst77;
+	double 	fConst78;
+	double 	fConst79;
+	double 	fConst80;
+	double 	fRec49[2];
+	double 	fRec48[3];
+	double 	fConst81;
+	double 	fVec8[2];
+	double 	fRec47[2];
+	double 	fRec46[3];
+	double 	fConst82;
+	double 	fRec52[2];
+	int 	iRec50[2];
+	double 	fConst83;
+	double 	fConst84;
+	double 	fRec51[2];
+	double 	fConst85;
+	double 	fConst86;
+	double 	fConst87;
+	double 	fConst88;
+	double 	fConst89;
+	double 	fConst90;
+	double 	fConst91;
+	double 	fConst92;
+	double 	fRec57[2];
+	double 	fConst93;
+	double 	fRec58[2];
+	double 	fConst94;
+	double 	fRec59[2];
+	double 	fRec55[2];
+	double 	fRec56[2];
+	double 	fConst95;
+	double 	fConst96;
+	double 	fConst97;
+	double 	fRec54[2];
+	double 	fRec53[3];
+	double 	fRec62[2];
+	int 	iRec60[2];
+	double 	fConst98;
+	double 	fRec61[2];
+	FAUSTFLOAT 	fslidertom;
+	double 	fRec63[2];
+	double 	fVec9[2];
+	double 	fRec66[2];
+	int 	iRec64[2];
+	double 	fConst99;
+	double 	fRec65[2];
+	double 	fConst100;
+	double 	fConst101;
+	double 	fConst102;
+	double 	fRec67[2];
+	double 	fConst103;
+	double 	fRec68[2];
+	double 	fConst104;
+	double 	fConst105;
+	double 	fConst106;
+	double 	fRec69[2];
+	double 	fConst107;
+	double 	fRec70[2];
+	double 	fConst108;
+	double 	fConst109;
+	double 	fConst110;
+	double 	fRec73[2];
+	double 	fConst111;
+	double 	fRec74[2];
+	double 	fConst112;
+	double 	fRec75[2];
+	double 	fConst113;
+	double 	fVec10[2];
+	double 	fConst114;
+	double 	fRec71[2];
+	double 	fRec72[2];
+	int 	iRec76[2];
+	double 	fRec77[2];
+	int 	counter;
+	int 	step;
+	double 	fSlow1;
+	double 	fSlow3;
+	double 	fSlow5;
+	double 	fSlow7;
+	std::vector<int> Vectom;
+	std::vector<int> Veckick;
+	std::vector<int> Vecsnare;
+	std::vector<int> Vechat;
+
+    ParamMap& param;
+    GxSeqSettings tomset;
+    SeqParameter *tomp;
+    GxSeqSettings snareset;
+    SeqParameter *snarep;
+    GxSeqSettings hatset;
+    SeqParameter *hatp;
+    GxSeqSettings kickset;
+    SeqParameter *kickp;
+	void clear_state_f();
+	void init(unsigned int samplingFreq);
+	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
+	int register_par(const ParamReg& reg);
+    void reset_tom() ;
+    void reset_kick() ;
+    void reset_hat() ;
+    void reset_snare() ;
+
+	static void clear_state_f_static(PluginDef*);
+	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
+	static int register_params_static(const ParamReg& reg);
+	static void del_instance(PluginDef *p);
+public:
+    Plugin plugin;
+	DrumSequencer(ParamMap& param_);
+	~DrumSequencer();
+};
 
 /****************************************************************************
 *

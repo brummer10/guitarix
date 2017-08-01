@@ -474,6 +474,9 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
             read_parameters(jp, true);
         } else if (jp.current_value() == "jconv") { // for backwards compatibility
 	    dynamic_cast<gx_engine::JConvParameter*>(&param["jconv.convolver"])->readJSON_value(jp);
+        } else if (jp.current_value() == "seq") { 
+	    dynamic_cast<gx_engine::SeqParameter*>(&param["seq.sequencer"])->readJSON_value(jp);
+        fprintf(stderr,"seq.sequencer found\n");
         } else if (jp.current_value() == "midi_controller") {
             if (use_midi) {
                 m = new gx_engine::ControllerArray();

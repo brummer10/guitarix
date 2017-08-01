@@ -98,6 +98,148 @@ int NoiseGate::outputgate_activate(bool start, PluginDef *pdef) {
     return 0;
 }
 
+/****************************************************************
+ ** class GxSeqSettings
+ */
+
+GxSeqSettings::GxSeqSettings()
+    : seqline() {
+}
+
+GxSeqSettings& GxSeqSettings::operator=(GxSeqSettings const& seqset) {
+    seqline = seqset.seqline;
+    return *this;
+}
+
+void GxSeqSettings::writeJSON(gx_system::JsonWriter& w) const {
+    w.begin_object(true);
+    w.write_key("seq.seqline");
+    w.begin_array();
+    for (unsigned int i = 0; i < seqline.size(); i++) {
+        w.write(seqline[i]);
+    }
+    w.end_array(true);
+    w.end_object(true);
+}
+
+bool GxSeqSettings::operator==(const GxSeqSettings& seqset) const {
+    if (seqline != seqset.seqline) {
+	return false;
+    }
+    return true;
+}
+
+void GxSeqSettings::read_seqline(gx_system::JsonParser& jp) {
+    seqline.clear();
+    jp.next(gx_system::JsonParser::begin_array);
+    while (jp.peek() == gx_system::JsonParser::value_number) {
+        jp.next(gx_system::JsonParser::value_number);
+        int p = jp.current_value_int();
+        seqline.push_back(p);
+    }
+    jp.next(gx_system::JsonParser::end_array);
+}
+
+void GxSeqSettings::readJSON(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::begin_object);
+    do {
+        jp.next(gx_system::JsonParser::value_key);
+        if (jp.current_value() == "seq.seqline") {
+            read_seqline(jp);
+        } else {
+            gx_print_warning("seq settings", "unknown key: " + jp.current_value());
+            jp.skip_object();
+        }
+    } while (jp.peek() == gx_system::JsonParser::value_key);
+    jp.next(gx_system::JsonParser::end_object);
+}
+
+/****************************************************************
+ ** class SeqParameter
+ */
+
+ParameterV<GxSeqSettings>::ParameterV(const string& id, GxSeqSettings *v)
+    : Parameter(id, "", tp_special, None, true, false),
+      json_value(),
+      value(v),
+      std_value(),
+      value_storage(),
+      changed() {
+    std_value.seqline = std::vector<int>(0);
+}
+
+SeqParameter *SeqParameter::insert_param(
+    ParamMap &pmap, const string& id, GxSeqSettings *v) {
+    SeqParameter *p = new SeqParameter(id, v);
+    pmap.insert(p);
+    return p;
+}
+
+SeqParameter::~ParameterV() {
+}
+
+SeqParameter::ParameterV(gx_system::JsonParser& jp)
+ : Parameter(jp_next(jp, "Parameter")),
+   json_value(),
+   value(&value_storage),
+   std_value() {
+    while (jp.peek() != gx_system::JsonParser::end_object) {
+	jp.next(gx_system::JsonParser::value_key);
+	if (jp.current_value() == "value") {
+	    value->readJSON(jp);
+	} else if (jp.current_value() == "std_value") {
+	    std_value.readJSON(jp);
+	} else {
+	    gx_print_warning(
+		"SeqParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
+	    jp.skip_object();
+	}
+    }
+    jp.next(gx_system::JsonParser::end_object);
+}
+
+void SeqParameter::serializeJSON(gx_system::JsonWriter& jw) {
+    jw.begin_object();
+    jw.write_key("Parameter"); Parameter::serializeJSON(jw);
+    jw.write_key("value"); value->writeJSON(jw);
+    jw.write_key("std_value"); std_value.writeJSON(jw);
+    jw.end_object();
+}
+
+bool SeqParameter::on_off_value() {
+    assert(false);
+    return false;
+}
+
+void SeqParameter::stdJSON_value() {
+    json_value = std_value;
+}
+
+void SeqParameter::writeJSON(gx_system::JsonWriter& jw) const {
+    jw.write_key(_id.c_str());
+    value->writeJSON(jw);
+}
+
+void SeqParameter::readJSON_value(gx_system::JsonParser& jp) {
+    json_value.readJSON(jp);
+}
+
+bool SeqParameter::compareJSON_value() {
+    return json_value == *value;
+}
+
+bool SeqParameter::set(const GxSeqSettings& val) const {
+    if (val == *value) {
+	return false;
+    }
+    *value = val;
+    changed(value);
+    return true;
+}
+
+void SeqParameter::setJSON_value() {
+    set(json_value);
+}
 
 /****************************************************************
  ** class GxJConvSettings
@@ -1388,6 +1530,12 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
  */
 
 #include "gx_record.cc"
+
+/****************************************************************
+ ** class DrumSequencer
+ */
+
+#include "gx_drumseq.cc"
 
 
 /****************************************************************************

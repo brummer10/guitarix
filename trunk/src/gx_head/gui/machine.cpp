@@ -948,6 +948,8 @@ inline void debug_trace_param(Parameter *p) {
 	cerr << p->getString().get_value();
     } else if (dynamic_cast<JConvParameter*>(p) != 0) {
 	cerr << dynamic_cast<JConvParameter*>(p)->get_value().getFullIRPath();
+    } else if (dynamic_cast<SeqParameter*>(p) != 0) {
+	cerr << dynamic_cast<SeqParameter*>(p)->get_value();
     } else {
 	assert(false);
     }
@@ -1036,6 +1038,8 @@ void GxMachineRemote::param_signal(Parameter *p) {
 	jw->write(p->getString().get_value());
     } else if (dynamic_cast<JConvParameter*>(p) != 0) {
 	dynamic_cast<JConvParameter*>(p)->get_value().writeJSON(*jw);
+    } else if (dynamic_cast<SeqParameter*>(p) != 0) {
+	dynamic_cast<SeqParameter*>(p)->get_value().writeJSON(*jw);
     } else {
 	assert(false);
     }
@@ -1083,6 +1087,10 @@ void GxMachineRemote::parameter_changed(gx_system::JsonStringParser *jp) {
 	cerr << "change file parameter " << p.id() << endl;
     } else if (dynamic_cast<JConvParameter*>(&p) != 0) {
 	JConvParameter* pj = dynamic_cast<JConvParameter*>(&p);
+	pj->readJSON_value(*jp);
+	pj->setJSON_value();
+    } else if (dynamic_cast<SeqParameter*>(&p) != 0) {
+	SeqParameter* pj = dynamic_cast<SeqParameter*>(&p);
 	pj->readJSON_value(*jp);
 	pj->setJSON_value();
     } else {
@@ -2306,6 +2314,9 @@ void GxMachineRemote::set_init_values() {
 	} else if (dynamic_cast<JConvParameter*>(i->second) != 0) {
 	    JConvParameter* pj = dynamic_cast<JConvParameter*>(i->second);
 	    pj->signal_changed()(&pj->get_value());
+	} else if (dynamic_cast<SeqParameter*>(i->second) != 0) {
+	    SeqParameter* pj = dynamic_cast<SeqParameter*>(i->second);
+	    pj->signal_changed()(&pj->get_value());
 	}
     }
     selection_changed(); // give preset window a chance to catch up on current preset
@@ -2335,6 +2346,11 @@ void GxMachineRemote::set_init_values() {
 			sigc::mem_fun(this, &GxMachineRemote::param_signal), i->second)));
 	} else if (dynamic_cast<JConvParameter*>(i->second) != 0) {
 	    dynamic_cast<JConvParameter*>(i->second)->signal_changed().connect(
+		sigc::hide(
+		    sigc::bind(
+			sigc::mem_fun(this, &GxMachineRemote::param_signal), i->second)));
+	} else if (dynamic_cast<SeqParameter*>(i->second) != 0) {
+	    dynamic_cast<SeqParameter*>(i->second)->signal_changed().connect(
 		sigc::hide(
 		    sigc::bind(
 			sigc::mem_fun(this, &GxMachineRemote::param_signal), i->second)));

@@ -145,6 +145,7 @@ void StackBoxBuilder::get_box(const std::string& name, Gtk::Widget*& mainbox, Gt
 	{ "oscilloscope", &StackBoxBuilder::make_rackbox_oscilloscope },
 	{ "jconv_mono", &StackBoxBuilder::make_rackbox_jconv_mono },
 	{ "midi_out", &StackBoxBuilder::make_rackbox_midi_out },
+	{ "seq", &StackBoxBuilder::make_rackbox_sequencer },
 	// stereo
 	{ "jconv", &StackBoxBuilder::make_rackbox_jconv },
     };
@@ -356,6 +357,24 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
     fBox.box_pack_start(manage(al), false);
     button->signal_clicked().connect(
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
+}
+void StackBoxBuilder::addSeqButton(const char* label, gx_seq::SEQWindow *seqw) {
+    Gtk::Button *button = new Gtk::Button();
+    button->set_can_default(false);
+    button->set_can_focus(false);
+    Gtk::Label *lab = new Gtk::Label(label);
+    //Pango::FontDescription font = lab->get_style()->get_font();
+    //font.set_size(10*Pango::SCALE);
+    //font.set_weight(Pango::WEIGHT_NORMAL);
+    //lab->modify_font(font);
+    button->add(*manage(lab));
+    //lab->set_name("rack_label_inverse");
+    Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
+    al->add(*manage(button));
+    al->show_all();
+    fBox.box_pack_start(manage(al), false);
+    button->signal_clicked().connect(
+	sigc::mem_fun(*seqw, &gx_seq::SEQWindow::reload_and_show));
 }
 
 void StackBoxBuilder::set_next_flags(int flags) {

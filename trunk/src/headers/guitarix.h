@@ -81,6 +81,7 @@
 #include "gx_child_process.h"
 #include "gx_main_interface.h"
 #include "gx_jconv_settings.h"
+#include "gx_sequencer_settings.h"
 #include "gx_stackbox_builder.h"
 #include "gx_preset_window.h"
 #include "ladspalist.h"

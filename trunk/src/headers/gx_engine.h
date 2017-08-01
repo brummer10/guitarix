@@ -96,6 +96,7 @@ public:
     LiveLooper loop;
     SCapture record;
     SCapture record_st;
+    DrumSequencer dseq;
     smbPitchShift detune;
     //
 public:
