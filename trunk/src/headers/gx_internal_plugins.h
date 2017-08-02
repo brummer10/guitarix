@@ -968,8 +968,10 @@ class DrumSequencer: public PluginDef {
 private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	ftact;
+	FAUSTFLOAT 	fslidergain;
 	FAUSTFLOAT 	fsliderbpm;
 	FAUSTFLOAT 	fslidersnare;
+	double 	fRecout[2];
 	int 	iVec0[2];
 	double 	fRec0[2];
 	int 	iConst0;

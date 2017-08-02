@@ -132,6 +132,7 @@ inline void DrumSequencer::clear_state_f()
 	for (int i=0; i<2; i++) fRec72[i] = 0;
 	for (int i=0; i<2; i++) iRec76[i] = 0;
 	for (int i=0; i<2; i++) fRec77[i] = 0;
+	for (int i=0; i<2; i++) fRecout[i] = 0;
 }
 
 void DrumSequencer::clear_state_f_static(PluginDef *p)
@@ -291,10 +292,11 @@ void DrumSequencer::init_static(unsigned int samplingFreq, PluginDef *p)
 void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double 	fSlow15 = (60/double(fsliderbpm*ftact))*fSamplingFreq;
-	double 	fSlow0 = (0.0010000000000000009 * double(fslidersnare));
-	double 	fSlow2 = (0.0010000000000000009 * double(fsliderhat));
-	double 	fSlow4 = (0.0010000000000000009 * double(fsliderkick));
-	double 	fSlow6 = (0.0010000000000000009 * double(fslidertom));
+	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslidersnare))));
+	double 	fSlow2 = (0.0010000000000000009 * pow(10,(0.05 * double(fsliderhat))));
+	double 	fSlow4 = (0.0010000000000000009 * pow(10,(0.05 * double(fsliderkick))));
+	double 	fSlow6 = (0.0010000000000000009 * pow(10,(0.05 * double(fslidertom))));
+	double 	fSlowgain = (0.0010000000000000009 * pow(10,(0.05 * double(fslidergain))));
 	for (int i=0; i<count; i++) {
 		counter = counter+1;
 		if (counter >= (int)fSlow15) {
@@ -313,6 +315,7 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 			fSlow5 = 0.0;
 			fSlow7 = 0.0;
 		}
+		fRecout[0] = ((0.999 * fRecout[1]) + fSlowgain);
 		iVec0[0] = 1;
 		fRec0[0] = ((0.999 * fRec0[1]) + fSlow0);
 		fVec1[0] = fSlow1;
@@ -461,7 +464,7 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 		iRec76[0] = (iTemp51 & (iRec76[1] | (fRec77[1] >= 1)));
 		int iTemp58 = (iTemp52 & (fRec77[1] > 0));
 		fRec77[0] = (((fConst67 * (((iRec76[1] == 0) & iTemp51) & (fRec77[1] < 1))) + (fRec77[1] * (1 - (fConst98 * iTemp58)))) * ((iTemp58 == 0) | (fRec77[1] >= 1e-06)));
-		output0[i] = (FAUSTFLOAT)((double)input0[i] + (2 * ((((0.25 * (fRec77[0] * ((5 * fRec71[0]) + (0.5 * (fRec69[0] + fRec67[0]))))) + (3 * fRec65[0])) * pow(10,(0.05 * fRec63[0]))) + (((((fConst89 * (fRec61[0] * (fRec53[2] + (fRec53[0] + (2 * fRec53[1]))))) + ((fRec51[0] * (fRec46[2] + (fRec46[0] + (2 * fRec46[1])))) / fTemp38)) * pow(10,(0.05 * fRec44[0]))) + (0.5 * (((fRec41[0] * (fRec43[0] - fRec43[2])) + ((sqrt(fRec41[0]) * (((fRec21[0] / fTemp11) + (2 * (fRec21[1] * (0 - fTemp12)))) + (fRec21[2] / fTemp11))) / fTemp10)) * pow(10,(0.05 * fRec19[0]))))) + (0.1 * (((fConst28 * (fRec18[0] * (((fConst24 * fRec15[0]) + (fConst33 * fRec15[1])) + (fConst24 * fRec15[2])))) + ((fConst18 * (fRec14[0] * (fRec10[2] + (fRec10[0] + (2 * fRec10[1]))))) + ((5.0 * ((0.25 + fRec8[0]) * fRec7[0])) + (5.0 * ((0.25 + fRec4[0]) * fRec2[0]))))) * pow(10,(0.05 * fRec0[0]))))))));
+		output0[i] = (FAUSTFLOAT)((double)input0[i] + ((2 * ((((0.25 * (fRec77[0] * ((5 * fRec71[0]) + (0.5 * (fRec69[0] + fRec67[0]))))) + (3 * fRec65[0])) * fRec63[0]) + (((((fConst89 * (fRec61[0] * (fRec53[2] + (fRec53[0] + (2 * fRec53[1]))))) + ((fRec51[0] * (fRec46[2] + (fRec46[0] + (2 * fRec46[1])))) / fTemp38)) * fRec44[0]) + (0.5 * (((fRec41[0] * (fRec43[0] - fRec43[2])) + ((sqrt(fRec41[0]) * (((fRec21[0] / fTemp11) + (2 * (fRec21[1] * (0 - fTemp12)))) + (fRec21[2] / fTemp11))) / fTemp10)) * fRec19[0]))) + (0.1 * (((fConst28 * (fRec18[0] * (((fConst24 * fRec15[0]) + (fConst33 * fRec15[1])) + (fConst24 * fRec15[2])))) + ((fConst18 * (fRec14[0] * (fRec10[2] + (fRec10[0] + (2 * fRec10[1]))))) + ((5.0 * ((0.25 + fRec8[0]) * fRec7[0])) + (5.0 * ((0.25 + fRec4[0]) * fRec2[0]))))) * fRec0[0]))))) * fRecout[0]));
 		// post processing
 		fRec77[1] = fRec77[0];
 		iRec76[1] = iRec76[0];
@@ -551,6 +554,7 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 		fRec3[1] = fRec3[0];
 		fVec1[1] = fVec1[0];
 		fRec0[1] = fRec0[0];
+		fRecout[1] = fRecout[0];
 		iVec0[1] = iVec0[0];
 	}
 }
@@ -569,6 +573,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fslidertom, -2e+01, -6e+01, 4e+01, 0.1);
     static const value_pair ftact_values[] = {{"1/4"},{"2/4"},{"3/4"},{"4/4"},{0}};
     reg.registerEnumVar("seq.tact","","S",N_("select tact"),ftact_values,&ftact, 4.0, 1.0, 4.0, 1.0);
+	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslidergain, -2e+01, -6e+01, 4e+01, 0.1);
     tomp = SeqParameter::insert_param(param, "seq.sequencer.tom", &tomset);
     snarep = SeqParameter::insert_param(param, "seq.sequencer.snare", &snareset);
     hatp = SeqParameter::insert_param(param, "seq.sequencer.hat", &hatset);

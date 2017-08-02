@@ -51,13 +51,14 @@ class SEQWindow: public sigc::trackable {
     Gxw::Regler *snare_gain;
     Gxw::Regler *hat_gain;
     Gxw::Regler *tact_seq;
+    Gxw::Regler *seq_gain;
 
     Gtk::ToggleButton *tom_seq[24];
     Gtk::ToggleButton *kick_seq[24];
     Gtk::ToggleButton *snare_seq[24];
     Gtk::ToggleButton *hat_seq[24];
 
-    Gtk::Label *tom, *kick, *snare, *hat, *bpm;
+    Gtk::Label *tom, *kick, *snare, *hat, *bpm, *gain;
 
     bool on_key_press_event(GdkEventKey *event);
     void tom_changed(const gx_engine::GxSeqSettings* tomp);

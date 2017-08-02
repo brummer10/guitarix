@@ -78,6 +78,7 @@ void SEQWindow::init_connect() {
     builder->find_widget("label3:rack_label_inverse", snare);
     builder->find_widget("label4:rack_label_inverse", hat);
     builder->find_widget("label5:rack_label_inverse", bpm);
+    builder->find_widget("label6:rack_label_inverse", gain);
 
     builder->find_widget("gxsmallknob1", tom_gain);
     builder->find_widget("gxsmallknob2", kick_gain);
@@ -85,6 +86,7 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxsmallknob4", hat_gain);
     builder->find_widget("gxsmallknob5", bpm_seq);
     builder->find_widget("gxselector1", tact_seq);
+    builder->find_widget("gxhslider1", seq_gain);
 
     int b = 1;
     for (int i = 0; i<24; ++i) {
