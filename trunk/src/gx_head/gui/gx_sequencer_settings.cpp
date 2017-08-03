@@ -70,6 +70,19 @@ SEQWindow::SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld,gx_engine::SeqPa
     // reset display
 }
 
+bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
+    if (machine.parameter_hasId(id)) {
+    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
+        regler->cp_set_value(machine.get_parameter_value<float>(id));
+      //machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id));
+      //fprintf(stderr,"get pos %f \n",machine.get_parameter_value<float>(id));
+    }
+    return true;
+    } else {
+    return false;
+    }
+}
+
 void SEQWindow::init_connect() {
 
     int b = 1;
@@ -104,6 +117,15 @@ void SEQWindow::init_connect() {
           sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),3));
         ++b;
     }
+
+    builder->find_widget("gxportdisplay1", seq_pos);
+    seq_pos->set_name("playhead2");
+    seq_pos->cp_set_value(0.0);
+    std::string id;
+    seq_pos->get_property("var_id",id);
+    Glib::signal_timeout().connect(sigc::bind<Gxw::Regler*>(sigc::bind<const std::string>(
+      sigc::mem_fun(*this, &SEQWindow::get_sequencer_pos),id), seq_pos), 60);
+
     gtk_window->signal_key_press_event().connect(
       sigc::mem_fun(this, &SEQWindow::on_key_press_event));
 }

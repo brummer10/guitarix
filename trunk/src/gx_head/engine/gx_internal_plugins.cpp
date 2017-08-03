@@ -165,7 +165,7 @@ ParameterV<GxSeqSettings>::ParameterV(const string& id, GxSeqSettings *v)
       std_value(),
       value_storage(),
       changed() {
-    std_value.seqline = std::vector<int>(0);
+    std_value.seqline = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 }
 
 SeqParameter *SeqParameter::insert_param(

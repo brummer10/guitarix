@@ -220,6 +220,19 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
             break;
         }
     }
+    for (int i = 1; i<12;++i) {
+        Glib::ustring fm = "gxportdisplay" + gx_system::to_string(i);
+        if (bld->has_object(fm)) {
+            Gxw::PortDisplay *regler;
+            bld->find_widget(fm, regler);
+            regler->get_property("var_id",id);
+            if (!id.empty())
+            Glib::signal_timeout().connect(sigc::bind<const std::string>(
+              sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
+         } else {
+            break;
+        }
+    }
     // find feedback switches and connect a timeout callback to update the UI elements.
     // feedback switches must have the id gxfswitchN were N starts with 1
     for (int i = 1; i<12;++i) {

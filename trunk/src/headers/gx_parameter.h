@@ -603,7 +603,7 @@ class ParamMap: boost::noncopyable {
     }
     inline FloatParameter *reg_non_midi_par(const string& id, float *val, bool preset,
 				 float std = 0, float lower = 0, float upper = 1, float step = 0) {
-	FloatParameter *p = new FloatParameter(id, "", Parameter::None, preset, val, std, lower, upper, step, false, replace_mode);
+	FloatParameter *p = new FloatParameter(id, "", Parameter::Continuous, preset, val, std, lower, upper, step, false, replace_mode);
 	insert(p);
 	return p;
     }

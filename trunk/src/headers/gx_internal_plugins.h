@@ -967,6 +967,7 @@ public:
 class DrumSequencer: public PluginDef {
 private:
 	int fSamplingFreq;
+	FAUSTFLOAT 	position;
 	FAUSTFLOAT 	ftact;
 	FAUSTFLOAT 	fslidergain;
 	FAUSTFLOAT 	fsliderbpm;

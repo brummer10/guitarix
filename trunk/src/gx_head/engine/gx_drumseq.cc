@@ -133,6 +133,10 @@ inline void DrumSequencer::clear_state_f()
 	for (int i=0; i<2; i++) iRec76[i] = 0;
 	for (int i=0; i<2; i++) fRec77[i] = 0;
 	for (int i=0; i<2; i++) fRecout[i] = 0;
+	for (int i=0; i<24; i++) Vectom.push_back(0);
+	for (int i=0; i<24; i++) Veckick.push_back(0);
+	for (int i=0; i<24; i++) Vechat.push_back(0);
+	for (int i=0; i<24; i++) Vecsnare.push_back(0);
 }
 
 void DrumSequencer::clear_state_f_static(PluginDef *p)
@@ -281,6 +285,7 @@ inline void DrumSequencer::init(unsigned int samplingFreq)
 	fSlow3 = 0.0;
 	fSlow5 = 0.0;
 	fSlow7 = 0.0;
+	position = 0.0;
 	clear_state_f();
 }
 
@@ -309,6 +314,7 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 			counter = 0;
 			if (step<23) step = step+1;
 			else step = 0;
+			position = double(step);
 		} else {
 			fSlow1 = 0.0;
 			fSlow3 = 0.0;
@@ -573,7 +579,8 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fslidertom, -2e+01, -6e+01, 4e+01, 0.1);
     static const value_pair ftact_values[] = {{"1/4"},{"2/4"},{"3/4"},{"4/4"},{0}};
     reg.registerEnumVar("seq.tact","","S",N_("select tact"),ftact_values,&ftact, 4.0, 1.0, 4.0, 1.0);
-	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslidergain, -2e+01, -6e+01, 4e+01, 0.1);
+	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslidergain, 0.0, -6e+01, 4e+01, 0.1);
+    reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 23.0, 1.0);
     tomp = SeqParameter::insert_param(param, "seq.sequencer.tom", &tomset);
     snarep = SeqParameter::insert_param(param, "seq.sequencer.snare", &snareset);
     hatp = SeqParameter::insert_param(param, "seq.sequencer.hat", &hatset);

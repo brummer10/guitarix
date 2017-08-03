@@ -77,6 +77,14 @@ style "guitarix_playhead"
 
 widget "*.playhead" style:highest "guitarix_playhead"
 
+style "guitarix_playhead2"
+{
+  stock["portdisplay"] = {{"playhead2.png"}}
+  GxRegler::show-value = 0
+}
+
+widget "*.playhead2" style:highest "guitarix_playhead2"
+
 style "guitarix_small_button"
 {
   GtkButton::inner-border = {0, 0, 0, 0}
