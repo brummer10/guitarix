@@ -58,67 +58,52 @@ SEQWindow::SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld,gx_engine::SeqPa
     bld->get_toplevel("SequencerWindow", gtk_window);
 
     init_connect();
-    tomp->signal_changed().connect(
-	sigc::mem_fun(this, &SEQWindow::tom_changed));
-    kickp->signal_changed().connect(
-	sigc::mem_fun(this, &SEQWindow::kick_changed));
-    snarep->signal_changed().connect(
-	sigc::mem_fun(this, &SEQWindow::snare_changed));
-     hatp->signal_changed().connect(
- 	sigc::mem_fun(this, &SEQWindow::hat_changed));
 
     // reset display
 }
 
-bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
-    if (machine.parameter_hasId(id)) {
-    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
-        regler->cp_set_value(machine.get_parameter_value<float>(id));
-      //machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id));
-      //fprintf(stderr,"get pos %f \n",machine.get_parameter_value<float>(id));
-    }
-    return true;
-    } else {
-    return false;
-    }
-}
-
 void SEQWindow::init_connect() {
 
-    int b = 1;
-    for (int i = 0; i<24; ++i) {
-        Glib::ustring button = "togglebutton"+Glib::ustring::format(b);
-        builder->find_widget(button, tom_seq[i]);
-        tom_seq[i]->signal_clicked().connect(
-          sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),0));
-        ++b;
+
+    builder->find_widget("hbox1", tom_box);
+    builder->find_widget("hbox2", kick_box);
+    builder->find_widget("hbox3", snare_box);
+    builder->find_widget("hbox4", hat_box);
+    builder->find_widget("gxportdisplay1", seq_pos);
+
+    tomp->signal_changed().connect(sigc::bind(
+      sigc::mem_fun(this, &SEQWindow::seq_changed), tom_box));
+    kickp->signal_changed().connect(sigc::bind(
+      sigc::mem_fun(this, &SEQWindow::seq_changed), kick_box));
+    snarep->signal_changed().connect(sigc::bind(
+      sigc::mem_fun(this, &SEQWindow::seq_changed), snare_box));
+    hatp->signal_changed().connect(sigc::bind(
+      sigc::mem_fun(this, &SEQWindow::seq_changed), hat_box));
+
+    Glib::ListHandle<Gtk::Widget*> tomList = tom_box->get_children();
+    for (Glib::ListHandle<Gtk::Widget*>::iterator itt = tomList.begin();itt != tomList.end(); ++itt) {
+        dynamic_cast<Gtk::ToggleButton*>((*itt))->signal_clicked().connect(
+          sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),tomp),tom_box));
     }
-    b = 25;
-    for (int i = 0; i<24; ++i) {
-        Glib::ustring button = "togglebutton"+Glib::ustring::format(b);
-        builder->find_widget(button, kick_seq[i]);
-        kick_seq[i]->signal_clicked().connect(
-          sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),1));
-        ++b;
-    }
-    b = 49;
-    for (int i = 0; i<24; ++i) {
-        Glib::ustring button = "togglebutton"+Glib::ustring::format(b);
-        builder->find_widget(button, snare_seq[i]);
-        snare_seq[i]->signal_clicked().connect(
-          sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),2));
-        ++b;
-    }
-    b = 73;
-    for (int i = 0; i<24; ++i) {
-        Glib::ustring button = "togglebutton"+Glib::ustring::format(b);
-        builder->find_widget(button, hat_seq[i]);
-        hat_seq[i]->signal_clicked().connect(
-          sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),3));
-        ++b;
+    
+    Glib::ListHandle<Gtk::Widget*> kickList = kick_box->get_children();
+    for (Glib::ListHandle<Gtk::Widget*>::iterator itt = kickList.begin();itt != kickList.end(); ++itt) {
+        dynamic_cast<Gtk::ToggleButton*>((*itt))->signal_clicked().connect(
+          sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),kickp),kick_box));
     }
 
-    builder->find_widget("gxportdisplay1", seq_pos);
+    Glib::ListHandle<Gtk::Widget*> snareList = snare_box->get_children();
+    for (Glib::ListHandle<Gtk::Widget*>::iterator itt = snareList.begin();itt != snareList.end(); ++itt) {
+        dynamic_cast<Gtk::ToggleButton*>((*itt))->signal_clicked().connect(
+          sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),snarep),snare_box));
+    }
+
+    Glib::ListHandle<Gtk::Widget*> hatList = hat_box->get_children();
+    for (Glib::ListHandle<Gtk::Widget*>::iterator itt = hatList.begin();itt != hatList.end(); ++itt) {
+        dynamic_cast<Gtk::ToggleButton*>((*itt))->signal_clicked().connect(
+          sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),hatp),hat_box));
+    }
+
     seq_pos->set_name("playhead2");
     seq_pos->cp_set_value(0.0);
     std::string id;
@@ -130,95 +115,57 @@ void SEQWindow::init_connect() {
       sigc::mem_fun(this, &SEQWindow::on_key_press_event));
 }
 
+bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
+    if (machine.parameter_hasId(id)) {
+        if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
+            machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id));
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool SEQWindow::on_key_press_event(GdkEventKey *event) {
-	return true;
-}
-void SEQWindow::tom_changed(const gx_engine::GxSeqSettings* tomp) {
-
-    std::vector<int> tomsequence = tomp->getseqline();
-    int j = 0;
-    for (std::vector<int>::const_iterator i = tomsequence.begin(); i != tomsequence.end(); ++i) {
-        tom_seq[j]->set_active(*i);
-        ++j;
-    }
-}
-void SEQWindow::kick_changed(const gx_engine::GxSeqSettings* kickp) {
-
-    std::vector<int> kicksequence = kickp->getseqline();
-    int j = 0;
-    for (std::vector<int>::const_iterator i = kicksequence.begin(); i != kicksequence.end(); ++i) {
-        kick_seq[j]->set_active(*i);
-        ++j;
-    }
-}
-void SEQWindow::snare_changed(const gx_engine::GxSeqSettings* snarep) {
-
-    std::vector<int> snaresequence = snarep->getseqline();
-    int j = 0;
-    for (std::vector<int>::const_iterator i = snaresequence.begin(); i != snaresequence.end(); ++i) {
-        snare_seq[j]->set_active(*i);
-        ++j;
-    }
-}
-void SEQWindow::hat_changed(const gx_engine::GxSeqSettings* hatp) {
-
-    std::vector<int> hatsequence = hatp->getseqline();
-    int j = 0;
-    for (std::vector<int>::const_iterator i = hatsequence.begin(); i != hatsequence.end(); ++i) {
-        hat_seq[j]->set_active(*i);
-        ++j;
-    }
+    return true;
 }
 
-void SEQWindow::make_state(gx_engine::GxSeqSettings& seqc, std::vector<int> seq) {
-    seqc.setseqline(seq);
-}
-
-void SEQWindow::on_seq_button_clicked(int p) {
+void SEQWindow::on_seq_button_clicked(Gtk::HBox *box, gx_engine::SeqParameter *p) {
     std::vector<int> sequence;
     gx_engine::GxSeqSettings seqc;
-    if (p == 0) {
-        for (int i = 0; i<24; ++i) {
-            sequence.push_back(tom_seq[i]->get_active());
-        }
-        make_state(seqc, sequence);
-        tomp->set(seqc);
-    } else if (p == 1) {
-        for (int i = 0; i<24; ++i) {
-            sequence.push_back(kick_seq[i]->get_active());
-        }
-        make_state(seqc, sequence);
-        kickp->set(seqc);
-    } else if (p == 2) {
-        for (int i = 0; i<24; ++i) {
-            sequence.push_back(snare_seq[i]->get_active());
-        }
-        make_state(seqc, sequence);
-        snarep->set(seqc);
-    } else if (p == 3) {
-        for (int i = 0; i<24; ++i) {
-            sequence.push_back(hat_seq[i]->get_active());
-        }
-        make_state(seqc, sequence);
-        hatp->set(seqc);
+    Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
+    for (Glib::ListHandle<Gtk::Widget*>::iterator itt = seqList.begin();itt != seqList.end(); ++itt) {
+        sequence.push_back(dynamic_cast<Gtk::ToggleButton*>((*itt))->get_active());
     }
+    seqc.setseqline(sequence);
+    p->set(seqc);
 }
 
+void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box) {
 
-SEQWindow::~SEQWindow() {
-    delete gtk_window;
+    Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
+    Glib::ListHandle<Gtk::Widget*>::iterator itt = seqList.begin();
+    std::vector<int> sequence = seqc->getseqline();
+    for (std::vector<int>::const_iterator i = sequence.begin(); i != sequence.end(); ++i) {
+        dynamic_cast<Gtk::ToggleButton*>((*itt))->set_active(*i);
+        ++itt;
+    }
 }
 
 void SEQWindow::reload_and_show() {
     if (gtk_window->get_visible() && !(gtk_window->get_window()->get_state() & Gdk::WINDOW_STATE_ICONIFIED)) {
         gtk_window->hide();
     } else {
-        tom_changed(&tomp->get_value());
-        kick_changed(&kickp->get_value());
-        snare_changed(&snarep->get_value());
-        hat_changed(&hatp->get_value());
+        seq_changed(&tomp->get_value(), tom_box);
+        seq_changed(&kickp->get_value(), kick_box);
+        seq_changed(&snarep->get_value(), snare_box);
+        seq_changed(&hatp->get_value(), hat_box);
         gtk_window->present();
     }
+}
+
+SEQWindow::~SEQWindow() {
+    delete gtk_window;
 }
 
 } // end namespace 

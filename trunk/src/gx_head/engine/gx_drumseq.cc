@@ -132,11 +132,7 @@ inline void DrumSequencer::clear_state_f()
 	for (int i=0; i<2; i++) fRec72[i] = 0;
 	for (int i=0; i<2; i++) iRec76[i] = 0;
 	for (int i=0; i<2; i++) fRec77[i] = 0;
-	for (int i=0; i<2; i++) fRecout[i] = 0;
-	for (int i=0; i<24; i++) Vectom.push_back(0);
-	for (int i=0; i<24; i++) Veckick.push_back(0);
-	for (int i=0; i<24; i++) Vechat.push_back(0);
-	for (int i=0; i<24; i++) Vecsnare.push_back(0);
+	seq_size = min_seq_size();
 }
 
 void DrumSequencer::clear_state_f_static(PluginDef *p)
@@ -144,20 +140,29 @@ void DrumSequencer::clear_state_f_static(PluginDef *p)
 	static_cast<DrumSequencer*>(p)->clear_state_f();
 }
 
+int DrumSequencer::min_seq_size(){
+    int i = min(min(Vectom.size(),Veckick.size()),min(Vechat.size(),Vecsnare.size()));
+    return i-1;
+}
+
 void DrumSequencer::reset_tom() {
 	Vectom = tomset.getseqline() ;
+	seq_size = min_seq_size();
 }
 
 void DrumSequencer::reset_kick() {
 	Veckick = kickset.getseqline() ;
+	seq_size = min_seq_size();
 }
 
 void DrumSequencer::reset_hat() {
 	Vechat = hatset.getseqline() ;
+	seq_size = min_seq_size();
 }
 
 void DrumSequencer::reset_snare() {
 	Vecsnare = snareset.getseqline() ;
+	seq_size = min_seq_size();
 }
 
 inline void DrumSequencer::init(unsigned int samplingFreq)
@@ -312,7 +317,7 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 			fSlow5 = double(Veckick[step]);
 			fSlow7 = double(Vectom[step]);
 			counter = 0;
-			if (step<23) step = step+1;
+			if (step<seq_size) step = step+1;
 			else step = 0;
 			position = double(step);
 		} else {
@@ -581,6 +586,11 @@ int DrumSequencer::register_par(const ParamReg& reg)
     reg.registerEnumVar("seq.tact","","S",N_("select tact"),ftact_values,&ftact, 4.0, 1.0, 4.0, 1.0);
 	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslidergain, 0.0, -6e+01, 4e+01, 0.1);
     reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 23.0, 1.0);
+	for (int i=0; i<2; i++) fRecout[i] = 0;
+	for (int i=0; i<24; i++) Vectom.push_back(0);
+	for (int i=0; i<24; i++) Veckick.push_back(0);
+	for (int i=0; i<24; i++) Vechat.push_back(0);
+	for (int i=0; i<24; i++) Vecsnare.push_back(0);
     tomp = SeqParameter::insert_param(param, "seq.sequencer.tom", &tomset);
     snarep = SeqParameter::insert_param(param, "seq.sequencer.snare", &snareset);
     hatp = SeqParameter::insert_param(param, "seq.sequencer.hat", &hatset);

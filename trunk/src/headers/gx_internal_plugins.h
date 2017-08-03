@@ -1183,6 +1183,7 @@ private:
 	double 	fRec77[2];
 	int 	counter;
 	int 	step;
+	int 	seq_size;
 	double 	fSlow1;
 	double 	fSlow3;
 	double 	fSlow5;
@@ -1205,10 +1206,11 @@ private:
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
-    void reset_tom() ;
-    void reset_kick() ;
-    void reset_hat() ;
-    void reset_snare() ;
+	int min_seq_size();
+    void reset_tom();
+    void reset_kick();
+    void reset_hat();
+    void reset_snare();
 
 	static void clear_state_f_static(PluginDef*);
 	static void init_static(unsigned int samplingFreq, PluginDef*);

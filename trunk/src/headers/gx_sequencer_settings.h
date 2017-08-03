@@ -35,29 +35,27 @@ class SEQWindow: public sigc::trackable {
  private:
     gx_engine::GxMachineBase& machine;
     Glib::RefPtr<gx_gui::GxBuilder> builder;
+
     gx_engine::SeqParameter *tomp;
     gx_engine::SeqParameter *kickp;
     gx_engine::SeqParameter *snarep;
     gx_engine::SeqParameter *hatp;
+
+    //  widget pointers
     Gtk::Window* gtk_window;
-
-    // signal functions and widget pointers
-    void on_window_hide();
-
-    Gtk::ToggleButton *tom_seq[24];
-    Gtk::ToggleButton *kick_seq[24];
-    Gtk::ToggleButton *snare_seq[24];
-    Gtk::ToggleButton *hat_seq[24];
+    Gtk::HBox* tom_box;
+    Gtk::HBox* kick_box;
+    Gtk::HBox* snare_box;
+    Gtk::HBox* hat_box;
     Gxw::Regler *seq_pos;
 
+    // signal functions
+    void on_window_hide();
     bool get_sequencer_pos(Gxw::Regler * regler, const std::string id);
     bool on_key_press_event(GdkEventKey *event);
-    void tom_changed(const gx_engine::GxSeqSettings* tomp);
-    void kick_changed(const gx_engine::GxSeqSettings* kickp);
-    void snare_changed(const gx_engine::GxSeqSettings* snarep);
-    void hat_changed(const gx_engine::GxSeqSettings* hatp);
+    void seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box);
     void make_state(gx_engine::GxSeqSettings& seqc, std::vector<int> seq);
-    void on_seq_button_clicked(int i);
+    void on_seq_button_clicked(Gtk::HBox *box, gx_engine::SeqParameter *p);
 
     void init_connect();
     SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::SeqParameter *tomp_,
