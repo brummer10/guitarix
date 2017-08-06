@@ -40,7 +40,6 @@ gxstyle_files = [
     'scratch.png',
     'versiondiff.png',
     'playhead.png',
-    'playhead2.png',
     'simplelevelslider.png',
 
     'switch_on.png',

@@ -74,6 +74,7 @@ def build(bld):
         'GxSimpleValueDisplay.cpp',
         'GxRackTuner.cpp',
         'GxPortDisplay.cpp',
+        'GxPlayHead.cpp',
         ]
     build_stock_images(bld)
     if bld.env["GX_LIB_STATIC"]:

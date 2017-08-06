@@ -1161,14 +1161,14 @@ void FloatParameter::writeJSON(gx_system::JsonWriter& jw) const {
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_float();
-    if (json_value < lower-abs(5*FLT_EPSILON*lower) || json_value > upper+abs(5*FLT_EPSILON*upper)) {
+    if (json_value < lower-std::abs(5*FLT_EPSILON*lower) || json_value > upper+std::abs(5*FLT_EPSILON*upper)) {
 	range_warning(json_value, lower, upper);
 	json_value = std_value;
     }
 }
 
 bool FloatParameter::compareJSON_value() {
-    return abs(json_value - *value) < 5*FLT_EPSILON;
+    return std::abs(json_value - *value) < 5*FLT_EPSILON;
 }
 
 void FloatParameter::setJSON_value() {

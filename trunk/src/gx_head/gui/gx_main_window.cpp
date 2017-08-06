@@ -2646,7 +2646,7 @@ bool MainWindow::on_quit() {
 
 void MainWindow::amp_controls_visible(Gtk::Range *rr) {
     //FIXME
-    bool v = abs(rr->get_value() - machine.get_parameter("tube.select").getUpperAsFloat()) < 0.5;
+    bool v = std::abs(rr->get_value() - machine.get_parameter("tube.select").getUpperAsFloat()) < 0.5;
     const char *knobs1[] = {"gxmediumknobpregain","gxmediumknobdrive","gxmediumknobdist","gxmediumknobgain", "labelpregain:effekt_label", "labeldrive:effekt_label", "labeldist:effekt_label", "labelgain:effekt_label"};
     const char *knobs2[] = {"gxbigknobgain", "labelgain2:effekt_label"};
     for (unsigned int i = 0; i < sizeof(knobs1)/sizeof(knobs1[1]); ++i) {

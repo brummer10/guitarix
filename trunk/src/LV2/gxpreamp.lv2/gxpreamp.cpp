@@ -260,7 +260,7 @@ void GxPluginMono::calculate_maxlevels( uint32_t n_samples, float *input, float 
 	// As this takes absolute value we get no negative values it seems
         // Need to move the input pot before the dsp to adjust input levels
 	float t = max( ports[port][i], level ) ;
-//            float t = abs(ports[port][i]);
+//            float t = std::abs(ports[port][i]);
             if (level < t) {
                 level = t;
             }

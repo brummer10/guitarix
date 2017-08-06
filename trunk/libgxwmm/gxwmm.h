@@ -46,6 +46,7 @@
 #include <gxwmm/waveview.h>
 #include <gxwmm/wheel.h>
 #include <gxwmm/portdisplay.h>
+#include <gxwmm/playhead.h>
 #include <gxwmm/init.h>
 
 #endif /* __GXWMM_H__ */

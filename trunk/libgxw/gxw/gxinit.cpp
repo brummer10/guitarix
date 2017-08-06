@@ -79,6 +79,7 @@ static image_entry image_data[] = {
     { "selector_icon" },
     { "insert" },
     { "watermark" },
+    { "playhead" },
 	{ NULL },
 };
 

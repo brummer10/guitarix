@@ -46,6 +46,7 @@
 #include <gxw/GxMeterScale.h>
 #include <gxw/GxGradient.h>
 #include <gxw/GxValueDisplay.h>
+#include <gxw/GxPlayHead.h>
 #include <gxw/gxinit.h>
 
 #endif /* __GXW_H__ */

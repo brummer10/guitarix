@@ -132,6 +132,7 @@ inline void DrumSequencer::clear_state_f()
 	for (int i=0; i<2; i++) fRec72[i] = 0;
 	for (int i=0; i<2; i++) iRec76[i] = 0;
 	for (int i=0; i<2; i++) fRec77[i] = 0;
+	for (int i=0; i<2; i++) fRecout[i] = 0;
 	seq_size = min_seq_size();
 }
 
@@ -307,8 +308,7 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 	double 	fSlow4 = (0.0010000000000000009 * pow(10,(0.05 * double(fsliderkick))));
 	double 	fSlow6 = (0.0010000000000000009 * pow(10,(0.05 * double(fslidertom))));
 	double 	fSlowgain = (0.0010000000000000009 * pow(10,(0.05 * double(fslidergain))));
-	for (int i=0; i<count; i++) {
-		counter = counter+1;
+		counter = counter+count;
 		if (counter >= (int)fSlow15) {
 			fSlow1 = double(Vecsnare[step]);
 			if ((int)fSlow15 > 4800) {
@@ -319,13 +319,16 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 			counter = 0;
 			if (step<seq_size) step = step+1;
 			else step = 0;
-			position = double(step);
+			double ph1 = 2300.0/seq_size;
+			position = fmin(2300,fmax(0,double(step*ph1)));
+			//position = double(step);
 		} else {
 			fSlow1 = 0.0;
 			fSlow3 = 0.0;
 			fSlow5 = 0.0;
 			fSlow7 = 0.0;
 		}
+	for (int i=0; i<count; i++) {
 		fRecout[0] = ((0.999 * fRecout[1]) + fSlowgain);
 		iVec0[0] = 1;
 		fRec0[0] = ((0.999 * fRec0[1]) + fSlow0);
@@ -584,9 +587,9 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fslidertom, -2e+01, -6e+01, 4e+01, 0.1);
     static const value_pair ftact_values[] = {{"1/4"},{"2/4"},{"3/4"},{"4/4"},{0}};
     reg.registerEnumVar("seq.tact","","S",N_("select tact"),ftact_values,&ftact, 4.0, 1.0, 4.0, 1.0);
+    reg.registerVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 120.0, 4.0);
 	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslidergain, 0.0, -6e+01, 4e+01, 0.1);
-    reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 23.0, 1.0);
-	for (int i=0; i<2; i++) fRecout[i] = 0;
+    reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 2300.0, 1.0);
 	for (int i=0; i<24; i++) Vectom.push_back(0);
 	for (int i=0; i<24; i++) Veckick.push_back(0);
 	for (int i=0; i<24; i++) Vechat.push_back(0);

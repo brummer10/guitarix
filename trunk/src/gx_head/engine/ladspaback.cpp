@@ -91,7 +91,7 @@ static const char *cat_subst[][2] = {
  */
 
 static inline bool float_eq(float v1, float v2) {
-    return abs(v1 - v2) <= 1e-5 * abs(v1);
+    return std::abs(v1 - v2) <= 1e-5 * std::abs(v1);
 }
 
 bool operator!=(const ChangeableValues& v1, const ChangeableValues& v2) {

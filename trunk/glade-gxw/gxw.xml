@@ -2,6 +2,7 @@
 <glade-catalog supports="gtkbuilder" name="gxwidgets" library="gladegx" domain="gxwidgets" depends="gtk+">
   <init-function>glade_gx_init</init-function>
   <glade-widget-classes>
+    <glade-widget-class title="PlayHead" name="GxPlayHead" generic-name="gxplayhead" />
     <glade-widget-class title="Switch" name="GxSwitch" generic-name="gxswitch" />
     <glade-widget-class title="Selector" name="GxSelector" generic-name="gxselector" />
     <glade-widget-class title="Fast Meter" name="GxFastMeter" generic-name="gxfastmeter" />
@@ -38,6 +39,7 @@
   </glade-widget-classes>
 
   <glade-widget-group title="Gx Widgets" name="gxwidgets">
+    <glade-widget-class-ref name="GxPlayHead"/>
     <glade-widget-class-ref name="GxSwitch"/>
     <glade-widget-class-ref name="GxSelector"/>
     <glade-widget-class-ref name="GxFastMeter"/>

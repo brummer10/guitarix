@@ -155,6 +155,7 @@ def build_generate_wrapper(bld):
               "GxValueDisplay.h",
               "GxSimpleValueDisplay.h",
               "GxPortDisplay.h",
+              "GxPlayHead.h",
               ]
     header = ["../../libgxw/gxw/"+v for v in header]
     bld(features = ['cxx', 'cprogram'],
@@ -227,6 +228,7 @@ def build(bld):
         "valuedisplay.hg",
         "simplevaluedisplay.hg",
         "portdisplay.hg",
+        "playhead.hg",
         ]
     if bld.env["USE_GENERATED_CPP"]:
         gdir = "../gxwmm-generated/"

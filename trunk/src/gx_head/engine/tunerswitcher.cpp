@@ -27,7 +27,7 @@ static const int no_note = 1000;
 static const int bad_note = 1002;
 
 inline bool is_no_note(float n) {
-    return abs(n - no_note) < 1;
+    return std::abs(n - no_note) < 1;
 }
 
 TunerSwitcher::TunerSwitcher(gx_preset::GxSettings& settings_, gx_engine::GxEngine& engine_)
@@ -181,7 +181,7 @@ void TunerSwitcher::on_tuner_freq_changed() {
 	}
 	return;
     }
-    if (abs(current_note - note) < precision) {
+    if (std::abs(current_note - note) < precision) {
 	return;
     }
     if (state == wait_stop) {
@@ -200,7 +200,7 @@ void TunerSwitcher::on_tuner_freq_changed() {
     }
     timeout_conn.disconnect();
     float n = round(note);
-    if (abs(note - n) < precision) {
+    if (std::abs(note - n) < precision) {
 	current_note = n;
 	if (!is_no_note(current_note)) {
 	    timeout_conn = Glib::signal_timeout().connect(

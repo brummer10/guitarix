@@ -47,15 +47,22 @@ class SEQWindow: public sigc::trackable {
     Gtk::HBox* kick_box;
     Gtk::HBox* snare_box;
     Gtk::HBox* hat_box;
+    Gtk::HBox *preset_button;
     Gxw::Regler *seq_pos;
+    Gxw::Regler *seq_count;
 
     // signal functions
     void on_window_hide();
+    void on_preset_popup_clicked();
     bool get_sequencer_pos(Gxw::Regler * regler, const std::string id);
     bool on_key_press_event(GdkEventKey *event);
     void seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box);
     void make_state(gx_engine::GxSeqSettings& seqc, std::vector<int> seq);
     void on_seq_button_clicked(Gtk::HBox *box, gx_engine::SeqParameter *p);
+    void on_sec_length_changed(bool update);
+    void append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, int r, int r_save);
+    void remove_seq_block(Gtk::HBox * box, int r);
+    void make_preset_button(Gtk::HBox *box);
 
     void init_connect();
     SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::SeqParameter *tomp_,

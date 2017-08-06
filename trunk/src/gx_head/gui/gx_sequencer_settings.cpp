@@ -69,7 +69,13 @@ void SEQWindow::init_connect() {
     builder->find_widget("hbox2", kick_box);
     builder->find_widget("hbox3", snare_box);
     builder->find_widget("hbox4", hat_box);
-    builder->find_widget("gxportdisplay1", seq_pos);
+    builder->find_widget("gxplayhead1", seq_pos);
+    builder->find_widget("gxsmallknob6", seq_count);
+    builder->find_widget("hbox12", preset_button);
+
+    on_sec_length_changed(false);
+
+    make_preset_button(preset_button);
 
     tomp->signal_changed().connect(sigc::bind(
       sigc::mem_fun(this, &SEQWindow::seq_changed), tom_box));
@@ -104,15 +110,84 @@ void SEQWindow::init_connect() {
           sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),hatp),hat_box));
     }
 
-    seq_pos->set_name("playhead2");
     seq_pos->cp_set_value(0.0);
     std::string id;
     seq_pos->get_property("var_id",id);
     Glib::signal_timeout().connect(sigc::bind<Gxw::Regler*>(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &SEQWindow::get_sequencer_pos),id), seq_pos), 60);
 
+    seq_count->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
+                                               &SEQWindow::on_sec_length_changed), true));
+
     gtk_window->signal_key_press_event().connect(
       sigc::mem_fun(this, &SEQWindow::on_key_press_event));
+}
+
+void SEQWindow::make_preset_button(Gtk::HBox * box) {
+    Gtk::Button *p = new Gtk::Button();
+    //p->set_relief(Gtk::RELIEF_NONE);
+    Gtk::Image *l = new Gtk::Image(Gdk::Pixbuf::create_from_file(machine.get_options().get_style_filepath("rack_preset.png")));
+    p->add(*Gtk::manage(l));
+    p->set_can_default(false);
+    p->set_can_focus(false);
+	p->set_tooltip_text(_("manage effect unit presets"));
+	p->set_name("effect_on_off");
+	box->pack_start(*Gtk::manage(p),Gtk::PACK_SHRINK);
+    p->signal_clicked().connect(
+	sigc::mem_fun(*this, &SEQWindow::on_preset_popup_clicked));
+	p->show_all();
+}
+
+void SEQWindow::on_preset_popup_clicked() {
+    new PluginPresetPopup(machine.pluginlist_lookup_plugin("seq")->get_pdef(), machine);
+}
+
+void SEQWindow::on_sec_length_changed(bool update) {
+    static int r_save = 24;
+    int r = int(seq_count->cp_get_value());
+    if ( r_save > r) {
+        remove_seq_block(tom_box, r);
+        remove_seq_block(kick_box, r);
+        remove_seq_block(snare_box, r);
+        remove_seq_block(hat_box, r);
+        r_save = r;
+    } else if( r_save < r) {
+        append_seq_block(tom_box,tomp, r,r_save);
+        append_seq_block(kick_box,kickp, r,r_save);
+        append_seq_block(snare_box,snarep, r,r_save);
+        append_seq_block(hat_box,hatp, r,r_save);
+        r_save = r;
+    }
+    if (update) {
+        on_seq_button_clicked(tom_box,tomp);
+        on_seq_button_clicked(kick_box,kickp);
+        on_seq_button_clicked(snare_box,snarep);
+        on_seq_button_clicked(hat_box,hatp);
+    }
+}
+
+
+void SEQWindow::append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, int r, int r_save) {
+    Gtk::ToggleButton * ab;
+    for(int j = r_save; j<=r; ++j) {
+        ab = new Gtk::ToggleButton();
+        box->pack_start(*Gtk::manage(ab),Gtk::PACK_EXPAND_WIDGET);
+        ab->signal_clicked().connect(
+          sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),p),box));
+          ab->show();
+    }
+}
+
+void SEQWindow::remove_seq_block(Gtk::HBox * box, int r) {
+    Glib::ListHandle<Gtk::Widget*> boxList = box->get_children();
+    int i = 0;
+    for (Glib::ListHandle<Gtk::Widget*>::iterator itt = boxList.begin();itt != boxList.end(); ++itt) {
+        if (i>=r) {
+            box->remove(*(*itt));
+            delete((*itt));
+        }
+        ++i;
+    }
 }
 
 bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
@@ -147,6 +222,7 @@ void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box
     Glib::ListHandle<Gtk::Widget*>::iterator itt = seqList.begin();
     std::vector<int> sequence = seqc->getseqline();
     for (std::vector<int>::const_iterator i = sequence.begin(); i != sequence.end(); ++i) {
+        if (itt == seqList.end()) break;
         dynamic_cast<Gtk::ToggleButton*>((*itt))->set_active(*i);
         ++itt;
     }

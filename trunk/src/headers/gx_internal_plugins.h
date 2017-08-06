@@ -540,7 +540,7 @@ private:
     virtual bool start(bool force = false);
     bool cabinet_changed() { return current_cab != cabinet; }
     void update_cabinet() { current_cab = cabinet; }
-    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
+    bool sum_changed() { return std::abs(sum - (level + bass + treble)) > 0.01; }
     void update_sum() { sum = level + bass + treble; }
 public:
     CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
@@ -602,7 +602,7 @@ private:
     virtual bool start(bool force = false);
     bool preamp_changed() { return current_pre != preamp; }
     void update_preamp() { current_pre = preamp; }
-    bool sum_changed() { return abs(sum - (level + bass + treble)) > 0.01; }
+    bool sum_changed() { return std::abs(sum - (level + bass + treble)) > 0.01; }
     void update_sum() { sum = level + bass + treble; }
 public:
     PreampConvolver(EngineControl& engine, sigc::slot<void> sync,
@@ -627,7 +627,7 @@ private:
     inline void update_sum() { sum = level; }
     virtual void check_update();
     bool do_update();
-    inline bool sum_changed() { return abs(sum - level) > 0.01; }
+    inline bool sum_changed() { return std::abs(sum - level) > 0.01; }
     virtual bool start(bool force = false);
 public:
     ContrastConvolver(EngineControl& engine, sigc::slot<void> sync,
@@ -969,6 +969,7 @@ private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	position;
 	FAUSTFLOAT 	ftact;
+	FAUSTFLOAT 	fsec;
 	FAUSTFLOAT 	fslidergain;
 	FAUSTFLOAT 	fsliderbpm;
 	FAUSTFLOAT 	fslidersnare;

@@ -40,6 +40,7 @@
 #include "waveview.h"
 #include "wheel.h"
 #include "wheelvertical.h"
+#include "playhead.h"
 
 extern "C"
 {
@@ -72,6 +73,7 @@ GType gx_vslider_get_type(void);
 GType gx_wave_view_get_type(void);
 GType gx_wheel_get_type(void);
 GType gx_wheel_vertical_get_type(void);
+GType gx_play_head_get_type(void);
 
 //Declarations of the *_error_quark() functions:
 
@@ -108,6 +110,7 @@ class VSlider_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class WaveView_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class Wheel_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 class WheelVertical_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
+class PlayHead_Class { public: static Glib::ObjectBase* wrap_new(GObject*); };
 
 void wrap_init()
 {
@@ -141,6 +144,7 @@ void wrap_init()
   Glib::wrap_register(gx_wave_view_get_type(), &WaveView_Class::wrap_new);
   Glib::wrap_register(gx_wheel_get_type(), &Wheel_Class::wrap_new);
   Glib::wrap_register(gx_wheel_vertical_get_type(), &WheelVertical_Class::wrap_new);
+  Glib::wrap_register(gx_play_head_get_type(), &PlayHead_Class::wrap_new);
 
   // Register the gtkmm gtypes:
   BigKnob::get_type();
@@ -170,6 +174,7 @@ void wrap_init()
   WaveView::get_type();
   Wheel::get_type();
   WheelVertical::get_type();
+  PlayHead::get_type();
 
 } // wrap_init()
 

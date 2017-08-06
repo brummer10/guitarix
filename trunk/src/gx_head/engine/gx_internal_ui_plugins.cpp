@@ -77,7 +77,7 @@ void MaxLevel::process(int count, float *input1, float *input2, float*, float*, 
     for (unsigned int c = 0; c < channelcount; c++) {
         float level = 0;
         for (int i = 0; i < count; i++) {
-            float t = abs(data[c][i]);
+            float t = std::abs(data[c][i]);
             if (level < t) {
                 level = t;
             }

@@ -106,7 +106,7 @@ private:
   volatile int32_t             schedule_wait;
 
   inline bool cab_changed() 
-    {return abs(cab_bass - cbass_) > 0.1 || abs(cab_treble - ctreble_) > 0.1 || abs(cab_level - clevel_) > 0.1;}
+    {return std::abs(cab_bass - cbass_) > 0.1 || std::abs(cab_treble - ctreble_) > 0.1 || std::abs(cab_level - clevel_) > 0.1;}
   inline bool buffsize_changed() 
     {return bufsize != cur_bufsize;}
   inline void update_cab() 
@@ -114,7 +114,7 @@ private:
   inline bool change_cab() 
     {return abs(c_old_model_ - c_model_) > 0.1;}
   inline bool val_changed() 
-    {return abs(cbass_ - (*cbass)) > 0.1 || abs(ctreble_ != (*ctreble)) > 0.1 || abs(clevel_ != (*clevel)) > 0.1 ||  abs(c_model_ != (*c_model)) > 0.1;}
+    {return std::abs(cbass_ - (*cbass)) > 0.1 || std::abs(ctreble_ != (*ctreble)) > 0.1 || std::abs(clevel_ != (*clevel)) > 0.1 ||  std::abs(c_model_ != (*c_model)) > 0.1;}
 
   // LV2 stuff
   LV2_URID_Map*                map;
