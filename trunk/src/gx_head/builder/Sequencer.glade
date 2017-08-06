@@ -248,7 +248,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">seq.on_off</property>
-                <property name="base_name">switch_mid</property>
+                <property name="base_name">switch</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -273,7 +273,7 @@
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="padding">23</property>
+                    <property name="padding">20</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
