@@ -125,7 +125,6 @@ void SEQWindow::init_connect() {
 
 void SEQWindow::make_preset_button(Gtk::HBox * box) {
     Gtk::Button *p = new Gtk::Button();
-    //p->set_relief(Gtk::RELIEF_NONE);
     Gtk::Image *l = new Gtk::Image(Gdk::Pixbuf::create_from_file(machine.get_options().get_style_filepath("rack_preset.png")));
     p->add(*Gtk::manage(l));
     p->set_can_default(false);
@@ -169,7 +168,7 @@ void SEQWindow::on_sec_length_changed(bool update) {
 
 void SEQWindow::append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, int r, int r_save) {
     Gtk::ToggleButton * ab;
-    for(int j = r_save; j<=r; ++j) {
+    for(int j = r_save; j<r; ++j) {
         ab = new Gtk::ToggleButton();
         box->pack_start(*Gtk::manage(ab),Gtk::PACK_EXPAND_WIDGET);
         ab->signal_clicked().connect(
