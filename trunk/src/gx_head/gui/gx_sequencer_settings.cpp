@@ -172,6 +172,7 @@ void SEQWindow::append_plugin_preset(Glib::ustring name) {
     float value = machine.get_parameter_value<float>("seq.asequences");
     float bpmv = machine.get_parameter_value<float>("seq.bpm");
     float tactv = machine.get_parameter_value<float>("seq.tact");
+    float gainv = machine.get_parameter_value<float>("seq.gain");
     float tomg = machine.get_parameter_value<float>("seq.tom.dsp.Gain");
     float kickg = machine.get_parameter_value<float>("seq.kick.dsp.Gain");
     float snareg = machine.get_parameter_value<float>("seq.snare.dsp.Gain");
@@ -200,6 +201,7 @@ void SEQWindow::append_plugin_preset(Glib::ustring name) {
     // reset controls to previus values
     reset_control("seq.bpm",bpmv);
     reset_control("seq.tact",tactv);
+    reset_control("seq.gain",gainv);
     reset_control("seq.tom.dsp.Gain",tomg);
     reset_control("seq.kick.dsp.Gain",kickg);
     reset_control("seq.snare.dsp.Gain",snareg);
