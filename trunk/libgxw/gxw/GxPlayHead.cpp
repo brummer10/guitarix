@@ -70,13 +70,13 @@ static gboolean gx_play_head_expose(GtkWidget *widget, GdkEventExpose *event)
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
     // background
     phead->scaled_image = gdk_pixbuf_scale_simple(
-			phead->image, rect_width+(phead->height*6), phead->height, GDK_INTERP_NEAREST);
+			phead->image, rect_width+(phead->height*60), phead->height, GDK_INTERP_NEAREST);
 	gdk_cairo_set_source_pixbuf (cr, phead->scaled_image, x, y);
 	cairo_rectangle(cr, x, y, rect_width, phead->height);
 	cairo_fill(cr);
     //phead
     //int sx = gtk_widget_get_state(widget) ? phead->phead_width : 0;
-    gdk_cairo_set_source_pixbuf (cr, phead->scaled_image, x - ((rect_width+(phead->height*4.5)) - slstate), y);
+    gdk_cairo_set_source_pixbuf (cr, phead->image, x - ((phead->width+(phead->height)) - slstate), y);
     cairo_rectangle(cr, x + slstate, y, (phead->height*3), phead->height);
     cairo_fill(cr);
 	//_gx_regler_display_value(GX_REGLER(widget), &value_rect);

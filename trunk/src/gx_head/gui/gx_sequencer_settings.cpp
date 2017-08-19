@@ -65,6 +65,7 @@ SEQWindow::SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld,gx_engine::SeqPa
 void SEQWindow::init_connect() {
 
 
+    builder->find_widget("viewport1", vp);
     builder->find_widget("hbox1", tom_box);
     builder->find_widget("hbox2", kick_box);
     builder->find_widget("hbox3", snare_box);
@@ -72,6 +73,7 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxplayhead1", seq_pos);
     builder->find_widget("gxsmallknob6", seq_count);
     builder->find_widget("hbox12", preset_button);
+    builder->find_widget("button1", add_button);
 
     on_sec_length_changed(false);
 
@@ -119,8 +121,16 @@ void SEQWindow::init_connect() {
     seq_count->signal_value_changed().connect(sigc::bind(sigc::mem_fun(*this,
                                                &SEQWindow::on_sec_length_changed), true));
 
+    add_button->signal_clicked().connect(
+        sigc::mem_fun(*this, &SEQWindow::on_preset_add_clicked));
+    add_button->set_tooltip_text(_("add effect unit preset to the sequence"));
+
     gtk_window->signal_key_press_event().connect(
       sigc::mem_fun(this, &SEQWindow::on_key_press_event));
+}
+
+void SEQWindow::on_preset_popup_clicked() {
+    new PluginPresetPopup(machine.pluginlist_lookup_plugin("seq")->get_pdef(), machine);
 }
 
 void SEQWindow::make_preset_button(Gtk::HBox * box) {
@@ -137,8 +147,80 @@ void SEQWindow::make_preset_button(Gtk::HBox * box) {
 	p->show_all();
 }
 
-void SEQWindow::on_preset_popup_clicked() {
-    new PluginPresetPopup(machine.pluginlist_lookup_plugin("seq")->get_pdef(), machine);
+void SEQWindow::reset_control(Glib::ustring id, float value) {
+    machine.set_parameter_value(id,value);
+    machine.signal_parameter_value<float>(id)(value);
+}
+
+int SEQWindow::append_sequence(const gx_engine::GxSeqSettings* seqc, gx_engine::SeqParameter *p, std::vector<int> *sequence) {
+    int s = 0;
+    std::vector<int> sequence_append = seqc->getseqline();
+    for(std::vector<int>::const_iterator i = sequence_append.begin(); i != sequence_append.end(); ++i) {
+        sequence->push_back(*i);
+       ++s;
+    }
+    return s;
+}
+
+void SEQWindow::append_plugin_preset(Glib::ustring name) {
+    // get current sequences
+    std::vector<int> tom_sequence = static_cast<const gx_engine::GxSeqSettings*>(&tomp->get_value())->getseqline();
+    std::vector<int> kick_sequence = static_cast<const gx_engine::GxSeqSettings*>(&kickp->get_value())->getseqline();
+    std::vector<int> snare_sequence = static_cast<const gx_engine::GxSeqSettings*>(&snarep->get_value())->getseqline();
+    std::vector<int> hat_sequence = static_cast<const gx_engine::GxSeqSettings*>(&hatp->get_value())->getseqline();
+    // get current control values
+    float value = machine.get_parameter_value<float>("seq.asequences");
+    float bpmv = machine.get_parameter_value<float>("seq.bpm");
+    float tactv = machine.get_parameter_value<float>("seq.tact");
+    float tomg = machine.get_parameter_value<float>("seq.tom.dsp.Gain");
+    float kickg = machine.get_parameter_value<float>("seq.kick.dsp.Gain");
+    float snareg = machine.get_parameter_value<float>("seq.snare.dsp.Gain");
+    float hatg = machine.get_parameter_value<float>("seq.hat_closed.dsp.Gain");
+    // set preset values
+    machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, name);
+    // append preset sequence to current and get new step size 
+    int s = 0;
+    s = append_sequence(&tomp->get_value(), tomp, &tom_sequence);
+    s = append_sequence(&kickp->get_value(), kickp, &kick_sequence);
+    s = append_sequence(&snarep->get_value(), snarep, &snare_sequence);
+    s = append_sequence(&hatp->get_value(), hatp, &hat_sequence);
+    value += float(s);
+    // set new step size
+    reset_control("seq.asequences",value);
+    // set new sequences
+    gx_engine::GxSeqSettings seqc;
+    seqc.setseqline(tom_sequence);
+    tomp->set(seqc);
+    seqc.setseqline(kick_sequence);
+    kickp->set(seqc);
+    seqc.setseqline(snare_sequence);
+    snarep->set(seqc);
+    seqc.setseqline(hat_sequence);
+    hatp->set(seqc);
+    // reset controls to previus values
+    reset_control("seq.bpm",bpmv);
+    reset_control("seq.tact",tactv);
+    reset_control("seq.tom.dsp.Gain",tomg);
+    reset_control("seq.kick.dsp.Gain",kickg);
+    reset_control("seq.snare.dsp.Gain",snareg);
+    reset_control("seq.hat_closed.dsp.Gain",hatg);
+} 
+
+void SEQWindow::on_preset_add_clicked() {
+    Gtk::MenuItem* item;
+    Gtk::Menu *presetMenu = Gtk::manage(new Gtk::Menu());
+    gx_preset::UnitPresetList presetnames;
+    machine.plugin_preset_list_load(machine.pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);
+    for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
+        if (!i->name.empty()) {
+            item = Gtk::manage(new Gtk::MenuItem(i->name, true));
+            presetMenu->append(*item);
+             item->signal_activate().connect(sigc::bind(sigc::mem_fun(
+              *this, &SEQWindow::append_plugin_preset),i->name));
+        }
+    }
+    presetMenu->show_all();
+    presetMenu->popup(1, gtk_get_current_event_time());
 }
 
 void SEQWindow::on_sec_length_changed(bool update) {
@@ -189,10 +271,30 @@ void SEQWindow::remove_seq_block(Gtk::HBox * box, int r) {
     }
 }
 
+void SEQWindow::scroll_playhead(float value) {
+    Gtk::Adjustment *a = vp->get_hadjustment();
+    static float old_state = 0.0;
+    float u = a->get_upper();
+    float l = a->get_lower();
+    float s = a->get_page_size();
+    float set = (u-s) * ((value)/2300.0);
+    if (u>s) {
+        if (set>l && set<u) {
+            if(std::abs(set-old_state) > 60) {
+                a->set_value(set);
+                old_state = set;
+            }
+        }
+    }
+    
+}
+
 bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
     if (machine.parameter_hasId(id)) {
         if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
-            machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id));
+            float value = machine.get_parameter_value<float>(id);
+            machine.signal_parameter_value<float>(id)(value);
+           // scroll_playhead(value);
         }
         return true;
     } else {

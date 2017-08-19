@@ -587,7 +587,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fslidertom, -2e+01, -6e+01, 4e+01, 0.1);
     static const value_pair ftact_values[] = {{"1/4"},{"2/4"},{"3/4"},{"4/4"},{0}};
     reg.registerEnumVar("seq.tact","","S",N_("select tact"),ftact_values,&ftact, 4.0, 1.0, 4.0, 1.0);
-    reg.registerVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 120.0, 4.0);
+    reg.registerVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 240.0, 4.0);
 	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslidergain, 0.0, -6e+01, 4e+01, 0.1);
     reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 2300.0, 1.0);
 	for (int i=0; i<24; i++) Vectom.push_back(0);
