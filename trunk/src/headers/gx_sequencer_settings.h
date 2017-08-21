@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
- * Copyright (C) 2011 Pete Shorthose
+ * Copyright (C) 2017 Hermann Meyer, Andreas Degert
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +26,15 @@
 
 namespace gx_seq {
 
+class Drums {
+ public:
+    gx_engine::SeqParameter *p;
+    Gtk::HBox* box;
+    Drums(gx_engine::SeqParameter *pa)
+    : p(pa) {}
+    ~Drums() {}
+};
+
 /****************************************************************
  ** Sequencer Parameter Window
  */
@@ -35,19 +43,15 @@ class SEQWindow: public sigc::trackable {
  private:
     gx_engine::GxMachineBase& machine;
     Glib::RefPtr<gx_gui::GxBuilder> builder;
-
-    gx_engine::SeqParameter *tomp;
-    gx_engine::SeqParameter *kickp;
-    gx_engine::SeqParameter *snarep;
-    gx_engine::SeqParameter *hatp;
+    std::vector<Drums> drums;
+    Drums tom;
+    Drums kick;
+    Drums snare;
+    Drums hat;
 
     //  widget pointers
     Gtk::Window* gtk_window;
     Gtk::Viewport *vp;
-    Gtk::HBox* tom_box;
-    Gtk::HBox* kick_box;
-    Gtk::HBox* snare_box;
-    Gtk::HBox* hat_box;
     Gtk::HBox *preset_button;
     Gtk::Button* add_button;
     Gxw::Regler *seq_pos;
@@ -71,6 +75,7 @@ class SEQWindow: public sigc::trackable {
     void append_plugin_preset(Glib::ustring name);
     void on_preset_add_clicked();  
     void init_connect();
+    void init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box);
     SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::SeqParameter *tomp_,
          gx_engine::SeqParameter *kickp_, gx_engine::SeqParameter *snarep_,
          gx_engine::SeqParameter *hatp_, gx_engine::GxMachineBase& machine_);

@@ -972,6 +972,7 @@ private:
 	FAUSTFLOAT 	fsec;
 	FAUSTFLOAT 	fslidergain;
 	FAUSTFLOAT 	fsliderbpm;
+	FAUSTFLOAT 	fsliderhum;
 	FAUSTFLOAT 	fslidersnare;
 	double 	fRecout[2];
 	int 	iVec0[2];

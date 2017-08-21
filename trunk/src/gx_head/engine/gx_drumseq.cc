@@ -316,7 +316,9 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 			}
 			fSlow5 = double(Veckick[step]);
 			fSlow7 = double(Vectom[step]);
-			counter = 0;
+			int m = int(fSlow15*0.05);
+			int r = rand()%(m+1 - (-m))+ (-m);
+			counter = int(r*fsliderhum);
 			if (step<seq_size) step = step+1;
 			else step = 0;
 			double ph1 = 2300.0/seq_size;
@@ -589,6 +591,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
     reg.registerEnumVar("seq.tact","","S",N_("select tact"),ftact_values,&ftact, 4.0, 1.0, 4.0, 1.0);
     reg.registerVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 240.0, 4.0);
 	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslidergain, 0.0, -6e+01, 4e+01, 0.1);
+	reg.registerVar("seq.hum","","B",N_("Randomize Sequence"),&fsliderhum, 0.0, 0.0, 1.0, 1.0);
     reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 2300.0, 1.0);
 	for (int i=0; i<24; i++) Vectom.push_back(0);
 	for (int i=0; i<24; i++) Veckick.push_back(0);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gxwidgets 0.0 -->
   <requires lib="gtk+" version="2.24"/>
+  <!-- interface-requires gxwidgets 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="SequencerWindow">
     <property name="can_focus">False</property>
@@ -232,6 +232,7 @@
           <object class="GtkHBox" id="hbox7">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">3</property>
             <child>
               <object class="GxSelector" id="gxselector1">
                 <property name="visible">True</property>
@@ -269,6 +270,21 @@
                   <object class="GtkHBox" id="hbox13">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GxSwitch" id="gxswitch2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="var_id">seq.hum</property>
+                        <property name="base_name">switch_mid</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
                     <child>
                       <object class="GtkButton" id="button1">
                         <property name="visible">True</property>
@@ -286,14 +302,14 @@
                         <property name="expand">False</property>
                         <property name="fill">False</property>
                         <property name="padding">5</property>
-                        <property name="position">0</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="padding">20</property>
+                    <property name="padding">5</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
