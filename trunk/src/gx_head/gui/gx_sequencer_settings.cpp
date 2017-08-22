@@ -95,7 +95,6 @@ void SEQWindow::init_connect() {
         init_sequences(d.p, d.box);
     );
 
-
     seq_pos->cp_set_value(0.0);
     std::string id;
     seq_pos->get_property("var_id",id);
@@ -230,23 +229,22 @@ void SEQWindow::on_sec_length_changed(bool update) {
     static int r_save = 24;
     int r = int(seq_count->cp_get_value());
     if ( r_save > r) {
-        std::for_each(drums.begin(), drums.end(), [&](Drums d) {
+        FOR_DRUMS(
             remove_seq_block(d.box, r);
-        });
+        );
         r_save = r;
     } else if( r_save < r) {
-        std::for_each(drums.begin(), drums.end(), [&](Drums d) {
+        FOR_DRUMS(
             append_seq_block(d.box,d.p, r,r_save);
-        });
+        );
         r_save = r;
     }
     if (update) {
-        std::for_each(drums.begin(), drums.end(), [&](Drums d) {
+        FOR_DRUMS(
             on_seq_button_clicked(d.box,d.p);
-        });
+        );
     }
 }
-
 
 void SEQWindow::append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, int r, int r_save) {
     Gtk::ToggleButton * ab;
