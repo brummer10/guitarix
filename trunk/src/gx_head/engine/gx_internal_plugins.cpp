@@ -1535,8 +1535,167 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
  ** class DrumSequencer
  */
 
-#include "gx_drumseq.cc"
+#include "faust/drumseq.cc"
 
+DrumSequencer::DrumSequencer(ParamMap& param_)
+	: PluginDef(), 
+	  Vectom(0),
+	  Veckick(0),
+	  Vecsnare(0),
+	  Vechat(0),
+	  param(param_),
+	  tomset(),
+	  tomp(0),
+	  snareset(),
+	  snarep(0),
+	  hatset(),
+	  hatp(0),
+	  kickset(),
+	  kickp(0),
+	  plugin() {
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "seq";
+	name = N_("DrumSequencer");
+	groups = 0;
+	description = N_("Simple Drum Step Sequencer"); // description (tooltip)
+	category = N_("Misc");       // category
+	shortname = N_("Drum");     // shortname
+	mono_audio = compute_static;
+	stereo_audio = 0;
+	set_samplerate = init_static;
+	activate_plugin = 0;
+	register_params = register_params_static;
+	delete_instance = del_instance;
+	plugin = this;
+}
+
+DrumSequencer::~DrumSequencer() {
+}
+
+inline void DrumSequencer::init(unsigned int samplingFreq)
+{
+	fSamplingFreq = samplingFreq;
+	counter = 0;
+	step = 0;
+	fSlow1 = 0.0;
+	fSlow3 = 0.0;
+	fSlow5 = 0.0;
+	fSlow7 = 0.0;
+	fSlow9 = 0.0;
+	fSlow11 = 0.0;
+	position = 0.0;
+	drums.init(samplingFreq);
+}
+
+void DrumSequencer::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+	static_cast<DrumSequencer*>(p)->init(samplingFreq);
+}
+
+int DrumSequencer::min_seq_size(){
+	int i = min(min(Vectom.size(),Veckick.size()),min(Vechat.size(),Vecsnare.size()));
+	return i-1;
+}
+
+void DrumSequencer::reset_tom() {
+	Vectom = tomset.getseqline() ;
+	seq_size = min_seq_size();
+}
+
+void DrumSequencer::reset_kick() {
+	Veckick = kickset.getseqline() ;
+	seq_size = min_seq_size();
+}
+
+void DrumSequencer::reset_hat() {
+	Vechat = hatset.getseqline() ;
+	seq_size = min_seq_size();
+}
+
+void DrumSequencer::reset_snare() {
+	Vecsnare = snareset.getseqline() ;
+	seq_size = min_seq_size();
+}
+
+void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
+{
+	double 	fSlow15 = (60/double(fsliderbpm*ftact))*fSamplingFreq;
+	counter = counter+count;
+	if (counter >= (int)fSlow15) {
+		fSlow1 = double(Vecsnare[step]);
+		if ((int)fSlow15 > 4800) {
+			fSlow3 = double(Vechat[step]);
+		}
+		fSlow5 = double(Veckick[step]);
+		fSlow7 = double(Vectom[step]);
+		int m = int(fSlow15*0.05);
+		int r = rand()%(m+1 - (-m))+ (-m);
+		counter = int(r*fsliderhum);
+		if (step<seq_size) step = step+1;
+		else step = 0;
+		double ph1 = 2300.0/seq_size;
+		position = fmin(2300,fmax(0,double(step*ph1)));
+	} else {
+		fSlow1 = 0.0;
+		fSlow3 = 0.0;
+		fSlow5 = 0.0;
+		fSlow7 = 0.0;
+	}
+	drums.compute(count,input0,output0);
+}
+
+void __rt_func DrumSequencer::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
+{
+	static_cast<DrumSequencer*>(p)->compute(count, input0, output0);
+}
+
+int DrumSequencer::register_par(const ParamReg& reg)
+{
+	reg.registerNonMidiFloatVar("seq.hat_closed.dsp.gate",&fSlow3, false, true, 0.0, 0.0, 1.0, 1.0);
+	reg.registerNonMidiFloatVar("seq.kick.dsp.gate",&fSlow5, false, true, 0.0, 0.0, 1.0, 1.0);
+	reg.registerNonMidiFloatVar("seq.snare.dsp.gate",&fSlow1, false, true, 0.0, 0.0, 1.0, 1.0);
+	reg.registerNonMidiFloatVar("seq.tom.dsp.gate",&fSlow7, false, true, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("seq.bpm","","S",N_("Beats per Minute"),&fsliderbpm, 120, 24, 360, 1);
+	static const value_pair ftact_values[] = {{"1/4"},{"2/4"},{"3/4"},{"4/4"},{0}};
+	reg.registerEnumVar("seq.tact","","S",N_("select tact"),ftact_values,&ftact, 4.0, 1.0, 4.0, 1.0);
+	reg.registerVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 240.0, 4.0);
+	reg.registerVar("seq.hum","","B",N_("Randomize Sequence"),&fsliderhum, 0.0, 0.0, 1.0, 1.0);
+	reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 2300.0, 1.0);
+	for (int i=0; i<24; i++) Vectom.push_back(0);
+	for (int i=0; i<24; i++) Veckick.push_back(0);
+	for (int i=0; i<24; i++) Vechat.push_back(0);
+	for (int i=0; i<24; i++) Vecsnare.push_back(0);
+	tomp = SeqParameter::insert_param(param, "seq.sequencer.tom", &tomset);
+	snarep = SeqParameter::insert_param(param, "seq.sequencer.snare", &snareset);
+	hatp = SeqParameter::insert_param(param, "seq.sequencer.hat", &hatset);
+	kickp = SeqParameter::insert_param(param, "seq.sequencer.kick", &kickset);
+	tomp->signal_changed().connect(
+	sigc::hide(
+		sigc::mem_fun(this, &DrumSequencer::reset_tom)));
+	snarep->signal_changed().connect(
+	sigc::hide(
+		sigc::mem_fun(this, &DrumSequencer::reset_snare)));
+	hatp->signal_changed().connect(
+	sigc::hide(
+		sigc::mem_fun(this, &DrumSequencer::reset_hat)));
+	kickp->signal_changed().connect(
+	sigc::hide(
+		sigc::mem_fun(this, &DrumSequencer::reset_kick)));
+
+	drums.register_par(reg);
+	return 0;
+}
+
+int DrumSequencer::register_params_static(const ParamReg& reg)
+{
+	return static_cast<DrumSequencer*>(reg.plugin)->register_par(reg);
+}
+
+void DrumSequencer::del_instance(PluginDef *p)
+{
+	delete static_cast<DrumSequencer*>(p);
+}
 
 /****************************************************************************
 *

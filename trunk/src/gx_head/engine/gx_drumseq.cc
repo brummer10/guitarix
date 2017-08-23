@@ -4,43 +4,6 @@
 
 
 
-DrumSequencer::DrumSequencer(ParamMap& param_)
-	: PluginDef(), 
-      Vectom(0),
-      Veckick(0),
-      Vecsnare(0),
-      Vechat(0),
-      param(param_),
-      tomset(),
-      tomp(0),
-      snareset(),
-      snarep(0),
-      hatset(),
-      hatp(0),
-      kickset(),
-      kickp(0),
-      plugin() {
-	version = PLUGINDEF_VERSION;
-	flags = 0;
-	id = "seq";
-	name = N_("DrumSequencer");
-	groups = 0;
-	description = N_("Simple Drum Step Sequencer"); // description (tooltip)
-	category = N_("Misc");       // category
-	shortname = N_("Drum");     // shortname
-	mono_audio = compute_static;
-	stereo_audio = 0;
-	set_samplerate = init_static;
-	activate_plugin = 0;
-	register_params = register_params_static;
-	clear_state = clear_state_f_static;
-	delete_instance = del_instance;
-	plugin = this;
-}
-
-DrumSequencer::~DrumSequencer() {
-}
-
 inline void DrumSequencer::clear_state_f()
 {
 	for (int i=0; i<2; i++) iVec0[i] = 0;
@@ -139,31 +102,6 @@ inline void DrumSequencer::clear_state_f()
 void DrumSequencer::clear_state_f_static(PluginDef *p)
 {
 	static_cast<DrumSequencer*>(p)->clear_state_f();
-}
-
-int DrumSequencer::min_seq_size(){
-    int i = min(min(Vectom.size(),Veckick.size()),min(Vechat.size(),Vecsnare.size()));
-    return i-1;
-}
-
-void DrumSequencer::reset_tom() {
-	Vectom = tomset.getseqline() ;
-	seq_size = min_seq_size();
-}
-
-void DrumSequencer::reset_kick() {
-	Veckick = kickset.getseqline() ;
-	seq_size = min_seq_size();
-}
-
-void DrumSequencer::reset_hat() {
-	Vechat = hatset.getseqline() ;
-	seq_size = min_seq_size();
-}
-
-void DrumSequencer::reset_snare() {
-	Vecsnare = snareset.getseqline() ;
-	seq_size = min_seq_size();
 }
 
 inline void DrumSequencer::init(unsigned int samplingFreq)
