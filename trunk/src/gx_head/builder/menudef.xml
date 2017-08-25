@@ -14,6 +14,8 @@
     </menu>
     <menu action="PresetsMenu">
       <menuitem action="Presets" />
+      <menuitem action="NextPreset" />
+      <menuitem action="PreviusPreset" />
       <menuitem action="Organize" />
       <menuitem action="Save" />
       <menu action="PresetListMenu" />

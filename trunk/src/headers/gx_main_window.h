@@ -766,6 +766,8 @@ private:
     bool on_meter_button_release(GdkEventButton* ev);
     void show_selected_preset();
     void on_select_preset(int idx);
+    void on_next_preset();
+    void on_previus_preset();
     void set_switcher_controller();
     void set_bypass_controller();
     void set_vpaned_handle();

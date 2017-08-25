@@ -540,6 +540,40 @@ void MainWindow::on_select_preset(int idx) {
     keyswitch.process_preset_key(idx);
 }
 
+void MainWindow::on_next_preset() {
+    if (machine.setting_is_preset()) {
+        gx_system::PresetFileGui *pf = machine.get_current_bank_file();
+        Glib::ustring t;
+        int idx = 0;
+        t = machine.get_current_name();
+        for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
+            if (t.compare(i->name)==0) {
+                ++idx;
+                if (i == pf->end()-1) idx =0;
+                break;
+            }
+        }
+        keyswitch.process_preset_key(idx);
+    }
+}
+
+void MainWindow::on_previus_preset() {
+    if (machine.setting_is_preset()) {
+        gx_system::PresetFileGui *pf = machine.get_current_bank_file();
+        Glib::ustring t;
+        int idx = 0;
+        t = machine.get_current_name();
+        for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
+            if (t.compare(i->name)==0) {
+                --idx;
+                if (i == pf->begin()) idx =pf->size()-1;
+                break;
+            }
+        }
+        keyswitch.process_preset_key(idx);
+    }
+}
+
 void MainWindow::rebuild_preset_menu() {
     if (preset_list_merge_id) {
 	uimanager->remove_ui(preset_list_merge_id);
@@ -1430,6 +1464,10 @@ void MainWindow::create_actions() {
     actions.group->add(actions.osc_buffer_menu);
 
     actions.group->add(Gtk::Action::create("PresetsMenu",_("_Presets")));
+    actions.group->add(Gtk::Action::create("NextPreset",_("Next Preset")),
+    sigc::mem_fun(*this, &MainWindow::on_next_preset));
+    actions.group->add(Gtk::Action::create("PreviusPreset",_("Previus Preset")),
+    sigc::mem_fun(*this, &MainWindow::on_previus_preset));
     actions.group->add(Gtk::Action::create("PresetListMenu","--"));
     actions.group->add(Gtk::Action::create("PluginsMenu",_("P_lugins")));
     actions.group->add(Gtk::Action::create("MonoPlugins",_("_Mono Plugins")));
