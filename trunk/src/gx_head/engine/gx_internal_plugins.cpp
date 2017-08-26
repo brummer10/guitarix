@@ -1582,8 +1582,6 @@ inline void DrumSequencer::init(unsigned int samplingFreq)
 	fSlow3 = 0.0;
 	fSlow5 = 0.0;
 	fSlow7 = 0.0;
-	fSlow9 = 0.0;
-	fSlow11 = 0.0;
 	position = 0.0;
 	drums.init(samplingFreq);
 }

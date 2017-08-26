@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.24"/>
   <!-- interface-requires gxwidgets 0.0 -->
+  <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="SequencerWindow">
     <property name="can_focus">False</property>
@@ -232,7 +232,6 @@
           <object class="GtkHBox" id="hbox7">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="spacing">3</property>
             <child>
               <object class="GxSelector" id="gxselector1">
                 <property name="visible">True</property>
@@ -265,7 +264,7 @@
               <object class="GtkHBox" id="hbox8">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="spacing">5</property>
+                <property name="spacing">6</property>
                 <child>
                   <object class="GtkHBox" id="hbox13">
                     <property name="visible">True</property>
@@ -282,6 +281,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="padding">6</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
@@ -309,7 +309,6 @@
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="padding">5</property>
                     <property name="position">0</property>
                   </packing>
                 </child>

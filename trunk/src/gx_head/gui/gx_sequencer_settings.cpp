@@ -77,6 +77,7 @@ void SEQWindow::init_connect() {
     builder->find_widget("hbox4", hat.box);
     builder->find_widget("gxplayhead1", seq_pos);
     builder->find_widget("gxsmallknob6", seq_count);
+    builder->find_widget("gxselector1", seq_tact);
     builder->find_widget("hbox12", preset_button);
     builder->find_widget("button1", add_button);
 
@@ -105,6 +106,9 @@ void SEQWindow::init_connect() {
 
     seq_count->signal_value_changed().connect(
       sigc::bind(sigc::mem_fun(*this, &SEQWindow::on_sec_length_changed), true));
+
+    seq_tact->signal_value_changed().connect(
+      sigc::mem_fun(*this, &SEQWindow::on_sec_tact_changed));
 
     add_button->signal_clicked().connect(
       sigc::mem_fun(*this, &SEQWindow::on_preset_add_clicked));
@@ -246,6 +250,12 @@ void SEQWindow::on_sec_length_changed(bool update) {
     }
 }
 
+void SEQWindow::on_sec_tact_changed() {
+    FOR_DRUMS(
+        seq_changed(&d.p->get_value(), d.box);
+    );
+}
+
 void SEQWindow::append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, int r, int r_save) {
     Gtk::ToggleButton * ab;
     for(int j = r_save; j<r; ++j) {
@@ -320,9 +330,18 @@ void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box
     Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
     Glib::ListHandle<Gtk::Widget*>::iterator itt = seqList.begin();
     std::vector<int> sequence = seqc->getseqline();
+    int i0 = 0;
+    int ic = int(machine.get_parameter_value<float>("seq.tact"))-1;
     for (std::vector<int>::const_iterator i = sequence.begin(); i != sequence.end(); ++i) {
         if (itt == seqList.end()) break;
         dynamic_cast<Gtk::ToggleButton*>((*itt))->set_active(*i);
+        if (i0 == ic) {
+            dynamic_cast<Gtk::ToggleButton*>((*itt))->set_name("seq_button");
+            i0 = 0;
+        } else {
+            dynamic_cast<Gtk::ToggleButton*>((*itt))->set_name("button");
+            ++i0;
+        }
         ++itt;
     }
 }

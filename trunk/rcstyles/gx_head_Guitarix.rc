@@ -349,6 +349,15 @@ style "guitarix_buttons" {
 }
 class "GtkButton" style:highest "guitarix_buttons"
 
+style "guitarix_seq_buttons" {
+    bg[NORMAL]              = { 0.25, 0.25, 0.25 }
+    bg[ACTIVE]              = { 0.0, 0.0, 0.0 }
+    bg[PRELIGHT]            = { 0.30, 0.30, 0.30 }
+    bg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }
+    bg[SELECTED]            = { 0.20, 0.20, 0.20 }
+}
+widget "*seq_button" style:highest "guitarix_seq_buttons"
+
 style "guitarix_plugin_button" {
     fg[NORMAL] = "#ff9000"
     fg[PRELIGHT] = "#ffffff"

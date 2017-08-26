@@ -983,8 +983,6 @@ private:
 	FAUSTFLOAT 	fSlow3;
 	FAUSTFLOAT 	fSlow5;
 	FAUSTFLOAT 	fSlow7;
-	FAUSTFLOAT 	fSlow9;
-	FAUSTFLOAT 	fSlow11;
 	std::vector<int> Vectom;
 	std::vector<int> Veckick;
 	std::vector<int> Vecsnare;
