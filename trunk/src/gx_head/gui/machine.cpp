@@ -949,7 +949,7 @@ inline void debug_trace_param(Parameter *p) {
     } else if (dynamic_cast<JConvParameter*>(p) != 0) {
 	cerr << dynamic_cast<JConvParameter*>(p)->get_value().getFullIRPath();
     } else if (dynamic_cast<SeqParameter*>(p) != 0) {
-	cerr << dynamic_cast<SeqParameter*>(p)->get_value();
+	cerr << "SeqParameter";
     } else {
 	assert(false);
     }
