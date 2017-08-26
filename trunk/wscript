@@ -244,6 +244,15 @@ def set_options(opt):
                     const=True,
                     help=("install the included roboto condensed font"))
     
+    style.add_option('--fontdir',
+                    type='string',
+                    help=('roboto condensed font install directory [Default: <prefix>/share/fonts/truetype]'))
+    
+    style.add_option('--no-font-cache-update',
+                    action='store_const',
+                    default=False, 
+                    const=True,
+                    help='dont automatically update font cache')
     
 
     opt.recurse('pygxw')
@@ -721,7 +730,13 @@ def configure(conf):
     conf.define('GX_BUILDER_DIR', os.path.join(gxsharedir,'builder'))
     conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
-    conf.define('GX_FONTS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'fonts','truetype')))
+
+    if opt.fontdir:
+        conf.define('GX_FONTS_DIR', opt.fontdir)
+    else:
+        conf.define('GX_FONTS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'fonts','truetype')))
+
+
     conf.define('GX_VERSION', VERSION)
     
     if conf.env.DEST_CPU=='x86_64': 
@@ -759,6 +774,8 @@ def configure(conf):
                 conf.env['LIBDIR'], 'ladspa'))
 
     conf.env['FONT'] = opt.install_roboto_font
+    if opt.no_font_cache_update:
+        conf.env["NO_UPDATE_FONT_CACHE"] = True
 
     # g++ flags
     cxxflags = opt.cxxflags.split()
@@ -884,7 +901,7 @@ def configure(conf):
     display_msg("Install library", conf.env['LIBDIR'], 'CYAN')
     if conf.env['FONT']:
         display_msg("Install font roboto condensed", conf.env['GX_FONTS_DIR'], 'CYAN')
-
+        display_feature("Update Font config cache", not conf.env["NO_UPDATE_FONT_CACHE"])
     if not opt.no_ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
     if not opt.no_lv2:
@@ -945,8 +962,9 @@ def build(bld):
 
     if not bld.env['NO_MAIN']:
         if bld.env['FONT']:
-            bld.install_files(os.path.join(bld.env['GX_FONTS_DIR'], 'robotocondensed'), './fonts/*', chmod=0o777)
-            bld.add_post_fun(install_hook)
+            bld.install_files(os.path.join(bld.env['GX_FONTS_DIR'], 'robotocondensed'), './fonts/*', chmod=0o644)
+            if not bld.env["NO_UPDATE_FONT_CACHE"]:
+                bld.add_post_fun(install_hook)
 
         bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
