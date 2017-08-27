@@ -45,6 +45,9 @@ class UIDefs(object):
                     d["ename"] = ename = d["variable"] + "_values"
                     fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
                     fp.write('\t%(variable)s_ = %(prefix)sregisterSharedEnumVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
+                elif "nomidi" in d:
+                    assert "enum" not in d
+                    fp.write('\t%(variable)s_ = %(prefix)sregisterNonMidiSharedVar("%(id)s",&%(variable)s, false, true%(tail)s);\n' % d)
                 else:
                     fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
             elif "enum" in d:

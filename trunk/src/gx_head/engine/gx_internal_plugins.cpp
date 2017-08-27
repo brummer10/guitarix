@@ -1535,7 +1535,15 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
  ** class DrumSequencer
  */
 
-#include "faust/drumseq.cc"
+
+static const char* seq_groups[] = {
+	"hat_closed.dsp", N_("?"),
+	"kick.dsp", N_("?"),
+	"snare.dsp", N_("?"),
+	"tom.dsp", N_("?"),
+	"sequencer", N_("?"),
+	0
+};
 
 DrumSequencer::DrumSequencer(ParamMap& param_)
 	: PluginDef(), 
@@ -1557,7 +1565,7 @@ DrumSequencer::DrumSequencer(ParamMap& param_)
 	flags = 0;
 	id = "seq";
 	name = N_("DrumSequencer");
-	groups = 0;
+	groups = seq_groups;
 	description = N_("Simple Drum Step Sequencer"); // description (tooltip)
 	category = N_("Misc");       // category
 	shortname = N_("Drum");     // shortname
@@ -1694,6 +1702,8 @@ void DrumSequencer::del_instance(PluginDef *p)
 {
 	delete static_cast<DrumSequencer*>(p);
 }
+
+#include "faust/drumseq.cc"
 
 /****************************************************************************
 *

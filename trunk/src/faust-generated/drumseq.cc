@@ -506,13 +506,13 @@ int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslider0, -2e+01, -6e+01, 4e+01, 0.1);
 	reg.registerVar("seq.hat_closed.dsp.Gain","","S",N_("Volume level in decibels"),&fslider2, -2e+01, -6e+01, 4e+01, 0.1);
-	fcheckbox1_ = reg.registerVar("seq.hat_closed.dsp.gate","","BA","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0);
-	fcheckbox2_ = reg.registerVar("seq.kick.dsp.gate","","BA","",&fcheckbox2, 0.0, 0.0, 1.0, 1.0);
+	fcheckbox1_ = reg.registerNonMidiSharedVar("seq.hat_closed.dsp.gate",&fcheckbox1, false, true, 0.0, 0.0, 1.0, 1.0);
+	fcheckbox2_ = reg.registerNonMidiSharedVar("seq.kick.dsp.gate",&fcheckbox2, false, true, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.kick.dsp.Gain","","S",N_("Volume level in decibels"),&fslider3, -2e+01, -6e+01, 4e+01, 0.1);
 	reg.registerVar("seq.snare.dsp.Gain","","S",N_("Volume level in decibels"),&fslider1, -2e+01, -6e+01, 4e+01, 0.1);
-	fcheckbox0_ = reg.registerVar("seq.snare.dsp.gate","","BA","",&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
+	fcheckbox0_ = reg.registerNonMidiSharedVar("seq.snare.dsp.gate",&fcheckbox0, false, true, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fslider4, -2e+01, -6e+01, 4e+01, 0.1);
-	fcheckbox3_ = reg.registerVar("seq.tom.dsp.gate","","BA","",&fcheckbox3, 0.0, 0.0, 1.0, 1.0);
+	fcheckbox3_ = reg.registerNonMidiSharedVar("seq.tom.dsp.gate",&fcheckbox3, false, true, 0.0, 0.0, 1.0, 1.0);
 	return 0;
 }
 

@@ -137,6 +137,8 @@ struct ParamReg {
 			    float low, float up, float step);
     void (*registerIEnumVar)(const char *id, const char* name, const char* tp,
 			     const char* tooltip, const value_pair* values, int *var, int val);
+    float *(*registerNonMidiSharedVar)(const char * id, float *var, bool preset, bool nosave,
+              float val, float low, float up, float step);
 };
 
 /*

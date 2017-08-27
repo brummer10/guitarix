@@ -80,9 +80,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		
 int Dsp::register_par(const ParamReg& reg)
 {
-	fslider2_ = reg.registerVar("pre.Level","","SA","",&fslider2, 1.0, 0.1, 2.1, 0.1);
-	fslider0_ = reg.registerVar("pre.bass",N_("bass"),"SA","",&fslider0, 0.0, -1e+01, 1e+01, 0.5);
-	fslider1_ = reg.registerVar("pre.treble",N_("treble"),"SA","",&fslider1, 0.0, -1e+01, 1e+01, 0.5);
+	fslider2_ = reg.registerVar("pre.Level",N_("Level"),"SA",N_("Level"),&fslider2, 1.0, 0.1, 2.1, 0.1);
+	fslider0_ = reg.registerVar("pre.bass",N_("Bass"),"SA",N_("Bass"),&fslider0, 0.0, -1e+01, 1e+01, 0.5);
+	fslider1_ = reg.registerVar("pre.treble",N_("Treble"),"SA",N_("Treble"),&fslider1, 0.0, -1e+01, 1e+01, 0.5);
 	return 0;
 }
 

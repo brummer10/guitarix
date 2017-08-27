@@ -36,6 +36,7 @@ ParamRegImpl::ParamRegImpl(gx_engine::ParamMap* pm): ParamReg() {
     registerBoolVar = registerBoolVar_;
     registerNonMidiVar = registerNonMidiVar_;
     registerNonMidiFloatVar = registerNonMidiFloatVar_;
+    registerNonMidiSharedVar = registerNonMidiSharedVar_;
     registerEnumVar = registerEnumVar_;
     registerSharedEnumVar = registerSharedEnumVar_;
     registerIEnumVar = registerIEnumVar_;
@@ -166,6 +167,23 @@ void ParamRegImpl::registerNonMidiFloatVar_(const char * id, float *var, bool pr
     if (nosave) {
 	p->setSavable(false);
     }
+}
+
+float *ParamRegImpl::registerNonMidiSharedVar_(const char * id, float *var, bool preset, bool nosave,
+			       float val, float low, float up, float step) {
+	if (pmap->hasId(id)) {
+	    gx_engine::Parameter& p = (*pmap)[id];
+        p.setSavable(false);
+#ifndef NDEBUG
+	    gx_engine::FloatParameter p2(
+		id, "", gx_engine::Parameter::Continuous,
+		preset, p.getFloat().value, val, low, up, step, preset, nosave);
+	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
+#endif
+	    return p.getFloat().value;
+	}
+    FloatParameter *p = pmap->reg_non_midi_par(id, var, preset, val, low, up, step);
+    return p->getFloat().value;
 }
 
 
