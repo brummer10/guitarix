@@ -983,7 +983,16 @@ private:
 	FAUSTFLOAT 	fSlow3;
 	FAUSTFLOAT 	fSlow5;
 	FAUSTFLOAT 	fSlow7;
+	FAUSTFLOAT 	fSlow9;
+	FAUSTFLOAT 	fSlow11;
+	FAUSTFLOAT 	fSlow12;
+	FAUSTFLOAT 	fSlow14;
+	FAUSTFLOAT 	fSlow16;
+	FAUSTFLOAT 	fSlow18;
+	FAUSTFLOAT 	fSlow20;
 	std::vector<int> Vectom;
+	std::vector<int> Vectom1;
+	std::vector<int> Vectom2;
 	std::vector<int> Veckick;
 	std::vector<int> Vecsnare;
 	std::vector<int> Vechat;
@@ -991,6 +1000,10 @@ private:
     ParamMap& param;
     GxSeqSettings tomset;
     SeqParameter *tomp;
+    GxSeqSettings tomset1;
+    SeqParameter *tomp1;
+    GxSeqSettings tomset2;
+    SeqParameter *tomp2;
     GxSeqSettings snareset;
     SeqParameter *snarep;
     GxSeqSettings hatset;
@@ -1004,6 +1017,8 @@ private:
 
 	int min_seq_size();
     void reset_tom();
+    void reset_tom1();
+    void reset_tom2();
     void reset_kick();
     void reset_hat();
     void reset_snare();

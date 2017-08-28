@@ -16,10 +16,13 @@ fl = library("filter.lib");
 gate = checkbox("gate [nomidi:no][alias]");
 trigger = gate > gate';
 
-ampdb  = vslider("Gain [tooltip: Volume level in decibels]",-20,-60,40,0.1);
+ampdb  = vslider("Gainf [alias][tooltip: Volume level in decibels]",-20,-60,40,0.1);
 amp = ampdb : fl.smooth(0.999) : ml.db2linear;
 
-freq = 90;
+freq = vslider("[2] freq [nomidi:no][alias]", 90, 90, 150, 1);
+//freq = 90;
+// freq = 128;
+// freq = 150;
 sustain = 0.4;
 drum_timbre = 1.0;
 drum_mode_level = 0.25;

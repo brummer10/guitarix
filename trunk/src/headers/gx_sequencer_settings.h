@@ -45,6 +45,8 @@ class SEQWindow: public sigc::trackable {
     Glib::RefPtr<gx_gui::GxBuilder> builder;
     std::vector<Drums> drums;
     Drums tom;
+    Drums tom1;
+    Drums tom2;
     Drums kick;
     Drums snare;
     Drums hat;
@@ -79,6 +81,7 @@ class SEQWindow: public sigc::trackable {
     void init_connect();
     void init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box);
     SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::SeqParameter *tomp_,
+         gx_engine::SeqParameter *tomp1_, gx_engine::SeqParameter *tomp2_,
          gx_engine::SeqParameter *kickp_, gx_engine::SeqParameter *snarep_,
          gx_engine::SeqParameter *hatp_, gx_engine::GxMachineBase& machine_);
     ~SEQWindow();

@@ -21,7 +21,7 @@
 
 namespace gx_seq {
 
-#define DRUMS 4
+#define DRUMS 6
 
 #define FOR_DRUMS(func) std::for_each(drums.begin(), drums.end(), [&](Drums d) { func });
 
@@ -37,6 +37,8 @@ SEQWindow *SEQWindow::create(const std::string& unit_id, gx_engine::GxMachineBas
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
       machine.get_options().get_builder_filepath("Sequencer.glade"), &machine);
     gx_engine::SeqParameter *tomp = dynamic_cast<gx_engine::SeqParameter*>(&machine.get_parameter("seq.sequencer.tom"));
+    gx_engine::SeqParameter *tomp1 = dynamic_cast<gx_engine::SeqParameter*>(&machine.get_parameter("seq.sequencer.tom1"));
+    gx_engine::SeqParameter *tomp2 = dynamic_cast<gx_engine::SeqParameter*>(&machine.get_parameter("seq.sequencer.tom2"));
     gx_engine::SeqParameter *kickp = dynamic_cast<gx_engine::SeqParameter*>(&machine.get_parameter("seq.sequencer.kick"));
     gx_engine::SeqParameter *snarep = dynamic_cast<gx_engine::SeqParameter*>(&machine.get_parameter("seq.sequencer.snare"));
     gx_engine::SeqParameter *hatp = dynamic_cast<gx_engine::SeqParameter*>(&machine.get_parameter("seq.sequencer.hat"));
@@ -44,7 +46,7 @@ SEQWindow *SEQWindow::create(const std::string& unit_id, gx_engine::GxMachineBas
     assert(kickp);
     assert(snarep);
     assert(hatp);
-    return new SEQWindow(bld, tomp, kickp, snarep, hatp, machine);
+    return new SEQWindow(bld, tomp, tomp1, tomp2, kickp, snarep, hatp, machine);
 }
 
 /*
@@ -52,11 +54,14 @@ SEQWindow *SEQWindow::create(const std::string& unit_id, gx_engine::GxMachineBas
  */
 
 SEQWindow::SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld,gx_engine::SeqParameter *tomp_,
+         gx_engine::SeqParameter *tomp1_,gx_engine::SeqParameter *tomp2_,
          gx_engine::SeqParameter *kickp_, gx_engine::SeqParameter *snarep_,
          gx_engine::SeqParameter *hatp_, gx_engine::GxMachineBase& machine_)
     : machine(machine_),
       builder(bld),
       tom(tomp_),
+      tom1(tomp1_),
+      tom2(tomp2_),
       kick(kickp_),
       snare(snarep_),
       hat(hatp_),
@@ -72,6 +77,8 @@ void SEQWindow::init_connect() {
 
     builder->find_widget("viewport1", vp);
     builder->find_widget("hbox1", tom.box);
+    builder->find_widget("hbox1a", tom1.box);
+    builder->find_widget("hbox1b", tom2.box);
     builder->find_widget("hbox2", kick.box);
     builder->find_widget("hbox3", snare.box);
     builder->find_widget("hbox4", hat.box);
@@ -84,6 +91,8 @@ void SEQWindow::init_connect() {
     make_preset_button(preset_button);
 
     drums.push_back(tom);
+    drums.push_back(tom1);
+    drums.push_back(tom2);
     drums.push_back(kick);
     drums.push_back(snare);
     drums.push_back(hat);
@@ -182,7 +191,7 @@ void SEQWindow::append_plugin_preset(Glib::ustring name) {
     machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, name);
 
     // append preset sequence to current and get new step size 
-    int s = 0;
+    int s = 24;
     i = 0;
     FOR_DRUMS(
         s = append_sequence(&d.p->get_value(), d.p, &sequence[i]);
