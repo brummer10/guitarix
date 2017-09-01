@@ -747,6 +747,7 @@ private:
     Glib::Dispatcher       pgm_chg;
     Glib::Dispatcher       mute_chg;
     Glib::Dispatcher       bank_chg;
+    Glib::Dispatcher       val_chg;
     sigc::signal<void>     changed;
     sigc::signal<void,int> new_program;
     sigc::signal<void,int> new_mute_state;
@@ -756,6 +757,7 @@ private:
     void               on_pgm_chg();
     void               on_mute_chg();
     void               on_bank_chg();
+    void               on_val_chg();
     bool check_midi_values();
 public:
     MidiControllerList();

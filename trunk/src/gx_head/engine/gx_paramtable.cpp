@@ -479,6 +479,7 @@ MidiControllerList::MidiControllerList()
       pgm_chg(),
       mute_chg(),
       bank_chg(),
+      val_chg(),
       changed(),
       new_program(),
       new_mute_state(),
@@ -491,8 +492,9 @@ MidiControllerList::MidiControllerList()
     pgm_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_pgm_chg));
     mute_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_mute_chg));
     bank_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_bank_chg));
-    Glib::signal_timeout().connect(
-	sigc::mem_fun(this, &MidiControllerList::check_midi_values), 60);
+    val_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_val_chg));
+   // Glib::signal_timeout().connect(
+	// sigc::mem_fun(this, &MidiControllerList::check_midi_values), 60);
 }
 
 bool MidiControllerList::check_midi_values() {
@@ -515,6 +517,27 @@ bool MidiControllerList::check_midi_values() {
         }
     }
     return true;
+}
+
+void MidiControllerList::on_val_chg() {
+    static int saved_values[ControllerArray::array_size];
+    for (unsigned int n = 0; n < ControllerArray::array_size; ++n) {
+        if (changed_midi_control_value[n]) {
+            changed_midi_control_value[n] = 0;
+            saved_values[n] = last_midi_control_value[n];
+            midi_value_changed(n, saved_values[n]);
+            if (!get_config_mode()) {
+                midi_controller_list& ctr_list = map[n];
+                for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
+                    if (i->is_toggle()
+                        && i->toggle_behaviour() == Parameter::toggle_type::Constant) {
+                        midi_value_changed(n, i->getParameter().on_off_value() * 127);
+                    }
+                    i->trigger_changed();
+                }
+            }
+        }
+    }
 }
 
 /** update all controlled parameters with last received value from MIDI controller ctr. */
@@ -718,6 +741,7 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
 				 bank_chg();
 			} else {
 				set_ctr_val(in_event.buffer[1], in_event.buffer[2]);
+				val_chg();
 			}
         } else if ((in_event.buffer[0] ) > 0xf0) {   // midi clock
             if ((in_event.buffer[0] ) == 0xf8) {   // midi beat clock
