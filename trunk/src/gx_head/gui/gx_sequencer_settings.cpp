@@ -183,8 +183,8 @@ void SEQWindow::append_plugin_preset(Glib::ustring name) {
     float tactv = machine.get_parameter_value<float>("seq.tact");
     float gainv = machine.get_parameter_value<float>("seq.gain");
     float tomg = machine.get_parameter_value<float>("seq.tom.dsp.Gain");
-    float tomg1 = machine.get_parameter_value<float>("seq.tom1.dsp.Gain");
-    float tomg2 = machine.get_parameter_value<float>("seq.tom2.dsp.Gain");
+    float tomg1 = machine.get_parameter_value<float>("seq.tom.dsp.Gain1");
+    float tomg2 = machine.get_parameter_value<float>("seq.tom.dsp.Gain2");
     float kickg = machine.get_parameter_value<float>("seq.kick.dsp.Gain");
     float snareg = machine.get_parameter_value<float>("seq.snare.dsp.Gain");
     float hatg = machine.get_parameter_value<float>("seq.hat_closed.dsp.Gain");
@@ -218,8 +218,8 @@ void SEQWindow::append_plugin_preset(Glib::ustring name) {
     reset_control("seq.tact",tactv);
     reset_control("seq.gain",gainv);
     reset_control("seq.tom.dsp.Gain",tomg);
-    reset_control("seq.tom1.dsp.Gain",tomg1);
-    reset_control("seq.tom2.dsp.Gain",tomg2);
+    reset_control("seq.tom.dsp.Gain1",tomg1);
+    reset_control("seq.tom.dsp.Gain2",tomg2);
     reset_control("seq.kick.dsp.Gain",kickg);
     reset_control("seq.snare.dsp.Gain",snareg);
     reset_control("seq.hat_closed.dsp.Gain",hatg);
