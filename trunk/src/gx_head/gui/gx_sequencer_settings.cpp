@@ -43,6 +43,8 @@ SEQWindow *SEQWindow::create(const std::string& unit_id, gx_engine::GxMachineBas
     gx_engine::SeqParameter *snarep = dynamic_cast<gx_engine::SeqParameter*>(&machine.get_parameter("seq.sequencer.snare"));
     gx_engine::SeqParameter *hatp = dynamic_cast<gx_engine::SeqParameter*>(&machine.get_parameter("seq.sequencer.hat"));
     assert(tomp);
+    assert(tomp1);
+    assert(tomp2);
     assert(kickp);
     assert(snarep);
     assert(hatp);
@@ -65,6 +67,7 @@ SEQWindow::SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld,gx_engine::SeqPa
       kick(kickp_),
       snare(snarep_),
       hat(hatp_),
+      is_active(false),
       gtk_window(0) {
     bld->get_toplevel("SequencerWindow", gtk_window);
 
@@ -87,6 +90,8 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxselector1", seq_tact);
     builder->find_widget("hbox12", preset_button);
     builder->find_widget("button1", add_button);
+    builder->find_widget("gxswitch3", next_preset);
+    builder->find_widget("gxswitch4", set_step);
 
     make_preset_button(preset_button);
 
@@ -119,6 +124,12 @@ void SEQWindow::init_connect() {
     seq_tact->signal_value_changed().connect(
       sigc::mem_fun(*this, &SEQWindow::on_sec_tact_changed));
 
+    next_preset->signal_toggled().connect(
+      sigc::mem_fun(*this, &SEQWindow::on_next_preset));
+
+    set_step->signal_toggled().connect(
+      sigc::mem_fun(*this, &SEQWindow::on_set_step));
+
     add_button->signal_clicked().connect(
       sigc::mem_fun(*this, &SEQWindow::on_preset_add_clicked));
     add_button->set_tooltip_text(_("add effect unit preset to the sequence"));
@@ -133,6 +144,38 @@ void SEQWindow::init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box) {
         dynamic_cast<Gtk::ToggleButton*>((*itt))->signal_clicked().connect(
           sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked),p),_box));
     }
+}
+
+void SEQWindow::on_set_step() {
+    if (!set_step->get_active()) return;
+        reset_control("seq.step",0);
+        set_step->set_active(false);
+}
+
+void SEQWindow::on_next_preset() {
+    if (!next_preset->get_active()) return;
+    if (!is_active) {
+        is_active = true;
+        Glib::signal_idle().connect_once(sigc::mem_fun(this, &SEQWindow::on_next_preset_set));
+    }
+}
+
+void SEQWindow::on_next_preset_set() {
+    gx_preset::UnitPresetList presetnames;
+    machine.plugin_preset_list_load(machine.pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);
+    for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
+        if (!i->name.empty()) {
+            if (i->is_set) {
+                ++i;
+                machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, i->name);
+                break; 
+            } else {
+                machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, presetnames.begin()->name);
+            }
+        }
+    }
+    reset_control("seq.npreset",0);
+    is_active = false;
 }
 
 void SEQWindow::on_preset_popup_clicked() {
@@ -169,6 +212,13 @@ int SEQWindow::append_sequence(const gx_engine::GxSeqSettings* seqc, gx_engine::
 }
 
 void SEQWindow::append_plugin_preset(Glib::ustring name) {
+    if (!is_active) {
+        is_active = true;
+        Glib::signal_timeout().connect_once(sigc::bind(sigc::mem_fun(this, &SEQWindow::append_plugin_preset_set),name),5);
+    }
+}
+
+void SEQWindow::append_plugin_preset_set(Glib::ustring name) {
     // get current sequences
     std::vector<int> sequence[DRUMS];
     int i = 0;
@@ -188,7 +238,6 @@ void SEQWindow::append_plugin_preset(Glib::ustring name) {
     float kickg = machine.get_parameter_value<float>("seq.kick.dsp.Gain");
     float snareg = machine.get_parameter_value<float>("seq.snare.dsp.Gain");
     float hatg = machine.get_parameter_value<float>("seq.hat_closed.dsp.Gain");
-
     // set preset values
     machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, name);
 
@@ -223,7 +272,9 @@ void SEQWindow::append_plugin_preset(Glib::ustring name) {
     reset_control("seq.kick.dsp.Gain",kickg);
     reset_control("seq.snare.dsp.Gain",snareg);
     reset_control("seq.hat_closed.dsp.Gain",hatg);
-} 
+
+    is_active = false;
+ } 
 
 void SEQWindow::on_preset_add_clicked() {
     Gtk::MenuItem* item;
@@ -328,6 +379,10 @@ bool SEQWindow::on_key_press_event(GdkEventKey *event) {
 }
 
 void SEQWindow::on_seq_button_clicked(Gtk::HBox *box, gx_engine::SeqParameter *p) {
+    Glib::signal_timeout().connect_once(sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked_set),p),box),2);
+}
+
+void SEQWindow::on_seq_button_clicked_set(Gtk::HBox *box, gx_engine::SeqParameter *p) {
     std::vector<int> sequence;
     gx_engine::GxSeqSettings seqc;
     Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
@@ -343,8 +398,8 @@ void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box
     Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
     Glib::ListHandle<Gtk::Widget*>::iterator itt = seqList.begin();
     std::vector<int> sequence = seqc->getseqline();
-    int i0 = 0;
     int ic = int(machine.get_parameter_value<float>("seq.tact"))-1;
+    int i0 = ic;
     for (std::vector<int>::const_iterator i = sequence.begin(); i != sequence.end(); ++i) {
         if (itt == seqList.end()) break;
         dynamic_cast<Gtk::ToggleButton*>((*itt))->set_active(*i);

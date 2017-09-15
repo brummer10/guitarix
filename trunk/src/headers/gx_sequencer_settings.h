@@ -50,6 +50,7 @@ class SEQWindow: public sigc::trackable {
     Drums kick;
     Drums snare;
     Drums hat;
+    bool is_active;
 
     //  widget pointers
     Gtk::Window* gtk_window;
@@ -59,6 +60,8 @@ class SEQWindow: public sigc::trackable {
     Gxw::Regler *seq_pos;
     Gxw::Regler *seq_count;
     Gxw::Regler *seq_tact;
+    Gxw::Switch *next_preset;
+    Gxw::Switch *set_step;
 
     // signal functions
     void on_window_hide();
@@ -68,6 +71,7 @@ class SEQWindow: public sigc::trackable {
     void seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box);
     void make_state(gx_engine::GxSeqSettings& seqc, std::vector<int> seq);
     void on_seq_button_clicked(Gtk::HBox *box, gx_engine::SeqParameter *p);
+    void on_seq_button_clicked_set(Gtk::HBox *box, gx_engine::SeqParameter *p);
     void on_sec_length_changed(bool update);
     void on_sec_tact_changed();
     void append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, int r, int r_save);
@@ -77,7 +81,11 @@ class SEQWindow: public sigc::trackable {
     void make_preset_button(Gtk::HBox *box);
     void scroll_playhead(float value);
     void append_plugin_preset(Glib::ustring name);
-    void on_preset_add_clicked();  
+    void append_plugin_preset_set(Glib::ustring name);
+    void on_preset_add_clicked();
+    void on_next_preset();
+    void on_next_preset_set();
+    void on_set_step();
     void init_connect();
     void init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box);
     SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::SeqParameter *tomp_,

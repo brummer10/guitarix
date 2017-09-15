@@ -58,6 +58,8 @@ static image_entry image_data[] = {
 	{ "fbutton_off" },
     { "frbutton_on" },
 	{ "frbutton_off" },
+    { "cycle_on" },
+	{ "cycle_off" },
 	{ "vslider" },
 	{ "wheel_back" },
     { "wheel_vertical_back" },

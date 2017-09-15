@@ -721,7 +721,7 @@ public:
 
 class ControllerArray: public vector<midi_controller_list> {
 public:
-    enum { array_size = 128 };
+    enum { array_size = 328 };
     ControllerArray(): vector<midi_controller_list>(array_size) {}
     ~ControllerArray() {}
     void writeJSON(gx_system::JsonWriter& jw) const;

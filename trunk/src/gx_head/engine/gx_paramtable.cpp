@@ -106,6 +106,7 @@ static struct midi_std_init {
     {125, "Omni On"},
     {126, "Mono On (Poly Off)"},
     {127, "Poly On (Mono Off)"},
+    {300, "Note On "},
 };
 
 MidiStandardControllers::MidiStandardControllers() {
@@ -743,7 +744,11 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
 				set_ctr_val(in_event.buffer[1], in_event.buffer[2]);
 				val_chg();
 			}
-        } else if ((in_event.buffer[0] ) > 0xf0) {   // midi clock
+        } else if ((in_event.buffer[0] & 0xf0) == 0x90) {   // Note On
+			set_ctr_val(in_event.buffer[1]+200, 1);
+			val_chg();
+			//fprintf(stderr,"Note On %i", (int)in_event.buffer[1]);
+		} else if ((in_event.buffer[0] ) > 0xf0) {   // midi clock
             if ((in_event.buffer[0] ) == 0xf8) {   // midi beat clock
                 clock_gettime(CLOCK_MONOTONIC, &ts1);
                 gx_jack::GxJack& jack = *static_cast<gx_jack::GxJack*>(arg);

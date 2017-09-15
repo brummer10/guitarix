@@ -193,8 +193,22 @@ MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Gli
  ** Midi Control
  */
 
+string MidiConnect::midi_to_note(int ctr) {
+	static const char* notes[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    int octave = (ctr / 12) - 1;
+    ostringstream b;
+    b << octave;
+    string p = b.str().substr(0, 1);
+    int index = (ctr % 12);
+    string note = notes[index];
+    return note + p;
+}
 
 string MidiConnect::ctr_desc(int ctr) {
+    if (ctr > 200) {        
+        string p = midi_to_note(ctr-200);
+        return "(Note On " + p + " )";
+    }
     string p = gx_engine::midi_std_ctr[ctr];
     if (p.empty())
         return p;
@@ -288,6 +302,10 @@ gboolean MidiConnect::check_midi_cb(gpointer data) {
         return TRUE;
     m->current_control = ctl;
     gtk_entry_set_text(GTK_ENTRY(m->entry_new), ctl_to_str(ctl));
+    if ( ctl>200) {
+        gtk_toggle_button_set_active(m->use_toggle, true);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(m->toggle_behaviours), gx_engine::Parameter::toggle_type::Constant);
+    }
     return TRUE;
 }
 
@@ -305,8 +323,8 @@ void MidiConnect::changed_text_handler(GtkEditable *editable, gpointer data) {
     if (!str.empty()) {
         istringstream i(buf.str());
         i >> n;
-        if (n > 127) {
-            n = 127;
+        if (n > 327) {
+            n = 327;
         }
         ostringstream b;
         b << n;
@@ -395,8 +413,7 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_, gx
         //g_object_unref(store); // this THROW A GLib-GObject-CRITICAL WARNING
         GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(toggle_behaviours), renderer, TRUE);
-        gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(toggle_behaviours), renderer,
-                                       "cell-background", 0, "text", 1, NULL);
+        gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(toggle_behaviours), renderer, "text", 1, NULL); // "cell-background", 0, -> throw Gtk-WARNING **: Don't know color `0'
         gtk_combo_box_set_active(GTK_COMBO_BOX(toggle_behaviours), gx_engine::Parameter::toggle_type::OnOff);
         if (nctl != -1) {
             gtk_toggle_button_set_active(use_toggle, pctrl->is_toggle());
