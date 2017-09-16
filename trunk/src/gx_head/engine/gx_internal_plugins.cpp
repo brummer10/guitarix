@@ -1715,7 +1715,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.npreset","","B",N_("Load next unit preset"),&fnp, 0.0, 0.0, 1.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 2300.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.step",&step, false, true, 0.0, 0.0, 240.0, 1.0);
-	reg.registerVar("seq.set_step","","B",N_("Set stepper to Start Position"),&set_step, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("seq.set_step","","B",N_("Set stepper on Beat back"),&set_step, 0.0, 0.0, 1.0, 1.0);
 	for (int i=0; i<24; i++) Vectom.push_back(0);
 	for (int i=0; i<24; i++) Vectom1.push_back(0);
 	for (int i=0; i<24; i++) Vectom2.push_back(0);

@@ -371,6 +371,24 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
     button->signal_clicked().connect(
 	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
 }
+
+void StackBoxBuilder::addSmallSeqButton(const char* label, gx_seq::SEQWindow *seqw) {
+    Gtk::Button *button = new Gtk::Button();
+    button->set_name("smallbutton");
+    Gtk::Label *lab = new Gtk::Label(label);
+    Pango::FontDescription font = lab->get_style()->get_font();
+    font.set_size(7*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_NORMAL);
+    lab->modify_font(font);
+    button->add(*manage(lab));
+    //lab->set_name("rack_label_inverse");
+    lab->set_padding(5,0);
+    fBox.add(manage(button), label);
+    lab->show();
+    button->signal_clicked().connect(
+	sigc::mem_fun(*seqw, &gx_seq::SEQWindow::reload_and_show));
+}
+
 void StackBoxBuilder::addSeqButton(const char* label, gx_seq::SEQWindow *seqw) {
     Gtk::Button *button = new Gtk::Button();
     button->set_can_default(false);

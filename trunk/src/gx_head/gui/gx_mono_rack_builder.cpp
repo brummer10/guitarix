@@ -56,6 +56,12 @@ void StackBoxBuilder::make_rackbox_oscilloscope() {
 void StackBoxBuilder::make_rackbox_sequencer() {
     static gx_seq::SEQWindow *seqw = gx_seq::SEQWindow::create("seq", machine);
     openHorizontalhideBox("");
+        create_master_slider("seq.gain", _("Gain"));
+        openSpaceBox("");
+        closeBox();
+        openSpaceBox("");
+        closeBox();
+        addSmallSeqButton(C_("Setup", "S"), seqw);
     closeBox();
     openVerticalBox("");
     {

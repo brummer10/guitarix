@@ -136,11 +136,11 @@ private:
     void addCheckButton(const std::string& id, const char* label = 0);
     void addNumEntry(const std::string& id, const char* label = 0);
     void addMToggleButton(const std::string& id, const char* label = 0);
-    void addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void openSetLabelBox();
     void openSetMonoLabelBox();
-    void addJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
+    void addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
     void addJConvButton(const char* label, gx_jconv::IRWindow *irw);
+    void addSmallSeqButton(const char* label, gx_seq::SEQWindow *seqw);
     void addSeqButton(const char* label, gx_seq::SEQWindow *seqw);
     void set_next_flags(int flags);
 private:

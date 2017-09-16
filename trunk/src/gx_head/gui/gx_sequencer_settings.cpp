@@ -148,7 +148,9 @@ void SEQWindow::init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box) {
 
 void SEQWindow::on_set_step() {
     if (!set_step->get_active()) return;
-        reset_control("seq.step",0);
+        float tactv = machine.get_parameter_value<float>("seq.tact");
+        float value = std::max(0,int(machine.get_parameter_value<float>("seq.step")-tactv));
+        reset_control("seq.step",value);
         set_step->set_active(false);
 }
 
