@@ -136,7 +136,7 @@ void SEQWindow::init_connect() {
 
     add_button->signal_clicked().connect(
       sigc::mem_fun(*this, &SEQWindow::on_preset_add_clicked));
-    //add_button->set_tooltip_text(_("add effect unit preset to the sequence"));
+    add_button->set_tooltip_text(_("add effect unit preset to the sequence"));
 
     gtk_window->signal_key_press_event().connect(
       sigc::mem_fun(this, &SEQWindow::on_key_press_event));
