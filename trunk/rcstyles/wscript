@@ -25,6 +25,7 @@ gxstyle_files = [
     'live_wallpaper_grandma.png',
     'live_wallpaper_nebula.png',
     'live_wallpaper_rust.png',
+    'live_wallpaper_gold.png',
     
     'clear.rc',
     'tactile_knob_large_151f.png',
@@ -150,10 +151,15 @@ gxstyle_files = [
     'gx_head_Orange.rc',
     'orange.png',
     
-    ###WOOD THEME
+    ###RUST THEME
     'gx_head_Rust.rc',
     'rust.png',
     'rust2.png',
+    
+    ###GOLD THEME
+    'gx_head_Gold.rc',
+    'gold1.png',
+    'gold2.png',
     
      ]
 

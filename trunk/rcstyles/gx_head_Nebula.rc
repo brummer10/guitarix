@@ -28,6 +28,20 @@ style "guitarix_notebook" {
     ythickness = 5
     bg[ACTIVE] = "#222222"
     bg[NORMAL] = "#222222"
+
+    engine "murrine"  {
+    }
+
+    engine "nodoka"  {
+    }
+
+    engine "aurora" {
+        menubarstyle    = 0 # 0 = flat, 1 = gradient, 2 = sunken
+        curvature       = 2.0
+        arrowsize       = 1.0# controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize)
+        old_arrowstyle  = FALSE #set to TRUE for original circled arrows
+        animation       = TRUE # FALSE = disabled, TRUE = enabled
+    }
     engine "clearlooks" {
         contrast            = 0.66
         radius              = 3.0

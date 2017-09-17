@@ -981,6 +981,7 @@ private:
 	int 	seq_size;
 	FAUSTFLOAT 	step;
 	FAUSTFLOAT 	set_step;
+	FAUSTFLOAT 	set_fstep;
 	FAUSTFLOAT 	fSlow1;
 	FAUSTFLOAT 	fSlow3;
 	FAUSTFLOAT 	fSlow5;

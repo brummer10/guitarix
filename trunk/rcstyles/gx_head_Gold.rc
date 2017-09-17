@@ -23,9 +23,8 @@ widget "*tab_rack*label" style:highest "guitarix_notebook_labels"
 
 
 style "guitarix_default" {
-    stock["logo"]           = {{"logo_white.png"}}
-    stock["background1"]    = {{"rust.png"}}
-    stock["background2"]    = {{"rust2.png"}}
+    stock["background1"]    = {{"gold1.png"}}
+    stock["background2"]    = {{"gold2.png"}}
 }
 class "GtkWidget" style:highest "guitarix_default"
 
@@ -73,6 +72,6 @@ class "*GtkHSeparator" style:highest "guitarix_frame"
 style "guitarix-paintbox"
 {
   GxPaintBox::icon-set =1
-  stock['gxhead'] = {{"live_wallpaper_rust.png"}}
+  stock['gxhead'] = {{"live_wallpaper_gold.png"}}
 }
 class "*GxPaintBox" style "guitarix-paintbox"

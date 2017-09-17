@@ -56,12 +56,13 @@ class SEQWindow: public sigc::trackable {
     Gtk::Window* gtk_window;
     Gtk::Viewport *vp;
     Gtk::HBox *preset_button;
-    Gtk::Button* add_button;
+    Gxw::Switch *add_button;
     Gxw::Regler *seq_pos;
     Gxw::Regler *seq_count;
     Gxw::Regler *seq_tact;
     Gxw::Switch *next_preset;
     Gxw::Switch *set_step;
+    Gxw::Switch *set_fstep;
 
     // signal functions
     void on_window_hide();
@@ -86,6 +87,7 @@ class SEQWindow: public sigc::trackable {
     void on_next_preset();
     void on_next_preset_set();
     void on_set_step();
+    void on_set_fstep();
     void init_connect();
     void init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box);
     SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::SeqParameter *tomp_,

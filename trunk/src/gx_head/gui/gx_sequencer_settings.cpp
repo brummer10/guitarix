@@ -89,9 +89,10 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxsmallknob6", seq_count);
     builder->find_widget("gxselector1", seq_tact);
     builder->find_widget("hbox12", preset_button);
-    builder->find_widget("button1", add_button);
+    builder->find_widget("gxswitch6", add_button);
     builder->find_widget("gxswitch3", next_preset);
     builder->find_widget("gxswitch4", set_step);
+    builder->find_widget("gxswitch5", set_fstep);
 
     make_preset_button(preset_button);
 
@@ -130,9 +131,12 @@ void SEQWindow::init_connect() {
     set_step->signal_toggled().connect(
       sigc::mem_fun(*this, &SEQWindow::on_set_step));
 
+    set_fstep->signal_toggled().connect(
+      sigc::mem_fun(*this, &SEQWindow::on_set_fstep));
+
     add_button->signal_clicked().connect(
       sigc::mem_fun(*this, &SEQWindow::on_preset_add_clicked));
-    add_button->set_tooltip_text(_("add effect unit preset to the sequence"));
+    //add_button->set_tooltip_text(_("add effect unit preset to the sequence"));
 
     gtk_window->signal_key_press_event().connect(
       sigc::mem_fun(this, &SEQWindow::on_key_press_event));
@@ -152,6 +156,15 @@ void SEQWindow::on_set_step() {
         float value = std::max(0,int(machine.get_parameter_value<float>("seq.step")-tactv));
         reset_control("seq.step",value);
         set_step->set_active(false);
+}
+
+void SEQWindow::on_set_fstep() {
+    if (!set_fstep->get_active()) return;
+        float tactv = machine.get_parameter_value<float>("seq.tact");
+        float valuea = machine.get_parameter_value<float>("seq.asequences");
+        float value = std::min(int(valuea),int(machine.get_parameter_value<float>("seq.step")+tactv));
+        reset_control("seq.step",value);
+        set_fstep->set_active(false);
 }
 
 void SEQWindow::on_next_preset() {
@@ -279,6 +292,7 @@ void SEQWindow::append_plugin_preset_set(Glib::ustring name) {
  } 
 
 void SEQWindow::on_preset_add_clicked() {
+    if (!add_button->get_active()) return;
     Gtk::MenuItem* item;
     Gtk::Menu *presetMenu = Gtk::manage(new Gtk::Menu());
     gx_preset::UnitPresetList presetnames;
@@ -293,6 +307,7 @@ void SEQWindow::on_preset_add_clicked() {
     }
     presetMenu->show_all();
     presetMenu->popup(1, gtk_get_current_event_time());
+    add_button->set_active(false);
 }
 
 void SEQWindow::on_sec_length_changed(bool update) {
