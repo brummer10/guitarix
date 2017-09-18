@@ -975,6 +975,7 @@ private:
 	FAUSTFLOAT 	fsliderbpm;
 	FAUSTFLOAT 	fsliderhum;
 	FAUSTFLOAT 	fnp;
+	FAUSTFLOAT 	fpp;
     drumseq::Dsp drums;
 
 	int 	counter;
@@ -986,8 +987,6 @@ private:
 	FAUSTFLOAT 	fSlow3;
 	FAUSTFLOAT 	fSlow5;
 	FAUSTFLOAT 	fSlow7;
-	FAUSTFLOAT 	fSlow9;
-	FAUSTFLOAT 	fSlow11;
 	FAUSTFLOAT 	fSlow12;
 	FAUSTFLOAT 	fSlow14;
 	FAUSTFLOAT 	fSlow16;

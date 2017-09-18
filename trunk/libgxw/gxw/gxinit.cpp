@@ -60,6 +60,8 @@ static image_entry image_data[] = {
 	{ "frbutton_off" },
     { "cycle_on" },
 	{ "cycle_off" },
+    { "pcycle_on" },
+	{ "pcycle_off" },
     { "plus_on" },
 	{ "plus_off" },
 	{ "vslider" },

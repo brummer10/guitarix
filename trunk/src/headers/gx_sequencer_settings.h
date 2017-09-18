@@ -61,6 +61,7 @@ class SEQWindow: public sigc::trackable {
     Gxw::Regler *seq_count;
     Gxw::Regler *seq_tact;
     Gxw::Switch *next_preset;
+    Gxw::Switch *previus_preset;
     Gxw::Switch *set_step;
     Gxw::Switch *set_fstep;
 
@@ -86,6 +87,8 @@ class SEQWindow: public sigc::trackable {
     void on_preset_add_clicked();
     void on_next_preset();
     void on_next_preset_set();
+    void on_previus_preset();
+    void on_previus_preset_set();
     void on_set_step();
     void on_set_fstep();
     void init_connect();

@@ -1597,8 +1597,7 @@ inline void DrumSequencer::init(unsigned int samplingFreq)
 	fSlow3 = 0.0;
 	fSlow5 = 0.0;
 	fSlow7 = 0.0;
-	fSlow9 = 0.0;
-	fSlow11 = 0.0;
+	fSlow18 = 150.0;
 	position = 0.0;
 	drums.init(samplingFreq);
 }
@@ -1645,46 +1644,45 @@ void DrumSequencer::reset_snare() {
 
 void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow15 = (60/double(fsliderbpm*ftact))*fSamplingFreq;
+	double 	fSlow15 = (60.0/double(fsliderbpm*ftact))*fSamplingFreq;
 	counter = counter+count;
-	if (counter >= (int)fSlow15) {
-		
-		fSlow1 = double(Vecsnare[(int)step]);
-		if ((int)fSlow15 > 4800) {
-			fSlow3 = double(Vechat[(int)step]);
+	int iSlow15 = (int)fSlow15;
+	// beat
+	if (counter >= iSlow15) {
+		int istep = (int)step;
+		fSlow1 = double(Vecsnare[istep]);
+		// disable hat when sequencer runs to fast
+		if (iSlow15 > 4800) {
+			fSlow3 = double(Vechat[istep]);
 		}
-		fSlow5 = double(Veckick[(int)step]);
-		fSlow7 = double(Vectom[(int)step]);
-		fSlow9 = double(Vectom1[(int)step]);
-		fSlow11 = double(Vectom2[(int)step]);
-		if (int(fSlow11)) {
-			fSlow7 = fSlow11;
+		fSlow5 = double(Veckick[istep]);
+        // only one tom at time
+		if (Vectom2[istep]) {
+			fSlow7 = double(Vectom2[istep]);
 			fSlow18 = 150.0;
 			fSlow20 = fSlow16;
-		} else if (int(fSlow9)) {
-			fSlow7 = fSlow9;
+		} else if (Vectom1[istep]) {
+			fSlow7 = double(Vectom1[istep]);
 			fSlow18 = 128.0;
 			fSlow20 = fSlow14;
-		} else if(int(fSlow7)) {
-			fSlow7 = fSlow7;
+		} else if(Vectom[istep]) {
+			fSlow7 = double(Vectom[istep]);
 			fSlow18 = 90.0;
 			fSlow20 = fSlow12;
 		}
-		int m = int(fSlow15*0.1);
+		int m = iSlow15*0.15;
 		int r = rand()%(m+1 - (-m))+ (-m);
 		counter = int(r*fsliderhum);
 		
-		if (step<seq_size) step = step+1;
-		else step = 0;
+		if (step<seq_size) step = step+1.0;
+		else step = 0.0;
 		double ph1 = 2300.0/seq_size;
-		position = fmin(2300,fmax(0,double(step*ph1)));
+		position = fmin(2300,fmax(0,(step*ph1)));
 	} else {
 		fSlow1 = 0.0;
 		fSlow3 = 0.0;
 		fSlow5 = 0.0;
 		fSlow7 = 0.0;
-		fSlow9 = 0.0;
-		fSlow11 = 0.0;
 	}
 	drums.compute(count,input0,output0);
 }
@@ -1700,8 +1698,6 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerNonMidiFloatVar("seq.kick.dsp.gate",&fSlow5, false, true, 0.0, 0.0, 1.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.snare.dsp.gate",&fSlow1, false, true, 0.0, 0.0, 1.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.tom.dsp.gate",&fSlow7, false, true, 0.0, 0.0, 1.0, 1.0);
-	reg.registerNonMidiFloatVar("seq.tom.dsp.gate1",&fSlow9, false, true, 0.0, 0.0, 1.0, 1.0);
-	reg.registerNonMidiFloatVar("seq.tom.dsp.gate2",&fSlow11, false, true, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.tom.dsp.Gainf","","S",N_("Volume level in decibels"),&fSlow20, -2e+01, -6e+01, 4e+01, 0.1);
 	reg.registerVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fSlow12, -2e+01, -6e+01, 4e+01, 0.1);
 	reg.registerVar("seq.tom.dsp.Gain1","","S",N_("Volume level in decibels"),&fSlow14, -2e+01, -6e+01, 4e+01, 0.1);
@@ -1713,6 +1709,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 240.0, 4.0);
 	reg.registerVar("seq.hum","","B",N_("Randomize Sequence"),&fsliderhum, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.npreset","","B",N_("Load next unit preset"),&fnp, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("seq.ppreset","","B",N_("Load previus unit preset"),&fpp, 0.0, 0.0, 1.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 2300.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.step",&step, false, true, 0.0, 0.0, 240.0, 1.0);
 	reg.registerVar("seq.set_step","","B",N_("Set stepper one Beat back"),&set_step, 0.0, 0.0, 1.0, 1.0);
@@ -1723,6 +1720,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	for (int i=0; i<24; i++) Veckick.push_back(0);
 	for (int i=0; i<24; i++) Vechat.push_back(0);
 	for (int i=0; i<24; i++) Vecsnare.push_back(0);
+	seq_size = min_seq_size();
 	tomp = SeqParameter::insert_param(param, "seq.sequencer.tom", &tomset);
 	tomp1 = SeqParameter::insert_param(param, "seq.sequencer.tom1", &tomset1);
 	tomp2 = SeqParameter::insert_param(param, "seq.sequencer.tom2", &tomset2);

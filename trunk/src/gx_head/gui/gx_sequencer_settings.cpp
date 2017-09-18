@@ -91,6 +91,7 @@ void SEQWindow::init_connect() {
     builder->find_widget("hbox12", preset_button);
     builder->find_widget("gxswitch6", add_button);
     builder->find_widget("gxswitch3", next_preset);
+    builder->find_widget("gxswitch7", previus_preset);
     builder->find_widget("gxswitch4", set_step);
     builder->find_widget("gxswitch5", set_fstep);
 
@@ -127,6 +128,9 @@ void SEQWindow::init_connect() {
 
     next_preset->signal_toggled().connect(
       sigc::mem_fun(*this, &SEQWindow::on_next_preset));
+
+    previus_preset->signal_toggled().connect(
+      sigc::mem_fun(*this, &SEQWindow::on_previus_preset));
 
     set_step->signal_toggled().connect(
       sigc::mem_fun(*this, &SEQWindow::on_set_step));
@@ -193,14 +197,43 @@ void SEQWindow::on_next_preset_set() {
     is_active = false;
 }
 
+void SEQWindow::on_previus_preset() {
+    if (!previus_preset->get_active()) return;
+    if (!is_active) {
+        is_active = true;
+        Glib::signal_idle().connect_once(sigc::mem_fun(this, &SEQWindow::on_previus_preset_set));
+    }
+}
+
+void SEQWindow::on_previus_preset_set() {
+    gx_preset::UnitPresetList presetnames;
+    machine.plugin_preset_list_load(machine.pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);
+    gx_preset::UnitPresetList::iterator i = presetnames.begin();
+    for ( i = presetnames.begin(); i != presetnames.end(); ++i) {
+        if (!i->name.empty()) {
+            if (i->is_set) break; 
+        }
+    }
+    if (i == presetnames.begin()) {
+        i = presetnames.end();
+        --i;
+    } else if (i == presetnames.end()) {
+        i -=2;
+    } 
+    --i;
+    machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, i->name);
+    reset_control("seq.ppreset",0);
+    is_active = false;
+}
+
 void SEQWindow::on_preset_popup_clicked() {
     new PluginPresetPopup(machine.pluginlist_lookup_plugin("seq")->get_pdef(), machine);
 }
 
 void SEQWindow::make_preset_button(Gtk::HBox * box) {
     Gtk::Button *p = new Gtk::Button();
-    Gtk::Image *l = new Gtk::Image(Gdk::Pixbuf::create_from_file(machine.get_options().get_style_filepath("rack_preset.png")));
-    p->add(*Gtk::manage(l));
+    GtkWidget *l = gtk_image_new_from_stock("rack_preset", (GtkIconSize)-1);
+    p->add(*manage(Glib::wrap(l)));
     p->set_can_default(false);
     p->set_can_focus(false);
     p->set_tooltip_text(_("manage effect unit presets"));
