@@ -353,10 +353,14 @@ void GxPluginMono::do_work_mono()
      CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
      cabconv.cab_count = cab.ir_count;
      cabconv.cab_sr = cab.ir_sr;
-     cabconv.cab_data = cab.ir_data;
      cabconv.set_samplerate(s_rate);
      cabconv.set_buffersize(bufsize);
-     cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
+     float cab_irdata_c[cabconv.cab_count];
+     float adjust_1x8 = 1;
+     if ( c_model_ == 17.0) adjust_1x8 = 0.5;
+     impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, (clevel_ * adjust_1x8) );
+     cabconv.cab_data_new = cab_irdata_c;
+     cabconv.configure(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr);
      while (!cabconv.checkstate());
      if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver update buffersize fail\n");
@@ -364,7 +368,9 @@ void GxPluginMono::do_work_mono()
      ampconv.cleanup();
      ampconv.set_samplerate(s_rate);
      ampconv.set_buffersize(bufsize);
-     ampconv.configure(contrast_ir_desc.ir_count, contrast_ir_desc.ir_data, contrast_ir_desc.ir_sr);
+     float pre_irdata_c[contrast_ir_desc.ir_count];
+     ampf.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c, alevel_);
+     ampconv.configure(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr);
      while (!ampconv.checkstate());
      if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver update buffersize fail\n");
