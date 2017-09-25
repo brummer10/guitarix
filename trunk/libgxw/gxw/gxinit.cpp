@@ -64,6 +64,8 @@ static image_entry image_data[] = {
 	{ "pcycle_off" },
     { "plus_on" },
 	{ "plus_off" },
+    { "sync_on" },
+	{ "sync_off" },
 	{ "vslider" },
 	{ "wheel_back" },
     { "wheel_vertical_back" },

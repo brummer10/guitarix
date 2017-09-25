@@ -1593,6 +1593,7 @@ inline void DrumSequencer::init(unsigned int samplingFreq)
 	fSamplingFreq = samplingFreq;
 	counter = 0;
 	step = 0;
+	step_orig = 0;
 	fSlow1 = 0.0;
 	fSlow3 = 0.0;
 	fSlow5 = 0.0;
@@ -1645,7 +1646,7 @@ void DrumSequencer::reset_snare() {
 void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double 	fSlow15 = (60.0/double(fsliderbpm*ftact))*fSamplingFreq;
-	counter = counter+count;
+	counter += count;
 	int iSlow15 = (int)fSlow15;
 	// beat
 	if (counter >= iSlow15) {
@@ -1670,12 +1671,14 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 			fSlow18 = 90.0;
 			fSlow20 = fSlow12;
 		}
-		int m = iSlow15*0.15;
+		int m = ftact;
 		int r = rand()%(m+1 - (-m))+ (-m);
-		counter = int(r*fsliderhum);
+		counter = 0; //int(r*fsliderhum);
 		
-		if (step<seq_size) step = step+1.0;
+		if (step<seq_size) step = fmin(seq_size,fmax(0,step + 1.0 + int(r*fsliderhum)));
 		else step = 0.0;
+		if (step_orig<seq_size) step_orig += 1.0;
+		else step_orig = 0.0;
 		double ph1 = 2300.0/seq_size;
 		position = fmin(2300,fmax(0,(step*ph1)));
 	} else {
@@ -1712,8 +1715,10 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.ppreset","","B",N_("Load previus unit preset"),&fpp, 0.0, 0.0, 1.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 2300.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.step",&step, false, true, 0.0, 0.0, 240.0, 1.0);
+	reg.registerNonMidiFloatVar("seq.step_orig",&step_orig, false, true, 0.0, 0.0, 240.0, 1.0);
 	reg.registerVar("seq.set_step","","B",N_("Set stepper one Beat back"),&set_step, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.set_fstep","","B",N_("Set stepper one Beat forward"),&set_fstep, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("seq.set_sync","","B",N_("Set stepper back on Beat "),&set_sync, 0.0, 0.0, 1.0, 1.0);
 	for (int i=0; i<24; i++) Vectom.push_back(0);
 	for (int i=0; i<24; i++) Vectom1.push_back(0);
 	for (int i=0; i<24; i++) Vectom2.push_back(0);

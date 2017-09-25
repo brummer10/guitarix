@@ -21,6 +21,10 @@
 
 namespace gx_seq {
 
+#ifndef SCHED_IDLE
+#define SCHED_IDLE SCHED_OTHER  // non-linux systems
+#endif
+
 #define DRUMS 6
 
 #define FOR_DRUMS(func) std::for_each(drums.begin(), drums.end(), [&](Drums d) { func });
@@ -68,6 +72,8 @@ SEQWindow::SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld,gx_engine::SeqPa
       snare(snarep_),
       hat(hatp_),
       is_active(false),
+      next_name(""),
+      set_preset(),
       gtk_window(0) {
     bld->get_toplevel("SequencerWindow", gtk_window);
 
@@ -94,6 +100,7 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxswitch7", previus_preset);
     builder->find_widget("gxswitch4", set_step);
     builder->find_widget("gxswitch5", set_fstep);
+    builder->find_widget("gxswitch8", set_sync);
 
     make_preset_button(preset_button);
 
@@ -116,6 +123,8 @@ void SEQWindow::init_connect() {
     std::string id;
     seq_pos->get_property("var_id",id);
 
+    set_preset.connect(sigc::mem_fun(*this, &SEQWindow::on_set_preset));
+
     Glib::signal_timeout().connect(
       sigc::bind<Gxw::Regler*>(sigc::bind<const std::string>(
       sigc::mem_fun(*this, &SEQWindow::get_sequencer_pos),id), seq_pos), 60);
@@ -137,6 +146,9 @@ void SEQWindow::init_connect() {
 
     set_fstep->signal_toggled().connect(
       sigc::mem_fun(*this, &SEQWindow::on_set_fstep));
+
+    set_sync->signal_toggled().connect(
+      sigc::mem_fun(*this, &SEQWindow::on_sync_stepper));
 
     add_button->signal_clicked().connect(
       sigc::mem_fun(*this, &SEQWindow::on_preset_add_clicked));
@@ -171,6 +183,47 @@ void SEQWindow::on_set_fstep() {
         set_fstep->set_active(false);
 }
 
+void SEQWindow::on_sync_stepper() {
+    if (!set_sync->get_active()) return;
+    reset_control("seq.step",machine.get_parameter_value<float>("seq.step_orig"));
+    set_sync->set_active(false);
+}
+
+void SEQWindow::on_set_preset() {
+    machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, next_name);
+}
+
+void *SEQWindow::sync_run() {
+    int tactv = 0;
+    int valuea = (int)machine.get_parameter_value<float>("seq.asequences");
+    while (true) {
+        tactv = (int)machine.get_parameter_value<float>("seq.step");
+        if (tactv == valuea - 1) {
+            set_preset();
+            break;
+        }
+        usleep(50000);
+    }    
+    is_active = false;
+    return NULL;
+}
+
+void *SEQWindow::preset_sync_run(void *p) {
+    struct sched_param  spar;
+    spar.sched_priority = 0;
+    pthread_setschedparam(pthread_self(), SCHED_IDLE, &spar);
+    (reinterpret_cast<SEQWindow *>(p))->sync_run();
+    pthread_exit(NULL);
+    return NULL;
+}
+
+void SEQWindow::preset_sync_start() {
+    pthread_t pthr;
+    if (pthread_create(&pthr, NULL, preset_sync_run, reinterpret_cast<void*>(this))) {
+        gx_print_error("sequencer sync", _("can't create thread"));
+    }
+}
+
 void SEQWindow::on_next_preset() {
     if (!next_preset->get_active()) return;
     if (!is_active) {
@@ -186,15 +239,16 @@ void SEQWindow::on_next_preset_set() {
         if (!i->name.empty()) {
             if (i->is_set) {
                 ++i;
-                machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, i->name);
+                next_name = i->name;
+                preset_sync_start();
                 break; 
             } else {
-                machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, presetnames.begin()->name);
+                next_name = presetnames.begin()->name;
+                preset_sync_start();
             }
         }
     }
     reset_control("seq.npreset",0);
-    is_active = false;
 }
 
 void SEQWindow::on_previus_preset() {
@@ -221,9 +275,9 @@ void SEQWindow::on_previus_preset_set() {
         i -=2;
     } 
     --i;
-    machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, i->name);
+    next_name = i->name;
+    preset_sync_start();
     reset_control("seq.ppreset",0);
-    is_active = false;
 }
 
 void SEQWindow::on_preset_popup_clicked() {

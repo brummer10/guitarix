@@ -981,8 +981,10 @@ private:
 	int 	counter;
 	int 	seq_size;
 	FAUSTFLOAT 	step;
+	FAUSTFLOAT 	step_orig;
 	FAUSTFLOAT 	set_step;
 	FAUSTFLOAT 	set_fstep;
+	FAUSTFLOAT 	set_sync;
 	FAUSTFLOAT 	fSlow1;
 	FAUSTFLOAT 	fSlow3;
 	FAUSTFLOAT 	fSlow5;

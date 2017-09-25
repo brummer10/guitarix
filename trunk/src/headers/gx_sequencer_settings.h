@@ -51,6 +51,8 @@ class SEQWindow: public sigc::trackable {
     Drums snare;
     Drums hat;
     bool is_active;
+    Glib::ustring next_name;
+    Glib::Dispatcher  set_preset;
 
     //  widget pointers
     Gtk::Window* gtk_window;
@@ -64,6 +66,7 @@ class SEQWindow: public sigc::trackable {
     Gxw::Switch *previus_preset;
     Gxw::Switch *set_step;
     Gxw::Switch *set_fstep;
+    Gxw::Switch *set_sync;
 
     // signal functions
     void on_window_hide();
@@ -89,8 +92,13 @@ class SEQWindow: public sigc::trackable {
     void on_next_preset_set();
     void on_previus_preset();
     void on_previus_preset_set();
+    void on_set_preset();
+    static void *preset_sync_run(void *p);
+    void *sync_run();
+    void preset_sync_start();
     void on_set_step();
     void on_set_fstep();
+    void on_sync_stepper();
     void init_connect();
     void init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box);
     SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::SeqParameter *tomp_,
