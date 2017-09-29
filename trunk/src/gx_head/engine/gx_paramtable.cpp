@@ -758,13 +758,16 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
                         (1000000000.0/(double)(sr/(double)in_event.time));
                 if (mp.time_to_bpm(time0, &bpm_)) {
                     set_bpm_val(bpm_);
+                    val_chg();
                 }
             } else if ((in_event.buffer[0] ) == 0xfa) {   // midi clock start
                 set_ctr_val(23, 127);
+                val_chg();
             } else if ((in_event.buffer[0] ) == 0xfb) {   // midi clock continue
                //  set_ctr_val(23, 127);
             } else if ((in_event.buffer[0] ) == 0xfc) {   // midi clock stop
                 set_ctr_val(23, 0);
+                val_chg();
             } else if ((in_event.buffer[0] ) == 0xf2) {   // midi clock position
               // not implemented 
               //  set_ctr_val(24,(in_event.buffer[2]<<7) | in_event.buffer[1]);
