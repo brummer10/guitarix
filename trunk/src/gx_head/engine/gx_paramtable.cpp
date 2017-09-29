@@ -720,8 +720,8 @@ void MidiControllerList::process_trans(int transport_state) {
             i->set_trans(val, get_last_midi_control_value(24));
         }
     }
-    val_chg();
     MidiControllerList::set_last_midi_control_value(24, val);
+    val_chg();
 }
 
 // ----- jack process callback for the midi input
