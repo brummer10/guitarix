@@ -136,6 +136,7 @@ def build(bld):
         './builder/tremolo_ui.glade',
         './builder/pluginpreset_inputwindow.glade',
         './builder/pluginpreset_listwindow.glade',
+        './builder/pluginpreset_connectwindow.glade',
         './builder/selectinstance.glade',
         './builder/Sequencer.glade',
         './builder/menudef.xml',

@@ -92,7 +92,7 @@ class SEQWindow: public sigc::trackable {
     void on_next_preset_set();
     void on_previus_preset();
     void on_previus_preset_set();
-    void connect_midi(Glib::ustring name);
+    void connect_midi();
     void on_set_step();
     void on_set_fstep();
     void on_sync_stepper();
