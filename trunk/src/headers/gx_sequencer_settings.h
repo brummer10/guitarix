@@ -35,6 +35,47 @@ class Drums {
     ~Drums() {}
 };
 
+class UPresetListStore: public Gtk::ListStore {
+ public:
+    class UPresetListColumns : public Gtk::TreeModel::ColumnRecord {
+     public:
+        Gtk::TreeModelColumn<Glib::ustring> name;
+        UPresetListColumns() { add(name); }
+    } col;
+ private:
+    UPresetListStore(): Gtk::ListStore(), col() {
+        set_column_types(col);
+    }
+ public:
+    static Glib::RefPtr<UPresetListStore> create() {
+        return Glib::RefPtr<UPresetListStore>(new UPresetListStore);
+    }
+};
+
+/****************************************************************
+ ** PluginPresetConnectWindow
+ */
+
+class PluginPresetConnectWindow: public Gtk::Window {
+ private:
+    Glib::RefPtr<UPresetListStore> upresetliststore;
+    gx_engine::GxMachineBase& machine;
+    Gtk::TreeView *treeview;
+    Gtk::Button *connectbutton;
+    void on_connect();
+    void on_selection_changed();
+    virtual bool on_key_press_event(GdkEventKey *event);
+    static PluginPresetConnectWindow* create_from_builder(
+      BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld,
+      gx_engine::GxMachineBase& machine);
+    PluginPresetConnectWindow(BaseObjectType* cobject,
+      Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine);
+ public:
+    ~PluginPresetConnectWindow();
+    static PluginPresetConnectWindow *create(gx_engine::GxMachineBase& machine);
+    void run();
+};
+
 /****************************************************************
  ** Sequencer Parameter Window
  */
