@@ -66,6 +66,8 @@ static image_entry image_data[] = {
 	{ "plus_off" },
     { "sync_on" },
 	{ "sync_off" },
+    { "resetbutton_on" },
+	{ "resetbutton_off" },
 	{ "vslider" },
 	{ "wheel_back" },
     { "wheel_vertical_back" },

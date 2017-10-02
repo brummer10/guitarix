@@ -49,6 +49,7 @@ enum jsonrpc_method {
 	RPNM_pf_insert_before,
 	RPNM_pf_insert_after,
 	RPCM_plugin_preset_list_load,
+	RPNM_plugin_preset_list_sync_set,
 	RPNM_plugin_preset_list_set,
 	RPNM_plugin_preset_list_save,
 	RPNM_plugin_preset_list_remove,

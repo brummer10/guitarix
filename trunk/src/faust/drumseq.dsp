@@ -9,7 +9,6 @@ declare description "Simple Drum Step Sequencer";
 ml = library("music.lib");
 fl = library("filter.lib");
 
-
 hat = (vgroup("hat_closed.dsp",component("hat_closed.dsp"))); // hat_closed.dsp
 kick = (vgroup("kick.dsp",component("kick.dsp"))); // kick.dsp
 snare = (vgroup("snare.dsp",component("snare.dsp"))); // snare.dsp

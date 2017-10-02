@@ -652,7 +652,8 @@ class MidiStandardControllers {
         modstring(): name(""), modified(false), std(0) {}
     };
     map<int, modstring> m;
-
+    string midi_to_note(int ctr);
+    string ctr_desc(int ctr);
  public:
     MidiStandardControllers();
     const string operator[](int ctr) { return m[ctr].name; }

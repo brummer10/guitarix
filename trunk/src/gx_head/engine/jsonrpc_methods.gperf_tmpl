@@ -102,6 +102,7 @@ struct CmdConnection::methodnames;
 /* Unit Presets */
 
 "plugin_preset_list_load", true
+"plugin_preset_list_sync_set", false
 "plugin_preset_list_set", false
 "plugin_preset_list_save", false
 "plugin_preset_list_remove", false

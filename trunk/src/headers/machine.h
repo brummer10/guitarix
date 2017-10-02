@@ -122,6 +122,8 @@ public:
     virtual void save_to_state(bool preserve_preset=false) = 0;
     virtual void plugin_preset_list_load(const PluginDef *pdef, gx_preset::UnitPresetList &presetnames) = 0;
     virtual void plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) = 0;
+    virtual void plugin_preset_list_sync_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) = 0;
+    virtual void plugin_preset_list_set_on_idle(const PluginDef *pdef, bool factory, const Glib::ustring& name) = 0;
     virtual void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name) = 0;
     virtual void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name) = 0;
     virtual void disable_autosave(bool v) = 0;
@@ -154,6 +156,7 @@ public:
     virtual void set_jack_insert(bool v) = 0;
     // pmap
     virtual Parameter& get_parameter(const std::string& id) = 0;
+    virtual void insert_param(Glib::ustring group, Glib::ustring name) = 0;
     virtual void set_init_values() = 0;
     virtual bool parameter_hasId(const char *p) = 0;
     virtual bool parameter_hasId(const std::string& id) = 0;
@@ -305,6 +308,8 @@ public:
     virtual void save_to_state(bool preserve_preset=false);
     virtual void plugin_preset_list_load(const PluginDef *pdef, gx_preset::UnitPresetList &presetnames);
     virtual void plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);
+    virtual void plugin_preset_list_sync_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);
+    virtual void plugin_preset_list_set_on_idle(const PluginDef *pdef, bool factory, const Glib::ustring& name);
     virtual void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name);
     virtual void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name);
     virtual void disable_autosave(bool v);
@@ -338,6 +343,7 @@ public:
     // pmap
     virtual Parameter& get_parameter(const char *p);
     virtual Parameter& get_parameter(const std::string& id);
+    virtual void insert_param(Glib::ustring group, Glib::ustring name);
     virtual void set_init_values();
     virtual bool parameter_hasId(const char *p);
     virtual bool parameter_hasId(const std::string& id);
@@ -485,6 +491,8 @@ public:
     virtual void save_to_state(bool preserve_preset=false);
     virtual void plugin_preset_list_load(const PluginDef *pdef, gx_preset::UnitPresetList &presetnames);
     virtual void plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);
+    virtual void plugin_preset_list_sync_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);
+    virtual void plugin_preset_list_set_on_idle(const PluginDef *pdef, bool factory, const Glib::ustring& name);
     virtual void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name);
     virtual void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name);
     virtual void disable_autosave(bool v);
@@ -518,6 +526,7 @@ public:
     // pmap
     virtual Parameter& get_parameter(const char *p);
     virtual Parameter& get_parameter(const std::string& id);
+    virtual void insert_param(Glib::ustring group, Glib::ustring name);
     virtual void set_init_values();
     virtual bool parameter_hasId(const char *p);
     virtual bool parameter_hasId(const std::string& id);

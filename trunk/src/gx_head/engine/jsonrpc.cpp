@@ -926,6 +926,17 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	serv.settings.save(*serv.settings.banks.get_file(params[0]->getString()), params[1]->getString());
     }
 
+    PROCEDURE(plugin_preset_list_sync_set) {
+	gx_system::JsonStringWriter jw;
+	serv.jwc = &jw;
+	send_notify_begin(jw, "set");
+	serv.settings.plugin_preset_list_sync_set(
+	    serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString())->get_pdef(),
+	    params[1]->getInt(), params[2]->getString());
+	serv.jwc = 0;
+	serv.broadcast(jw, f_parameter_change_notify);
+    }
+
     PROCEDURE(plugin_preset_list_set) {
 	gx_system::JsonStringWriter jw;
 	serv.jwc = &jw;

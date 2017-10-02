@@ -72,8 +72,6 @@ SEQWindow::SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& bld,gx_engine::SeqPa
       snare(snarep_),
       hat(hatp_),
       is_active(false),
-      next_name(""),
-      set_preset(),
       gtk_window(0) {
     bld->get_toplevel("SequencerWindow", gtk_window);
 
@@ -101,6 +99,7 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxswitch4", set_step);
     builder->find_widget("gxswitch5", set_fstep);
     builder->find_widget("gxswitch8", set_sync);
+    builder->find_widget("gxswitch9", reset_step);
 
     make_preset_button(preset_button);
 
@@ -122,8 +121,6 @@ void SEQWindow::init_connect() {
     seq_pos->cp_set_value(0.0);
     std::string id;
     seq_pos->get_property("var_id",id);
-
-    set_preset.connect(sigc::mem_fun(*this, &SEQWindow::on_set_preset));
 
     Glib::signal_timeout().connect(
       sigc::bind<Gxw::Regler*>(sigc::bind<const std::string>(
@@ -149,6 +146,9 @@ void SEQWindow::init_connect() {
 
     set_sync->signal_toggled().connect(
       sigc::mem_fun(*this, &SEQWindow::on_sync_stepper));
+
+    reset_step->signal_toggled().connect(
+      sigc::mem_fun(*this, &SEQWindow::on_reset_stepper));
 
     add_button->signal_clicked().connect(
       sigc::mem_fun(*this, &SEQWindow::on_preset_add_clicked));
@@ -189,39 +189,12 @@ void SEQWindow::on_sync_stepper() {
     set_sync->set_active(false);
 }
 
-void SEQWindow::on_set_preset() {
-    machine.plugin_preset_list_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, next_name);
-}
-
-void *SEQWindow::sync_run() {
-    int tactv = 0;
-    int valuea = (int)machine.get_parameter_value<float>("seq.asequences");
-    while (true) {
-        tactv = (int)machine.get_parameter_value<float>("seq.step");
-        if (tactv == valuea - 1) {
-            set_preset();
-            break;
-        }
-        usleep(50000);
-    }    
-    is_active = false;
-    return NULL;
-}
-
-void *SEQWindow::preset_sync_run(void *p) {
-    struct sched_param  spar;
-    spar.sched_priority = 0;
-    pthread_setschedparam(pthread_self(), SCHED_IDLE, &spar);
-    (reinterpret_cast<SEQWindow *>(p))->sync_run();
-    pthread_exit(NULL);
-    return NULL;
-}
-
-void SEQWindow::preset_sync_start() {
-    pthread_t pthr;
-    if (pthread_create(&pthr, NULL, preset_sync_run, reinterpret_cast<void*>(this))) {
-        gx_print_error("sequencer sync", _("can't create thread"));
-    }
+void SEQWindow::on_reset_stepper() {
+    if (!reset_step->get_active()) return;
+    reset_control("seq.step",0.0);
+    reset_control("seq.step_orig",0.0);
+    reset_control("seq.pos",0.0);
+    reset_step->set_active(false);
 }
 
 void SEQWindow::on_next_preset() {
@@ -238,16 +211,16 @@ void SEQWindow::on_next_preset_set() {
     for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
         if (!i->name.empty()) {
             if (i->is_set) {
-                ++i;
-                next_name = i->name;
-                preset_sync_start();
+               ++i;
+               if (i->name.empty()) i = presetnames.begin();
+               machine.plugin_preset_list_sync_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, i->name);
                 break; 
             } else {
-                next_name = presetnames.begin()->name;
-                preset_sync_start();
+                machine.plugin_preset_list_sync_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, presetnames.begin()->name);
             }
         }
     }
+    is_active = false;
     reset_control("seq.npreset",0);
 }
 
@@ -275,13 +248,39 @@ void SEQWindow::on_previus_preset_set() {
         i -=2;
     } 
     --i;
-    next_name = i->name;
-    preset_sync_start();
+    machine.plugin_preset_list_sync_set(machine.pluginlist_lookup_plugin("seq")->get_pdef(), false, i->name);
+    is_active = false;
     reset_control("seq.ppreset",0);
 }
 
 void SEQWindow::on_preset_popup_clicked() {
-    new PluginPresetPopup(machine.pluginlist_lookup_plugin("seq")->get_pdef(), machine);
+    Gtk::Menu *presetMenu = static_cast<Gtk::Menu*>(new PluginPresetPopup(machine.pluginlist_lookup_plugin("seq")->get_pdef(), machine));
+    Gtk::MenuItem* subitem = Gtk::manage(new Gtk::MenuItem("connect midi cc", true));
+    Gtk::Menu* sub = Gtk::manage(new Gtk::Menu());
+    presetMenu->append(*subitem);
+    subitem->set_submenu(*sub);
+    Gtk::MenuItem* item;
+    gx_preset::UnitPresetList presetnames;
+    machine.plugin_preset_list_load(machine.pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);
+    for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
+        Glib::ustring id = "seq." + i->name;
+        if (!i->name.empty() && machine.parameter_hasId(id)) {
+            item = Gtk::manage(new Gtk::MenuItem(i->name, true));
+            sub->append(*item);
+             item->signal_activate().connect(sigc::bind(sigc::mem_fun(
+              *this, &SEQWindow::connect_midi),i->name));
+        }
+    }
+
+    presetMenu->show_all();
+}
+
+void SEQWindow::connect_midi(Glib::ustring name) {
+    if (!machine.midi_get_config_mode()) {
+        Glib::ustring id = "seq." + name;
+        if (machine.parameter_hasId(id))
+          new gx_main_midi::MidiConnect(0, machine.get_parameter(id), machine);
+    }
 }
 
 void SEQWindow::make_preset_button(Gtk::HBox * box) {
@@ -466,9 +465,13 @@ void SEQWindow::scroll_playhead(float value) {
 }
 
 bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
+    float value = 0;
     if (machine.parameter_hasId(id)) {
         if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
-            float value = machine.get_parameter_value<float>(id);
+            value = machine.get_parameter_value<float>(id);
+            if (!machine.get_jack()) {
+                if (value<99.0) return true;
+            }
             machine.signal_parameter_value<float>(id)(value);
            // scroll_playhead(value);
         }

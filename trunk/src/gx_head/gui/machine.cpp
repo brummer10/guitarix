@@ -160,6 +160,20 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     ip.signal_changed().connect(
 	sigc::mem_fun(this, &GxMachine::set_jack_insert));
 
+    gx_preset::UnitPresetList presetnames;
+    plugin_preset_list_load(pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);
+    for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
+        if (!i->name.empty()) {
+            Glib::ustring id = "seq." + i->name;
+            Glib::ustring tb = "switch to Drumsequencer preset " + i->name;
+            BoolParameter& sp = pmap.reg_par(
+              id, tb, (bool*)0, false, false)->getBool();
+            sp.setSavable(false);
+            sp.signal_changed().connect(sigc::hide(
+               sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(this, &GxMachine::plugin_preset_list_set_on_idle), i->name), false),pluginlist_lookup_plugin("seq")->get_pdef())));
+        }
+    }
+
 #ifndef NDEBUG
     // ------ time measurement (debug) ------
     gx_system::add_time_measurement();
@@ -187,6 +201,17 @@ GxMachine::~GxMachine() {
 	pmap.dump("json");
     }
 #endif
+}
+
+void GxMachine::insert_param(Glib::ustring group, Glib::ustring name) {
+    
+    Glib::ustring tb = "switch to Drumsequencer preset " + name;
+    Glib::ustring id = group + "." + name;
+    BoolParameter& sp = pmap.reg_par(
+      id, tb, (bool*)0, false, false)->getBool();
+    sp.setSavable(false);
+    sp.signal_changed().connect(sigc::hide(
+      sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(this, &GxMachine::plugin_preset_list_set_on_idle), name), false),pluginlist_lookup_plugin("seq")->get_pdef())));
 }
 
 void GxMachine::on_jack_load_change() {
@@ -540,6 +565,16 @@ void GxMachine::plugin_preset_list_load(const PluginDef *pdef, gx_preset::UnitPr
 
 void GxMachine::plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
     settings.plugin_preset_list_set(pdef, factory, name);
+}
+
+void GxMachine::plugin_preset_list_sync_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
+    settings.plugin_preset_list_sync_set(pdef, factory, name);
+}
+
+void GxMachine::plugin_preset_list_set_on_idle(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
+    Glib::signal_idle().connect_once(
+      sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(this, &GxMachine::plugin_preset_list_sync_set),name),factory),pdef));
+
 }
 
 void GxMachine::plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name) {
@@ -1535,6 +1570,10 @@ void GxMachineRemote::pluginlist_append_rack(UiBuilderBase& ui) {
     pluginlist.append_rack(ui);
 }
 
+void GxMachineRemote::insert_param(Glib::ustring group, Glib::ustring name) {
+  // FIXME Not implemented in remote machine
+}
+
 /*
 // unused now, 
 static const char *next_char_pointer(gx_system::JsonParser *jp) {
@@ -1999,6 +2038,19 @@ void GxMachineRemote::plugin_preset_list_set(const PluginDef *pdef, bool factory
     jw->write(factory);
     jw->write(name);
     SEND();
+}
+
+void GxMachineRemote::plugin_preset_list_sync_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
+    START_NOTIFY(plugin_preset_list_sync_set);
+    jw->write(pdef->id);
+    jw->write(factory);
+    jw->write(name);
+    SEND();
+}
+
+void GxMachineRemote::plugin_preset_list_set_on_idle(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
+    Glib::signal_idle().connect_once(
+      sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(this, &GxMachineRemote::plugin_preset_list_sync_set),name),factory),pdef));
 }
 
 void GxMachineRemote::plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name) {

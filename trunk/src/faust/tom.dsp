@@ -16,7 +16,7 @@ fl = library("filter.lib");
 gate = checkbox("gate [nomidi:no][alias]");
 trigger = gate > gate';
 
-ampdb  = vslider("Gainf [alias][tooltip: Volume level in decibels]",-20,-60,40,0.1);
+ampdb  = vslider("Gainf [nomidi:no][alias]",-20,-60,40,0.1);
 amp = ampdb : fl.smooth(0.999) : ml.db2linear;
 
 freq = vslider("[2] freq [nomidi:no][alias]", 90, 90, 150, 1);

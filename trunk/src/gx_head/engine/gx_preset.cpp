@@ -743,7 +743,7 @@ void PluginPresetList::write_values(gx_system::JsonWriter& jw, std::string id, c
     jw.begin_object(true);
     for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
 	if (i->first.compare(0, id.size(), id) == 0 || compare_groups(i->first, groups)) {
-	    if (i->second->isInPreset()) {
+	    if (i->second->isInPreset() && i->second->isSavable()) {
 		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->writeJSON(jw);
 		    jw.newline();
@@ -869,7 +869,12 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       mctrl(mctrl_),
       options(opt),
       preset_parameter(*param.reg_string("system.current_preset", "?", &current_name, "")),
-      bank_parameter(*param.reg_string("system.current_bank", "?", &current_bank, "")) {
+      bank_parameter(*param.reg_string("system.current_bank", "?", &current_bank, "")),
+      sync_name(""),
+      set_preset(),
+      get_sequencer_p(),
+      sequencer_max(24),
+      sequencer_pos(0) {
     set_io(&state_io, &preset_io);
     statefile.set_filename(make_default_state_filename());
     banks.parse(opt.get_preset_filepath(bank_list), opt.get_preset_dir(), opt.get_factory_dir(),
@@ -879,6 +884,8 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
 	sigc::mem_fun(*this, &GxSettings::exit_handler));
     jack.signal_client_change().connect(
 	sigc::mem_fun(*this, &GxSettings::jack_client_changed));
+    set_preset.connect(sigc::mem_fun(*this, &GxSettings::preset_sync_set));
+    get_sequencer_p.connect(sigc::mem_fun(*this, &GxSettings::on_get_sequencer_pos));
 }
 
 GxSettings *GxSettings::instance = 0;
@@ -1219,6 +1226,46 @@ void GxSettings::plugin_preset_list_load(const PluginDef *pdef, UnitPresetList &
     presetnames.push_back(PluginPresetEntry("", false));
     PluginPresetList factory(options.get_pluginpreset_filepath(pdef->id, true), param, mctrl);
     add_plugin_preset_list(factory, presetnames);
+}
+
+void GxSettings::preset_sync_set() {
+    PluginPresetList(options.get_pluginpreset_filepath("seq", false), param, mctrl).set(sync_name);
+}
+
+void GxSettings::on_get_sequencer_pos() {
+    gx_system::atomic_set(&sequencer_pos,(int)param["seq.step"].getFloat().get_value());
+}
+
+void *GxSettings::sync_run() {
+    while (true) {
+        get_sequencer_p();
+        usleep(50000);
+        if (gx_system::atomic_get(sequencer_pos) == 0) {
+              set_preset();
+            break;
+        }
+    }    
+    return NULL;
+}
+
+void *GxSettings::preset_sync_run(void *p) {
+    struct sched_param  spar;
+    spar.sched_priority = 0;
+    pthread_setschedparam(pthread_self(), SCHED_IDLE, &spar);
+    (reinterpret_cast< GxSettings*>(p))->sync_run();
+    pthread_exit(NULL);
+    return NULL;
+}
+
+void GxSettings::plugin_preset_list_sync_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) {
+    if(strcmp(pdef->id,"seq")==0) {
+        sync_name = name;
+        pthread_t pthr;
+        gx_system::atomic_set(&sequencer_max,(int)param["seq.asequences"].getFloat().get_value()-1);
+        if (pthread_create(&pthr, NULL, preset_sync_run, reinterpret_cast<void*>(this))) {
+            gx_print_error("GxSettings sync", _("can't create thread"));
+        }
+    }
 }
 
 void GxSettings::plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name) {

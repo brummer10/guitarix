@@ -698,7 +698,11 @@ void PluginPresetListWindow::run() {
 */
 
 void PluginPresetPopup::set_plugin_preset(bool factory, const Glib::ustring& name) {
-    machine.plugin_preset_list_set(pdef, factory, name);
+    if(strcmp(pdef->id,"seq")==0) {
+        machine.plugin_preset_list_sync_set(pdef, factory, name);
+    } else {
+        machine.plugin_preset_list_set(pdef, factory, name);
+    }
 }
 
 void PluginPresetPopup::set_plugin_std_preset() {
@@ -717,6 +721,12 @@ void PluginPresetPopup::save_plugin_preset() {
             machine.set_parameter_value("dubber.filename", w->get_name());
         }
         machine.plugin_preset_list_save(pdef, w->get_name());
+        if(strcmp(pdef->id,"seq")==0) {
+            Glib::ustring id = "seq." + w->get_name();
+            if (!machine.parameter_hasId(id)) {
+                machine.insert_param("seq", w->get_name());
+            }
+        }
     }
     delete w;
 }

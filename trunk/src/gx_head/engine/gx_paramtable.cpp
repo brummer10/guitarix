@@ -106,12 +106,31 @@ static struct midi_std_init {
     {125, "Omni On"},
     {126, "Mono On (Poly Off)"},
     {127, "Poly On (Mono Off)"},
-    {300, "Note On "},
 };
+
+string MidiStandardControllers::midi_to_note(int ctr) {
+	static const char* notes[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+    int octave = (ctr / 12) - 1;
+    ostringstream b;
+    b << octave;
+    string p = b.str().substr(0, 1);
+    int index = (ctr % 12);
+    string note = notes[index];
+    return note + p;
+}
+
+string MidiStandardControllers::ctr_desc(int ctr) {
+    string p = midi_to_note(ctr-200);
+    return  "Note On ( " + p + " )";
+ }
 
 MidiStandardControllers::MidiStandardControllers() {
     for (unsigned int i = 0; i < sizeof(midi_std_itab)/sizeof(midi_std_itab[0]); i++) {
         m.insert(pair<int, modstring>(midi_std_itab[i].ctrl, modstring(midi_std_itab[i].name)));
+    }
+    for (unsigned int i = 0; i < 127; i++) {
+        const int mm = i + 200;
+        m.insert(pair<int, modstring>(mm, modstring(ctr_desc(mm).c_str())));
     }
 }
 

@@ -155,6 +155,16 @@ private:
     static bool check_create_config_dir(const Glib::ustring& dir);
     static GxSettings *instance;
     friend class ::PosixSignals;
+    Glib::ustring sync_name;
+    void preset_sync_start();
+    static void *preset_sync_run(void *p);
+    void *sync_run();
+    void preset_sync_set();
+    void on_get_sequencer_pos();
+    Glib::Dispatcher  set_preset;
+    Glib::Dispatcher  get_sequencer_p;
+    volatile int sequencer_max;
+    volatile int sequencer_pos;
 public:
     using GxSettingsBase::banks;
     GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack, gx_engine::ConvolverAdapter& cvr,
@@ -169,6 +179,7 @@ public:
     void disable_autosave(bool v) { no_autosave = v; }
     void auto_save_state();
     void plugin_preset_list_load(const PluginDef *pdef, UnitPresetList &presetnames);
+    void plugin_preset_list_sync_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);
     void plugin_preset_list_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);
     void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name);
     void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name);

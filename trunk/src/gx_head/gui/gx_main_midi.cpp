@@ -193,22 +193,7 @@ MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Gli
  ** Midi Control
  */
 
-string MidiConnect::midi_to_note(int ctr) {
-	static const char* notes[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-    int octave = (ctr / 12) - 1;
-    ostringstream b;
-    b << octave;
-    string p = b.str().substr(0, 1);
-    int index = (ctr % 12);
-    string note = notes[index];
-    return note + p;
-}
-
 string MidiConnect::ctr_desc(int ctr) {
-    if (ctr > 200) {        
-        string p = midi_to_note(ctr-200);
-        return "(Note On " + p + " )";
-    }
     string p = gx_engine::midi_std_ctr[ctr];
     if (p.empty())
         return p;

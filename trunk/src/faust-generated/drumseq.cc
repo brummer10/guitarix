@@ -522,7 +522,7 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("seq.kick.dsp.Gain","","S",N_("Volume level in decibels"),&fslider3, -2e+01, -6e+01, 4e+01, 0.1);
 	reg.registerVar("seq.snare.dsp.Gain","","S",N_("Volume level in decibels"),&fslider1, -2e+01, -6e+01, 4e+01, 0.1);
 	fcheckbox0_ = reg.registerNonMidiSharedVar("seq.snare.dsp.gate",&fcheckbox0, false, true, 0.0, 0.0, 1.0, 1.0);
-	fslider4_ = reg.registerVar("seq.tom.dsp.Gainf","","SA",N_("Volume level in decibels"),&fslider4, -2e+01, -6e+01, 4e+01, 0.1);
+	fslider4_ = reg.registerNonMidiSharedVar("seq.tom.dsp.Gainf",&fslider4, false, true, -2e+01, -6e+01, 4e+01, 0.1);
 	fslider5_ = reg.registerNonMidiSharedVar("seq.tom.dsp.freq",&fslider5, false, true, 9e+01, 9e+01, 1.5e+02, 1.0);
 	fcheckbox3_ = reg.registerNonMidiSharedVar("seq.tom.dsp.gate",&fcheckbox3, false, true, 0.0, 0.0, 1.0, 1.0);
 	return 0;

@@ -93,7 +93,6 @@ class MidiConnect {
     GtkWidget* label_desc;
     GtkWidget* toggle_behaviours;
     static string ctr_desc(int ctr);
-    static string midi_to_note(int ctr);
     static const char *ctl_to_str(int n);
  public:
     MidiConnect(GdkEventButton *event, gx_engine::Parameter& param, gx_engine::GxMachineBase& machine);
