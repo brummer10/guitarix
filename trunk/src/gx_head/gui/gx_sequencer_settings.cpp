@@ -30,16 +30,21 @@ namespace gx_seq {
 #define FOR_DRUMS(func) std::for_each(drums.begin(), drums.end(), [&](Drums d) { func });
 
 
+
+/****************************************************************
+ ** PluginPresetConnectWindow
+ */
+
 class TextListStore: public Gtk::ListStore {
 public:
     class TextListColumns : public Gtk::TreeModel::ColumnRecord {
     public:
-	Gtk::TreeModelColumn<Glib::ustring> name;
-	TextListColumns() { add(name); }
+      Gtk::TreeModelColumn<Glib::ustring> name;
+      TextListColumns() { add(name); }
     } col;
 private:
     TextListStore(): Gtk::ListStore(), col() {
-	set_column_types(col);
+        set_column_types(col);
     }
 public:
     static Glib::RefPtr<TextListStore> create() { return Glib::RefPtr<TextListStore>(new TextListStore); }
@@ -49,14 +54,13 @@ class PluginPresetConnectWindow: public Gtk::Window {
 private:
     Glib::RefPtr<TextListStore> textliststore;
     gx_engine::GxMachineBase& machine;
-    //
     Gtk::TreeView *treeview;
     Gtk::Button *connectbutton;
     void on_connect();
     void on_selection_changed();
     virtual bool on_key_press_event(GdkEventKey *event);
     static PluginPresetConnectWindow* create_from_builder(
-	BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine);
+      BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine);
     PluginPresetConnectWindow(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine);
 public:
     ~PluginPresetConnectWindow();
@@ -75,18 +79,17 @@ PluginPresetConnectWindow::~PluginPresetConnectWindow() {
 PluginPresetConnectWindow *PluginPresetConnectWindow::create(
     const gx_system::CmdlineOptions& options, gx_engine::GxMachineBase& _machine) {
     Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(
-	options.get_builder_filepath("pluginpreset_connectwindow.glade"));
+      options.get_builder_filepath("pluginpreset_connectwindow.glade"));
     PluginPresetConnectWindow *w;
-    bld->get_toplevel_derived(
-	"PluginPresetConnectWindow", w,
-	sigc::bind(sigc::ptr_fun(PluginPresetConnectWindow::create_from_builder), bld, sigc::ref(_machine)));
+    bld->get_toplevel_derived("PluginPresetConnectWindow", w,
+      sigc::bind(sigc::ptr_fun(PluginPresetConnectWindow::create_from_builder), bld, sigc::ref(_machine)));
     return w;
 }
 
 bool PluginPresetConnectWindow::on_key_press_event(GdkEventKey *event) {
     if (event->keyval == GDK_KEY_Escape && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
-	hide();
-	return true;
+        hide();
+        return true;
     }
     return Gtk::Window::on_key_press_event(event);
 }
@@ -109,24 +112,24 @@ PluginPresetConnectWindow::PluginPresetConnectWindow(
     Gtk::Button *b;
     bld->find_widget("closebutton", b);
     b->signal_clicked().connect(
-	sigc::mem_fun(*this, &PluginPresetConnectWindow::hide));
+      sigc::mem_fun(*this, &PluginPresetConnectWindow::hide));
     bld->find_widget("connectbutton", connectbutton);
     connectbutton->signal_clicked().connect(
-	sigc::mem_fun0(*this, &PluginPresetConnectWindow::on_connect));
+      sigc::mem_fun0(*this, &PluginPresetConnectWindow::on_connect));
     bld->find_widget("treeview", treeview);
     gx_preset::UnitPresetList presetnames;
     machine.plugin_preset_list_load(machine.pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);
     for (gx_preset::UnitPresetList::const_iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
-	if (i->name.empty()) {
-	    break;
-	}
-	textliststore->append()->set_value(textliststore->col.name, i->name);
+        if (i->name.empty()) {
+            break;
+        }
+        textliststore->append()->set_value(textliststore->col.name, i->name);
     }
     treeview->set_model(textliststore);
     connectbutton->set_sensitive(false);
     Glib::RefPtr<Gtk::TreeSelection> sel = treeview->get_selection();
     sel->signal_changed().connect(
-	sigc::mem_fun(*this, &PluginPresetConnectWindow::on_selection_changed));
+      sigc::mem_fun(*this, &PluginPresetConnectWindow::on_selection_changed));
 }
 
 void PluginPresetConnectWindow::on_selection_changed() {
@@ -364,7 +367,7 @@ void SEQWindow::on_previus_preset_set() {
 
 void SEQWindow::on_preset_popup_clicked() {
     Gtk::Menu *presetMenu = static_cast<Gtk::Menu*>(new PluginPresetPopup(machine.pluginlist_lookup_plugin("seq")->get_pdef(), machine));
-    Gtk::MenuItem* subitem = Gtk::manage(new Gtk::MenuItem("connect midi ..", true));
+    Gtk::MenuItem* subitem = Gtk::manage(new Gtk::MenuItem("connect midi...", true));
     presetMenu->append(*subitem);
     subitem->signal_activate().connect(sigc::mem_fun(
               *this, &SEQWindow::connect_midi));
