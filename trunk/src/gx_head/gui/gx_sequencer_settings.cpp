@@ -377,6 +377,16 @@ void SEQWindow::append_plugin_preset_set(Glib::ustring name) {
     is_active = false;
  } 
 
+static bool delete_plugin_preset_popup(Gtk::Menu *presetMenu) {
+    delete presetMenu;
+    return false;
+}
+
+void SEQWindow::on_selection_done(Gtk::Menu *presetMenu) {
+    Glib::signal_idle().connect(sigc::bind(
+      sigc::ptr_fun(delete_plugin_preset_popup), presetMenu));
+}
+
 void SEQWindow::on_preset_add_clicked() {
     if (!add_button->get_active()) return;
     Gtk::MenuItem* item;
@@ -391,6 +401,8 @@ void SEQWindow::on_preset_add_clicked() {
               *this, &SEQWindow::append_plugin_preset),i->name));
         }
     }
+    presetMenu->signal_selection_done().connect(sigc::bind(sigc::mem_fun(
+      *this, &SEQWindow::on_selection_done),presetMenu));
     presetMenu->show_all();
     presetMenu->popup(1, gtk_get_current_event_time());
     add_button->set_active(false);

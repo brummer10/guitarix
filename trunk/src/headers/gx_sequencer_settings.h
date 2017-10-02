@@ -70,6 +70,7 @@ class SEQWindow: public sigc::trackable {
     // signal functions
     void on_window_hide();
     void on_preset_popup_clicked();
+    void on_selection_done(Gtk::Menu *presetMenu);
     bool get_sequencer_pos(Gxw::Regler * regler, const std::string id);
     bool on_key_press_event(GdkEventKey *event);
     void seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box);
