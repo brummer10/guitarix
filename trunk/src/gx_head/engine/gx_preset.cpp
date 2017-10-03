@@ -28,6 +28,10 @@
 
 #include "engine.h"                  // NOLINT
 
+#ifndef SCHED_IDLE
+#define SCHED_IDLE SCHED_OTHER  // non-linux systems
+#endif
+
 namespace gx_preset {
 
 /****************************************************************

@@ -853,6 +853,14 @@ string param_group(const string& group_id, bool nowarn) {
     }
 }
 
+bool ParameterGroups::group_exist(const string& id) {
+    if (groups.find(id) == groups.end()) {
+	return false;
+    } else {
+	return true;
+    }
+}
+
 /****************************************************************
  ** Parameter
  */

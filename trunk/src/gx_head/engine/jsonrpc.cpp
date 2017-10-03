@@ -1159,6 +1159,17 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	    params[0]->getInt(), serv.jack.get_jack_bs());
     }
 
+    PROCEDURE(insert_param) {
+	gx_engine::ParamMap& param = serv.settings.get_param();
+    const Glib::ustring& id = params[0]->getString();
+    const Glib::ustring& tb = params[1]->getString();
+    if (!param.hasId(id)) {
+        gx_engine::BoolParameter& sp = param.reg_par(
+          id, tb, (bool*)0, false, false)->getBool();
+        sp.setSavable(false);
+        }
+    }
+
     END_FUNCTION_SWITCH(cerr << "Method not found: " << mn->name << endl; assert(false));
 }
 

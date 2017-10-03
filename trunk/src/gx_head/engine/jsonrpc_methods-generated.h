@@ -22,6 +22,7 @@ enum jsonrpc_method {
 	RPCM_get_parameter_value,
 	RPCM_desc,
 	RPCM_list,
+	RPNM_insert_param,
 	RPCM_banks,
 	RPNM_setpreset,
 	RPNM_set_online_presets,

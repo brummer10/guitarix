@@ -68,6 +68,7 @@ class ParameterGroups {
 	debug_check(group_is_new, id);
 	groups.insert(pair<string, string>(id, group));
     }
+    bool group_exist(const string& id);
     inline void erase(const string& id) {
 #ifndef NDEBUG // avoid unused variable warning in release mode
 	size_t n = groups.erase(id);

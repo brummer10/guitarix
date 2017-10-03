@@ -21,10 +21,6 @@
 
 namespace gx_seq {
 
-#ifndef SCHED_IDLE
-#define SCHED_IDLE SCHED_OTHER  // non-linux systems
-#endif
-
 #define DRUMS 6
 
 #define FOR_DRUMS(func) std::for_each(drums.begin(), drums.end(), [&](Drums d) { func });

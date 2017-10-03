@@ -1570,10 +1570,6 @@ void GxMachineRemote::pluginlist_append_rack(UiBuilderBase& ui) {
     pluginlist.append_rack(ui);
 }
 
-void GxMachineRemote::insert_param(Glib::ustring group, Glib::ustring name) {
-  // FIXME Not implemented in remote machine
-}
-
 /*
 // unused now, 
 static const char *next_char_pointer(gx_system::JsonParser *jp) {
@@ -2343,6 +2339,26 @@ Parameter& GxMachineRemote::get_parameter(const char *p) {
 
 Parameter& GxMachineRemote::get_parameter(const std::string& id) {
     return pmap[id];
+}
+
+// special case for DrumSequencer: register parameter for midi cc connection
+void GxMachineRemote::insert_param(Glib::ustring group, Glib::ustring name) {
+    Glib::ustring id = group + "." + name;
+    Glib::ustring tb = "switch to Drumsequencer preset " + name;
+    START_NOTIFY(insert_param);
+    jw->write(id);
+    jw->write(tb);
+    SEND();
+    if (!pmap.hasId(id)) {
+        if (!gx_engine::get_group_table().group_exist(group))
+            gx_engine::get_group_table().insert(group,"Drumsequencer");
+        BoolParameter& sp = pmap.reg_par(
+          id, tb, (bool*)0, false, false)->getBool();
+        sp.setSavable(false);
+    }
+    if (pmap.hasId(id))
+        pmap[id].signal_changed_bool().connect(sigc::hide(
+          sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(this, &GxMachineRemote::plugin_preset_list_set_on_idle), name), false),pluginlist_lookup_plugin("seq")->get_pdef())));
 }
 
 void GxMachineRemote::set_init_values() {

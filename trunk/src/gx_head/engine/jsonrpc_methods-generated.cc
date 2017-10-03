@@ -31,7 +31,7 @@
 #error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
 #endif
 
-/* maximum key range = 158, duplicates = 0 */
+/* maximum key range = 173, duplicates = 0 */
 
 class Perfect_Hash
 {
@@ -46,19 +46,19 @@ Perfect_Hash::hash (const char *str, size_t len)
 {
   static const unsigned char asso_values[] =
     {
-      166, 166, 166, 166, 166, 166, 166, 166, 166, 166,
-      166, 166, 166, 166, 166, 166, 166, 166, 166, 166,
-      166, 166, 166, 166, 166, 166, 166, 166, 166, 166,
-      166, 166, 166, 166, 166, 166, 166, 166, 166, 166,
-      166, 166, 166, 166, 166, 166, 166, 166, 166, 166,
-      166, 166, 166, 166, 166, 166, 166, 166, 166, 166,
-      166, 166, 166, 166, 166, 166, 166, 166, 166, 166,
-      166, 166, 166, 166, 166, 166, 166, 166, 166, 166,
-      166, 166, 166, 166, 166, 166, 166, 166, 166, 166,
-      166, 166, 166, 166, 166,  65, 166,  30,  85,  15,
-       85,   0, 166,  30,  15,  45,  10,  30,  50,  55,
-       20, 105,  15,  45,   5,   5,   0,  65,   0,   0,
-      166,   0, 166, 166, 166, 166, 166, 166
+      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
+      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
+      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
+      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
+      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
+      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
+      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
+      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
+      181, 181, 181, 181, 181, 181, 181, 181, 181, 181,
+      181, 181, 181, 181, 181,  65, 181,  30,  85,  15,
+      100,   0, 181,  30,  15,  55,  10,  30,  50,  55,
+       20,  80,  15,   0,   5,   5,   0,  65,   0,   0,
+      181,   0, 181, 181, 181, 181, 181, 181
     };
   unsigned int hval = len;
 
@@ -83,11 +83,11 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 81,
+      TOTAL_KEYWORDS = 82,
       MIN_WORD_LENGTH = 3,
       MAX_WORD_LENGTH = 27,
       MIN_HASH_VALUE = 8,
-      MAX_HASH_VALUE = 165
+      MAX_HASH_VALUE = 180
     };
 
   static const struct CmdConnection::methodnames wordlist[] =
@@ -132,7 +132,7 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
       {"plugin_preset_list_save", RPNM_plugin_preset_list_save},
       {""},
       {"plugin_preset_list_remove", RPNM_plugin_preset_list_remove},
-      {"insert_rack_unit", RPNM_insert_rack_unit},
+      {""},
       {"plugin_preset_list_sync_set", RPNM_plugin_preset_list_sync_set},
       {""}, {""},
       {"getversion", RPCM_getversion},
@@ -141,7 +141,10 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
       {"getstate", RPCM_getstate},
       {"midi_size", RPCM_midi_size},
       {"save_ladspalist", RPNM_save_ladspalist},
-      {""}, {""}, {""}, {""}, {""}, {""},
+      {"insert_rack_unit", RPNM_insert_rack_unit},
+      {""}, {""},
+      {"queryunit", RPCM_queryunit},
+      {""}, {""},
       {"erase_preset", RPNM_erase_preset},
       {"get_parameter", RPCM_get_parameter},
       {"get_parameter_value", RPCM_get_parameter_value},
@@ -156,7 +159,7 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
       {"tuner_switcher_deactivate", RPNM_tuner_switcher_deactivate},
       {""}, {""},
       {"unlisten", RPNM_unlisten},
-      {"plugin_load_ui", RPCM_plugin_load_ui},
+      {""},
       {"banks", RPCM_banks},
       {"listen", RPNM_listen},
       {""},
@@ -165,27 +168,29 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
       {""},
       {"bank_remove", RPCM_bank_remove},
       {""}, {""},
-      {"desc", RPCM_desc},
+      {"plugin_load_ui", RPCM_plugin_load_ui},
       {"midi_get_config_mode", RPCM_midi_get_config_mode},
       {""},
       {"bank_reorder", RPNM_bank_reorder},
       {""},
-      {"reload_impresp_list", RPNM_reload_impresp_list},
+      {"get_tuner_freq", RPCM_get_tuner_freq},
       {"clear_oscilloscope_buffer", RPNM_clear_oscilloscope_buffer},
       {""},
       {"ladspaloader_update_plugins", RPCM_ladspaloader_update_plugins},
-      {"get_midi_controller_map", RPCM_get_midi_controller_map},
+      {"shutdown", RPNM_shutdown},
       {""},
       {"load_ladspalist", RPCM_load_ladspalist},
+      {""}, {""},
+      {"bank_check_reparse", RPCM_bank_check_reparse},
+      {"desc", RPCM_desc},
+      {"get_tuner_switcher_active", RPCM_get_tuner_switcher_active},
+      {""},
+      {"insert_param", RPNM_insert_param},
+      {"get_midi_controller_map", RPCM_get_midi_controller_map},
+      {"reload_impresp_list", RPNM_reload_impresp_list},
+      {"read_audio", RPCM_read_audio},
       {""},
       {"load_impresp_dirs", RPCM_load_impresp_dirs},
-      {"bank_check_reparse", RPCM_bank_check_reparse},
-      {"queryunit", RPCM_queryunit},
-      {"get_tuner_switcher_active", RPCM_get_tuner_switcher_active},
-      {""}, {""},
-      {"jack_cpu_load", RPCM_jack_cpu_load},
-      {"pf_append", RPNM_pf_append},
-      {""}, {""}, {""},
       {"midi_modifyCurrent", RPNM_midi_modifyCurrent},
       {"get_max_input_level", RPCM_get_max_input_level},
       {"get_max_output_level", RPCM_get_max_output_level},
@@ -194,21 +199,19 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
       {"bank_set_flag", RPNM_bank_set_flag},
       {"midi_set_current_control", RPNM_midi_set_current_control},
       {"get_tuning", RPCM_get_tuning},
-      {""},
-      {"bank_get_contents", RPCM_bank_get_contents},
-      {"shutdown", RPNM_shutdown},
-      {""}, {""}, {""}, {""},
-      {"plugin_preset_list_load", RPCM_plugin_preset_list_load},
-      {""},
-      {"bank_insert_new", RPCM_bank_insert_new},
-      {""}, {""}, {""},
-      {"bank_insert_content", RPCM_bank_insert_content},
-      {"read_audio", RPCM_read_audio},
-      {""}, {""}, {""},
-      {"get_tuner_freq", RPCM_get_tuner_freq},
-      {""}, {""}, {""}, {""}, {""}, {""},
       {"get_oscilloscope_info", RPCM_get_oscilloscope_info},
-      {""}, {""}, {""},
+      {"bank_get_contents", RPCM_bank_get_contents},
+      {"jack_cpu_load", RPCM_jack_cpu_load},
+      {"pf_append", RPNM_pf_append},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {""}, {""}, {""}, {""}, {""}, {""},
+      {"bank_insert_new", RPCM_bank_insert_new},
+      {""}, {""},
+      {"plugin_preset_list_load", RPCM_plugin_preset_list_load},
+      {"bank_insert_content", RPCM_bank_insert_content},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
+      {""}, {""},
       {"midi_deleteParameter", RPNM_midi_deleteParameter}
     };
 
@@ -245,6 +248,7 @@ const jsonrpc_method_def jsonrpc_method_list[] = {
 	{ "get_parameter_value", true },
 	{ "desc", true },
 	{ "list", true },
+	{ "insert_param", false },
 	{ "banks", true },
 	{ "setpreset", false },
 	{ "set_online_presets", false },

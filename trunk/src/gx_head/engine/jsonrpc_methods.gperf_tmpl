@@ -66,6 +66,7 @@ struct CmdConnection::methodnames;
 "get_parameter_value", true
 "desc", true
 "list", true
+"insert_param", false
 
 /* Preset Banks */
 
