@@ -794,10 +794,9 @@ void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
 }
 
 void PresetWindow::read_preset_menu() {
-
+    if (! machine.get_jack()) usleep(5000);
     Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_presets_filename(), resolve_hostname()));
     Glib::RefPtr<Gio::DataInputStream> in = Gio::DataInputStream::create(dest->read());    
-    
     std::string NAME_;
     std::string FILE_;
     std::string INFO_;
