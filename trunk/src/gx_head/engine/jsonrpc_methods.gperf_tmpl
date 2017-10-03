@@ -73,6 +73,7 @@ struct CmdConnection::methodnames;
 "banks", true
 "setpreset", false
 "set_online_presets", false
+"create_default_scratch_preset", false
 "sendcc", false
 "bank_insert_content", true
 "bank_insert_new", true

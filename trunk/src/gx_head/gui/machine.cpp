@@ -1982,7 +1982,6 @@ void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustr
 void GxMachineRemote::load_online_presets() {
     START_NOTIFY(set_online_presets);
     SEND();
-    // FIXME
 }
 
 void GxMachineRemote::loadstate() {
@@ -1998,7 +1997,8 @@ int GxMachineRemote::get_bank_index(const Glib::ustring& bank) {
 }
 
 void GxMachineRemote::create_default_scratch_preset() {
-    /* noop */
+    START_NOTIFY(create_default_scratch_preset);
+    SEND();
 }
 
 void GxMachineRemote::set_statefilename(const std::string& fn) {

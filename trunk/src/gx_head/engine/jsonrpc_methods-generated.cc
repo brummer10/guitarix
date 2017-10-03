@@ -83,9 +83,9 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 82,
+      TOTAL_KEYWORDS = 83,
       MIN_WORD_LENGTH = 3,
-      MAX_WORD_LENGTH = 27,
+      MAX_WORD_LENGTH = 29,
       MIN_HASH_VALUE = 8,
       MAX_HASH_VALUE = 180
     };
@@ -118,7 +118,7 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
       {"sendcc", RPNM_sendcc},
       {"set_oscilloscope_mul_buffer", RPNM_set_oscilloscope_mul_buffer},
       {"setstate", RPNM_setstate},
-      {""},
+      {"create_default_scratch_preset", RPNM_create_default_scratch_preset},
       {"pluginlist", RPCM_pluginlist},
       {"rename_bank", RPCM_rename_bank},
       {""},
@@ -252,6 +252,7 @@ const jsonrpc_method_def jsonrpc_method_list[] = {
 	{ "banks", true },
 	{ "setpreset", false },
 	{ "set_online_presets", false },
+	{ "create_default_scratch_preset", false },
 	{ "sendcc", false },
 	{ "bank_insert_content", true },
 	{ "bank_insert_new", true },

@@ -168,6 +168,12 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxswitch5", set_fstep);
     builder->find_widget("gxswitch8", set_sync);
     builder->find_widget("gxswitch9", reset_step);
+    builder->find_widget("label9:rack_label_inverse", preset_label);
+
+    Pango::FontDescription font = preset_label->get_style()->get_font();
+    font.set_size(10*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_BOLD);
+    preset_label->modify_font(font);
 
     make_preset_button(preset_button);
 
@@ -538,6 +544,7 @@ bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
                 if (value<99.0) return true;
             }
             machine.signal_parameter_value<float>(id)(value);
+            machine.signal_parameter_value<float>("seq.step")(machine.get_parameter_value<float>("seq.step"));
            // scroll_playhead(value);
         }
         return true;
@@ -565,6 +572,22 @@ void SEQWindow::on_seq_button_clicked_set(Gtk::HBox *box, gx_engine::SeqParamete
     p->set(seqc);
 }
 
+void SEQWindow::check_preset_label() {
+    Glib::ustring pset = " ";
+    gx_preset::UnitPresetList presetnames;
+    machine.plugin_preset_list_load(machine.pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);
+    gx_preset::UnitPresetList::iterator i = presetnames.begin();
+    for ( i = presetnames.begin(); i != presetnames.end(); ++i) {
+        if (!i->name.empty()) {
+            if (i->is_set) {
+                pset = i->name;
+                break;
+            }
+        }
+    }
+    preset_label->set_label(pset);
+}
+
 void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box) {
 
     Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
@@ -584,6 +607,7 @@ void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box
         }
         ++itt;
     }
+    Glib::signal_idle().connect_once(sigc::mem_fun(this, &SEQWindow::check_preset_label));
 }
 
 void SEQWindow::reload_and_show() {

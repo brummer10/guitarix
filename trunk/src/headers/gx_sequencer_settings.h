@@ -96,6 +96,7 @@ class SEQWindow: public sigc::trackable {
     //  widget pointers
     Gtk::Window* gtk_window;
     Gtk::Viewport *vp;
+    Gtk::Label *preset_label;
     Gtk::HBox *preset_button;
     Gxw::Switch *add_button;
     Gxw::Regler *seq_pos;
@@ -114,6 +115,7 @@ class SEQWindow: public sigc::trackable {
     void on_selection_done(Gtk::Menu *presetMenu);
     bool get_sequencer_pos(Gxw::Regler * regler, const std::string id);
     bool on_key_press_event(GdkEventKey *event);
+    void check_preset_label();
     void seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box);
     void make_state(gx_engine::GxSeqSettings& seqc, std::vector<int> seq);
     void on_seq_button_clicked(Gtk::HBox *box, gx_engine::SeqParameter *p);
