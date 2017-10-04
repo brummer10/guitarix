@@ -545,7 +545,8 @@ bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
             }
             machine.signal_parameter_value<float>(id)(value);
             machine.signal_parameter_value<float>("seq.step")(machine.get_parameter_value<float>("seq.step"));
-           // scroll_playhead(value);
+            if (machine.get_parameter_value<float>("seq.follow"))
+                scroll_playhead(value);
         }
         return true;
     } else {

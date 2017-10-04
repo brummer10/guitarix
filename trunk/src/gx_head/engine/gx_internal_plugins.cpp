@@ -1720,6 +1720,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.set_fstep","","BO",N_("Set stepper one Beat forward"),0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.set_sync","","BO",N_("Set stepper back on Beat "),0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.reset_step","","BO",N_("Set stepper one Start"),0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("seq.follow","","BO",N_("follow playhead"),0, 0.0, 0.0, 1.0, 1.0);
 	for (int i=0; i<24; i++) Vectom.push_back(0);
 	for (int i=0; i<24; i++) Vectom1.push_back(0);
 	for (int i=0; i<24; i++) Vectom2.push_back(0);
