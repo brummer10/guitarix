@@ -154,6 +154,7 @@ public:
     bool active_set;
     bool has_settings;
     int add_wet_dry;
+    int stereo_to_mono;
     PluginDesc *old;
 public:
     int quirks_get();
@@ -164,6 +165,7 @@ public:
     int set_active(bool v);
     void fixup();
     void set_add_wet_dry_controller(bool v);
+    void set_stereo_to_mono(bool v);
     void copy_ports(PluginDesc *p);
     void set_category(const std::vector<Glib::ustring>& s);
     void set_default(int idx, float value, const Glib::ustring& label);

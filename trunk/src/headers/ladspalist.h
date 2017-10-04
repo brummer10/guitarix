@@ -87,6 +87,7 @@ private:
     gx_engine::GxMachineBase& machine;
     LadspaPluginList pluginlist;
     PluginDesc *current_plugin;
+    PluginDesc *changed_plugin;
     int old_state;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     int change_count;
@@ -127,6 +128,7 @@ private:
     Gtk::Entry *plugin_name;
     Gtk::ComboBox *plugin_category;
     Gtk::ToggleButton *dry_wet_button;
+    Gtk::ToggleButton *stereo_to_mono_button;
     Gtk::ComboBox *plugin_quirks;
     Gtk::ComboBox *master_slider_idx;
     Gtk::Entry *master_slider_name;
@@ -146,6 +148,9 @@ private:
     bool on_delete_event(GdkEventAny*);
     void on_show_details();
     void on_add_dry_wet_controller();
+    void on_stereo_to_mono_controller();
+    void on_stereo_mono_changed();
+    bool remono;
     void on_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column);
     void on_label_edited(const Glib::ustring& path, const Glib::ustring& newtext);
     void on_parameter_selection_changed();

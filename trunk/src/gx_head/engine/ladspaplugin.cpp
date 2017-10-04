@@ -36,6 +36,7 @@ class LadspaDsp: public PluginDef {
 private:
     static void init(unsigned int samplingFreq, PluginDef *plugin);
     static void mono_process(int count, float *input, float *output, PluginDef *plugin);
+    static void to_mono_process(int count, float *input, float *output, PluginDef *plugin);
     static void stereo_process(int count, float *input1, float *input2, float *output1, float *output2, PluginDef *plugin);
     static int activate(bool start, PluginDef *plugin);
     static int registerparam(const ParamReg& reg);
@@ -56,8 +57,10 @@ private:
     std::string idd;
     inline void mono_dry_wet(int count, float *input0, float *input1, float *output0);
     inline void stereo_dry_wet(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1);
+    inline void down_to_mono(int count, float *input0, float *input1, float *output0);
+    inline void up_to_stereo(int count, float *input0, float *output0, float *output1);
     std::string make_id(const paradesc& p);
-    LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, bool mono);
+    LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, bool mono, bool to_mono);
     ~LadspaDsp();
 public:
     static LadspaDsp *create(const plugdesc *plug);
@@ -115,10 +118,12 @@ LadspaDsp *LadspaDsp::create(const plugdesc *plug) {
 	}
     }
     bool mono;
+    bool to_mono = false;
     if (num_inputs == 1 && num_outputs == 1) {
 	mono = true;
     } else if (num_inputs == 2 && num_outputs == 2) {
 	mono = false;
+	if (plug->stereo_to_mono) to_mono = true;
     } else {
 	gx_print_error(
 	    "ladspaloader",ustring::compose(
@@ -128,10 +133,10 @@ LadspaDsp *LadspaDsp::create(const plugdesc *plug) {
 	handle = 0;
 	return NULL;
     }
-    return new LadspaDsp(plug, handle, desc, mono);
+    return new LadspaDsp(plug, handle, desc, mono, to_mono);
 }
 
-LadspaDsp::LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, bool mono)
+LadspaDsp::LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, bool mono, bool to_mono)
     : PluginDef(), desc(desc_), handle(handle_), instance(),
       ports(new LADSPA_Data[desc->PortCount]), name_str(), pd(plug), is_activated(false) {
     version = PLUGINDEF_VERSION;
@@ -144,7 +149,8 @@ LadspaDsp::LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descripto
     if (mono) {
 	mono_audio = mono_process;
     } else {
-	stereo_audio = stereo_process;
+	if (to_mono) mono_audio = to_mono_process;
+	else stereo_audio = stereo_process;
     }
     activate_plugin = activate;
     register_params = registerparam;
@@ -231,6 +237,7 @@ void plugdesc::readJSON(gx_system::JsonParser& jp) {
 	    jp.read_kv("category", category) ||
 	    jp.read_kv("quirks", quirks) ||
 	    jp.read_kv("add_wet_dry", add_wet_dry) ||
+	    jp.read_kv("stereo_to_mono", stereo_to_mono) ||
 	    jp.read_kv("master_idx", master_idx) ||
 	    jp.read_kv("master_label", master_label) ||
 	    jp.read_kv("id_str", id_str)) {
@@ -259,6 +266,7 @@ void plugdesc::writeJSON(gx_system::JsonWriter& jw) {
     jw.write_kv("category", category);
     jw.write_kv("quirks", quirks);
     jw.write_kv("add_wet_dry", add_wet_dry);
+    jw.write_kv("stereo_to_mono", stereo_to_mono);
     jw.write_kv("master_idx", master_idx);
     jw.write_kv("master_label", master_label);
     jw.write_kv("id_str", id_str);
@@ -373,6 +381,49 @@ void LadspaDsp::mono_process(int count, float *input, float *output, PluginDef *
     self.connect(LADSPA_PORT_INPUT, 0, input);
     self.connect(LADSPA_PORT_OUTPUT, 0, output);
     self.desc->run(self.instance, count);
+    }
+}
+
+void LadspaDsp::up_to_stereo(int count, float *input0, float *output0, float *output1) {
+    memcpy(output0, input0, count * sizeof(float));
+    memcpy(output1, input0, count * sizeof(float));
+}
+
+void LadspaDsp::down_to_mono(int count, float *input0, float *input1, float *output0) {
+	for (int i=0; i<count; i++) {
+		output0[i] = 0.5 * (input0[i] + input1[i]);
+	}
+}
+
+void LadspaDsp::to_mono_process(int count, float *input, float *output, PluginDef *plugin) {
+    LadspaDsp& self = *static_cast<LadspaDsp*>(plugin);
+    assert(self.is_activated);
+    if (self.pd->add_wet_dry) {
+	float wet_out[count];
+	float inputs[count];
+	float inputs1[count];
+	float outputs[count];
+	float outputs1[count];
+	self.up_to_stereo(count,input,inputs, inputs1);
+	self.connect(LADSPA_PORT_INPUT, 0, inputs);
+	self.connect(LADSPA_PORT_INPUT, 1, inputs1);
+	self.connect(LADSPA_PORT_INPUT, 0, outputs);
+	self.connect(LADSPA_PORT_INPUT, 1, outputs1);
+    self.desc->run(self.instance, count);
+	self.down_to_mono(count,outputs,outputs1,wet_out);
+	self.mono_dry_wet(count, input, wet_out, output);
+    } else {
+	float inputs[count];
+	float inputs1[count];
+	float outputs[count];
+	float outputs1[count];
+	self.up_to_stereo(count,input,inputs, inputs1);
+	self.connect(LADSPA_PORT_INPUT, 0, inputs);
+	self.connect(LADSPA_PORT_INPUT, 1, inputs1);
+	self.connect(LADSPA_PORT_INPUT, 0, outputs);
+	self.connect(LADSPA_PORT_INPUT, 1, outputs1);
+    self.desc->run(self.instance, count);
+	self.down_to_mono(count,outputs,outputs1,output);
     }
 }
 
@@ -675,6 +726,7 @@ class Lv2Dsp: public PluginDef {
 private:
     static void init(unsigned int samplingFreq, PluginDef *plugin);
     static void mono_process(int count, float *input, float *output, PluginDef *plugin);
+    static void to_mono_process(int count, float *input, float *output, PluginDef *plugin);
     static void stereo_process(int count, float *input1, float *input2, float *output1, float *output2, PluginDef *plugin);
     static int activate(bool start, PluginDef *plugin);
     static int registerparam(const ParamReg& reg);
@@ -696,8 +748,10 @@ private:
     std::string idd;
     inline void mono_dry_wet(int count, float *input0, float *input1, float *output0);
     inline void stereo_dry_wet(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1);
+    inline void down_to_mono(int count, float *input0, float *input1, float *output0);
+    inline void up_to_stereo(int count, float *input0, float *output0, float *output1);
     std::string make_id(const paradesc& p);
-    Lv2Dsp(const plugdesc *plug, const LilvPlugin* plugin_, const LadspaLoader& loader_, bool mono);
+    Lv2Dsp(const plugdesc *plug, const LilvPlugin* plugin_, const LadspaLoader& loader_, bool mono, bool to_mono);
     ~Lv2Dsp();
 public:
     static Lv2Dsp *create(const plugdesc *plug, const LadspaLoader& loader);
@@ -718,10 +772,12 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
     int num_controls = lilv_plugin_get_num_ports_of_class(plugin, loader.lv2_ControlPort, 0);
 
     bool mono;
+    bool to_mono = false;
     if (num_inputs == 1 && num_outputs == 1) {
 	mono = true;
     } else if (num_inputs == 2 && num_outputs == 2) {
 	mono = false;
+	if (plug->stereo_to_mono) to_mono = true;
     } else {
 	LilvNode *nm = lilv_plugin_get_name(plugin);
 	gx_print_error(
@@ -731,7 +787,7 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
 	lilv_node_free(nm);
 	return NULL;
     }
-    Lv2Dsp* self = new Lv2Dsp(plug, plugin, loader, mono);
+    Lv2Dsp* self = new Lv2Dsp(plug, plugin, loader, mono, to_mono);
     int desk_controls = 0;
     for (std::vector<paradesc*>::const_iterator it = self->pd->names.begin(); it != self->pd->names.end(); ++it, ++desk_controls) ;
     if (num_controls != desk_controls) {
@@ -747,7 +803,7 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
     return self;
 }
 
-Lv2Dsp::Lv2Dsp(const plugdesc *plug, const LilvPlugin* plugin_, const LadspaLoader& loader_, bool mono)
+Lv2Dsp::Lv2Dsp(const plugdesc *plug, const LilvPlugin* plugin_, const LadspaLoader& loader_, bool mono, bool to_mono)
     : PluginDef(), loader(loader_), plugin(plugin_), name_node(lilv_plugin_get_name(plugin_)), instance(),
       ports(new LADSPA_Data[lilv_plugin_get_num_ports(plugin_)]), name_str(), pd(plug), is_activated(false) {
     version = PLUGINDEF_VERSION;
@@ -760,7 +816,8 @@ Lv2Dsp::Lv2Dsp(const plugdesc *plug, const LilvPlugin* plugin_, const LadspaLoad
     if (mono) {
 	mono_audio = mono_process;
     } else {
-	stereo_audio = stereo_process;
+	if (to_mono) mono_audio = to_mono_process;
+	else stereo_audio = stereo_process;
     }
     activate_plugin = activate;
     register_params = registerparam;
@@ -881,6 +938,49 @@ void Lv2Dsp::mono_process(int count, float *input, float *output, PluginDef *plu
 	self.connect(self.loader.lv2_InputPort, 0, input);
 	self.connect(self.loader.lv2_OutputPort, 0, output);
 	lilv_instance_run(self.instance, count);
+    }
+}
+
+void Lv2Dsp::up_to_stereo(int count, float *input0, float *output0, float *output1) {
+    memcpy(output0, input0, count * sizeof(float));
+    memcpy(output1, input0, count * sizeof(float));
+}
+
+void Lv2Dsp::down_to_mono(int count, float *input0, float *input1, float *output0) {
+	for (int i=0; i<count; i++) {
+		output0[i] = 0.5 * (input0[i] + input1[i]);
+	}
+}
+
+void Lv2Dsp::to_mono_process(int count, float *input, float *output, PluginDef *plugin) {
+    Lv2Dsp& self = *static_cast<Lv2Dsp*>(plugin);
+    assert(self.is_activated);
+    if (self.pd->add_wet_dry) {
+	float wet_out[count];
+	float inputs[count];
+	float inputs1[count];
+	float outputs[count];
+	float outputs1[count];
+	self.up_to_stereo(count,input,inputs, inputs1);
+	self.connect(self.loader.lv2_InputPort, 0, inputs);
+	self.connect(self.loader.lv2_InputPort, 1, inputs1);
+	self.connect(self.loader.lv2_OutputPort, 0, outputs);
+	self.connect(self.loader.lv2_OutputPort, 1, outputs1);
+	lilv_instance_run(self.instance, count);
+	self.down_to_mono(count,outputs,outputs1,wet_out);
+	self.mono_dry_wet(count, input, wet_out, output);
+    } else {
+	float inputs[count];
+	float inputs1[count];
+	float outputs[count];
+	float outputs1[count];
+	self.up_to_stereo(count,input,inputs, inputs1);
+	self.connect(self.loader.lv2_InputPort, 0, inputs);
+	self.connect(self.loader.lv2_InputPort, 1, inputs1);
+	self.connect(self.loader.lv2_OutputPort, 0, outputs);
+	self.connect(self.loader.lv2_OutputPort, 1, outputs1);
+	lilv_instance_run(self.instance, count);
+	self.down_to_mono(count,outputs,outputs1,output);
     }
 }
 
@@ -1221,6 +1321,11 @@ void LadspaLoader::read_module_config(const std::string& filename, plugdesc *p) 
     p->quirks = jp.current_value_int();
     jp.next(gx_system::JsonParser::value_number);
     p->add_wet_dry= jp.current_value_int();
+    // new monobox for stereo plugs
+    if (jp.peek() == gx_system::JsonParser::value_number) {
+        jp.next(gx_system::JsonParser::value_number);
+        p->stereo_to_mono= jp.current_value_int();
+    }
     jp.next(gx_system::JsonParser::begin_array);
     while (jp.peek() != gx_system::JsonParser::end_array) {
 	paradesc *para = new paradesc;

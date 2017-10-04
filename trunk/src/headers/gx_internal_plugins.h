@@ -672,6 +672,7 @@ public:
     Glib::ustring category;
     int quirks; // quirkflag bits
     int add_wet_dry;
+    int stereo_to_mono;
     int master_idx;
     Glib::ustring master_label;
     std::vector<paradesc*> names;

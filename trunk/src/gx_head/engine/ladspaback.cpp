@@ -694,7 +694,7 @@ PluginDesc::PluginDesc(const LADSPA_Descriptor& desc, int tp_, std::vector<PortD
     : UniqueID(desc.UniqueID), Label(desc.Label), Name(desc.Name), shortname(desc.Name), Maker(desc.Maker),
       MasterIdx(-1), MasterLabel(), tp(tp_), ctrl_ports(ctrl_ports_), path(path_), index(index_),
       category(unknown_category), deduced_category(unknown_category), quirks(), quirks_default(), is_lv2(false),
-      ladspa_category(), active(false), active_set(false), has_settings(false), add_wet_dry(0), old(0) {
+      ladspa_category(), active(false), active_set(false), has_settings(false), add_wet_dry(0), stereo_to_mono(0), old(0) {
     quirks = quirks_default = quirks_get();
 }
 
@@ -703,7 +703,7 @@ PluginDesc::PluginDesc(LilvWorld *world, const LilvPlugin* plugin, int tp_, std:
       MasterIdx(-1), MasterLabel(), tp(tp_), ctrl_ports(ctrl_ports_),
       path(lilv_node_as_string(lilv_plugin_get_uri(plugin))), index(0),
       category(unknown_category), deduced_category(unknown_category), quirks(), quirks_default(), is_lv2(true),
-      ladspa_category(), active(false), active_set(false), has_settings(false), add_wet_dry(0), old(0) {
+      ladspa_category(), active(false), active_set(false), has_settings(false), add_wet_dry(0), stereo_to_mono(0), old(0) {
     LilvNode* nd = lilv_plugin_get_name(plugin);
     Glib::ustring s = lilv_node_as_string(nd);
     lilv_node_free(nd);
@@ -770,6 +770,7 @@ PluginDesc::PluginDesc(gx_system::JsonParser& jp):
     active_set(),
     has_settings(),
     add_wet_dry(),
+    stereo_to_mono(),
     old(0) {
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
@@ -793,7 +794,8 @@ PluginDesc::PluginDesc(gx_system::JsonParser& jp):
 	    jp.read_kv("active", active) ||
 	    jp.read_kv("active_set", active_set) ||
 	    jp.read_kv("has_settings", has_settings) ||
-	    jp.read_kv("add_wet_dry", add_wet_dry)) {
+	    jp.read_kv("add_wet_dry", add_wet_dry) ||
+	    jp.read_kv("stereo_to_mono", stereo_to_mono)) {
 	} else if (jp.current_value() == "old") {
 	    old = new PluginDesc(jp);
 	} else if (jp.current_value() == "ctrl_ports") {
@@ -833,6 +835,7 @@ void PluginDesc::serializeJSON(gx_system::JsonWriter& jw) {
     jw.write_kv("active_set", active_set);
     jw.write_kv("has_settings", has_settings);
     jw.write_kv("add_wet_dry", add_wet_dry);
+    jw.write_kv("stereo_to_mono", stereo_to_mono);
     if (old) {
 	jw.write_key("old");
 	old->serializeJSON(jw);
@@ -984,6 +987,9 @@ bool PluginDesc::check_changed() {
     if (add_wet_dry != old->add_wet_dry) {
     return true;
     }
+    if (stereo_to_mono != old->stereo_to_mono) {
+    return true;
+    }
     if (tp != old->tp) {
 	return true;
     }
@@ -1063,6 +1069,14 @@ void PluginDesc::set_add_wet_dry_controller(bool v) {
     }
 }
 
+void PluginDesc::set_stereo_to_mono(bool v) {
+    if (v) {
+    stereo_to_mono = 1;
+    } else {
+    stereo_to_mono = 0;
+    }
+}
+
 void PluginDesc::fixup() {
     int i = 0;
     for (unsigned int n = 0; n < ctrl_ports.size(); ++n) {
@@ -1132,6 +1146,7 @@ void PluginDesc::output(JsonWriter& jw) {
     jw.write(sm);
     jw.write(quirks | (is_lv2 ? gx_engine::is_lv2 : 0));
     jw.write(add_wet_dry);
+    jw.write(stereo_to_mono);
     jw.begin_array(true);
     for (std::vector<PortDesc*>::iterator p = ctrl_ports.begin(); p != ctrl_ports.end(); ++p) {
 	(*p)->output(jw);
@@ -1183,6 +1198,10 @@ void PluginDesc::set_state(const ustring& fname) {
 	}
 	jp.next(JsonParser::value_number);
 	add_wet_dry = jp.current_value_int();
+	if (jp.peek() == JsonParser::value_number) {
+		jp.next(JsonParser::value_number);
+		stereo_to_mono = jp.current_value_int();
+	}
 	std::vector<PortDesc*> ports;
 	jp.next(JsonParser::begin_array);
 	int n = 0;

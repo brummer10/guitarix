@@ -71,12 +71,12 @@ public:
 };
 
 PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gdk::Pixbuf> icon, sigc::slot<void, bool, bool> finished_callback_)
-    : machine(machine_), pluginlist(), current_plugin(0), old_state(0), bld(), change_count(0),
+    : machine(machine_), pluginlist(), current_plugin(0), changed_plugin(0), old_state(0), bld(), change_count(0),
       actiongroup(Gtk::ActionGroup::create("ladspa_window")), uimanager(),
       enum_liststore(new EnumListStore), port_liststore(new PortListStore),
       plugin_liststore(new PluginListStore), masteridx_liststore(new MasterIdxListStore),
       on_reordered_conn(), display_type_list(), display_type_list_sr(), output_type_list(),
-      finished_callback(finished_callback_)
+      finished_callback(finished_callback_), remono(false)
 {
     std::vector<std::string> old_not_found;
     machine.load_ladspalist(old_not_found, pluginlist);
@@ -149,6 +149,10 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("dry_wet_button", dry_wet_button);
     dry_wet_button->signal_clicked().connect(sigc::mem_fun(this, &PluginDisplay::on_add_dry_wet_controller));
    // dry_wet_button->set_active(current_plugin->add_wet_dry);
+    
+    bld->find_widget("stereo_to_mono_button", stereo_to_mono_button);
+    stereo_to_mono_button->signal_clicked().connect(sigc::mem_fun(this, &PluginDisplay::on_stereo_to_mono_controller));
+   // stereo_to_mono_button->set_active(current_plugin->stereo_to_mono);
 
     Glib::RefPtr<Gtk::TreeSelection> sel = treeview2->get_selection();
     sel->set_mode(Gtk::SELECTION_BROWSE);
@@ -603,8 +607,18 @@ void PluginDisplay::on_apply() {
     selection_changed();
 }
 
+void PluginDisplay::on_stereo_mono_changed() {
+    changed_plugin->active_set = changed_plugin->active = false;
+    machine.save_ladspalist(pluginlist);
+    finished_callback(true, false);
+    remono = false;
+    changed_plugin->active_set = changed_plugin->active = true;
+    changed_plugin = 0;
+}
+
 bool PluginDisplay::do_save() {
     bool changed = check_for_changes();
+    if (changed && remono) on_stereo_mono_changed();
     machine.save_ladspalist(pluginlist);
     for (std::vector<PluginDesc*>::iterator p = pluginlist.begin(); p != pluginlist.end(); ++p) {
 	(*p)->active_set = (*p)->active;
@@ -642,6 +656,15 @@ void PluginDisplay::on_add_dry_wet_controller() {
 	return;
     }
     current_plugin->set_add_wet_dry_controller(dry_wet_button->get_active()); 
+}
+
+void PluginDisplay::on_stereo_to_mono_controller() {
+    if (!current_plugin) {
+	return;
+    }
+    current_plugin->set_stereo_to_mono(stereo_to_mono_button->get_active());
+    remono = true;
+    changed_plugin = current_plugin;
 }
 
 void PluginDisplay::on_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column) {
@@ -782,6 +805,7 @@ void PluginDisplay::selection_changed() {
 	}
     }
     dry_wet_button->set_active(current_plugin->add_wet_dry);
+    stereo_to_mono_button->set_active(current_plugin->stereo_to_mono);
     ladspa_category->set_text(p->ladspa_category);
     ladspa_maker->set_text(p->Maker);
     if (p->is_lv2) {
