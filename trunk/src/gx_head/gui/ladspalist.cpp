@@ -604,6 +604,8 @@ void PluginDisplay::on_apply() {
     if (do_save()) {
 	finished_callback(true, false);
     }
+    reload_plug = false;
+    needs_reload.clear();
     selection_changed();
 }
 
