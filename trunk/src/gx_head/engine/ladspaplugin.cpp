@@ -648,6 +648,8 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 	    row +=1;
 	}
 	const char *p1 = self.desc->PortNames[(*it)->index];
+	if (!(*it)->name.empty())
+	p1 = (*it)->name.c_str();
 	Glib::ustring trim = TrimEffectLabel(p1, 4);
 	const char *p = trim.c_str();
 	std::string id = self.make_id(**it);
@@ -1126,7 +1128,11 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	}
 	const LilvPort* port = lilv_plugin_get_port_by_index(self.plugin, (*it)->index);
 	LilvNode* nm_node = lilv_port_get_name(self.plugin, port);
-	const char *p = lilv_node_as_string(nm_node);
+	const char *p1 = lilv_node_as_string(nm_node);
+	if (!(*it)->name.empty())
+	p1 = (*it)->name.c_str();
+	Glib::ustring trim = TrimEffectLabel(p1, 4);
+	const char *p = trim.c_str();
 	std::string id = self.make_id(**it);
 	if ((row == 1 && rows == 1 ) || (row >1 && rows >1 )) {
 		b.set_next_flags(UI_LABEL_INVERSE);

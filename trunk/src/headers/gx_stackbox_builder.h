@@ -102,7 +102,11 @@ private:
     }
     void create_spin_value(const std::string& id, const char *label) {
 	UiDisplayWithCaption<Gxw::ValueDisplay> *w = new UiDisplayWithCaption<Gxw::ValueDisplay>(machine, id);
-	w->set_rack_label(label);
+    if (next_flags & UI_LABEL_INVERSE) {
+        w->set_rack_label_inverse(label);
+    } else {
+        w->set_rack_label(label);
+    }
 	w->get_regler()->set_name("show_always");
 	addwidget(w);
     }
