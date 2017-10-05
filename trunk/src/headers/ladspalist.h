@@ -86,7 +86,7 @@ class PluginDisplay {
 private:
     gx_engine::GxMachineBase& machine;
     LadspaPluginList pluginlist;
-    std::vector<PluginDesc*> changed_plugs;
+    std::vector<PluginDesc*> needs_reload;
     PluginDesc *current_plugin;
     int old_state;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
@@ -149,8 +149,8 @@ private:
     void on_show_details();
     void on_add_dry_wet_controller();
     void on_stereo_to_mono_controller();
-    void on_stereo_mono_changed();
-    bool remono;
+    void on_stereo_to_mono();
+    bool reload_plug;
     void on_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column);
     void on_label_edited(const Glib::ustring& path, const Glib::ustring& newtext);
     void on_parameter_selection_changed();
