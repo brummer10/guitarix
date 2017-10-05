@@ -86,8 +86,8 @@ class PluginDisplay {
 private:
     gx_engine::GxMachineBase& machine;
     LadspaPluginList pluginlist;
+    std::vector<PluginDesc*> changed_plugs;
     PluginDesc *current_plugin;
-    PluginDesc *changed_plugin;
     int old_state;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     int change_count;
