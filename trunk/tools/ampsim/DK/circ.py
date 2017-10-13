@@ -61,7 +61,7 @@ class Test(object):
         return np.array((op,),dtype=np.float64).repeat(samples, axis=0)
 
     def constant_signal(self, *values):
-        a = np.zeros((self.timespan*self.FS, len(values)))
+        a = np.zeros((int(self.timespan*self.FS), len(values)))
         for i, v in enumerate(values):
             a[:,i] = v
         return a
@@ -69,7 +69,7 @@ class Test(object):
     def sine_signal(self, freq, channels=1, timespan=None):
         if timespan is None:
             timespan = self.timespan
-        a = np.zeros((timespan*self.FS, channels))
+        a = np.zeros((int(timespan*self.FS), channels))
         s = np.sin(np.linspace(0, 2*np.pi*freq*timespan, self.FS*timespan))
         for i in range(channels):
             a[:,i] = s
