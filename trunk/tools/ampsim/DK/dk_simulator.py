@@ -1225,8 +1225,8 @@ class SimulatePy(Simulate):
             else:
                 try:
                     p = G * self.x + H * u
-                    self.minmax[:,0] = np.min((self.minmax[:,0], p), axis=0)
-                    self.minmax[:,1] = np.max((self.minmax[:,1], p), axis=0)
+                    self.minmax[:,0] = np.min((self.minmax[:,0], np.ravel(p)), axis=0)
+                    self.minmax[:,1] = np.max((self.minmax[:,1], np.ravel(p)), axis=0)
                     i = self.nonlin_py(p, K, Hc)
                 except ConvergenceError as e:
                     print "##", n
