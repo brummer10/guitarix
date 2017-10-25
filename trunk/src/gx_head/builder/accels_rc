@@ -53,6 +53,7 @@
 (gtk_accel_path "<Actions>/Main/StereoPlugins" "")
 (gtk_accel_path "<Actions>/Main/TubeMenu" "")
 (gtk_accel_path "<Actions>/Main/Tuner" "<Control>t")
+(gtk_accel_path "<Actions>/Main/Tunermove" "<Control>k")
 (gtk_accel_path "<Actions>/ladspa_window/ApplyAction" "<Control>s")
 (gtk_accel_path "<Actions>/ladspa_window/FileMenuAction" "")
 (gtk_accel_path "<Actions>/ladspa_window/FindAction" "<Control>f")

@@ -48,6 +48,7 @@ private:
     LADSPA_Handle instance;
     LADSPA_Data *ports;
     Glib::ustring name_str;
+    Glib::ustring dest_str;
     const plugdesc *pd;
     bool is_activated;
     void connect(int tp, int i, float *v);
@@ -125,7 +126,7 @@ LadspaDsp *LadspaDsp::create(const plugdesc *plug) {
 	mono = false;
 	if (plug->stereo_to_mono) to_mono = true;
     } else {
-	gx_print_error(
+ 	gx_print_error(
 	    "ladspaloader",ustring::compose(
 		_("cannot use ladspa plugin %1 with %2 inputs and %3 outputs"),
 		desc->Label, num_inputs, num_outputs));
@@ -133,16 +134,24 @@ LadspaDsp *LadspaDsp::create(const plugdesc *plug) {
 	handle = 0;
 	return NULL;
     }
-    return new LadspaDsp(plug, handle, desc, mono, to_mono);
+    
+    LadspaDsp* self = new LadspaDsp(plug, handle, desc, mono, to_mono);
+    PluginDef& pl = *static_cast<PluginDef*>(self);
+    pl.flags |=PGNI_IS_LADSPA;    
+    return self;
 }
 
 LadspaDsp::LadspaDsp(const plugdesc *plug, void *handle_, const LADSPA_Descriptor *desc_, bool mono, bool to_mono)
     : PluginDef(), desc(desc_), handle(handle_), instance(),
-      ports(new LADSPA_Data[desc->PortCount]), name_str(), pd(plug), is_activated(false) {
+      ports(new LADSPA_Data[desc->PortCount]), name_str(), dest_str(), pd(plug), is_activated(false) {
     version = PLUGINDEF_VERSION;
     id = pd->id_str.c_str();
     category = pd->category.c_str();
-    description = desc->Name;
+    dest_str = "LADSPA ";
+    dest_str += desc->Name;
+    dest_str += " by ";
+    dest_str += desc->Maker;
+    description = dest_str.c_str();
     name = desc->Name;
     set_shortname();
     set_samplerate = init;
@@ -741,6 +750,7 @@ private:
     LilvInstance* instance;
     LADSPA_Data *ports;
     Glib::ustring name_str;
+    Glib::ustring dest_str;
     const plugdesc *pd;
     bool is_activated;
     void connect(const LilvNode* tp, int i, float *v);
@@ -799,19 +809,30 @@ Lv2Dsp *Lv2Dsp::create(const plugdesc *plug, const LadspaLoader& loader) {
 		_("LV2 plugin %1 has changed it's ports, this may result in errors!!\nPlease go to the LADSPA/LV2 loader and select %1\nSelect 'Show Details' and press 'Restore Defaults'\nUn-load %1 (un-tick the box) and press 'save'.\nAfter this you could re-load %1 with it's new ports"),
 		lilv_node_as_string(nm)));
 	lilv_node_free(nm);
-	PluginDef& pl = *static_cast<PluginDef*>(self);
-	pl.flags |=PGNI_NEED_UPDATE;
 	}    
+    PluginDef& pl = *static_cast<PluginDef*>(self);
+    pl.flags |=PGNI_IS_LV2;
     return self;
 }
 
 Lv2Dsp::Lv2Dsp(const plugdesc *plug, const LilvPlugin* plugin_, const LadspaLoader& loader_, bool mono, bool to_mono)
     : PluginDef(), loader(loader_), plugin(plugin_), name_node(lilv_plugin_get_name(plugin_)), instance(),
-      ports(new LADSPA_Data[lilv_plugin_get_num_ports(plugin_)]), name_str(), pd(plug), is_activated(false) {
+      ports(new LADSPA_Data[lilv_plugin_get_num_ports(plugin_)]), name_str(), dest_str(), pd(plug), is_activated(false) {
     version = PLUGINDEF_VERSION;
     id = pd->id_str.c_str();
     category = pd->category.c_str();
-    description = lilv_node_as_string(name_node);
+    dest_str = "LV2 ";
+    dest_str += lilv_node_as_string(name_node);
+    LilvNode *nd = lilv_plugin_get_author_name(plugin);
+    if (!nd) {
+        nd = lilv_plugin_get_project(plugin);
+    }
+    if (nd) {
+        dest_str += " by ";
+        dest_str += lilv_node_as_string(nd);
+    }
+    lilv_node_free(nd);
+    description = dest_str.c_str();
     name = lilv_node_as_string(name_node);
     set_shortname();
     set_samplerate = init;

@@ -824,10 +824,16 @@ void RackBox::set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_border_width(4);
 }
 
-void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, PluginType tp) {
+void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, const PluginUI& plugin) {
     pb.set_name("rackbox");
     pb.property_paint_func().set_value("gx_rack_unit_expose");
     pb.set_border_width(4);
+    // FIXME set special background for LV2 plugins
+    // if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2)
+    //   fprintf(stderr,"LV2 Plugin Load for %s %i\n",plugin.plugin->get_pdef()->name, plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2);
+    // else if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LADSPA)
+    //   fprintf(stderr,"LADSPA Plugin Load for %s %i\n",plugin.plugin->get_pdef()->name, plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2);
+
 }
 
 void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
@@ -992,7 +998,7 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     } else {
 	Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
 	pb->show();
-	set_paintbox_unit(*pb, plugin.get_type());
+	set_paintbox_unit(*pb, plugin);
 	pb->pack_start(*manage(make_full_box(tl.get_options())));
 	pack_start(*manage(pb), Gtk::PACK_SHRINK);
 	fbox = pb;

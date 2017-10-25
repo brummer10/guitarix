@@ -281,7 +281,7 @@ private:
     gx_gui::uiToggle<bool> toggle_on_off;
 private:
     static void set_paintbox(Gxw::PaintBox& pb, PluginType tp);
-    static void set_paintbox_unit(Gxw::PaintBox& pb, PluginType tp);
+    static void set_paintbox_unit(Gxw::PaintBox& pb, const PluginUI& plugin);
     static void set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp);
     static Gtk::Widget *make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort=true);
     static Gtk::Widget *make_bar(int left=4, int right=4, bool sens=false);
@@ -538,6 +538,7 @@ struct GxActions {
     Glib::RefPtr<Gtk::ToggleAction> presets;
     Glib::RefPtr<Gtk::ToggleAction> show_rack;
     Glib::RefPtr<UiBoolToggleAction> tuner;
+    Glib::RefPtr<UiBoolToggleAction> tunermove;
     Glib::RefPtr<UiBoolToggleAction> livetuner;
     Glib::RefPtr<UiBoolToggleAction> midi_out;
     Glib::RefPtr<UiBoolToggleAction> midi_out_plug;
@@ -610,6 +611,7 @@ private:
 
     // Widget pointers
     Gxw::PaintBox *tunerbox;
+    Gtk::VBox *tuner_box_no_rack;
     Gtk::ScrolledWindow *vrack_scrolledbox;
     Gtk::HBox *stereorackcontainerH;
     Gtk::HBox *stereorackcontainerV;
@@ -676,6 +678,7 @@ private:
     void load_widget_pointers();
     void maybe_shrink_horizontally(bool preset_no_rack=false);
     void on_show_tuner();
+    void on_move_tuner();
     bool is_variable_size();
     void maybe_change_resizable(void);
     void on_show_rack();

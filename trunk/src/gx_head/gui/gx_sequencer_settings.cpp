@@ -345,7 +345,7 @@ void SEQWindow::connect_midi() {
 void SEQWindow::make_preset_button(Gtk::HBox * box) {
     Gtk::Button *p = new Gtk::Button();
     GtkWidget *l = gtk_image_new_from_stock("rack_preset", (GtkIconSize)-1);
-    p->add(*manage(Glib::wrap(l)));
+    p->add(*Gtk::manage(Glib::wrap(l)));
     p->set_can_default(false);
     p->set_can_focus(false);
     p->set_tooltip_text(_("manage effect unit presets"));

@@ -137,6 +137,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
     pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, false, false);
     pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false);
+    pmap.reg_non_midi_par("system.stick_tuner", (bool*)0, false);
     pmap.reg_non_midi_par("system.midi_in_preset", (bool*)0, false, false);
     pmap.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
     pmap.reg_par_non_preset("ui.liveplay_background", "?liveplay_background", 0, 0.8, 0.0, 1.0, 0.01);
@@ -165,7 +166,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
         if (!i->name.empty()) {
             Glib::ustring id = "seq." + i->name;
-            Glib::ustring tb = "switch to Drumsequencer preset " + i->name;
+            Glib::ustring tb = "switch to preset " + i->name;
             BoolParameter& sp = pmap.reg_par(
               id, tb, (bool*)0, false, false)->getBool();
             sp.setSavable(false);
@@ -205,7 +206,7 @@ GxMachine::~GxMachine() {
 
 void GxMachine::insert_param(Glib::ustring group, Glib::ustring name) {
     
-    Glib::ustring tb = "switch to Drumsequencer preset " + name;
+    Glib::ustring tb = "switch to preset " + name;
     Glib::ustring id = group + "." + name;
     BoolParameter& sp = pmap.reg_par(
       id, tb, (bool*)0, false, false)->getBool();
@@ -2344,7 +2345,7 @@ Parameter& GxMachineRemote::get_parameter(const std::string& id) {
 // special case for DrumSequencer: register parameter for midi cc connection
 void GxMachineRemote::insert_param(Glib::ustring group, Glib::ustring name) {
     Glib::ustring id = group + "." + name;
-    Glib::ustring tb = "switch to Drumsequencer preset " + name;
+    Glib::ustring tb = "switch to preset " + name;
     START_NOTIFY(insert_param);
     jw->write(id);
     jw->write(tb);

@@ -1538,11 +1538,11 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
 #include "faust/drumseq.cc"
 
 static const char* seq_groups[] = {
-	"hat_closed.dsp", N_("?"),
-	"kick.dsp", N_("?"),
-	"snare.dsp", N_("?"),
-	"tom.dsp", N_("?"),
-	"sequencer", N_("?"),
+	"hat_closed.dsp", N_("DrumSequencer"),
+	"kick.dsp", N_("DrumSequencer"),
+	"snare.dsp", N_("DrumSequencer"),
+	"tom.dsp", N_("DrumSequencer"),
+	"sequencer", N_("DrumSequencer"),
 	0
 };
 

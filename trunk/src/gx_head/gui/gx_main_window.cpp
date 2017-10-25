@@ -468,6 +468,22 @@ void MainWindow::maybe_shrink_horizontally(bool preset_no_rack) {
     }
 }
 
+void MainWindow::on_move_tuner() {
+    bool v = actions.tuner->get_active();
+    if(tunerbox->get_parent() == upper_rackbox) {
+        tunerbox->set_visible(false);
+        upper_rackbox->remove(*tunerbox);
+        tuner_box_no_rack->pack_start(*tunerbox,false,false);
+    } else {
+        tunerbox->set_visible(false);
+        tuner_box_no_rack->remove(*tunerbox);
+        upper_rackbox->add(*tunerbox);
+    }
+    on_livetuner_toggled();
+    tunerbox->set_visible(v);
+    update_scrolled_window(*vrack_scrolledbox);
+}
+
 void MainWindow::on_show_tuner() {
     bool v = actions.tuner->get_active();
     on_livetuner_toggled();
@@ -478,6 +494,7 @@ void MainWindow::on_show_tuner() {
 void MainWindow::load_widget_pointers() {
     bld->get_toplevel("MainWindow", window);
     bld->find_widget("tunerbox", tunerbox);
+    bld->find_widget("tuner_box_no_rack", tuner_box_no_rack);
     bld->find_widget("vrack_scrolledbox", vrack_scrolledbox);
     bld->find_widget("stereorackcontainerH", stereorackcontainerH);
     bld->find_widget("stereorackcontainerV", stereorackcontainerV);
@@ -1569,9 +1586,13 @@ void MainWindow::create_actions() {
     ** rack actions
     */
     actions.tuner = UiBoolToggleAction::create(
-	machine, "system.show_tuner", "Tuner",_("_Tuner"));
+	machine, "system.show_tuner", "Tuner",_("_Tuner show"));
     actions.group->add(actions.tuner,
 		     sigc::mem_fun(*this, &MainWindow::on_show_tuner));
+    actions.tunermove = UiBoolToggleAction::create(
+	machine, "system.stick_tuner", "Tunermove",_("Tuner stic_k "));
+    actions.group->add(actions.tunermove,
+		     sigc::mem_fun(*this, &MainWindow::on_move_tuner));
 
     actions.rack_config = Gtk::ToggleAction::create("RackConfig", _("R_ack Configuration"));
     actions.group->add(actions.rack_config,
@@ -1933,9 +1954,6 @@ Glib::ustring MainWindow::add_plugin_menu_entry(PluginUI *pui) {
 }
 
 void MainWindow::register_plugin(PluginUI *pui) {
-	//FIXME UPDATE LV2 PLUGIN when needed
-	//if (pui->plugin->get_pdef()->flags & gx_engine::PGNI_NEED_UPDATE)
-	//fprintf(stderr,"UPDATE NEEDED for %s\n",pui->get_name());
     plugin_dict.add(pui);
     Gtk::ToolItemGroup *gw = add_plugin_category(pui->get_category());
     Glib::ustring actionname = add_plugin_menu_entry(pui);

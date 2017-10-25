@@ -795,17 +795,50 @@ void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
 
 void PresetWindow::read_preset_menu() {
     if (! machine.get_jack()) usleep(5000);
-    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_presets_filename(), resolve_hostname()));
+    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_config_filename(), resolve_hostname()));
     Glib::RefPtr<Gio::DataInputStream> in = Gio::DataInputStream::create(dest->read());    
     std::string NAME_;
     std::string FILE_;
     std::string INFO_;
+    std::string AUTHOR_;
     std::string line;
-    bool set_name = false;
-    bool set_file = false;
-    bool set_info = false;
+   // bool set_name = false;
+   // bool set_file = false;
+   // bool set_info = false;
     while ( in->read_line(line) )
     {
+        std::istringstream is(line);
+        gx_system::JsonParser jp(&is);
+        try {
+            jp.next(gx_system::JsonParser::begin_array);
+            do {
+                jp.next(gx_system::JsonParser::begin_object);
+                do {
+                    jp.next(gx_system::JsonParser::value_key);
+                    if (jp.current_value() == "name") {
+                        jp.read_kv("name", NAME_);
+                    } else if (jp.current_value() == "description") {
+                        jp.read_kv("description", INFO_);
+                    } else if (jp.current_value() == "author") {
+                        jp.read_kv("author", AUTHOR_);
+                    } else if (jp.current_value() == "file") {
+                        jp.read_kv("file", FILE_);
+                        INFO_ += "Author : " + AUTHOR_;
+                        olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
+                        //os << "\n<<NAME>> \n" << NAME_ << "\n<<FILE>> \n" << FILE_ << "\n<<INFO>> \n" << INFO_ << "\n<<END>> \n" << "\n";
+                    } else {
+                       //gx_print_warning("read_online", "unknown key: " + jp.current_value());
+                        jp.skip_object();
+                    }
+                } while (jp.peek() == gx_system::JsonParser::value_key);
+                jp.next(gx_system::JsonParser::end_object);
+            } while (jp.peek() == gx_system::JsonParser::begin_object);
+        } catch (gx_system::JsonException e) {
+            cerr << "JsonException: " << e.what() << ": '" << jp.current_value() << "'" << endl;
+            assert(false);
+        }
+
+/*
         if (line.find("<<NAME>>") != string::npos) {
             set_name = true;
             set_file = false;
@@ -837,6 +870,8 @@ void PresetWindow::read_preset_menu() {
         if ( set_name ) NAME_ += line;
         else if ( set_file ) FILE_ += line;
         else if ( set_info ) INFO_ += line+"\n";
+        
+        */
     }
     in->close ();
 }
@@ -901,7 +936,7 @@ void PresetWindow::show_online_preset() {
         }
         if (load || ! dest->query_exists()) {
             if (download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {
-                machine.load_online_presets();
+               // machine.load_online_presets();
             } else {
                 window->set_cursor(); 
                 return;

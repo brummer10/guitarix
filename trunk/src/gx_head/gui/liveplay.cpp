@@ -492,7 +492,7 @@ MidiControllerDisplay::MidiControllerDisplay(gx_engine::GxMachineBase& machine, 
     : Gtk::ProgressBar(), ctr(n) {
     machine.signal_midi_value_changed().connect(
 	sigc::mem_fun(this, &MidiControllerDisplay::midi_value_changed));
-    set_size_request(300, 50);
+    set_size_request(400, 50);
     set_text(name);
     machine.request_midi_value_update();
 }
@@ -515,7 +515,7 @@ void MidiControllerDisplay::midi_value_changed(int c, int v) {
 void Liveplay::add_midi_elements() {
     int left = 0;
     int top = 0;
-    int top_max = 3;
+    int top_max = 4;
     int left_max = 3;
     Gtk::Table::TableList& tl = midictrl_table->children();
     tl.erase(tl.begin(), tl.end());
