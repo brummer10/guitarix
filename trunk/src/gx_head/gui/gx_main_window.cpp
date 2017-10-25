@@ -474,7 +474,7 @@ void MainWindow::on_move_tuner() {
         tunerbox->set_visible(false);
         upper_rackbox->remove(*tunerbox);
         tuner_box_no_rack->pack_start(*tunerbox,false,false);
-    } else {
+    } else if(tunerbox->get_parent() == tuner_box_no_rack) {
         tunerbox->set_visible(false);
         tuner_box_no_rack->remove(*tunerbox);
         upper_rackbox->add(*tunerbox);

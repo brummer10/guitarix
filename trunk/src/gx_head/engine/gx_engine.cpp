@@ -425,6 +425,7 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::bfuzz::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::axface::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::metronome::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::vumeter::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
@@ -447,6 +448,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::ring_modulator_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay_st::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet_st.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::vumeter_st::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 }
 
 static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {
