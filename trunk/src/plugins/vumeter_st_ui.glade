@@ -228,25 +228,60 @@
                         <property name="top_padding">1</property>
                         <property name="bottom_padding">1</property>
                         <child>
-                          <object class="GtkVBox" id="vbox6">
+                          <object class="GtkHBox" id="hbox4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkEventBox" id="eventbox1">
+                              <object class="GtkVBox" id="vbox6">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="above_child">True</property>
                                 <child>
-                                  <object class="GxFastMeter" id="gxfastmeter3:meterframe">
-                                    <property name="width_request">200</property>
+                                  <object class="GtkEventBox" id="eventbox1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="hold">120</property>
-                                    <property name="dimen">0</property>
-                                    <property name="horiz">True</property>
-                                    <property name="type">1</property>
-                                    <property name="var_id">vu_st.v1</property>
+                                    <property name="above_child">True</property>
+                                    <child>
+                                      <object class="GxFastMeter" id="gxfastmeter3:meterframe">
+                                        <property name="width_request">200</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="hold">120</property>
+                                        <property name="dimen">0</property>
+                                        <property name="horiz">True</property>
+                                        <property name="type">1</property>
+                                        <property name="var_id">vu_st.v1</property>
+                                      </object>
+                                    </child>
                                   </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEventBox" id="eventbox4">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="above_child">True</property>
+                                    <child>
+                                      <object class="GxFastMeter" id="gxfastmeter4:meterframe">
+                                        <property name="width_request">200</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="hold">120</property>
+                                        <property name="dimen">0</property>
+                                        <property name="horiz">True</property>
+                                        <property name="type">2</property>
+                                        <property name="var_id">vu_st.v2</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
                                 </child>
                               </object>
                               <packing>
@@ -256,26 +291,17 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkEventBox" id="eventbox4">
+                              <object class="GxSwitch" id="gxfswitch2">
+                                <property name="width_request">30</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="above_child">True</property>
-                                <child>
-                                  <object class="GxFastMeter" id="gxfastmeter4:meterframe">
-                                    <property name="width_request">200</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="hold">120</property>
-                                    <property name="dimen">0</property>
-                                    <property name="horiz">True</property>
-                                    <property name="type">2</property>
-                                    <property name="var_id">vu_st.v2</property>
-                                  </object>
-                                </child>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="var_id">vu_st.v3</property>
+                                <property name="base_name">switch_mid</property>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -289,19 +315,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GxSwitch" id="gxfswitch2">
-                        <property name="width_request">30</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="var_id">vu_st.v3</property>
-                        <property name="base_name">switch_mid</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">1</property>
-                      </packing>
+                      <placeholder/>
                     </child>
                   </object>
                   <packing>

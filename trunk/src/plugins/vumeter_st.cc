@@ -49,9 +49,9 @@ Dsp::Dsp()
 	id = "vu_st";
 	name = N_("Vumeter Stereo");
 	groups = 0;
-	description = ""; // description (tooltip)
+	description = "Stereo Vumeter"; // description (tooltip)
 	category = N_("Misc");       // category
-	shortname = "";     // shortname
+	shortname = "St-Vumeter";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;
 	set_samplerate = init_static;
@@ -96,7 +96,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
-	fbargraph1 = int(max(fbargraph2, fbargraph0));
+	fbargraph1 = int(max(fbargraph2,fbargraph0));
 	for (int i=0; i<count; i++) {
 		fRec4[0] = ((0.999 * fRec4[1]) + fSlow0);
 		double fTemp0 = ((double)input0[i] * fRec4[0]);
@@ -106,6 +106,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		iRec1[0] = ((iTemp1)?(1 + iRec1[1]):1);
 		fRec2[0] = ((iTemp1)?fRec2[1]:fRec0[1]);
 		fbargraph0 = fRec2[0];
+		fbargraph1 = int(fbargraph0);
 		output0[i] = (FAUSTFLOAT)fTemp0;
 		double fTemp2 = ((double)input1[i] * fRec4[0]);
 		double 	fRec8 = max(fConst0, fabs(fTemp2));
@@ -360,7 +361,7 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkVBox\" id=\"vbox5\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">0</property>\n\
+                <property name=\"spacing\">2</property>\n\
                 <child>\n\
                   <placeholder/>\n\
                 </child>\n\
@@ -373,28 +374,63 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkAlignment\" id=\"alignment3\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"top_padding\">1</property>\n\
-                        <property name=\"bottom_padding\">1</property>\n\
+                        <property name=\"top_padding\">5</property>\n\
+                        <property name=\"bottom_padding\">5</property>\n\
                         <child>\n\
-                          <object class=\"GtkVBox\" id=\"vbox6\">\n\
+                          <object class=\"GtkHBox\" id=\"hbox4\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
                             <child>\n\
-                              <object class=\"GtkEventBox\" id=\"eventbox1\">\n\
+                              <object class=\"GtkVBox\" id=\"vbox6\">\n\
                                 <property name=\"visible\">True</property>\n\
                                 <property name=\"can_focus\">False</property>\n\
-                                <property name=\"above_child\">True</property>\n\
                                 <child>\n\
-                                  <object class=\"GxFastMeter\" id=\"gxfastmeter3:meterframe\">\n\
-                                    <property name=\"width_request\">200</property>\n\
+                                  <object class=\"GtkEventBox\" id=\"eventbox1\">\n\
                                     <property name=\"visible\">True</property>\n\
                                     <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"hold\">120</property>\n\
-                                    <property name=\"dimen\">0</property>\n\
-                                    <property name=\"horiz\">True</property>\n\
-                                    <property name=\"type\">1</property>\n\
-                                    <property name=\"var_id\">vu_st.v1</property>\n\
+                                    <property name=\"above_child\">True</property>\n\
+                                    <child>\n\
+                                      <object class=\"GxFastMeter\" id=\"gxfastmeter3:meterframe\">\n\
+                                        <property name=\"width_request\">200</property>\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">False</property>\n\
+                                        <property name=\"hold\">120</property>\n\
+                                        <property name=\"dimen\">2</property>\n\
+                                        <property name=\"horiz\">True</property>\n\
+                                        <property name=\"type\">1</property>\n\
+                                        <property name=\"var_id\">vu_st.v1</property>\n\
+                                      </object>\n\
+                                    </child>\n\
                                   </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GtkEventBox\" id=\"eventbox4\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"above_child\">True</property>\n\
+                                    <child>\n\
+                                      <object class=\"GxFastMeter\" id=\"gxfastmeter4:meterframe\">\n\
+                                        <property name=\"width_request\">200</property>\n\
+                                        <property name=\"visible\">True</property>\n\
+                                        <property name=\"can_focus\">False</property>\n\
+                                        <property name=\"hold\">120</property>\n\
+                                        <property name=\"dimen\">2</property>\n\
+                                        <property name=\"horiz\">True</property>\n\
+                                        <property name=\"type\">2</property>\n\
+                                        <property name=\"var_id\">vu_st.v2</property>\n\
+                                      </object>\n\
+                                    </child>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">True</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
                                 </child>\n\
                               </object>\n\
                               <packing>\n\
@@ -404,26 +440,17 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <object class=\"GtkEventBox\" id=\"eventbox4\">\n\
+                              <object class=\"GxSwitch\" id=\"gxfswitch2\">\n\
+                                <property name=\"width_request\">30</property>\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
-                                <property name=\"above_child\">True</property>\n\
-                                <child>\n\
-                                  <object class=\"GxFastMeter\" id=\"gxfastmeter4:meterframe\">\n\
-                                    <property name=\"width_request\">200</property>\n\
-                                    <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
-                                    <property name=\"hold\">120</property>\n\
-                                    <property name=\"dimen\">0</property>\n\
-                                    <property name=\"horiz\">True</property>\n\
-                                    <property name=\"type\">2</property>\n\
-                                    <property name=\"var_id\">vu_st.v2</property>\n\
-                                  </object>\n\
-                                </child>\n\
+                                <property name=\"can_focus\">True</property>\n\
+                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"var_id\">vu_st.v3</property>\n\
+                                <property name=\"base_name\">switch_mid</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"expand\">True</property>\n\
-                                <property name=\"fill\">True</property>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">False</property>\n\
                                 <property name=\"position\">1</property>\n\
                               </packing>\n\
                             </child>\n\
@@ -437,19 +464,7 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GxSwitch\" id=\"gxfswitch2\">\n\
-                        <property name=\"width_request\">30</property>\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">True</property>\n\
-                        <property name=\"receives_default\">True</property>\n\
-                        <property name=\"var_id\">vu_st.v3</property>\n\
-                        <property name=\"base_name\">switch_mid</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">1</property>\n\
-                      </packing>\n\
+                      <placeholder/>\n\
                     </child>\n\
                   </object>\n\
                   <packing>\n\

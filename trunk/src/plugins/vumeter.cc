@@ -45,7 +45,7 @@ Dsp::Dsp()
 	id = "vu";
 	name = N_("Vumeter");
 	groups = 0;
-	description = ""; // description (tooltip)
+	description = "Mono Vumeter"; // description (tooltip)
 	category = N_("Misc");       // category
 	shortname = "";     // shortname
 	mono_audio = compute_static;
