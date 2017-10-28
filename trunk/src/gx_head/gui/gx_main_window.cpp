@@ -572,35 +572,13 @@ void MainWindow::on_select_preset(int idx) {
 
 void MainWindow::on_next_preset() {
     if (machine.setting_is_preset()) {
-        gx_system::PresetFileGui *pf = machine.get_current_bank_file();
-        Glib::ustring t;
-        int idx = 0;
-        t = machine.get_current_name();
-        for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
-            if (t.compare(i->name)==0) {
-                ++idx;
-                if (i == pf->end()-1) idx =0;
-                break;
-            }
-        }
-        keyswitch.process_preset_key(idx);
+        machine.next_preset_switch();
     }
 }
 
 void MainWindow::on_previus_preset() {
     if (machine.setting_is_preset()) {
-        gx_system::PresetFileGui *pf = machine.get_current_bank_file();
-        Glib::ustring t;
-        int idx = 0;
-        t = machine.get_current_name();
-        for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
-            if (t.compare(i->name)==0) {
-                --idx;
-                if (i == pf->begin()) idx =pf->size()-1;
-                break;
-            }
-        }
-        keyswitch.process_preset_key(idx);
+        machine.previus_preset_switch();
     }
 }
 
