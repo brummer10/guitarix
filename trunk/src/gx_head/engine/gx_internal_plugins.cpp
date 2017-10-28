@@ -1712,7 +1712,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 240.0, 4.0);
 	reg.registerVar("seq.hum","","B",N_("Randomize Sequence"),&fsliderhum, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.npreset","","BO",N_("Load next unit preset"),0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("seq.ppreset","","BO",N_("Load previus unit preset"),0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("seq.ppreset","","BO",N_("Load previous unit preset"),0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 2300.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.step",&step, false, true, 0.0, 0.0, 240.0, 1.0);
 	reg.registerNonMidiFloatVar("seq.step_orig",&step_orig, false, true, 0.0, 0.0, 240.0, 1.0);

@@ -141,6 +141,8 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     pmap.reg_non_midi_par("system.midi_in_preset", (bool*)0, false, false);
     pmap.reg_par_non_preset("ui.liveplay_brightness", "?liveplay_brightness", 0, 1.0, 0.5, 1.0, 0.01);
     pmap.reg_par_non_preset("ui.liveplay_background", "?liveplay_background", 0, 0.8, 0.0, 1.0, 0.01);
+    pmap.reg_par("engine.next_preset", "Switch to next preset" , (bool*)0, false, false)->setSavable(false);
+    pmap.reg_par("engine.previus_preset", "Switch to previous preset" , (bool*)0, false, false)->setSavable(false);
     BoolParameter& p = pmap.reg_par(
 	"engine.mute", "Mute", 0, engine.get_state() == gx_engine::kEngineOff
 	)->getBool();
@@ -192,6 +194,10 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     engine.midiaudiobuffer.signal_jack_load_change().connect(
 	sigc::mem_fun(this, &GxMachine::on_jack_load_change));
     switch_bank = settings.get_current_bank();
+    pmap["engine.next_preset"].signal_changed_bool().connect(
+	sigc::mem_fun(this, &GxMachine::process_next_preset_switch));
+    pmap["engine.previus_preset"].signal_changed_bool().connect(
+	sigc::mem_fun(this, &GxMachine::process_previus_preset_switch));
 
 }
 
@@ -226,6 +232,36 @@ void GxMachine::on_jack_load_change() {
 void GxMachine::edge_toggle_tuner(bool v) {
     if (v) {
 	tuner_switcher.toggle(engine.tuner.used_for_display());
+    }
+}
+
+void GxMachine::next_preset_switch() {
+    gx_system::PresetFileGui *f= get_current_bank_file();
+    int idx = f->get_index(get_current_name());
+    if (idx+1 < f->size()) load_preset(f, f->get_name(idx+1));
+    else load_preset(f, f->get_name(0));
+}
+
+void GxMachine::previus_preset_switch() {
+    gx_system::PresetFileGui *f= get_current_bank_file();
+    int idx = f->get_index(get_current_name());
+    if (idx-1 > -1) load_preset(f, f->get_name(idx-1));
+    else load_preset(f, f->get_name(f->size()-1));
+}
+
+void GxMachine::process_next_preset_switch(bool s) {
+    if(s) {
+        Glib::signal_idle().connect_once(
+          sigc::mem_fun(this, &GxMachine::next_preset_switch));
+        set_parameter_value("engine.next_preset",false);
+    }
+}
+
+void GxMachine::process_previus_preset_switch(bool s) {
+    if(s) {
+        Glib::signal_idle().connect_once(
+          sigc::mem_fun(this, &GxMachine::previus_preset_switch));
+        set_parameter_value("engine.previus_preset",false);
     }
 }
 
@@ -1931,6 +1967,38 @@ void GxMachineRemote::tuner_switcher_toggle(bool v) {
 }
 
 // preset
+
+void GxMachineRemote::next_preset_switch() {
+    gx_system::PresetFileGui *f= get_current_bank_file();
+    int idx = f->get_index(get_current_name());
+    if (idx+1 < f->size()) load_preset(f, f->get_name(idx+1));
+    else load_preset(f, f->get_name(0));
+}
+
+void GxMachineRemote::previus_preset_switch() {
+    gx_system::PresetFileGui *f= get_current_bank_file();
+    int idx = f->get_index(get_current_name());
+    if (idx-1 > -1) load_preset(f, f->get_name(idx-1));
+    else load_preset(f, f->get_name(f->size()-1));
+}
+
+void GxMachineRemote::process_next_preset_switch(bool s) {
+    if(s) {
+        Glib::signal_idle().connect_once(
+          sigc::mem_fun(this, &GxMachineRemote::next_preset_switch));
+        set_parameter_value("engine.next_preset",false);
+    }
+}
+
+void GxMachineRemote::process_previus_preset_switch(bool s) {
+    if(s) {
+        Glib::signal_idle().connect_once(
+          sigc::mem_fun(this, &GxMachineRemote::previus_preset_switch));
+        set_parameter_value("engine.previus_preset",false);
+    }
+}
+
+
 bool GxMachineRemote::setting_is_preset() {
     return (!get_current_bank().empty());
 }

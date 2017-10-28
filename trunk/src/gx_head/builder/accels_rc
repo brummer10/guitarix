@@ -38,6 +38,8 @@
 (gtk_accel_path "<Actions>/Main/PresetsMenu" "")
 (gtk_accel_path "<Actions>/Main/NextPreset" "<Control>plus")
 (gtk_accel_path "<Actions>/Main/PreviusPreset" "<Control>minus")
+(gtk_accel_path "<Actions>/Main/SetNextPresetSwitcher" "")
+(gtk_accel_path "<Actions>/Main/SetPreviusPresetSwitcher" "")
 (gtk_accel_path "<Actions>/Main/Quit" "<Control>q")
 (gtk_accel_path "<Actions>/Main/RackConfig" "<Control>a")
 (gtk_accel_path "<Actions>/Main/RackH" "<Control>h")

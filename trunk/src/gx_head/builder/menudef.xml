@@ -16,6 +16,8 @@
       <menuitem action="Presets" />
       <menuitem action="NextPreset" />
       <menuitem action="PreviusPreset" />
+      <menuitem action="SetNextPresetSwitcher" />
+      <menuitem action="SetPreviusPresetSwitcher" />
       <menuitem action="Organize" />
       <menuitem action="Save" />
       <menu action="PresetListMenu" />

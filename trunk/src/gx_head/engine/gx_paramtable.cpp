@@ -297,7 +297,7 @@ MidiController *MidiController::readJSON(gx_system::JsonParser& jp, ParamMap& pm
     return new MidiController(pm, lower, upper, toggle, toggle_behaviour);
 }
 
-bool MidiController::set_midi(int n, int last_value) {
+bool MidiController::set_midi(int n, int last_value, bool update) {
     bool ret = false;
     if (param->get_midi_blocked()) return ret;
     if (toggle) {
@@ -317,9 +317,11 @@ bool MidiController::set_midi(int n, int last_value) {
             case Parameter::toggle_type::Constant: {
                 if (n == last_value || last_value == -1) {
                     if (param->on_off_value()) {
-                        ret = param->midi_set(0, n, _lower, _upper);
+                        if (!update) ret = param->midi_set(0, n, _lower, _upper);
+                        else ret = param->midi_set(127, n, _lower, _upper);
                     } else {
-                        ret = param->midi_set(127, n, _lower, _upper);
+                        if (!update) ret = param->midi_set(127, n, _lower, _upper);
+                        else ret = param->midi_set(0, n, _lower, _upper);
                     }
                 }
                 break;
@@ -331,7 +333,7 @@ bool MidiController::set_midi(int n, int last_value) {
         //fprintf(stderr,"%f \n",double(n * double(double(n+1.)/128)));
         ret = param->midi_set(n, 127, _lower, _upper);
     }
-    param->trigger_changed();
+    //param->trigger_changed();
     return ret;
 }
 
@@ -566,7 +568,7 @@ void MidiControllerList::update_from_controller(int ctr) {
     if (v >= 0) {
 	midi_controller_list& cl = map[ctr];
 	for (midi_controller_list::iterator i = cl.begin(); i != cl.end(); ++i) {
-	    i->set_midi(v, v);
+	    i->set_midi(v, v, true);
 	}
     }
 }
@@ -658,7 +660,7 @@ void MidiControllerList::set_ctr_val(int ctr, int val) {
     } else {
         midi_controller_list& ctr_list = map[ctr];
         for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
-            i->set_midi(val, get_last_midi_control_value(ctr));
+            i->set_midi(val, get_last_midi_control_value(ctr), false);
         }
     }
     MidiControllerList::set_last_midi_control_value(ctr, val);

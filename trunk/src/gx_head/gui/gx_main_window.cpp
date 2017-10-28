@@ -553,6 +553,19 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("channel3_box", channel3_box);
 }
 
+
+void MainWindow::set_next_preset_controller() {
+    if (!machine.midi_get_config_mode()) {
+	new gx_main_midi::MidiConnect(0, machine.get_parameter("engine.next_preset"), machine);
+    }
+}
+
+void MainWindow::set_previus_preset_controller() {
+    if (!machine.midi_get_config_mode()) {
+	new gx_main_midi::MidiConnect(0, machine.get_parameter("engine.previus_preset"), machine);
+    }
+}
+
 void MainWindow::on_select_preset(int idx) {
     keyswitch.process_preset_key(idx);
 }
@@ -1483,8 +1496,15 @@ void MainWindow::create_actions() {
     actions.group->add(Gtk::Action::create("PresetsMenu",_("_Presets")));
     actions.group->add(Gtk::Action::create("NextPreset",_("Next Preset")),
     sigc::mem_fun(*this, &MainWindow::on_next_preset));
-    actions.group->add(Gtk::Action::create("PreviusPreset",_("Previus Preset")),
+    actions.group->add(Gtk::Action::create("PreviusPreset",_("Previous Preset")),
     sigc::mem_fun(*this, &MainWindow::on_previus_preset));
+
+    actions.group->add(Gtk::Action::create("SetNextPresetSwitcher", _("Next Preset Midi Switch")),
+		     sigc::mem_fun(this, &MainWindow::set_next_preset_controller));
+
+    actions.group->add(Gtk::Action::create("SetPreviusPresetSwitcher", _("Previous Preset Midi Switch")),
+		     sigc::mem_fun(this, &MainWindow::set_previus_preset_controller));
+
     actions.group->add(Gtk::Action::create("PresetListMenu","--"));
     actions.group->add(Gtk::Action::create("PluginsMenu",_("P_lugins")));
     actions.group->add(Gtk::Action::create("MonoPlugins",_("_Mono Plugins")));

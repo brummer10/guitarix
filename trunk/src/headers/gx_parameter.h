@@ -687,7 +687,7 @@ class MidiController {
     bool hasParameter(const Parameter& p) const { return *param == p; }
     Parameter& getParameter() const { return *param; }
     static MidiController *readJSON(gx_system::JsonParser& jp, ParamMap& param);
-    bool set_midi(int n, int last_value); //RT
+    bool set_midi(int n, int last_value, bool update); //RT
     bool set_bpm(int n, int last_value); //RT
     bool set_trans(int n, int last_value); //RT
     void set(float v, float high) { param->midi_set(v, high, _lower, _upper); }

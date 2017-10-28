@@ -151,6 +151,11 @@ public:
     virtual void bank_save() = 0;
     virtual void pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name) = 0;
 
+    virtual void next_preset_switch() = 0;
+    virtual void previus_preset_switch() = 0;
+    virtual void process_next_preset_switch(bool s) = 0;
+    virtual void process_previus_preset_switch(bool s) = 0;
+
     // jack
     virtual gx_jack::GxJack *get_jack() = 0;
     virtual void set_jack_insert(bool v) = 0;
@@ -236,6 +241,7 @@ private:
     void reset_switch_bank();
     int get_bank_num(Glib::ustring num);
     void set_mute_state(int mute);
+    volatile int block;
     void do_program_change(int pgm);
     void do_bank_change(int pgm);
     void edge_toggle_tuner(bool v);
@@ -336,6 +342,11 @@ public:
     virtual bool bank_remove(const Glib::ustring& bank);
     virtual void bank_save();
     virtual void pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name);
+
+    virtual void next_preset_switch();
+    virtual void previus_preset_switch();
+    virtual void process_next_preset_switch(bool s);
+    virtual void process_previus_preset_switch(bool s);
 
     // jack
     virtual gx_jack::GxJack *get_jack();
@@ -519,6 +530,11 @@ public:
     virtual bool bank_remove(const Glib::ustring& bank);
     virtual void bank_save();
     virtual void pf_save(gx_system::PresetFileGui& pf, const Glib::ustring& name);
+
+    virtual void next_preset_switch();
+    virtual void previus_preset_switch();
+    virtual void process_next_preset_switch(bool s);
+    virtual void process_previus_preset_switch(bool s);
 
     // jack
     virtual gx_jack::GxJack *get_jack();

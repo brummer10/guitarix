@@ -561,7 +561,7 @@ class NonlinEquations(object):
                 j = len(p)
                 l.append(slice(j, j+len(pi)))
                 p.extend(pi)
-                V[L[i]] -= 1
+                V[L[int(i)]] -= 1
         return p, l
 
     def make_input_trans(self, matrix_list, opts):
