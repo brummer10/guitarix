@@ -16,7 +16,7 @@ bname="${1%.*}"
 opt="-shared -fPIC -fvisibility=hidden"
 opt="$opt -I$instdir/src/gx_head -I$instdir/src/headers"
 opt="$opt -Wall -g"
-opt="$opt -O3 -march=i686 -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
+opt="$opt -O3 -march=native -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
 opt="$opt $CFLAGS $LDFLAGS"
 g++ -o "$bname".so "$1" $opt
 if [ $copy = 1 ]; then
