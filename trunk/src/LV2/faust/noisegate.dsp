@@ -1,4 +1,4 @@
-import("math.lib");
+import("stdfaust.lib");
 
 ngate = fvariable(float ngate, <math.h>);
 

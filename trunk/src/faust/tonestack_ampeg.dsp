@@ -1,4 +1,4 @@
-declare id "Ampeg"; // in tonestack selector
+declare id "Ampeg"; // in tonestack ba.selector
 declare name "Ampeg Style";
 
 tstack = component("tonestack.dsp");

@@ -6,7 +6,7 @@ import("guitarix.lib");
 hs(x) = highShelf(x,F,G,Q)
 with {
     G = -20.;
-    F = SR/2 -100.;
+    F = ma.SR/2 -100.;
     Q = 100.;
 };
 

@@ -1,17 +1,15 @@
-declare id "pre 12ax7/ master 6V6"; // in amp tube selector
+declare id "pre 12ax7/ master 6V6"; // in amp tube ba.selector
 declare name "pre 12ax7/ master 6V6";
 declare samplerate "96000";
 
-import("music.lib");
-import("filter.lib");
-import("effect.lib"); 
+import("stdfaust.lib"); 
 import("guitarix.lib");
 
 /****************************************************************
  ** Tube Preamp Emulation stage 1 - 2 
  */
  
-bifilter = tf2(b0,b1,b2,a1,a2) with
+bifilter = fi.tf2(b0,b1,b2,a1,a2) with
 {
     c = 1.059;
     R = 0.9221;
@@ -21,7 +19,7 @@ bifilter = tf2(b0,b1,b2,a1,a2) with
     lc3 = 0.43359433;
     lc4 = 1.31282248;
     lc5 = 0.07238887;
-    fc = 1200 : *(2*PI/SR) : log;
+    fc = 1200 : *(2*ma.PI/ma.SR) : log;
     p = lc0*pow(fc,5) + lc1*pow(fc,4) + lc2*pow(fc,3) + lc3*pow(fc,2) + lc4*fc + lc5 : exp;
     //b0 = 1;
     //b1 = -1.01;
@@ -45,15 +43,15 @@ process = hgroup("stage1", stage1) :
 /*
     drive = vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01);
     wet_dry = vslider(".gxdistortion.wet_dry[alias]",  100, 0, 100, 1) : /(100) : smoothi(0.999);
-    preamp =  vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1) : db2linear : smoothi(0.999);
+    preamp =  vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1) : ba.db2linear : smoothi(0.999);
 */
     stage1 = *(preamp): tubestage(TB_12AX7_68k,86.0,2700.0,1.581656):
-    lowpass(1,6531.0) : tubestage(TB_12AX7_250k,132.0,1500.0,1.204285):tubestage(TB_12AX7_250k,194.0,820.0,0.840703); 
-    stage2 = lowpass(1,6531.0) : *(gain1)  <: (tubestage(TB_6V6_250k,6531.0,820.0,1.130462),tubestage(TB_6V6_68k,6531.0,820.0,1.130740)) :>_
+    fi.lowpass(1,6531.0) : tubestage(TB_12AX7_250k,132.0,1500.0,1.204285):tubestage(TB_12AX7_250k,194.0,820.0,0.840703); 
+    stage2 = fi.lowpass(1,6531.0) : *(gain1)  <: (tubestage(TB_6V6_250k,6531.0,820.0,1.130462),tubestage(TB_6V6_68k,6531.0,820.0,1.130740)) :>_
     with {
         gain1 = ampctrl.gain1;
     /*
-        gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
+        gain1 = vslider(".amp2.stage2.gain1[alias]", 6, -20.0, 20.0, 0.1) : ba.db2linear : smoothi(0.999);
     */
     };
 };

@@ -1,5 +1,5 @@
 // generated from file '../src/faust/peak_eq.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace peak_eq {
@@ -8,7 +8,7 @@ class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
 	double 	fConst3;
@@ -28,6 +28,7 @@ private:
 	double 	fRec2[3];
 	double 	fRec1[3];
 	double 	fRec0[3];
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -87,9 +88,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (3.141592653589793 / double(iConst0));
-	fConst2 = double((1.0 / double(iConst0)));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (3.141592653589793 / fConst0);
+	fConst2 = double((1.0 / fConst0));
 	fConst3 = (6.283185307179586 * fConst2);
 	fConst4 = (3.141592653589793 * fConst2);
 	clear_state_f();
@@ -172,10 +173,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp2 = (fSlow37 * fRec2[1]);
 		double fTemp3 = (fSlow50 * fRec3[1]);
 		fRec3[0] = ((double)input0[i] - (((fSlow51 * fRec3[2]) + fTemp3) / fSlow49));
-		fRec2[0] = ((((fTemp3 + (fSlow54 * fRec3[0])) + (fSlow53 * fRec3[2])) / fSlow49) - (((fSlow38 * fRec2[2]) + fTemp2) / fSlow36));
-		fRec1[0] = ((((fTemp2 + (fSlow57 * fRec2[0])) + (fSlow56 * fRec2[2])) / fSlow36) - (((fSlow25 * fRec1[2]) + fTemp1) / fSlow23));
-		fRec0[0] = ((((fTemp1 + (fSlow60 * fRec1[0])) + (fSlow59 * fRec1[2])) / fSlow23) - (((fSlow12 * fRec0[2]) + fTemp0) / fSlow10));
-		output0[i] = (FAUSTFLOAT)(((fTemp0 + (fSlow63 * fRec0[0])) + (fSlow62 * fRec0[2])) / fSlow10);
+		fRec2[0] = (((fTemp3 + ((fSlow54 * fRec3[0]) + (fSlow53 * fRec3[2]))) / fSlow49) - (((fSlow38 * fRec2[2]) + fTemp2) / fSlow36));
+		fRec1[0] = (((fTemp2 + ((fSlow57 * fRec2[0]) + (fSlow56 * fRec2[2]))) / fSlow36) - (((fSlow25 * fRec1[2]) + fTemp1) / fSlow23));
+		fRec0[0] = (((fTemp1 + ((fSlow60 * fRec1[0]) + (fSlow59 * fRec1[2]))) / fSlow23) - (((fSlow12 * fRec0[2]) + fTemp0) / fSlow10));
+		output0[i] = (FAUSTFLOAT)((fTemp0 + ((fSlow63 * fRec0[0]) + (fSlow62 * fRec0[2]))) / fSlow10);
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];

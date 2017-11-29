@@ -8,22 +8,22 @@ declare description "Colorsound Tone Blender";
 declare insert_p "tranyclipper3";
 declare drywetbox "true";
 
-import("filter.lib");
+import("stdfaust.lib");
 import("trany.lib");
 
-process = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     //clip = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) : tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
 
     
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
-        Attack = vslider("Attack[name:Attack]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Attack = vslider("Attack[name:Attack]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Attack*(Attack*(Level*pow(fs,4)*(9.05450478550043e-24*fs + 1.42343600786794e-21) + pow(fs,4)*(9.05450478550042e-27*fs + 1.42343600786794e-24)) + Level*pow(fs,4)*(-9.09472774076109e-22*fs - 1.42975935787076e-19) + pow(fs,4)*(-9.09472774076109e-25*fs - 1.42975935787076e-22)) + Tone*(Attack*(Attack*(Level*pow(fs,4)*(-7.65662400320161e-24*fs + 3.10739610519547e-20) + pow(fs,4)*(-7.65662400320161e-27*fs + 3.10739610519547e-23)) + Level*pow(fs,4)*(7.69063713280111e-22*fs - 3.12120013506539e-18) + pow(fs,4)*(7.69063713280111e-25*fs - 3.1212001350654e-21)) + Level*pow(fs,3)*(8.18152886468203e-20*fs - 3.32042567560148e-16) + pow(fs,3)*(8.18152886468203e-23*fs - 3.32042567560148e-19)) + Level*pow(fs,3)*(-9.67524227740542e-20*fs - 1.52102059347953e-17) + pow(fs,3)*(-9.67524227740541e-23*fs - 1.52102059347953e-20);
 

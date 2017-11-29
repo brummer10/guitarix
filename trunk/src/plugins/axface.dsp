@@ -6,23 +6,23 @@ declare category "Fuzz";
 declare shortname "Axis Face";
 declare description "Axis Face";
 
-import("filter.lib");
+import("stdfaust.lib");
 import("trany.lib");
 
-process = pre :  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : clip with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre :  fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : clip with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 
     
-        Attack = vslider("Attack[name:Attack]", 0.5, 0, 1, 0.01) : Inverted(0)  : smooth(s);
+        Attack = vslider("Attack[name:Attack]", 0.5, 0, 1, 0.01) : Inverted(0)  : si.smooth(s);
     
-        Smooth = vslider("Smooth[name:Smooth]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Smooth = vslider("Smooth[name:Smooth]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Attack*(Attack*Level*pow(fs,3)*(3.38149630023061e-21*fs - 1.69477435943983e-16) + Level*pow(fs,3)*(-3.86160790724035e-21*fs + 1.70600223084551e-14)) + Level*pow(fs,2)*(-1.28720263574678e-19*fs + 5.68667410281837e-13);
 

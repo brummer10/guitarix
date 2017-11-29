@@ -10,8 +10,8 @@ declare category "Echo / Delay";
 //(parameters: "attack", "release", and main - "amount", what is controls envelope follower influence).
 //
 //Parameters description:
-//time - delay time in milliseconds 
-//feedback - delay feedback
+//time - de.delay time in milliseconds 
+//feedback - de.delay feedback
 //pingpong - changes feedback character
 //coloration - LP/HP coloration filter
 //attack, release - envelope follower time in seconds controls
@@ -19,20 +19,19 @@ declare category "Echo / Delay";
 //effect - amplitude of effect signal in mix
 //------------------------------------
 
-import("music.lib");
-import("effect.lib");
+import("stdfaust.lib");
 
 //Constrols
-p_time = hslider("time[name:Delay]", 500, 1, 2000, 1):smooth(tau2pole(0.1));
+p_time = hslider("time[name:Delay]", 500, 1, 2000, 1):si.smooth(ba.tau2pole(0.1));
 p_feedback = hslider("feedback[name:Feedback]", 0, 0, 1, 0.05);
 p_pingpong = hslider("pingpong[name:Ping Pong]", 0, 0, 1, 0.05);
 coloration = hslider("coloration[name:Coloration]", 0, -1, 1, 0.05);
 
 p_attack_time = hslider("attack[name:Attack]", 0.1, 0.05, 0.5, 0.05);
 p_release_time = hslider("release[name:Release]", 0.1, 0.05, 2, 0.05);
-p_amount = hslider("amount[name:Amount]", 0.5, 0,56, 0.05):db2linear;
+p_amount = hslider("amount[name:Amount]", 0.5, 0,56, 0.05):ba.db2linear;
 
-p_effect = hslider("effect[name:Effect]", 0, -16, +4, 0.1) : db2linear : smooth(0.999);
+p_effect = hslider("effect[name:Effect]", 0, -16, +4, 0.1) : ba.db2linear : si.smooth(0.999);
 
 //Consts
 c_fdelay_max_len = 393216;
@@ -40,9 +39,9 @@ c_channels_sw_time = 0.1;
 
 //Funcs
 X = (_,_)<:(!,_,_,!);
-get_delay_length(x) = x*SR:_*0.001;
-coloration_filter(coloration) = _<:(lowshelf(5,(1 - coloration)*12,440),
-	highshelf(5,coloration*12,880)):>_*db2linear(-15);
+get_delay_length(x) = x*ma.SR:_*0.001;
+coloration_filter(coloration) = _<:(fi.lowshelf(5,(1 - coloration)*12,440),
+	fi.highshelf(5,coloration*12,880)):>_*ba.db2linear(-15);
 
 pp_delay(time,fb_coef,pp_fb_coef) = _,_*(1 - pp_fb_coef):
 	(_,X,_:(X:(pp_fb_delay(time, fb_coef,pp_fb_coef))),
@@ -50,12 +49,12 @@ pp_delay(time,fb_coef,pp_fb_coef) = _,_*(1 - pp_fb_coef):
 	:>_,_
 with {
 	pp_fb_delay(time,fb_coef,pp_fb_coef) = _+_*pp_fb_coef:
-	(_+_:fdelay(c_fdelay_max_len,get_delay_length(p_time)))~_*fb_coef;
+	(_+_:de.fdelay(c_fdelay_max_len,get_delay_length(p_time)))~_*fb_coef;
 };
 
-switcher(att, rel, amount) = amp_follower_ud(att,rel):
+switcher(att, rel, amount) = an.amp_follower_ud(att,rel):
 	_*amount:_>1:(1 - _):
-	smooth(tau2pole(c_channels_sw_time));
+	si.smooth(ba.tau2pole(c_channels_sw_time));
 
 process = (_<:_,_,_),(_<:_,_,_):
 	_,

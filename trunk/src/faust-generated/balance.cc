@@ -1,5 +1,5 @@
 // generated from file '../src/faust/balance.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace balance {
@@ -10,6 +10,7 @@ private:
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
 	double 	fRec0[2];
+
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);

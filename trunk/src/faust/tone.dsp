@@ -4,10 +4,7 @@ declare author 		"brummer";
 declare license 	"BSD";
 declare copyright 	"(c)brummer 2008";
 
-import("math.lib");
-import("music.lib");
-import("effect.lib"); 
-import("filter.lib");
+import("stdfaust.lib");
 import("guitarix.lib");
 
 /*-----------------------------------------------
@@ -26,7 +23,7 @@ gxlow_shelf(f0,g)		= filter(b0,b1,b2,a0,a1,a2)
 with {
 	S  		= 1;
 	A  		= pow(10,g/40);
-	w0 		= 2*PI*f0/SR;
+	w0 		= 2*ma.PI*f0/ma.SR;
 	alpha 	= sin(w0)/2 * sqrt( (A + 1/A)*(1/S - 1) + 2 );
 
 	b0 		=    A*( (A+1) - (A-1)*cos(w0) + 2*sqrt(A)*alpha );
@@ -41,7 +38,7 @@ gxhigh_shelf(f0,g)	= filter(b0,b1,b2,a0,a1,a2)
 with {
 	S  		= 1;
 	A  		= pow(10,g/40);
-	w0 		= 2*PI*f0/SR;
+	w0 		= 2*ma.PI*f0/ma.SR;
 	alpha 	= sin(w0)/2 * sqrt( (A + 1/A)*(1/S - 1) + 2 );
 
 	b0 		=    A*( (A+1) + (A-1)*cos(w0) + 2*sqrt(A)*alpha );
@@ -51,7 +48,6 @@ with {
 	a1 		=    2*( (A-1) - (A+1)*cos(w0)                   );
 	a2 		=        (A+1) - (A-1)*cos(w0) - 2*sqrt(A)*alpha;
 };
-
 
 /* Fixed bass and treble frequencies.*/
 bass_freq	= 600;

@@ -6,21 +6,21 @@ declare category "Guitar Effects";
 declare shortname "Fuzz Wah";
 declare description "Dallas Arbiter Fuzz Wah Face";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     wet = vslider("wet_dry[name:Wet/Dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
-    fs = float(SR);
+    fs = float(ma.SR);
     s = 0.993;
 
-fuzz = iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clipper with {
+fuzz = fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clipper with {
     shape = 10.;
     atan_v=1.0/atan(shape);
     clipper(x) = atan_v * atan(x*shape);
 
-    Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+    Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : si.smooth(s);
     
     b0 = Volume*pow(fs,2)*(2.03293413775766e-12*fs + 3.76950304482722e-11) + pow(fs,2)*(2.03293413775766e-15*fs + 3.76950304482722e-14);
 
@@ -39,9 +39,9 @@ fuzz = iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clipper with {
     a3 = fs*(fs*(-7.84175196356216e-15*fs + 5.70450678139714e-11) - 2.77707446985809e-8) + 1.34856811452293e-7;
 };
 
-wah = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0)) with {
+wah = fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0)) with {
 
-    Wah = vslider("Wah[name:Wah]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : smooth(s);
+    Wah = vslider("Wah[name:Wah]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(0) : si.smooth(s);
 
     b0 = Wah*(Wah*pow(fs,3)*(fs*(fs*(1.66116058346743e-30*fs + 6.25504074203227e-26) + 9.16801777179336e-23) + 6.33211249030232e-21) + pow(fs,2)*(fs*(fs*(fs*(-1.83963551537025e-30*fs - 6.95139897479738e-26) - 1.03102897783929e-22) - 8.88807636639375e-21) - 1.28080716242027e-19)) + pow(fs,2)*(fs*(fs*(fs*(-3.35923180991732e-30*fs - 2.84219286401136e-25) - 4.27409553426189e-22) - 3.20024979131437e-20) - 1.77668700625766e-19);
 

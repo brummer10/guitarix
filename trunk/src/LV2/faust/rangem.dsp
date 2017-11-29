@@ -6,19 +6,19 @@ declare category "Tone Control";
 declare shortname "Rangemaster";
 declare description "High Frequency Booster";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0))):>_ with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : _<:*(dry),(*(wet) : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0))):>_ with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
     
-        Boost = vslider("Boost[name:Boost]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
+        Boost = vslider("Boost[name:Boost]", 0.5, 0, 1, 0.01) : Inverted(1) : si.smooth(s);
     
     b0 = Boost*pow(fs,2)*(8.31466608544754e-13*fs + 2.24531902904193e-12) + pow(fs,2)*(-8.32852386225662e-13*fs - 2.24906122742367e-12);
 

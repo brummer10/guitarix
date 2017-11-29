@@ -2,8 +2,7 @@ declare id   "phaser_mono";
 declare name "Phaser Mono";
 declare category "Modulation";
 
-import("effect.lib");
-
+import("stdfaust.lib");
 
 phaser_monogx = *(level): component("phaser.dsp").phaser_mono(Notches,0,width,frqmin,fratio,frqmax,freq,mdepth,fb,invert)
 with {
@@ -20,7 +19,7 @@ with {
   mdepth = 2 ;//select2(vibr,depth,2); 
   
   invert   = 1 ;//checkbox("invert[enum:linear|invert]");
-  level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : db2linear;
+  level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : ba.db2linear;
   
 };
 

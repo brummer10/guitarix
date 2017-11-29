@@ -1,14 +1,14 @@
 // Redeye Library so can be conveniently reused
 // Tube stage/buffer
 
-redeyeBuffer = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+redeyeBuffer = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     
-    Gain = vslider("gain[name:Gain][style:knob]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+    Gain = vslider("gain[name:Gain][style:knob]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
      b0 = -0.00027592369187334*Gain*fs;
 
@@ -19,14 +19,14 @@ redeyeBuffer = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
     a1 = -2.08237299868718e-5*fs + 0.00046096063015504;
 };
 
-chumpouput = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+chumpouput = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
-    Gain = vslider("Gain[name:Gain][style:knob]", 0.5, 0.0, 1.0, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+    Gain = vslider("Gain[name:Gain][style:knob]", 0.5, 0.0, 1.0, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
   	 b0 = -0.000275923691873229*Gain*fs;
 
@@ -37,15 +37,14 @@ chumpouput = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
     a1 = -2.08237299868718e-5*fs + 0.000460960630154374;
 };
 
-
-chumpDriver = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+chumpDriver = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     
-    Volume = vslider("Volume[name:Volume][style:knob]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+    Volume = vslider("Volume[name:Volume][style:knob]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
      b0 = -0.00027592369187334*Volume*fs;
 
@@ -56,16 +55,16 @@ chumpDriver = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
     a1 = -2.08237299868718e-5*fs + 0.00046096063015504;
 };
 
-chumpPreamp = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+chumpPreamp = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
-    Gain = hgroup( "Amp", vslider("Gain[0][name:Gain]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s) );
+    Gain = hgroup( "Amp", vslider("Gain[0][name:Gain]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s) );
             
-    Tone = hgroup( "Amp", vslider("Tone[1][name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s));
+    Tone = hgroup( "Amp", vslider("Tone[1][name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s));
             
     b0 = 7.37587395491694e-9*Gain*pow(fs,2) + Tone*(-2.86839542691214e-12*Gain*Tone*pow(fs,3) + 6.82678111605089e-12*Gain*pow(fs,3));
 
@@ -85,15 +84,15 @@ chumpPreamp = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
 };
 
 // Input with 12ax7
-input12ax7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+input12ax7 = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-                Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+                Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
     b0 = -0.000680089268694692*Drive*fs;
 
@@ -104,14 +103,14 @@ input12ax7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
     a1 = -2.08240615332986e-5*fs + 0.000445046401665336;
 };
 
-output12ax7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+output12ax7 = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
-	 Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(1) : smooth(s);
+	 Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(1) : si.smooth(s);
             
     b0 = 0.000617188025351883*Gain*fs - 0.000617188025351883*fs;
 
@@ -123,14 +122,14 @@ output12ax7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
 };
 
 // 12AU7
-input12au7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+input12au7 = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
-	 Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+	 Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
     b0 = -0.000275923691873229*Drive*fs;
 
@@ -140,15 +139,15 @@ input12au7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
 
     a1 = -2.08237299868718e-5*fs + 0.000460960630154374;
 };
-output12au7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+output12au7 = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-                Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(1) : smooth(s);
+                Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(1) : si.smooth(s);
             
     b0 = 0.000257077328090757*Gain*fs - 0.000257077328090757*fs;
 
@@ -160,15 +159,15 @@ output12au7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
 };
 
 // 12AY7
-input12ay7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+input12ay7 = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-                Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+                Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
     b0 = -0.000482670092603301*Drive*fs;
 
@@ -178,15 +177,15 @@ input12ay7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
 
     a1 = -2.08238952562458e-5*fs + 0.000453027700200682;
 };
-output12ay7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+output12ay7 = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-                Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(1) : smooth(s);
+                Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(1) : si.smooth(s);
             
     b0 = 0.000446694484722411*Gain*fs - 0.000446694484722411*fs;
 
@@ -198,15 +197,15 @@ output12ay7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
 };
 
 // 12AT7
-input12at7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+input12at7 = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-                Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+                Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
     b0 = -0.000564641478707507*Drive*fs;
 
@@ -216,15 +215,15 @@ input12at7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
 
     a1 = -2.08239024527461e-5*fs + 0.00045268226818868;
 };
-output12at7 = pre : iir((b0/a0,b1/a0),(a1/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+output12at7 = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-                Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(1) : smooth(s);
+                Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(1) : LogPot(1) : si.smooth(s);
             
     b0 = 0.000617188025351883*Gain*fs - 0.000617188025351883*fs;
 

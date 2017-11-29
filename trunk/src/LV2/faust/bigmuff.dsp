@@ -1,13 +1,11 @@
 // Big Muff tone model
 //
 
-import("music.lib");
-import("filter.lib");
-
+import("stdfaust.lib");
 
 // Is basically 2 filters mixed together with a knob.
 
-//Top filter is   39K( R1 ) -> 0.01u( C2 ) to ground - 408Hz lowpass
+//Top filter is   39K( R1 ) -> 0.01u( C2 ) to ground - 408Hz fi.lowpass
 // Bottom filter is 3900pF( C1 )  -> 22k( R2 ) to ground - 1855.9Hz
 
 // Seems OK but does not create the 1K dip seen on real thing
@@ -23,8 +21,7 @@ import("filter.lib");
 
 bigmuff = _<: filter1,filter2:>_   with {
 	tone = vslider("tone[style:knob]",0.5,0,1,0.01);
-	filter1  = highpass( 1, 1856):*(tone)  ;
-	filter2 = lowpass( 1, 408 ) :*(1-tone ) ;
+	filter1  = fi.highpass( 1, 1856):*(tone)  ;
+	filter2 = fi.lowpass( 1, 408 ) :*(1-tone ) ;
 };
 process = bigmuff ;
-

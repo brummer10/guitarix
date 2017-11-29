@@ -6,29 +6,25 @@ declare category "Guitar Effects";
 declare shortname "Double Beat";
 declare description "Roland Double Beat";
 
-import("filter.lib");
-import("effect.lib");
-import("oscillator.lib");
+import("stdfaust.lib");
 import("trany.lib");
 
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
 
     wet = vslider("wet_dry[name:Dry/Wet][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
-   // gain = vslider("Gain[name:Gain][tooltip:Gain of the Fuzz Section (dB)]", -12, -40, 4, 0.1) : db2linear : smooth(s);
+   // gain = vslider("Gain[name:Gain][tooltip:Gain of the Fuzz Section (dB)]", -12, -40, 4, 0.1) : ba.db2linear : si.smooth(s);
     clip = tranystage(TB_KT88_68k,86.0,2700.0,5.562895) : tranystage(TB_KT88_68k,86.0,2700.0,5.562895) ;
 
-fuzz = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0,a7/a0,a8/a0))  with {
+fuzz = fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0,a7/a0,a8/a0))  with {
     shape = (1.1 -Fuzz ) * 20.;
     atan_v=1.0/atan(shape);
     //clip(x) = 0.4 * (min(0.7514,max(-0.4514,x)));
 
-
-    Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
-    
+    Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Fuzz*pow(fs,4)*(fs*(fs*(8.60349117319693e-33*fs + 7.42470650533226e-26) + 3.80828462584721e-23) + 8.28085042193987e-22) + pow(fs,3)*(fs*(fs*(fs*(-2.62267793598193e-32*fs - 2.30252524666021e-25) - 1.21809214941527e-22) - 4.47006878788668e-21) - 4.14042521096994e-20);
 
@@ -67,15 +63,15 @@ fuzz = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0,
     a8 = Fuzz*fs*(fs*(fs*(fs*(fs*(fs*(fs*(9.64198439050231e-55*fs + 5.76952472985784e-34) - 1.84629565839962e-29) + 5.28116058056682e-26) - 3.4488417342687e-23) + 6.7753494863719e-21) - 1.6046797673707e-19) + 6.03074438986166e-19) + fs*(fs*(fs*(fs*(fs*(fs*(fs*(-1.08067210692624e-54*fs - 1.6917880698614e-33) + 2.29812823706864e-29) - 5.73340871630524e-26) + 3.80795187898005e-23) - 8.56555972538848e-21) + 5.00114968075696e-19) - 8.62923424920947e-18) + 3.01537219493083e-17;
 };
 
-wah(x) = x : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0)) with {
+wah(x) = x : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0)) with {
 
-    Wah1 = (x : amp_follower_ud(0.01,0.1) : min(0.9) : max(0.09) );
+    Wah1 = (x : an.amp_follower_ud(0.01,0.1) : min(0.9) : max(0.09) );
     
-    Wah2 = vslider("Wah[name:Wah]", 0.5, 0.02, 1, 0.01) : Inverted(1) : LogPot(1) : smooth(s);
+    Wah2 = vslider("Wah[name:Wah]", 0.5, 0.02, 1, 0.01) : Inverted(1) : LogPot(1) : si.smooth(s);
     
     sl = checkbox("mode[enum:manual|auto|alien]");
 
-    Wah3 = (oscs(freq) + 1) / 2 : min(0.9) : max(0.09) : Inverted(1) with {
+    Wah3 = (os.oscs(freq) + 1) / 2 : min(0.9) : max(0.09) : Inverted(1) with {
         freq = vslider("lfobpm[name:Alien Freq][tooltip:LFO in Beats per Minute]",24,24,360,1)/60;
     }; 
 

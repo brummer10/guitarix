@@ -6,22 +6,20 @@ declare category "Distortion";
 declare shortname "C Overdrive";
 declare description "Colorsound Overdrive";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     
     wet = vslider("wet_dry[name:Wet/Dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
+p1 = fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : overdrive with {
 
-
-p1 = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : overdrive with {
-
-        Gain = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+        Gain = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
     
     overdrive(x) = (x*(abs(x) + 0.5)/(x*x + (0.5-1)*abs(x) + 1)) * Gain;
     
@@ -50,12 +48,11 @@ p1 = iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) 
     a5 = Gain*(fs*(fs*(fs*(fs*(2.40788246727257e-24*fs - 1.83337089189981e-19) + 1.0884037880131e-17) - 2.17663092851014e-16) + 5.23377299648722e-16) - 4.66166061483529e-29) + fs*(fs*(fs*(fs*(-2.78713041660513e-24*fs + 2.03907877623046e-19) - 1.25272695161612e-17) + 3.13137866048362e-16) - 1.42685467015479e-15) + 1.16306066588601e-15;
 };
 
+p2 =  fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) with {
 
-p2 =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) with {
-
-        Bass = vslider("Bass[name:Bass]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
+        Bass = vslider("Bass[name:Bass]", 0.5, 0, 1, 0.01) : Inverted(1) : si.smooth(s);
     
-        Treble = vslider("Treble[name:Treble]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Treble = vslider("Treble[name:Treble]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Bass*(Bass*pow(fs,2)*(fs*(fs*(-2.08000946656956e-27*fs + 3.29838842203039e-21) + 1.40184395777108e-19) + 3.53984542064284e-34) + fs*(fs*(fs*(fs*(3.70058120006252e-25*fs + 3.84955928653808e-22) + 1.66273197458755e-18) + 7.0086493617754e-17) + 1.76992271032142e-31)) + Treble*(Bass*(Bass*pow(fs,3)*(fs*(6.58813040006868e-24*fs + 2.80345974471016e-22) + 7.07969084128568e-37) + pow(fs,3)*(fs*(1.91438372832372e-27*fs - 9.28894735127254e-24) - 2.28170831993645e-23)) + Treble*(Bass*pow(fs,3)*(fs*(-6.58813040006868e-24*fs - 2.80345974471016e-22) - 7.07969084128568e-37) + pow(fs,3)*(fs*(6.88899571441955e-24*fs + 2.95929420463955e-22) + 1.1408541599688e-23)) + pow(fs,3)*(fs*(-1.0025039931634e-23*fs - 4.24692905313867e-22) - 6.08366393926321e-36)) + fs*(fs*(fs*(fs*(-3.8335982187148e-25*fs - 5.42251622369686e-21) - 1.95786469833648e-18) - 7.39993880685971e-17) - 2.85213539992201e-18);
 

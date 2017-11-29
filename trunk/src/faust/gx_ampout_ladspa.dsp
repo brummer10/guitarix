@@ -7,10 +7,10 @@
 
 declare groups ".amp";
 
-import("music.lib");
+import("stdfaust.lib");
 import("guitarix.lib");
 
-gain = value : db2linear : smoothi(0.999) with {
+gain = value : ba.db2linear : smoothi(0.999) with {
     slider1 = vslider(".amp.out_amp[name:Level]", 0, -20, 4, 0.1);
     on_off =  checkbox(".amp.on_off[name:use Level]");
     slider2 = vslider(".amp.out_ladspa[name:Ladspa Level]", 0, -20, 20, 0.1);

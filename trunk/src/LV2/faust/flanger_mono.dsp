@@ -3,22 +3,21 @@ declare name            "Flanger Mono";
 declare category        "Modulation";
 declare license 	"BSD";
 
-import("effect.lib");
+import("stdfaust.lib");
 import("guitarix.lib");
-import("oscillator.lib");
 
 flangermono(curdel)
-  = _<: _, (-:fdelay(2048,curdel)) ~ *(0.5) : _, 
+  = _<: _, (-:de.fdelay(2048,curdel)) ~ *(0.5) : _, 
   *(-1) : + : *(0.5);
   
 
 flangermonogx = *(level):flangermono(curdel)
 with {
-	  lfol = component("oscillator.lib").oscrs; 
-	  dflange = 0.001 * SR *  10.0;
-	  odflange = 0.001 * SR *  1.0;
+	  lfol = os.oscrs; 
+	  dflange = 0.001 * ma.SR *  10.0;
+	  odflange = 0.001 * ma.SR *  1.0;
 	  freq	 = hslider("freq [unit:Hz]", 0.2, 0, 5, 0.01);
-	  level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : db2linear;
+	  level	 = hslider("level [unit:dB]", 0, -60, 10, 0.1) : ba.db2linear;
 	  curdel = odflange+dflange*(1 + lfol(freq))/2; 
   };
   

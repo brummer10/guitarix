@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/stereo_noiser.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace stereo_noiser {
@@ -8,6 +8,7 @@ class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
 	int 	iRec0[2];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);

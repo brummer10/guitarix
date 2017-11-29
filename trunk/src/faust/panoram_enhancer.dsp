@@ -9,16 +9,15 @@ declare category "Misc";
 //"Title: Stereo Enhancement Algorithm"
 //------------------------------------
 
-import("filter.lib");
-import("music.lib");
+import("stdfaust.lib");
 
 //Controls
-delay_width = hslider("Delay width[name:Delay][tooltip:Delay Width]",0,0,1,0.01):smooth(0.999);
+delay_width = hslider("Delay width[name:Delay][tooltip:Delay Width]",0,0,1,0.01):si.smooth(0.999);
 freq_width = hslider("Frequency width[name:Frequency][tooltip:Frequency Width]",0,0,1,0.01);
 
 //Constants
-dt_max_const = 65536; //Max length of all delay lines, to provide 200 ms at 192 kHz
-dt_max = 0.2 * SR; //Real max length, 200 ms 
+dt_max_const = 65536; //Max length of all de.delay lines, to provide 200 ms at 192 kHz
+dt_max = 0.2 * ma.SR; //Real max length, 200 ms 
 filters_order = 6; //Filters order in filter-banks
 fmain = 1800; //Main filter fhi
 f1 = 3600; f2 = 6400; f3 = 20000; //Border freqs of filters in filter-banks
@@ -29,7 +28,7 @@ fbank_coef_gap = 0.6; //Filters in filter-banks gain coefs min value
 rv1 = _; rv2 = _*0.7; rv3 = _ + 0.3:sqrt(_);
 rv4 = _*3.14:sin; rv5 = _*1.23:cos; rv6 = _+9:log10; 
 
-pa_filter(dt,flo,fhi,coef) = fdelay(dt_max_const,dt):highpass(filters_order,flo):lowpass(filters_order,fhi):_*coef;   
+pa_filter(dt,flo,fhi,coef) = de.fdelay(dt_max_const,dt):fi.highpass(filters_order,flo):fi.lowpass(filters_order,fhi):_*coef;   
 
 gain_coef = _*(1 - fbank_coef_gap):_+fbank_coef_gap;
 
@@ -47,6 +46,6 @@ pa_filter_bank2(delay_width,filter_width) = _<:
 
 process = _,_<:
 	pa_filter_bank1(delay_width,freq_width),
-	(_,_:(_*0.5,_*0.5:>lowpass(4,fmain))<:_,_),
+	(_,_:(_*0.5,_*0.5:>fi.lowpass(4,fmain))<:_,_),
 	pa_filter_bank2(delay_width,freq_width)
 	:>_,_;

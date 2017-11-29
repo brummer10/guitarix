@@ -8,21 +8,21 @@ declare description "Sustainer";
 declare insert_p "tranyclipper";
 declare volume_p "Volume";
 
-import("filter.lib");
+import("stdfaust.lib");
 import("trany.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 
     
-        //Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        //Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
-        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Sustain*pow(fs,3)*(fs*(4.07249439024394e-27*fs - 1.34118849842818e-20) + 1.23525177556824e-15) + (Sustain*pow(fs,3)*(fs*(-3.9514408494262e-27*fs + 1.26300907176988e-20) + 2.68904213585766e-17) + pow(fs,3)*(fs*(-3.9514408494262e-29*fs + 1.26300907176988e-22) + 2.68904213585766e-19)) + pow(fs,3)*(fs*(4.07249439024394e-29*fs - 1.34118849842818e-22) + 1.23525177556824e-17);
 

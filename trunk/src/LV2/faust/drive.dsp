@@ -1,3 +1,5 @@
+
+import("stdfaust.lib");
 import("guitarix.lib");
 
 fuzzy = vslider("value[name:drive]", 1, 1, 10, 1);

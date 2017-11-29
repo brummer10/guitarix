@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/hfb.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace hfb {
@@ -25,6 +25,7 @@ private:
 	double 	fConst9;
 	double 	fConst10;
 	double 	fRec2[3];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -74,7 +75,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = double(min(192000, max(1, fSamplingFreq)));
+	fConst0 = double(min(1.92e+05, max(1.0, (double)fSamplingFreq)));
 	fConst1 = (2.36551040815034e-10 * fConst0);
 	fConst2 = (1.32257544516629e-08 + fConst1);
 	fConst3 = (1.17023754306854e-09 * fConst0);
@@ -100,12 +101,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow0 = (0.007000000000000006 * (1 - double(fslider0)));
 	double 	fSlow1 = (0.007000000000000006 * double(fslider1));
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((0.993 * fRec0[1]) + fSlow0);
-		fRec1[0] = ((0.993 * fRec1[1]) + fSlow1);
+		fRec0[0] = (fSlow0 + (0.993 * fRec0[1]));
+		fRec1[0] = (fSlow1 + (0.993 * fRec1[1]));
 		double fTemp0 = (4.40858481722098e-05 + (fConst0 * (7.88503469383447e-07 + ((fRec1[0] * (fConst6 + (fConst4 * fRec1[0]))) + (fConst2 * fRec0[0])))));
 		double fTemp1 = (fConst0 * ((fRec1[0] * ((5.12666523663255e-23 * fRec1[0]) - 1.59041010538546e-09)) - (3.18082021077091e-10 * fRec0[0])));
 		fRec2[0] = ((double)input0[i] - (((fRec2[1] * (8.81716963444196e-05 + (fConst10 * ((fRec1[0] * ((2.34047508613708e-09 * fRec1[0]) - 2.36551040815034e-09)) - (4.73102081630068e-10 * fRec0[0]))))) + (fRec2[2] * (4.40858481722098e-05 + (fConst0 * (((fRec1[0] * (fConst9 + (fConst8 * fRec1[0]))) + (fConst7 * fRec0[0])) - 7.88503469383447e-07))))) / fTemp0));
-		output0[i] = (FAUSTFLOAT)(fConst0 * ((((fRec2[0] * (fTemp1 - 1.06027340359031e-06)) + (fConst0 * (fRec2[1] * ((6.36164042154183e-10 * fRec0[0]) + (fRec1[0] * (3.18082021077092e-09 + (0 - (1.02533304732651e-22 * fRec1[0])))))))) + (fRec2[2] * (1.06027340359031e-06 + fTemp1))) / fTemp0));
+		output0[i] = (FAUSTFLOAT)(fConst0 * (((fConst0 * (fRec2[1] * ((6.36164042154183e-10 * fRec0[0]) + (fRec1[0] * (3.18082021077092e-09 - (1.02533304732651e-22 * fRec1[0])))))) + ((fRec2[0] * (fTemp1 - 1.06027340359031e-06)) + (fRec2[2] * (1.06027340359031e-06 + fTemp1)))) / fTemp0));
 		// post processing
 		fRec2[2] = fRec2[1]; fRec2[1] = fRec2[0];
 		fRec1[1] = fRec1[0];

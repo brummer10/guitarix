@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/stereoecho.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace stereoecho {
@@ -10,7 +10,7 @@ private:
 	int 	iVec0[2];
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
-	int 	iConst0;
+	float 	fConst0;
 	float 	fConst1;
 	float 	fRec1[2];
 	float 	fRec2[2];
@@ -36,6 +36,7 @@ private:
 	FAUSTFLOAT 	fslider4;
 	FAUSTFLOAT	*fslider4_;
 	float *fRec7;
+
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();
@@ -103,9 +104,9 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586f / float(iConst0));
-	fConst2 = (0.001f * iConst0);
+	fConst0 = min(1.92e+05f, max(1.0f, (float)fSamplingFreq));
+	fConst1 = (6.2831855f / fConst0);
+	fConst2 = (0.001f * fConst0);
 	IOTA = 0;
 }
 
@@ -172,14 +173,14 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec4[0] = max(0.0f, min(1.0f, (fRec4[1] + fTemp0)));
 		iRec5[0] = ((int(((fRec4[1] >= 1.0f) & (iRec6[1] != iSlow5))))?iSlow5:iRec5[1]);
 		iRec6[0] = ((int(((fRec4[1] <= 0.0f) & (iRec5[1] != iSlow5))))?iSlow5:iRec6[1]);
-		fRec0[IOTA&262143] = ((float)input0[i] + (fSlow6 * ((((1.0f - fRec4[0]) * fRec0[(IOTA-int((1 + int((int(iRec5[0]) & 131071)))))&262143]) + (fRec4[0] * fRec0[(IOTA-int((1 + int((int(iRec6[0]) & 131071)))))&262143])) * (1 - (fSlow4 * fRec1[0])))));
+		fRec0[IOTA&262143] = ((float)input0[i] + (fSlow6 * (((fRec0[(IOTA-int((1 + int((int(iRec5[0]) & 131071)))))&262143] * (1.0f - fRec4[0])) + (fRec4[0] * fRec0[(IOTA-int((1 + int((int(iRec6[0]) & 131071)))))&262143])) * (1 - (fSlow4 * fRec1[0])))));
 		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&262143];
 		float fTemp1 = ((int((fRec8[1] != 0.0f)))?((int(((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f))))?fRec8[1]:0):((int(((fRec9[1] == 0.0f) & (iSlow7 != iRec10[1]))))?0.0009765625f:((int(((fRec9[1] == 1.0f) & (iSlow7 != iRec11[1]))))?-0.0009765625f:0)));
 		fRec8[0] = fTemp1;
 		fRec9[0] = max(0.0f, min(1.0f, (fRec9[1] + fTemp1)));
 		iRec10[0] = ((int(((fRec9[1] >= 1.0f) & (iRec11[1] != iSlow7))))?iSlow7:iRec10[1]);
 		iRec11[0] = ((int(((fRec9[1] <= 0.0f) & (iRec10[1] != iSlow7))))?iSlow7:iRec11[1]);
-		fRec7[IOTA&262143] = ((float)input1[i] + (fSlow8 * ((((1.0f - fRec9[0]) * fRec7[(IOTA-int((1 + int((int(iRec10[0]) & 131071)))))&262143]) + (fRec9[0] * fRec7[(IOTA-int((1 + int((int(iRec11[0]) & 131071)))))&262143])) * (1 - (fSlow4 * (0 - fRec1[0]))))));
+		fRec7[IOTA&262143] = ((float)input1[i] + (fSlow8 * (((fRec7[(IOTA-int((1 + int((int(iRec10[0]) & 131071)))))&262143] * (1.0f - fRec9[0])) + (fRec9[0] * fRec7[(IOTA-int((1 + int((int(iRec11[0]) & 131071)))))&262143])) * (1 - (fSlow4 * (0 - fRec1[0]))))));
 		output1[i] = (FAUSTFLOAT)fRec7[(IOTA-0)&262143];
 		// post processing
 		iRec11[1] = iRec11[0];

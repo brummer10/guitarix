@@ -20,7 +20,6 @@ sym_clip(thr) = clip(-thr,thr);
 balance(b) = *(1 - max(0, b)), *(1 - max(0, -b));
 wet_dry_mix(w, Fx) = _ <: _, Fx : balance(w) : +;
 
-
 /****************************************************************
 ** nonlinear functions
 */
@@ -51,9 +50,9 @@ valve = environment {
         f(dist, q, x) = (qd(dist, q, x)/(1 - exp(-qd(dist, q, x)))*exp(dist*q) - dist*q)/(dist*dist*q);
         vt_lim(dist, q, x) = select2(dist*x > nlim, select2(dist*x < -nlim, f(dist, q, x), -1/dist), bigval);
     };
-    vts(dist, q, x) = abs(x) : neg : vt_scaled(dist, q) : copysign(_, x);
-    vtu(dist, q, g) = vt_scaled(dist, q) : *(g) : neg : vt(dist, q) : neg;
-    vtu_(dist, q, g) = vt_scaled(dist, q) :neg :  *(g) : vt_scaled(dist, q) : /(g) : neg;
+    vts(dist, q, x) = abs(x) : ma.neg : vt_scaled(dist, q) : copysign(_, x);
+    vtu(dist, q, g) = vt_scaled(dist, q) : *(g) : ma.neg : vt(dist, q) : ma.neg;
+    vtu_(dist, q, g) = vt_scaled(dist, q) :ma.neg :  *(g) : vt_scaled(dist, q) : /(g) : ma.neg;
 };
 
 saturate(t, x) = select2(abs(x) < t, x, v)
@@ -65,7 +64,6 @@ with {
 
 nonlin(a,b,c,x) = ((a * x - b * abs(x) * x) - x) * c;
 nonlin1 = nonlin(2,1,0.5);
-
 
 // simple triode circuit emulation
 
@@ -101,24 +99,23 @@ TB_SVEL34_68k    = fconstant(int TUBE_TABLE_SVEL34_68k,   "valve.h");
 TB_SVEL34_250k   = fconstant(int TUBE_TABLE_SVEL34_250k,  "valve.h");
 
 tubestageF(tb,vplus,divider,fck,Rk,Vk0) = +(no_denormal) : anti_aliase: tube : hpf with {
-    lpfk = lowpass(1,fck);
-    anti_aliase = lowpass(3,SR/2.1);
+    lpfk = fi.lowpass(1,fck);
+    anti_aliase = fi.lowpass(3,ma.SR/2.1);
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
     tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) :+(no_denormal) : lpfk) : /(divider);
-    hpf = highpass(1,31.0);
+    hpf = fi.highpass(1,31.0);
 };
 
 // SHP : This version allows user setting of Vplus and Divider
 // Useful as many circuits do not have 100K default here ( marshall preamps, all power tubes etc )
 tubestageP(tb,vplus,divider,Rp,fck,Rk,Vk0) = anti_aliase : tube : hpf with {
-    lpfk = lowpass(1,fck);
-    anti_aliase = lowpass(3,SR/2.1);
+    lpfk = fi.lowpass(1,fck);
+    anti_aliase = fi.lowpass(3,ma.SR/2.1);
     VkC = Vk0 * (Rp/Rk);
     tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);
-    hpf = highpass(1,31.0);
+    hpf = fi.highpass(1,31.0);
 };
-
 
 tubestage(tb,fck,Rk,Vk0)  = tubestageF(tb,250.0,40.0,fck,Rk,Vk0);
 tubestage130_10(tb,fck,Rk,Vk0) = tubestageF(tb,130.0,10.0,fck,Rk,Vk0);
@@ -223,7 +220,7 @@ ts = environment {
         };
 };
 
-tonestack(tse) = 1/A0*iir((B0,B1,B2,B3),(A1/A0,A2/A0,A3/A0)) with {
+tonestack(tse) = 1/A0*fi.iir((B0,B1,B2,B3),(A1/A0,A2/A0,A3/A0)) with {
     C1 = tse.C1;
     C2 = tse.C2;
     C3 = tse.C3;
@@ -267,7 +264,7 @@ tonestack(tse) = 1/A0*iir((B0,B1,B2,B3),(A1/A0,A2/A0,A3/A0)) with {
          + l*C1*C2*C3*R1*R2*R4
          + C1*C2*C3*R1*R3*R4;
 
-    c = 2*float(SR);
+    c = 2*float(ma.SR);
 
     B0 = -b1*c - b2*pow(c,2) - b3*pow(c,3);
     B1 = -b1*c + b2*pow(c,2) + 3*b3*pow(c,3);
@@ -292,34 +289,31 @@ tonestack(tse) = 1/A0*iir((B0,B1,B2,B3),(A1/A0,A2/A0,A3/A0)) with {
 // from "bandfilter.dsp" in the faust2pd distribution 
 // which was released under the BSD license.
 
-eqfilter(Q,F,G)	= TF2(  (1 +  K/Q + K*K) 	/ D,
+eqfilter(Q,F,G)	= fi.TF2(  (1 +  K/Q + K*K) 	/ D,
 						 2 * (K*K - 1) 		/ D,
 						(1 - K/Q + K*K) 	/ D,
 						 2 * (K*K - 1) 		/ D,
 						(1 - V*K/Q + K*K) 	/ D
 					 )
 		with {
-				V = db2linear(G);
-				K = tan(PI*F/SR);
+				V = ba.db2linear(G);
+				K = tan(ma.PI*F/ma.SR);
 				D = 1 + V*K/Q + K*K;
 		};
 
-
 ifilter(Q,F,G) = eqfilter(Q,F,-G);
-
 
 /****************************************************************
 ** backward compatible faust library definitions, may removed when
 ** the good versions in wafscript where updated
 */
 
-
 //----- Flanging effect renamed in faust-0.9.27 from
-//----- flangermono -> flanger_mono
-//----- flangerstereo -> flanger_stereo
+//----- flangermono -> pf.flanger_mono
+//----- flangerstereo -> pf.flanger_stereo
 
 flangermonoN(dmax,curdel,depth,fb,invert)
-  = _ <: _, (-:fdelay(dmax,curdel)) ~ *(fb) : _, 
+  = _ <: _, (-:de.fdelay(dmax,curdel)) ~ *(fb) : _, 
   *(select2(invert,depth,0-depth)) 
   : + : *(0.5);
 
@@ -329,24 +323,22 @@ flangerstereoN(dmax,curdel1,curdel2,depth,fb,invert)
 
 //----- Moog "Voltage Controlled Filter" (VCF)
 //----- filter renamed in faust-0.9.27 from
-//----- moogvcf -> moog_vcf
+//----- moogvcf -> ve.moog_vcf
 
-import("filter.lib");
+import("stdfaust.lib");
 
-moogvcfN(Q,fr)  = (+ : pole(p) : pole(p) 
-                   : pole(p) : pole(p) : *(scale(p))) ~ *(mk)
+moogvcfN(Q,fr)  = (+ : fi.pole(p) : fi.pole(p) 
+                   : fi.pole(p) : fi.pole(p) : *(scale(p))) ~ *(mk)
 with {
-     p = 1.0 - fr * 2.0 * PI / SR; // approx for fr << SR
+     p = 1.0 - fr * 2.0 * ma.PI / ma.SR; // approx for fr << ma.SR
      scale(p) = pow(1-p,4);
      mk = 0-Q;
 };
-
 
 /****************************************************************
 ** building blocks
 */
 fuzzy_tube(a,b,c,fuzzy) = _ <: _ + nonlin(a,b,c) * fuzzy * 0.5 : sym_clip(0.7);
-
 
 /****************************************************************
 ** parameter definitions for use in alternative module
@@ -355,14 +347,14 @@ fuzzy_tube(a,b,c,fuzzy) = _ <: _ + nonlin(a,b,c) * fuzzy * 0.5 : sym_clip(0.7);
 ampctrl = environment {
     drive = vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01);
     wet_dry = vslider(".gxdistortion.wet_dry[alias]",  100, 0, 100, 1) : /(100) : smoothi(0.999);
-    preamp =  vslider(".amp2.stage1.Pregain[alias]",-6,-20,20,0.1) : db2linear : smoothi(0.999);
-    gain1 = vslider(".amp2.stage2.gain1[alias]", -6, -20.0, 20.0, 0.1) : db2linear : smoothi(0.999);
+    preamp =  vslider(".amp2.stage1.Pregain[alias]",-6,-20,20,0.1) : ba.db2linear : smoothi(0.999);
+    gain1 = vslider(".amp2.stage2.gain1[alias]", -6, -20.0, 20.0, 0.1) : ba.db2linear : smoothi(0.999);
 };
 
 crybaby_ctrl = environment {
-    level = vslider(".crybaby.level[alias]", 0.1, 0, 1, 0.01);
-    wah = vslider(".crybaby.wah[alias]", 0, 0, 1, 0.01);
-    wet_dry = vslider(".crybaby.wet_dry[name:wet/dry][alias]",  100, 0, 100, 1) : /(100);
+    level = vslider("crybaby.level[alias]", 0.1, 0, 1, 0.01);
+    wah = vslider("crybaby.wah[alias]", 0, 0, 1, 0.01);
+    wet_dry = vslider("crybaby.wet_dry[name:wet/dry][alias]",  100, 0, 100, 1) : /(100);
 };
 
 balance_ctrl = environment {
@@ -378,7 +370,7 @@ wah_ctrl = environment {
 
 vibe_lfo_ctrl = environment {
     freq = vslider(".univibe.freq[name:Tempo][tooltip:LFO frequency (Hz)][alias]", 4.4, 0.1, 10, 0.1) * 16;
-    phase = vslider(".univibe.stereo[name:St.df][tooltip:LFO phase shift between left and right channels][alias]", 0.11, -0.5, 0.5, 0.01) * 2 * PI;
+    phase = vslider(".univibe.stereo[name:St.df][tooltip:LFO phase shift between left and right channels][alias]", 0.11, -0.5, 0.5, 0.01) * 2 * ma.PI;
 };
 
 vibe_mono_lfo_ctrl = environment {
@@ -395,6 +387,6 @@ allpass(dt,fb) = (_,_ <: (*(fb),_:+:@(dt)), -) ~ _ : (!,_);
 
 //allpass(dt,fb) = (+ <:(@(dt):_),*(fb)) ~ *(-fb) : mem,_ : + ;
 allpass_with_fdelay(dt1,coef,dt2,dt2pos) = 
-	(_,_ <: (*(coef),_:+:@(dt1):fdelay(dt2,dt2pos)), -) ~ _ : (!,_);
+	(_,_ <: (*(coef),_:+:@(dt1):de.fdelay(dt2,dt2pos)), -) ~ _ : (!,_);
 
 comb(dt, fb, damp) = (+:@(dt)) ~ (*(1-damp) : (+ ~ *(damp)) : *(fb));

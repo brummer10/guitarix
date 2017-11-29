@@ -1,7 +1,7 @@
 declare id   "shaper";
 declare name "Shaper";
 
-import("music.lib");
+import("stdfaust.lib");
 
 sharp = vslider("sharper[name:sharper]", 1, 1, 10, 1);
 press = 5 * sharp;
@@ -15,11 +15,11 @@ env = abs : max(1);
 
 compress(env) = level * (1-r)/r
 with {
-	level = env : h ~ _ : linear2db : (_ + press) : max(0)
+	level = env : h ~ _ : ba.linear2db : (_ + press) : max(0)
 	with {
 		h(x,y)  = f*x+(1-f)*y with { f = (x<y)*ga+(x>=y)*gr; };
-		ga      = exp(-1/(SR*attack));
-		gr      = exp(-1/(SR*release));
+		ga      = exp(-1/(ma.SR*attack));
+		gr      = exp(-1/(ma.SR*release));
 	};
 	p = level/(knee+eps) : max(0) : min(1) with { eps = 0.001; };
 	r = 1 - p + p * ratio;
@@ -27,5 +27,5 @@ with {
 
 process(x) = g(x) * x
 with {
-	g = env : compress + sharp : db2linear;
+	g = env : compress + sharp : ba.db2linear;
 };

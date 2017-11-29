@@ -9,7 +9,7 @@ declare category "Reverb";
 //CCRMA, Stanford University, Stanford, CA, USA
 //------------------------------------
 
-import ("music.lib");
+import("stdfaust.lib");
 
 import("guitarix.lib");
 
@@ -36,21 +36,21 @@ mixer(c,x0,y0,x1,y1) = sel(c,x0,y0), sel(c,x1,y1)
 //Consts
 orig_sr = 29761.0; //Original sample rate, described in paper
 
-//Correct delay lines according sample rate
-get_length(x) = x/orig_sr:_*SR:int;
-get_predelay_length(x) = x*SR:_*0.001;
+//Correct de.delay lines according sample rate
+get_length(x) = x/orig_sr:_*ma.SR:int;
+get_predelay_length(x) = x*ma.SR:_*0.001;
 
 input_chain(predelay, bw, input_diffusion1, input_diffusion2) = 
-	(_+_)*0.5:sdelay(int(2^18), 100*SR/1000.0, get_predelay_length(predelay)):opf(bw):
+	(_+_)*0.5: de.sdelay(int(2^18), 100*ma.SR/1000.0, get_predelay_length(predelay)):opf(bw):
 	allpass_filter(get_length(142),input_diffusion1):allpass_filter(get_length(107),input_diffusion1):
 	allpass_filter(get_length(379),input_diffusion2):allpass_filter(get_length(277),input_diffusion2);
 
 left_branch(excursion,decay_diffusion1,damping,decay,decay_diffusion2) = 
-	_*0.5+_*0.3:allpass_with_fdelay(get_length(656),decay_diffusion1,17,0.5*(osc(1)+1)*excursion)<:@(get_length(4453)),_:
+	_*0.5+_*0.3:allpass_with_fdelay(get_length(656),decay_diffusion1,17,0.5*(os.osc(1)+1)*excursion)<:@(get_length(4453)),_:
 	opf(damping),_:_*decay,_:allpass_filter(get_length(1800),decay_diffusion2),_:@(get_length(3720)),_:_*decay,_;
 
 right_branch(excursion,decay_diffusion1,damping,decay,decay_diffusion2) =			  									  	   
-	_*0.5+_*0.3:allpass_with_fdelay(get_length(892),decay_diffusion1,17,0.5*(osc(1)+1)*excursion)<:@(get_length(4217)),_:
+	_*0.5+_*0.3:allpass_with_fdelay(get_length(892),decay_diffusion1,17,0.5*(os.osc(1)+1)*excursion)<:@(get_length(4217)),_:
 	opf(damping),_:_*decay,_:allpass_filter(get_length(2656),decay_diffusion2),_:@(get_length(3163)),_:_*decay,_;
 
 process = _,_<:

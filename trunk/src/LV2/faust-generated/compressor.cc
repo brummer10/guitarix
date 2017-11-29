@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/compressor.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace compressor {
@@ -7,11 +7,7 @@ namespace compressor {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	FAUSTFLOAT 	fentry0;
-	FAUSTFLOAT	*fentry0_;
-	FAUSTFLOAT 	fentry1;
-	FAUSTFLOAT	*fentry1_;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
 	double 	fRec1[2];
@@ -21,8 +17,13 @@ private:
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
 	double 	fRec0[2];
+	FAUSTFLOAT 	fentry0;
+	FAUSTFLOAT	*fentry0_;
+	FAUSTFLOAT 	fentry1;
+	FAUSTFLOAT	*fentry1_;
 	FAUSTFLOAT 	fentry2;
 	FAUSTFLOAT	*fentry2_;
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -71,10 +72,10 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = exp((0 - (1e+01 / double(iConst0))));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = exp((0 - (1e+01 / fConst0)));
 	fConst2 = (1 - fConst1);
-	fConst3 = (1.0 / double(iConst0));
+	fConst3 = (1.0 / fConst0);
 	clear_state_f();
 }
 
@@ -85,33 +86,33 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-#define fentry0 (*fentry0_)
-#define fentry1 (*fentry1_)
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
+#define fentry0 (*fentry0_)
+#define fentry1 (*fentry1_)
 #define fentry2 (*fentry2_)
-	double 	fSlow0 = double(fentry1);
-	double 	fSlow1 = (fSlow0 - double(fentry0));
-	double 	fSlow2 = exp((0 - (fConst3 / max(fConst3, double(fslider0)))));
-	double 	fSlow3 = exp((0 - (fConst3 / max(fConst3, double(fslider1)))));
-	double 	fSlow4 = (1.0 / (0.001 + fSlow0));
+	double 	fSlow0 = exp((0 - (fConst3 / max(fConst3, double(fslider0)))));
+	double 	fSlow1 = exp((0 - (fConst3 / max(fConst3, double(fslider1)))));
+	double 	fSlow2 = double(fentry1);
+	double 	fSlow3 = (fSlow2 - double(fentry0));
+	double 	fSlow4 = (1.0 / (0.001 + fSlow2));
 	double 	fSlow5 = (double(fentry2) - 1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec1[0] = ((fConst1 * fRec1[1]) + (fConst2 * fabs((fTemp0 + 1e-20))));
-		double fTemp1 = ((fSlow3 * (fRec0[1] < fRec1[0])) + (fSlow2 * (fRec0[1] >= fRec1[0])));
+		fRec1[0] = ((fConst2 * fabs((fTemp0 + 1e-20))) + (fConst1 * fRec1[1]));
+		double fTemp1 = ((fSlow1 * (fRec0[1] < fRec1[0])) + (fSlow0 * (fRec0[1] >= fRec1[0])));
 		fRec0[0] = ((fRec0[1] * fTemp1) + (fRec1[0] * (0 - (fTemp1 - 1))));
-		double fTemp2 = max((double)0, ((20 * log10(fRec0[0])) + fSlow1));
+		double fTemp2 = max((double)0, (fSlow3 + (20 * log10(fRec0[0]))));
 		double fTemp3 = (fSlow5 * min((double)1, max((double)0, (fSlow4 * fTemp2))));
 		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * ((fTemp2 * (0 - fTemp3)) / (1 + fTemp3)))));
 		// post processing
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
 	}
-#undef fentry0
-#undef fentry1
 #undef fslider0
 #undef fslider1
+#undef fentry0
+#undef fentry1
 #undef fentry2
 }
 		

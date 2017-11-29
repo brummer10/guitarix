@@ -1,5 +1,5 @@
 // generated from file '../src/faust/trbuff.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace trbuff {
@@ -16,6 +16,7 @@ private:
 	double 	fConst4;
 	double 	fConst5;
 	double 	fConst6;
+
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
@@ -69,7 +70,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = double(min(192000, max(1, fSamplingFreq)));
+	fConst0 = double(min(1.92e+05, max(1.0, (double)fSamplingFreq)));
 	fConst1 = (2.08132601776102e-05 * fConst0);
 	fConst2 = (0.000963511474709834 + fConst1);
 	fConst3 = ((0.000963511474709834 - fConst1) / fConst2);

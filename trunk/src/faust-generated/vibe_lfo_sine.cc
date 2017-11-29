@@ -1,5 +1,5 @@
 // generated from file '../src/faust/vibe_lfo_sine.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 namespace vibe_lfo_sine {
 static int 	iVec0[2];
@@ -22,7 +22,7 @@ static void clear_state_f(PluginDef* = 0)
 static void init(unsigned int samplingFreq, PluginDef* = 0)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (100.53096491487338 / double(min(192000, max(1, fSamplingFreq))));
+	fConst0 = (100.53096491487338 / min(1.92e+05, max(1.0, (double)fSamplingFreq)));
 	clear_state_f();
 }
 

@@ -1,5 +1,5 @@
 // generated from file '../src/faust/jconv_post.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 #define FAUSTFLOAT float
 
@@ -9,19 +9,20 @@ class Dsp {
 private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
+	FAUSTFLOAT	*fslider0_;
+	float 	fRec0[2];
+	FAUSTFLOAT 	fslider1;
+	float 	fRec1[2];
+	FAUSTFLOAT 	fslider2;
 	int 	IOTA;
 	float *fVec0;
-	FAUSTFLOAT 	fslider1;
-	float 	fConst0;
-	float 	fRec0[2];
-	FAUSTFLOAT 	fslider2;
-	float 	fRec1[2];
 	FAUSTFLOAT 	fslider3;
+	float 	fConst0;
 	float 	fRec2[2];
 	FAUSTFLOAT 	fslider4;
-	FAUSTFLOAT	*fslider4_;
 	float 	fRec3[2];
 	float *fVec1;
+
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();

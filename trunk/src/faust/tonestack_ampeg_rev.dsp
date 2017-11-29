@@ -1,4 +1,4 @@
-declare id "rev_rocket"; // in tonestack selector
+declare id "rev_rocket"; // in tonestack ba.selector
 declare name "Rev.Rocket Style";
 
 tstack = component("tonestack.dsp");

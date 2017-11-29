@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/lowpass_up.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace lowpass_up {
@@ -7,11 +7,11 @@ namespace lowpass_up {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	double 	fVec0[2];
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
 	double 	fConst3;
+	double 	fVec0[2];
 	double 	fConst4;
 	double 	fRec1[2];
 	double 	fConst5;
@@ -20,6 +20,7 @@ private:
 	double 	fConst8;
 	double 	fConst9;
 	double 	fRec0[2];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -69,12 +70,12 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / tan((17690.308232364125 / double(iConst0))));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (1.0 / tan((17690.308232364125 / fConst0)));
 	fConst2 = (1 + fConst1);
-	fConst3 = (1.0 / fConst2);
-	fConst4 = (0 - ((1 - fConst1) / fConst2));
-	fConst5 = (1.0 / tan((251.32741228718345 / double(iConst0))));
+	fConst3 = (0 - ((1 - fConst1) / fConst2));
+	fConst4 = (1.0 / fConst2);
+	fConst5 = (1.0 / tan((251.32741228718345 / fConst0)));
 	fConst6 = (0 - fConst5);
 	fConst7 = (1 + fConst5);
 	fConst8 = (1.0 / fConst7);
@@ -92,7 +93,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
-		fRec1[0] = ((fConst4 * fRec1[1]) + (fConst3 * (fVec0[0] + fVec0[1])));
+		fRec1[0] = ((fConst4 * (fVec0[0] + fVec0[1])) + (fConst3 * fRec1[1]));
 		fRec0[0] = ((fConst9 * fRec0[1]) + (fConst8 * ((fConst5 * fRec1[0]) + (fConst6 * fRec1[1]))));
 		output0[i] = (FAUSTFLOAT)max(-0.9, min(0.9, ((int((fabs(fRec0[0]) < 0.33)))?(2 * fRec0[0]):copysign(fRec0[0], (0.3333333333333333 * (3 - faustpower<2>((2 - (3 * fRec0[0])))))))));
 		// post processing

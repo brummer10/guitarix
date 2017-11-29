@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/autowah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace autowah {
@@ -17,12 +17,13 @@ private:
 	FAUSTFLOAT	*fslider1_;
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fRec3[2];
 	double 	fConst2;
 	double 	fRec4[2];
 	double 	fRec0[3];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -75,10 +76,10 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (1413.7166941154069 / fConst0);
+	fConst2 = (2827.4333882308138 / fConst0);
 	IOTA = 0;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1413.7166941154069 / double(iConst0));
-	fConst2 = (2827.4333882308138 / double(iConst0));
 	clear_state_f();
 }
 
@@ -100,15 +101,15 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp0 = (double)input0[i];
 		int iTemp1 = abs(int((4194304 * fTemp0)));
 		iVec0[IOTA&1023] = iTemp1;
-		iRec2[0] = ((iRec2[1] + iVec0[IOTA&1023]) - iVec0[(IOTA-1000)&1023]);
+		iRec2[0] = ((iVec0[IOTA&1023] + iRec2[1]) - iVec0[(IOTA-1000)&1023]);
 		double fTemp2 = min((double)1, max((double)0, (fSlow0 * double(iRec2[0]))));
 		fRec1[0] = ((0.999 * fRec1[1]) + (0.0001000000000000001 * pow(4.0,fTemp2)));
 		double fTemp3 = pow(2.0,(2.3 * fTemp2));
 		double fTemp4 = (1 - (fConst1 * (fTemp3 / pow(2.0,(1.0 + (2.0 * (1.0 - fTemp2)))))));
 		fRec3[0] = ((0.999 * fRec3[1]) + (0.0010000000000000009 * faustpower<2>(fTemp4)));
 		fRec4[0] = ((0.999 * fRec4[1]) + (0.0010000000000000009 * (0 - (2.0 * (fTemp4 * cos((fConst2 * fTemp3)))))));
-		fRec0[0] = (0 - (((fRec4[0] * fRec0[1]) + (fRec3[0] * fRec0[2])) - (fSlow2 * (fTemp0 * fRec1[0]))));
-		output0[i] = (FAUSTFLOAT)((fRec0[0] + (fSlow3 * fTemp0)) - fRec0[1]);
+		fRec0[0] = (0 - (((fRec0[1] * fRec4[0]) + (fRec0[2] * fRec3[0])) - (fSlow2 * (fTemp0 * fRec1[0]))));
+		output0[i] = (FAUSTFLOAT)(((fSlow3 * fTemp0) + fRec0[0]) - fRec0[1]);
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
 		fRec4[1] = fRec4[0];

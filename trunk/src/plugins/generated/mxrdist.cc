@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/mxrdist.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -13,32 +13,33 @@ private:
 	gx_resample::FixedRateResampler smp;
 	int samplingFreq;
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	double 	fRec0[2];
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
 	double 	fConst3;
 	double 	fConst4;
 	double 	fConst5;
 	double 	fConst6;
+	double 	fRec1[3];
 	double 	fConst7;
 	double 	fConst8;
 	double 	fConst9;
 	double 	fConst10;
+	double 	fVec0[2];
+	FAUSTFLOAT 	fslider0;
+	double 	fRec3[2];
 	double 	fConst11;
-	double 	fRec2[3];
+	double 	fRec2[2];
 	double 	fConst12;
 	double 	fConst13;
 	double 	fConst14;
 	double 	fConst15;
-	double 	fVec0[2];
+	double 	fConst16;
+	double 	fRec0[3];
 	FAUSTFLOAT 	fslider1;
 	double 	fRec4[2];
-	double 	fConst16;
-	double 	fRec3[2];
-	double 	fRec1[3];
 	double 	fConst17;
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -84,12 +85,12 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<3; i++) fRec2[i] = 0;
-	for (int i=0; i<2; i++) fVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) fRec3[i] = 0;
 	for (int i=0; i<3; i++) fRec1[i] = 0;
+	for (int i=0; i<2; i++) fVec0[i] = 0;
+	for (int i=0; i<2; i++) fRec3[i] = 0;
+	for (int i=0; i<2; i++) fRec2[i] = 0;
+	for (int i=0; i<3; i++) fRec0[i] = 0;
+	for (int i=0; i<2; i++) fRec4[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -102,24 +103,24 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	samplingFreq = 96000;
 	smp.setup(RsamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = double(iConst0);
-	fConst2 = (1.40668739186091e-10 * fConst1);
-	fConst3 = (0.000351671847965227 + (fConst1 * (fConst2 - 1.40739073555684e-05)));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = double(fConst0);
+	fConst2 = (4.3356710341455e-10 * fConst1);
+	fConst3 = (2.14637179908193e-08 + (fConst1 * (fConst2 - 2.2111922274142e-08)));
 	fConst4 = faustpower<2>(fConst1);
-	fConst5 = (0.000703343695930453 - (2.81337478372181e-10 * fConst4));
-	fConst6 = (0.000351671847965227 + (fConst1 * (1.40739073555684e-05 + fConst2)));
-	fConst7 = (1.0 / fConst6);
-	fConst8 = (4.3356710341455e-10 * fConst1);
-	fConst9 = (2.14637179908193e-08 + (fConst1 * (fConst8 - 2.2111922274142e-08)));
-	fConst10 = (4.29274359816386e-08 - (8.671342068291e-10 * fConst4));
-	fConst11 = (1.0 / (2.14637179908193e-08 + (fConst1 * (2.2111922274142e-08 + fConst8))));
-	fConst12 = (4.29274359816386e-10 * fConst1);
-	fConst13 = (fConst1 * (fConst12 - 6.43911539724579e-10));
-	fConst14 = (0 - (8.58548719632772e-10 * fConst4));
-	fConst15 = (fConst1 * (6.43911539724579e-10 + fConst12));
-	fConst16 = (9.4e-08 * iConst0);
-	fConst17 = (fConst1 / fConst6);
+	fConst5 = (4.29274359816386e-08 - (8.671342068291e-10 * fConst4));
+	fConst6 = (1.0 / (2.14637179908193e-08 + (fConst1 * (2.2111922274142e-08 + fConst2))));
+	fConst7 = (4.29274359816386e-10 * fConst1);
+	fConst8 = (fConst7 - 6.43911539724579e-10);
+	fConst9 = (6.43911539724579e-10 + fConst7);
+	fConst10 = (0 - (8.58548719632772e-10 * fConst4));
+	fConst11 = (9.4e-08 * fConst0);
+	fConst12 = (1.40668739186091e-10 * fConst1);
+	fConst13 = (0.000351671847965227 + (fConst1 * (fConst12 - 1.40739073555684e-05)));
+	fConst14 = (0.000703343695930453 - (2.81337478372181e-10 * fConst4));
+	fConst15 = (0.000351671847965227 + (fConst1 * (1.40739073555684e-05 + fConst12)));
+	fConst16 = (1.0 / fConst15);
+	fConst17 = (fConst1 / fConst15);
 	clear_state_f();
 }
 
@@ -132,29 +133,29 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
-	double 	fSlow0 = (0.007000000000000006 * double(fslider0));
-	double 	fSlow1 = (0.007000000000000006 * (0.75 + (0.25 * double(fslider1))));
+	double 	fSlow0 = (0.007000000000000006 * (0.75 + (0.25 * double(fslider0))));
+	double 	fSlow1 = (0.007000000000000006 * double(fslider1));
 	for (int i=0; i<ReCount; i++) {
-		fRec0[0] = ((0.993 * fRec0[1]) + fSlow0);
-		fRec2[0] = ((double)buf[i] - (fConst11 * ((fConst10 * fRec2[1]) + (fConst9 * fRec2[2]))));
-		double fTemp0 = (((fConst15 * fRec2[0]) + (fConst14 * fRec2[1])) + (fConst13 * fRec2[2]));
+		fRec1[0] = ((double)buf[i] - (fConst6 * ((fConst5 * fRec1[1]) + (fConst3 * fRec1[2]))));
+		double fTemp0 = ((fConst10 * fRec1[1]) + (fConst1 * ((fConst9 * fRec1[0]) + (fConst8 * fRec1[2]))));
 		fVec0[0] = fTemp0;
-		double fTemp1 = (fConst11 * fVec0[0]);
-		fRec4[0] = (fSlow1 + (0.993 * fRec4[1]));
-		double fTemp2 = (1000000 * (1.0 - fRec4[0]));
-		double fTemp3 = (fConst16 * (4700 + fTemp2));
+		double fTemp1 = (fConst6 * fVec0[0]);
+		fRec3[0] = (fSlow0 + (0.993 * fRec3[1]));
+		double fTemp2 = (1000000 * (1.0 - fRec3[0]));
+		double fTemp3 = (fConst11 * (4700 + fTemp2));
 		double fTemp4 = (1 + fTemp3);
-		double fTemp5 = (fConst16 * (1004700 + fTemp2));
-		fRec3[0] = ((fRec3[1] * (0 - ((1 - fTemp3) / fTemp4))) + (fConst11 * (((fVec0[0] * (1 + fTemp5)) + (fVec0[1] * (1 - fTemp5))) / fTemp4)));
-		fRec1[0] = (fTemp1 - (opamp2((fRec3[0] - fTemp1)) + (fConst7 * ((fConst5 * fRec1[1]) + (fConst3 * fRec1[2])))));
-		buf[i] = (FAUSTFLOAT)(fConst17 * ((fRec1[2] * (0 - (7.03343695930453e-06 * fRec0[0]))) + (7.03343695930453e-06 * (fRec1[0] * fRec0[0]))));
+		double fTemp5 = (fConst11 * (1004700 + fTemp2));
+		fRec2[0] = ((fRec2[1] * (0 - ((1 - fTemp3) / fTemp4))) + (fConst6 * (((fVec0[0] * (1 + fTemp5)) + ((1 - fTemp5) * fVec0[1])) / fTemp4)));
+		fRec0[0] = (fTemp1 - ((fConst16 * ((fConst14 * fRec0[1]) + (fConst13 * fRec0[2]))) + opamp2((fRec2[0] - fTemp1))));
+		fRec4[0] = (fSlow1 + (0.993 * fRec4[1]));
+		buf[i] = (FAUSTFLOAT)(fConst17 * ((fRec0[2] * (0 - (7.03343695930453e-06 * fRec4[0]))) + (7.03343695930453e-06 * (fRec4[0] * fRec0[0]))));
 		// post processing
-		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
-		fRec3[1] = fRec3[0];
 		fRec4[1] = fRec4[0];
+		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
+		fRec2[1] = fRec2[0];
+		fRec3[1] = fRec3[0];
 		fVec0[1] = fVec0[0];
-		fRec2[2] = fRec2[1]; fRec2[1] = fRec2[0];
-		fRec0[1] = fRec0[0];
+		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
 	}
 	smp.down(buf, output0);
 }
@@ -166,8 +167,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("mxrdis.Volume",N_("Volume"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("mxrdis.drive",N_("Drive"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("mxrdis.Volume",N_("Volume"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("mxrdis.drive",N_("Drive"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
 	return 0;
 }
 

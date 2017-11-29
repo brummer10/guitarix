@@ -1,5 +1,5 @@
 // generated from file '../src/faust/gx_feedback.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace gx_feedback {
@@ -10,6 +10,7 @@ private:
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT 	fslider1;
 	double 	fRec0[6];
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -76,13 +77,13 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (0.01 * double(fslider0));
-	double 	fSlow1 = (1 - fSlow0);
-	double 	fSlow2 = double(fslider1);
+	double 	fSlow0 = double(fslider0);
+	double 	fSlow1 = (0.01 * double(fslider1));
+	double 	fSlow2 = (1 - fSlow1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec0[0] = ((fSlow0 * fTemp0) - (fSlow2 * fRec0[5]));
-		output0[i] = (FAUSTFLOAT)(fRec0[0] + (fSlow1 * fTemp0));
+		fRec0[0] = ((fSlow1 * fTemp0) - (fSlow0 * fRec0[5]));
+		output0[i] = (FAUSTFLOAT)((fSlow2 * fTemp0) + fRec0[0]);
 		// post processing
 		for (int i=5; i>0; i--) fRec0[i] = fRec0[i-1];
 	}
@@ -95,8 +96,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("feedback.feedback",N_("Feedback"),"S","",&fslider1, 0.0, -1.0, 1.0, 0.01);
-	reg.registerVar("feedback.wet_dry",N_("Dry/Wet"),"S","",&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("feedback.feedback",N_("Feedback"),"S","",&fslider0, 0.0, -1.0, 1.0, 0.01);
+	reg.registerVar("feedback.wet_dry",N_("Dry/Wet"),"S","",&fslider1, 1e+02, 0.0, 1e+02, 1.0);
 	return 0;
 }
 

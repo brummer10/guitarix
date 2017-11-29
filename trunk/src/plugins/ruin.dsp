@@ -8,20 +8,19 @@ declare description "Devi Ever Dark Boost";
 declare drywetbox "true";
 declare samplerate "96000";
 
-import("filter.lib");
+import("stdfaust.lib");
 import("trany.lib");
 
-
-ruinerp1 = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+ruinerp1 = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
         
-        Intensity = vslider("Intensity[name:Intensity]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
+        Intensity = vslider("Intensity[name:Intensity]", 0.5, 0, 1, 0.01) : Inverted(1) : si.smooth(s);
             
     b0 = -3.68740376472719e-5*fs;
 
@@ -36,16 +35,16 @@ ruinerp1 = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = Intensity*fs*(3.23341143501596e-10*fs - 1.83849805831657e-6) + fs*(2.50211258533327e-10*fs - 1.41841348392955e-7) + 9.19249029158284e-5;
 };
 
-ruinerp2  = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+ruinerp2  = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
         
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
             
     b0 = -1.11891193819806e-10*Level*pow(fs,2) - 1.11891193819806e-12*pow(fs,2);
 
@@ -67,7 +66,7 @@ ruinerp2  = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
     preclip =  min(1) : max(-1); 
     //clip(x) = ((exp(x*4)-exp(-x*4*1.2))/(exp(x*4)+exp(-x*4)))/4;
     clip = ffunction(float symclip(float), "clipping.h", "");
-    aclip(x) = atan(x)/PI;
+    aclip(x) = atan(x)/ma.PI;
     tclip = tranystageb(TB_SVEL34_68k,86.0,2700.0,25.922163) : tranystageb(TB_SVEL34_68k,86.0,2700.0,25.922163) ;
 
 process = ruinerp1 : tclip : ruinerp2  ;

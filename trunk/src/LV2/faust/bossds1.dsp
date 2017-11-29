@@ -7,10 +7,10 @@ declare shortname   "DS1";
 declare description "Boss DS1";
 declare samplerate  "96000";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-ds1_in = iir((b0/a0,b1/a0),(a1/a0)) with {
-    fs = float(SR);
+ds1_in = fi.iir((b0/a0,b1/a0),(a1/a0)) with {
+    fs = float(ma.SR);
 
     b0 = 2.07110717442793e-5*fs;
 
@@ -21,8 +21,8 @@ ds1_in = iir((b0/a0,b1/a0),(a1/a0)) with {
     a1 = -2.08232145615427e-5*fs + 0.000485701045951343;
 };
 
-ds1_boost= iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
-    fs = float(SR);
+ds1_boost= fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
+    fs = float(ma.SR);
 
     b0 = -5.51041967277497e-9*pow(fs,2);
 
@@ -41,12 +41,12 @@ ds1_boost= iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) with {
     a3 = fs*(3.53982651634833e-10*fs - 2.38582349500046e-7) + 1.94656546234155e-5;
 };
 
-ds1_tone = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+ds1_tone = fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     s = 0.993;
 
-    fs = float(SR);
+    fs = float(ma.SR);
 
-        Tone = vslider("Tone[name:Tone]", 0.7, 0, 1, 0.01) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.7, 0, 1, 0.01) : si.smooth(s);
     
     b0 = Tone*(fs*(-2.18842400636233e-10*fs + 5.20602596669238e-8) + 0.000537812599864916) + (fs*(2.18842400636233e-10*fs + 2.33324618325395e-7) + 0.000182856283954071);
 
@@ -61,8 +61,8 @@ ds1_tone = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = Tone*(Tone*(fs*(-2.89644353783249e-10*fs + 9.44398925362792e-7) - 0.000537812599864916) + fs*(2.65571689713263e-10*fs - 7.50424979344313e-7) + 0.000537812599864916) + fs*(3.3778968192322e-10*fs - 1.55559824875468e-6) + 0.00114855258827151;
 };
 
-ds1_out = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
-    fs = float(SR);
+ds1_out = fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    fs = float(ma.SR);
 
     b0 = 4.28019579852603e-10*pow(fs,2);
 
@@ -77,8 +77,8 @@ ds1_out = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = fs*(4.33879508860142e-10*fs - 7.11639898820675e-9) + 2.44347979826776e-8;
 };
 
-ds1_drive = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
-    fs = float(SR);
+ds1_drive = fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    fs = float(ma.SR);
 
     b0 = drive*(-3.18093350083904e-10*drive*pow(fs,2) + fs*(3.0314296262996e-10*fs + 1.59012835323858e-5)) + fs*(1.49503874539434e-11*fs + 7.50903344506575e-7) + 0.000169198590470161;
 
@@ -94,21 +94,21 @@ ds1_drive = iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
 };
 
     s = 0.993;
-    drive =  hslider("drive[name:Drive]", 0.5, 0, 1, 0.01) : *(0.314): component("filter.lib").smooth(s);
+    drive =  hslider("drive[name:Drive]", 0.5, 0, 1, 0.01) : *(0.314): si.smooth(s);
 
 process = ds1_in : ds1_boost : ds1_drive : sclip : hf : X1 : X3 : lf  : clip  : ds1_tone : ds1_out : *(gain)  with {
     R1 = 4700 + 100000 * (1.0 - drive);
     R2 = 100000 + 100000 * drive;
     C = 0.047 * 1e-6;
-    a1 = (R1 + R2) * C * 2 * SR;
-    a2 = R1 * C * 2 * SR;
+    a1 = (R1 + R2) * C * 2 * ma.SR;
+    a2 = R1 * C * 2 * ma.SR;
     B0 = (1 + a1) / (1 + a2);
     B1 = (1 - a1) / (1 + a2);
     A1 = (1 - a2) / (1 + a2);
-    X2 = component("filter.lib").tf1(B0, B1, A1);
+    X2 = fi.tf1(B0, B1, A1);
     s = 0.993;
-    hf = highpass(2,23.);
-    lf = lowpass(2,7200.);
+    hf = fi.highpass(2,23.);
+    lf = fi.lowpass(2,7200.);
     symclip = ffunction(float asymclip3(float), "clipping.h", "");
     sclip = symclip(_);
     opamp = ffunction(float opamp(float), "clipping.h", "");
@@ -116,5 +116,5 @@ process = ds1_in : ds1_boost : ds1_drive : sclip : hf : X1 : X3 : lf  : clip  : 
     X3 = _ <: _ - opamp(X2-_) :> _ ;
     asymclip = ffunction(float asymhardclip2(float), "clipping.h", "");
     clip = asymclip(_);
-    gain = hslider("Level[name:Level]", 3, -20, 12, 0.1) : component("music.lib").db2linear : component("filter.lib").smooth(s);
+    gain = hslider("Level[name:Level]", 3, -20, 12, 0.1) : ba.db2linear : si.smooth(s);
 };

@@ -5,22 +5,22 @@ declare name "Fuzz Face";
 declare category "Distortion";
 declare description "J Hendrix Fuzz Face simulation";
 
-import("filter.lib");
+import("stdfaust.lib");
 import("trany.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : clip with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : clip with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
     //clip(x) = 0.4 * (min(0.7514,max(-0.4514,x)));
 
     
-        Level = 1.0 - vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Level = 1.0 - vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
-        Fuzz = 1.0 - vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Fuzz = 1.0 - vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Fuzz*(Fuzz*(Level*pow(fs,3)*(4.76991513499346e-20*fs + 5.38351707988916e-15) + pow(fs,3)*(-4.76991513499346e-20*fs - 5.38351707988916e-15)) + Level*pow(fs,3)*(-4.76991513499346e-20*fs + 5.00346713698171e-13) + pow(fs,3)*(4.76991513499346e-20*fs - 5.00346713698171e-13)) + Level*pow(fs,2)*(-5.05730339185222e-13*fs - 1.16162215422261e-12) + pow(fs,2)*(5.05730339185222e-13*fs + 1.16162215422261e-12);
 

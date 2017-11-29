@@ -2,20 +2,20 @@ declare id "alembic";
 declare name "Alembic Preamp";
 declare category "External";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)):*(0.1) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)):*(0.1) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
-	Input = vslider("Input[name:Input]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
-	Bass = vslider("Bass[name:Bass]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
-	Middle = vslider("Middle[name:Middle]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);       
-	Treble = vslider("Treble[name:Treble]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
-	Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+	Input = vslider("Input[name:Input]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
+	Bass = vslider("Bass[name:Bass]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
+	Middle = vslider("Middle[name:Middle]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);       
+	Treble = vslider("Treble[name:Treble]", 0.5, 0, 1, 0.01) : Inverted(1) : si.smooth(s);
+	Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
     b0 = Volume*(Bass*(Input*Treble*pow(fs,4)*(-5.68615530428513e-21*fs - 3.79077020285676e-20) + Input*pow(fs,2)*(fs*(fs*(5.68615530428513e-21*fs + 9.98505002369502e-19) + 4.85778329480724e-15) + 3.23425287520332e-14)) + Input*Treble*pow(fs,2)*(fs*(-3.55687161587197e-19*fs - 1.44694505189894e-17) - 8.06546851671652e-17) + Input*pow(fs,2)*(fs*(3.55687161587197e-19*fs + 1.44694505189894e-17) + 8.06546851671652e-17) + Middle*(Bass*Input*pow(fs,3)*(fs*(7.96061742599918e-22*fs + 4.56560363232067e-18) + 3.04019770269112e-17) + Input*pow(fs,2)*(fs*(4.97962026222076e-20*fs + 2.85365632064909e-16) + 1.90022438253841e-15)));
 

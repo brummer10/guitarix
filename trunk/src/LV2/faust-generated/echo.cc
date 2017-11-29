@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/echo.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace echo {
@@ -14,6 +14,7 @@ private:
 	FAUSTFLOAT	*fslider1_;
 	int 	IOTA;
 	float *fRec0;
+
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();
@@ -68,7 +69,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (0.001f * min(192000, max(1, fSamplingFreq)));
+	fConst0 = (0.001f * min(1.92e+05f, max(1.0f, (float)fSamplingFreq)));
 	IOTA = 0;
 }
 

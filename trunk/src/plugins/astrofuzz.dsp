@@ -6,24 +6,23 @@ declare category "Fuzz";
 declare shortname "Astrotone";
 declare description "Astrotone Fuzz";
 
-import("filter.lib");
+import("stdfaust.lib");
 import("trany.lib");
 
-
-process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clip with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clip with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 
     
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
-        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
-        Attack = vslider("Attack[name:Attack]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Attack = vslider("Attack[name:Attack]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Attack*Volume*(1.00499515996459e-12*Tone*pow(fs,3) - 1.18589428875822e-12*pow(fs,3));
 
@@ -41,4 +40,3 @@ process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clip with {
 
     a3 = Attack*(Attack*(Tone*fs*(fs*(-3.46486099611082e-14*fs + 3.92502015729988e-11) - 2.59598111483739e-9) + fs*(fs*(4.09854197590519e-14*fs - 8.31252171811903e-11) + 5.6592388303455e-9)) + Tone*fs*(fs*(3.46486099611082e-14*fs - 3.92502015729988e-11) + 2.59598111483739e-9) + fs*(fs*(-4.09854197590519e-14*fs + 8.31252171811903e-11) - 5.6592388303455e-9)) + Tone*(fs*(fs*(3.79430966640243e-15*fs - 7.96218897097081e-12) + 4.44205261980514e-9) - 2.76168203706105e-7) + fs*(fs*(-4.49290068884749e-15*fs + 1.34316849964884e-11) - 9.42407659969146e-9) + 6.02046684079309e-7;
 };
-

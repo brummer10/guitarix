@@ -6,13 +6,13 @@ declare category "Guitar Effects";
 declare shortname "Transistor Buffer";
 declare description "Transistor Buffer";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0),(a1/a0))):>_ with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : _<:*(dry),(*(wet) : fi.iir((b0/a0,b1/a0),(a1/a0))):>_ with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;

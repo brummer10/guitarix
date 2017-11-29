@@ -2,11 +2,10 @@ declare name "BiQuad Filter";
 declare shortname "BiQuadFilter";
 declare category "Tone Control";
 
-import("music.lib");
-import("filter.lib");
+import("stdfaust.lib");
 import("guitarix.lib");
 
-filter = tf2(b0,b1,b2,a1,a2) with
+filter = fi.tf2(b0,b1,b2,a1,a2) with
 {
     c = 1.059;
     R = 0.9221;
@@ -16,7 +15,7 @@ filter = tf2(b0,b1,b2,a1,a2) with
     lc3 = 0.43359433;
     lc4 = 1.31282248;
     lc5 = 0.07238887;
-    fc = vslider("Freq[name:Frequency]",1200,300,3000,5) : *(2*PI/SR) : log;
+    fc = vslider("Freq[name:Frequency]",1200,300,3000,5) : *(2*ma.PI/ma.SR) : log;
     p = lc0*pow(fc,5) + lc1*pow(fc,4) + lc2*pow(fc,3) + lc3*pow(fc,2) + lc4*fc + lc5 : exp;
     //b0 = 1;
     //b1 = -1.01;
@@ -30,4 +29,4 @@ filter = tf2(b0,b1,b2,a1,a2) with
     a2 = R*R;
 };
 
-process = filter : *(db2linear(-10));
+process = filter : *(ba.db2linear(-10));

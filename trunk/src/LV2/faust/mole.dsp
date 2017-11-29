@@ -6,19 +6,19 @@ declare category "Tone Control";
 declare shortname "The Mole";
 declare description "EHX Mole";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : _<:*(dry),(*(wet) : iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0))):>_ with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : _<:*(dry),(*(wet) : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0))):>_ with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
     
-        Boost = vslider("Boost[name:Boost]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Boost = vslider("Boost[name:Boost]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = -9.74268345040146e-11*Boost*pow(fs,2);
 

@@ -1,6 +1,5 @@
 import("shimmizita.inc");
 
-
 fsmax = 48000.0;
 //For additional description, see .inc file
 f1 = hslider("f1", 200, 50, 1000, 1);
@@ -24,7 +23,3 @@ with {
 			sel(c,x,y) = (1-c)*x + c*y; 
 		  };
 };
-
-
-
-

@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/eldist.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -23,6 +23,7 @@ private:
 	double 	fConst5;
 	double 	fConst6;
 	double 	fRec1[2];
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -82,7 +83,7 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	samplingFreq = 96000;
 	smp.setup(RsamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
-	fConst0 = double(min(192000, max(1, fSamplingFreq)));
+	fConst0 = double(min(1.92e+05, max(1.0, (double)fSamplingFreq)));
 	fConst1 = (3.9949101411109e-05 * fConst0);
 	fConst2 = (0 - (8.66687668918243e-05 + fConst1));
 	fConst3 = (4.07955525542246e-05 * fConst0);
@@ -105,9 +106,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<ReCount; i++) {
 		fRec0[0] = (fSlow0 + (0.993 * fRec0[1]));
 		double fTemp0 = (fConst4 + (fConst2 * fRec0[0]));
-		double fTemp1 = (8.14686408743197e-08 * fRec0[0]);
+		double fTemp1 = (0.00018716364572377 + (8.14686408743197e-08 * fRec0[0]));
 		fRec1[0] = ((double)buf[i] - ((fRec1[1] * (fConst6 + (fConst5 * fRec0[0]))) / fTemp0));
-		buf[i] = (FAUSTFLOAT)asymclip((fConst0 * (((fRec1[0] * ((0 - fTemp1) - 0.00018716364572377)) + (fRec1[1] * (0.00018716364572377 + fTemp1))) / fTemp0)));
+		buf[i] = (FAUSTFLOAT)asymclip((fConst0 * (((fRec1[1] * fTemp1) + (fRec1[0] * (0 - fTemp1))) / fTemp0)));
 		// post processing
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];

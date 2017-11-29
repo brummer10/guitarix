@@ -1,5 +1,5 @@
 // generated from file '../src/faust/highbooster.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace highbooster {
@@ -7,14 +7,15 @@ namespace highbooster {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	double 	fVec0[2];
 	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
+	double 	fVec0[2];
 	double 	fConst3;
 	double 	fConst4;
 	double 	fRec0[2];
 	FAUSTFLOAT 	fslider0;
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -72,11 +73,11 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (1.0 / tan((4712.38898038469 / double(min(192000, max(1, fSamplingFreq))))));
-	fConst1 = (0 - fConst0);
-	fConst2 = (1 + fConst0);
-	fConst3 = (1.0 / fConst2);
-	fConst4 = (0 - ((1 - fConst0) / fConst2));
+	fConst0 = (1.0 / tan((4712.38898038469 / min(1.92e+05, max(1.0, (double)fSamplingFreq)))));
+	fConst1 = (1 + fConst0);
+	fConst2 = (0 - ((1 - fConst0) / fConst1));
+	fConst3 = (0 - fConst0);
+	fConst4 = (1.0 / fConst1);
 	clear_state_f();
 }
 
@@ -91,7 +92,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
-		fRec0[0] = ((fConst4 * fRec0[1]) + (fConst3 * ((fConst0 * fVec0[0]) + (fConst1 * fVec0[1]))));
+		fRec0[0] = ((fConst4 * ((fConst0 * fVec0[0]) + (fConst3 * fVec0[1]))) + (fConst2 * fRec0[1]));
 		output0[i] = (FAUSTFLOAT)(fVec0[0] + (fSlow0 * fRec0[0]));
 		// post processing
 		fRec0[1] = fRec0[0];

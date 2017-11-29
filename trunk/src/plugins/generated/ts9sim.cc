@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/ts9sim.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -16,11 +16,11 @@ private:
 	FAUSTFLOAT 	fslider0;
 	double 	fRec0[2];
 	double 	fVec0[2];
-	FAUSTFLOAT 	fslider1;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
 	double 	fConst3;
+	FAUSTFLOAT 	fslider1;
 	double 	fConst4;
 	double 	fConst5;
 	double 	fRec2[2];
@@ -28,6 +28,7 @@ private:
 	FAUSTFLOAT 	fslider2;
 	double 	fConst6;
 	double 	fRec1[2];
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -90,13 +91,13 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	samplingFreq = 96000;
 	smp.setup(RsamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (9.4e-08 * iConst0);
-	fConst2 = (0.00044179999999999995 * iConst0);
-	fConst3 = (1 + fConst2);
-	fConst4 = (1.0 / fConst3);
-	fConst5 = (0 - ((1 - fConst2) / fConst3));
-	fConst6 = (3.141592653589793 / double(iConst0));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (0.00044179999999999995 * fConst0);
+	fConst2 = (1 + fConst1);
+	fConst3 = (0 - ((1 - fConst1) / fConst2));
+	fConst4 = (9.4e-08 * fConst0);
+	fConst5 = (1.0 / fConst2);
+	fConst6 = (3.141592653589793 / fConst0);
 	clear_state_f();
 }
 
@@ -110,7 +111,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
-	double 	fSlow1 = (fConst1 * ((500000 * double(fslider1)) + 55700));
+	double 	fSlow1 = (fConst4 * ((500000 * double(fslider1)) + 55700));
 	double 	fSlow2 = (1 - fSlow1);
 	double 	fSlow3 = (1 + fSlow1);
 	double 	fSlow4 = (1.0 / tan((fConst6 * double(fslider2))));
@@ -118,13 +119,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow6 = (1.0 / fSlow5);
 	double 	fSlow7 = (0 - ((1 - fSlow4) / fSlow5));
 	for (int i=0; i<ReCount; i++) {
-		fRec0[0] = ((0.999 * fRec0[1]) + fSlow0);
+		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		double fTemp0 = (double)buf[i];
 		fVec0[0] = fTemp0;
-		fRec2[0] = ((fConst5 * fRec2[1]) + (fConst4 * ((fSlow3 * fVec0[0]) + (fSlow2 * fVec0[1]))));
-		double fTemp1 = (fVec0[0] - ts9nonlin((fRec2[0] - fVec0[0])));
-		fVec1[0] = fTemp1;
-		fRec1[0] = ((fSlow7 * fRec1[1]) + (fSlow6 * (fVec1[0] + fVec1[1])));
+		fRec2[0] = ((fConst5 * ((fSlow3 * fVec0[0]) + (fSlow2 * fVec0[1]))) + (fConst3 * fRec2[1]));
+		double fTemp1 = ts9nonlin((fRec2[0] - fVec0[0]));
+		fVec1[0] = (fVec0[0] - fTemp1);
+		fRec1[0] = ((fSlow7 * fRec1[1]) + (fSlow6 * ((fVec0[0] + fVec1[1]) - fTemp1)));
 		buf[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
 		// post processing
 		fRec1[1] = fRec1[0];

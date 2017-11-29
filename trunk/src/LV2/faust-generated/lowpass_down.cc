@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/lowpass_down.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace lowpass_down {
@@ -7,12 +7,12 @@ namespace lowpass_down {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
-	double 	fVec0[2];
 	double 	fConst2;
 	double 	fConst3;
 	double 	fConst4;
+	double 	fVec0[2];
 	double 	fConst5;
 	double 	fRec5[2];
 	double 	fConst6;
@@ -26,6 +26,7 @@ private:
 	double 	fRec2[2];
 	FAUSTFLOAT 	fbargraph0;
 	FAUSTFLOAT	*fbargraph0_;
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -78,13 +79,13 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / double(iConst0));
-	fConst2 = (1.0 / tan((17690.308232364125 / double(iConst0))));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (1.0 / fConst0);
+	fConst2 = (1.0 / tan((17690.308232364125 / fConst0)));
 	fConst3 = (1 + fConst2);
-	fConst4 = (1.0 / fConst3);
-	fConst5 = (0 - ((1 - fConst2) / fConst3));
-	fConst6 = (1.0 / tan((251.32741228718345 / double(iConst0))));
+	fConst4 = (0 - ((1 - fConst2) / fConst3));
+	fConst5 = (1.0 / fConst3);
+	fConst6 = (1.0 / tan((251.32741228718345 / fConst0)));
 	fConst7 = (0 - fConst6);
 	fConst8 = (1 + fConst6);
 	fConst9 = (1.0 / fConst8);
@@ -103,7 +104,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
-		fRec5[0] = ((fConst5 * fRec5[1]) + (fConst4 * (fVec0[0] + fVec0[1])));
+		fRec5[0] = ((fConst5 * (fVec0[0] + fVec0[1])) + (fConst4 * fRec5[1]));
 		fRec4[0] = ((fConst10 * fRec4[1]) + (fConst9 * ((fConst6 * fRec5[0]) + (fConst7 * fRec5[1]))));
 		double 	fRec3 = max(fConst1, fabs(fRec4[0]));
 		int iTemp1 = int((iRec1[1] < 4096));

@@ -1072,11 +1072,11 @@ declare shortname "@plugindef.shortname";
 declare description "@plugindef.description";
 %end
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : iir((@b_list),(@a_list)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((@b_list),(@a_list)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
     pre = @pre_filter;
@@ -1123,11 +1123,11 @@ declare shortname "@plugindef.shortname";
 declare description "@plugindef.description";
 %end
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : _<:*(dry),(*(wet) : iir((@b_list),(@a_list))):>_ with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : _<:*(dry),(*(wet) : fi.iir((@b_list),(@a_list))):>_ with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
     fs = float(SR);
     pre = @pre_filter;

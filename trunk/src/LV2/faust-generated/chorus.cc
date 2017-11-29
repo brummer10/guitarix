@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/chorus.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace chorus {
@@ -9,11 +9,11 @@ private:
 	uint32_t fSamplingFreq;
 	class SIG0 {
 	  private:
-		int 	fSamplingFreq;
+		int fSamplingFreq;
 		int 	iRec0[2];
 	  public:
-		int getNumInputs() 	{ return 0; }
-		int getNumOutputs() 	{ return 1; }
+		int getNumInputs() { return 0; }
+		int getNumOutputs() { return 1; }
 		void init(int samplingFreq) {
 			fSamplingFreq = samplingFreq;
 			for (int i=0; i<2; i++) iRec0[i] = 0;
@@ -21,7 +21,7 @@ private:
 		void fill (int count, float output[]) {
 			for (int i=0; i<count; i++) {
 				iRec0[0] = (1 + iRec0[1]);
-				output[i] = sinf((9.587379924285257e-05f * (iRec0[0] - 1)));
+				output[i] = sinf((9.58738e-05f * (iRec0[0] - 1)));
 				// post processing
 				iRec0[1] = iRec0[0];
 			}
@@ -32,7 +32,7 @@ private:
 	static float 	ftbl0[65536];
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
-	int 	iConst0;
+	float 	fConst0;
 	float 	fConst1;
 	float 	fRec1[2];
 	FAUSTFLOAT 	fslider1;
@@ -43,6 +43,7 @@ private:
 	FAUSTFLOAT 	fslider3;
 	FAUSTFLOAT	*fslider3_;
 	float *fVec1;
+
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();
@@ -104,10 +105,10 @@ inline void Dsp::init(uint32_t samplingFreq)
 	sig0.init(samplingFreq);
 	sig0.fill(65536,ftbl0);
 	fSamplingFreq = samplingFreq;
+	fConst0 = min(1.92e+05f, max(1.0f, (float)fSamplingFreq));
+	fConst1 = (1.0f / fConst0);
+	fConst2 = (0.5f * fConst0);
 	IOTA = 0;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0f / float(iConst0));
-	fConst2 = (0.5f * iConst0);
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
@@ -160,15 +161,15 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	for (int i=0; i<count; i++) {
 		float fTemp0 = (float)input0[i];
 		fVec0[IOTA&65535] = fTemp0;
-		float fTemp1 = (fRec1[1] + fSlow0);
+		float fTemp1 = (fSlow0 + fRec1[1]);
 		fRec1[0] = (fTemp1 - floorf(fTemp1));
 		float fTemp2 = (65536 * (fRec1[0] - floorf(fRec1[0])));
 		float fTemp3 = floorf(fTemp2);
 		int iTemp4 = int(fTemp3);
 		float fTemp5 = (fSlow2 * (1 + (fSlow1 * ((((1 + fTemp3) - fTemp2) * ftbl0[(iTemp4 & 65535)]) + ((fTemp2 - fTemp3) * ftbl0[((1 + iTemp4) & 65535)])))));
 		int iTemp6 = int(fTemp5);
-		int iTemp7 = (1 + iTemp6);
-		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&65535] + (fSlow3 * ((fVec0[(IOTA-int((iTemp6 & 65535)))&65535] * (iTemp7 - fTemp5)) + ((fTemp5 - iTemp6) * fVec0[(IOTA-int((int(iTemp7) & 65535)))&65535]))));
+		float fTemp7 = floorf(fTemp5);
+		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&65535] + (fSlow3 * ((fVec0[(IOTA-int((iTemp6 & 65535)))&65535] * ((1 + fTemp7) - fTemp5)) + ((fTemp5 - fTemp7) * fVec0[(IOTA-int((int((1 + iTemp6)) & 65535)))&65535]))));
 		float fTemp8 = (float)input1[i];
 		fVec1[IOTA&65535] = fTemp8;
 		float fTemp9 = (0.25f + fRec1[0]);
@@ -177,8 +178,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		int iTemp12 = int(fTemp11);
 		float fTemp13 = (fSlow2 * (1 + (fSlow1 * ((((1 + fTemp11) - fTemp10) * ftbl0[(iTemp12 & 65535)]) + ((fTemp10 - fTemp11) * ftbl0[((1 + iTemp12) & 65535)])))));
 		int iTemp14 = int(fTemp13);
-		int iTemp15 = (1 + iTemp14);
-		output1[i] = (FAUSTFLOAT)(fVec1[IOTA&65535] + (fSlow3 * ((fVec1[(IOTA-int((iTemp14 & 65535)))&65535] * (iTemp15 - fTemp13)) + ((fTemp13 - iTemp14) * fVec1[(IOTA-int((int(iTemp15) & 65535)))&65535]))));
+		float fTemp15 = floorf(fTemp13);
+		output1[i] = (FAUSTFLOAT)(fVec1[IOTA&65535] + (fSlow3 * ((fVec1[(IOTA-int((iTemp14 & 65535)))&65535] * ((1 + fTemp15) - fTemp13)) + ((fTemp13 - fTemp15) * fVec1[(IOTA-int((int((1 + iTemp14)) & 65535)))&65535]))));
 		// post processing
 		fRec1[1] = fRec1[0];
 		IOTA = IOTA+1;

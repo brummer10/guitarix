@@ -7,28 +7,28 @@ declare shortname "Fat FFreak";
 declare description "Extreme Bass Fuzz Monster";
 declare drywetbox "true";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0))  : clip with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0))  : clip with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
-    clip(x) =  atan(x)/PI;
+    clip(x) =  atan(x)/ma.PI;
 
     
         
-        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
             
         
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
             
         
-        Gate = vslider("Gate[name:Gate]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Gate = vslider("Gate[name:Gate]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
             
         
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : +(0.01) : *(0.05) : Inverted(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : +(0.01) : *(0.05) : Inverted(0) : si.smooth(s);
             
     b0 = Gate*(Tone*Level*(Fuzz*pow(fs,4)*(2.31663605170274e-21*fs + 1.15904771305164e-17) + pow(fs,3)*(fs*(-3.33595591445214e-21*fs - 1.66926037039962e-17) - 1.15904771305164e-17)) + Level*(Fuzz*pow(fs,3)*(1.55887720056646e-18*fs + 1.29589876827223e-14) + pow(fs,2)*(fs*(-2.24478316881583e-18*fs - 1.86625011403217e-14) - 1.29589876827223e-14))) + Tone*Level*(Fuzz*pow(fs,4)*(-2.79019064029167e-21*fs - 1.39597416617563e-17) + pow(fs,3)*(fs*(4.01337447559094e-21*fs + 2.00823037773104e-17) + 1.39597416617563e-17)) + Level*(Fuzz*pow(fs,3)*(-1.87753470001801e-18*fs - 1.56079959618215e-14) + pow(fs,2)*(fs*(2.70062186191725e-18*fs + 2.24522189930002e-14) + 1.56079959618215e-14));
 

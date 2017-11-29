@@ -5,9 +5,9 @@ declare id "zita_rev1";
 declare name "Zita Rev1";
 declare category "Reverb";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process(x,y) = component("effect.lib").zita_rev1_stereo(rdel,f1,f2,t60dc,t60m,fsmax,x,y)
+process(x,y) = re.zita_rev1_stereo(rdel,f1,f2,t60dc,t60m,fsmax,x,y)
 	  : out_eq : dry_wet(x,y) : out_level
 with {
 
@@ -41,14 +41,14 @@ with {
        6000, 1500, 0.49*fsmax, 1));
 
   out_eq = pareq_stereo(eq1f,eq1l,eq1q) : pareq_stereo(eq2f,eq2l,eq2q);
-// Zolzer style peaking eq (not used in zita-rev1) (filter.lib):
-// pareq_stereo(eqf,eql,Q) = peak_eq(eql,eqf,eqf/Q), peak_eq(eql,eqf,eqf/Q);
+// Zolzer style peaking eq (not used in zita-fi.rev1) (filter.lib):
+// pareq_stereo(eqf,eql,Q) = fi.peak_eq(eql,eqf,eqf/Q), fi.peak_eq(eql,eqf,eqf/Q);
 // Regalia-Mitra peaking eq with "Q" hard-wired near sqrt(g)/2 (filter.lib):
-  pareq_stereo(eqf,eql,Q) = peak_eq_rm(eql,eqf,tpbt), peak_eq_rm(eql,eqf,tpbt)
+  pareq_stereo(eqf,eql,Q) = fi.peak_eq_rm(eql,eqf,tpbt), fi.peak_eq_rm(eql,eqf,tpbt)
   with {
-    tpbt = wcT/sqrt(g); // tan(PI*B/SR) where B bandwidth in Hz (Q^2 ~ g/4)
-    wcT = 2*PI*eqf/SR;  // peak frequency in rad/sample
-    g = db2linear(eql); // peak gain
+    tpbt = wcT/sqrt(g); // tan(ma.PI*B/ma.SR) where B bandwidth in Hz (Q^2 ~ g/4)
+    wcT = 2*ma.PI*eqf/ma.SR;  // peak frequency in rad/sample
+    g = ba.db2linear(eql); // peak gain
   };
 
   eq1_group(x) = fdn_group(hgroup("equalizer1[name:RM Peaking Equalizer 1]", x));
@@ -88,12 +88,12 @@ with {
 
   drywet = out_group(vslider("dry_wet_mix[name:Dry/Wet] [style:knob]
        [tooltip: -1 = dry, 1 = wet]",
-       0, -1.0, 1.0, 0.01)) : smooth(0.999);
+       0, -1.0, 1.0, 0.01)) : si.smooth(0.999);
 
   out_level = *(gain),*(gain);
 
   gain = out_group(vslider("level[name:Level] [unit:dB] [style:knob]
     [tooltip: Output scale factor]", 0, -70, 40, 0.1)) 
-    : smooth(0.999) : db2linear; 
+    : si.smooth(0.999) : ba.db2linear; 
 
 };

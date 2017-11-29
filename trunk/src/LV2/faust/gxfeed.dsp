@@ -1,11 +1,12 @@
-import("music.lib");
+
+import("stdfaust.lib");
 import("guitarix.lib");
 
-fb_combii (maxdel,N,b0,aN) = (+ <:  delay(maxdel,N),_) ~ *(-aN) : !,*(b0); 
+fb_combii (maxdel,N,b0,aN) = (+ <:  de.delay(maxdel,N),_) ~ *(-aN) : !,*(b0); 
 rev1i(maxdel,N,g) = fb_combii (maxdel,N,1,-g); 
 	 
 	allpass_combi(maxdel,N,aN) = (+ <:  
-	   delay(maxdel,N-1),*(aN)) ~ *(-aN) 
+	   de.delay(maxdel,N-1),*(aN)) ~ *(-aN) 
 	   : mem,_ : + ; 
 	rev2i(maxlen,len,g) = allpass_combi(maxlen,len,-g); 
 	 
@@ -41,4 +42,3 @@ s_reverb = select2(switch, _, (wet_dry_mix(wet_dry,sat_rev)));
 process =  (s_reverb) <: _,_;
 
 //process = _ <: _,_;
-

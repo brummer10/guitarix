@@ -1,8 +1,7 @@
 //declare name "Cabinet Impulse Former";
 declare id "cab_st";
 
-import("music.lib");
-import("guitarix.lib");
+import("stdfaust.lib");
 
 gain = vslider("Level[name:Level][tooltip:Level][alias]", 1, 0.5, 5, 0.5) ;
 

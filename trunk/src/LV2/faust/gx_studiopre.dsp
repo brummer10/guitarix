@@ -1,6 +1,6 @@
 // Yet another tube preamp experiment
 // So far so good :
-// Bright bypass must not do zero division
+// Bright bypass must not do fi.zero division
 // Look at actual gain of tube stages in real preamp
 // and maybe adjust stage1 outpu to reflect as at present with gain at 0dB get very
 // little distortion/overload
@@ -11,9 +11,8 @@
 // So to accuratley model the overload of next stage would need a boost of around
 // 15-20dB at this point x 5.6 -> x10
 // Would then need to attenuate final output to compensate ( actual preamp has 60dB gain! )
-import("music.lib");
-import("filter.lib");
-import("effect.lib"); 
+
+import("stdfaust.lib"); 
 import("guitarix.lib");
 
 //  Based on simple Alembic F-2B vstudio preamp
@@ -22,7 +21,6 @@ import("guitarix.lib");
 // 1st cathode cap gives aroudn 2Hz !
 // Coupling cap sat end gives cutoff 1.6Hz!
 // So only reason to do is to eliminate low frequency rubbish
-
 
 studiopre( tone, gain ) = stage1:*(10):tone:gain:stage2 with{
 //studiopre = volume with{
@@ -49,9 +47,9 @@ l = vslider("Bass_L[alias]", 0.5, 0, 1, 0.01) : (_-1)*3.4 : exp;
 	// In effect -3dB is when reactance of capacitor equals pot value
 	// use equation freq = 160/( gain * 0.12 ) yo get -3dB cutoff
 	// Assuming 1M pot and 120pF cap
-	// Must avoid div by zero
+	// Must avoid div by fi.zero
 	// Seems to cause pros when gain less than 0.1
 	freq_l = 160/(0.12 * ( volume_l+0.1) );
-	bright_l = *(checkbox("bright_l")):highpass( 1, freq_l  ) ;
+	bright_l = *(checkbox("bright_l")):fi.highpass( 1, freq_l  ) ;
 	gain_l  = _<:bright_l,*(volume_l):>_ ;
 };

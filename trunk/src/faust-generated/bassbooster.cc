@@ -1,5 +1,5 @@
 // generated from file '../src/faust/bassbooster.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace bassbooster {
@@ -15,6 +15,7 @@ private:
 	double 	fConst3;
 	double 	fConst4;
 	double 	fRec1[3];
+
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
@@ -74,7 +75,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = tan((376.99111843077515 / double(min(192000, max(1, fSamplingFreq)))));
+	fConst0 = tan((376.99111843077515 / min(1.92e+05, max(1.0, (double)fSamplingFreq))));
 	fConst1 = faustpower<2>(fConst0);
 	fConst2 = (2 * (fConst1 - 1));
 	fConst3 = (1 + (fConst0 * (fConst0 - 1.4142135623730951)));
@@ -96,7 +97,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp1 = sqrt((2 * fTemp0));
 		double fTemp2 = (fConst0 * fTemp0);
 		fRec1[0] = ((double)input0[i] - (fConst4 * ((fConst3 * fRec1[2]) + (fConst2 * fRec1[1]))));
-		output0[i] = (FAUSTFLOAT)(fConst4 * (((fRec1[0] * (1 + (fConst0 * (fTemp1 + fTemp2)))) + (2 * (fRec1[1] * ((fConst1 * fTemp0) - 1)))) + (fRec1[2] * (1 + (fConst0 * (fTemp2 - fTemp1))))));
+		output0[i] = (FAUSTFLOAT)(fConst4 * ((((1 + (fConst0 * (fTemp1 + fTemp2))) * fRec1[0]) + (2 * (fRec1[1] * ((fConst1 * fTemp0) - 1)))) + (fRec1[2] * (1 + (fConst0 * (fTemp2 - fTemp1))))));
 		// post processing
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];

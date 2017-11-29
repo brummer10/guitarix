@@ -1,5 +1,5 @@
 // generated from file '../src/faust/overdrive.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace overdrive {
@@ -10,6 +10,7 @@ private:
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT 	fslider1;
 	double 	fRec0[2];
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -82,12 +83,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow3 = (fSlow2 - 1);
 	double 	fSlow4 = (0.0001 * faustpower<2>(fSlow0));
 	double 	fSlow5 = (0.0010000000000000009 * pow(10,(0.05 * (0 - (0.5 * fSlow2)))));
-	double 	fSlow6 = (1 - fSlow1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		double fTemp1 = fabs((fSlow1 * fTemp0));
-		fRec0[0] = ((0.999 * fRec0[1]) + fSlow5);
-		output0[i] = (FAUSTFLOAT)(fTemp0 * (fSlow6 + (fSlow1 * ((fRec0[0] * (fSlow2 + fTemp1)) / (1 + ((fSlow4 * faustpower<2>(fTemp0)) + (fSlow3 * fTemp1)))))));
+		fRec0[0] = (fSlow5 + (0.999 * fRec0[1]));
+		output0[i] = (FAUSTFLOAT)(fTemp0 * (1 + (fSlow0 * ((0.01 * (((fSlow2 + fTemp1) * fRec0[0]) / (1 + ((fSlow4 * faustpower<2>(fTemp0)) + (fSlow3 * fTemp1))))) - 0.01))));
 		// post processing
 		fRec0[1] = fRec0[0];
 	}

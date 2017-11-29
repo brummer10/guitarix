@@ -1,5 +1,5 @@
 // generated from file '../src/faust/impulseresponse.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace impulseresponse {
@@ -7,15 +7,16 @@ namespace impulseresponse {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	double 	fVec0[3];
 	FAUSTFLOAT 	fslider0;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT 	fslider2;
 	double 	fConst2;
+	double 	fVec0[3];
 	FAUSTFLOAT 	fcheckbox0;
+	FAUSTFLOAT 	fslider2;
 	double 	fRec0[3];
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -73,9 +74,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (3.141592653589793 / double(iConst0));
-	fConst2 = (6.283185307179586 / double(iConst0));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (3.141592653589793 / fConst0);
+	fConst2 = (6.283185307179586 / fConst0);
 	clear_state_f();
 }
 
@@ -87,13 +88,13 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double 	fSlow0 = exp((0 - (fConst1 * double(fslider0))));
-	double 	fSlow1 = (0.5 * (double(fslider1) * (1 - faustpower<2>(fSlow0))));
-	double 	fSlow2 = (2 * cos((fConst2 * double(fslider2))));
-	int 	iSlow3 = int(max((double)0, min((double)1, double(fcheckbox0))));
+	double 	fSlow1 = (2 * cos((fConst2 * double(fslider1))));
+	int 	iSlow2 = int(max((double)0, min((double)1, double(fcheckbox0))));
+	double 	fSlow3 = (0.5 * (double(fslider2) * (1 - faustpower<2>(fSlow0))));
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		fVec0[0] = fTemp0;
-		fRec0[0] = ((fSlow0 * ((((iSlow3)?max(-0.6, min(0.6, fVec0[0])):fSlow2) * fRec0[1]) - (fSlow0 * fRec0[2]))) + (fSlow1 * (fVec0[0] - fVec0[2])));
+		fRec0[0] = ((fSlow3 * (fVec0[0] - fVec0[2])) + (fSlow0 * ((((iSlow2)?max(-0.6, min(0.6, fVec0[0])):fSlow1) * fRec0[1]) - (fSlow0 * fRec0[2]))));
 		output0[i] = (FAUSTFLOAT)(fVec0[0] + fRec0[0]);
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
@@ -111,8 +112,8 @@ int Dsp::register_par(const ParamReg& reg)
 	static const value_pair fcheckbox0_values[] = {{"manual"},{"auto"},{0}};
 	reg.registerEnumVar("IR.auto_freq",N_("auto freq"),"B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("IR.bandwidth",N_("Bandwidth"),"S",N_("bandwidth (Hz)"),&fslider0, 1e+02, 2e+01, 2e+04, 1e+01);
-	reg.registerVar("IR.freq",N_("Freq"),"S",N_("frequency (Hz)"),&fslider2, 4.4e+02, 2e+01, 1.2e+04, 1e+01);
-	reg.registerVar("IR.peak",N_("Peak"),"S",N_("peak gain"),&fslider1, 1.0, 0.0, 1e+01, 0.2);
+	reg.registerVar("IR.freq",N_("Freq"),"S",N_("frequency (Hz)"),&fslider1, 4.4e+02, 2e+01, 1.2e+04, 1e+01);
+	reg.registerVar("IR.peak",N_("Peak"),"S",N_("peak gain"),&fslider2, 1.0, 0.0, 1e+01, 0.2);
 	return 0;
 }
 

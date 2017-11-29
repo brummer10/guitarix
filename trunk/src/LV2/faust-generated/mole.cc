@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/mole.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace mole {
@@ -7,9 +7,6 @@ namespace mole {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
-	double 	fRec0[2];
 	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
@@ -18,10 +15,14 @@ private:
 	double 	fConst5;
 	double 	fConst6;
 	double 	fConst7;
+	FAUSTFLOAT 	fslider0;
+	FAUSTFLOAT	*fslider0_;
+	double 	fRec0[4];
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
-	double 	fRec1[4];
+	double 	fRec1[2];
 	double 	fConst8;
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -58,8 +59,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<4; i++) fRec1[i] = 0;
+	for (int i=0; i<4; i++) fRec0[i] = 0;
+	for (int i=0; i<2; i++) fRec1[i] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -70,7 +71,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = double(min(192000, max(1, fSamplingFreq)));
+	fConst0 = double(min(1.92e+05, max(1.0, (double)fSamplingFreq)));
 	fConst1 = (8.93878454194095e-15 * fConst0);
 	fConst2 = (2.70404912477885e-11 + (fConst0 * ((fConst0 * (4.96556855945694e-12 - fConst1)) - 2.64572840995574e-11)));
 	fConst3 = (2.68163536258229e-14 * fConst0);
@@ -91,18 +92,17 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
-	double 	fSlow0 = (0.007000000000000006 * double(fslider0));
-	double 	fSlow1 = (0.01 * double(fslider1));
-	double 	fSlow2 = (1 - fSlow1);
+	double 	fSlow0 = (0.01 * double(fslider0));
+	double 	fSlow1 = (0.007000000000000006 * double(fslider1));
+	double 	fSlow2 = (1 - fSlow0);
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((0.993 * fRec0[1]) + fSlow0);
-		double fTemp0 = (0 - (9.74268345040146e-11 * fRec0[0]));
-		double fTemp1 = (double)input0[i];
-		fRec1[0] = ((fSlow1 * fTemp1) - (fConst7 * (((fConst5 * fRec1[1]) + (fConst4 * fRec1[2])) + (fConst2 * fRec1[3]))));
-		output0[i] = (FAUSTFLOAT)((fSlow2 * fTemp1) + (fConst8 * ((((fRec1[0] * fTemp0) + (9.74268345040146e-11 * (fRec0[0] * fRec1[1]))) + (9.74268345040146e-11 * (fRec0[0] * fRec1[2]))) + (fRec1[3] * fTemp0))));
+		double fTemp0 = (double)input0[i];
+		fRec0[0] = ((fSlow0 * fTemp0) - (fConst7 * (((fConst5 * fRec0[1]) + (fConst4 * fRec0[2])) + (fConst2 * fRec0[3]))));
+		fRec1[0] = (fSlow1 + (0.993 * fRec1[1]));
+		output0[i] = (FAUSTFLOAT)((fSlow2 * fTemp0) + (fConst8 * ((9.74268345040146e-11 * (fRec1[0] * (fRec0[1] + fRec0[2]))) + ((0 - (9.74268345040146e-11 * fRec1[0])) * (fRec0[3] + fRec0[0])))));
 		// post processing
-		for (int i=3; i>0; i--) fRec1[i] = fRec1[i-1];
-		fRec0[1] = fRec0[0];
+		fRec1[1] = fRec1[0];
+		for (int i=3; i>0; i--) fRec0[i] = fRec0[i-1];
 	}
 #undef fslider0
 #undef fslider1
@@ -119,10 +119,10 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case BOOST: 
-		fslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case WET_DRY: 
-		fslider1_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
+		fslider0_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
 		break;
 	default:
 		break;

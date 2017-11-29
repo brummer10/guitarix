@@ -1,4 +1,4 @@
-declare id "SOL 100"; // in tonestack selector
+declare id "SOL 100"; // in tonestack ba.selector
 declare name "SOL 100 Style";
 
 tstack = component("tonestack.dsp");

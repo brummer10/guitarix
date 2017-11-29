@@ -6,27 +6,27 @@ declare category "Fuzz";
 declare shortname "Fuzz Drive";
 declare description "Fuzz Distortion";
 
-import("filter.lib");
+import("stdfaust.lib");
 import("trany.lib");
 
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
 
     wet = vslider("wet_dry[name:Wet/Dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
-    //Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
-    gain = hslider("Level[name:Level]", -2, -20, 12, 0.1) : component("music.lib").db2linear : smooth(s);
+    //Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
+    gain = hslider("Level[name:Level]", -2, -20, 12, 0.1) : ba.db2linear : si.smooth(s);
     
-    Fuzz = 0.5 ; //vslider("Fuzz[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(1) : smooth(s);
+    Fuzz = 0.5 ; //vslider("Fuzz[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(1) : si.smooth(s);
 
-    Distortion = vslider("Distortion[name:Drive]", 0.5, 0, 0.99, 0.01) : Inverted(1) : smooth(s);
+    Distortion = vslider("Distortion[name:Drive]", 0.5, 0, 0.99, 0.01) : Inverted(1) : si.smooth(s);
 
     clip = tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) : tranystage(TB_7199P_68k,86.0,2700.0,3.571981) ;
 
-fuzz =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0,a7/a0,a8/a0))  with {
-    fs = float(SR);
+fuzz =  fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0,a6/a0,a7/a0,a8/a0))  with {
+    fs = float(ma.SR);
    
     b0 = Fuzz*pow(fs,3)*(fs*(fs*(fs*(fs*(1.29594227235659e-40*fs - 8.87073657190112e-34) - 1.64126469795529e-30) - 1.58018238163299e-26) - 1.52868099778786e-23) - 4.36734685990874e-21) + pow(fs,2)*(fs*(fs*(fs*(fs*(fs*(1.17227175222998e-40*fs - 8.60503380045389e-34) + 3.96129387282593e-28) + 4.46652612440854e-25) + 6.72185939565773e-21) + 2.17087377052947e-18) - 1.32343844239659e-17);
 
@@ -65,9 +65,8 @@ fuzz =  iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0,b6/a0,b7/a0,b8/a0),(a1/a0,a2/a0
     a8 = Fuzz*(Fuzz*pow(fs,2)*(fs*(fs*(fs*(fs*(fs*(-1.20954612086615e-39*fs + 2.86589792702458e-34) - 6.29844123704863e-30) + 6.96590249983833e-27) - 2.97472992156056e-24) + 4.85407145719168e-22) - 2.26821940920998e-20) + fs*(fs*(fs*(fs*(fs*(fs*(fs*(2.45020046020493e-40*fs + 1.12017008405057e-33) - 2.68390877243249e-29) + 2.76343706770825e-26) - 1.93946085329172e-23) + 8.29607943811672e-21) - 1.41480755159492e-18) + 6.87339214912114e-17)) + fs*(fs*(fs*(fs*(fs*(fs*(fs*(1.21134747730432e-39*fs - 1.63282987404348e-33) + 4.4344097371444e-29) - 1.07298568411666e-25) + 1.73266579347222e-22) - 1.31102852092565e-19) + 4.74767687606168e-17) - 7.12034665177176e-15) + 3.12426915869143e-13;
 };
 
-
-dist = iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0))  with {
-    fs = float(SR);
+dist = fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0))  with {
+    fs = float(ma.SR);
 
     b0 = 3.45357917689612e-13*Distortion*0.1*pow(fs,3) + 0.1*pow(fs,2)*(1.79347857986842e-13*fs + 3.45357917689612e-12);
 

@@ -1,4 +1,4 @@
-declare id "Triple Giant"; // in tonestack selector
+declare id "Triple Giant"; // in tonestack ba.selector
 declare name "Triple Giant";
 
 tstack = component("tonestack.dsp");

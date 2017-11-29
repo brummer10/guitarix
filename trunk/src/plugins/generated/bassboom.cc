@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/bassboom.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -32,6 +32,7 @@ private:
 	double 	fConst10;
 	FAUSTFLOAT 	fslider1;
 	double 	fRec6[2];
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -96,7 +97,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = tan((345.57519189487726 / double(min(192000, max(1, fSamplingFreq)))));
+	fConst0 = tan((345.57519189487726 / min(1.92e+05, max(1.0, (double)fSamplingFreq))));
 	fConst1 = (1.0 / faustpower<2>(fConst0));
 	fConst2 = (2 * (1 - fConst1));
 	fConst3 = (1.0 / fConst0);
@@ -128,13 +129,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec0[0] = (fRec1[0] - (fConst5 * ((fConst4 * fRec0[2]) + (fConst2 * fRec0[1]))));
 		fRec3[0] = (fSlow0 + (0.999 * fRec3[1]));
 		double fTemp1 = pow(1e+01,(1.5 * fRec3[0]));
-		double fTemp2 = max((double)-1, min((double)1, (fConst5 * (fTemp1 * (fRec0[2] + (fRec0[0] + (2 * fRec0[1])))))));
+		double fTemp2 = max((double)-1, min((double)1, (fConst5 * (fTemp1 * (fRec0[0] + (fRec0[2] + (2 * fRec0[1])))))));
 		double fTemp3 = (0 - fTemp2);
 		double fTemp4 = exp((4 * fTemp2));
 		fRec5[0] = ((fConst8 * fRec5[1]) + (fConst7 * ((fConst3 * fVec1[0]) + (fConst9 * fVec1[1]))));
 		fRec4[0] = (fRec5[0] - (fConst5 * ((fConst4 * fRec4[2]) + (fConst2 * fRec4[1]))));
-		fRec6[0] = ((0.999 * fRec6[1]) + fSlow1);
-		output0[i] = (FAUSTFLOAT)(fRec6[0] * ((fConst5 * (((fConst1 * fRec4[0]) + (fConst10 * fRec4[1])) + (fConst1 * fRec4[2]))) + (0.25 * (((fTemp4 - exp((4.8 * fTemp3))) * max(1.0, (0.4 / fTemp1))) / (fTemp4 + exp((4 * fTemp3)))))));
+		fRec6[0] = (fSlow1 + (0.999 * fRec6[1]));
+		output0[i] = (FAUSTFLOAT)(fRec6[0] * ((fConst5 * ((fConst10 * fRec4[1]) + (fConst1 * (fRec4[2] + fRec4[0])))) + (0.25 * ((max(1.0, (0.4 / fTemp1)) * (fTemp4 - exp((4.8 * fTemp3)))) / (fTemp4 + exp((4 * fTemp3)))))));
 		// post processing
 		fRec6[1] = fRec6[0];
 		fRec4[2] = fRec4[1]; fRec4[1] = fRec4[0];

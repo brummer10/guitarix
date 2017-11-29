@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/mbclipper.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -11,11 +11,11 @@ namespace mbclipper {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	int 	iVec0[2];
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	FAUSTFLOAT 	fslider0;
 	double 	fConst2;
+	int 	iVec0[2];
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT 	fslider3;
@@ -78,6 +78,7 @@ private:
 	FAUSTFLOAT 	fbargraph4;
 	FAUSTFLOAT 	fslider9;
 	double 	fRec48[2];
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -182,9 +183,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / double(iConst0));
-	fConst2 = (3.141592653589793 / double(iConst0));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (1.0 / fConst0);
+	fConst2 = (3.141592653589793 / fConst0);
 	clear_state_f();
 }
 
@@ -196,24 +197,24 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double 	fSlow0 = tan((fConst2 * double(fslider0)));
-	double 	fSlow1 = (1.0 / faustpower<2>(fSlow0));
-	double 	fSlow2 = (2 * (1 - fSlow1));
-	double 	fSlow3 = (1.0 / fSlow0);
-	double 	fSlow4 = (1 + ((fSlow3 - 1.0000000000000004) / fSlow0));
-	double 	fSlow5 = (1.0 / (1 + ((fSlow3 + 1.0000000000000004) / fSlow0)));
+	double 	fSlow1 = (1.0 / fSlow0);
+	double 	fSlow2 = (1 + ((fSlow1 - 1.0000000000000004) / fSlow0));
+	double 	fSlow3 = (1.0 / faustpower<2>(fSlow0));
+	double 	fSlow4 = (2 * (1 - fSlow3));
+	double 	fSlow5 = (1.0 / (1 + ((fSlow1 + 1.0000000000000004) / fSlow0)));
 	double 	fSlow6 = tan((fConst2 * double(fslider1)));
-	double 	fSlow7 = (1.0 / faustpower<2>(fSlow6));
-	double 	fSlow8 = (2 * (1 - fSlow7));
-	double 	fSlow9 = (1.0 / fSlow6);
-	double 	fSlow10 = (1 + ((fSlow9 - 1.0000000000000004) / fSlow6));
-	double 	fSlow11 = (1 + ((fSlow9 + 1.0000000000000004) / fSlow6));
+	double 	fSlow7 = (1.0 / fSlow6);
+	double 	fSlow8 = (1 + ((fSlow7 - 1.0000000000000004) / fSlow6));
+	double 	fSlow9 = (1.0 / faustpower<2>(fSlow6));
+	double 	fSlow10 = (2 * (1 - fSlow9));
+	double 	fSlow11 = (1 + ((fSlow7 + 1.0000000000000004) / fSlow6));
 	double 	fSlow12 = (1.0 / fSlow11);
 	double 	fSlow13 = tan((fConst2 * double(fslider2)));
-	double 	fSlow14 = (1.0 / faustpower<2>(fSlow13));
-	double 	fSlow15 = (2 * (1 - fSlow14));
-	double 	fSlow16 = (1.0 / fSlow13);
-	double 	fSlow17 = (1 + ((fSlow16 - 1.0000000000000004) / fSlow13));
-	double 	fSlow18 = (1 + ((fSlow16 + 1.0000000000000004) / fSlow13));
+	double 	fSlow14 = (1.0 / fSlow13);
+	double 	fSlow15 = (1 + ((fSlow14 - 1.0000000000000004) / fSlow13));
+	double 	fSlow16 = (1.0 / faustpower<2>(fSlow13));
+	double 	fSlow17 = (2 * (1 - fSlow16));
+	double 	fSlow18 = (1 + ((fSlow14 + 1.0000000000000004) / fSlow13));
 	double 	fSlow19 = (1.0 / fSlow18);
 	double 	fSlow20 = tan((fConst2 * double(fslider3)));
 	double 	fSlow21 = (1.0 / faustpower<2>(fSlow20));
@@ -225,34 +226,34 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow27 = (1 + fSlow23);
 	double 	fSlow28 = (1.0 / fSlow27);
 	double 	fSlow29 = (0 - ((1 - fSlow23) / fSlow27));
-	double 	fSlow30 = (1 + fSlow16);
+	double 	fSlow30 = (1 + fSlow14);
 	double 	fSlow31 = (1.0 / fSlow30);
-	double 	fSlow32 = (0 - ((1 - fSlow16) / fSlow30));
-	double 	fSlow33 = (1 + fSlow9);
+	double 	fSlow32 = (0 - ((1 - fSlow14) / fSlow30));
+	double 	fSlow33 = (1 + fSlow7);
 	double 	fSlow34 = (1.0 / fSlow33);
-	double 	fSlow35 = (0 - ((1 - fSlow9) / fSlow33));
-	double 	fSlow36 = (1 + fSlow3);
+	double 	fSlow35 = (0 - ((1 - fSlow7) / fSlow33));
+	double 	fSlow36 = (1 + fSlow1);
 	double 	fSlow37 = (1.0 / fSlow36);
-	double 	fSlow38 = (0 - ((1 - fSlow3) / fSlow36));
+	double 	fSlow38 = (0 - ((1 - fSlow1) / fSlow36));
 	double 	fSlow39 = (0.0010000000000000009 * double(fslider4));
-	double 	fSlow40 = (0 - fSlow3);
+	double 	fSlow40 = (0 - fSlow1);
 	double 	fSlow41 = (1.0 / (fSlow0 * fSlow11));
-	double 	fSlow42 = (2 * (0 - fSlow1));
+	double 	fSlow42 = (2 * (0 - fSlow3));
 	double 	fSlow43 = (0.0010000000000000009 * double(fslider5));
-	double 	fSlow44 = (1 + ((fSlow3 - 1.0) / fSlow0));
-	double 	fSlow45 = (1.0 / (1 + ((1.0 + fSlow3) / fSlow0)));
-	double 	fSlow46 = (0 - fSlow9);
+	double 	fSlow44 = (1 + ((fSlow1 - 1.0) / fSlow0));
+	double 	fSlow45 = (1.0 / (1 + ((1.0 + fSlow1) / fSlow0)));
+	double 	fSlow46 = (0 - fSlow7);
 	double 	fSlow47 = (1.0 / (fSlow6 * fSlow18));
-	double 	fSlow48 = (2 * (0 - fSlow7));
+	double 	fSlow48 = (2 * (0 - fSlow9));
 	double 	fSlow49 = (0.0010000000000000009 * double(fslider6));
-	double 	fSlow50 = (1 + ((fSlow9 - 1.0) / fSlow6));
-	double 	fSlow51 = (1.0 / (1 + ((1.0 + fSlow9) / fSlow6)));
-	double 	fSlow52 = (0 - fSlow16);
+	double 	fSlow50 = (1 + ((fSlow7 - 1.0) / fSlow6));
+	double 	fSlow51 = (1.0 / (1 + ((1.0 + fSlow7) / fSlow6)));
+	double 	fSlow52 = (0 - fSlow14);
 	double 	fSlow53 = (1.0 / (fSlow13 * fSlow25));
-	double 	fSlow54 = (2 * (0 - fSlow14));
+	double 	fSlow54 = (2 * (0 - fSlow16));
 	double 	fSlow55 = (0.0010000000000000009 * double(fslider7));
-	double 	fSlow56 = (1 + ((fSlow16 - 1.0) / fSlow13));
-	double 	fSlow57 = (1.0 / (1 + ((1.0 + fSlow16) / fSlow13)));
+	double 	fSlow56 = (1 + ((fSlow14 - 1.0) / fSlow13));
+	double 	fSlow57 = (1.0 / (1 + ((1.0 + fSlow14) / fSlow13)));
 	double 	fSlow58 = (0 - fSlow23);
 	double 	fSlow59 = (2 * (0 - fSlow21));
 	double 	fSlow60 = (0.0010000000000000009 * double(fslider8));
@@ -264,24 +265,24 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec1[0] = fTemp0;
 		fRec11[0] = ((fSlow29 * fRec11[1]) + (fSlow28 * (fVec1[0] + fVec1[1])));
 		fRec10[0] = (fRec11[0] - (fSlow26 * ((fSlow24 * fRec10[2]) + (fSlow22 * fRec10[1]))));
-		double fTemp1 = (fRec10[2] + (fRec10[0] + (2 * fRec10[1])));
+		double fTemp1 = (fRec10[0] + (fRec10[2] + (2 * fRec10[1])));
 		double fTemp2 = (fSlow26 * fTemp1);
 		fVec2[0] = fTemp2;
 		fRec9[0] = ((fSlow32 * fRec9[1]) + (fSlow31 * (fVec2[0] + fVec2[1])));
-		fRec8[0] = (fRec9[0] - (fSlow19 * ((fSlow17 * fRec8[2]) + (fSlow15 * fRec8[1]))));
-		double fTemp3 = (fRec8[2] + (fRec8[0] + (2 * fRec8[1])));
+		fRec8[0] = (fRec9[0] - (fSlow19 * ((fSlow17 * fRec8[1]) + (fSlow15 * fRec8[2]))));
+		double fTemp3 = (fRec8[0] + (fRec8[2] + (2 * fRec8[1])));
 		double fTemp4 = (fSlow19 * fTemp3);
 		fVec3[0] = fTemp4;
 		fRec7[0] = ((fSlow35 * fRec7[1]) + (fSlow34 * (fVec3[0] + fVec3[1])));
-		fRec6[0] = (fRec7[0] - (fSlow12 * ((fSlow10 * fRec6[2]) + (fSlow8 * fRec6[1]))));
-		double fTemp5 = (fRec6[2] + (fRec6[0] + (2 * fRec6[1])));
+		fRec6[0] = (fRec7[0] - (fSlow12 * ((fSlow10 * fRec6[1]) + (fSlow8 * fRec6[2]))));
+		double fTemp5 = (fRec6[0] + (fRec6[2] + (2 * fRec6[1])));
 		double fTemp6 = (fSlow12 * fTemp5);
 		fVec4[0] = fTemp6;
 		fRec5[0] = ((fSlow38 * fRec5[1]) + (fSlow37 * (fVec4[0] + fVec4[1])));
-		fRec4[0] = (fRec5[0] - (fSlow5 * ((fSlow4 * fRec4[2]) + (fSlow2 * fRec4[1]))));
+		fRec4[0] = (fRec5[0] - (fSlow5 * ((fSlow4 * fRec4[1]) + (fSlow2 * fRec4[2]))));
 		fRec13[0] = (fSlow39 + (0.999 * fRec13[1]));
 		double fTemp7 = pow(1e+01,(2 * fRec13[0]));
-		double fTemp8 = (max(1.0, (1.0 / fTemp7)) * symclip((fSlow5 * (fTemp7 * (fRec4[2] + (fRec4[0] + (2 * fRec4[1])))))));
+		double fTemp8 = (max(1.0, (1.0 / fTemp7)) * symclip((fSlow5 * (fTemp7 * (fRec4[0] + (fRec4[2] + (2 * fRec4[1])))))));
 		double 	fRec3 = max(fConst1, fabs(fTemp8));
 		int iTemp9 = int((iRec1[1] < 4096));
 		fRec0[0] = ((iTemp9)?max(fRec0[1], fRec3):fRec3);
@@ -289,20 +290,20 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = ((iTemp9)?fRec2[1]:fRec0[1]);
 		fbargraph0 = fRec2[0];
 		fRec19[0] = ((fSlow38 * fRec19[1]) + (fSlow37 * ((fSlow41 * fTemp5) + (fSlow40 * fVec4[1]))));
-		fRec18[0] = (fRec19[0] - (fSlow5 * ((fSlow4 * fRec18[2]) + (fSlow2 * fRec18[1]))));
+		fRec18[0] = (fRec19[0] - (fSlow5 * ((fSlow4 * fRec18[1]) + (fSlow2 * fRec18[2]))));
 		fRec20[0] = (fSlow43 + (0.999 * fRec20[1]));
 		double fTemp10 = pow(1e+01,(2 * fRec20[0]));
-		double fTemp11 = (max(1.0, (1.0 / fTemp10)) * symclip((fSlow5 * (fTemp10 * (((fSlow1 * fRec18[0]) + (fSlow42 * fRec18[1])) + (fSlow1 * fRec18[2]))))));
+		double fTemp11 = (max(1.0, (1.0 / fTemp10)) * symclip((fSlow5 * (fTemp10 * ((fSlow42 * fRec18[1]) + (fSlow3 * (fRec18[2] + fRec18[0])))))));
 		double 	fRec17 = max(fConst1, fabs(fTemp11));
 		int iTemp12 = int((iRec15[1] < 4096));
 		fRec14[0] = ((iTemp12)?max(fRec14[1], fRec17):fRec17);
 		iRec15[0] = ((iTemp12)?(1 + iRec15[1]):1);
 		fRec16[0] = ((iTemp12)?fRec16[1]:fRec14[1]);
 		fbargraph1 = fRec16[0];
-		double fTemp13 = (fSlow2 * fRec25[1]);
+		double fTemp13 = (fSlow4 * fRec25[1]);
 		fRec27[0] = ((fSlow35 * fRec27[1]) + (fSlow34 * ((fSlow47 * fTemp3) + (fSlow46 * fVec3[1]))));
-		fRec26[0] = (fRec27[0] - (fSlow12 * ((fSlow10 * fRec26[2]) + (fSlow8 * fRec26[1]))));
-		fRec25[0] = ((fSlow12 * (((fSlow7 * fRec26[0]) + (fSlow48 * fRec26[1])) + (fSlow7 * fRec26[2]))) - (fSlow45 * ((fSlow44 * fRec25[2]) + fTemp13)));
+		fRec26[0] = (fRec27[0] - (fSlow12 * ((fSlow10 * fRec26[1]) + (fSlow8 * fRec26[2]))));
+		fRec25[0] = ((fSlow12 * ((fSlow48 * fRec26[1]) + (fSlow9 * (fRec26[2] + fRec26[0])))) - (fSlow45 * ((fSlow44 * fRec25[2]) + fTemp13)));
 		fRec28[0] = (fSlow49 + (0.999 * fRec28[1]));
 		double fTemp14 = pow(1e+01,(2 * fRec28[0]));
 		double fTemp15 = (max(1.0, (1.0 / fTemp14)) * symclip((fTemp14 * (fRec25[2] + (fSlow45 * (fTemp13 + (fSlow44 * fRec25[0])))))));
@@ -312,11 +313,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec22[0] = ((iTemp16)?(1 + iRec22[1]):1);
 		fRec23[0] = ((iTemp16)?fRec23[1]:fRec21[1]);
 		fbargraph2 = fRec23[0];
-		double fTemp17 = (fSlow2 * fRec33[1]);
-		double fTemp18 = (fSlow8 * fRec34[1]);
+		double fTemp17 = (fSlow4 * fRec33[1]);
+		double fTemp18 = (fSlow10 * fRec34[1]);
 		fRec36[0] = ((fSlow32 * fRec36[1]) + (fSlow31 * ((fSlow53 * fTemp1) + (fSlow52 * fVec2[1]))));
-		fRec35[0] = (fRec36[0] - (fSlow19 * ((fSlow17 * fRec35[2]) + (fSlow15 * fRec35[1]))));
-		fRec34[0] = ((fSlow19 * (((fSlow14 * fRec35[0]) + (fSlow54 * fRec35[1])) + (fSlow14 * fRec35[2]))) - (fSlow51 * ((fSlow50 * fRec34[2]) + fTemp18)));
+		fRec35[0] = (fRec36[0] - (fSlow19 * ((fSlow17 * fRec35[1]) + (fSlow15 * fRec35[2]))));
+		fRec34[0] = ((fSlow19 * ((fSlow54 * fRec35[1]) + (fSlow16 * (fRec35[2] + fRec35[0])))) - (fSlow51 * ((fSlow50 * fRec34[2]) + fTemp18)));
 		fRec33[0] = ((fRec34[2] + (fSlow51 * (fTemp18 + (fSlow50 * fRec34[0])))) - (fSlow45 * ((fSlow44 * fRec33[2]) + fTemp17)));
 		fRec37[0] = (fSlow55 + (0.999 * fRec37[1]));
 		double fTemp19 = pow(1e+01,(2 * fRec37[0]));
@@ -327,12 +328,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec30[0] = ((iTemp21)?(1 + iRec30[1]):1);
 		fRec31[0] = ((iTemp21)?fRec31[1]:fRec29[1]);
 		fbargraph3 = fRec31[0];
-		double fTemp22 = (fSlow2 * fRec42[1]);
-		double fTemp23 = (fSlow8 * fRec43[1]);
-		double fTemp24 = (fSlow15 * fRec44[1]);
+		double fTemp22 = (fSlow4 * fRec42[1]);
+		double fTemp23 = (fSlow10 * fRec43[1]);
+		double fTemp24 = (fSlow17 * fRec44[1]);
 		fRec46[0] = ((fSlow29 * fRec46[1]) + (fSlow28 * ((fSlow23 * fVec1[0]) + (fSlow58 * fVec1[1]))));
 		fRec45[0] = (fRec46[0] - (fSlow26 * ((fSlow24 * fRec45[2]) + (fSlow22 * fRec45[1]))));
-		fRec44[0] = ((fSlow26 * (((fSlow21 * fRec45[0]) + (fSlow59 * fRec45[1])) + (fSlow21 * fRec45[2]))) - (fSlow57 * ((fSlow56 * fRec44[2]) + fTemp24)));
+		fRec44[0] = ((fSlow26 * ((fSlow59 * fRec45[1]) + (fSlow21 * (fRec45[2] + fRec45[0])))) - (fSlow57 * ((fSlow56 * fRec44[2]) + fTemp24)));
 		fRec43[0] = ((fRec44[2] + (fSlow57 * (fTemp24 + (fSlow56 * fRec44[0])))) - (fSlow51 * ((fSlow50 * fRec43[2]) + fTemp23)));
 		fRec42[0] = ((fRec43[2] + (fSlow51 * (fTemp23 + (fSlow50 * fRec43[0])))) - (fSlow45 * ((fSlow44 * fRec42[2]) + fTemp22)));
 		fRec47[0] = (fSlow60 + (0.999 * fRec47[1]));
@@ -344,7 +345,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec39[0] = ((iTemp27)?(1 + iRec39[1]):1);
 		fRec40[0] = ((iTemp27)?fRec40[1]:fRec38[1]);
 		fbargraph4 = fRec40[0];
-		fRec48[0] = ((0.999 * fRec48[1]) + fSlow61);
+		fRec48[0] = (fSlow61 + (0.999 * fRec48[1]));
 		output0[i] = (FAUSTFLOAT)(fRec48[0] * ((((fTemp26 + fTemp20) + fTemp15) + fTemp11) + fTemp8));
 		// post processing
 		fRec48[1] = fRec48[0];
@@ -412,10 +413,10 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerVar("mbclip.Drive4","","S",N_("Amount of distortion"),&fslider7, 0.33, 0.0, 1.0, 0.01);
 	reg.registerVar("mbclip.Drive5","","S",N_("Amount of distortion"),&fslider8, 0.1, 0.0, 1.0, 0.01);
 	reg.registerVar("mbclip.Gain","","S","",&fslider9, 0.0, -4e+01, 4.0, 0.1);
-	reg.registerVar("mbclip.crossover_b1_b2",N_("Crossover B1-B2 (hz)"),"SL",N_("Crossover bandpass frequency"),&fslider0, 8e+01, 2e+01, 2e+04, 1.08);
-	reg.registerVar("mbclip.crossover_b2_b3",N_("Crossover B2-B3 (hz)"),"SL",N_("Crossover bandpass frequency"),&fslider1, 2.1e+02, 2e+01, 2e+04, 1.08);
-	reg.registerVar("mbclip.crossover_b3_b4",N_("Crossover B3-B4 (hz)"),"SL",N_("Crossover bandpass frequency"),&fslider2, 1.7e+03, 2e+01, 2e+04, 1.08);
-	reg.registerVar("mbclip.crossover_b4_b5",N_("Crossover B4-B5 (hz)"),"SL",N_("Crossover bandpass frequency"),&fslider3, 5e+03, 2e+01, 2e+04, 1.08);
+	reg.registerVar("mbclip.crossover_b1_b2",N_("Crossover B1-B2 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fslider0, 8e+01, 2e+01, 2e+04, 1.08);
+	reg.registerVar("mbclip.crossover_b2_b3",N_("Crossover B2-B3 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fslider1, 2.1e+02, 2e+01, 2e+04, 1.08);
+	reg.registerVar("mbclip.crossover_b3_b4",N_("Crossover B3-B4 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fslider2, 1.7e+03, 2e+01, 2e+04, 1.08);
+	reg.registerVar("mbclip.crossover_b4_b5",N_("Crossover B4-B5 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fslider3, 5e+03, 2e+01, 2e+04, 1.08);
 	reg.registerNonMidiFloatVar("mbclip.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
 	reg.registerNonMidiFloatVar("mbclip.v2",&fbargraph1, false, true, -70.0, -70.0, 4.0, 0.00001);
 	reg.registerNonMidiFloatVar("mbclip.v3",&fbargraph2, false, true, -70.0, -70.0, 4.0, 0.00001);

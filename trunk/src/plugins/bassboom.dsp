@@ -4,20 +4,16 @@ declare shortname "B Boom";
 declare category "Distortion";
 declare description "Sub Bass Booster";
 
-import("effect.lib");
-import("filter.lib");
-import("music.lib");
-import("math.lib");
+import("stdfaust.lib");
 
 anti_denormal = pow(10,-20);
 anti_denormal_ac = 1 - 1' : *(anti_denormal) : + ~ *(-1);
 
-
-geq = filterbank(3, (110));
+geq = fi.filterbank(3, (110));
 
 Drive     = hslider("Drive [tooltip: Amount of SubBass Harmonics]", 0.33, 0, 1, 0.01);
 
-Gain      = vslider("Gain", 0, -40, 4, 0.1) : db2linear : smooth(0.999);
+Gain      = vslider("Gain", 0, -40, 4, 0.1) : ba.db2linear : si.smooth(0.999);
    
 bassclip(drive) = *(pregain) : preclip : clip : *(postgain) with {
     pregain = pow(10.0,1.5*drive); 
@@ -33,6 +29,6 @@ clip(drive) = *(pregain) : clip : *(postgain) with {
 };
  
 process    = _: +(anti_denormal_ac): geq: ( _, dist1s) :> *(Gain) with { 
-    dist1s = bassclip(Drive: smooth(0.999)) ;
+    dist1s = bassclip(Drive: si.smooth(0.999)) ;
     
 };

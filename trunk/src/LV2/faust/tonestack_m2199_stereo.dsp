@@ -1,4 +1,4 @@
-declare id "M2199"; // in tonestack selector
+declare id "M2199"; // in tonestack ba.selector
 declare name "M2199";
 
 tstack = component("tonestack.dsp");

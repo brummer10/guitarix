@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/flanger.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace flanger {
@@ -16,7 +16,7 @@ private:
 	double 	fVec1[2048];
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fRec1[2];
 	double 	fRec2[2];
@@ -31,6 +31,7 @@ private:
 	FAUSTFLOAT	*fcheckbox0_;
 	double 	fVec2[2048];
 	double 	fRec3[2];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -84,9 +85,9 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (6.283185307179586 / fConst0);
 	IOTA = 0;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586 / double(iConst0));
 	clear_state_f();
 }
 
@@ -121,18 +122,18 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fVec1[IOTA&2047] = fTemp1;
 		fRec1[0] = ((fSlow4 * fRec2[1]) + (fSlow3 * fRec1[1]));
 		fRec2[0] = ((1 + ((fSlow3 * fRec2[1]) + (fSlow5 * fRec1[1]))) - iVec0[1]);
-		double fTemp2 = (iConst0 * (fSlow7 + (fSlow6 * (1 + fRec1[0]))));
+		double fTemp2 = (fConst0 * (fSlow7 + (fSlow6 * (1 + fRec1[0]))));
 		int iTemp3 = int(fTemp2);
-		int iTemp4 = (1 + iTemp3);
-		fRec0[0] = ((fVec1[(IOTA-int((iTemp3 & 2047)))&2047] * (iTemp4 - fTemp2)) + ((fTemp2 - iTemp3) * fVec1[(IOTA-int((int(iTemp4) & 2047)))&2047]));
+		double fTemp4 = floor(fTemp2);
+		fRec0[0] = ((fVec1[(IOTA-int((iTemp3 & 2047)))&2047] * ((1 + fTemp4) - fTemp2)) + ((fTemp2 - fTemp4) * fVec1[(IOTA-int((int((1 + iTemp3)) & 2047)))&2047]));
 		output0[i] = (FAUSTFLOAT)(0.5 * (fTemp0 + (fSlow9 * fRec0[0])));
 		double fTemp5 = (fSlow0 * (double)input1[i]);
 		double fTemp6 = ((fSlow1 * fRec3[1]) - fTemp5);
 		fVec2[IOTA&2047] = fTemp6;
-		double fTemp7 = (iConst0 * (fSlow7 + (fSlow6 * (1 + fRec2[0]))));
+		double fTemp7 = (fConst0 * (fSlow7 + (fSlow6 * (1 + fRec2[0]))));
 		int iTemp8 = int(fTemp7);
-		int iTemp9 = (1 + iTemp8);
-		fRec3[0] = ((fVec2[(IOTA-int((iTemp8 & 2047)))&2047] * (iTemp9 - fTemp7)) + ((fTemp7 - iTemp8) * fVec2[(IOTA-int((int(iTemp9) & 2047)))&2047]));
+		double fTemp9 = floor(fTemp7);
+		fRec3[0] = ((fVec2[(IOTA-int((iTemp8 & 2047)))&2047] * ((1 + fTemp9) - fTemp7)) + ((fTemp7 - fTemp9) * fVec2[(IOTA-int((int((1 + iTemp8)) & 2047)))&2047]));
 		output1[i] = (FAUSTFLOAT)(0.5 * (fTemp5 + (fSlow9 * fRec3[0])));
 		// post processing
 		fRec3[1] = fRec3[0];
@@ -170,10 +171,10 @@ void Dsp::connect(uint32_t port,void* data)
 	case FEEDBACKGAIN: 
 		fslider1_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
 		break;
-	case FLANGEDELAY: 
+	case DELAY: 
 		fslider3_ = (float*)data; // , 1e+01, 0.0, 2e+01, 0.01 
 		break;
-	case FLANGEDELAYOFFSET: 
+	case DELAYOFFSET: 
 		fslider4_ = (float*)data; // , 1.0, 0.0, 2e+01, 0.01 
 		break;
 	// static const value_pair fcheckbox0_values[] = {{"linear"},{"invert"},{0}};
@@ -209,8 +210,8 @@ typedef enum
    LFOFREQ, 
    DEPTH, 
    FEEDBACKGAIN, 
-   FLANGEDELAY, 
-   FLANGEDELAYOFFSET, 
+   DELAY, 
+   DELAYOFFSET, 
    INVERT, 
    LEVEL, 
 } PortIndex;

@@ -6,27 +6,25 @@ declare category "Guitar Effects";
 declare shortname "Foxx Wah";
 declare description "Foxx Wah";
 
-import("filter.lib");
-import("effect.lib");
-import("oscillator.lib");
+import("stdfaust.lib");
 import("guitarix.lib");
 
-process(x) = x : _<:*(dry),(*(wet) : pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0))):>_ with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process(x) = x : _<:*(dry),(*(wet) : pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0))):>_ with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     wet = wah_ctrl.wet_dry;
     dry = 1 - wet;
-    pre = dcblockerat(228.232162503);
+    pre = fi.dcblockerat(228.232162503);
 
-    Wah1 = (x : amp_follower_ud(0.01,0.1) : min(0.98) : max(0.02) : Inverted(1)): smooth(s);
+    Wah1 = (x : an.amp_follower_ud(0.01,0.1) : min(0.98) : max(0.02) : Inverted(1)): si.smooth(s);
 
-    Wah2 = wah_ctrl.wah : max(0.01) : LogPot(5) : smooth(s);
+    Wah2 = wah_ctrl.wah : max(0.01) : LogPot(5) : si.smooth(s);
  
     sl = wah_ctrl.mode;
 
-    Wah3 = (oscs(freq) + 1) / 2 : min(0.98) : max(0.02) : Inverted(1) with {
+    Wah3 = (os.oscs(freq) + 1) / 2 : min(0.98) : max(0.02) : Inverted(1) with {
         freq = wah_ctrl.freq;
     }; 
 

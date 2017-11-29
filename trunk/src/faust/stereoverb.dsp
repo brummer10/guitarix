@@ -5,10 +5,7 @@ declare author 		"brummer";
 declare license 	"BSD";
 declare copyright 	"(c)brummer 2008";
 
-import("math.lib");
-import("music.lib");
-import("effect.lib"); 
-import("filter.lib");
+import("stdfaust.lib");
 
 import("guitarix.lib");
 
@@ -59,7 +56,7 @@ monoReverb(fb1, fb2, damp, spread)
 
 //----------------------------------------------------------------
 
-lfol = component("oscillator.lib").oscrs; // sine for left channel
+lfol = os.oscrs; // sine for left channel
 
 freq	 = hslider("LFO freq [name:LFO Freq][unit:Hz]", 0.2, 0, 5, 0.01);
 pingpong   = checkbox("invert[enum:linear|pingpong]");

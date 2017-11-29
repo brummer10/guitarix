@@ -3,28 +3,26 @@
 //*.include file was generated using oc_2.py.
 //Also, see schematic description in the .odg file
 
-import("effect.lib");
-import("music.lib");
-import("filter.lib");
+import("stdfaust.lib");
 
 import("../../../tools/plugins/oc_2/oc_2.lib");
 
 //Filters
-f1 = _:iir((b0_f1,b1_f1,b2_f1,b3_f1),(a1_f1,a2_f1,a3_f1)):_;
-f2 = _:iir((b0_f2,b1_f2,b2_f2,b3_f2),(a1_f2,a2_f2,a3_f2)):_;
-f3 = _:iir((b0_f3,b1_f3,b2_f3,b3_f3),(a1_f3,a2_f3,a3_f3)):_;
+f1 = _:fi.iir((b0_f1,b1_f1,b2_f1,b3_f1),(a1_f1,a2_f1,a3_f1)):_;
+f2 = _:fi.iir((b0_f2,b1_f2,b2_f2,b3_f2),(a1_f2,a2_f2,a3_f2)):_;
+f3 = _:fi.iir((b0_f3,b1_f3,b2_f3,b3_f3),(a1_f3,a2_f3,a3_f3)):_;
 
 //Switch implementation
 switch_impl(x, state) = select2((state >= 1.7),sw_opened(x),sw_closed(x));
 
-//Trigger integrator
-fint=_:iir((b0_fint,b1_fint),(a1_fint)):_;
+//Trigger fi.integrator
+fint=_:fi.iir((b0_fint,b1_fint),(a1_fint)):_;
 
 //Trigger prefilters
-f4_11=_:iir((b0_f41_1,b1_f41_1),(a1_f41_1)):_;
-f4_12=_:iir((b0_f41_2,b1_f41_2),(a1_f41_2)):_;
+f4_11=_:fi.iir((b0_f41_1,b1_f41_1),(a1_f41_1)):_;
+f4_12=_:fi.iir((b0_f41_2,b1_f41_2),(a1_f41_2)):_;
 
-f4_2=_:iir((b0_f42,b1_f42,b2_f42),(a1_f42,a2_f42)):_;
+f4_2=_:fi.iir((b0_f42,b1_f42,b2_f42),(a1_f42,a2_f42)):_;
 
 f4=_<:f4_2,(f4_11:f4_12):_,_;
 
@@ -44,7 +42,7 @@ rectifier_plus = hist_plus:fint;
 rectefier_minus = hist_minus:fint;
 
 c0 = _<:rectifier_plus,rectefier_minus:_,_;
-trigger = dcblocker:_<:f4:_,(_<:_,_):_,_,_:X,_:_,(_<:_,_),_:(rectifier_plus,_:comparator),(_,rectefier_minus:comparator);
+trigger = fi.dcblocker:_<:f4:_,(_<:_,_):_,_,_:X,_:_,(_<:_,_),_:(rectifier_plus,_:comparator),(_,rectefier_minus:comparator);
 
 freq_divider = _:trigger:cmos:div1<:_,_:_,div2;
 

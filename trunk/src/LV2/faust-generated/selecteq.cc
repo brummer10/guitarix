@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/selecteq.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace selecteq {
@@ -78,6 +78,7 @@ private:
 	double 	fRec2[3];
 	double 	fRec1[3];
 	double 	fRec0[3];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -134,7 +135,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (3.141592653589793 / double(min(192000, max(1, fSamplingFreq))));
+	fConst0 = (3.141592653589793 / min(1.92e+05, max(1.0, (double)fSamplingFreq)));
 	clear_state_f();
 }
 
@@ -277,16 +278,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp8 = (fSlow49 * fRec8[1]);
 		double fTemp9 = (fSlow55 * fRec9[1]);
 		fRec9[0] = ((double)input0[i] - (fSlow59 * ((fSlow58 * fRec9[2]) + fTemp9)));
-		fRec8[0] = ((fSlow59 * ((fTemp9 + (fSlow62 * fRec9[0])) + (fSlow61 * fRec9[2]))) - (fSlow53 * ((fSlow52 * fRec8[2]) + fTemp8)));
-		fRec7[0] = ((fSlow53 * ((fTemp8 + (fSlow65 * fRec8[0])) + (fSlow64 * fRec8[2]))) - (fSlow47 * ((fSlow46 * fRec7[2]) + fTemp7)));
-		fRec6[0] = ((fSlow47 * ((fTemp7 + (fSlow68 * fRec7[0])) + (fSlow67 * fRec7[2]))) - (fSlow41 * ((fSlow40 * fRec6[2]) + fTemp6)));
-		fRec5[0] = ((fSlow41 * ((fTemp6 + (fSlow71 * fRec6[0])) + (fSlow70 * fRec6[2]))) - (fSlow35 * ((fSlow34 * fRec5[2]) + fTemp5)));
-		fRec4[0] = ((fSlow35 * ((fTemp5 + (fSlow74 * fRec5[0])) + (fSlow73 * fRec5[2]))) - (fSlow29 * ((fSlow28 * fRec4[2]) + fTemp4)));
-		fRec3[0] = ((fSlow29 * ((fTemp4 + (fSlow77 * fRec4[0])) + (fSlow76 * fRec4[2]))) - (fSlow23 * ((fSlow22 * fRec3[2]) + fTemp3)));
-		fRec2[0] = ((fSlow23 * ((fTemp3 + (fSlow80 * fRec3[0])) + (fSlow79 * fRec3[2]))) - (fSlow17 * ((fSlow16 * fRec2[2]) + fTemp2)));
-		fRec1[0] = ((fSlow17 * ((fTemp2 + (fSlow83 * fRec2[0])) + (fSlow82 * fRec2[2]))) - (fSlow11 * ((fSlow10 * fRec1[2]) + fTemp1)));
-		fRec0[0] = ((fSlow11 * ((fTemp1 + (fSlow86 * fRec1[0])) + (fSlow85 * fRec1[2]))) - (fSlow5 * ((fSlow4 * fRec0[2]) + fTemp0)));
-		output0[i] = (FAUSTFLOAT)(fSlow5 * ((fTemp0 + (fSlow89 * fRec0[0])) + (fSlow88 * fRec0[2])));
+		fRec8[0] = ((fSlow59 * (fTemp9 + ((fSlow62 * fRec9[0]) + (fSlow61 * fRec9[2])))) - (fSlow53 * ((fSlow52 * fRec8[2]) + fTemp8)));
+		fRec7[0] = ((fSlow53 * (fTemp8 + ((fSlow65 * fRec8[0]) + (fSlow64 * fRec8[2])))) - (fSlow47 * ((fSlow46 * fRec7[2]) + fTemp7)));
+		fRec6[0] = ((fSlow47 * (fTemp7 + ((fSlow68 * fRec7[0]) + (fSlow67 * fRec7[2])))) - (fSlow41 * ((fSlow40 * fRec6[2]) + fTemp6)));
+		fRec5[0] = ((fSlow41 * (fTemp6 + ((fSlow71 * fRec6[0]) + (fSlow70 * fRec6[2])))) - (fSlow35 * ((fSlow34 * fRec5[2]) + fTemp5)));
+		fRec4[0] = ((fSlow35 * (fTemp5 + ((fSlow74 * fRec5[0]) + (fSlow73 * fRec5[2])))) - (fSlow29 * ((fSlow28 * fRec4[2]) + fTemp4)));
+		fRec3[0] = ((fSlow29 * (fTemp4 + ((fSlow77 * fRec4[0]) + (fSlow76 * fRec4[2])))) - (fSlow23 * ((fSlow22 * fRec3[2]) + fTemp3)));
+		fRec2[0] = ((fSlow23 * (fTemp3 + ((fSlow80 * fRec3[0]) + (fSlow79 * fRec3[2])))) - (fSlow17 * ((fSlow16 * fRec2[2]) + fTemp2)));
+		fRec1[0] = ((fSlow17 * (fTemp2 + ((fSlow83 * fRec2[0]) + (fSlow82 * fRec2[2])))) - (fSlow11 * ((fSlow10 * fRec1[2]) + fTemp1)));
+		fRec0[0] = ((fSlow11 * (fTemp1 + ((fSlow86 * fRec1[0]) + (fSlow85 * fRec1[2])))) - (fSlow5 * ((fSlow4 * fRec0[2]) + fTemp0)));
+		output0[i] = (FAUSTFLOAT)(fSlow5 * (fTemp0 + ((fSlow89 * fRec0[0]) + (fSlow88 * fRec0[2]))));
 		// post processing
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];

@@ -7,20 +7,20 @@ declare shortname "Electra Dst";
 declare description "Electra Distortion";
 declare samplerate "96000";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : iir((b0/a0,b1/a0),(a1/a0)) : clip with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((b0/a0,b1/a0),(a1/a0)) : clip with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     //clip(x) = (min(0.4514,max(-0.4514,x)));
     asymclip = ffunction(float asymclip(float), "clipping.h", "");
     clip = asymclip(_);
 
     
-        Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Drive = vslider("Drive[name:Drive]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = -8.14686408743197e-8*Drive*fs - 0.00018716364572377*fs;
 

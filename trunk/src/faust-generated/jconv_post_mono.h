@@ -1,5 +1,5 @@
 // generated from file '../src/faust/jconv_post_mono.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 #define FAUSTFLOAT float
 
@@ -11,6 +11,7 @@ private:
 	FAUSTFLOAT 	fslider0;
 	double 	fRec0[2];
 	FAUSTFLOAT 	fslider1;
+
 
 public:
 	void clear_state_f();

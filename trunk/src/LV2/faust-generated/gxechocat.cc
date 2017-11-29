@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxechocat.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace gxechocat {
@@ -10,17 +10,17 @@ private:
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
 	double 	fRec0[2];
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
 	double 	fConst3;
 	double 	fConst4;
+	FAUSTFLOAT 	fslider1;
+	FAUSTFLOAT	*fslider1_;
+	double 	fRec2[2];
 	double 	fConst5;
 	double 	fConst6;
 	double 	fConst7;
-	double 	fRec2[2];
-	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT	*fslider1_;
 	double 	fRec3[2];
 	double 	fConst8;
 	double 	fConst9;
@@ -57,21 +57,21 @@ private:
 	double 	fConst31;
 	FAUSTFLOAT 	fslider3;
 	FAUSTFLOAT	*fslider3_;
-	int 	iConst32;
+	double 	fConst32;
 	double 	fRec11[2];
 	double 	fRec12[2];
 	double 	fRec13[2];
 	double 	fRec14[2];
 	FAUSTFLOAT 	fcheckbox0;
 	FAUSTFLOAT	*fcheckbox0_;
-	int 	iConst33;
+	double 	fConst33;
 	double 	fRec15[2];
 	double 	fRec16[2];
 	double 	fRec17[2];
 	double 	fRec18[2];
 	FAUSTFLOAT 	fcheckbox1;
 	FAUSTFLOAT	*fcheckbox1_;
-	int 	iConst34;
+	double 	fConst34;
 	double 	fRec19[2];
 	double 	fRec20[2];
 	double 	fRec21[2];
@@ -90,6 +90,7 @@ private:
 	double 	fRec4[3];
 	double 	fRec1[2];
 	double 	fConst39;
+
 	bool mem_allocated;
 	void mem_alloc();
 	void mem_free();
@@ -169,8 +170,8 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = double(iConst0);
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = double(fConst0);
 	fConst2 = (2.08237464507809e-05 * fConst1);
 	fConst3 = (0.000460170362516827 + fConst2);
 	fConst4 = ((0.000460170362516827 - fConst2) / fConst3);
@@ -178,38 +179,38 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst6 = (0.000460960630154374 + fConst5);
 	fConst7 = ((0.000460960630154374 - fConst5) / fConst6);
 	fConst8 = (fConst1 / fConst6);
-	fConst9 = tan((125.66370614359172 / double(iConst0)));
-	fConst10 = (1.0 / faustpower<2>(fConst9));
-	fConst11 = (2 * (1 - fConst10));
-	fConst12 = (1.0 / fConst9);
-	fConst13 = (1 + ((fConst12 - 0.7653668647301795) / fConst9));
-	fConst14 = (1 + ((0.7653668647301795 + fConst12) / fConst9));
+	fConst9 = tan((125.66370614359172 / fConst0));
+	fConst10 = (1.0 / fConst9);
+	fConst11 = (1 + ((fConst10 - 0.7653668647301795) / fConst9));
+	fConst12 = (1.0 / faustpower<2>(fConst9));
+	fConst13 = (2 * (1 - fConst12));
+	fConst14 = (1 + ((0.7653668647301795 + fConst10) / fConst9));
 	fConst15 = (1.0 / fConst14);
-	fConst16 = (1 + ((fConst12 - 1.8477590650225735) / fConst9));
-	fConst17 = (1.0 / (1 + ((fConst12 + 1.8477590650225735) / fConst9)));
-	fConst18 = (1.0 / tan((23561.94490192345 / double(iConst0))));
+	fConst16 = (1 + ((fConst10 - 1.8477590650225735) / fConst9));
+	fConst17 = (1.0 / (1 + ((fConst10 + 1.8477590650225735) / fConst9)));
+	fConst18 = (1.0 / tan((23561.94490192345 / fConst0)));
 	fConst19 = (1 + fConst18);
-	fConst20 = (1.0 / fConst19);
-	fConst21 = (0 - ((1 - fConst18) / fConst19));
-	fConst22 = tan((392.6990816987241 / double(iConst0)));
+	fConst20 = (0 - ((1 - fConst18) / fConst19));
+	fConst21 = (1.0 / fConst19);
+	fConst22 = tan((392.6990816987241 / fConst0));
 	fConst23 = (0.5 / fConst22);
 	fConst24 = (1.0 / fConst22);
 	fConst25 = (0 - fConst24);
 	fConst26 = (1 + fConst24);
 	fConst27 = (1.0 / fConst26);
 	fConst28 = (0 - ((1 - fConst24) / fConst26));
-	fConst29 = (2 * (0 - fConst10));
-	IOTA = 0;
-	fConst30 = (1e+01 / double(iConst0));
+	fConst29 = (2 * (0 - fConst12));
+	fConst30 = (1e+01 / fConst0);
 	fConst31 = (0 - fConst30);
-	iConst32 = (180 * iConst0);
-	iConst33 = (120 * iConst0);
-	iConst34 = (60 * iConst0);
-	fConst35 = (1.0 / tan((20420.352248333656 / double(iConst0))));
+	fConst32 = (180 * fConst0);
+	fConst33 = (120 * fConst0);
+	fConst34 = (60 * fConst0);
+	fConst35 = (1.0 / tan((20420.352248333656 / fConst0)));
 	fConst36 = (1 + fConst35);
 	fConst37 = (1.0 / (fConst36 * fConst14));
 	fConst38 = (0 - ((1 - fConst35) / fConst36));
 	fConst39 = (0.1 * (fConst1 / fConst3));
+	IOTA = 0;
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
@@ -263,25 +264,25 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow3 = (fConst23 * fSlow2);
 	double 	fSlow4 = (0.5 * fSlow2);
 	double 	fSlow5 = double(fslider3);
-	double 	fSlow6 = (double(iConst32) / fSlow5);
+	double 	fSlow6 = (fConst32 / fSlow5);
 	double 	fSlow7 = double(fcheckbox0);
-	double 	fSlow8 = (double(iConst33) / fSlow5);
+	double 	fSlow8 = (fConst33 / fSlow5);
 	double 	fSlow9 = double(fcheckbox1);
-	double 	fSlow10 = (double(iConst34) / fSlow5);
+	double 	fSlow10 = (fConst34 / fSlow5);
 	double 	fSlow11 = double(fcheckbox2);
 	double 	fSlow12 = double(fslider4);
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((0.993 * fRec0[1]) + fSlow0);
+		fRec0[0] = (fSlow0 + (0.993 * fRec0[1]));
 		double fTemp0 = (0.000257077328090757 * fRec0[0]);
-		fRec2[0] = ((double)input0[i] - (fConst7 * fRec2[1]));
-		fRec3[0] = ((0.993 * fRec3[1]) + fSlow1);
-		double fTemp1 = (fConst8 * ((fRec2[0] * (0 - (0.000275923691873229 * fRec3[0]))) + (0.000275923691873229 * (fRec3[0] * fRec2[1]))));
-		fRec10[0] = ((fConst21 * fRec10[1]) + (fConst20 * (fRec4[1] + fRec4[2])));
+		fRec2[0] = (fSlow1 + (0.993 * fRec2[1]));
+		fRec3[0] = ((double)input0[i] - (fConst7 * fRec3[1]));
+		double fTemp1 = (fConst8 * ((fRec3[0] * (0 - (0.000275923691873229 * fRec2[0]))) + (0.000275923691873229 * (fRec3[1] * fRec2[0]))));
+		fRec10[0] = ((fConst21 * (fRec4[1] + fRec4[2])) + (fConst20 * fRec10[1]));
 		fVec0[0] = (fSlow4 * fRec10[0]);
 		fRec9[0] = ((fConst28 * fRec9[1]) + (fConst27 * ((fConst25 * fVec0[1]) + (fSlow3 * fRec10[0]))));
-		fRec8[0] = ((fRec9[0] + fTemp1) - (fConst17 * ((fConst16 * fRec8[2]) + (fConst11 * fRec8[1]))));
-		fRec7[0] = ((fConst17 * (((fConst10 * fRec8[0]) + (fConst29 * fRec8[1])) + (fConst10 * fRec8[2]))) - (fConst15 * ((fConst13 * fRec7[2]) + (fConst11 * fRec7[1]))));
-		double fTemp2 = (((fConst10 * fRec7[0]) + (fConst29 * fRec7[1])) + (fConst10 * fRec7[2]));
+		fRec8[0] = ((fRec9[0] + fTemp1) - (fConst17 * ((fConst16 * fRec8[2]) + (fConst13 * fRec8[1]))));
+		fRec7[0] = ((fConst17 * ((fConst29 * fRec8[1]) + (fConst12 * (fRec8[2] + fRec8[0])))) - (fConst15 * ((fConst13 * fRec7[1]) + (fConst11 * fRec7[2]))));
+		double fTemp2 = ((fConst29 * fRec7[1]) + (fConst12 * (fRec7[2] + fRec7[0])));
 		fVec1[IOTA&524287] = fTemp2;
 		double fTemp3 = ((int((fRec11[1] != 0.0)))?((int(((fRec12[1] > 0.0) & (fRec12[1] < 1.0))))?fRec11[1]:0):((int(((fRec12[1] == 0.0) & (fSlow6 != fRec13[1]))))?fConst30:((int(((fRec12[1] == 1.0) & (fSlow6 != fRec14[1]))))?fConst31:0)));
 		fRec11[0] = fTemp3;
@@ -301,10 +302,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp6 = (((fSlow11 * (((1.0 - fRec20[0]) * fVec1[(IOTA-int((int(fRec21[0]) & 524287)))&524287]) + (fRec20[0] * fVec1[(IOTA-int((int(fRec22[0]) & 524287)))&524287]))) + (fSlow9 * (((1.0 - fRec16[0]) * fVec1[(IOTA-int((int(fRec17[0]) & 524287)))&524287]) + (fRec16[0] * fVec1[(IOTA-int((int(fRec18[0]) & 524287)))&524287])))) + (fSlow7 * (((1.0 - fRec12[0]) * fVec1[(IOTA-int((int(fRec13[0]) & 524287)))&524287]) + (fRec12[0] * fVec1[(IOTA-int((int(fRec14[0]) & 524287)))&524287]))));
 		fVec2[0] = fTemp6;
 		fRec6[0] = ((fConst38 * fRec6[1]) + (fConst37 * (fVec2[0] + fVec2[1])));
-		fRec5[0] = ((fRec6[0] + (0.995 * fRec5[1])) - fRec6[1]);
+		fRec5[0] = (((0.995 * fRec5[1]) + fRec6[0]) - fRec6[1]);
 		fRec4[0] = (fSlow12 * fRec5[0]);
 		fRec1[0] = ((fRec4[0] + fTemp1) - (fConst4 * fRec1[1]));
-		output0[i] = (FAUSTFLOAT)(fConst39 * ((fRec1[0] * (fTemp0 - 0.000257077328090757)) + (fRec1[1] * (0.000257077328090757 + (0 - fTemp0)))));
+		output0[i] = (FAUSTFLOAT)(fConst39 * ((fRec1[0] * (fTemp0 - 0.000257077328090757)) + (fRec1[1] * (0.000257077328090757 - fTemp0))));
 		// post processing
 		fRec1[1] = fRec1[0];
 		fRec4[2] = fRec4[1]; fRec4[1] = fRec4[0];

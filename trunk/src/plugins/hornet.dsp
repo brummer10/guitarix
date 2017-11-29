@@ -5,22 +5,22 @@ declare name "Hornet";
 declare category "Fuzz";
 declare description "Hornet simulation";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) : clip with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) : clip with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
     clip(x) = 0.4 * (min(0.7514,max(-0.4514,x)));
 
  
-        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
-        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
-        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Fuzz*(Fuzz*Level*pow(fs,3)*(-3.36831187151837e-20*fs - 1.75582214579149e-16) + Level*pow(fs,3)*(9.4649563589667e-21*fs + 4.93386022967413e-17)) + Sustain*(Fuzz*(Fuzz*Level*pow(fs,3)*(2.89798007739403e-18*fs + 1.51064918927987e-14) + Level*pow(fs,3)*(2.28655633153439e-18*fs + 1.19192830048069e-14)) + Level*pow(fs,2)*(fs*(1.45891323583538e-19*fs + 7.40489463150802e-16) - 1.04296301457845e-13)) + Level*pow(fs,2)*(fs*(2.4218162356217e-20*fs + 1.26859583357635e-16) + 3.21091305171869e-15);
 

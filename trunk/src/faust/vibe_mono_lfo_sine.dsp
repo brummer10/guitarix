@@ -1,6 +1,6 @@
 import("guitarix.lib");
-import("oscillator.lib");
+import("stdfaust.lib");
 
-process = oscs(vibe_mono_lfo_ctrl.freq) : scale with {
+process = os.oscs(vibe_mono_lfo_ctrl.freq) : scale with {
     scale = (1 + _) / 2;
 };

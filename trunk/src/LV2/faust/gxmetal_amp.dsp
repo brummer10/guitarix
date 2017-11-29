@@ -1,18 +1,13 @@
-declare id "metal"; // in amp tube selector
+declare id "metal"; // in amp tube ba.selector
 declare name "GxMetal_head";
 
-import("music.lib");
-import("filter.lib");
-import("effect.lib"); 
+import("stdfaust.lib"); 
 import("guitarix.lib");
-
-
 
 tstack = component("tonestack_bm.dsp");
 tone = tstack[tse=tstack.ts.sovtek;];
 
 overdrive(drive,x) = (x*(abs(x) + drive)/(x*x + (drive-1)*abs(x) + 1)) ;
-
 
 sharp = 10.0;
 press = 5 * sharp;
@@ -26,11 +21,11 @@ env = abs : max(1);
 
 compress(env) = level * (1-r)/r
 with {
-	level = env : h ~ _ : linear2db : (_ + press) : max(0)
+	level = env : h ~ _ : ba.linear2db : (_ + press) : max(0)
 	with {
 		h(x,y)  = f*x+(1-f)*y with { f = (x<y)*ga+(x>=y)*gr; };
-		ga      = exp(-1/(SR*attack));
-		gr      = exp(-1/(SR*release));
+		ga      = exp(-1/(ma.SR*attack));
+		gr      = exp(-1/(ma.SR*release));
 	};
 	p = level/(knee+eps) : max(0) : min(1) with { eps = 0.001; };
 	r = 1 - p + p * ratio;
@@ -38,10 +33,10 @@ with {
 
 sharper(x) = g(x) * x
 with {
-	g = env : compress + sharp : db2linear;
+	g = env : compress + sharp : ba.db2linear;
 };
 
-guitarboost = highpass(2,40) : lowpass(2,12000.0) : allpassn(4,(-0.2, 0.3, 0.4, 0.5));
+guitarboost = fi.highpass(2,40) : fi.lowpass(2,12000.0) : fi.allpassn(4,(-0.2, 0.3, 0.4, 0.5));
 
 /****************************************************************
  ** Tube Preamp Emulation stage 1 - 2 
@@ -51,16 +46,16 @@ tubeax(preamp,gain1) =  hgroup("stage1", stage1)  :
                         hgroup("stage2", stage2) 
                         with {
     stage1 = tubestage(TB_12AY7_68k,86.0,2700.0,2.775058) : *(preamp):
-        lowpass(1,6531.0) : tubestage(TB_12AY7_250k,132.0,1500.0,1.954308); 
-    stage2 = lowpass(1,6531.0) : tubestage(TB_12AY7_250k,194.0,820.0,1.264916) : *(gain1) : 
+        fi.lowpass(1,6531.0) : tubestage(TB_12AY7_250k,132.0,1500.0,1.954308); 
+    stage2 = fi.lowpass(1,6531.0) : tubestage(TB_12AY7_250k,194.0,820.0,1.264916) : *(gain1) : 
         tone : sharper<:( tubestageP(TB_EL34_68k,495.0,10.0,3.5e3, 256.0,230.0, 15.743945),
-         tubestageP(TB_EL34_250k,495.0,10.0,3.5e3, 256.0,230.0, 15.743945)):> highpass(2,40) : lowpass(2,12000.0) : *(gain1) ;
+         tubestageP(TB_EL34_250k,495.0,10.0,3.5e3, 256.0,230.0, 15.743945)):> fi.highpass(2,40) : fi.lowpass(2,12000.0) : *(gain1) ;
 };
  //tubestageP(tb,vplus,divider,Rp,fck,Rk,Vk0)
  //tubestage(tb,fck,Rk,Vk0)
 process =  overdrive(drive) : tubeax(preamp,gain1) : div_drive with {
     drive = vslider("drive", 1, 1, 20, 0.1);
-    div_drive = *((drive*-0.4):db2linear : smoothi(0.999));
+    div_drive = *((drive*-0.4):ba.db2linear : smoothi(0.999));
     preamp = ampctrl.preamp;
     gain1 = ampctrl.gain1;
 };

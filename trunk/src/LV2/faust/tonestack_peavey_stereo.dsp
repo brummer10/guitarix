@@ -1,4 +1,4 @@
-declare id "Peavey"; // in tonestack selector
+declare id "Peavey"; // in tonestack ba.selector
 declare name "Peavey";
 
 tstack = component("tonestack.dsp");

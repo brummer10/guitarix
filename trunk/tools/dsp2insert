@@ -192,8 +192,11 @@ class Parser(object):
         if line:
             cp.append(line)
         m = re.compile(exp).match
+        o = re.compile(r"\tint fSamplingFreq;").match
         for line in self.lines:
             if m(line):
+                break
+            if o(line):
                 break
             cp.append(line)
         # remove indentation
@@ -252,7 +255,7 @@ class Parser(object):
 
     def readUI(self, exp):
         stop = re.compile(exp).match
-        pre = r"\s*interface->"
+        pre = r"\s*ui_interface->"
         nm = '"([^"]*)"'
         vr = "([a-zA-Z_][0-9a-zA-Z_]*)"
         sarg = (r"%s,\s*&%s,\s*%s,\s*%s,\s*%s,\s*%s"
@@ -490,7 +493,7 @@ class Parser(object):
         s["includes"] = self.readIncludes(r"  private:")
         #self.skip_until(r"  private:")
         var_decl = self.copy(r"  public:")
-        self.skip_until(r"^\s*static\s+void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
+        self.skip_until(r"^\s*virtual\s+void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
         self.readMeta2(r"\s*}\s*\n$")
         if self.toplevel is None :
             self.toplevel = self.modname
@@ -498,7 +501,11 @@ class Parser(object):
         self.numOutputs = self.getIO("Out")
         self.skip_until(r"\s*static void classInit")
         s["var-init"] = self.copy(r"\s*}$")
-        self.skip_until(r"\s*virtual void instanceInit")
+        self.skip_until(r"\s*virtual void instanceConstants")
+        s["var-init"] += self.copy(r"\s*}$")
+        self.skip_until(r"\s*virtual void instanceResetUserInterface")
+        s["var-init"] += self.copy(r"\s*}$")
+        self.skip_until(r"\s*virtual void instanceClear")
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")

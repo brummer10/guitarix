@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/expander.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace expander {
@@ -7,7 +7,7 @@ namespace expander {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
 	double 	fRec1[2];
@@ -23,6 +23,7 @@ private:
 	FAUSTFLOAT	*fentry1_;
 	FAUSTFLOAT 	fentry2;
 	FAUSTFLOAT	*fentry2_;
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -71,10 +72,10 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = exp((0 - (1e+01 / double(iConst0))));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = exp((0 - (1e+01 / fConst0)));
 	fConst2 = (1 - fConst1);
-	fConst3 = (1.0 / double(iConst0));
+	fConst3 = (1.0 / fConst0);
 	clear_state_f();
 }
 
@@ -98,7 +99,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow5 = (double(fentry2) - 1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec1[0] = ((fConst1 * fRec1[1]) + (fConst2 * fabs(fTemp0)));
+		fRec1[0] = ((fConst2 * fabs(fTemp0)) + (fConst1 * fRec1[1]));
 		double fTemp1 = max(fRec1[0], fTemp0);
 		double fTemp2 = ((fSlow1 * (fRec0[1] < fTemp1)) + (fSlow0 * (fRec0[1] >= fTemp1)));
 		fRec0[0] = ((fRec0[1] * fTemp2) + (fTemp1 * (0 - (fTemp2 - 1))));

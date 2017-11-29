@@ -1,5 +1,5 @@
 // generated from file '../src/faust/gx_ampout.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace gx_ampout {
@@ -9,6 +9,7 @@ private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
 	double 	fRec0[2];
+
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
@@ -74,7 +75,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((0.999 * fRec0[1]) + fSlow0);
+		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		output0[i] = (FAUSTFLOAT)((double)input0[i] * fRec0[0]);
 		// post processing
 		fRec0[1] = fRec0[0];

@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/flanger_mono.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace flanger_mono {
@@ -16,11 +16,12 @@ private:
 	double 	fVec1[2048];
 	FAUSTFLOAT 	fslider2;
 	FAUSTFLOAT	*fslider2_;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fRec1[2];
 	double 	fRec2[2];
 	double 	fRec0[2];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -72,9 +73,9 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (6.283185307179586 / fConst0);
 	IOTA = 0;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (6.283185307179586 / double(iConst0));
 	clear_state_f();
 }
 
@@ -103,10 +104,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec1[IOTA&2047] = fTemp2;
 		fRec1[0] = ((fSlow4 * fRec2[1]) + (fSlow3 * fRec1[1]));
 		fRec2[0] = ((1 + ((fSlow3 * fRec2[1]) + (fSlow5 * fRec1[1]))) - iVec0[1]);
-		double fTemp3 = (iConst0 * (0.001 + (0.005 * (1 + fRec1[0]))));
+		double fTemp3 = (fConst0 * (0.001 + (0.005 * (1 + fRec1[0]))));
 		int iTemp4 = int(fTemp3);
-		int iTemp5 = (1 + iTemp4);
-		fRec0[0] = ((fVec1[(IOTA-int((iTemp4 & 2047)))&2047] * (iTemp5 - fTemp3)) + ((fTemp3 - iTemp4) * fVec1[(IOTA-int((int(iTemp5) & 2047)))&2047]));
+		double fTemp5 = floor(fTemp3);
+		fRec0[0] = ((fVec1[(IOTA-int((iTemp4 & 2047)))&2047] * ((1 + fTemp5) - fTemp3)) + ((fTemp3 - fTemp5) * fVec1[(IOTA-int((int((1 + iTemp4)) & 2047)))&2047]));
 		output0[i] = (FAUSTFLOAT)((fSlow6 * fTemp0) + (0.5 * (fTemp1 - fRec0[0])));
 		// post processing
 		fRec0[1] = fRec0[0];

@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/low_high_pass.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace low_high_pass {
@@ -31,6 +31,7 @@ private:
 	double 	fRec3[3];
 	FAUSTFLOAT 	fcheckbox1;
 	FAUSTFLOAT	*fcheckbox1_;
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -94,7 +95,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (3.141592653589793 / double(min(192000, max(1, fSamplingFreq))));
+	fConst0 = (3.141592653589793 / min(1.92e+05, max(1.0, (double)fSamplingFreq)));
 	clear_state_f();
 }
 
@@ -122,12 +123,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow8 = (0 - ((1 - fSlow4) / fSlow6));
 	int 	iSlow9 = int(double(fcheckbox0));
 	double 	fSlow10 = tan((fConst0 * double(fslider0)));
-	double 	fSlow11 = (2 * (1 - (1.0 / faustpower<2>(fSlow10))));
-	double 	fSlow12 = (1.0 / fSlow10);
-	double 	fSlow13 = (1 + ((fSlow12 - 0.7653668647301795) / fSlow10));
-	double 	fSlow14 = (1.0 / (1 + ((0.7653668647301795 + fSlow12) / fSlow10)));
-	double 	fSlow15 = (1 + ((fSlow12 - 1.8477590650225735) / fSlow10));
-	double 	fSlow16 = (1.0 / (1 + ((1.8477590650225735 + fSlow12) / fSlow10)));
+	double 	fSlow11 = (1.0 / fSlow10);
+	double 	fSlow12 = (1 + ((fSlow11 - 0.7653668647301795) / fSlow10));
+	double 	fSlow13 = (2 * (1 - (1.0 / faustpower<2>(fSlow10))));
+	double 	fSlow14 = (1.0 / (1 + ((0.7653668647301795 + fSlow11) / fSlow10)));
+	double 	fSlow15 = (1 + ((fSlow11 - 1.8477590650225735) / fSlow10));
+	double 	fSlow16 = (1.0 / (1 + ((1.8477590650225735 + fSlow11) / fSlow10)));
 	double 	fSlow17 = (fConst0 * double(fslider1));
 	double 	fSlow18 = (1.0 / (1 + fSlow17));
 	double 	fSlow19 = (1 - fSlow17);
@@ -143,12 +144,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp2 = ((iSlow9)?fRec0[0]:fTemp0);
 		double fTemp3 = (fRec2[0] + fTemp2);
 		fVec2[0] = (fSlow18 * fTemp3);
-		fRec6[0] = ((fSlow18 * (fTemp3 + (fSlow19 * fRec6[1]))) - fVec2[1]);
+		fRec6[0] = ((fSlow18 * ((fSlow19 * fRec6[1]) + fTemp3)) - fVec2[1]);
 		fVec3[0] = (fSlow18 * fRec6[0]);
-		fRec5[0] = ((fSlow18 * (fRec6[0] + (fSlow19 * fRec5[1]))) - fVec3[1]);
-		fRec4[0] = (fRec5[0] - (fSlow16 * ((fSlow15 * fRec4[2]) + (fSlow11 * fRec4[1]))));
-		fRec3[0] = ((fSlow16 * (fRec4[2] + (fRec4[0] + (2 * fRec4[1])))) - (fSlow14 * ((fSlow13 * fRec3[2]) + (fSlow11 * fRec3[1]))));
-		output0[i] = (FAUSTFLOAT)((iSlow20)?(fSlow14 * (fRec3[2] + (fRec3[0] + (2 * fRec3[1])))):fTemp2);
+		fRec5[0] = ((fSlow18 * ((fSlow19 * fRec5[1]) + fRec6[0])) - fVec3[1]);
+		fRec4[0] = (fRec5[0] - (fSlow16 * ((fSlow15 * fRec4[2]) + (fSlow13 * fRec4[1]))));
+		fRec3[0] = ((fSlow16 * (fRec4[0] + (fRec4[2] + (2 * fRec4[1])))) - (fSlow14 * ((fSlow13 * fRec3[1]) + (fSlow12 * fRec3[2]))));
+		output0[i] = (FAUSTFLOAT)((iSlow20)?(fSlow14 * (fRec3[0] + (fRec3[2] + (2 * fRec3[1])))):fTemp2);
 		// post processing
 		fRec3[2] = fRec3[1]; fRec3[1] = fRec3[0];
 		fRec4[2] = fRec4[1]; fRec4[1] = fRec4[0];

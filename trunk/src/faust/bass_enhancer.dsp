@@ -10,12 +10,11 @@ declare category "Misc";
 //Audio lab, DM R&D Center, Samsung Electronics co. Ltd, Suwon, South Korea
 //------------------------------------
 
-import("filter.lib");
-import("effect.lib");
+import("stdfaust.lib");
 
 //Controls
 lp_freq = hslider("Frequency",100,60,240,5);
-harmonics_volume = hslider("HarmonicsdB[name:Harmonics]",0, -16, +32, 0.1): db2linear : smooth(0.999);
+harmonics_volume = hslider("HarmonicsdB[name:Harmonics]",0, -16, +32, 0.1): ba.db2linear : si.smooth(0.999);
 
 //Can be moved to .lib
 X = (_,_)<:(!,_,_,!);
@@ -32,7 +31,7 @@ nld1(a,b) = _<:(_,_,X,_,_:_,X,_,_,_:((get_const(a,b):1-_),_,get_const(a,b),_):(_
 
 process = _,_<:hp_branch,(_,_:>lp_branch<:_,_),(_,_:>be_branch<:_,_),hp_branch:>_,_ 
 with {
-	hp_branch = dcblockerat(20) : highpass(8, lp_freq);
-	lp_branch = dcblockerat(20) : lowpass(8,lp_freq);
-	be_branch = lowpass(8,lp_freq) : nld1(harm1,harm2) : _*harmonics_volume; 
+	hp_branch = fi.dcblockerat(20) : fi.highpass(8, lp_freq);
+	lp_branch = fi.dcblockerat(20) : fi.lowpass(8,lp_freq);
+	be_branch = fi.lowpass(8,lp_freq) : nld1(harm1,harm2) : _*harmonics_volume; 
 };

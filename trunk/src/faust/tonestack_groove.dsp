@@ -1,4 +1,4 @@
-declare id "Trio Preamp"; // in tonestack selector
+declare id "Trio Preamp"; // in tonestack ba.selector
 declare name "Trio Preamp Style";
 
 tstack = component("tonestack.dsp");

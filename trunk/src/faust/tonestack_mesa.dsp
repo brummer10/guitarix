@@ -1,4 +1,4 @@
-declare id "Mesa Boogie"; // in tonestack selector
+declare id "Mesa Boogie"; // in tonestack ba.selector
 declare name "Mesa Boogie Style";
 
 tstack = component("tonestack.dsp");

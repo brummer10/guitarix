@@ -15,8 +15,7 @@
 //depth - as is
 //------------------------------------
 
-import("math.lib");
-import("oscillator.lib");
+import("stdfaust.lib");
 
 steps = hslider("Steps", 4, 1, 4, 1);
 sw_freq = hslider("Switch Freq", 1, 0.25, 5, 0.25);
@@ -30,9 +29,7 @@ in_range(min_val, max_val, x) = x>min_val,x<=max_val:*:_;
 
 N = 4;
 freqs = (freq0, freq1, freq2, freq3);
-process = (par(i,N,osc(take(i+1,freqs))),
-	(lf_sawpos(sw_freq)<:par(i,N,in_range(i/steps,(i+1)/steps):
-	smooth(tau2pole(0.05))))),_:
-	(dot(N):_*depth:_+1:_-depth),_:_*_:_;
-
-
+process = (par(i,N,os.osc(ba.take(i+1,freqs))),
+	(os.lf_sawpos(sw_freq)<:par(i,N,in_range(i/steps,(i+1)/steps):
+	si.smooth(ba.tau2pole(0.05))))),_:
+	(si.dot(N):_*depth:_+1:_-depth),_:_*_:_;

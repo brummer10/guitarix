@@ -8,8 +8,7 @@ declare gladefile "tremolo_ui.glade";
 ** http://transmogrifox.webs.com/vactrol.m
 */
 
-import("music.lib");
-import("oscillator.lib");
+import("stdfaust.lib");
 
 /* vactrol model */
 
@@ -26,28 +25,27 @@ dTC = 0.06;
 minTC = log(0.005/dTC);
 
 cds = ((_ <: _,_),_ : _+(1-alpha)*_) ~ (_<:*(alpha)) with {
-    iSR = 1/SR;
+    iSR = 1/ma.SR;
     dRC = dTC * exp(*(minTC));
     alpha = 1 - iSR / (dRC + iSR);
 };
 
 vactrol = pow(_,1.9) : cds : *(b) + exp(1) : exp(log(Ra)/log) : R1/(_ + R1);
 
-
-/* triangle oscillator (not bandlimited, frequency is approximate) */
+/* os.triangle oscillator (not bandlimited, frequency is approximate) */
 
 trianglewave(freq) = _ ~ (_ <: _ + hyst) : /(periodsamps) with {
-    if(c,t,e) = select2(c,e,t);
+   if(c,t,e) = select2(c,e,t);
     hyst(x) = if(_ > 0, 2 * (x < periodsamps) - 1, 1 - 2 * (x > 0)) ~ _;
-    periodsamps = int(SR / (2*float(freq)));
+    periodsamps = int(ma.SR / (2*float(freq)));
 };
 
-/* tremolo unit, using triangle or sine oscillator as lfo */
+/* tremolo unit, using os.triangle or sine oscillator as lfo */
 
 tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
-    sine(freq) = (oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy
-    SINE=checkbox("SINE[enum:triangle|sine|square]");
-    lfo = select3(SINE, trianglewave(freq), sine(freq), lf_squarewavepos(freq));
+    sine(freq) = (os.oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy
+    SINE=checkbox("SINE[enum:os.triangle|sine|os.square]");
+    lfo = select3(SINE, trianglewave(freq), sine(freq), os.lf_squarewavepos(freq));
 };
 
 wet = vslider("wet_dry[name:Dry/Wet][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);

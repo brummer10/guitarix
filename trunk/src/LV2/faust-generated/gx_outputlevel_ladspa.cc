@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_outputlevel_ladspa.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace gx_outputlevel_ladspa {
@@ -12,6 +12,7 @@ private:
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
 	double 	fRec0[2];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -78,7 +79,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 #define fslider1 (*fslider1_)
 	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * (double(fslider1) + double(fslider0)))));
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((0.999 * fRec0[1]) + fSlow0);
+		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		output0[i] = (FAUSTFLOAT)((double)input0[i] * fRec0[0]);
 		output1[i] = (FAUSTFLOAT)((double)input1[i] * fRec0[0]);
 		// post processing

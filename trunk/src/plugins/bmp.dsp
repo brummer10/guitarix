@@ -7,14 +7,13 @@ declare shortname "BMP";
 declare description "BigMuffPi";
 declare samplerate "96000";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-
-bpmin = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+bpmin = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
@@ -31,15 +30,15 @@ bpmin = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = -2.08287704934496e-5*fs + 0.000219016314271736;
 };
 
-bpmamp1 = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+bpmamp1 = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Sustain = vslider("Sustain[name:Sustain]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Sustain*fs*(2.26293387153501e-12*fs - 1.17905906929765e-5) + fs*(2.26293387153501e-14*fs - 1.17905906929765e-7);
 
@@ -54,11 +53,11 @@ bpmamp1 = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = Sustain*(Sustain*fs*(-1.13446519814126e-9*fs + 2.89110812782566e-6) + fs*(1.12312054615984e-9*fs - 2.8621970465474e-6)) + fs*(1.2821120020393e-10*fs - 6.26521815410076e-7) + 0.000146000960455196;
 };
 
-bpmamp2 = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+bpmamp2 = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
@@ -75,15 +74,15 @@ bpmamp2 = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = fs*(3.920487958595e-10*fs - 2.00478727462711e-6) + 0.000489785157611555;
 };
 
-bpmtone = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+bpmtone = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Tone = vslider("Tone[name:Tone]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = Tone*(3.68688858465455e-10*pow(fs,2) - 0.00316091270975185) + 8.67101574539126e-7*fs + 0.00401435914138484;
 
@@ -98,15 +97,15 @@ bpmtone = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = fs*(3.68688858465455e-10*fs - 3.03485551088694e-6) + 0.00486780557301784;
 };
 
-bpmout = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+bpmout = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Volume = vslider("Volume[name:Volume]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = -1.74325899023428e-9*Volume*pow(fs,2);
 
@@ -121,11 +120,11 @@ bpmout = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = fs*(4.33884681055068e-10*fs - 6.86809013445937e-9) + 2.65226702159437e-8;
 };
 
-antialiasing = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+antialiasing = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
@@ -152,6 +151,6 @@ antialiasing = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a
 
     symclip = ffunction(float symclip(float), "clipping.h", "");
     sclip = symclip(_);
-    clip(x) = atan(x)/PI;
+    clip(x) = atan(x)/ma.PI;
 
 process = bpmin : bpmamp1 : clip  : bpmamp2 : sclip  : bpmtone : bpmout;

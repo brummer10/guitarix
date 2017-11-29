@@ -7,31 +7,31 @@ declare category "Modulation";
 declare author "Albert Graef";
 declare version "1.0";
 
-import("music.lib");
+import("stdfaust.lib");
 
 level	= hslider("level", 0.5, 0, 1, 0.01);
 freq	= hslider("freq", 3, 0, 10, 0.01);
-dtime	= hslider("delay", 0.02, 0, 0.2, 0.01);
+dtime	= hslider("de.delay", 0.02, 0, 0.2, 0.01);
 depth	= hslider("depth", 0.02, 0, 1, 0.01);
 
 tblosc(n,f,freq,mod)	= (1-d)*rdtable(n,wform,i&(n-1)) +
 			  d*rdtable(n,wform,(i+1)&(n-1))
 with {
-	wform 	= time*(2.0*PI)/n : f;
-	phase		= freq/SR : (+ : decimal) ~ _;
-	modphase	= decimal(phase+mod/(2*PI))*n;
+	wform 	= ba.time*(2.0*ma.PI)/n : f;
+	phase		= freq/ma.SR : (+ : ma.decimal) ~ _;
+	modphase	= ma.decimal(phase+mod/(2*ma.PI))*n;
 	i		= int(floor(modphase));
-	d		= decimal(modphase);
+	d		= ma.decimal(modphase);
 };
 
 chorus(dtime,freq,depth,phase,x)
-			= x+level*fdelay(1<<16, t, x)
+			= x+level*de.fdelay(1<<16, t, x)
 with {
-	t		= SR*dtime/2*(1+depth*tblosc(1<<16, sin, freq, phase));
+	t		= ma.SR*dtime/2*(1+depth*tblosc(1<<16, sin, freq, phase));
 };
 
 process			= vgroup("chorus", (left, right))
 with {
 	left		= chorus(dtime,freq,depth,0);
-	right		= chorus(dtime,freq,depth,PI/2);
+	right		= chorus(dtime,freq,depth,ma.PI/2);
 };

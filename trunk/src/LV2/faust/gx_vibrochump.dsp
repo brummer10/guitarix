@@ -1,15 +1,10 @@
-declare id "Redeye Vibro Chump"; // in amp tube selector
+declare id "Redeye Vibro Chump"; // in amp tube ba.selector
 declare name "Redeye Vibro Chumo";
 declare category "Amplifier";
 
-import("music.lib");
-import("filter.lib");
-import("oscillator.lib");
-import("effect.lib"); 
+import("stdfaust.lib");
 import("guitarix.lib");
 import("redeye.lib");
-
-
 
 /****************************************************************
  ** Tube Preamp Emulation stage 1 - 2 
@@ -19,7 +14,7 @@ import("redeye.lib");
 **    pot controls the amount of cut 0 > -70dB 
 **    If feedback loop is inverted get mad distortion and feedback!
 **   With no inversion get required effect so guess the combination 
-**  of filter and processing delay may be shifting phase some
+**  of filter and processing de.delay may be shifting phase some
 **
 ** To do :
 **	Play with amp structure say a champ clone
@@ -45,40 +40,35 @@ dTC = 0.06;
 minTC = log(0.005/dTC);
 
 cds = ((_ <: _,_),_ : _+(1-alpha)*_) ~ (_<:*(alpha)) with {
-    iSR = 1/SR;
+    iSR = 1/ma.SR;
     dRC = dTC * exp(*(minTC));
     alpha = 1 - iSR / (dRC + iSR);
 };
 
 vactrol = pow(_,1.9) : cds : *(b) + exp(1) : exp(log(Ra)/log) : R1/(_ + R1);
 
-
-/* triangle oscillator (not bandlimited, frequency is approximate) */
+/* os.triangle oscillator (not bandlimited, frequency is approximate) */
 
 trianglewave(freq) = _ ~ (_ <: _ + hyst) : /(periodsamps) with {
     if(c,t,e) = select2(c,e,t);
     hyst(x) = if(_ > 0, 2 * (x < periodsamps) - 1, 1 - 2 * (x > 0)) ~ _;
-    periodsamps = int(SR / (2*float(freq)));
+    periodsamps = int(ma.SR / (2*float(freq)));
 };
-
-
-
-
 
 process = chumpPreamp:*(0.1):poweramp:transformer:*(volume) with{
 
 	volume =  hgroup( "Amp",vslider("Volume[alias][style:knob]",0.5,0,1,0.01):smoothi(0.999) );
 	poweramp = *(vibe):tubestage(TB_6V6_250k,120.0,820.0,1.130462) ;
-	transformer = lowpass( 1, 5500 ):highpass( 1, 120) ;
+	transformer = fi.lowpass( 1, 5500 ):fi.highpass( 1, 120) ;
 	
 	// Tremelo effect
 
-/* tremolo unit, using triangle or sine oscillator as lfo */
+/* tremolo unit, using os.triangle or sine oscillator as lfo */
 
 tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
-    sine(freq) = (oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy
+    sine(freq) = (os.oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy
 
-    SINE=hgroup( "Tremelo",checkbox("SINEWAVE[3][enum:triangle|sine]") );
+    SINE=hgroup( "Tremelo",checkbox("SINEWAVE[3][enum:os.triangle|sine]") );
     
     lfo = select2(SINE, trianglewave(freq), sine(freq));
 };
@@ -91,4 +81,3 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
 
 	
 };
-

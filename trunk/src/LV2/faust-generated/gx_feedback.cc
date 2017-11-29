@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_feedback.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace gx_feedback {
@@ -12,6 +12,7 @@ private:
 	FAUSTFLOAT 	fslider1;
 	FAUSTFLOAT	*fslider1_;
 	double 	fRec0[6];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -71,13 +72,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
-	double 	fSlow0 = (0.01 * double(fslider0));
-	double 	fSlow1 = (1 - fSlow0);
-	double 	fSlow2 = double(fslider1);
+	double 	fSlow0 = double(fslider0);
+	double 	fSlow1 = (0.01 * double(fslider1));
+	double 	fSlow2 = (1 - fSlow1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec0[0] = ((fSlow0 * fTemp0) - (fSlow2 * fRec0[5]));
-		output0[i] = (FAUSTFLOAT)(fRec0[0] + (fSlow1 * fTemp0));
+		fRec0[0] = ((fSlow1 * fTemp0) - (fSlow0 * fRec0[5]));
+		output0[i] = (FAUSTFLOAT)((fSlow2 * fTemp0) + fRec0[0]);
 		// post processing
 		for (int i=5; i>0; i--) fRec0[i] = fRec0[i-1];
 	}
@@ -96,10 +97,10 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case FEEDBACK: 
-		fslider1_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
+		fslider0_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
 		break;
 	case WET_DRY: 
-		fslider0_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
+		fslider1_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
 		break;
 	default:
 		break;

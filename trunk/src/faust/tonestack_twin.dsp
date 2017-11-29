@@ -1,4 +1,4 @@
-declare id "Twin Reverb"; // in tonestack selector
+declare id "Twin Reverb"; // in tonestack ba.selector
 declare name "Twin Reverb Style";
 
 tstack = component("tonestack.dsp");

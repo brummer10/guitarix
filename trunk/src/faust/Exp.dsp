@@ -1,6 +1,5 @@
-import("music.lib");
-import("filter.lib");
-import("effect.lib"); 
+
+import("stdfaust.lib"); 
 import("guitarix.lib");
 
 /****************************************************************
@@ -12,7 +11,7 @@ distort(x) = x : *(pregain) : (+ : flt : BP(vtu) : flt) ~ *(back) : gain with
 {
     back = vslider("FB",0.95,0.6,0.99,0.001);
     mapper(v) = 1 - 19.7 * v * v;
-    flt(x) = +(x - x') ~ *(mapper(vslider("FreqT", 1250, 200, 3000, 1)/SR));
+    flt(x) = +(x - x') ~ *(mapper(vslider("FreqT", 1250, 200, 3000, 1)/ma.SR));
     vtu(x) = valve.vtu_(dist, q, g, x);
     g = vslider("Duty", 0, -1.0, 1.0, 0.01) : *(1-log(2)) : +(1);
     q = vslider("Qual", 0.5, 0, 1, 0.01)*1.75 - 1.04 : pow(_, 9);
@@ -58,7 +57,7 @@ process = hgroup("2 Tube",
 // time depending on input
 meter = _ <: (graph*1e-50,_) :> _ with {
     t = 0.05;
-    g = exp(-1/(SR*t));
+    g = exp(-1/(ma.SR*t));
     env = abs : *(1-g) : + ~ *(g);
     graph = env : 20*log10 :  clip(-20,20) : vbargraph("ENV",-20,20);
 };

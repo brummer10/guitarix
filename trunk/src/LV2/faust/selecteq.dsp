@@ -4,13 +4,10 @@ declare category        "Tone Control";
 declare license 	"BSD";
 declare copyright 	"(c)GRAME 2006";
 
-import("math.lib");
-import("music.lib");
+import("stdfaust.lib");
 import("guitarix.lib");
 
-
 //------------------------- Process --------------------------------
-
 
 process =   ifilter(vslider("Qs31_25", 50, 1, 100, 1),   vslider("freq31_25 [tooltip:Hz]",31, 20, 20000, 1), vslider("fs31_25[tooltip:gain (dB) at 31.25 Hz]", 0, -50, 10, 0.1))
           : ifilter(vslider("Qs62_5", 50, 1, 100, 1),   vslider("freq62_5 [tooltip:Hz]",62, 20, 20000, 1),  vslider("fs62_5 [tooltip:gain (dB) at 62.5 Hz]", 0, -50, 10, 0.1))

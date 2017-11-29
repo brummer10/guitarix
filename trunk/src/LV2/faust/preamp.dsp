@@ -1,5 +1,6 @@
 //declare name 		"preamp";
 
+import("stdfaust.lib");
 import("guitarix.lib");
 
 fatan = vslider("atan[name:drive][tooltip:Input level for pre-amp (higher level gives more distortion)]", 1, 1, 10, 1);

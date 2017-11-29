@@ -4,19 +4,19 @@ declare id "w20";
 declare name "Westbury W-20";
 declare category "External";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)):*(0.1) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)):*(0.1) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-                Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+                Gain = vslider("Gain[name:Gain]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
-                Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : smooth(s);
+                Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
             
     b0 = Gain*fs*(fs*(fs*(1.33767398764352e-28*fs + 8.4883795584658e-24) + 3.1080196209939e-20) + 1.15566670466208e-17) + Level*(Gain*Level*pow(fs,2)*(fs*(fs*(-4.25008767113306e-21*fs - 6.43954751474457e-20) - 6.76918055130131e-24) + 1.20590256422748e-34) + Gain*fs*(fs*(fs*(fs*(4.25008767113306e-21*fs + 2.1314833830679e-17) + 3.21977374686867e-16) + 8.4212352539407e-21) - 5.4813752919431e-32));
 

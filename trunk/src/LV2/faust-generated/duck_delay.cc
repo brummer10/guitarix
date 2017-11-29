@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/duck_delay.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace duck_delay {
@@ -9,7 +9,7 @@ private:
 	uint32_t fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fRec2[2];
 	FAUSTFLOAT 	fslider1;
@@ -29,6 +29,7 @@ private:
 	double 	fRec4[2];
 	double 	fConst4;
 	double 	fRec3[2];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -81,12 +82,12 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / double(iConst0));
-	fConst2 = exp((0 - (1e+01 / double(iConst0))));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (1.0 / fConst0);
+	fConst2 = exp((0 - (1e+01 / fConst0)));
 	fConst3 = (1.0 - fConst2);
+	fConst4 = (0.001 * fConst0);
 	IOTA = 0;
-	fConst4 = (0.001 * iConst0);
 	clear_state_f();
 }
 
@@ -112,7 +113,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		double fTemp1 = fabs(fTemp0);
-		fRec2[0] = max(fTemp1, ((fSlow0 * fRec2[1]) + (fSlow1 * fTemp1)));
+		fRec2[0] = max(fTemp1, ((fSlow1 * fTemp1) + (fSlow0 * fRec2[1])));
 		fRec1[0] = ((fSlow2 * fRec1[1]) + (fSlow3 * fRec2[0]));
 		fRec0[0] = ((fConst2 * fRec0[1]) + (fConst3 * (1 - ((fSlow4 * fRec1[0]) > 1))));
 		double fTemp2 = (fTemp0 + (fSlow5 * fRec3[1]));
@@ -120,8 +121,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec4[0] = (fSlow6 + (fConst2 * fRec4[1]));
 		double fTemp3 = (fConst4 * fRec4[0]);
 		int iTemp4 = int(fTemp3);
-		int iTemp5 = (1 + iTemp4);
-		fRec3[0] = ((fVec0[(IOTA-int((iTemp4 & 393215)))&524287] * (iTemp5 - fTemp3)) + ((fTemp3 - iTemp4) * fVec0[(IOTA-int((int(iTemp5) & 393215)))&524287]));
+		double fTemp5 = floor(fTemp3);
+		fRec3[0] = ((fVec0[(IOTA-int((iTemp4 & 393215)))&524287] * ((1 + fTemp5) - fTemp3)) + ((fTemp3 - fTemp5) * fVec0[(IOTA-int((int((1 + iTemp4)) & 393215)))&524287]));
 		output0[i] = (FAUSTFLOAT)(fTemp0 + (fRec3[0] * fRec0[0]));
 		// post processing
 		fRec3[1] = fRec3[0];

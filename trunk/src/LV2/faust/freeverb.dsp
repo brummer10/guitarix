@@ -6,10 +6,7 @@ declare author 		"brummer";
 declare license 	"BSD";
 declare copyright 	"(c)brummer 2008";
 
-import("math.lib");
-import("music.lib");
-import("effect.lib"); 
-import("filter.lib");
+import("stdfaust.lib");
 
 import("guitarix.lib");
 

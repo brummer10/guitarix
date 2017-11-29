@@ -1,5 +1,5 @@
 // generated from file '../src/faust/compressor.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace compressor {
@@ -7,21 +7,22 @@ namespace compressor {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
-	FAUSTFLOAT 	fentry0;
-	FAUSTFLOAT 	fentry1;
 	double 	fConst2;
 	double 	fConst3;
 	double 	fRec5[2];
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT 	fslider1;
 	double 	fRec4[2];
+	FAUSTFLOAT 	fentry0;
+	FAUSTFLOAT 	fentry1;
 	FAUSTFLOAT 	fentry2;
 	double 	fRec0[2];
 	int 	iRec1[2];
 	double 	fRec2[2];
 	FAUSTFLOAT 	fbargraph0;
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -82,9 +83,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = (1.0 / double(iConst0));
-	fConst2 = exp((0 - (1e+01 / double(iConst0))));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = (1.0 / fConst0);
+	fConst2 = exp((0 - (1e+01 / fConst0)));
 	fConst3 = (1 - fConst2);
 	clear_state_f();
 }
@@ -96,18 +97,18 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = double(fentry1);
-	double 	fSlow1 = (fSlow0 - double(fentry0));
-	double 	fSlow2 = exp((0 - (fConst1 / max(fConst1, double(fslider0)))));
-	double 	fSlow3 = exp((0 - (fConst1 / max(fConst1, double(fslider1)))));
-	double 	fSlow4 = (1.0 / (0.001 + fSlow0));
+	double 	fSlow0 = exp((0 - (fConst1 / max(fConst1, double(fslider0)))));
+	double 	fSlow1 = exp((0 - (fConst1 / max(fConst1, double(fslider1)))));
+	double 	fSlow2 = double(fentry1);
+	double 	fSlow3 = (fSlow2 - double(fentry0));
+	double 	fSlow4 = (1.0 / (0.001 + fSlow2));
 	double 	fSlow5 = (double(fentry2) - 1);
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
-		fRec5[0] = ((fConst2 * fRec5[1]) + (fConst3 * fabs((fTemp0 + 1e-20))));
-		double fTemp1 = ((fSlow3 * (fRec4[1] < fRec5[0])) + (fSlow2 * (fRec4[1] >= fRec5[0])));
+		fRec5[0] = ((fConst3 * fabs((fTemp0 + 1e-20))) + (fConst2 * fRec5[1]));
+		double fTemp1 = ((fSlow1 * (fRec4[1] < fRec5[0])) + (fSlow0 * (fRec4[1] >= fRec5[0])));
 		fRec4[0] = ((fRec4[1] * fTemp1) + (fRec5[0] * (0 - (fTemp1 - 1))));
-		double fTemp2 = max((double)0, ((20 * log10(fRec4[0])) + fSlow1));
+		double fTemp2 = max((double)0, (fSlow3 + (20 * log10(fRec4[0]))));
 		double fTemp3 = (fSlow5 * min((double)1, max((double)0, (fSlow4 * fTemp2))));
 		double fTemp4 = ((fTemp2 * (0 - fTemp3)) / (1 + fTemp3));
 		double 	fRec3 = max(fConst1, fabs(fTemp4));

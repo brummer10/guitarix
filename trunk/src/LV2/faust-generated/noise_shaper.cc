@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/noise_shaper.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace noise_shaper {
@@ -7,12 +7,13 @@ namespace noise_shaper {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	int 	iConst0;
+	double 	fConst0;
 	double 	fConst1;
 	double 	fConst2;
 	double 	fRec0[2];
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -60,9 +61,9 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
-	fConst1 = exp((0 - (0.1 / double(iConst0))));
-	fConst2 = exp((0 - (2e+02 / double(iConst0))));
+	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst1 = exp((0 - (0.1 / fConst0)));
+	fConst2 = exp((0 - (2e+02 / fConst0)));
 	clear_state_f();
 }
 

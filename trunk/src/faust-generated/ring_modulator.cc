@@ -1,5 +1,5 @@
 // generated from file '../src/faust/ring_modulator.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace ring_modulator {
@@ -7,31 +7,13 @@ namespace ring_modulator {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	class SIG0 {
-	  private:
-		int 	fSamplingFreq;
-		int 	iRec0[2];
-	  public:
-		int getNumInputs() 	{ return 0; }
-		int getNumOutputs() 	{ return 1; }
-		void init(int samplingFreq) {
-			fSamplingFreq = samplingFreq;
-			for (int i=0; i<2; i++) iRec0[i] = 0;
-		}
-		void fill (int count, double output[]) {
-			for (int i=0; i<count; i++) {
-				iRec0[0] = (1 + iRec0[1]);
-				output[i] = sin((9.587379924285257e-05 * double((iRec0[0] - 1))));
-				// post processing
-				iRec0[1] = iRec0[0];
-			}
-		}
-	};
-			static double 	ftbl0[65536];
+	int 	iVec0[2];
 	FAUSTFLOAT 	fslider0;
 	double 	fConst0;
+	double 	fRec0[2];
 	double 	fRec1[2];
 	FAUSTFLOAT 	fslider1;
+
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
@@ -51,7 +33,6 @@ public:
 };
 
 
-double Dsp::ftbl0[65536];
 
 Dsp::Dsp()
 	: PluginDef() {
@@ -78,6 +59,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
+	for (int i=0; i<2; i++) iVec0[i] = 0;
+	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 }
 
@@ -88,11 +71,8 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int samplingFreq)
 {
-	SIG0 sig0;
-	sig0.init(samplingFreq);
-	sig0.fill(65536,ftbl0);
 	fSamplingFreq = samplingFreq;
-	fConst0 = (1.0 / double(min(192000, max(1, fSamplingFreq))));
+	fConst0 = (6.283185307179586 / min(1.92e+05, max(1.0, (double)fSamplingFreq)));
 	clear_state_f();
 }
 
@@ -104,19 +84,22 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double 	fSlow0 = (fConst0 * double(fslider0));
-	double 	fSlow1 = double(fslider1);
-	double 	fSlow2 = (1 - fSlow1);
+	double 	fSlow1 = cos(fSlow0);
+	double 	fSlow2 = sin(fSlow0);
+	double 	fSlow3 = (0 - fSlow2);
+	double 	fSlow4 = double(fslider1);
 	for (int i=0; i<count; i++) {
-		double fTemp0 = (fRec1[1] + fSlow0);
-		fRec1[0] = (fTemp0 - floor(fTemp0));
-		output0[i] = (FAUSTFLOAT)((double)input0[i] * (fSlow2 + (fSlow1 * ftbl0[int((65536.0 * fRec1[0]))])));
+		iVec0[0] = 1;
+		fRec0[0] = ((fSlow2 * fRec1[1]) + (fSlow1 * fRec0[1]));
+		fRec1[0] = ((1 + ((fSlow1 * fRec1[1]) + (fSlow3 * fRec0[1]))) - iVec0[1]);
+		output0[i] = (FAUSTFLOAT)((double)input0[i] * (1 + (fSlow4 * (fRec0[0] - 1))));
 		// post processing
 		fRec1[1] = fRec1[0];
+		fRec0[1] = fRec0[0];
+		iVec0[1] = iVec0[0];
 	}
 }
-	
-	
-
+		
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);

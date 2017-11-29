@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gx_ampout_ladspa.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace gx_ampout_ladspa {
@@ -14,6 +14,7 @@ private:
 	FAUSTFLOAT 	fcheckbox0;
 	FAUSTFLOAT	*fcheckbox0_;
 	double 	fRec0[2];
+
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t samplingFreq);
@@ -82,7 +83,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow0 = double(fslider0);
 	double 	fSlow1 = (0.0010000000000000009 * pow(10,(0.05 * ((int(double(fcheckbox0)))?(fSlow0 + double(fslider1)):fSlow0))));
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((0.999 * fRec0[1]) + fSlow1);
+		fRec0[0] = (fSlow1 + (0.999 * fRec0[1]));
 		output0[i] = (FAUSTFLOAT)((double)input0[i] * fRec0[0]);
 		// post processing
 		fRec0[1] = fRec0[0];

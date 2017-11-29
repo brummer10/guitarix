@@ -2,7 +2,7 @@ declare id     "amp.bass_boost";
 declare name   "Bassbooster";
 declare groups ".bassbooster[Bassbooster]";
 
-import("filter.lib");
+import("stdfaust.lib");
 
 //------------------------------------------------------------------
 // DAFX, Digital Audio Effects (Wiley ed.)
@@ -11,10 +11,10 @@ import("filter.lib");
 // page 53 : second order shelving filter design
 //------------------------------------------------------------------
 
-lfboost(F,G) = tf2(b0,b1,b2,a0,a1)
+lfboost(F,G) = fi.tf2(b0,b1,b2,a0,a1)
 with {
-  V = db2linear(G);
-  K = tan(PI*F/SR);
+  V = ba.db2linear(G);
+  K = tan(ma.PI*F/ma.SR);
   D = 1 + sqrt(2)*K + K*K;
 
   b0 = (1 + sqrt(2*V)*K + V*K*K) / D;
@@ -23,5 +23,5 @@ with {
   a0 = 2 * (K*K - 1) / D;
   a1 = (1 - sqrt(2)*K + K*K) / D;
 };
-level = vslider(".bassbooster.Level", 10, 0.5, 20, 0.5) : smooth(0.9999); 
+level = vslider(".bassbooster.Level", 10, 0.5, 20, 0.5) : si.smooth(0.9999); 
 process = lfboost(120, level);

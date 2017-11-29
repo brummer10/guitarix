@@ -4,9 +4,7 @@ declare shortname "MB Comp St";
 declare category "Guitar Effects";
 declare description "Multi Band Compressor contributed by kokoko3k";
 
-import("effect.lib");
-import("filter.lib");
-import("music.lib");
+import("stdfaust.lib");
 import("reduce.lib");
 
 sel1         = hslider("Mode1[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
@@ -36,24 +34,23 @@ vmeter3(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v3[nomidi:no][tool
 vmeter4(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v4[nomidi:no][tooltip: Sum of Band4 ]", -70, +5)),y;
 vmeter5(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v5[nomidi:no][tooltip: Sum of Band5 ]", -70, +5)),y;
 
-envelop         = _ : max ~ (1.0/SR) : reduce(max,4096) : *(0.5); // : max(db2linear(-70)) : linear2db;
+envelop         = _ : max ~ (1.0/ma.SR) : reduce(max,4096) : *(0.5); // : max(ba.db2linear(-70)) : ba.linear2db;
 
 //Stereo 
 process =   (_,_):geqs: ( gcomp5s , gcomp4s , gcomp3s, gcomp2s, gcomp1s) :>(_,_) with { 
-gcomp1s = bypass2(bswitch1,compressor_stereo(ratio1,-push1,attack1,release1)):*(Makeup1),*(Makeup1) : vmeter1;
-gcomp2s = bypass2(bswitch2,compressor_stereo(ratio2,-push2,attack2,release2)):*(Makeup2),*(Makeup2) : vmeter2;
-gcomp3s = bypass2(bswitch3,compressor_stereo(ratio3,-push3,attack3,release3)):*(Makeup3),*(Makeup3) : vmeter3;
-gcomp4s = bypass2(bswitch4,compressor_stereo(ratio4,-push4,attack4,release4)):*(Makeup4),*(Makeup4) : vmeter4;
-gcomp5s = bypass2(bswitch5,compressor_stereo(ratio5,-push5,attack5,release5)):*(Makeup5),*(Makeup5) : vmeter5;
+gcomp1s = ba.bypass2(bswitch1,co.compressor_stereo(ratio1,-push1,attack1,release1)):*(Makeup1),*(Makeup1) : vmeter1;
+gcomp2s = ba.bypass2(bswitch2,co.compressor_stereo(ratio2,-push2,attack2,release2)):*(Makeup2),*(Makeup2) : vmeter2;
+gcomp3s = ba.bypass2(bswitch3,co.compressor_stereo(ratio3,-push3,attack3,release3)):*(Makeup3),*(Makeup3) : vmeter3;
+gcomp4s = ba.bypass2(bswitch4,co.compressor_stereo(ratio4,-push4,attack4,release4)):*(Makeup4),*(Makeup4) : vmeter4;
+gcomp5s = ba.bypass2(bswitch5,co.compressor_stereo(ratio5,-push5,attack5,release5)):*(Makeup5),*(Makeup5) : vmeter5;
 };
 
+hifr1			=hslider("crossover_b1_b2 [log][name:Crossover B1-B2 (hz)][tooltip: Crossover fi.bandpass frequency]" ,80 , 20, 20000, 1.08);
+hifr2			=hslider("crossover_b2_b3 [log][name:Crossover B2-B3 (hz)][tooltip: Crossover fi.bandpass frequency]",210,20,20000,1.08);
+hifr3			=hslider("crossover_b3_b4 [log][name:Crossover B3-B4 (hz)][tooltip: Crossover fi.bandpass frequency]",1700,20,20000,1.08);
+hifr4			=hslider("crossover_b4_b5 [log][name:Crossover B4-B5 (hz)][tooltip: Crossover fi.bandpass frequency]",5000,20,20000,1.08);
 
-hifr1			=hslider("crossover_b1_b2 [log][name:Crossover B1-B2 (hz)][tooltip: Crossover bandpass frequency]" ,80 , 20, 20000, 1.08);
-hifr2			=hslider("crossover_b2_b3 [log][name:Crossover B2-B3 (hz)][tooltip: Crossover bandpass frequency]",210,20,20000,1.08);
-hifr3			=hslider("crossover_b3_b4 [log][name:Crossover B3-B4 (hz)][tooltip: Crossover bandpass frequency]",1700,20,20000,1.08);
-hifr4			=hslider("crossover_b4_b5 [log][name:Crossover B4-B5 (hz)][tooltip: Crossover bandpass frequency]",5000,20,20000,1.08);
-
-geq = filterbank(3, (hifr1,hifr2,hifr3,hifr4));
+geq = fi.filterbank(3, (hifr1,hifr2,hifr3,hifr4));
 cross5 =  _,!,!,!,!,_,!,!,!,!,!,_,!,!,!,!,_,!,!,!,!,!,_,!,!,!,!,_,!,!,!,!,!,_,!,!,!,!,_,!,!,!,!,!,_,!,!,!,!,_ ;
 geqs = (geq,geq) <: cross5;
 
@@ -89,11 +86,11 @@ safe3 	= hslider("[6] Makeup-Threshold3 [tooltip: Threshold correction, an antic
 safe4 	= hslider("[6] Makeup-Threshold4 [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
 safe5 	= hslider("[6] Makeup-Threshold5 [tooltip: Threshold correction, an anticlip measure]" , 2, 0, +10, 0.1) ; // makeup-=safe
 
-Makeup1	=  mute1* (not(bswitch1)*(push1-safe1)  : db2linear : smooth(0.999));
-Makeup2	=  mute2* (not(bswitch2)*(push2-safe2)  : db2linear : smooth(0.999));
-Makeup3	=  mute3* (not(bswitch3)*(push3-safe3)  : db2linear : smooth(0.999));
-Makeup4	=  mute4* (not(bswitch4)*(push4-safe4)  : db2linear : smooth(0.999));
-Makeup5	=  mute5* (not(bswitch5)*(push5-safe5)  : db2linear : smooth(0.999));
+Makeup1	=  mute1* (not(bswitch1)*(push1-safe1)  : ba.db2linear : si.smooth(0.999));
+Makeup2	=  mute2* (not(bswitch2)*(push2-safe2)  : ba.db2linear : si.smooth(0.999));
+Makeup3	=  mute3* (not(bswitch3)*(push3-safe3)  : ba.db2linear : si.smooth(0.999));
+Makeup4	=  mute4* (not(bswitch4)*(push4-safe4)  : ba.db2linear : si.smooth(0.999));
+Makeup5	=  mute5* (not(bswitch5)*(push5-safe5)  : ba.db2linear : si.smooth(0.999));
 
 //Low end headsets: 13,10,4,8,11 (split 80,210,1700,5000)
 //Mid-high end headsets: 17,20.5,20,10.5,10 (split 44,180,800,5000)

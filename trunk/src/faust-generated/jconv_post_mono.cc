@@ -1,5 +1,5 @@
 // generated from file '../src/faust/jconv_post_mono.dsp' by dsp2cc:
-// Code generated with Faust 0.9.73 (http://faust.grame.fr)
+// Code generated with Faust 0.9.90 (http://faust.grame.fr)
 
 
 namespace jconv_post_mono {
@@ -28,7 +28,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double 	fSlow1 = (0.01 * double(fslider1));
 	double 	fSlow2 = (1 - fSlow1);
 	for (int i=0; i<count; i++) {
-		fRec0[0] = ((0.999 * fRec0[1]) + fSlow0);
+		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		output0[i] = (FAUSTFLOAT)((fSlow2 * (double)input0[i]) + (fSlow1 * ((double)input1[i] * fRec0[0])));
 		// post processing
 		fRec0[1] = fRec0[0];

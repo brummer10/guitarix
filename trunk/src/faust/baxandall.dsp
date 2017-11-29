@@ -4,17 +4,17 @@ declare id "baxandall";
 declare name "Baxandall";
 declare category "Tone Control";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) with {
+process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) with {
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-        tr = vslider("tr[name:treble]", 0.5, 0, 1, 0.01)  : smooth(s);
+        tr = vslider("tr[name:treble]", 0.5, 0, 1, 0.01)  : si.smooth(s);
     
-        ba = 1.0 - vslider("ba[name:bass]", 0.5, 0, 1, 0.01)  : smooth(s);
+        ba = 1.0 - vslider("ba[name:bass]", 0.5, 0, 1, 0.01)  : si.smooth(s);
     
     b0 = ba*(ba*(fs*(fs*(-1.16646701382671e-16*fs - 1.35752299926304e-12) - 1.24043238434298e-9) + tr*(pow(fs,3)*tr*(7.45996346051965e-20*fs + 7.93613134097836e-16) + pow(fs,2)*(fs*(-3.84934114562814e-19*fs - 4.45721994768766e-15) - 3.85293803981734e-12))) + fs*(fs*(1.16646701382671e-16*fs + 1.13415697533877e-12) + 5.05476196619765e-10) + tr*(pow(fs,2)*tr*(fs*(-7.45996346051965e-20*fs - 6.50762769960225e-16) + 1.68853858318688e-12) + fs*(fs*(fs*(3.84934114562814e-19*fs + 3.72011206873759e-15) + 1.47087060946334e-12) - 4.60510522687332e-9)) - 1.55054048042873e-6) + fs*(2.48184471026959e-13*fs + 9.9677425108649e-10) + tr*(pow(fs,2)*tr*(-1.58722626819567e-16*fs - 1.72230935485062e-12) + fs*(fs*(8.19008754388966e-16*fs + 3.24125726288252e-12) + 4.69720733141079e-9)) + 1.5815512900373e-6;
 

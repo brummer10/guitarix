@@ -3,13 +3,13 @@ declare name            "Rat";
 declare category        "Distortion";
 declare samplerate "96000";
 
+import("stdfaust.lib");
 
-SR = component("math.lib").SR;
 s = 0.993;
-fs = float(SR);
-drive =  hslider("drive[name:Drive]", 0.5, 0, 1, 0.01) : component("filter.lib").smooth(s);
+fs = float(ma.SR);
+drive =  hslider("drive[name:Drive]", 0.5, 0, 1, 0.01) : si.smooth(s);
 
-rat_in = component("filter.lib").iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+rat_in = fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
 
     b0 = 1.82432723786905e-5*fs;
 
@@ -24,7 +24,7 @@ rat_in = component("filter.lib").iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
     a2 = fs*(3.64865447573811e-11*fs - 1.9073341271921e-5) + 0.000414619826788421;
 };
 
-rat_out = component("filter.lib").iir((b0/a0,b1/a0),(a1/a0)) with {
+rat_out = fi.iir((b0/a0,b1/a0),(a1/a0)) with {
 
     b0 = 2.08332871602678e-5*fs;
 
@@ -35,9 +35,9 @@ rat_out = component("filter.lib").iir((b0/a0,b1/a0),(a1/a0)) with {
     a1 = -2.08332871602678e-5*fs + 2.21630714470934e-6;
 };
 
-rat_tone =  component("filter.lib").iir((b0/a0,b1/a0),(a1/a0)) with {
+rat_tone =  fi.iir((b0/a0,b1/a0),(a1/a0)) with {
 
-    Tone = 1.0 - vslider("tone[name:Tone]", 0.5, 0, 1, 0.01) : component("filter.lib").smooth(s);
+    Tone = 1.0 - vslider("tone[name:Tone]", 0.5, 0, 1, 0.01) : si.smooth(s);
     
     b0 = 0.0593824228028504;
 
@@ -48,7 +48,7 @@ rat_tone =  component("filter.lib").iir((b0/a0,b1/a0),(a1/a0)) with {
     a1 = 3.91923990498812e-5*Tone*fs - 3.91923990498812e-5*fs + 0.0593824228028504;
 };
 
-ratdrive = component("filter.lib").iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+ratdrive = fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
 
     Volume = 0.5 + drive * 0.75 ;
     
@@ -69,16 +69,16 @@ process = rat_in : X3 : rat_out : ratdrive : asclip : rat_tone : *(gain)  with {
     R1 = 4700;
     R2 = 1000 + 500000 * drive;
     C = 0.047 * 1e-6;
-    a1 = (R1 + R2) * C * 2 * SR;
-    a2 = R1 * C * 2 * SR;
+    a1 = (R1 + R2) * C * 2 * ma.SR;
+    a2 = R1 * C * 2 * ma.SR;
     B0 = (1 + a1) / (1 + a2);
     B1 = (1 - a1) / (1 + a2);
     A1 = (1 - a2) / (1 + a2);
     X1 = _<:_,(rat_drive):>_;
-    X2 = component("filter.lib").tf1(B0, B1, A1);
+    X2 = fi.tf1(B0, B1, A1);
     opamp = ffunction(float opamp(float), "clipping.h", "");
     X3 = _ <: _ - opamp(X2-_) :> _ ;
     asymclip = ffunction(float asymclip3(float), "clipping.h", "");
     asclip = asymclip(_);
-    gain = hslider("level[name:Level]", -2, -20, 12, 0.1) : component("music.lib").db2linear : component("filter.lib").smooth(s);
+    gain = hslider("level[name:Level]", -2, -20, 12, 0.1) : ba.db2linear : si.smooth(s);
 };

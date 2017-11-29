@@ -1,6 +1,6 @@
 // dsp algorithm from swh ladspa valve_rect plugin (Steve Harrison)
 
-import("music.lib");
+import("stdfaust.lib");
 import("guitarix.lib");
 
 sag = vslider("sag", 0, 0, 1, 0.01);
@@ -13,7 +13,7 @@ with {
     lp(a) = *(1 - a) : + ~ *(a);
     lp1tm1 = abs <: lp(0.9999), _ : max;
     avgs = lp1tm1 : avg;
-    avg_size = SR/9;
+    avg_size = ma.SR/9;
     avg(x) = x - delay1s(avg_size,x) : + ~ _ : /(avg_size);
     lp2tm1 = avgs : lp(0.999);
 };

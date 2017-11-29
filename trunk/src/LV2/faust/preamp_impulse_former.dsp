@@ -1,7 +1,7 @@
 //declare name "Preamp Impulse Former";
 declare id "pre";
 
-import("music.lib");
+import("stdfaust.lib");
 import("guitarix.lib");
 
 gain = vslider("Level[alias]", 1, 0.1, 2.1, 0.1) ;

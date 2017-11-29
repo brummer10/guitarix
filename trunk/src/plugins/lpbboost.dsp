@@ -6,17 +6,17 @@ declare category "Tone Control";
 declare shortname "LPB-1 Boost";
 declare description "LPB-1 Linear Power Booster ";
 
-import("filter.lib");
+import("stdfaust.lib");
 
-process = pre : iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
-    LogPot(a, x) = if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
-    Inverted(b, x) = if(b, 1 - x, x);
+process = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = _;
 
     
-        Boost = vslider("Boost[name:Boost]", 0.5, 0, 1, 0.01) : Inverted(0) : smooth(s);
+        Boost = vslider("Boost[name:Boost]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
     b0 = -8.68034563926398e-9*Boost*pow(fs,2) - 8.68034563926398e-11*pow(fs,2);
 
