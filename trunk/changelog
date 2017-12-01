@@ -1,3 +1,23 @@
+guitarix2 (0.36.1) unstable; urgency=low
+
+  * switch to use faust 0.9.90
+  * fix constante midi toggle change on preset load
+  * add set midi switch to load next preset
+  * add set midi switch to load previous preset
+  * fix midi value change trigger double
+  * add mono and stereo vumeter plugin
+  * add option to make tuner sticky
+  * add better tooltips for Lv2 and Ladspa plugs
+  * some fixes on the DK_simulator contributed by Yoann Le BORGNE
+
+ -- brummer <brummer-@web.de>  Fri, 01 Dec 2017 09:06:15 +0200 
+
+guitarix2 (0.36.0) unstable; urgency=low
+
+  * new release
+
+ -- brummer <brummer-@web.de>  Mon, 05 Jul 2017 11:03:15 +0200 
+
 guitarix2 (0.35.4) unstable; urgency=low
 
   * remove webkit
