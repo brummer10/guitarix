@@ -212,7 +212,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec9[1] = fRec9[0];
 	}
 }
-		
+
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
 {
 	static_cast<Dsp*>(p)->compute(count, input0, output0);

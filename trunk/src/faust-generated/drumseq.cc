@@ -510,7 +510,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fcheckbox2
 #undef fcheckbox3
 }
-		
+
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslider5, -2e+01, -6e+01, 4e+01, 0.1);

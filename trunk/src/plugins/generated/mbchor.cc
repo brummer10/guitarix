@@ -30,7 +30,7 @@ private:
 			}
 		}
 	};
-			double 	fConst0;
+	double 	fConst0;
 	double 	fConst1;
 	FAUSTFLOAT 	fslider0;
 	double 	fConst2;
@@ -516,8 +516,6 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec0[1] = fVec0[0];
 	}
 }
-	
-	
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
 {

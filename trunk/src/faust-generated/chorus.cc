@@ -27,7 +27,7 @@ private:
 			}
 		}
 	};
-			int 	IOTA;
+	int 	IOTA;
 	float *fVec0;
 	static float 	ftbl0[65536];
 	FAUSTFLOAT 	fslider0;
@@ -190,8 +190,6 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		IOTA = IOTA+1;
 	}
 }
-	
-	
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef *p)
 {

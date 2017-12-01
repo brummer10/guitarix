@@ -77,7 +77,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider1
 #undef fslider2
 }
-		
+
 int Dsp::register_par(const ParamReg& reg)
 {
 	fslider2_ = reg.registerVar("pre.Level",N_("Level"),"SA",N_("Level"),&fslider2, 1.0, 0.1, 2.1, 0.1);

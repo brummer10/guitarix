@@ -198,6 +198,8 @@ class Parser(object):
         m = re.compile(exp).match
         o = re.compile(r"\tint fSamplingFreq;").match
         for line in self.lines:
+            if not line.strip():
+                continue
             if m(line):
                 break
             if o(line):
@@ -297,6 +299,8 @@ class Parser(object):
 
         nextbox = {}
         for line in self.lines:
+            if not line.strip():
+                continue
             if stop(line):
                 return
             m = openbox(line)
@@ -518,7 +522,7 @@ class Parser(object):
         self.skip_until(r"\s*virtual void instanceResetUserInterface")
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void instanceClear")
-        s["var-init"] += self.copy(r"\s*}$")
+        s["var-init"] += self.copy(r"\t}$")
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
         s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl,options.init_type)
@@ -552,7 +556,7 @@ class Parser(object):
             if self.options.add:
                 self.faust_opt.append(options.add);
             cmd ='../tools/dsp2insert -o /tmp/'+self.insert_p+'.py'+' '+'  %s'.join(self.faust_opt)+' --init-type=insert ../src/faust/'+self.insert_p+'.dsp'
-            print('%s\n' % cmd)
+            #print('%s\n' % cmd)
             os.system(cmd) 
         if self.numOutputs == 2:
             self.has_stereo = True
