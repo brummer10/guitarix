@@ -564,7 +564,8 @@ def check_zita_resampler(opt, conf):
             lib='zita-resampler',
             uselib_store='ZITA_RESAMPLER',
             msg='Checking for zita-resampler >= %d.0' % expected_zita_resampler_version,
-            errmsg="version %d not found, using ours" % expected_zita_resampler_version,
+            errmsg="Zita-resampler version %d not found" % expected_zita_resampler_version,
+            mandatory=True,
             define_name="ZITA_RESAMPLER")
 
 # Taken from Geany's wscript, modified to support LINGUAS variable
