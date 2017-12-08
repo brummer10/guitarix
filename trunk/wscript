@@ -543,7 +543,8 @@ def check_zita_convolver(opt, conf):
             lib="zita-convolver",
             uselib_store='ZITA_CONVOLVER',
             msg='Checking for zita-convolver >= %d.0' % expected_zita_convolver_version,
-            errmsg="version %d not found, using ours" % expected_zita_convolver_version,
+            errmsg="Zita-convolver version %d not found" % expected_zita_convolver_version,
+            mandatory=True,
             define_name="ZITA_CONVOLVER")
 
 def check_zita_resampler(opt, conf):
