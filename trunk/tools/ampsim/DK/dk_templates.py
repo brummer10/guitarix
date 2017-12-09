@@ -1078,14 +1078,14 @@ process = pre : fi.iir((@b_list),(@a_list)) with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = @pre_filter;
 
     %for @sl in @sliders:
         %if (@sl.loga)
-        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : smooth(s);
+        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
         %else
-        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : smooth(s);
+        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
         %end
     %end
 
@@ -1129,13 +1129,13 @@ process = pre : _<:*(dry),(*(wet) : fi.iir((@b_list),(@a_list))):>_ with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
-    fs = float(SR);
+    fs = float(ma.SR);
     pre = @pre_filter;
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
     %for @sl in @sliders:
-        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : smooth(s);
+        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
     %end
 
     @coeffs
