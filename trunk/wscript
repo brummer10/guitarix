@@ -183,11 +183,11 @@ def set_options(opt):
 
     ladspa = opt.add_option_group("LADSPA Options (installing ladspa modules)")
 
-    ladspa.add_option('--no-ladspa',
-                    action='store_const',
+    ladspa.add_option('--ladspa',
+                    dest='ladspa',
+                    action='store_true',
                     default=False,
-                    const=True,
-                    help="don't build ladspa plugins (Default yes)")
+                    help="Build LADSPA plugins (Default no)")
 
     ladspa.add_option('--no-new-ladspa',
                     action='store_const',
@@ -656,7 +656,7 @@ def configure(conf):
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
     if opt.lv2_only:
         opt.no_lv2 = False
-        opt.no_ladspa = True
+        opt.ladspa = False
         opt.no_new_ladspa = True
         conf.env['NO_MAIN'] = True
         opt.no_desktop_update = True
@@ -684,8 +684,6 @@ def configure(conf):
         conf.check_cfg(package='libavcodec', args='--cflags --libs', uselib_store='LIBAVCODEC', mandatory=1)
         conf.check_cfg(package='libavutil', args='--cflags --libs', uselib_store='LIBAVUTIL', mandatory=1)
     if not (opt.lv2_only):
-        conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
-        conf.check(header_name='ladspa.h', mandatory=1)
         conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
         check_boost(conf)
         if not (opt.install_roboto_font):
@@ -766,9 +764,11 @@ def configure(conf):
         else:
             conf.env['LV2DIR'] = os.path.normpath(os.path.join(conf.env['LIBDIR'], 'lv2'))
 
-    conf.env['NEW_LADSPA'] = not opt.no_ladspa and not opt.no_new_ladspa
-    conf.env['LADSPA'] = not opt.no_ladspa
-    if not opt.no_ladspa:
+    conf.env['NEW_LADSPA'] = opt.ladspa and not opt.no_new_ladspa
+    conf.env['LADSPA'] = opt.ladspa
+    if opt.ladspa:
+        conf.check(header_name='ladspa.h', mandatory=1)
+        conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
         if opt.ladspadir:
             conf.env['LADSPADIR'] = opt.ladspadir
         else:
@@ -879,7 +879,7 @@ def configure(conf):
         display_feature("Use internal zita-convolver", not conf.env['ZITA_CONVOLVER'])
     display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
 
-    display_feature("build ladspa plugins", conf.env['LADSPA'])
+    display_feature("Build ladspa plugins", conf.env['LADSPA'])
     display_feature("build lv2 plugins", conf.env['LV2'])
     display_feature("build lv2 plugin GUI's", not conf.env['NOLV2GUI'])
     display_feature("install MOD lv2 plugin GUI's", not conf.env['NOMODGUI'])
@@ -904,7 +904,7 @@ def configure(conf):
     if conf.env['FONT']:
         display_msg("Install font roboto condensed", conf.env['GX_FONTS_DIR'], 'CYAN')
         display_feature("Update Font config cache", not conf.env["NO_UPDATE_FONT_CACHE"])
-    if not opt.no_ladspa:
+    if opt.ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
     if not opt.no_lv2:
         display_msg("Install lv2", conf.env['LV2DIR'], 'CYAN')
