@@ -189,12 +189,11 @@ def set_options(opt):
                     default=False,
                     help="Build LADSPA plugins (Default no)")
 
-    ladspa.add_option('--no-new-ladspa',
-                    action='store_const',
+    ladspa.add_option('--new-ladspa',
+                    dest='new_ladspa',
+                    action='store_true',
                     default=False,
-                    const=True,
-                    help=("don't build with new ladspa plugins (Default yes)"))
-
+                    help=("Build new LADSPA plugins (Default no)"))
 
     ladspa.add_option('--ladspadir',
                     type='string',
@@ -657,7 +656,7 @@ def configure(conf):
     if opt.lv2_only:
         opt.no_lv2 = False
         opt.ladspa = False
-        opt.no_new_ladspa = True
+        opt.new_ladspa = False
         conf.env['NO_MAIN'] = True
         opt.no_desktop_update = True
     # needed libaries
@@ -764,9 +763,9 @@ def configure(conf):
         else:
             conf.env['LV2DIR'] = os.path.normpath(os.path.join(conf.env['LIBDIR'], 'lv2'))
 
-    conf.env['NEW_LADSPA'] = opt.ladspa and not opt.no_new_ladspa
     conf.env['LADSPA'] = opt.ladspa
-    if opt.ladspa:
+    conf.env['NEW_LADSPA'] = opt.new_ladspa
+    if opt.ladspa or opt.new_ladspa:
         conf.check(header_name='ladspa.h', mandatory=1)
         conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
         if opt.ladspadir:
@@ -880,6 +879,7 @@ def configure(conf):
     display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
 
     display_feature("Build ladspa plugins", conf.env['LADSPA'])
+    display_feature("Build new ladspa plugins", conf.env['NEW_LADSPA'])
     display_feature("build lv2 plugins", conf.env['LV2'])
     display_feature("build lv2 plugin GUI's", not conf.env['NOLV2GUI'])
     display_feature("install MOD lv2 plugin GUI's", not conf.env['NOMODGUI'])
@@ -961,7 +961,6 @@ def build(bld):
         bld.add_subdirs('src/ladspa')
     if bld.env["LV2"]:
         bld.add_subdirs('src/LV2')
-
     if not bld.env['NO_MAIN']:
         if bld.env['FONT']:
             bld.install_files(os.path.join(bld.env['GX_FONTS_DIR'], 'robotocondensed'), './fonts/*', chmod=0o644)
