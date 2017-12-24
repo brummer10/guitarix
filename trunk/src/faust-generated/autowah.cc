@@ -142,9 +142,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fslider2_ = reg.registerVar("ve.crybaby.level","","SA","",&fslider2, 0.1f, 0.0f, 1.0f, 0.01f);
-	fslider1_ = reg.registerVar("ve.crybaby.wah","","SA","",&fslider1, 0.0f, 0.0f, 1.0f, 0.01f);
-	fslider0_ = reg.registerVar("ve.crybaby.wet_dry",N_("dry/wet"),"SA","",&fslider0, 1e+02f, 0.0f, 1e+02f, 1.0f);
+	fslider2_ = reg.registerVar("crybaby.level","","SA","",&fslider2, 0.1f, 0.0f, 1.0f, 0.01f);
+	fslider1_ = reg.registerVar("crybaby.wah","","SA","",&fslider1, 0.0f, 0.0f, 1.0f, 0.01f);
+	fslider0_ = reg.registerVar("crybaby.wet_dry",N_("dry/wet"),"SA","",&fslider0, 1e+02f, 0.0f, 1e+02f, 1.0f);
 	return 0;
 }
 

@@ -176,9 +176,9 @@ ampctrl = environment {
 };
 
 crybaby_ctrl = environment {
-    level = vslider(".ve.crybaby.level[alias]", 0.1, 0, 1, 0.01);
-    wah = vslider(".ve.crybaby.wah[alias]", 0, 0, 1, 0.01);
-    wet_dry = vslider(".ve.crybaby.wet_dry[name:dry/wet][alias]",  100, 0, 100, 1) : /(100);
+    level = vslider(".crybaby.level[alias]", 0.1, 0, 1, 0.01);
+    wah = vslider(".crybaby.wah[alias]", 0, 0, 1, 0.01);
+    wet_dry = vslider(".crybaby.wet_dry[name:dry/wet][alias]",  100, 0, 100, 1) : /(100);
 };
 
 wah_ctrl = environment {
