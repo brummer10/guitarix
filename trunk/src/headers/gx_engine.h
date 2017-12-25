@@ -92,6 +92,7 @@ public:
     CabinetConvolver cabinet;
     CabinetStereoConvolver cabinet_st;
     PreampConvolver preamp;
+    PreampStereoConvolver preamp_st;
     ContrastConvolver contrast;
     LiveLooper loop;
     SCapture record;

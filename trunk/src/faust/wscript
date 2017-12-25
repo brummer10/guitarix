@@ -40,6 +40,7 @@ def build(bld):
         'cabinet_impulse_former.dsp',
         'cabinet_impulse_former_st.dsp',
         'preamp_impulse_former.dsp',
+        'preamp_impulse_former_st.dsp',
         'drumseq.dsp',
         ]
 

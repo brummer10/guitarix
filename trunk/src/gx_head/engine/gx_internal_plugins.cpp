@@ -1427,6 +1427,148 @@ int PreampConvolver::register_pre(const ParamReg& reg) {
     return 0;
 }
 
+//// STEREO /////
+#include "faust/preamp_impulse_former_st.cc"
+
+static int pre_load_stereo_ui(const UiBuilder& builder, int format) {
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("ampimpulse_st_ui.glade");
+    return 0;
+    } else if (format & UI_FORM_STACK) {
+    builder.openHorizontalhideBox("");
+    builder.create_selector_no_caption("pre_st.select");
+    builder.closeBox();
+    builder.openVerticalBox("");
+    {
+	builder.openHorizontalBox("");
+	{
+	    builder.insertSpacer();
+	    builder.create_selector_no_caption("pre_st.select");
+	    builder.create_small_rackknobr("pre_st.bass", "Bass");
+	    builder.create_small_rackknobr("pre_st.treble", "Treble");
+	    builder.create_mid_rackknob("pre_st.Level", "Level");
+	}
+	builder.closeBox();
+    }
+    builder.closeBox();
+    return 0;
+    } else {
+    return -1;
+    }
+
+}
+
+PreampStereoConvolver::PreampStereoConvolver(EngineControl& engine, sigc::slot<void> sync,
+    gx_resample::BufferResampler& resamp):
+    FixedBaseConvolver(engine, sync, resamp),
+    current_pre(-1),
+    level(0),
+    preamp(0),
+    bass(0),
+    treble(0),
+    sum(no_sum),
+    pre_names(new value_pair[pre_table_size+1]),
+    impf(),
+    smp(),
+    smps() {
+    for (unsigned int i = 0; i < pre_table_size; ++i) {
+	PreEntry& pre = getPreEntry(i);
+	pre_names[i].value_id = pre.value_id;
+	pre_names[i].value_label = pre.value_label;
+    }
+    pre_names[pre_table_size].value_id = 0;
+    pre_names[pre_table_size].value_label = 0;
+    id = "pre_st";
+    name = N_("Amp Impulse");
+    category = N_("Tone Control");
+    load_ui = pre_load_stereo_ui;
+    stereo_audio = run_pre_conf;
+    register_params = register_pre;
+}
+
+PreampStereoConvolver::~PreampStereoConvolver() {
+    delete[] pre_names;
+}
+
+bool PreampStereoConvolver::do_update() {
+    bool configure = preamp_changed();
+    if (conv.is_runnable()) {
+	conv.set_not_runnable();
+	sync();
+	conv.stop_process();
+    }
+    PreDesc& pre = *getPreEntry(preamp).data;
+    if (current_pre == -1) {
+	unsigned int sr = getSamplingFreq();
+	unsigned int sru = 96000;
+	unsigned int fact = sru/sr;
+	
+	smp.setup(sr, fact*sr);
+	smps.setup(sr, fact*sr);
+	impf.init(pre.ir_sr);
+    }
+    float pre_irdata_c[pre.ir_count];
+    impf.clear_state_f();
+    impf.compute(pre.ir_count,pre.ir_data,pre_irdata_c);
+    while (!conv.checkstate());
+    if (configure) {
+	if (!conv.configure_stereo(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+	    return false;
+	}
+    } else {
+	if (!conv.update_stereo(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+	    return false;
+	}
+    }
+    update_preamp();
+    update_sum();
+    return conv_start();
+}
+
+bool PreampStereoConvolver::start(bool force) {
+    if (force) {
+	current_pre = -1;
+    }
+    if (preamp_changed() || sum_changed()) {
+	return do_update();
+    } else {
+	while (!conv.checkstate());
+	if (!conv.is_runnable()) {
+	    return conv_start();
+	}
+	return true;
+    }
+}
+
+void PreampStereoConvolver::check_update() {
+    if (preamp_changed() || sum_changed()) {
+	do_update();
+    } 
+}
+
+void PreampStereoConvolver::run_pre_conf(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p) {
+    PreampStereoConvolver& self = *static_cast<PreampStereoConvolver*>(p);
+	FAUSTFLOAT buf[self.smp.max_out_count(count)];
+	FAUSTFLOAT buf1[self.smps.max_out_count(count)];
+	int ReCount = self.smp.up(count, output0, buf);
+	self.smps.up(count, output1, buf1);
+    if (!self.conv.compute_stereo(ReCount,buf,buf1)) {
+	self.engine.overload(EngineControl::ov_Convolver, "pre_st");
+    }
+	self.smp.down(buf, output0);
+	self.smps.down(buf1, output1);
+}
+
+int PreampStereoConvolver::register_pre(const ParamReg& reg) {
+    PreampStereoConvolver& pre = *static_cast<PreampStereoConvolver*>(reg.plugin);
+    reg.registerIEnumVar("pre_st.select", "select", "B", "", pre.pre_names, &pre.preamp, 0);
+    reg.registerVar("pre_st.Level", N_("Level"),  "S", N_("Level"), &pre.level,  1.0, 0.5, 5.0, 0.5);
+    reg.registerVar("pre_st.bass", N_("Bass"),   "S", N_("Bass"), &pre.bass,   0.0, -10.0, 10.0, 0.5);
+    reg.registerVar("pre_st.treble", N_("Treble"), "S", N_("Treble"), &pre.treble, 0.0, -10.0, 10.0, 0.5);
+    pre.impf.register_par(reg);
+    return 0;
+}
+
 /****************************************************************
  ** class ContrastConvolver
  */

@@ -610,6 +610,35 @@ public:
     ~PreampConvolver();
 };
 
+#include "faust/preamp_impulse_former_st.h"
+
+class PreampStereoConvolver: public FixedBaseConvolver {
+private:
+    int current_pre;
+    float level;
+    int preamp;
+    float bass;
+    float treble;
+    float sum;
+    value_pair *pre_names;
+    preamp_impulse_former_st::Dsp impf;
+    gx_resample::FixedRateResampler smp;
+    gx_resample::FixedRateResampler smps;
+    static void run_pre_conf(int count, float *input, float *input1, float *output, float *output1, PluginDef*);
+    static int register_pre(const ParamReg& reg);
+    bool do_update();
+    virtual void check_update();
+    virtual bool start(bool force = false);
+    bool preamp_changed() { return current_pre != preamp; }
+    void update_preamp() { current_pre = preamp; }
+    bool sum_changed() { return fabs(sum - (level + bass + treble)) > 0.01; }
+    void update_sum() { sum = level + bass + treble; }
+public:
+    PreampStereoConvolver(EngineControl& engine, sigc::slot<void> sync,
+       gx_resample::BufferResampler& resamp);
+    ~PreampStereoConvolver();
+};
+
 /****************************************************************
  ** class ContrastConvolver
  */

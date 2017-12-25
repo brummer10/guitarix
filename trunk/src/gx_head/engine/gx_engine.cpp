@@ -249,6 +249,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       cabinet_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      preamp_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
       record(*this, 1), record_st(*this, 2), dseq(get_param()),
@@ -448,6 +449,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::ring_modulator_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay_st::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet_st.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&preamp_st.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::vumeter_st::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 }
 
