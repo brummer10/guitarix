@@ -750,10 +750,13 @@ def configure(conf):
     conf.env['BIN_NAME'] = APPNAME
 
     conf.env['LV2'] = opt.lv2
-    conf.env['LV2GUI'] = opt.lv2_gui
-    conf.env['MODGUI'] = opt.mod_lv2
-    conf.env['NOSSE'] =  opt.disable_sse
+    conf.env['LV2GUI'] = False
+    conf.env['MODGUI'] = False
+    conf.env['NOSSE'] = False
     if opt.lv2:
+        conf.env['LV2GUI'] = opt.lv2_gui
+        conf.env['MODGUI'] = opt.mod_lv2
+        conf.env['NOSSE'] =  opt.disable_sse
         conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
         conf.define('GX_LV2_STYLE_DIR', os.path.join(conf.env['GX_STYLE_DIR'],'LV2'))
         if opt.lv2dir:
