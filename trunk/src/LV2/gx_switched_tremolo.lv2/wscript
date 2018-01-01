@@ -8,7 +8,7 @@ def configure(conf):
 
 def build(bld):
     bundle = 'gx_switched_tremolo.lv2'
-    
+
     src = ['gx_switched_tremolo.cpp'
            ]
     incl = ['../faust','./', '../DSP']
@@ -33,10 +33,10 @@ def build(bld):
         chmod = 0o755,
         )
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
-   
+
     install_path = '${LV2DIR}/%s' % bundle,
-    if bld.env['NOMODGUI']:
-        bld.install_files('${LV2DIR}/gx_switched_tremolo.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
-    else:
+    if bld.env['MODGUI']:
         bld.install_files('${LV2DIR}/gx_switched_tremolo.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
         bld.install_files('${LV2DIR}/gx_switched_tremolo.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    else:
+        bld.install_files('${LV2DIR}/gx_switched_tremolo.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)

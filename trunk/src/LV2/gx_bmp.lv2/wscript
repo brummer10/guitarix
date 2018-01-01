@@ -8,7 +8,7 @@ def configure(conf):
 
 def build(bld):
     bundle = 'gx_bmp.lv2'
-    
+
     src = ['gx_bmp.cpp',
            '../DSP/gx_resampler.cc'
            ]
@@ -35,7 +35,7 @@ def build(bld):
         chmod = 0o755,
         )
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
-  
+
     if bld.env['LV2GUI']:
         uselib_local1 = []
         libpath1 = []
@@ -49,7 +49,7 @@ def build(bld):
                         bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
         else:
             uselib_local1 += ['gxwmm','gxw']
-        
+
         lv2_plugin_gui = bld(
             features='cxx cshlib ',
             includes = incl,
@@ -65,10 +65,10 @@ def build(bld):
             chmod = 0o755,
             )
         lv2_plugin_gui.env['shlib_PATTERN'] = '%s.so'
-   
+
     install_path = '${LV2DIR}/%s' % bundle,
-    if bld.env['NOMODGUI']:
-        bld.install_files('${LV2DIR}/gx_bmp.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
-    else:
+    if bld.env['MODGUI']:
         bld.install_files('${LV2DIR}/gx_bmp.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
         bld.install_files('${LV2DIR}/gx_bmp.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    else:
+        bld.install_files('${LV2DIR}/gx_bmp.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)

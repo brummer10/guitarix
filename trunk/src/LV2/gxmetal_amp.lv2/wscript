@@ -8,7 +8,7 @@ def configure(conf):
 
 def build(bld):
     bundle = 'gxmetal_amp.lv2'
-    
+
     src = ['gxmetal_amp.cpp',
            'gx_metalamp.cc',
            '../DSP/gx_resampler.cc',
@@ -47,7 +47,7 @@ def build(bld):
         )
     bld.add_manual_dependency(bld.path.find_or_declare(lv2_effects.target), ldscript)
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
-    
+
     if bld.env['LV2GUI']:
         uselib_local5 = []
         libpath5 = []
@@ -61,7 +61,7 @@ def build(bld):
                         bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
         else:
             uselib_local5 += ['gxwmm','gxw']
-        
+
         lv2_effetcs_gui = bld(
             features='cxx cshlib ',
             includes = incl5,
@@ -78,10 +78,10 @@ def build(bld):
             )
         lv2_effetcs_gui.env['shlib_PATTERN'] = '%s.so'
 
-    
+
     install_path = '${LV2DIR}/%s' % bundle,
-    if bld.env['NOMODGUI']:
-        bld.install_files('${LV2DIR}/gxmetal_amp.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
-    else:
+    if bld.env['MODGUI']:
         bld.install_files('${LV2DIR}/gxmetal_amp.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
         bld.install_files('${LV2DIR}/gxmetal_amp.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    else:
+        bld.install_files('${LV2DIR}/gxmetal_amp.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)

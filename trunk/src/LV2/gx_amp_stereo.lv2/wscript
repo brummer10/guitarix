@@ -8,7 +8,7 @@ def configure(conf):
 
 def build(bld):
     bundle = 'gx_amp_stereo.lv2'
-    
+
     src = ['gxamp_stereo.cpp',
            'gx_amp_stereo.cc',
            'gx_tonestack_stereo.cc',
@@ -46,7 +46,7 @@ def build(bld):
         )
     bld.add_manual_dependency(bld.path.find_or_declare(lv2_plugin.target), ldscript)
     lv2_plugin.env['shlib_PATTERN'] = '%s.so'
-    
+
     if bld.env['LV2GUI']:
         uselib_local1 = []
         libpath1 = []
@@ -60,7 +60,7 @@ def build(bld):
                         bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
         else:
             uselib_local1 += ['gxwmm','gxw']
-        
+
         lv2_plugin_gui = bld(
             features='cxx cshlib ',
             includes = incl,
@@ -77,10 +77,10 @@ def build(bld):
             )
         lv2_plugin_gui.env['shlib_PATTERN'] = '%s.so'
 
-    
+
     install_path = '${LV2DIR}/%s' % bundle,
-    if bld.env['NOMODGUI']:
-        bld.install_files('${LV2DIR}/gx_amp_stereo.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
-    else:
+    if bld.env['MODGUI']:
         bld.install_files('${LV2DIR}/gx_amp_stereo.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
         bld.install_files('${LV2DIR}/gx_amp_stereo.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    else:
+        bld.install_files('${LV2DIR}/gx_amp_stereo.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)

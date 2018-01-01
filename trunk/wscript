@@ -220,15 +220,15 @@ def set_options(opt):
                     default=True,
                     help=("Don't build LV2 plugin GUI's (Default no)"))
 
+    lv2.add_option('--mod-lv2',
+                    dest='mod_lv2',
+                    action='store_true',
+                    default=False,
+                    help=("Install MOD LV2 GUI's (Default no)"))
+
     lv2.add_option('--lv2dir',
                     type='string',
                     help='LV2 plugin directory [Default: <prefix>/lib/lv2]')
-
-    lv2.add_option('--no-mod-lv2',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help=("don't install MOD lv2 GUI's (Default no)"))
 
     lv2.add_option('--disable-sse',
                     action='store_const',
@@ -751,7 +751,7 @@ def configure(conf):
 
     conf.env['LV2'] = opt.lv2
     conf.env['LV2GUI'] = opt.lv2_gui
-    conf.env['NOMODGUI'] = opt.no_mod_lv2
+    conf.env['MODGUI'] = opt.mod_lv2
     conf.env['NOSSE'] =  opt.disable_sse
     if opt.lv2:
         conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
@@ -877,7 +877,7 @@ def configure(conf):
     display_feature("Build new LADSPA plugins", conf.env['NEW_LADSPA'])
     display_feature("Build LV2 plugins", conf.env['LV2'])
     display_feature("Build LV2 plugin GUI's", conf.env['LV2GUI'])
-    display_feature("Install MOD LV2 plugin GUI's", not conf.env['NOMODGUI'])
+    display_feature("Build MOD LV2 plugin GUI's", conf.env['MODGUI'])
     if opt.lv2:
         display_feature("SSE2 support found", conf.env['SSE2'])
         display_feature("SSE2 support disabled", conf.env['NOSSE'])

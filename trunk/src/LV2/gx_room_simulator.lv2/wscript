@@ -8,7 +8,7 @@ def configure(conf):
 
 def build(bld):
     bundle = 'gx_room_simulator.lv2'
-    
+
     src = ['gx_room_simulator.cpp'
            ]
     incl = ['../faust','./', '../DSP', '../DSP/tube_tables']
@@ -33,7 +33,7 @@ def build(bld):
         chmod = 0o755,
         )
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
-    
+
     if bld.env['LV2GUI']:
         uselib_local5 = []
         libpath5 = []
@@ -47,7 +47,7 @@ def build(bld):
                         bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
         else:
             uselib_local5 += ['gxwmm','gxw']
-        
+
         lv2_effetcs_gui = bld(
             features='cxx cshlib ',
             includes = incl5,
@@ -64,10 +64,10 @@ def build(bld):
             )
         lv2_effetcs_gui.env['shlib_PATTERN'] = '%s.so'
 
-    
+
     install_path = '${LV2DIR}/%s' % bundle,
-    if bld.env['NOMODGUI']:
-        bld.install_files('${LV2DIR}/gx_room_simulator.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
-    else:
+    if bld.env['MODGUI']:
         bld.install_files('${LV2DIR}/gx_room_simulator.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
         bld.install_files('${LV2DIR}/gx_room_simulator.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    else:
+        bld.install_files('${LV2DIR}/gx_room_simulator.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
