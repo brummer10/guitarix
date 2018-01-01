@@ -48,7 +48,7 @@ def build(bld):
     bld.add_manual_dependency(bld.path.find_or_declare(lv2_effects.target), ldscript)
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
     
-    if not bld.env['NOLV2GUI']:
+    if bld.env['LV2GUI']:
         uselib_local5 = []
         libpath5 = []
         lib5 = []

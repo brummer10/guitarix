@@ -36,7 +36,7 @@ def build(bld):
         )
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
   
-    if not bld.env['NOLV2GUI']:
+    if bld.env['LV2GUI']:
         uselib_local1 = []
         libpath1 = []
         lib1 = []

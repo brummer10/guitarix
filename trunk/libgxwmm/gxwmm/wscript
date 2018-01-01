@@ -47,7 +47,7 @@ def configure(conf):
         conf.env["USE_GENERATED_CPP"] = False
     else:
         conf.env["USE_GENERATED_CPP"] = True
-    if Options.options.shared_lib or not Options.options.no_lv2:
+    if Options.options.shared_lib or Options.options.lv2:
         conf.env["GX_LIB_SHARED"] = True
     else:
         conf.env["GX_LIB_STATIC"] = True
@@ -192,7 +192,7 @@ def build_generate_wrapper(bld):
         target = "gxw.defs",
         after = ["sigdefs","mthdefs","enumdefs"],
         )
-    bld(rule = "cp ${SRC} ${TGT}", 
+    bld(rule = "cp ${SRC} ${TGT}",
         source = "docs.xml",
         target = "gxw_docs.xml",
         )

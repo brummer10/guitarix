@@ -37,7 +37,7 @@ g_maxlen = 40 # maximum width of message for 2-column display
 ################################################################
 
 def set_options(opt):
-    
+
     def add_enable_option (option, desc, group=None, disable=False):
         if group == None:
             group = opt
@@ -49,6 +49,13 @@ def set_options(opt):
 
     opt.tool_options('gcov')
     opt.tool_options ('intltool')
+
+    opt.add_option('--no-standalone',
+                    action='store_false',
+                    dest='standalone',
+                    default=True,
+                    help=("Don't build standalone (JACK) application"))
+
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
 
@@ -87,13 +94,13 @@ def set_options(opt):
 
     comp.add_option('--ldflags',
                     type='string',
-                    default='', 
+                    default='',
                     dest='ldflags',
                     help='C++ base linker flags ')
 
     comp.add_option('--enable-lfs',
                     action='store_const',
-                    default=False, 
+                    default=False,
                     const=True,
                     help='enable Large File Support (LFS)  ')
 
@@ -135,7 +142,7 @@ def set_options(opt):
 
     comp.add_option('--libdir',
                    type='string',
-                   default='', 
+                   default='',
                    dest='libdir',
                    help=('library install path '),
                    )
@@ -201,27 +208,21 @@ def set_options(opt):
 
     lv2 = opt.add_option_group("LV2 Options (installing LV2 modules)")
 
+    lv2.add_option('--no-lv2',
+                    dest='lv2',
+                    action='store_false',
+                    default=True,
+                    help=("Don't build LV2 plugins (Default no)"))
+
+    lv2.add_option('--no-lv2-gui',
+                    dest='lv2_gui',
+                    action='store_false',
+                    default=True,
+                    help=("Don't build LV2 plugin GUI's (Default no)"))
+
     lv2.add_option('--lv2dir',
                     type='string',
                     help='LV2 plugin directory [Default: <prefix>/lib/lv2]')
-
-    lv2.add_option('--no-lv2',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help=("don't build new lv2 plugins (Default no)"))
-
-    lv2.add_option('--no-lv2-gui',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help=("don't build lv2 plugin GUI's (Default no)"))
-
-    lv2.add_option('--lv2-only',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help=("build only the lv2 plugins (Default no)"))
 
     lv2.add_option('--no-mod-lv2',
                     action='store_const',
@@ -236,23 +237,23 @@ def set_options(opt):
                     help=("disable SSE for lv2 plugins (ARM)"))
 
     style = opt.add_option_group("Style Options (installing font)")
-    
+
     style.add_option('--install-roboto-font',
                     action='store_const',
                     default=False,
                     const=True,
                     help=("install the included roboto condensed font"))
-    
+
     style.add_option('--fontdir',
                     type='string',
                     help=('roboto condensed font install directory [Default: <prefix>/share/fonts/truetype]'))
-    
+
     style.add_option('--no-font-cache-update',
                     action='store_const',
-                    default=False, 
+                    default=False,
                     const=True,
                     help='dont automatically update font cache')
-    
+
 
     opt.recurse('pygxw')
     opt.recurse('glade-gxw')
@@ -437,7 +438,7 @@ def check_roboto_font(conf):
         conf.env['FONTMSG'] = True
     else:
         conf.check_message('font RobotoCondensed','',1)
-  
+
 def check_faust(conf):
     if Options.options.no_faust:
         conf.env['FAUST'] = None
@@ -484,7 +485,7 @@ def check_cloop(conf):
     return 0;
     }
     """
-    msg = "Checking for libcloog-ppl0" 
+    msg = "Checking for libcloog-ppl0"
     conf.check_cxx(msg = msg, fragment=code, cxxflags=[ '-O3', '-ftree-loop-linear'], define_name="NOOPT")
 
 def check_boost(conf):
@@ -492,7 +493,7 @@ def check_boost(conf):
     #include <boost/system/error_code.hpp>
     int main() { boost::system::error_code c; }
     """
-    msg = "Checking for boost-system " 
+    msg = "Checking for boost-system "
     conf.check_cxx(msg = msg, fragment=code, lib="boost_system", uselib_store="BOOST_SYSTEM", mandatory=1)
     # some boost (>1.49) versions depend on boost-system so we will check for it first
     # and later link against boost_system were boost headers are included.
@@ -595,7 +596,7 @@ write_linguas_file = feature ('intltool_po')(write_linguas_file)
 ################################################################
 # guitarix waf configuration
 #
- 
+
 def configure(conf):
     conf.font_msg = ""
     opt = Options.options
@@ -626,7 +627,7 @@ def configure(conf):
             if getattr (opt, 'enable_' + option):
                 Utils.pprint ('RED', desc + ' N/A')
                 sys.exit (1)
-                
+
     if option_enabled ('nls'):
         conf.check_tool ('intltool')
         if conf.env['INTLTOOL'] and conf.env['POCOM']:
@@ -653,14 +654,9 @@ def configure(conf):
     # linker flags
     conf.env.append_value('LDFLAGS', opt.ldflags.split())
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
-    if opt.lv2_only:
-        opt.no_lv2 = False
-        opt.ladspa = False
-        opt.new_ladspa = False
-        conf.env['NO_MAIN'] = True
-        opt.no_desktop_update = True
     # needed libaries
-    if not (opt.lv2_only):
+    if (opt.standalone):
+        conf.env['STANDALONE'] = True
         try:
             conf.check_cfg(package='jack', atleast_version='0.116.2', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
         except ConfigurationError:
@@ -669,26 +665,29 @@ def configure(conf):
         code = "#include <jack/session.h>\nint main(){return JackSessionID != 0;}"
         conf.check_cxx(fragment=code, msg="Checking for jack session support", define_name='HAVE_JACK_SESSION')
         conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
+    else:
+        conf.env['NO_MAIN'] = True
+        opt.no_desktop_update = True
 
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
-    if not (opt.lv2_only and opt.no_lv2_gui):
-        conf.check_cfg(package='gtk+-2.0', atleast_version='2.20', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='glibmm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
-    if not (opt.lv2_only and  opt.no_lv2_gui):
+    conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
+
+    if opt.standalone or opt.lv2_gui:
+        conf.check_cfg(package='gtk+-2.0', atleast_version='2.20', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
         conf.check_cfg(package='gtkmm-2.4', atleast_version='2.20', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
         conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
-    conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
     if opt.convolver_ffmpeg:
         conf.check_cfg(package='libavcodec', args='--cflags --libs', uselib_store='LIBAVCODEC', mandatory=1)
         conf.check_cfg(package='libavutil', args='--cflags --libs', uselib_store='LIBAVUTIL', mandatory=1)
-    if not (opt.lv2_only):
+    if opt.standalone or opt.ladspa or opt.new_ladspa:
+        conf.check(header_name='ladspa.h', mandatory=1)
+        conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
         conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
         check_boost(conf)
         if not (opt.install_roboto_font):
             check_roboto_font(conf)
-
-    conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
 
     check_zita_convolver(opt, conf)
     check_zita_resampler(opt, conf)
@@ -720,8 +719,6 @@ def configure(conf):
     # defines for compilation
     gxsharedir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head'))
     conf.define('GX_STYLE_DIR', os.path.join(gxsharedir,'skins'))
-    if not opt.no_lv2:
-        conf.define('GX_LV2_STYLE_DIR', os.path.join(conf.env['GX_STYLE_DIR'],'LV2'))
     conf.define('GX_FACTORY_DIR', os.path.join(gxsharedir,'factorysettings'))
     conf.define('GX_SOUND_DIR', os.path.join(gxsharedir,'sounds'))
     conf.define('GX_SOUND_BPB_DIR', os.path.join(conf.env['GX_SOUND_DIR'],'bands'))
@@ -737,8 +734,8 @@ def configure(conf):
 
 
     conf.define('GX_VERSION', VERSION)
-    
-    if conf.env.DEST_CPU=='x86_64': 
+
+    if conf.env.DEST_CPU=='x86_64':
         conf.define('OS_64_BIT', 1)
     else:
         conf.define('OS_32_BIT', 1)
@@ -752,12 +749,13 @@ def configure(conf):
     conf.env['DESKAPPS_DIR'] = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications'))
     conf.env['BIN_NAME'] = APPNAME
 
-    conf.env['LV2'] =  not opt.no_lv2
-    conf.env['LV2ONLY'] =  opt.lv2_only
-    conf.env['NOLV2GUI'] = opt.no_lv2_gui
+    conf.env['LV2'] = opt.lv2
+    conf.env['LV2GUI'] = opt.lv2_gui
     conf.env['NOMODGUI'] = opt.no_mod_lv2
     conf.env['NOSSE'] =  opt.disable_sse
-    if not opt.no_lv2:
+    if opt.lv2:
+        conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
+        conf.define('GX_LV2_STYLE_DIR', os.path.join(conf.env['GX_STYLE_DIR'],'LV2'))
         if opt.lv2dir:
             conf.env['LV2DIR'] = opt.lv2dir
         else:
@@ -766,8 +764,6 @@ def configure(conf):
     conf.env['LADSPA'] = opt.ladspa
     conf.env['NEW_LADSPA'] = opt.new_ladspa
     if opt.ladspa or opt.new_ladspa:
-        conf.check(header_name='ladspa.h', mandatory=1)
-        conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
         if opt.ladspadir:
             conf.env['LADSPADIR'] = opt.ladspadir
         else:
@@ -805,19 +801,19 @@ def configure(conf):
         conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
         conf.cfg_get_variable(package='pygobject-2.0', variable='codegendir')
 
-    if not conf.env['NO_MAIN']:
+    if conf.env['STANDALONE']:
         conf.sub_config('src/gx_head');
     if conf.env['FAUST']:
         conf.sub_config('src/faust');
     conf.sub_config('src/plugins');
-    if conf.env["LADSPA"]:   
+    if conf.env["LADSPA"]:
         conf.sub_config('ladspa');
     if conf.env["LV2"]:
         opt.shared_lib = True;
         conf.sub_config('src/LV2');
-        
+
         # config subdirs
-    if not (opt.lv2_only and opt.no_lv2_gui):
+    if conf.env['STANDALONE'] or conf.env['LV2GUI']:
         conf.sub_config('pygxw');
         conf.sub_config('glade-gxw');
         conf.sub_config('libgxwmm');
@@ -836,17 +832,15 @@ def configure(conf):
 
     # writing config.h
     conf.write_config_header('config.h')
-    
+
     # some output
     print("")
     display_msg("==================")
     version_msg = "GUITARIX II " + VERSION
     print_msg(version_msg)
-    
+
     print_msg("")
     display_msg("OS ", conf.env['OS'], 'CYAN')
-    if conf.env['NO_MAIN']:
-        display_msg("Guitarix main build ", "dissabled", 'RED')
     if cpu_model:
         display_msg("CPU version" , "%s" % cpu_model, "CYAN")
     if not conf.env['NOOPT'] and opt.optimization:
@@ -876,14 +870,15 @@ def configure(conf):
         display_feature("Use zita-convolver-ffmpeg", True)
     else:
         display_feature("Use internal zita-convolver", not conf.env['ZITA_CONVOLVER'])
-    display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
 
-    display_feature("Build ladspa plugins", conf.env['LADSPA'])
-    display_feature("Build new ladspa plugins", conf.env['NEW_LADSPA'])
-    display_feature("build lv2 plugins", conf.env['LV2'])
-    display_feature("build lv2 plugin GUI's", not conf.env['NOLV2GUI'])
-    display_feature("install MOD lv2 plugin GUI's", not conf.env['NOMODGUI'])
-    if not opt.no_lv2:
+    display_feature("Build standalone application", conf.env['STANDALONE'])
+    display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
+    display_feature("Build LADSPA plugins", conf.env['LADSPA'])
+    display_feature("Build new LADSPA plugins", conf.env['NEW_LADSPA'])
+    display_feature("Build LV2 plugins", conf.env['LV2'])
+    display_feature("Build LV2 plugin GUI's", conf.env['LV2GUI'])
+    display_feature("Install MOD LV2 plugin GUI's", not conf.env['NOMODGUI'])
+    if opt.lv2:
         display_feature("SSE2 support found", conf.env['SSE2'])
         display_feature("SSE2 support disabled", conf.env['NOSSE'])
     display_feature("skip Python Library Wrapper", not conf.env['GX_PYTHON_WRAPPER'])
@@ -898,19 +893,18 @@ def configure(conf):
         display_msg("glade catalog dir", conf.env['GLADE_CATALOG_DIR'], 'CYAN')
         display_msg("glade modules dir", conf.env['GLADE_MODULES_DIR'], 'CYAN')
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
-    if not conf.env['NO_MAIN']:
-        display_msg("Install binary", conf.env['BINDIR'], 'CYAN')
+    if conf.env['STANDALONE']:
+        display_msg("Install standalone binary", conf.env['BINDIR'], 'CYAN')
+        display_msg("Guitarix shared files directory", gxsharedir, 'CYAN')
+        display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
     display_msg("Install library", conf.env['LIBDIR'], 'CYAN')
     if conf.env['FONT']:
         display_msg("Install font roboto condensed", conf.env['GX_FONTS_DIR'], 'CYAN')
         display_feature("Update Font config cache", not conf.env["NO_UPDATE_FONT_CACHE"])
     if opt.ladspa:
         display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
-    if not opt.no_lv2:
+    if opt.lv2:
         display_msg("Install lv2", conf.env['LV2DIR'], 'CYAN')
-    if not conf.env['NO_MAIN']:
-        display_msg("Guitarix shared files directory", gxsharedir, 'CYAN')
-        display_msg("Guitarix pixmaps directory", conf.env['GX_PIXMAPS_DIR'], 'CYAN')
     if conf.env['g++']:
        error_msg("ERROR       !!! Compiler version is too old !!!")
     if conf.env['FONTMSG']:
@@ -945,13 +939,13 @@ def build(bld):
     # process subfolders from here
     if bld.env["LADSPA"]:
         bld.add_subdirs('ladspa')
-    if not (bld.env['LV2ONLY'] and bld.env['NOLV2GUI']):
+    if bld.env['STANDALONE'] or bld.env['LV2GUI']:
         bld.add_subdirs('libgxw/gxw')
         bld.add_group()
         bld.add_subdirs('libgxwmm')
         bld.add_subdirs('glade-gxw')
         bld.add_subdirs('pygxw')
-    if not bld.env['NO_MAIN']:
+    if bld.env['STANDALONE']:
         bld.add_subdirs('src/faust')
         bld.add_subdirs('src/plugins')
         bld.add_subdirs('rcstyles')
@@ -961,7 +955,7 @@ def build(bld):
         bld.add_subdirs('src/ladspa')
     if bld.env["LV2"]:
         bld.add_subdirs('src/LV2')
-    if not bld.env['NO_MAIN']:
+    if bld.env['STANDALONE']:
         if bld.env['FONT']:
             bld.install_files(os.path.join(bld.env['GX_FONTS_DIR'], 'robotocondensed'), './fonts/*', chmod=0o644)
             if not bld.env["NO_UPDATE_FONT_CACHE"]:
@@ -993,7 +987,7 @@ def build(bld):
                 target    = 'guitarix.desktop',
                 install_path = "${DATADIR}/applications",
             )
-        
+
             # hacked in scanner method so the desktop file gets rebuild
             # when any po file changes; don't know if there is a better way
             gen_desktop_create_task = gen_desktop.create_task

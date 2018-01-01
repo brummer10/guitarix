@@ -113,11 +113,11 @@ def dirlist():
         'gx_bossds1.lv2',
         'gx_mxrdist.lv2',
         'gxtape.lv2',
-        'gxtape_st.lv2',	
+        'gxtape_st.lv2',
         'gx_alembic.lv2',
         'gx_w20.lv2',
-        	
-        
+
+
        ]
 
     return subdirs
@@ -138,9 +138,8 @@ def build(bld):
     # faust folder keep out of dirlist
     bld.add_subdirs('faust')
     bld.add_subdirs(dirlist())
-    
-    if not bld.env['NOLV2GUI']:
+
+    if bld.env['LV2GUI']:
         gx_ampstyledir = bld.path.find_dir( 'GUI' ) ;
         bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gx_ampstyledir.ant_glob('**/*.png'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
         bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gx_ampstyledir.ant_glob('**/*.rc'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
-
