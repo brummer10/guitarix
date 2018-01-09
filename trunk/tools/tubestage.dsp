@@ -1,7 +1,8 @@
+import("stdfaust.lib");
 import("../src/faust/guitarix.lib");
 
 tubestage_test(tb,fck,Rk,vplus,Vk0) = tube : hpf with {
-    lpfk = lowpass(1,fck);
+    lpfk = fi.lowpass(1,fck);
     divider = 40;
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
