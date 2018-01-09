@@ -50,7 +50,10 @@ def _print_Piecewise(self, expr):
                         self._print(expr.args[-1].expr)))
     return "(" + "".join(ecpairs) + last_line + ")"
 
-CCodePrinter._print_Piecewise = _print_Piecewise
+import sympy
+sympyversion =  int("".join(sympy.__version__.split(".")))
+if sympyversion < 761:
+    CCodePrinter._print_Piecewise = _print_Piecewise
 #
 # end bugfixes
 ################################################################
