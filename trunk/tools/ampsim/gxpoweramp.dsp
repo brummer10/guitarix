@@ -1,4 +1,5 @@
 declare name "PowerAmp";
+import("stdfaust.lib");
 import("../../src/faust/guitarix.lib");
 
 feedbackfilter = (_ <: *(b0), (mem : *(b1)) :> + ~ *(a1)) with {
@@ -15,17 +16,17 @@ feedbackfilter = (_ <: *(b0), (mem : *(b1)) :> + ~ *(a1)) with {
     B1 = R4*R5*C3;
     A0 = R3 + R5;
     A1 = C3*R4*R5 + C3*R3*R5 + C3*R3*R4;
-    a = A0 + 2*A1*SR;
-    a1 = -1 * (A0 - 2*A1*SR) / a;
-    b0 = (B0 + 2*B1*SR) / a;
-    b1 = (B0 - 2*B1*SR) / a;
+    a = A0 + 2*A1*ma.SR;
+    a1 = -1 * (A0 - 2*A1*ma.SR) / a;
+    b0 = (B0 + 2*B1*ma.SR) / a;
+    b1 = (B0 - 2*B1*ma.SR) / a;
 };
 
 Xprocess = PowAmp with { PowAmp = ffunction(float PowAmp(float), <math.h>, ""); };
 
 process = *(pregain) : (+ : PowAmp) ~ (feedbackfilter : *(-fbgain)) : *(postgain) with {
     PowAmp = ffunction(float PowAmp(float), <math.h>, "");
-    pregain =  vslider("Pregain",0,-20,40,0.1) : db2linear : smoothi(0.999); 
-    postgain = vslider("postgain", 0, -20.0, 20.0, 0.1) : db2linear : /(450): smoothi(0.999);
-    fbgain = vslider("fbgain", -1, -40.0, 20.0, 0.1) : db2linear : /(15): smoothi(0.999);
+    pregain =  vslider("Pregain",0,-20,40,0.1) : ba.db2linear : smoothi(0.999); 
+    postgain = vslider("postgain", 0, -20.0, 20.0, 0.1) : ba.db2linear : /(450): smoothi(0.999);
+    fbgain = vslider("fbgain", -1, -40.0, 20.0, 0.1) : ba.db2linear : /(15): smoothi(0.999);
 };
