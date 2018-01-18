@@ -351,7 +351,7 @@ class LinearFilter(object):
     def solve(self, S, in_mat, out_mat):
         v = sp.Matrix(sp.symbols("v:%d" % self.S.shape[0]))
         try:
-            p = subprocess.Popen(("maxima","-b","/dev/fd/0","--very-quiet"),
+            p = subprocess.Popen(("maxima","-b","/dev/fd/0","--very-quiet","2>&1 >/dev/null"),shell=True,
                                  stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
         except OSError as e:
