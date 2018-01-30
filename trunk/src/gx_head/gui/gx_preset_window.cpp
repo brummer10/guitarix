@@ -697,7 +697,7 @@ void PresetWindow::on_new_bank() {
 
 void DownloadWatch::start () {
     cancellable = Gio::Cancellable::create ();
-    file_state = sigc::ptr_fun(&f_progress);
+    file_state = sigc::slot<void, goffset, goffset>(&f_progress);
     watcher = Glib::Thread::create(sigc::mem_fun(*this, &DownloadWatch::watch), true);
 }
 
@@ -919,7 +919,7 @@ void PresetWindow::replace_inline(std::string& subject, const std::string& searc
 
 void PresetWindow::show_online_preset() {
 
-    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_presets_filename(), resolve_hostname()));
+    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_config_filename(), resolve_hostname()));
     static bool load_new = true;
     static bool load = false;
     Glib::RefPtr<Gdk::Window> window = preset_scrolledbox->get_toplevel()->get_window();
