@@ -1,7 +1,8 @@
-import os
+import sys; sys.path.append(".")
+import os ; os.chdir("../")
 from analog import *
 
-schema = "lineoutlevel.sch"
+schema = "gschem-schematics/lineoutlevel.sch"
 path = "tmp"
 module_id = "lineoutlevel"
 mod = os.path.join(path, module_id+".so")

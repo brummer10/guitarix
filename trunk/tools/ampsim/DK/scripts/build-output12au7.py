@@ -1,7 +1,8 @@
-import os
+import sys; sys.path.append(".")
+import os ; os.chdir("../")
 from analog import *
 
-schema = "output12au7.sch"
+schema = "gschem-schematics/output12au7.sch"
 path = "tmp"
 module_id = "output12au7"
 mod = os.path.join(path, module_id+".so")

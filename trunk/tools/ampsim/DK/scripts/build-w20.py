@@ -1,7 +1,8 @@
-import os
+import sys; sys.path.append(".")
+import os ; os.chdir("../")
 from analog import *
 
-schema = "W20.sch"
+schema = "gschem-schematics/W20.sch"
 path = "tmp"
 module_id = "w20"
 mod = os.path.join(path, module_id+".so")

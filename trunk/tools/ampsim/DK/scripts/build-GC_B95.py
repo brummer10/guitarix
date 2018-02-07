@@ -1,4 +1,5 @@
 import sys; sys.path.append(".")
+import os ; os.chdir("../")
 from models import *
 from analog import *
 from scipy.optimize import curve_fit

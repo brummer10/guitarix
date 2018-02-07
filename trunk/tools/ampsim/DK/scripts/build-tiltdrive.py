@@ -1,8 +1,9 @@
-import os
+import sys; sys.path.append(".")
+import os ; os.chdir("../")
 from analog import *
 
-schema = "newtilt1.sch"
-path = "/home/steve/Source/guitarix-git/trunktools/ampsim/DK"
+schema = "gschem-schematics/newtilt1.sch"
+path = "tmp"
 module_id = "tiltdrive"
 mod = os.path.join(path, module_id+".so")
 

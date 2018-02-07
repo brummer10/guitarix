@@ -1,7 +1,8 @@
-import os
+import sys; sys.path.append(".")
+import os ; os.chdir("../")
 from analog import *
 
-schema = "Fuzzface2.sch"
+schema = "gschem-schematics/Fuzzface2.sch"
 path = "tmp"
 module_id = "fuzzface"
 mod = os.path.join(path, module_id+".so")

@@ -1,7 +1,8 @@
-import os
+import sys; sys.path.append(".")
+import os ; os.chdir("../")
 from analog import *
 
-schema = "redeyeChump.sch"
+schema = "gschem-schematics/redeyeChump.sch"
 path = "tmp"
 module_id = "redeyeChump"
 mod = os.path.join(path, module_id+".so")

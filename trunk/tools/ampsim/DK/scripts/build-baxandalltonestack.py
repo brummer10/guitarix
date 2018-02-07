@@ -1,7 +1,8 @@
-import os
+import sys; sys.path.append(".")
+import os ; os.chdir("../")
 from analog import *
 
-schema = "baxandalltonestack.sch"
+schema = "gschem-schematics/baxandalltonestack.sch"
 path = "tmp"
 module_id = "baxandall"
 mod = os.path.join(path, module_id+".so")
