@@ -20,20 +20,32 @@ to the file ~/.gEDA/gafrc (of course replace the <...> with the real
 path). (Tip: gschem on Ubuntu 13.4 needs the environment setting
 UBUNTU_MENUPROXY= to have working keyboard shortcuts.)
 
-Dependencies:
- - python-scipy
- - python-matplotlib  
- - python-sympy
+It is highly recommended to create a Python 2.7 virtual environment 
+  (see https://virtualenv.pypa.io/en/stable/
+  and https://packaging.python.org/guides/installing-using-pip-and-virtualenv/)
+dedicated to Guitarix. 
+This ensures any system update will not interfere with the Python packages used by Guitarix and its tools.
+
+Packages used are:
+Cython==0.27.3
+matplotlib==2.2.0
+mpmath==1.0.0
+numpy==1.14.2
+scipy==1.0.0
+sympy==1.1.1
+
+Additional dependencies:
  - for internally generated C++ module:
    - libeigen3-dev
    - libcminpack-dev
+   - libsundials-serial-dev
  - to generate symbolic output (e.g. Faust code):
    - maxima
    - (at least on debian / ubuntu): package maxima-share (add-on packages)
 
 Demo:
 
-"python circ.py", then select e.g. 5 (PushPullTransformer). You can
+"python simu.py", then select e.g. 5 (PushPullTransformer). You can
 disable C code generation by adding option -p (the calculation will be
 about a factor of 100 slower).
 
