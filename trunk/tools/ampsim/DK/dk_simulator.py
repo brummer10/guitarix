@@ -8,55 +8,13 @@ import scipy.signal as sig
 import sympy as sp
 import ctypes as ct
 import slicot
+import mpmath
 import collections, warnings, tempfile, os, operator, sys, shutil, time
 import commands, subprocess, math, re, logging
 
 import dk_templates, generate_code
 from models import GND, Out, Node
 from dk_lib import printoptions
-
-try:
-    opt.root
-except AttributeError:
-    class RootResult(object):
-        def __init__(self, x, infodict, ier, mesg):
-            self.x = x
-            self.success = (ier == 1)
-            self.status = ier
-            self.message = mesg
-    def opt_root(fun, x0, args=(), method='hybr', jac=None, tol=None, callback=None, options=None):
-        factor = 100
-        if options:
-            factor = options.get("factor", factor)
-        return RootResult(*opt.fsolve(fun, x0, args, jac, full_output=True))
-    opt.root = opt_root
-
-################################################################
-# bugfixes
-#
-from sympy.printing.ccode import CCodePrinter
-
-def _print_Piecewise(self, expr):
-    # This method is called only for inline if constructs
-    # Top level piecewise is handled in doprint()
-    ecpairs = ["(%s) ? (%s) : " % (self._print(c), self._print(e)) \
-                   for e, c in expr.args[:-1]]
-    last_line = ""
-    if expr.args[-1].cond == True:
-        last_line = "(%s)" % self._print(expr.args[-1].expr)
-    else:
-        ecpairs.append("(%s) ? (%s)" % \
-                       (self._print(expr.args[-1].cond),
-                        self._print(expr.args[-1].expr)))
-    return "(" + "".join(ecpairs) + last_line + ")"
-
-import sympy
-sympyversion =  int("".join(sympy.__version__.split(".")))
-if sympyversion < 761:
-    CCodePrinter._print_Piecewise = _print_Piecewise
-#
-# end bugfixes
-################################################################
 
 def pkgconfig(*packages, **kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
@@ -1176,7 +1134,7 @@ class SimulatePy(Simulate):
             # model is linearized
             return
         for j, (expr, vl, base) in enumerate(self.eq.f):
-            self.ff[j] = (sp.lambdify(vl, expr), base)
+            self.ff[j] = (sp.lambdify(vl, expr, modules=["mpmath", "math", "sympy"]), base)
 
     def calc_di(self, v, j):
         i = np.zeros(len(self.eq.f))
