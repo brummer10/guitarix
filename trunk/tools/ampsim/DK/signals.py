@@ -1,5 +1,7 @@
 from __future__ import division
-import sympy, numpy, types, math
+import sympy as sp
+import numpy as np
+import types, math
 import dk_lib
 import pylab, scipy.signal
 
@@ -15,20 +17,20 @@ class GeneratedSignal(object):
         self.generate_harmonics = False
         self.make_spectrum = self._default_make_spectrum
         m = [dict(sweep = self._sweep, chirp = self._chirp, impulse = self._impulse, time = self._time,
-                  null=self._null, asin=numpy.arcsin, atan=numpy.arctan,
-                  Min=numpy.minimum, Max=numpy.maximum, ramp=self._ramp), numpy]
-        self.signal = sympy.lambdify((), func, modules=m)()
+                  null=self._null, asin=np.arcsin, atan=np.arctan,
+                  Min=np.minimum, Max=np.maximum, ramp=self._ramp), np]
+        self.signal = sp.lambdify((), func, modules=m)()
         if isinstance(self.signal, tuple):
-            self.signal = numpy.array(self.signal).T
+            self.signal = np.array(self.signal).T
         else:
-            self.signal = self.signal[:,numpy.newaxis]
+            self.signal = self.signal[:,np.newaxis]
         samples = len(self.signal)
         if len(op) != self.signal.shape[1]:
             raise ValueError(
                 "signal definition error: inconsistent channel count (%d vs. %d in OP definition)"
                 % (self.signal.shape[1], len(op)))
-        self.input_signal = self.signal + numpy.array(op, dtype=numpy.float64)
-        self.timeline = numpy.linspace(0, samples/fs, samples, endpoint=False)
+        self.input_signal = self.signal + np.array(op, dtype=np.float64)
+        self.timeline = np.linspace(0, samples/fs, samples, endpoint=False)
 
     def _sweep_make_spectrum(self, response, freqlist, shift=True):
         return self._sweep_harmonics_responses(response, 1, freqlist, shift)[0]
@@ -39,13 +41,13 @@ class GeneratedSignal(object):
         np = dk_lib.pow2roundup(n)
         if len(xd.shape) == 2 and len(h.shape) == 1:
             h = h.reshape((len(h), 1))
-        s = numpy.fft.irfft(numpy.fft.rfft(h, np, axis=0) * numpy.fft.rfft(xd, np, axis=0), np, axis=0)
+        s = np.fft.irfft(np.fft.rfft(h, np, axis=0) * np.fft.rfft(xd, np, axis=0), np, axis=0)
         return s[:n]
 
     def _sweep_harmonics_responses(self, response, N, freqlist, shift=True):
         g = self.input_signal.ptp()/2
         di = self._fft_convolve(self.sweep_inverse_signal, response/g)  # deconvolved impulse response
-        imp_indices = numpy.zeros(N+1, dtype=int)  # the indices of each impulse (1st linear, 2nd the first harm. dist. etc.)
+        imp_indices = np.zeros(N+1, dtype=int)  # the indices of each impulse (1st linear, 2nd the first harm. dist. etc.)
         imp_indices[0] = len(self.sweep_inverse_signal) - 1
         for n in range(1, N+1):
             imp_indices[n] = imp_indices[0] - int(round(math.log(n+1) * self.sweep_rate))
@@ -55,7 +57,7 @@ class GeneratedSignal(object):
             lo = imp_indices[n] - dl  # the low limit where to cut
             hi = imp_indices[n] + dl  # the high limit where to cut
             di_w = di[lo:hi]
-            win = numpy.blackman(len(di_w))
+            win = np.blackman(len(di_w))
             if len(di.shape) == 2:
                 win = win.reshape((len(win), 1))
             di_w *= win  # smoothed version
@@ -64,7 +66,7 @@ class GeneratedSignal(object):
                 w = w * (n + 1)
             h = scipy.signal.freqz(di_w, worN=w)[1]
             off = imp_indices[n] - lo
-            h *= numpy.exp(off * 1j * freqlist)
+            h *= np.exp(off * 1j * freqlist)
             imps.append(h)
         return imps
 
@@ -115,29 +117,29 @@ class GeneratedSignal(object):
     def _impulse(self, t, offset):
         self.generate_spectrum = True
         self.make_spectrum = self._impulse_make_spectrum
-        a = numpy.zeros_like(t)
+        a = np.zeros_like(t)
         a[offset] = 1
         return a
 
     def _time(self, samples, fs):
-        return numpy.linspace(0, samples/fs, samples)
+        return np.linspace(0, samples/fs, samples)
 
     def _ramp(self, t, start, log):
         if log:
             if start < 0:
                 start = 0.001
-            return numpy.logspace(numpy.log10(start), 0, len(t))
+            return np.logspace(np.log10(start), 0, len(t))
         else:
             if start < 0:
                 start = 0
-            return numpy.linspace(start, 1, len(t))
+            return np.linspace(start, 1, len(t))
 
     def _null(self, s):
         return 0*s
 
     def _default_make_spectrum(self, response, freqlist):
         n = dk_lib.pow2roundup(len(response))
-        return numpy.fft.rfft(response, n, axis=0)
+        return np.fft.rfft(response, n, axis=0)
 
     def has_spectrum(self):
         return self.generate_spectrum
@@ -159,20 +161,20 @@ class GeneratedSignal(object):
         if plotfunc is None:
             plotfunc = pylab.semilogx
         if isinstance(freqlist, int):
-            freqlist = numpy.logspace(numpy.log10(lower_freq), numpy.log10(upper_freq), freqlist)
+            freqlist = np.logspace(np.log10(lower_freq), np.log10(upper_freq), freqlist)
         return lower_freq, upper_freq, plotfunc, freqlist
 
     def plot_spectrum(self, response, lower_freq=None, upper_freq=None, plotfunc=None, freqlist=200):
         lower_freq, upper_freq, plotfunc, freqlist = self._plot_setup(lower_freq, upper_freq, plotfunc, freqlist)
-        h = self.get_spectrum(response, 2 * numpy.pi * freqlist / self.fs)
-        return plotfunc(freqlist, 20 * numpy.log10(abs(h)))
+        h = self.get_spectrum(response, 2 * np.pi * freqlist / self.fs)
+        return plotfunc(freqlist, 20 * np.log10(abs(h)))
 
     def plot_harmonic_spectrum(self, response, nharmonics=6, lower_freq=None, upper_freq=None, plotfunc=None, freqlist=200):
         lower_freq, upper_freq, plotfunc, freqlist = self._plot_setup(lower_freq, upper_freq, plotfunc, freqlist)
         lines = []
-        for i, h in enumerate(self.get_harmonics_responses(response, nharmonics, 2*numpy.pi*freqlist/self.fs)):
+        for i, h in enumerate(self.get_harmonics_responses(response, nharmonics, 2*np.pi*freqlist/self.fs)):
             if h.size:
-                lines.extend(plotfunc(freqlist, 20 * numpy.log10(abs(h))))
+                lines.extend(plotfunc(freqlist, 20 * np.log10(abs(h))))
         return lines
 
     def plot(self, response, label=None, clip=-80, nharmonics=8, spectrum=None, freq_range=None):
@@ -194,10 +196,10 @@ class GeneratedSignal(object):
                     line.set_label("%d" % (i+1))
             return lines
         elif (spectrum is None and self.has_spectrum()) or spectrum:
-            f = numpy.logspace(numpy.log10(lower_freq), numpy.log10(upper_freq), 200)
-            h = self.get_spectrum(response, 2*numpy.pi * f / self.fs)
-            s = 20*numpy.log10(abs(h))
-            lines = pylab.plot(f, numpy.where(s > clip, s, numpy.nan), label=label)
+            f = np.logspace(np.log10(lower_freq), np.log10(upper_freq), 200)
+            h = self.get_spectrum(response, 2*np.pi * f / self.fs)
+            s = 20*np.log10(abs(h))
+            lines = pylab.plot(f, np.where(s > clip, s, np.nan), label=label)
             pylab.xscale('log')
             return lines
         else:
@@ -206,11 +208,11 @@ class GeneratedSignal(object):
 
 class Signal(object):
 
-    _s_FS, _s_freq, _s_start_freq, _s_stop_freq, _s_sweep_pre, _s_sweep_post, _s_samples = sympy.symbols(
+    _s_FS, _s_freq, _s_start_freq, _s_stop_freq, _s_sweep_pre, _s_sweep_post, _s_samples = sp.symbols(
         "FS, freq, start_freq, stop_freq, sweep_pre, sweep_post, samples")
-    _s_sweep, _s_chirp, _s_impulse, _s_time, _s_null, _s_ramp = sympy.symbols(
-        "sweep,chirp,impulse,time,null,ramp", cls=sympy.Function)
-    t = sympy.symbols("t")
+    _s_sweep, _s_chirp, _s_impulse, _s_time, _s_null, _s_ramp = sp.symbols(
+        "sweep,chirp,impulse,time,null,ramp", cls=sp.Function)
+    t = sp.symbols("t")
 
     def __init__(self, timespan=0.01):
         self._freq = 440
@@ -267,17 +269,17 @@ class Signal(object):
         if freq is None:
             freq = self.freq
         self.freq = freq
-        return sympy.sin(self.t * freq * 2 * sympy.pi)
+        return sp.sin(self.t * freq * 2 * sp.pi)
 
     def triangle(self, freq=None):
         if freq is None:
             freq = self.freq
-        return 2 / sympy.pi * sympy.asin(self.sine(freq))
+        return 2 / sp.pi * sp.asin(self.sine(freq))
 
     def sawtooth(self, freq=None):
         if freq is None:
             freq = self.freq
-        return -2 / sympy.pi * sympy.atan(1/sympy.tan(sympy.pi * self.t))
+        return -2 / sp.pi * sp.atan(1/sp.tan(sp.pi * self.t))
 
     def square(self, freq=None):
         if freq is None:
