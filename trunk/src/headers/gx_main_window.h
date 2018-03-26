@@ -571,6 +571,7 @@ private:
     RackContainer monorackcontainer;
     RackContainer stereorackcontainer;
     int pre_act;
+    int pool_act;
     bool is_visible;
    // bool ui_sleep();
     DragIcon *drag_icon;

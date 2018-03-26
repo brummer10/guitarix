@@ -665,13 +665,22 @@ void MainWindow::on_show_rack() {
     actions.rackh->set_sensitive(v);
     stereorackcontainer.set_visible(v);
     rack_order_h_button->set_visible(v);
-    compress_button->set_visible(v);
-    expand_button->set_visible(v);
+    if (v) {
+        bool c = machine.get_parameter_value<bool>("ui.mp_s_h");
+        compress_button->set_visible(!c);
+        expand_button->set_visible(c);
+    } else {
+        compress_button->set_visible(v);
+        expand_button->set_visible(v);
+    }
     if (actions.presets->get_active() && preset_scrolledbox->get_mapped()) {
 	options.preset_window_height = preset_scrolledbox->get_allocation().get_height();
     }
     if (v) {
 	midi_out_box->set_visible(actions.midi_out->get_active());
+    if (pool_act) {
+	    actions.show_plugin_bar->set_active(true);
+    }
 	options.window_height = max(options.window_height, window->size_request().height);
 	main_vpaned->set_position(oldpos);
 	w->show();
@@ -684,6 +693,7 @@ void MainWindow::on_show_rack() {
 	    main_vpaned->add(*preset_scrolledbox);
 	    change_expand(*preset_box_no_rack, false);
 	    change_expand(*main_vpaned, true);
+	    gx_gui::child_set_property(*main_vpaned, *preset_scrolledbox, "shrink", false);
 	}
 	Glib::RefPtr<Gdk::Window> win = window->get_window();
 	if (!win || win->get_state() == 0) {
@@ -699,7 +709,10 @@ void MainWindow::on_show_rack() {
 	if (actions.midi_out->get_active()) {
 	    midi_out_box->set_visible(false);
 	}
-	actions.show_plugin_bar->set_active(false);
+    pool_act = actions.show_plugin_bar->get_active();
+    if (pool_act) {
+	    actions.show_plugin_bar->set_active(false);
+    }
 	oldpos = main_vpaned->get_position();
 	w->hide();
 	monoampcontainer->hide();
@@ -727,12 +740,16 @@ void MainWindow::on_compress_all() {
     plugin_dict.compress(true);
     on_ampdetail_switch(true, true);
     actions.midi_out_plug->set_active(true);
+    compress_button->set_visible(false);
+    expand_button->set_visible(true);
 }
 
 void MainWindow::on_expand_all() {
     plugin_dict.compress(false);
     on_ampdetail_switch(false, true);
     actions.midi_out_plug->set_active(false);
+    compress_button->set_visible(true);
+    expand_button->set_visible(false);
 }
 
 void MainWindow::on_rack_configuration() {
@@ -3162,6 +3179,9 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 		insert_image->set(pixbuf_insert_on);
 		machine.set_jack_insert(false);
 	}
+    bool c = machine.get_parameter_value<bool>("ui.mp_s_h");
+    compress_button->set_visible(!c);
+    expand_button->set_visible(c);
     if (!options.get_tuner_tet().empty()) set_tuner_tet(*racktuner);
 
  }
