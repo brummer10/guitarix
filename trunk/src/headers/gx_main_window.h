@@ -234,7 +234,7 @@ public:
 
 class DragIcon {
 private:
-    enum { gradient_length = 40 };
+    enum { gradient_length = 60 };
     Gtk::Window *window;
     Glib::RefPtr<Gdk::Pixbuf> drag_icon_pixbuf;
 private:

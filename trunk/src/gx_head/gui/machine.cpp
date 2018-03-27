@@ -158,6 +158,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     pb.signal_changed().connect(
 	sigc::bind(sigc::ptr_fun(on_engine_bypass_changed), sigc::ref(engine)));
     pmap.reg_non_midi_par("ui.mp_s_h", (bool*)0, false);
+    pmap.reg_non_midi_par("ui.all_s_h", (bool*)0, false);
     BoolParameter& ip = pmap.reg_par(
       "engine.insert", N_("switch insert ports on/off"), (bool*)0, false, false)->getBool();
     ip.signal_changed().connect(
