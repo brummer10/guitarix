@@ -81,6 +81,10 @@ LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& l
       save2(false),
       save3(false),
       save4(false),
+      first1(true),
+      first2(true),
+      first3(true),
+      first4(true),
       RP1(false),
       RP2(false),
       RP3(false),
@@ -407,7 +411,8 @@ void LiveLooper::load_tape1() {
         RecSize1[1] = load_from_wave(load_file1, &tape1, tape1_size);
         tape1_size = max(4194304,RecSize1[1]);
         IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
-        save1 = true;
+        if (!first1) save1 = true;
+        else first1 = false;
         load_file1 = "tape1";
         gx_system::atomic_set(&ready,1);
     }
@@ -426,7 +431,8 @@ void LiveLooper::load_tape2() {
         RecSize2[1] = load_from_wave(load_file2, &tape2, tape2_size);
         tape2_size = max(4194304,RecSize2[1]);
         IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
-        save2 = true;
+        if (!first2) save2 = true;
+        else first2 = false;
         load_file2 = "tape2";
         gx_system::atomic_set(&ready,1);
     }
@@ -445,7 +451,8 @@ void LiveLooper::load_tape3() {
         RecSize3[1] = load_from_wave(load_file3, &tape3, tape3_size);
         tape3_size = max(4194304,RecSize3[1]);
         IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
-        save3 = true;
+        if (!first3) save3 = true;
+        else first3 = false;
         load_file3 = "tape3";
         gx_system::atomic_set(&ready,1);
     }
@@ -464,7 +471,8 @@ void LiveLooper::load_tape4() {
         RecSize4[1] = load_from_wave(load_file4, &tape4, tape4_size);
         tape4_size = max(4194304,RecSize4[1]);
         IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
-        save4 = true;
+        if (!first4) save4 = true;
+        else first4 = false;
         load_file4 = "tape4";
         gx_system::atomic_set(&ready,1);
     }

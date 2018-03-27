@@ -868,6 +868,10 @@ private:
 	bool save2;
 	bool save3;
 	bool save4;
+	bool first1;
+	bool first2;
+	bool first3;
+	bool first4;
 	bool RP1;
 	bool RP2;
 	bool RP3;
