@@ -169,7 +169,9 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxswitch8", set_sync);
     builder->find_widget("gxswitch9", reset_step);
     builder->find_widget("label9:rack_label_inverse", preset_label);
-
+    builder->find_widget("gxvaluedisplay1", step_value);
+    builder->find_widget("label8:rack_label_inverse", step_label);
+    
     Pango::FontDescription font = preset_label->get_style()->get_font();
     font.set_size(10*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
@@ -230,6 +232,11 @@ void SEQWindow::init_connect() {
 
     gtk_window->signal_key_press_event().connect(
       sigc::mem_fun(this, &SEQWindow::on_key_press_event));
+
+    if (!machine.get_jack()) {
+        step_value->hide();
+        step_label->hide();
+    }
 }
 
 void SEQWindow::init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box) {
@@ -544,7 +551,7 @@ bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
                 if (value<99.0) return true;
             }
             machine.signal_parameter_value<float>(id)(value);
-            machine.signal_parameter_value<float>("seq.step")(machine.get_parameter_value<float>("seq.step"));
+            if (machine.get_jack()) machine.signal_parameter_value<float>("seq.step")(machine.get_parameter_value<float>("seq.step"));
             if (machine.get_parameter_value<float>("seq.follow"))
                 scroll_playhead(value);
         }
