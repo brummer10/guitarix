@@ -731,7 +731,7 @@ class Circuit(object):
         for e in self.S:
             if e[0] in el:
                 for i in el[e[0]]:
-                    jl = J[i].nonzero()[1].A1
+                    jl = numpy.ravel(J[i].nonzero()[1])
                     for j in jl:
                         v = models.VCCS(str(e) + "l%d%d" % (i, j))
                         S.append((v, idx(Nl[j], 1), idx(Nl[j], -1), idx(Nr[i], 1), idx(Nr[i], -1)))
