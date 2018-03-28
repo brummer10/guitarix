@@ -3185,6 +3185,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     compress_button->set_visible(!c);
     expand_button->set_visible(c);
     if (!options.get_tuner_tet().empty()) set_tuner_tet(*racktuner);
+    if (!machine.get_jack()) on_move_tuner();
 
  }
 

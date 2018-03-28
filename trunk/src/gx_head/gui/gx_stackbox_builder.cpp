@@ -519,20 +519,17 @@ bool StackBoxBuilder::set_engine_value(const std::string id) {
 }
 
 void StackBoxBuilder::create_port_display(const std::string& id, const char *label) {
-    UiReglerWithCaption<Gxw::PortDisplay> *w = new UiReglerWithCaption<Gxw::PortDisplay>(machine, id);
     if (machine.get_jack()) {
+        UiReglerWithCaption<Gxw::PortDisplay> *w = new UiReglerWithCaption<Gxw::PortDisplay>(machine, id);
         Glib::signal_timeout().connect(sigc::bind<const std::string>(
           sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
-    } else {
-        Glib::signal_timeout().connect(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 250);
+        if (next_flags & UI_LABEL_INVERSE) {
+            w->set_rack_label_inverse(label);
+        } else {
+            w->set_rack_label(label);
+        }
+        addwidget(w);
     }
-    if (next_flags & UI_LABEL_INVERSE) {
-        w->set_rack_label_inverse(label);
-    } else {
-        w->set_rack_label(label);
-    }
-	addwidget(w);
 }
 
 bool StackBoxBuilder::set_pd_value(Gxw::PortDisplay *w, const std::string id, const std::string& idl, const std::string& idh) {
@@ -568,7 +565,7 @@ void StackBoxBuilder::create_p_display(const std::string& id, const std::string&
     } else {
         Glib::signal_timeout().connect(sigc::bind<Gxw::PortDisplay*>(sigc::bind<const std::string>(
           sigc::bind<const std::string>(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_pd_value),idh),idl),id),w ), 250);
+          sigc::mem_fun(*this, &StackBoxBuilder::set_pd_value),idh),idl),id),w ), 2000);
     }
 }
 
@@ -583,7 +580,7 @@ void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::str
           sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
     } else {
         Glib::signal_timeout().connect(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 250);
+          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 2000);
     }
 }
 
@@ -736,7 +733,7 @@ void StackBoxBuilder::create_feedback_slider(const std::string& id, const char *
           sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
     } else {
         Glib::signal_timeout().connect(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 250);
+          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 2000);
     }
 	w->set_label(label);
 	addwidget(w);

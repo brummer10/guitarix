@@ -108,6 +108,8 @@ class SEQWindow: public sigc::trackable {
     Gxw::Switch *set_fstep;
     Gxw::Switch *set_sync;
     Gxw::Switch *reset_step;
+    Gtk::Label *step_label;
+    Gxw::ValueDisplay *step_value;
 
     // signal functions
     void on_window_hide();
