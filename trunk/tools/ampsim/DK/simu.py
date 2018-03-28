@@ -1049,8 +1049,8 @@ def generate_faust_module(plugindef, b, a, potlist, flt, pre_filter=None, build_
 def build_faust_module(plugindef, b, a, potlist, flt, datatype="float", pre_filter=None, build_script=None):
     dsp, ui = generate_faust_module(plugindef, b, a, potlist, flt, pre_filter, build_script)
     modname = plugindef.id
-    dspname = "/tmp/%s.dsp" % modname
-    uiname = "/tmp/%s_ui.cc" % modname
+    dspname = "%s.dsp" % modname
+    uiname = "%s_ui.cc" % modname
     with open(dspname,"w") as f:
         f.write(dsp)
     with open(uiname,"w") as f:
