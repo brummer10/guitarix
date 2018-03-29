@@ -25,10 +25,14 @@ class "GtkWidget" style:highest "guitarix_default"
 
 style "guitarix_frame" {
     bg[NORMAL]              = "#011520"
+
+    engine "murrine"  {
+    }
+
     engine "clearlooks" {
         contrast            = 1.9
         radius              = 4.0
-        disable_focus       = TRUE
+       # disable_focus       = TRUE
     }
 }
 class "*GtkFrame" style:highest "guitarix_frame"

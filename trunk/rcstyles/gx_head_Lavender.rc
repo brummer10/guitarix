@@ -14,7 +14,7 @@ style "guitarix_frame" {
     engine "clearlooks" {
         contrast            = 1.2
         radius              = 4.0
-        disable_focus       = TRUE
+       # disable_focus       = TRUE
     }
 }
 class "*GtkFrame" style:highest "guitarix_frame"
