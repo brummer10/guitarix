@@ -154,12 +154,12 @@ style "gx_effect_switch"
   }
     
     engine "clearlooks" {
-        focus_color         = { 0, 0, 0 }
+        #focus_color         = { 0, 0, 0 }
         contrast            = 0.99
         menubarstyle        = 0
-        reliefstyle         = 0
+        #reliefstyle         = 0
         radius              = 1.0
-        disable_focus       = TRUE
+        #disable_focus       = TRUE
         style               = INVERTED #CLASSIC GLOSSY GUMMY INVERTED
     }
 
@@ -275,12 +275,12 @@ style "guitarix_default" {
     }
     
     engine "clearlooks" {
-        focus_color         = { 0, 0, 0 }
+       # focus_color         = { 0, 0, 0 }
         contrast            = 0.66
         menubarstyle        = 0
-        reliefstyle         = 0
+        #reliefstyle         = 0
         radius              = 1.0
-        disable_focus       = TRUE
+        #disable_focus       = TRUE
         style               = INVERTED #CLASSIC GLOSSY GUMMY INVERTED
     }
 
@@ -624,7 +624,7 @@ style "guitarix_frame" {
     engine "clearlooks" {
         contrast            = 1.2
         radius              = 4.0
-        disable_focus       = TRUE
+       # disable_focus       = TRUE
     }
 }
 class "*GtkFrame" style:highest "guitarix_frame"
@@ -653,7 +653,7 @@ style "guitarix_frame_inversed" {
     engine "clearlooks" {
         contrast            = 1.9
         radius              = 4.0
-        disable_focus       = TRUE
+       # disable_focus       = TRUE
     }
 }
 widget "*frame_inversed" style:highest "guitarix_frame_inversed"
