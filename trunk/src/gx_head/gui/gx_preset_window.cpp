@@ -84,7 +84,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     actions.online_preset_bank = Gtk::Action::create("OnlineBank");
     actions.group->add(actions.online_preset_bank, sigc::mem_fun(*this, &PresetWindow::on_online_preset));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(online_preset->gobj()), actions.online_preset_bank->gobj());
-   // if (!machine.get_jack()) online_preset->set_sensitive(false);
+    if (!machine.get_jack()) online_preset->set_sensitive(false);
     bank_treeview->set_model(Gtk::ListStore::create(bank_col));
     bank_treeview->set_name("PresetView");
     bank_treeview->get_selection()->set_select_function(

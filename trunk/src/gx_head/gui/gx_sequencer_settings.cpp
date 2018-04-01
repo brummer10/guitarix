@@ -198,9 +198,11 @@ void SEQWindow::init_connect() {
     std::string id;
     seq_pos->get_property("var_id",id);
 
+    int ti_o = 60;
+    if (!machine.get_jack()) ti_o = 250;
     Glib::signal_timeout().connect(
       sigc::bind<Gxw::Regler*>(sigc::bind<const std::string>(
-      sigc::mem_fun(*this, &SEQWindow::get_sequencer_pos),id), seq_pos), 60);
+      sigc::mem_fun(*this, &SEQWindow::get_sequencer_pos),id), seq_pos), ti_o);
 
     seq_count->signal_value_changed().connect(
       sigc::bind(sigc::mem_fun(*this, &SEQWindow::on_sec_length_changed), true));

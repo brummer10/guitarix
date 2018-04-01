@@ -144,6 +144,7 @@ void IRWindow::init_connect() {
     builder->find_widget("reset_button", wReset);
     wReset->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_reset_clicked));
     builder->find_widget("open_button", wOpen);
+    if (!machine.get_jack()) wOpen->set_sensitive(false);
     wOpen->signal_clicked().connect(sigc::mem_fun(*this, &IRWindow::on_open));
 
     builder->find_widget("apply_button", wApply);
