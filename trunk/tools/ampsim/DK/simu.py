@@ -22,8 +22,9 @@ import pylab as pl
 import numpy as np
 from scipy.signal import correlate
 from scipy.interpolate import splev
-import dk_simulator, dk_lib, circ, models
-
+import dk_simulator, dk_lib, models
+import circ as circ
+#import circ_calc as circ
 
 class KnotData(object):
 
@@ -1049,15 +1050,17 @@ def generate_faust_module(plugindef, b, a, potlist, flt, pre_filter=None, build_
 def build_faust_module(plugindef, b, a, potlist, flt, datatype="float", pre_filter=None, build_script=None):
     dsp, ui = generate_faust_module(plugindef, b, a, potlist, flt, pre_filter, build_script)
     modname = plugindef.id
-    dspname = "%s.dsp" % modname
-    uiname = "%s_ui.cc" % modname
+    dspname = "dkbuild/{0}/{0}.dsp".format(modname)
+    uiname = "dkbuild/{0}/{0}_ui.cc".format(modname)
+    if not os.path.exists("dkbuild/%s/" % modname):
+        os.makedirs("dkbuild/%s/" % modname)
     with open(dspname,"w") as f:
         f.write(dsp)
     with open(uiname,"w") as f:
         f.write(ui)
     pgm = os.path.abspath("../../build-faust")
     opts = "-s" if datatype == "float" else ""
-    os.system("%s %s -c %s" % (pgm, opts, dspname))
+    os.system("%s %s -c -k %s" % (pgm, opts, dspname))
 
 def get_circuit_instance(g, tests, args):
     if args.schema:
