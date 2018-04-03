@@ -198,11 +198,18 @@ static void port_event(LV2UI_Handle handle,
     gx_sceletonUI* ui = (gx_sceletonUI*)handle;
     if ( format == 0 ) {
         float *value = (float*)buffer;
-        ui->block = 1;
         if (port_index == 2) {
-            gtk_adjustment_set_value(GTK_ADJUSTMENT(ui->bp_adj), (gdouble) (*value));
+            float v = gtk_adjustment_get_value(GTK_ADJUSTMENT(ui->bp_adj));
+            if (v != (*value)) {
+                ui->block = 1;
+                gtk_adjustment_set_value(GTK_ADJUSTMENT(ui->bp_adj), (gdouble) (*value));
+            }
         } else {
-            gtk_adjustment_set_value(GTK_ADJUSTMENT(ui->adj[port_index-3]), (gdouble) (*value));
+            float v = gtk_adjustment_get_value(GTK_ADJUSTMENT(ui->adj[port_index-3]));
+            if (v != (*value)) {
+                ui->block = 1;
+                gtk_adjustment_set_value(GTK_ADJUSTMENT(ui->adj[port_index-3]), (gdouble) (*value));
+            }
         }
     }
 

@@ -16,7 +16,7 @@ function usage() {
   echo "    -d:   faust use double precision (default)"
   echo "    -V:   faust use vectorize"
   echo "    -S x: faust use vector size x"
-  echo "    -p /: path/to/source/  sourcefile "
+  echo "    -p:   path/to/source/sourcefile "
   echo "    -n    effect name "
   exit 1
 }
@@ -118,7 +118,7 @@ function copy_sceleton() {
     cp -r gx_sceleton_stereo.lv2/* gx_${bname}.lv2/ 
     j=4
   fi
-  cd ./gx_${bname}.lv2 && rename 's/sceleton/'${bname}'/g' * && sed -i 's/sceleton/'${bname}'/g' *
+  cd ./gx_${bname}.lv2 && find . -depth -exec rename 's/sceleton/'${bname}'/g' {} + && find . -depth -type f -exec  sed -i 's/sceleton/'${bname}'/g' {} +
 }
 
 function grep_ports_enums() {
@@ -126,9 +126,9 @@ function grep_ports_enums() {
   cat "$bname.cc" | sed -n '/enum/,/PortIndex/p' |  sed '/enum/d;/PortIndex/d;/{/d;/}/d'>ports
 
   if [ "$stereo" == "false" ] ; then
-    sed -i -e '/BYPASS/r ports' "gx_$bname.h"
+    sed -i -e '/BYPASS/r ports' "plugin/gx_$bname.h"
   else
-    sed -i -e '/EFFECTS_INPUT1/r ports' "gx_$bname.h"
+    sed -i -e '/EFFECTS_INPUT1/r ports' "plugin/gx_$bname.h"
   fi
   echo -e "grep ports values and enums and copy them to "$BLUE"gx_$bname.ttl"$NONE
   cat "$bname.cc" | sed -n '/data;/{p;g;1!p;};h' | sed 's/ , /\n/;s/.*\n//;s/case//g;s/,/ ;/g;s/://g;s/	 //g;s/  //g;s/ //g;s/$/;/' | sed '$!N;s/\n//'>ports
@@ -226,36 +226,36 @@ function make_ui() {
     fi
   done < ports
   #let PCOUNTER=COUNTER-1
-  sed -i "s/PORTS/${ports}/g;s/CONTS/${conts}/g;s/VARI/${COUNTER}/g;s#ENUMS#${enum_var}#g;s/VAI/${ECOUNTER}/g;" gx_${bname}_ui.c  
+  sed -i "s/PORTS/${ports}/g;s/CONTS/${conts}/g;s/VARI/${COUNTER}/g;s#ENUMS#${enum_var}#g;s/VAI/${ECOUNTER}/g;" gui/gx_${bname}_ui.c  
  #  sed -i "s/VAR/${PCOUNTER}/g;s/VAI/${ECOUNTER}/g;" gx_${bname}_ui.c
   rm -rf enums1
   if [ ! -z "$effect_name" ]; then
     EFNAME=${effect_name^^}
     efname=${effect_name}
-    sed -i 's/EffectNAME/'"${effect_name}"'/g'  gx_${bname}_ui.c
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gx_${bname}_ui.c
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gtkknob.cc
-    sed -i 's/efname/'"${efname}"'/g'  gtkknob.cc
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gtkknob.h
-    sed -i 's/efname/'"${efname}"'/g'  gtkknob.h
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  paintbox.cpp
-    sed -i 's/efname/'"${efname}"'/g'  paintbox.cpp
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  paintbox.h
-    sed -i 's/efname/'"${efname}"'/g'  paintbox.h
+    sed -i 's/EffectNAME/'"${effect_name}"'/g'  gui/gx_${bname}_ui.c
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/gx_${bname}_ui.c
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/gtkknob.cc
+    sed -i 's/efname/'"${efname}"'/g'  gui/gtkknob.cc
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/gtkknob.h
+    sed -i 's/efname/'"${efname}"'/g'  gui/gtkknob.h
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/paintbox.cpp
+    sed -i 's/efname/'"${efname}"'/g'  gui/paintbox.cpp
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/paintbox.h
+    sed -i 's/efname/'"${efname}"'/g'  gui/paintbox.h
     echo -e "set plugin name to "$BLUE"Gx$effect_name"$NONE
   else
     EFNAME=${bname^^}
     efname=${bname}
-    sed -i 's/EffectNAME/'${bname}'/g'  gx_${bname}_ui.c
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gx_${bname}_ui.c
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gtkknob.cc
-    sed -i 's/efname/'"${efname}"'/g'  gtkknob.cc
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gtkknob.h
-    sed -i 's/efname/'"${efname}"'/g'  gtkknob.h
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  paintbox.cpp
-    sed -i 's/efname/'"${efname}"'/g'  paintbox.cpp
-    sed -i 's/EFNAME/'"${EFNAME}"'/g'  paintbox.h
-    sed -i 's/efname/'"${efname}"'/g'  paintbox.h
+    sed -i 's/EffectNAME/'${bname}'/g'  gui/gx_${bname}_ui.c
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/gx_${bname}_ui.c
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/gtkknob.cc
+    sed -i 's/efname/'"${efname}"'/g'  gui/gtkknob.cc
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/gtkknob.h
+    sed -i 's/efname/'"${efname}"'/g'  gui/gtkknob.h
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/paintbox.cpp
+    sed -i 's/efname/'"${efname}"'/g'  gui/paintbox.cpp
+    sed -i 's/EFNAME/'"${EFNAME}"'/g'  gui/paintbox.h
+    sed -i 's/efname/'"${efname}"'/g'  gui/paintbox.h
     echo -e "set plugin name to "$BLUE"Gx$bname"$NONE
   fi
 }
@@ -306,23 +306,23 @@ function make_ttl() {
     echo -n '    ]'
     j=$[j+1]
     enum_var1=""
-  done < ports >> gx_$bname.ttl
+  done < ports >> plugin/gx_$bname.ttl
   echo " .
 
 <http://guitarix.sourceforge.net/plugins/gx_${bname}_gui#_${bname}_>
   a guiext:GtkUI;
   guiext:binary <gx_${bname}_ui.so>;
   guiext:requiredFeature guiext:makeResident;
-  ." >> gx_$bname.ttl
+  ." >> plugin/gx_$bname.ttl
 
   if [ ! -z "$effect_category" ]; then
-    sed -i 's/EffectPlugin/'${effect_category}'/g'  gx_${bname}.ttl
+    sed -i 's/EffectPlugin/'${effect_category}'/g'  plugin/gx_${bname}.ttl
     echo -e "set plugin class to "$BLUE"$effect_category"$NONE
   fi
   if [ ! -z "$effect_name" ]; then
-    sed -i 's/EffectNAME/'"${effect_name}"'/g'  gx_${bname}.ttl
+    sed -i 's/EffectNAME/'"${effect_name}"'/g'  plugin/gx_${bname}.ttl
   else
-    sed -i 's/EffectNAME/'${bname}'/g'  gx_${bname}.ttl
+    sed -i 's/EffectNAME/'${bname}'/g'  plugin/gx_${bname}.ttl
   fi
  
   rm -rf ports
@@ -330,6 +330,7 @@ function make_ttl() {
 }
 
 function byby() {
+  mv -f "$bname.cc" "dsp/$bname.cc"
   echo -e $BLUE"Okay, gx_${bname}.lv2 is done"$NONE
   echo  -e $BLUE"Now you can enter ./gx_${bname}.lv2 
   and run make && make install"$NONE
@@ -407,8 +408,8 @@ while getopts hn:sdVSp:c OPT; do
   d) prec="--double";;
   V) faustopt+=(--vectorize);;
   S) faustopt+=(--add="-vs $OPTARG");;
-  p) faustdir=$2
-     file=$3
+  p) faustdir="$(dirname "$2")/"
+     file="$(basename "$2")"
      sc=1;;
   c) copy=1;;
   \?) usage;;

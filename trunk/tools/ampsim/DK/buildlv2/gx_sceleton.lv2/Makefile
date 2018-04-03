@@ -33,26 +33,30 @@
 	BUNDLE = $(NAME).lv2
 	VER = 0.1
 	# set compile flags
-	CXXFLAGS += -I. -fPIC -DPIC -O2 -Wall -funroll-loops -ffast-math -fomit-frame-pointer -fstrength-reduce $(SSE_CFLAGS)
+	CXXFLAGS += -I. -I./dsp -I./plugin -fPIC -DPIC -O2 -Wall -funroll-loops -ffast-math -fomit-frame-pointer -fstrength-reduce $(SSE_CFLAGS)
 	LDFLAGS += -I. -shared -lm 
-	GUI_LDFLAGS += -I. -shared -lm `pkg-config --cflags --libs gtk+-2.0`
+	GUI_LDFLAGS += -I./gui -shared -lm `pkg-config --cflags --libs gtk+-2.0`
 	# invoke build files
-	OBJECTS = $(NAME).cpp 
-	GUI_OBJECTS = $(NAME)_ui.c resources.c resources.h gtkknob.cc gtkknob.h paintbox.cpp paintbox.h
+	OBJECTS = plugin/$(NAME).cpp 
+	GUI_OBJECTS = gui/$(NAME)_ui.c gui/resources.c gui/gtkknob.cc gui/paintbox.cpp
+	GUI_HEADERS = gui/resources.h gui/gtkknob.h gui/paintbox.h
 	## output style (bash colours)
 	BLUE = "\033[1;34m"
 	RED =  "\033[1;31m"
 	NONE = "\033[0m"
 
-.PHONY : all clean install uninstall 
+.PHONY : mod all clean install uninstall 
 
 all : check $(NAME)
 	@mkdir -p ./$(BUNDLE)
-	@cp ./*.ttl ./$(BUNDLE)
+	@cp ./plugin/*.ttl ./$(BUNDLE)
 	@mv ./*.so ./$(BUNDLE)
 	@if [ -f ./$(BUNDLE)/$(NAME).so ]; then echo $(BLUE)"build finish, now run make install"; \
 	else echo $(RED)"sorry, build failed"; fi
 	@echo $(NONE)
+
+mod : 
+	@echo "Not implemented for Gxsceleton"
 
 check :
 ifdef ARMCPU
@@ -61,10 +65,10 @@ ifdef ARMCPU
 endif
 
    #@build resource file
-resources : resource.xml
+resources : gui/resource.xml
 	@echo $(LGREEN)"generate resource file,"$(NONE)
-	-@glib-compile-resources --target=resources.c --generate-source resource.xml
-	-@glib-compile-resources --target=resources.h --generate-header resource.xml
+	-@cd ./gui && glib-compile-resources --target=resources.c --generate-source resource.xml
+	-@cd ./gui && glib-compile-resources --target=resources.h --generate-header resource.xml
 
 clean :
 	@rm -f $(NAME).so
@@ -84,7 +88,7 @@ uninstall :
 	@rm -rf $(INSTALL_DIR)/$(BUNDLE)
 	@echo ". ." $(BLUE)", done"$(NONE)
 
-$(NAME) : clean
+$(NAME) : clean $(GUI_HEADERS)
 	$(CXX) $(CXXFLAGS) $(OBJECTS) $(LDFLAGS) -o $(NAME).so
 	$(CXX) $(CXXFLAGS) -Wl,-z,nodelete -std=c++11  $(GUI_OBJECTS) $(GUI_LDFLAGS) -o $(NAME)_ui.so
 
