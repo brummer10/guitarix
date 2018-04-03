@@ -707,7 +707,7 @@ void DownloadWatch::watch () {
           Glib::Mutex::Lock lock (w_mutex);
           if (stop) break;
         }
-        sleep(15); // time out for the server response
+        sleep(25); // time out for the server response
         cancellable->cancel();
         if (!stop) timeout();
         break;
