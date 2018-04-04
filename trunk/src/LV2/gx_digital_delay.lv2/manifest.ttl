@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_digital_delay_#_digital_delay_>
     a lv2:Plugin ;
     lv2:binary <gx_digital_delay.so>  ;
-    rdfs:seeAlso <gx_digital_delay.ttl> , <modgui.ttl> .
+    rdfs:seeAlso <gx_digital_delay.ttl>   .

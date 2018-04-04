@@ -84,6 +84,7 @@ rdfs:comment """
         lv2:default 1.2e+02 ;
         lv2:minimum 24.0 ;
         lv2:maximum 3.6e+02 ;
+        lv2:portProperty log:notOnGUI ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -206,6 +207,16 @@ rdfs:comment """
         lv2:default 0.0 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 13 ;
+        lv2:symbol "HOSTBPM" ;
+        lv2:name "HOSTBPM" ;
+        lv2:default 1.2e+02 ;
+        lv2:minimum 24.0 ;
+        lv2:maximum 3.6e+02 ;
+        lv2:designation time:beatsPerMinute;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_digital_delay_#gui>

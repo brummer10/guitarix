@@ -60,7 +60,8 @@ typedef enum
    DD_CONTROL,
    DD_NOTIFY,
    SYNC,
-   SPEED,
+   //SPEED,
+   HOSTBPM, 
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

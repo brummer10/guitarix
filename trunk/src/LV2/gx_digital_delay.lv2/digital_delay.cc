@@ -8,6 +8,10 @@ namespace digital_delay {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
+	FAUSTFLOAT 	fcheckbox0;
+	FAUSTFLOAT	*fcheckbox0_;
+	FAUSTFLOAT 	fslider8;
+	FAUSTFLOAT	*fslider8_;
 	FAUSTFLOAT 	fslider0;
 	FAUSTFLOAT	*fslider0_;
 	FAUSTFLOAT 	fslider1;
@@ -292,6 +296,7 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
+#define fcheckbox0 (*fcheckbox0_)
 #define fslider0 (*fslider0_)
 #define fslider1 (*fslider1_)
 #define fslider2 (*fslider2_)
@@ -300,6 +305,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider5 (*fslider5_)
 #define fslider6 (*fslider6_)
 #define fslider7 (*fslider7_)
+#define fslider8 (*fslider8_)
+    if (int(fcheckbox0)) fslider6 = fslider8;
 	double 	fSlow0 = (0.01 * double(fslider0));
 	double 	fSlow1 = tan((fConst1 * double(fslider1)));
 	double 	fSlow2 = (2 * (1 - (1.0 / faustpower<2>(fSlow1))));
@@ -410,6 +417,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
 		fRec2[2] = fRec2[1]; fRec2[1] = fRec2[0];
 	}
+#undef fcheckbox0
 #undef fslider0
 #undef fslider1
 #undef fslider2
@@ -418,6 +426,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider5
 #undef fslider6
 #undef fslider7
+#undef fslider8
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
@@ -455,6 +464,12 @@ void Dsp::connect(uint32_t port,void* data)
 	// static const value_pair fslider5_values[] = {{"Dotted 1/2 note"},{"1/2 note"},{"1/2 note triplets"},{" Dotted 1/4 note"},{"1/4 note"},{"1/4 note triplets"},{"Dotted 1/8 note"},{"1/8 note"},{"1/8 note triplets"},{" Dotted 1/16 note"},{"1/16 note"},{"1/16 note triplets"},{"Dotted 1/32 note"},{"1/32 note"},{"1/32 note triplets"},{" Dotted 1/64 note"},{"1/64 note"},{"1/64 note triplets"},{0}};
 	case NOTES: 
 		fslider5_ = (float*)data; // , 5.0, 1.0, 18.0, 1.0 
+		break;
+	case SYNC: 
+		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case HOSTBPM: 
+		fslider8_ = (float*)data; // , 1.2e+02, 24.0, 3.6e+02, 1.0 
 		break;
 	default:
 		break;
