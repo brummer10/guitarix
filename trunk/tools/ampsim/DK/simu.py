@@ -154,7 +154,7 @@ class TensorSpline(object):
                         k = kd.get_order()
                         x = kd.knots.copy()
                         x[:k] = np.linspace(x[0], x[k], k, False)
-                        x[-k:] = np.linspace(x[-(k+1)], x[-1], k, False)
+                        x[-(k+1):] = np.linspace(x[-(k+1)], x[-1], k+1, True)
                     else:
                         assert kd.tp == 'h'
                         k = kd.get_order() - 1
@@ -692,7 +692,8 @@ class MyTensorSpline(TensorSpline):
         if k is None:
             return KnotData(None,None,slice(r.start, r.stop, 1j),None)
         f = reduce(fractions.gcd, idx)
-        idx /= f
+        #idx /= f
+        idx = np.divide(idx, f)
         a = np.empty(idx[-1], dtype=np.int32)
         for m, (i, j) in enumerate(itertools.izip_longest(idx[:-1], idx[1:])):
             a[i:j] = m

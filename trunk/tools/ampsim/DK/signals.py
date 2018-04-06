@@ -38,10 +38,10 @@ class GeneratedSignal(object):
     @staticmethod
     def _fft_convolve(h, xd):
         n = len(h) + len(xd) - 1
-        np = dk_lib.pow2roundup(n)
+        npow = dk_lib.pow2roundup(n)
         if len(xd.shape) == 2 and len(h.shape) == 1:
             h = h.reshape((len(h), 1))
-        s = np.fft.irfft(np.fft.rfft(h, np, axis=0) * np.fft.rfft(xd, np, axis=0), np, axis=0)
+        s = np.fft.irfft(np.fft.rfft(h, npow, axis=0) * np.fft.rfft(xd, npow, axis=0), npow, axis=0)
         return s[:n]
 
     def _sweep_harmonics_responses(self, response, N, freqlist, shift=True):
