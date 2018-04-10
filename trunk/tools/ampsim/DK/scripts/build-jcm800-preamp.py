@@ -229,15 +229,15 @@ sig = Signal()
 sr = sig(20*sig.sine(freq=150), timespan=1)
 s = sig(0.15*sig.sine(freq=150), timespan=0.2)
 c = Circuit(FS=96000)
-mod_id = "JCM800Pre"
+mod_id = "JCM800Pre_DK"
 c.set_module_id(mod_id)
 c.plugindef = dk_simulator.PluginDef(mod_id)
-c.plugindef.name = "JCM 800 Preamp"
-c.plugindef.shortname = "JCM800Pre"
-c.plugindef.description = "Simulation of JCM 800 preamp circuit"
+c.plugindef.name = "JCM 800 Preamp DK"
+c.plugindef.shortname = "JCM800Pre_DK"
+c.plugindef.description = "DK Simulation of JCM 800 preamp circuit"
 c.plugindef.category = "Distortion"
-c.plugindef.namespace = "jcm800pre"
-c.plugindef.lv2_plugin_type = "SimulatorPlugin"
+c.plugindef.namespace = "JCM800Pre_DK"
+c.plugindef.lv2_plugin_type = "DKSimulatorPlugin"
 c.build_script = sys.argv[0]
 c.set_netlist(circ.Preamp_test.S, circ.Preamp_test.V)
 c.backward_euler = True
@@ -253,7 +253,7 @@ c.remove_element("Cm1")
 #c.remove_element("Cm2")
 #c.remove_element("Cm3")
 c.build_verbose = True
-c.set_tempdir("gencode")
+c.set_tempdir("dkbuild/jcm800")
 c.keep_tempdir()
 c.set_solver(dict(method='hybr', factor=1e5))
 if 1:
@@ -285,5 +285,5 @@ if 1:
     c.post_filter = highpass_as_postfilter(20, c.FS)
 
 c.code_generator = CodeGenerator
-c.build_guitarix_module(include_paths=["../../../src/headers"])
-#c.deploy()
+#c.build_guitarix_module(include_paths=["../../../src/headers"])
+c.deploy()
