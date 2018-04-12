@@ -446,6 +446,7 @@ CmdlineOptions::CmdlineOptions()
       jack_uuid(),
       jack_uuid2(),
       jack_noconnect(false),
+      jack_single(false),
       jack_servername(),
       load_file(shellvar("GUITARIX_LOAD_FILE")),
       style_dir(GX_STYLE_DIR),
@@ -620,6 +621,10 @@ CmdlineOptions::CmdlineOptions()
     opt_jack_instance.set_long_name("name");
     opt_jack_instance.set_description("instance name (default gx_head)");
     opt_jack_instance.set_arg_description("NAME");
+    Glib::OptionEntry opt_jack_single;
+    opt_jack_single.set_short_name('D');
+    opt_jack_single.set_long_name("disable-multi-client");
+    opt_jack_single.set_description("run guitarix as single client");
     Glib::OptionEntry opt_jack_uuid;
     opt_jack_uuid.set_short_name('U');
     opt_jack_uuid.set_long_name("jack-uuid");
@@ -640,6 +645,7 @@ CmdlineOptions::CmdlineOptions()
     optgroup_jack.add_entry(opt_jack_midi, jack_midi);
     optgroup_jack.add_entry(opt_jack_noconnect, jack_noconnect);
     optgroup_jack.add_entry(opt_jack_instance, jack_instance);
+    optgroup_jack.add_entry(opt_jack_single, jack_single);
     optgroup_jack.add_entry(opt_jack_uuid, jack_uuid);
     optgroup_jack.add_entry(opt_jack_uuid2, jack_uuid2);
     optgroup_jack.add_entry(opt_jack_servername, jack_servername);

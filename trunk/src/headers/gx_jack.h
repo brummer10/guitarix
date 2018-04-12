@@ -151,6 +151,7 @@ class GxJack: public sigc::trackable {
     Glib::Dispatcher    xrun;
     float               last_xrun;
     bool                xrun_msg_blocked;
+    bool                single_client;
     void report_xrun_clear();
     void report_xrun();
     void write_jack_port_connections(

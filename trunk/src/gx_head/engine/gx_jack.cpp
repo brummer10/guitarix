@@ -122,6 +122,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       xrun(),
       last_xrun(0),
       xrun_msg_blocked(false),
+      single_client(false),
       ports(),
       client(0),
       client_insert(0),
@@ -222,8 +223,10 @@ void GxJack::write_connections(gx_system::JsonWriter& w) {
     write_jack_port_connections(w, "output2", ports.output2);
     write_jack_port_connections(w, "midi_input", ports.midi_input);
     write_jack_port_connections(w, "midi_output", ports.midi_output);
+    if (!single_client) {
     write_jack_port_connections(w, "insert_out", ports.insert_out, true);
     write_jack_port_connections(w, "insert_in", ports.insert_in, true);
+    }
     w.end_object(true);
 }
 
@@ -239,10 +242,15 @@ int GxJack::is_power_of_two (unsigned int x)
 // ----- pop up a dialog for starting jack
 bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_system::CmdlineOptions& opt) {
     AVOIDDENORMALS();
+    single_client = opt.get_jack_single();
     int jackopt = (startserver ? JackNullOption : JackNoStartServer);
     client_instance = opt.get_jack_instancename();
     if (client_instance.empty()) {
-	client_instance = get_default_instancename();
+    if (!single_client) {
+        client_instance = get_default_instancename();
+    } else {
+        client_instance = "guitarix";
+    }
     } else {
 	jackopt |= JackUseExactName;
     }
@@ -255,7 +263,11 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
 
     //ports = JackPorts(); //FIXME
 
-    client_name = client_instance + jack_amp_postfix;
+    if (!single_client) {
+        client_name = client_instance + jack_amp_postfix;
+    } else {
+        client_name = client_instance;
+    }
     client_insert_name = client_instance + jack_fx_postfix;
     jack_status_t jackstat;
 #ifdef HAVE_JACK_SESSION
@@ -281,7 +293,7 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
     }
 #endif
     // ----- only start the insert gxjack.client when the amp gxjack.client is true
-    if (client) {
+    if (client && !single_client) {
 	// it is maybe not the 1st gx_head instance ?
 	// session handler can change name without setting JackNameNotUnique in return status; jack bug??
 	// this code depends on jackd only appending a suffix to make a client name unique
@@ -414,19 +426,26 @@ void GxJack::gx_jack_cleanup() {
     set_jack_exit(true);
     engine.set_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
     jack_deactivate(client);
-    jack_deactivate(client_insert);
+    if (!single_client) jack_deactivate(client_insert);
     jack_port_unregister(client, ports.input.port);
     jack_port_unregister(client, ports.midi_input.port);
-    jack_port_unregister(client, ports.insert_out.port);
+    if (!single_client) {
+        jack_port_unregister(client, ports.insert_out.port);
+    } else {
+        jack_port_unregister(client, ports.output1.port);
+        jack_port_unregister(client, ports.output2.port);
+    }
 #if defined(USE_MIDI_OUT) || defined(USE_MIDI_CC_OUT)
     jack_port_unregister(client, ports.midi_output.port);
 #endif
-    jack_port_unregister(client_insert, ports.insert_in.port);
-    jack_port_unregister(client_insert, ports.output1.port);
-    jack_port_unregister(client_insert, ports.output2.port);
+    if (!single_client) {
+        jack_port_unregister(client_insert, ports.insert_in.port);
+        jack_port_unregister(client_insert, ports.output1.port);
+        jack_port_unregister(client_insert, ports.output2.port);
+    }
     jack_client_close(client);
     client = 0;
-    jack_client_close(client_insert);
+    if (!single_client) jack_client_close(client_insert);
     client_insert = 0;
     delete[] insert_buffer;
     insert_buffer = NULL;
@@ -508,6 +527,7 @@ void GxJack::gx_jack_init_port_connection(const gx_system::CmdlineOptions& opt) 
         }
     }
 
+    if (!single_client) {
     // set autoconnect to user playback ports
     if (opt.get_jack_output(0).empty() && opt.get_jack_output(1).empty()) {
         list<string>& l1 = ports.output1.conn;
@@ -530,6 +550,32 @@ void GxJack::gx_jack_init_port_connection(const gx_system::CmdlineOptions& opt) 
 			 opt.get_jack_output(1).c_str());
 	}
     }
+    
+    } else {
+// set autoconnect to user playback ports
+    if (opt.get_jack_output(0).empty() && opt.get_jack_output(1).empty()) {
+        list<string>& l1 = ports.output1.conn;
+        for (list<string>::iterator i = l1.begin(); i != l1.end(); ++i) {
+            jack_connect(client, jack_port_name(ports.output1.port), i->c_str());
+        }
+        list<string>& l2 = ports.output2.conn;
+        for (list<string>::iterator i = l2.begin(); i != l2.end(); ++i) {
+            jack_connect(client, jack_port_name(ports.output2.port), i->c_str());
+        }
+    } else {
+	if (!opt.get_jack_output(0).empty()) {
+	    jack_connect(client,
+			 jack_port_name(ports.output1.port),
+			 opt.get_jack_output(0).c_str());
+	}
+	if (!opt.get_jack_output(1).empty()) {
+	    jack_connect(client,
+			 jack_port_name(ports.output2.port),
+			 opt.get_jack_output(1).c_str());
+	}
+    }
+        
+    }
 
 #if defined(USE_MIDI_OUT) || defined(USE_MIDI_CC_OUT)
     // autoconnect midi output port
@@ -539,6 +585,7 @@ void GxJack::gx_jack_init_port_connection(const gx_system::CmdlineOptions& opt) 
     }
 #endif
 
+    if (!single_client) {
     // autoconnect to insert ports
     list<string>& lins_in = ports.insert_in.conn;
     list<string>& lins_out = ports.insert_out.conn;
@@ -567,6 +614,7 @@ void GxJack::gx_jack_init_port_connection(const gx_system::CmdlineOptions& opt) 
         jack_connect(client_insert, jack_port_name(ports.insert_out.port),
 		     (client_insert_name+":in_0").c_str());
     }
+    }
 }
 
 
@@ -580,14 +628,16 @@ void GxJack::gx_jack_callbacks() {
     jack_set_xrun_callback(client, gx_jack_xrun_callback, this);
     jack_set_sample_rate_callback(client, gx_jack_srate_callback, this);
     jack_on_shutdown(client, shutdown_callback_client, this);
-    jack_on_shutdown(client_insert, shutdown_callback_client_insert, this);
+    if (!single_client) {
+        jack_on_shutdown(client_insert, shutdown_callback_client_insert, this);
+    }
     jack_set_buffer_size_callback(client, gx_jack_buffersize_callback, this);
     jack_set_port_registration_callback(client, gx_jack_portreg_callback, this);
     jack_set_port_connect_callback(client, gx_jack_portconn_callback, this);
 #ifdef HAVE_JACK_SESSION
     if (jack_set_session_callback_fp) {
         jack_set_session_callback_fp(client, gx_jack_session_callback, this);
-        jack_set_session_callback_fp(client_insert, gx_jack_session_callback_ins, this);
+        if (!single_client) jack_set_session_callback_fp(client_insert, gx_jack_session_callback_ins, this);
     }
 #endif
 
@@ -596,8 +646,15 @@ void GxJack::gx_jack_callbacks() {
 	client, "in_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
     ports.midi_input.port = jack_port_register(
 	client, "midi_in_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
-    ports.insert_out.port = jack_port_register(
-	client, "out_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+    if (!single_client) {
+        ports.insert_out.port = jack_port_register(
+        client, "out_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+    } else {
+        ports.output1.port = jack_port_register(
+        client, "out_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+        ports.output2.port = jack_port_register(
+        client, "out_1", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+    }
 #if defined(USE_MIDI_OUT) || defined(USE_MIDI_CC_OUT)
     ports.midi_output.port = jack_port_register(
 	client, "midi_out_1", JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0);
@@ -605,26 +662,30 @@ void GxJack::gx_jack_callbacks() {
     ports.midi_output.port = 0;
 #endif
 
+    if (!single_client) {
     // register ports for gx_amp_fx
-    ports.insert_in.port = jack_port_register(
-	client_insert, "in_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
-    ports.output1.port = jack_port_register(
-	client_insert, "out_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
-    ports.output2.port = jack_port_register(
-	client_insert, "out_1", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+        ports.insert_in.port = jack_port_register(
+          client_insert, "in_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+        ports.output1.port = jack_port_register(
+          client_insert, "out_0", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+        ports.output2.port = jack_port_register(
+          client_insert, "out_1", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+    }
 
     engine.init(jack_sr, jack_bs, SCHED_FIFO,
 		jack_client_real_time_priority(client));
     jack_set_process_callback(client, gx_jack_process, this);
-    jack_set_process_callback(client_insert, gx_jack_insert_process, this);
+    if (!single_client) jack_set_process_callback(client_insert, gx_jack_insert_process, this);
     if (jack_activate(client) != 0) {
         gx_print_fatal(
 	    _("Jack Activation"),
 	    string(_("Can't activate JACK gx_amp client")));
     }
-    if (jack_activate(client_insert) != 0) {
-        gx_print_fatal(_("Jack Activation"),
-                       string(_("Can't activate JACK gx_amp_fx client")));
+    if (!single_client) {
+        if (jack_activate(client_insert) != 0) {
+            gx_print_fatal(_("Jack Activation"),
+                        string(_("Can't activate JACK gx_amp_fx client")));
+        }
     }
 }
 
@@ -691,15 +752,19 @@ int __rt_func GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 	}
 	self.transport_state = jack_transport_query (self.client, &self.current);
         // gx_head DSP computing
-    float *obuf = get_float_buf(self.ports.insert_out.port, nframes);
+    float *obuf = self.insert_buffer;
+    if (!self.single_client) {
+        obuf = get_float_buf(self.ports.insert_out.port, nframes);
+    } 
 	self.engine.mono_chain.process(
 	    nframes,
 	    get_float_buf(self.ports.input.port, nframes),
 	    obuf);
 
-    if (self.bypass_insert) {
+    if (self.bypass_insert && !self.single_client) {
         memcpy(self.insert_buffer, obuf, nframes*sizeof(float));
     }
+
         // midi input processing
 	if (self.ports.midi_input.port) {
 	    self.engine.controller_map.compute_midi_in(
@@ -717,6 +782,9 @@ int __rt_func GxJack::gx_jack_process(jack_nframes_t nframes, void *arg) {
 
     gx_system::measure_pause();
     self.engine.mono_chain.post_rt_finished();
+    if (self.single_client) {
+        self.gx_jack_insert_process(nframes, arg);
+    }
     return 0;
 }
 
@@ -731,7 +799,7 @@ int __rt_func GxJack::gx_jack_insert_process(jack_nframes_t nframes, void *arg) 
 	}
         // gx_head DSP computing
     float *ibuf = NULL;
-    if (!self.bypass_insert) {
+    if (!self.bypass_insert && !self.single_client) {
 	    ibuf = get_float_buf(self.ports.insert_in.port, nframes);
 	} else {
 	    ibuf = self.insert_buffer;
@@ -918,9 +986,11 @@ void GxJack::shutdown_callback_client(void *arg) {
 	self.client = 0;
 	self.client_change_rt();
     }
+    if (!self.single_client) {
     if (self.client_insert) {
 	jack_client_close(self.client_insert);
 	self.client_insert = 0;
+    }
     }
     self.gx_jack_shutdown_callback();
 }

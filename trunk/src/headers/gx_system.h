@@ -396,6 +396,7 @@ private:
     Glib::ustring jack_uuid;
     Glib::ustring jack_uuid2;
     bool jack_noconnect;
+    bool jack_single;
     Glib::ustring jack_servername;
     std::string load_file;
     std::string style_dir;
@@ -499,6 +500,7 @@ public:
     const Glib::ustring& get_jack_input() const { return jack_input; }
     const Glib::ustring& get_jack_servername() const { return jack_servername; }
     bool get_jack_noconnect() const { return jack_noconnect; }
+    bool get_jack_single() const { return jack_single; }
     bool get_opt_save_on_exit() const { return a_save; }
     bool get_opt_autosave() const { return auto_save; }
     Glib::ustring get_jack_output(unsigned int n) const;
