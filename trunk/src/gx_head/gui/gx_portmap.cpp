@@ -468,8 +468,13 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port) {
         tree->set_sort_column_id(0, Gtk::SORT_ASCENDING);
         tree->clear();
         const char **ports;
+        
         jack_client_t *gcl = (ps.port_attr->client_num == 0 ? jack.client
                               : jack.client_insert);
+        if (jack.single_client) {
+            gcl = jack.client;
+        }
+        
         ports = jack_get_ports(gcl, NULL, ps.port_attr->port_type,
                                (ps.port_attr->is_input ? JackPortIsOutput : JackPortIsInput));
         if (!ports) {
@@ -540,9 +545,11 @@ void PortMapWindow::load_all() {
     load(4, jack.ports.midi_output.port);
     uslp();
 #endif
-    load(5, jack.ports.insert_in.port);
-    uslp();
-    load(6, jack.ports.insert_out.port);
+    if (!jack.single_client) {
+        load(5, jack.ports.insert_in.port);
+        uslp();
+        load(6, jack.ports.insert_out.port);
+    }
 #undef uslp
 }
 
