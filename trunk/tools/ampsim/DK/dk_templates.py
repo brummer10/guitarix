@@ -713,18 +713,20 @@ static const LV2_Descriptor descriptor = {
     extension_data
 };
 
+extern "C"
 LV2_SYMBOL_EXPORT
-extern "C" __attribute__ ((visibility ("default")))
 const LV2_Descriptor*
-lv2_descriptor(uint32_t index)
-{
-    switch (index) {
-    case 0:
-        return &descriptor;
-    default:
-        return NULL;
+lv2_descriptor(uint32_t index){
+    switch (index){
+        case 0:
+            return &descriptor;
+        default:
+            return NULL;
     }
 }
+
+
+
 """)
 
 c_template_calc_nonlin = Template("""
