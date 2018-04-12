@@ -639,6 +639,11 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_jack::GxJac
     window->add_accel_group(ag);
     window->signal_check_resize().connect(sigc::mem_fun(*this, &PortMapWindow::on_check_resize),true);
     window->show();
+    Gtk::Notebook *n;
+    bld->find_widget("notebook1",n);
+    Gtk::Widget *t;
+    t = n->get_nth_page(1);
+    if (jack.single_client) t->hide();
     jack.signal_portchange().connect(sigc::mem_fun(*this, &PortMapWindow::refresh));
     jack.signal_connection_changed().connect(sigc::mem_fun(*this, &PortMapWindow::connection_changed));
     jack.send_connection_changes(true);
