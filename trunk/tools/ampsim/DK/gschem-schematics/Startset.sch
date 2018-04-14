@@ -327,3 +327,14 @@ value=Vt=26mV,Is=336.7fA,Bf=180,Br=7.16
 T 45900 46700 5 10 1 1 180 6 1
 model-name=BC858A
 }
+C 42700 46300 1 0 0 opamp-1.sym
+{
+T 43400 47100 5 10 0 0 0 0 1
+device=OPAMP
+T 43400 46900 5 10 1 1 0 0 1
+refdes=U1
+T 43400 47700 5 10 0 0 0 0 1
+symversion=0.1
+T 42700 46300 5 10 0 1 0 0 1
+value=Vcc=10,Vee=-10,A=1e5
+}

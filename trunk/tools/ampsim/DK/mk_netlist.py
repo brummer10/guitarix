@@ -130,11 +130,13 @@ def read_netlist(fname):
             if dev == "OUTPUT":
                 out += conn
                 continue
-            if dev in ("OPAMP","AOP-Standard"):
+            if dev in ("OPAMP"):
                 conn = conn[:2] + conn[4:]
                 sym = mksym(sym, "U", "OPA")
-                #val = mk_dict(val,Vcc=Voltage,Vee=Voltage,A=Current)
-                val = "Opamps['%s']" % val
+                if "=" in val:
+                    val = mk_dict(val,Vcc=Voltage,Vee=Voltage,A=Current)
+                else:
+                    val = "Opamps['%s']" % val
             elif dev == "RESISTOR":
                 sym = mksym(sym, "R")
                 val = resistor_value(val)
@@ -232,10 +234,12 @@ def read_netlist(fname):
         rows.append(['OUT']+out)
         rows.append(['IN']+inp)
     fmt_row = lambda row: " ".join(["None," if v is None else v+"," for v in row])
-    return ("S = ((%s),\n     )" % "),\n     (".join([fmt_row(row) for row in rows]) +
+    nt = ("S = ((%s),\n     )" % "),\n     (".join([fmt_row(row) for row in rows]) +
             "\n" +
             "V = {%s}" % "".join(['%s: %s,\n     ' % v for v in sorted(values.items())])
             )
+    print '\n %s \n' % nt
+    return nt
     return rows, values
 
 if __name__ == "__main__":
