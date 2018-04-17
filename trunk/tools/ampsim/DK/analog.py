@@ -769,18 +769,25 @@ class Circuit(object):
         if filename is not None:
             f.close()
 
-    def save_faust_code(self, symbolic=False, filename=None):
+    def save_faust_code(self, module_id=None, symbolic=False, filename=None, FS=None, pre_filter=None):
         self._ensure_filter(symbolic=symbolic)
-        b, a = self.sim_filter.get_z_coeffs(samplerate=self.FS)
+        b, a = self.sim_filter.get_z_coeffs(samplerate=FS)
         l = self.parser.get_pot_attr()
-        m_id = self._get_module_id()
-        dsp, ui = simu.generate_faust_module(m_id, b, a, l, self.sim_filter)
-        ##FIXME where to save ui code?
+        m_id = self._get_module_id(module_id)
+        plugindef = self.plugindef
+        if not plugindef:
+            plugindef = PluginDef(m_id)
+        dsp, ui = simu.generate_faust_module(plugindef, b, a, l, self.sim_filter, pre_filter, build_script=self.build_script)
         if filename is None:
             sys.stdout.write(dsp)
+            sys.stdout.write(ui)
         else:
-            with open(filename,"w") as f:
+            dspname = "{0}.dsp".format(filename)
+            uiname = "{0}_ui.cc".format(filename)
+            with open(dspname,"w") as f:
                 f.write(dsp)
+            with open(uiname,"w") as f:
+                f.write(ui)
 
     def create_faust_module(self, module_id=None, symbolic=False, FS=None, pre_filter=None):
         self._ensure_filter(symbolic=symbolic)

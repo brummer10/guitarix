@@ -13,6 +13,7 @@ function usage() {
 tooldir="$(dirname "$0")"
 instdir="$tooldir"/..
 prec="--double"
+DIR=""
 faustopt=()
 copy=0
 keep=0

@@ -24,7 +24,6 @@ from scipy.signal import correlate
 from scipy.interpolate import splev
 import dk_simulator, dk_lib, models
 import circ as circ
-#import circ_calc as circ
 
 class KnotData(object):
 
@@ -1038,7 +1037,7 @@ def generate_faust_module(plugindef, b, a, potlist, flt, pre_filter=None, build_
     d['plugindef'] = plugindef
     d['build_script'] = build_script
     d['sliders'] = [dict(id=t[0], name=t[1], loga=t[2], inv=t[3]) for t in potlist]
-    d['pre_filter'] = '_' if pre_filter is None or "dry_wet" else pre_filter
+    d['pre_filter'] = '_' if pre_filter is None or pre_filter is "dry_wet" else pre_filter
     d['b_list'] = ",".join(["b%d/a0" % i for i in range(len(b))])
     d['a_list'] = ",".join(["a%d/a0" % i for i in range(1,len(a))])
     d['coeffs'] = "\n\n    ".join(flt.coeffs_as_faust_code('b', b) + flt.coeffs_as_faust_code('a', a))

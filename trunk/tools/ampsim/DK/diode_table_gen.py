@@ -139,8 +139,10 @@ double always_inline diodeclip(double x) {
         a[:,0] = self.sig
         return a
 
-    def generate_table(self, p):
+    def generate_table(self, p, filename=None):
         n = 'dkbuild/%s_table.h' % self.model
+        if filename:
+            n = filename
         sys.stdout = open(n, 'w')
         y = p(self.signal())
         c = 0;
