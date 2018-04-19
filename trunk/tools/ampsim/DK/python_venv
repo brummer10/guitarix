@@ -1,0 +1,15 @@
+backports.functools-lru-cache==1.5
+cycler==0.10.0
+Cython==0.27.3
+kiwisolver==1.0.1
+matplotlib==2.2.0
+mpmath==1.0.0
+numpy==1.14.2
+pkg-resources==0.0.0
+pyparsing==2.2.0
+python-dateutil==2.7.2
+pytz==2018.4
+scipy==1.0.0
+six==1.11.0
+subprocess32==3.2.7
+sympy==1.1.1
