@@ -1,57 +1,78 @@
-*Warning: experimental/unfinished code, incomplete documentation...
+***Warning: experimental/unfinished code, incomplete documentation...***
 
-This directory contains an analog electronic circuit simulator, like e.g. Spice
+This directory contains tools for analog electronic circuit simulation, like e.g. Spice
 but with an emphasis on automatic code generation for real-time execution
 (which means it can directly generate Guitarix modules).
 
-It uses the "DK method" and generates/compiles optimized C++ code internally
-for signal calculations. The DK simulator is based on the thesis
+The DK simulator uses the "DK method" and generates/compiles optimized C++ code internally
+for signal calculations. it is based on the thesis
 "Real-time Digital Simulation of Guitar Amplifiers as Audio Effects" by JAROMÍR MAČÁK
  (see https://www.vutbr.cz/www_base/zav_prace_soubor_verejne.php?file_id=60090)
 Other useful informations can be found in the thesis
 "Simulation Framework for Analog Audio Circuits based on Nodal DK Method" by Piero Rivera Benois
  (see https://www.researchgate.net/publication/263013830_Simulation_Framework_for_Analog_Audio_Circuits_based_on_Nodal_DK_Method)
 
-The simulated circuit is defined by a "netlist", which is easy to write manually (see circ.py).
 
+I) Circuit creation
+
+The simulated circuit is defined by a "netlist", which is easy to write manually (see circ.py).
 Circuit schematics can also be drawn with gEDA Schematic Editor (gschem, part of gEDA).
-The gschem files (.sch) in the gschem-schematics directory use additional symbols
-which are in the subdirectory gschem-symbols. Before opening them with gschem
-please add a line
- (component-library "")
-to the file ~/.gEDA/gafrc (of course replace the <...> with the real path).
+    The gschem files (.sch) in the gschem-schematics directory use additional symbols
+    which are in the subdirectory gschem-symbols. Before opening them with gschem
+    please add a line
+        (component-library "")
+    to the file ~/.gEDA/gafrc (of course replace the <...> with the real path).
+
+
+II) Software ecosystem
 
 It is highly recommended to create a Python 2.7 virtual environment dedicated to Guitarix.
  (see https://packaging.python.org/guides/installing-using-pip-and-virtualenv/
   and https://virtualenvwrapper.readthedocs.io/en/latest/index.html)
-This ensures any system update will not interfere with the Python packages
-used by Guitarix and its tools.
+This ensures any system update will not interfere with the Python packagesused by Guitarix and its tools.
 Packages requirements are listed in the file python_venv which can be used to setup the virtual environment
+    Debian/Ubuntu quickstart:
+    - Install the virtualenvwrapper package and its eventual dependencies
+    - add the following lines to your .bashrc
+        export WORKON_HOME=$HOME/.virtualenvs
+        export PROJECT_HOME=$HOME/Devel
+        source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+    - restart your shell and run
+        mkvirtualenv -r python_venv guitarix
+    Once the setup is complete, you can type 
+        workon guitarix
+    to switch to the dedicated Python virtual environment for Guitarix and
+        deactivate
+    to return to your default/system Python environment    
 
 Additional dependencies:
 - Faust 0.9.90
 - for internally generated C++ module:
-- libeigen3-dev
-- libcminpack-dev
-- libsundials-serial-dev
+    - libeigen3-dev
+    - libcminpack-dev
+    - libsundials-serial-dev
 - to generate symbolic output (e.g. Faust code):
-- maxima
+    - maxima
 - (at least on debian / ubuntu): package maxima-share (add-on packages)
 
-Examples:
+
+III) Examples:
+
 - in the DK directory, run "python simu.py", then select e.g. 11 (Transistor).
-You can disable C code generation by adding option -p (the calculation will be about a factor of 100 slower).
-You can add -c to perform all tests in one run.
+    You can disable C code generation by adding option -p (the calculation will be about a factor of 100 slower).
+    You can add -c to perform all tests in one run.
 
 - create a Guitarix module from the schematic gschem-schematics/BlueClipper.sch:
-run "python build-blueclipper.py" from the scripts directory.
-This script shows and automates the recommended workflow explained below.
-It generates the diode_table.h file, splits the circuit into input and output parts,
-adds the nonlinear function call between them and generates the Guitarix module
-with the nonlinear part included. So the processing is then
-linear IIR filter, nonlinear table response, linear filter.
+    run "python build-blueclipper.py" from the scripts directory.
+    This script shows and automates the recommended workflow explained below.
+    It generates the diode_table.h file, splits the circuit into input and output parts,
+    adds the nonlinear function call between them and generates the Guitarix module
+    with the nonlinear part included. So the processing is then
+    linear IIR filter, nonlinear table response, linear filter.
 
-Workflow:
+
+IV) Workflow:
+
 The Faust code generated by the DK simulator fetches only the linear behavior of a circuit.
 The generated filter is an IIR filter (Infinity Impulse Response). We can only fetch
 the nonlinear behavior when we generate C++ code (analog.py/Circuit.deploy())
@@ -96,6 +117,10 @@ When building a LV2 plugin you must copy over the generated table(s) to the gene
 example command line for the make_lv2_bundle.sh script:
     ./make_lv2_bundle.sh -p AdamuBass.dsp -n AdamuBassDistortion
 
-TODO: explain how to perform signal analysis (plot spectrums, response curves)
-Look at the spectrum of the WahWah processing (uses the wahwah circuit netlist from circ.py):
-python simu.py --linearize WahWah --plot-spectrum --plot-variable=hotpotz (does not work anymore, needs to be fixed)
+
+V)TODO
+Explain how to perform signal analysis (plot spectrums, response curves).
+In the previous README:
+    Look at the spectrum of the WahWah processing (uses the wahwah circuit netlist from circ.py):
+    python simu.py --linearize WahWah --plot-spectrum --plot-variable=hotpotz
+(does not work anymore, needs to be fixed)
