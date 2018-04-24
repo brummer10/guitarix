@@ -1,3 +1,22 @@
+guitarix2 (0.37.0) unstable; urgency=low
+
+  * new plug Ampimpulse-stereo
+  * new build parameters in wscript by Simon van der Veldt
+    please check ./waf --help for mor info.
+  * fix Live Looper freezes the remote UI
+  * fix Tuner stick is not saved in remote UI
+  * fix DrumSequencer remote UI
+  * fix rc files for older clearlooks engine
+  * fix disable online preset download in remote UI
+  * fix GxDigitalDelay sync BPM when UI is not shown
+  * add new commandline switch (_d, --disable-multi-client)
+    to allow running guitarix as single client application 
+  * fix portmap when running as single client
+  * again some fixes and additions on the DK_simulator
+    contributed by Yoann Le BORGNE
+
+ -- brummer <brummer-@web.de>  Tue, 24 Apr 2018 08:28:15 +0200 
+
 guitarix2 (0.36.1) unstable; urgency=low
 
   * switch to use faust 0.9.90
