@@ -197,35 +197,38 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
     }
     
     // draw background
-    cairo_set_source_rgb(cr, r_, g_, b_);
-	cairo_set_line_width(cr, ring_width);
-	cairo_arc (cr, x_center + x0, y_center + y0, ring_radius,
-        add_angle + scale_zero, add_angle + 320 * (M_PI/180));
-	cairo_stroke(cr);
-    
-    // draw foreground
-    cairo_set_source_rgb(cr, r, g, b);
-	cairo_arc (cr, x_center + x0, y_center + y0, ring_radius,
-        add_angle + scale_zero, add_angle + angle);
-        
-    if (ring_width >= 3) {
-        cairo_stroke_preserve(cr);
-        
-        cairo_pattern_t * pat1 = cairo_pattern_create_radial(
-            x0 + x_center, y0 + y_center, ring_radius - ring_width / 2., 
-            x0 + x_center, y0 + y_center, ring_radius + ring_width / 2.);
-        cairo_pattern_add_color_stop_rgba(pat1, 0.0, 0., 0., 0., 0.6);
-        cairo_pattern_add_color_stop_rgba(pat1, 0.5, 1., 1., 1., 0.4);
-        cairo_pattern_add_color_stop_rgba(pat1, 1.0, 0., 0., 0., 0.6);
-        cairo_set_source(cr, pat1);
-        cairo_set_operator(cr, CAIRO_OPERATOR_SOFT_LIGHT);
-        cairo_stroke(cr);
-        cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-        cairo_pattern_destroy(pat1);
-    } else {
+    if (scale_zero < 320 * (M_PI/180)) {
+        cairo_set_source_rgb(cr, r_, g_, b_);
+        cairo_set_line_width(cr, ring_width);
+        cairo_arc (cr, x_center + x0, y_center + y0, ring_radius,
+            add_angle + scale_zero, add_angle + 320 * (M_PI/180));
         cairo_stroke(cr);
     }
     
+    // draw foreground
+    if (scale_zero < angle) {
+        cairo_set_source_rgb(cr, r, g, b);
+        cairo_arc (cr, x_center + x0, y_center + y0, ring_radius,
+            add_angle + scale_zero, add_angle + angle);
+
+        if (ring_width >= 3) {
+            cairo_stroke_preserve(cr);
+            
+            cairo_pattern_t * pat1 = cairo_pattern_create_radial(
+                x0 + x_center, y0 + y_center, ring_radius - ring_width / 2., 
+                x0 + x_center, y0 + y_center, ring_radius + ring_width / 2.);
+            cairo_pattern_add_color_stop_rgba(pat1, 0.0, 0., 0., 0., 0.6);
+            cairo_pattern_add_color_stop_rgba(pat1, 0.5, 1., 1., 1., 0.4);
+            cairo_pattern_add_color_stop_rgba(pat1, 1.0, 0., 0., 0., 0.6);
+            cairo_set_source(cr, pat1);
+            cairo_set_operator(cr, CAIRO_OPERATOR_SOFT_LIGHT);
+            cairo_stroke(cr);
+            cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+            cairo_pattern_destroy(pat1);
+        } else {
+            cairo_stroke(cr);
+        }
+    }    
     cairo_set_dash(cr, NULL, 0, 0);
     
     // draw indicator
