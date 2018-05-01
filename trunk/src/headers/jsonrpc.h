@@ -26,7 +26,7 @@
 #include <bitset>
 #include <giomm/init.h>     // NOLINT
 #include <giomm/socketservice.h>
-#include <ext/stdio_filebuf.h>
+//#include <ext/stdio_filebuf.h>
 #include "jsonrpc_methods.h"
 
 class GxService;

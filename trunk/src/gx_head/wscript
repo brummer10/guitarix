@@ -162,7 +162,7 @@ def build(bld):
     if not sys.platform.startswith("darwin"):
         lib.append('dl')
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
-              'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'LILV', 'BOOST_SYSTEM']
+              'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'LILV', 'BOOST_SYSTEM','BOOST_IOSTREAMS']
     if bld.env["HAVE_AVAHI"]:
         uselib += ['AVAHI_GOBJECT', 'AVAHI_GLIB', 'AVAHI_CLIENT']
     if bld.env["HAVE_BLUEZ"]:
@@ -191,7 +191,7 @@ def build(bld):
         target = bld.env['BIN_NAME'],
         chmod = 0o755,
         install_path = bld.env['BINDIR'],
-        ldflags = ['-Wl,%s,-Map=%s' % (ldscript.srcpath(),mapfile.bldpath(bld.env))],
+        ldflags = ['-Wl,%s,-Map,%s' % (ldscript.srcpath(),mapfile.bldpath(bld.env))],
         )
     bld.add_manual_dependency(bld.path.find_or_declare(task.target), ldscript)
     bld.install_files(bld.env['GX_BUILDER_DIR'], builder_files, chmod=0o644)

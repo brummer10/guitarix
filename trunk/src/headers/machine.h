@@ -21,7 +21,9 @@
 #ifndef SRC_HEADERS_MACHINE_H_
 #define SRC_HEADERS_MACHINE_H_
 
-#include <ext/stdio_filebuf.h>
+// #include <ext/stdio_filebuf.h>
+#include <boost/iostreams/device/file_descriptor.hpp>
+#include <boost/iostreams/stream.hpp>
 #include "jsonrpc_methods.h"
 #ifdef HAVE_AVAHI
 #include "avahi_register.h"
@@ -394,8 +396,10 @@ private:
     sigc::signal<void> selection_changed;
     sigc::signal<void> presetlist_changed;
     Glib::RefPtr<Gio::Socket> socket;
-    __gnu_cxx::stdio_filebuf<char> *writebuf;
-    ostream *os;
+    // __gnu_cxx::stdio_filebuf<char> *writebuf;
+    boost::iostreams::file_descriptor_sink *writebuf;
+    // ostream *os;
+    boost::iostreams::stream<boost::iostreams::file_descriptor_sink> *os;    
     gx_system::JsonWriter *jw;
     std::vector<gx_system::JsonStringParser*> notify_list;
     sigc::connection idle_conn;

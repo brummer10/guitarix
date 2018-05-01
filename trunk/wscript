@@ -494,7 +494,7 @@ def check_boost(conf):
     int main() { boost::system::error_code c; }
     """
     msg = "Checking for boost-system "
-    conf.check_cxx(msg = msg, fragment=code, lib="boost_system", uselib_store="BOOST_SYSTEM", mandatory=1)
+    conf.check_cxx(msg = msg, fragment=code, lib="boost_system", uselib_store="BOOST_SYSTEM", mandatory=1,includes='/opt/local/include', libpath='/opt/local/lib')
     # some boost (>1.49) versions depend on boost-system so we will check for it first
     # and later link against boost_system were boost headers are included.
     boost_atleast_version = 104200
@@ -510,6 +510,21 @@ def check_boost(conf):
     """ % boost_atleast_version
     msg = "Checking for boost >= %s" % boost_atleast_vermsg
     conf.check_cxx(msg = msg, fragment=code, lib="boost_system", mandatory=1)
+    #conf.check_cxx(msg = msg, fragment=code, lib="boost_system-mt", mandatory=1,includes='/opt/local/include', libpath='/opt/local/lib')
+
+    msg = "Checking for boost_iostreams >= %s" % boost_atleast_vermsg
+    conf.check_cxx(msg = msg, fragment=code, lib=["boost_iostreams","boost_system"], uselib_store="BOOST_IOSTREAMS", mandatory=1)
+    #conf.check_cxx(msg = msg, fragment=code, lib=["boost_iostreams","boost_system-mt"], uselib_store="BOOST_IOSTREAMS", mandatory=1, includes='/opt/local/include', libpath='/opt/local/lib')
+ 
+    #try:
+    #    conf.check_cxx(
+    #        msg = msg % "", fragment=code, lib="boost_thread", uselib_store="BOOST_THREAD",
+    #        errmsg="not found, trying boost_thread-mt", mandatory=1)
+    #except ConfigurationError:
+    #    conf.check_cxx(
+    #        msg = msg % "-mt",fragment=code, lib="boost_thread-mt",
+    #        uselib_store="BOOST_THREAD", mandatory=1)
+    
     # not needed: with boost 1.42 Guitarix doesn't generate code which
     #             references the boost threading lib
     #msg = "Checking for boost_thread%%s >= %s" % boost_atleast_vermsg

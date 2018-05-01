@@ -598,7 +598,7 @@ static bool is_frontend(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
 #ifdef DISABLE_NLS
 // break
-#elif IS_MACOSX
+#elif defined(IS_MACOSX)
 // break
 #elif ENABLE_NLS
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);

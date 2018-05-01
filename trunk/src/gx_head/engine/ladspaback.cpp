@@ -1785,9 +1785,9 @@ void LadspaPluginList::save(gx_system::CmdlineOptions& options) {
     }
     if (rename(tfname.c_str(), fname.c_str()) != 0) {
 	char buf[100];
-	char *p = strerror_r(errno, buf, sizeof(buf));
+	strerror_r(errno, buf, sizeof(buf));
 	gx_print_error(
-	    "ladspalist",ustring::compose(_("error renaming LADSPA config file '%1': %2"), fname, p));
+	    "ladspalist",ustring::compose(_("error renaming LADSPA config file '%1': %2"), fname, buf));
 	return;
     }
     for (std::vector<std::pair<std::string,std::string> >::iterator i = fl.begin(); i != fl.end(); ++i) {
@@ -1796,10 +1796,10 @@ void LadspaPluginList::save(gx_system::CmdlineOptions& options) {
 	} else {
 	    if (rename(i->first.c_str(), i->second.c_str()) != 0) {
 		char buf[100];
-		char *p = strerror_r(errno, buf, sizeof(buf));
+		strerror_r(errno, buf, sizeof(buf));
 		gx_print_error(
 		    "ladspalist",
-		    ustring::compose("error renaming %1 to %2: %3\n", i->first, i->second, p));
+		    ustring::compose("error renaming %1 to %2: %3\n", i->first, i->second, buf));
 	    }
 	}
     }

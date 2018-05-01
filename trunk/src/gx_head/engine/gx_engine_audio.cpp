@@ -65,6 +65,11 @@ bool ProcessingChainBase::wait_rt_finished() {
     if (stopped) {
 	return true;
     }
+
+#ifdef __APPLE__
+    // no timedewait here
+     while (sem_wait(&sync_sem) == -1) {
+#else
     timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     const long ns_in_sec = 1000000000;
@@ -74,6 +79,8 @@ bool ProcessingChainBase::wait_rt_finished() {
 	ts.tv_sec += 1;
     }
     while (sem_timedwait(&sync_sem, &ts) == -1) {
+#endif
+   
 	if (errno == EINTR) {
 	    continue;
 	}
