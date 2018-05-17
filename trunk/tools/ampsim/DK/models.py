@@ -471,7 +471,9 @@ class Trans_L(Node):
             p.add_S(idx, conn[2*i:], 1)
             p.S[idx, end] += param["windings"][i]
         idx = p.new_row("V", self, "phi")
-        p.S[idx, start:end-1] += np.array(param["windings"])
+        vps = np.array(p.S[idx, start:end-1])
+        vps += np.array(np.array(param["windings"]))
+        p.S[idx, start:end-1] = vps
         p.S[idx, end-1] += param["R"]
         idx_v = p.new_row("V", self, "v")
         p.S[idx_v, idx_v] += 1
@@ -508,7 +510,9 @@ class Trans_F(Node):
             p.add_S(idx, conn[2*i:], 1)
             p.S[idx, end] += param["windings"][i]
         idx = p.new_row("V", self, "phi")
-        p.S[idx, start:end-1] += np.array(param["windings"])
+        vps = np.array(p.S[idx, start:end-1])
+        vps += np.array(np.array(param["windings"]))
+        p.S[idx, start:end-1] = vps
         idx_v = p.new_row("V", self, "v")
         p.S[idx_v, idx_v] += 1
         p.S[idx_v, idx] += alpha

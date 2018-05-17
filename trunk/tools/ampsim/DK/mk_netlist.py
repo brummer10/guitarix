@@ -156,6 +156,8 @@ def read_netlist(fname):
                 for k, v in [v.split("=") for v in val.split(",")]:
                     if k == "R":
                         vl[k] = float(v)
+                    elif k == "nw":
+                        vl[k] = float(v)
                     elif k.startswith("w"):
                         d[int(k[1:])] = float(v)
                     else:
