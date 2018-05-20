@@ -723,7 +723,7 @@ class WahWah_test(Test): # wah-wah
             y = self.spectrum_signal(p, magnitude=1e-4)
             if n is None:
                 n = dk_lib.pow2roundup(len(y))
-                cut = slice(n*20.0/self.FS, n*10000.0/self.FS)
+                cut = slice(n*20//int(self.FS), n*10000//int(self.FS))
                 w = fftfreq(n,1.0/self.FS)[cut]
             pl.semilogx(w, spec(y))
             if isinstance(lbl, basestring):
@@ -894,7 +894,6 @@ class Triode2_test(Test): # triode test 2
         pl.plot(self.sig, y)
         self.finish_plot(p.out_labels, loc="upper center", timeline=self.sig)
 
-
 class Preamp_test(Test):
     S = ((P(6), GND, 8, 9),
          #(R(61), 8, 9),
@@ -989,4 +988,170 @@ class Preamp_test(Test):
         x = self.timeline()
         y = p(self.signal())
         pl.plot(x, y)
+        self.finish_plot(p.out_labels, timeline=x)
+
+class Pentode_test(Test): # catode follower test 2
+    S = ((R(21), GND, 'out',),
+         (R(41), 'u5', 'u3',),
+         (C(11), 'out', 'u5',),
+         (V('cc'), 'Vcc',),
+         (Pentode(1), 'u4', 'Vcc', 'Vcc', 'u5',),
+         (C(1), 'u4', 'in',),
+         (R(1), 'u3', 'u4',),
+         (R(2), GND, 'u3',),
+         (IN, 'in', ),
+         (OUT, 'in', 'out'),
+         )
+    V = {C(1): 330.e-9,
+         C(11): 1.e-6,
+         Pentode(1): Tubes['EL34'],
+         R(1): 47.e3,
+         R(2): 20.e3,
+         R(21): 300.e3,
+         R(41): 1.e3,
+         V('cc'): 135.,
+         #"OP": [0, 135],
+         }
+
+    result = np.array([[  9.19061293e-15,  -2.03062627e-06],
+           [  4.92901172e-01,   4.36210348e-01],
+           [  1.71693967e-01,   1.44529472e-01],
+           [ -4.34100536e-01,  -3.94027980e-01],
+           [ -3.22507769e-01,  -2.88672770e-01],
+           [  3.22507769e-01,   2.87031653e-01],
+           [  4.34100536e-01,   3.80963052e-01],
+           [ -1.71693967e-01,  -1.61677810e-01],
+           [ -4.92901172e-01,  -4.43227157e-01],
+           [  8.94571941e-15,   4.56005926e-04]])
+
+
+    def signal(self):
+        return 0.5*self.sine_signal(200.0)
+
+    def plot(self, p):
+        x = self.timeline()
+        y = p(self.signal())
+        pl.plot(x, y)
+        #self.print_data(y, "\nresult = np.")
+        self.finish_plot(p.out_labels, timeline=x)
+
+class Pentode2_test(Test): # push_pull test
+    S = ((R(44), 'u13', 'in',),
+         (C(5), 'u13', GND,),
+         (P(2), GND, 'u11', 'u14',),
+         (C(4), 'out', 'u14',),
+         (R(22), GND, 'u11',),
+         (C(3), 'u5', 'u13',),
+         (V('cc2'), 'u9',),
+         (V('cc1'), 'u12',),
+         (Trans_L('Trans'), 'u8', 'u12', 'u12', 'u10', 'u11', GND,),
+         (Pentode(2), 'u7', 'u9', 'u10', 'u4',),
+         (Pentode(1), 'u6', 'u9', 'u8', 'u4',),
+         (C(1), 'u4', GND,),
+         (R(8), 'u7', 'u3',),
+         (R(4), 'u6', 'u5',),
+         (R(1), GND, 'u5',),
+         (R(3), 'u4', GND,),
+         (R(2), 'u3', GND,),
+         (IN, 'in',),
+         (OUT, 'out','in',),
+         )
+    V = {C(1): 25.e-6,
+         C(3): 0.1e-6,
+         C(4): 0.1e-6,
+         C(5): 88.5e-9,
+         P(2): dict(value=1000.e3, var='Volume'),
+         Pentode(1): Tubes['EL34'],
+         Pentode(2): Tubes['EL34'],
+         R(1): 220.e3,
+         R(2): 220.e3,
+         R(22): 220.e3,
+         R(3): 250.e3,
+         R(4): 1.5e3,
+         R(44): 150.,
+         R(8): 1.5e3,
+         Trans_L('Trans'): {'windings': [1000.0, 1000.0, 1000.0], 'R': 358.0, 'nw': 3.0},
+         V('cc1'): 360.,
+         V('cc2'): 320.,
+         }
+    
+    result = np.array([[  0.00000000e+00,   0.00000000e+00],
+           [ -3.93729973e-01,   2.16778685e-01],
+           [  5.19211387e-01,  -2.15958590e-01],
+           [ -1.90796327e-02,   8.18547952e-04],
+           [ -4.13219038e-01,   2.16369797e-01],
+           [  5.03192950e-01,  -2.16369797e-01],
+           [ -2.98470505e-02,  -8.18547952e-04],
+           [ -4.24291910e-01,   2.15958590e-01],
+           [  4.94164949e-01,  -2.16778685e-01],
+           [ -3.98751574e-02,  -1.83697020e-16]])
+
+    timespan = 0.02
+
+    def signal(self):
+        return 0.25*self.sine_signal(150.0)
+
+    def plot(self, p):
+        x = self.timeline()
+        y = p(self.signal())
+        pl.plot(x, y)
+        self.finish_plot(p.out_labels, timeline=x)
+
+class Fuzz_test(Test): # fuzz face fuller mods test
+    S = ((R(5), GND, 'u9',),
+         (R(7), 'u12', '+9V',),
+         (P(1), 'in', 'u6', 'in',),
+         (P(2), 'u12', 'u2', 'u12',),
+         (V('cc'), '+9V',),
+         (P(3), 'u5', GND, 'u7',),
+         (P(4), 'u8', 'u9', 'out',),
+         (T(2), 'u3', 'u1', 'u5',),
+         (T(1), 'u1', 'u4', GND,),
+         (C(4), 'u8', 'u2',),
+         (C(5), 'u7', GND,),
+         (C(1), 'u6', 'u4',),
+         (R(3), 'u5', 'u4',),
+         (R(4), 'u3', 'u2',),
+         (R(6), 'u1', '+9V',),
+         (IN, 'in',),
+         (OUT, 'out','in',),
+         )
+    V = {C(1): 2.2e-6,
+         C(4): 0.01e-6,
+         C(5): 22.e-6,
+         P(1): dict(value=50.e3, var='Input'),
+         P(2): dict(value=1.e3, var='Drive', inv=1),
+         P(3): dict(value=1.e3, var='Fuzz', inv=1),
+         P(4): dict(value=400.e3, var='Volume', inv=1),
+         R(3): 100.e3,
+         R(4): 8.2e3,
+         R(5): 100.e3,
+         R(6): 33.e3,
+         R(7): 470.,
+         T(1): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
+         T(2): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
+         V('cc'): 9.,
+         }
+    
+    result = np.array([[  2.30300223e-11,   0.00000000e+00],
+           [  2.91297798e-01,   4.92901172e-01],
+           [  2.33677108e-01,   1.71693967e-01],
+           [ -2.42940849e-01,  -4.34100536e-01],
+           [ -1.93428827e-01,  -3.22507769e-01],
+           [  3.10440347e-01,   3.22507769e-01],
+           [  2.49033130e-01,   4.34100536e-01],
+           [ -2.80840688e-01,  -1.71693967e-01],
+           [ -2.23787640e-01,  -4.92901172e-01],
+           [ -9.69408910e-02,  -2.44929360e-16]])
+
+    #timespan = 0.5
+
+    def signal(self):
+        return 0.5*self.sine_signal(200.0)
+
+    def plot(self, p):
+        x = self.timeline()
+        y = p(self.signal())
+        pl.plot(x, y)
+        #self.print_data(y, "\nresult = np.")
         self.finish_plot(p.out_labels, timeline=x)
