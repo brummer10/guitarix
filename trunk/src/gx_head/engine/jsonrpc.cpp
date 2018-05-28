@@ -19,6 +19,8 @@
 #include "jsonrpc.h"
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #if HAVE_BLUEZ
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
@@ -2168,7 +2170,8 @@ bool GxService::on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connectio
     Glib::RefPtr<Gio::Socket> sock = connection->get_socket();
     sock->set_blocking(false);
     int flag = 1;
-    setsockopt(sock->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
+    if (setsockopt(sock->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int)))
+        gx_print_error("GxMachineRemote","setsockopt(IPPROTO_TCP, TCP_NODELAY) failed");
     Glib::signal_io().connect(
 	sigc::mem_fun(cc, &CmdConnection::on_data_in),
 	sock->get_fd(), Glib::IO_IN);

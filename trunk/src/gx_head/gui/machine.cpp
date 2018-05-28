@@ -22,6 +22,8 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #ifdef HAVE_BLUEZ
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
@@ -1077,7 +1079,8 @@ void GxMachineRemote::create_bluetooth_socket(const Glib::ustring& bdaddr) {
 void GxMachineRemote::create_tcp_socket() {
     socket = Gio::Socket::create(Gio::SOCKET_FAMILY_IPV4, Gio::SOCKET_TYPE_STREAM, Gio::SOCKET_PROTOCOL_TCP);
     int flag = 1;
-    setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int));
+    if (setsockopt(socket->get_fd(), IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(int)))
+        gx_print_error("GxMachineRemote","setsockopt(IPPROTO_TCP, TCP_NODELAY) failed");
     typedef std::vector< Glib::RefPtr<Gio::InetAddress> > adr_list;
     adr_list al;
     try {
