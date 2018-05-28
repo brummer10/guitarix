@@ -5,6 +5,7 @@
 # Test for Jack2
 #---------------------------------------------------#
 import os
+import sys
 if os.path.exists("/usr/local/include/jack/jack.h"):
   path = "/usr/local/include/jack/jack.h"
 elif os.path.exists("/usr/include/jack/jack.h"):
@@ -27,6 +28,10 @@ from distutils.core import setup, Extension
 import numpy.distutils
 
 numpy_include_dirs = numpy.distutils.misc_util.get_numpy_include_dirs()
+lib = ["jack"]
+if sys.platform.startswith("linux"):
+    lib.append('dl')
+
 
 setup(
     name = "specmatch",
@@ -41,7 +46,7 @@ setup(
     install_requires = ['matplotlib','numpy','scipy','scikits.audiolab'],
     ext_modules = [Extension("specmatch.jackx",
                              ["pyjackx.c"],
-                             libraries=["jack", "dl"],
+                             libraries=lib,
                              include_dirs=numpy_include_dirs,
                              define_macros=pyjack_macros,
                              )],
