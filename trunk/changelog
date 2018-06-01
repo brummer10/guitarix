@@ -1,3 +1,9 @@
+guitarix2 (0.37.1) unstable; urgency=low
+
+  * fix build for FreeBSD
+
+ -- brummer <brummer-@web.de>  Fri, 01 Jun 2018 08:28:15 +0200 
+
 guitarix2 (0.37.0) unstable; urgency=low
 
   * new plug Ampimpulse-stereo
