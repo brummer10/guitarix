@@ -24,7 +24,7 @@ blddir = 'build'
 use_2to3 = True
 
 # used by waf dist and waf build
-VERSION='0.37.1'
+VERSION='0.37.2git'
 APPNAME='guitarix'
 
 good_faust_versions = ['0.9.90']
@@ -674,6 +674,7 @@ def configure(conf):
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='glibmm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
+    conf.check(header_name='fftw3.h', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
 
     if (opt.standalone):
@@ -700,7 +701,7 @@ def configure(conf):
         conf.check_cfg(package='libavutil', args='--cflags --libs', uselib_store='LIBAVUTIL', mandatory=1)
 
     if opt.standalone or opt.ladspa or opt.new_ladspa:
-        conf.check(header_name='ladspa.h', mandatory=1)
+        conf.check(header_name='ladspa.h', errmsg="ladspar.h not found, using included version now", mandatory=0)
         conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
         conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
         check_boost(conf)
@@ -1006,7 +1007,7 @@ def build(bld):
                 flags     = ["-d", "-q", "-u", "-c"],
                 source    = 'guitarix.desktop.in',
                 target    = 'guitarix.desktop',
-                install_path = "${DATADIR}/applications",
+                install_path = "${DESKAPPS_DIR}/",
             )
 
             # hacked in scanner method so the desktop file gets rebuild
@@ -1025,14 +1026,15 @@ def build(bld):
             gen_desktop = bld(features  = "subst",
                 source    = 'guitarix.desktop._in',
                 target    = 'guitarix.desktop',
-                install_path = "${DATADIR}/applications",
+                install_path = "${DESKAPPS_DIR}/",
                 VAR        = ""
             )
+
             gen_desktop.create_task
         if Options.commands["install"]:  ## newer waf version: bld.cmd == 'install'
             if not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"]:
                 try:
-                    bld.exec_command(["update-desktop-database", Utils.subst_vars("${DATADIR}/applications", bld.env)])
+                    bld.exec_command(["update-desktop-database", Utils.subst_vars("${DESKAPPS_DIR}", bld.env)])
                 except:
                     pass
 
