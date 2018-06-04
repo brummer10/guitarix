@@ -919,6 +919,17 @@ void PresetWindow::replace_inline(std::string& subject, const std::string& searc
 
 void PresetWindow::show_online_preset() {
 
+    char *dbus = getenv("DBUS_SESSION_BUS_ADDRESS");
+    if (!dbus) {
+        system("eval 'dbus-launch --sh-syntax --exit-with-session'");
+    }
+    
+    dbus = getenv("DBUS_SESSION_BUS_ADDRESS");
+    if (!dbus) {
+        gx_print_error("downloadPreset", _("DBUS_SESSION_BUS_ADDRESS not detected, online prest download isn't supported!!"));
+        return;
+    }
+
     Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_config_filename(), resolve_hostname()));
     static bool load_new = true;
     static bool load = false;
