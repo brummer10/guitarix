@@ -161,7 +161,7 @@ def build(bld):
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
-    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
+    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT', 'CURL',
               'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'LILV', 'BOOST_SYSTEM','BOOST_IOSTREAMS']
     if bld.env["HAVE_AVAHI"]:
         uselib += ['AVAHI_GOBJECT', 'AVAHI_GLIB', 'AVAHI_CLIENT']

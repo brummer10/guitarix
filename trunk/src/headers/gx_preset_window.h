@@ -66,26 +66,6 @@ public:
     using Gtk::TreeView::on_drag_motion;
 };
 
-
-class DownloadWatch {
-public:
-    DownloadWatch() : watcher(0), stop(false) {}
-    Glib::RefPtr<Gio::Cancellable>  cancellable;
-    Gio::File::SlotFileProgress  file_state;
-    static void f_progress(goffset read, goffset total);
-    void start ();
-    ~DownloadWatch();
-    Glib::Dispatcher timeout;
-
-protected:
-    void watch ();
-    void load ();
-    Glib::Thread * watcher;
-    Glib::Mutex w_mutex;
-    bool stop;
-};
-
-
 struct GxActions;
 
 class PresetWindow: public sigc::trackable {
@@ -97,9 +77,7 @@ private:
     };
     gx_engine::GxMachineBase& machine;
     GxActions& actions;
-    DownloadWatch *watch;
-    void go_watch ();
-    void watch_done();
+    CURL *curl;
     bool in_edit;
     Gtk::TreeModel::iterator edit_iter;
     Glib::RefPtr<Gdk::Pixbuf> pb_edit;

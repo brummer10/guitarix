@@ -65,6 +65,7 @@
 #endif
 
 #include <gtkmm.h>
+#include <curl/curl.h>
 
 #include "engine.h"
 #include "jsonrpc.h"

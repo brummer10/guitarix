@@ -170,9 +170,13 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     gtk_size_group_add_widget(lc, GTK_WIDGET(new_preset_bank->gobj()));
     gtk_size_group_add_widget(lc, GTK_WIDGET(organize_presets->gobj()));
     gtk_size_group_add_widget(lc, GTK_WIDGET(online_preset->gobj()));
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+    curl = curl_easy_init();
 }
 
 PresetWindow::~PresetWindow() {
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
 }
 
 void PresetWindow::on_selection_changed() {
@@ -695,53 +699,6 @@ void PresetWindow::on_new_bank() {
 
 // Online Preset Downloader
 
-void DownloadWatch::start () {
-    cancellable = Gio::Cancellable::create ();
-    file_state = sigc::slot<void, goffset, goffset>(&f_progress);
-    watcher = Glib::Thread::create(sigc::mem_fun(*this, &DownloadWatch::watch), true);
-}
-
-void DownloadWatch::watch () {
-    while(true) {
-        {
-          Glib::Mutex::Lock lock (w_mutex);
-          if (stop) break;
-        }
-        sleep(25); // time out for the server response
-        cancellable->cancel();
-        if (!stop) timeout();
-        break;
-    }
-}
-
-void DownloadWatch::f_progress(goffset read, goffset total)
-{
-    if(Gtk::Main::events_pending())
-        Gtk::Main::iteration(false); 
-  //std::cout << read << "/" << total << std::endl;
-}
-
-DownloadWatch::~DownloadWatch() {
-    {
-        Glib::Mutex::Lock lock (w_mutex);
-        stop = true;
-    }
-    if (watcher) watcher->join(); 
-}
-
-void PresetWindow::go_watch () {
-    if(watch != NULL) return;
-    watch = new DownloadWatch();
-    watch->timeout.connect(sigc::mem_fun(*this, &PresetWindow::watch_done));
-    watch->start();
-}
-
-void PresetWindow::watch_done() {
-    if(watch == NULL) return;
-    delete watch;
-    watch = NULL;
-}
-
 Glib::ustring PresetWindow::resolve_hostname() {
     static Glib::ustring hostname = "localhost";
     if (! machine.get_jack()) {
@@ -753,21 +710,31 @@ Glib::ustring PresetWindow::resolve_hostname() {
 
 bool PresetWindow::download_file(Glib::ustring from_uri, Glib::ustring to_path) {
 
-    go_watch();
-    Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(from_uri);
-    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(to_path, resolve_hostname()));
-    try {
-        rem->copy(dest, watch->file_state, watch->cancellable,Gio::FILE_COPY_OVERWRITE);
-    } catch (Gio::Error& e) {
-        if (watch->cancellable->is_cancelled()) {
-            gx_print_error( _("Time out, download cancelled"), _("the server on https://musical-artifacts.com/ takes to long to respond"));
+    CURLcode res;
+    FILE *out;
+    out = fopen(to_path.c_str(), "wb");
+  
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, out);
+    curl_easy_setopt(curl, CURLOPT_URL, from_uri.c_str());
+    res = curl_easy_perform(curl);
+    if(CURLE_OK == res) {
+        char *ct = NULL;
+        res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &ct);
+        if (strstr(ct, "application/json")!= NULL ) {
+            gx_print_info( "download_file", from_uri);
+        } else if (strstr(ct, "application/octet-stream")!= NULL) {
+             gx_print_info( "download_preset", from_uri);
         } else {
-            gx_print_error(e.what().c_str(), Glib::ustring::compose("can't download '%1 ' from https://musical-artifacts.com/", from_uri));
-            if (watch) watch_done();
+           res = CURLE_CONV_FAILED;
         }
+    }
+    curl_easy_reset(curl);
+    fclose(out);
+    if(res != CURLE_OK) {
+        remove(to_path.c_str());
+        gx_print_error( "download_file", Glib::ustring::compose("curl_easy_perform() failed: %1", curl_easy_strerror(res)));
         return false;
     }
-    if (watch) watch_done();
     return true;
 }
 
@@ -802,9 +769,6 @@ void PresetWindow::read_preset_menu() {
     std::string INFO_;
     std::string AUTHOR_;
     std::string line;
-   // bool set_name = false;
-   // bool set_file = false;
-   // bool set_info = false;
     while ( in->read_line(line) )
     {
         std::istringstream is(line);
@@ -825,9 +789,7 @@ void PresetWindow::read_preset_menu() {
                         jp.read_kv("file", FILE_);
                         INFO_ += "Author : " + AUTHOR_;
                         olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
-                        //os << "\n<<NAME>> \n" << NAME_ << "\n<<FILE>> \n" << FILE_ << "\n<<INFO>> \n" << INFO_ << "\n<<END>> \n" << "\n";
-                    } else {
-                       //gx_print_warning("read_online", "unknown key: " + jp.current_value());
+                     } else {
                         jp.skip_object();
                     }
                 } while (jp.peek() == gx_system::JsonParser::value_key);
@@ -837,41 +799,6 @@ void PresetWindow::read_preset_menu() {
             cerr << "JsonException: " << e.what() << ": '" << jp.current_value() << "'" << endl;
             assert(false);
         }
-
-/*
-        if (line.find("<<NAME>>") != string::npos) {
-            set_name = true;
-            set_file = false;
-            set_info = false;
-            NAME_ = "";
-            continue;
-        } else if (line.find("<<FILE>>") != string::npos ) {
-            set_name = false;
-            set_file = true;
-            set_info = false;
-            FILE_ = "";
-            continue;
-        } else if  (line.find("<<INFO>>") != string::npos ) {
-            set_name = false;
-            set_file = false;
-            set_info = true;
-            INFO_ = "";
-            continue;
-        } else if  (line.find("<<END>>") != string::npos ) {
-            set_name = false;
-            set_file = false;
-            set_info = false;
-            olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
-            NAME_ = "";
-            FILE_ = "";
-            INFO_ = "";
-            continue;
-        } 
-        if ( set_name ) NAME_ += line;
-        else if ( set_file ) FILE_ += line;
-        else if ( set_info ) INFO_ += line+"\n";
-        
-        */
     }
     in->close ();
 }
@@ -919,17 +846,6 @@ void PresetWindow::replace_inline(std::string& subject, const std::string& searc
 
 void PresetWindow::show_online_preset() {
 
-    char *dbus = getenv("DBUS_SESSION_BUS_ADDRESS");
-    if (!dbus) {
-        system("eval 'dbus-launch --sh-syntax --exit-with-session'");
-    }
-    
-    dbus = getenv("DBUS_SESSION_BUS_ADDRESS");
-    if (!dbus) {
-        gx_print_error("downloadPreset", _("DBUS_SESSION_BUS_ADDRESS not detected, online prest download isn't supported!!"));
-        return;
-    }
-
     Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_config_filename(), resolve_hostname()));
     static bool load_new = true;
     static bool load = false;
@@ -939,16 +855,14 @@ void PresetWindow::show_online_preset() {
         window->set_cursor(cursor);
         if (dest->query_exists()) {
             Gtk::MessageDialog *d = new Gtk::MessageDialog(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),
-             "Do you wont to check for new presets from\n https://musical-artifacts.com ? \n Note, that may take a while",
+             "Do you want to check for new presets from\n https://musical-artifacts.com ? \n Note, that may take a while",
               false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
             d->set_position(Gtk::WIN_POS_MOUSE);
             if (d->run() == Gtk::RESPONSE_YES) load = true;
             delete d;
         }
         if (load || ! dest->query_exists()) {
-            if (download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {
-               // machine.load_online_presets();
-            } else {
+            if (!download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {
                 window->set_cursor(); 
                 return;
             } 
