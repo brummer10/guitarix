@@ -39,6 +39,7 @@ public:
 };
 
 void GX_LOCK::lock_rt_memory() {
+#ifndef __APPLE__    
   extern char __rt_text__start[], __rt_text__end[];
   extern char __rt_data__start[], __rt_data__end[];
   rt_lock regions[] = {
@@ -54,9 +55,11 @@ void GX_LOCK::lock_rt_memory() {
     }
   }
   fprintf(stderr,"mlock %ld bytes\n",total_size);
+#endif
 }
 
 void GX_LOCK::unlock_rt_memory() {
+#ifndef __APPLE__    
   extern char __rt_text__start[], __rt_text__end[];
   extern char __rt_data__start[], __rt_data__end[];
   rt_lock regions[] = {
@@ -72,5 +75,6 @@ void GX_LOCK::unlock_rt_memory() {
     }
   }
   fprintf(stderr,"munlock %ld bytes\n",total_size);
+#endif  
 }
 #endif

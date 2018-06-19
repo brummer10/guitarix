@@ -181,12 +181,20 @@ bool GxSimpleConvolver::configure(int32_t count, float *impresp, uint32_t imprat
     {
       bufsize = Convproc::MINPART;
     }
+#if ZITA_CONVOLVER_VERSION == 4
+        if (Convproc::configure(1, 1, count, buffersize,
+                                bufsize, Convproc::MAXPART,0.0)) {
+            printf("no configure\n");
+            return false;
+        }        
+#else 
   if (Convproc::configure(1, 1, count, buffersize,
                           bufsize, bufsize)) // Convproc::MAXPART
     {
       printf("no configure\n");
       return false;
     }
+#endif
   if (impdata_create(0, 0, 1, impresp, 0, count))
     {
       printf("no impdata_create()\n");
@@ -205,6 +213,9 @@ bool GxSimpleConvolver::update(int32_t count, float *impresp, uint32_t imprate)
     {
       return false;
     }
+#if ZITA_CONVOLVER_VERSION == 4
+        impdata_clear(0, 0);
+#endif
   if (impdata_update(0, 0, 1, impresp, 0, count))
     {
       return false;
@@ -293,12 +304,21 @@ bool GxSimpleConvolver::configure_stereo(int32_t count, float *impresp, uint32_t
     {
       bufsize = Convproc::MINPART;
     }
+#if ZITA_CONVOLVER_VERSION == 4
+      if (Convproc::configure(2, 2, count, buffersize,
+                              bufsize, bufsize,0.0)) // Convproc::MAXPART
+        {
+          printf("no configure\n");
+          return false;
+        }
+#else 
   if (Convproc::configure(2, 2, count, buffersize,
                           bufsize, bufsize)) // Convproc::MAXPART
     {
       printf("no configure\n");
       return false;
     }
+#endif
   if (impdata_create(0, 0, 1, impresp, 0, count) & impdata_create(1, 1, 1, impresp, 0, count))
     {
       printf("no impdata_create()\n");
@@ -317,6 +337,10 @@ bool GxSimpleConvolver::update_stereo(int32_t count, float *impresp, uint32_t im
     {
       return false;
     }
+#if ZITA_CONVOLVER_VERSION == 4
+      impdata_clear(0, 0);
+      impdata_clear(1, 1);
+#endif
   if (impdata_update(0, 0, 1, impresp, 0, count) & impdata_update(1, 1, 1, impresp, 0, count))
     {
       return false;

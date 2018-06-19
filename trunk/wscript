@@ -541,26 +541,49 @@ def check_zita_convolver(opt, conf):
     conf.env['CONVOLVER_FFMPEG'] = False
     if opt.includeconvolver:
         conf.env['ZITA_CONVOLVER'] = False
+        conf.define ('ZITA_CONVOLVER_VERSION', 3)
     elif opt.convolver_ffmpeg:
         conf.env['ZITA_CONVOLVER'] = False
         conf.env['CONVOLVER_FFMPEG'] = True
+        conf.define ('ZITA_CONVOLVER_VERSION', 3)
     else:
-        expected_zita_convolver_version = 3
-        code="""
-        #include <zita-convolver.h>
-        #if ZITA_CONVOLVER_MAJOR_VERSION != %d
-        #error
-        #endif
-        int main(){ return 0; }
-        """ % expected_zita_convolver_version
-        conf.check_cxx(
-            fragment=code,
-            lib="zita-convolver",
-            uselib_store='ZITA_CONVOLVER',
-            msg='Checking for zita-convolver >= %d.0' % expected_zita_convolver_version,
-            errmsg="Zita-convolver version %d not found" % expected_zita_convolver_version,
-            mandatory=True,
-            define_name="ZITA_CONVOLVER")
+        try:
+            expected_zita_convolver_version = 3
+            code="""
+            #include <zita-convolver.h>
+            #if ZITA_CONVOLVER_MAJOR_VERSION != %d
+            #error
+            #endif
+            int main(){ return 0; }
+            """ % expected_zita_convolver_version
+            conf.check_cxx(
+                fragment=code,
+                lib="zita-convolver",
+                uselib_store='ZITA_CONVOLVER',
+                msg='Checking for zita-convolver >= %d.0' % expected_zita_convolver_version,
+                errmsg="Zita-convolver version %d not found, trying version 4" % expected_zita_convolver_version,
+                mandatory=True,
+                define_name="ZITA_CONVOLVER")
+            conf.define ('ZITA_CONVOLVER_VERSION', 3)
+        except ConfigurationError:
+            expected_zita_convolver_version = 4
+            code="""
+            #include <zita-convolver.h>
+            #if ZITA_CONVOLVER_MAJOR_VERSION != %d
+            #error
+            #endif
+            int main(){ return 0; }
+            """ % expected_zita_convolver_version
+            conf.check_cxx(
+                fragment=code,
+                lib="zita-convolver",
+                uselib_store='ZITA_CONVOLVER',
+                msg='Checking for zita-convolver >= %d.0' % expected_zita_convolver_version,
+                errmsg="Zita-convolver version %d not found" % expected_zita_convolver_version,
+                mandatory=True,
+                define_name="ZITA_CONVOLVER")
+            conf.define ('ZITA_CONVOLVER_VERSION', 4)
+            
 
 def check_zita_resampler(opt, conf):
     if opt.includeresampler:

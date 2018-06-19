@@ -416,10 +416,17 @@ bool GxConvolver::configure(
 	delay = round(delay * f);
 	ldelay = round(ldelay * f);
     }
-    if (Convproc::configure(2, 2, size, buffersize, bufsize, Convproc::MAXPART)) {
-        gx_print_error("convolver", "error in Convproc::configure ");
-        return false;
-    }
+#if ZITA_CONVOLVER_VERSION == 4
+        if (Convproc::configure(2, 2, size, buffersize, bufsize, Convproc::MAXPART, 0.0)) {
+            gx_print_error("convolver", "error in Convproc::configure ");
+            return false;
+        }        
+#else 
+        if (Convproc::configure(2, 2, size, buffersize, bufsize, Convproc::MAXPART)) {
+            gx_print_error("convolver", "error in Convproc::configure ");
+            return false;
+        }
+#endif
 
     float gain_a[2] = {gain, lgain};
     unsigned int delay_a[2] = {delay, ldelay};
@@ -479,10 +486,17 @@ bool GxConvolver::configure(string fname, float gain, unsigned int delay, unsign
 	size = round(size * f) + 2; // 2 is safety margin for rounding differences
 	delay = round(delay * f);
     }
-    if (Convproc::configure(1, 1, size, buffersize, bufsize, Convproc::MAXPART)) {
-        gx_print_error("convolver", "error in Convproc::configure ");
-        return false;
-    }
+#if ZITA_CONVOLVER_VERSION == 4
+        if (Convproc::configure(1, 1, size, buffersize, bufsize, Convproc::MAXPART,0.0)) {
+            gx_print_error("convolver", "error in Convproc::configure ");
+            return false;
+        }        
+#else 
+        if (Convproc::configure(1, 1, size, buffersize, bufsize, Convproc::MAXPART)) {
+            gx_print_error("convolver", "error in Convproc::configure ");
+            return false;
+        }
+#endif
 
     float gain_a[1] = {gain};
     unsigned int delay_a[1] = {delay};
@@ -556,11 +570,19 @@ bool GxSimpleConvolver::configure(int count, float *impresp, unsigned int imprat
     if (bufsize < Convproc::MINPART) {
         bufsize = Convproc::MINPART;
     }
-    if (Convproc::configure(1, 1, count, buffersize,
-                            bufsize, Convproc::MAXPART)) {
-        gx_print_error("convolver", "error in Convproc::configure");
-        return false;
-    }
+#if ZITA_CONVOLVER_VERSION == 4
+        if (Convproc::configure(1, 1, count, buffersize,
+                                bufsize, Convproc::MAXPART,0.0)) {
+            gx_print_error("convolver", "error in Convproc::configure");
+            return false;
+        }        
+#else 
+        if (Convproc::configure(1, 1, count, buffersize,
+                                bufsize, Convproc::MAXPART)) {
+            gx_print_error("convolver", "error in Convproc::configure");
+            return false;
+        }
+#endif
     if (impdata_create(0, 0, 1, impresp, 0, count)) {
         gx_print_error("convolver", "out of memory");
         return false;
@@ -574,6 +596,9 @@ bool GxSimpleConvolver::update(int count, float *impresp, unsigned int imprate) 
     if (!impresp) {
 	return false;
     }
+#if ZITA_CONVOLVER_VERSION == 4
+        impdata_clear(0, 0);
+#endif
     if (impdata_update(0, 0, 1, impresp, 0, count)) {
         gx_print_error("convolver", "update: internal error");
         return false;
@@ -620,12 +645,22 @@ bool GxSimpleConvolver::configure_stereo(int count, float *impresp, unsigned int
     {
       bufsize = Convproc::MINPART;
     }
-  if (Convproc::configure(2, 2, count, buffersize,
-                          bufsize, bufsize)) // Convproc::MAXPART
-    {
-      printf("no configure\n");
-      return false;
-    }
+#if ZITA_CONVOLVER_VERSION == 4
+      if (Convproc::configure(2, 2, count, buffersize,
+                              bufsize, bufsize,0.0)) // Convproc::MAXPART
+        {
+          printf("no configure\n");
+          return false;
+        }
+      
+#else 
+      if (Convproc::configure(2, 2, count, buffersize,
+                              bufsize, bufsize)) // Convproc::MAXPART
+        {
+          printf("no configure\n");
+          return false;
+        }
+#endif
   if (impdata_create(0, 0, 1, impresp, 0, count) & impdata_create(1, 1, 1, impresp, 0, count))
     {
       printf("no impdata_create()\n");
@@ -644,6 +679,10 @@ bool GxSimpleConvolver::update_stereo(int count, float *impresp, unsigned int im
     {
       return false;
     }
+#if ZITA_CONVOLVER_VERSION == 4
+      impdata_clear(0, 0);
+      impdata_clear(1, 1);
+#endif
   if (impdata_update(0, 0, 1, impresp, 0, count) & impdata_update(1, 1, 1, impresp, 0, count))
     {
       return false;

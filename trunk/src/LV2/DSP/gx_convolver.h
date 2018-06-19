@@ -26,6 +26,7 @@
 #include <zita-convolver.h>
 #include <stdint.h>
 #include "gx_resampler.h"
+#include "../../config.h"
 /* GxConvolver */
 
 
