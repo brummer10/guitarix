@@ -99,6 +99,7 @@ namespace gx_effects {
 #include "faust/noise_shaper.cc"
 #include "faust/gx_distortion.cc"
 #include "faust/bitdowner.cc"
+#include "faust/thick_distortion.cc"
 #include "faust/freeverb.cc"
 #include "faust/impulseresponse.cc"
 #include "faust/chorus.cc"
