@@ -841,9 +841,12 @@ Tubes = {
     "12at7": dict(mu = 60.0, Ex = 1.35, Kp = 300.0, Kvb = 300.0, Kg1 = 460.0, Gco = -0.5, Gcf = 12e-5),
     "12ay7": dict(mu = 44.16, Ex = 1.11, Kp = 409.96, Kvb = 300.0, Kg1 = 1192.4, Gco = -0.5, Gcf = 12e-5),
     "EL34": dict(mu = 12.3, Ex = 1.17, Kp = 61.1, Kvb = 29.9, Kg1 = 353.9, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
-    "6V6": dict(mu = 8.7, Ex = 1.35, Kp = 48.0, Kvb = 12.0, Kg1 = 1460.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    #"6V6": dict(mu = 8.7, Ex = 1.35, Kp = 48.0, Kvb = 12.0, Kg1 = 1460.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
     "EL84": dict(mu = 21.3, Ex = 1.24, Kp = 111.1, Kvb = 17.9, Kg1 = 401.7, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    "EF86": dict(mu = 34.9, Ex = 1.35, Kp = 222.06, Kvb = 4.7, Kg1 = 2648.1, Kg2 = 4627, Gco = -0.2, Gcf = 1e-5),
     "6L6": dict(mu = 8.7, Ex = 1.35, Kp = 48.0, Kvb = 12.0, Kg1 = 1460.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    "6V6": dict(mu = 10.7, Ex = 1.31, Kp = 41.16, Kvb = 12.7, Kg1 = 1672.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    "6AU6": dict(mu = 36.65, Ex = 1.376, Kp = 215.42, Kvb = 15.0, Kg1 = 1129.4, Kg2 = 1059, Gco = -0.2, Gcf = 1e-5),
     }
 
 class Triode2_test(Test): # triode test 2
@@ -1073,6 +1076,8 @@ class Pentode2_test(Test): # push_pull test
          Trans_L('Trans'): {'windings': [1000.0, 1000.0, 1000.0], 'R': 358.0, 'nw': 3.0},
          V('cc1'): 360.,
          V('cc2'): 320.,
+         "OP": [0],
+         "POT": dict(Pv=0.5),
          }
     
     result = np.array([[  0.00000000e+00,   0.00000000e+00],
@@ -1089,13 +1094,76 @@ class Pentode2_test(Test): # push_pull test
     timespan = 0.02
 
     def signal(self):
-        return 0.25*self.sine_signal(150.0)
+        self.sig = np.linspace(0, 24.0, 200)
+        a = self.op_signal(samples=len(self.sig))
+        a[:,0] += self.sig
+        return a
+
+    # def signal(self):
+    #     return 0.25*self.sine_signal(150.0)
 
     def plot(self, p):
         x = self.timeline()
         y = p(self.signal())
-        pl.plot(x, y)
+       # pl.plot(x, y)
+        pl.plot(self.sig, -y/160.0)
         self.finish_plot(p.out_labels, timeline=x)
+
+    def plot_spectrum(self, p, plot_variable):
+        varlist = []
+        if plot_variable:
+            if plot_variable not in p.pot_list:
+                raise ArgumentError("variable %s not found" % plot_variable)
+            ##hack
+            for k, t in self.V.items():
+                if isinstance(k, P):
+                    if not isinstance(t, dict):
+                        t = dict(value=t)
+                    var = t.get('var')
+                    if var is None:
+                        var = str(k)+'v'
+                    if var == plot_variable:
+                        break
+            loga = t.get('a', 0)
+            inv = t.get('inv', 0)
+            for i in range(5):
+                pot = i/4
+                lbl = "%s" % pot
+                if inv:
+                    pot = 1 - pot
+                if loga:
+                    pot = (math.exp(loga * pot) - 1) / (math.exp(loga) - 1)
+                varlist.append((plot_variable, pot, lbl))
+        else:
+            varlist.append((None, None, p.out_labels))
+        n = None
+        cut = None
+        def spec(y):
+            s = 20*np.log10(abs(np.fft.fft(y,n,axis=0)[cut]))
+            return np.where(s > -80, s, np.nan)
+        labels = []
+        for var, val, lbl in varlist:
+            if var is not None:
+                p.set_variable(var, val)
+            y = self.spectrum_signal(p, magnitude=1e-4)
+            if n is None:
+                n = dk_lib.pow2roundup(len(y))
+                cut = slice(n*20//int(self.FS), n*10000//int(self.FS))
+                w = fftfreq(n,1.0/self.FS)[cut]
+            pl.semilogx(w, spec(y),label=plot_variable)
+            pl.xlabel('Frequency')
+            pl.ylabel('Magnitude ')
+            if plot_variable:
+                pl.title(plot_variable)
+            if isinstance(lbl, basestring):
+                labels.append(lbl)
+            else:
+                labels.extend(lbl)
+        ax = pl.axes()
+        ax.grid()
+        ax.yaxis.set_major_formatter(pl.FormatStrFormatter('%d dB'))
+        ax.xaxis.set_major_formatter(pl.FormatStrFormatter('%d Hz'))
+        self.finish_plot(labels, loc='upper left')
 
 class Fuzz_test(Test): # fuzz face fuller mods test
     S = ((R(5), GND, 'u9',),
@@ -1131,6 +1199,8 @@ class Fuzz_test(Test): # fuzz face fuller mods test
          T(1): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
          T(2): dict(Vt=26e-3, Is=20.3e-15, Bf=1430, Br=4),
          V('cc'): 9.,
+         "OP": [0],
+         "POT": dict(Pv=0.5),
          }
     
     result = np.array([[  2.30300223e-11,   0.00000000e+00],
@@ -1155,3 +1225,59 @@ class Fuzz_test(Test): # fuzz face fuller mods test
         pl.plot(x, y)
         #self.print_data(y, "\nresult = np.")
         self.finish_plot(p.out_labels, timeline=x)
+
+    def plot_spectrum(self, p, plot_variable):
+        varlist = []
+        if plot_variable:
+            if plot_variable not in p.pot_list:
+                raise ArgumentError("variable %s not found" % plot_variable)
+            ##hack
+            for k, t in self.V.items():
+                if isinstance(k, P):
+                    if not isinstance(t, dict):
+                        t = dict(value=t)
+                    var = t.get('var')
+                    if var is None:
+                        var = str(k)+'v'
+                    if var == plot_variable:
+                        break
+            loga = t.get('a', 0)
+            inv = t.get('inv', 0)
+            for i in range(5):
+                pot = i/4
+                lbl = "%s" % pot
+                if inv:
+                    pot = 1 - pot
+                if loga:
+                    pot = (math.exp(loga * pot) - 1) / (math.exp(loga) - 1)
+                varlist.append((plot_variable, pot, lbl))
+        else:
+            varlist.append((None, None, p.out_labels))
+        n = None
+        cut = None
+        def spec(y):
+            s = 20*np.log10(abs(np.fft.fft(y,n,axis=0)[cut]))
+            return np.where(s > -80, s, np.nan)
+        labels = []
+        for var, val, lbl in varlist:
+            if var is not None:
+                p.set_variable(var, val)
+            y = self.spectrum_signal(p, magnitude=1e-4)
+            if n is None:
+                n = dk_lib.pow2roundup(len(y))
+                cut = slice(n*20//int(self.FS), n*10000//int(self.FS))
+                w = fftfreq(n,1.0/self.FS)[cut]
+            pl.semilogx(w, spec(y),label=plot_variable)
+            pl.xlabel('Frequency')
+            pl.ylabel('Magnitude ')
+            if plot_variable:
+                pl.title(plot_variable)
+            if isinstance(lbl, basestring):
+                labels.append(lbl)
+            else:
+                labels.extend(lbl)
+        ax = pl.axes()
+        ax.grid()
+        ax.yaxis.set_major_formatter(pl.FormatStrFormatter('%d dB'))
+        ax.xaxis.set_major_formatter(pl.FormatStrFormatter('%d Hz'))
+        self.finish_plot(labels, loc='upper left')
