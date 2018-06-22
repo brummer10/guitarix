@@ -1283,7 +1283,7 @@ void MainWindow::set_latency() {
 
 void show_forum_help() {
     GError *error = NULL;
-    gtk_show_uri(gdk_screen_get_default(), "http://guitarix.sourceforge.net/forum/",
+    gtk_show_uri(gdk_screen_get_default(), "https://www.reddit.com/r/Guitarix/",
     gtk_get_current_event_time(), &error);
     if (error)
     {
