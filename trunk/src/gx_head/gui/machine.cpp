@@ -18,6 +18,7 @@
 
 #include "guitarix.h"
 #include <sys/mman.h>
+#include <malloc.h>
 #include "jsonrpc_methods.h"
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -40,16 +41,50 @@ void lock_rt_memory() {
 	{ __rt_text__start, __rt_text__end - __rt_text__start },
 	{ __rt_data__start, __rt_data__end - __rt_data__start },
     };
+    long int total_size = 0;
+    if (mlockall(MCL_CURRENT | MCL_FUTURE))
+        gx_print_error("system init", "mlockall failed:");
+    mallopt(M_TRIM_THRESHOLD, -1);
+    mallopt(M_MMAP_MAX, 0);
     for (unsigned int i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
-	if (mlock(regions[i].start, regions[i].len) != 0) {
-	    gx_print_error(
-		"system init",
-		boost::format(_("failed to lock memory: %1%")) % strerror(errno));
-	}
+        total_size +=regions[i].len;
+        if (mlock(regions[i].start, regions[i].len) != 0) {
+            gx_print_error(
+            "system init",
+            boost::format(_("failed to lock memory: %1%")) % strerror(errno));
+        }
     }
+#ifndef NDEBUG
+    fprintf(stderr,"mlock %ld bytes\n",total_size);
+#endif
 #endif
 }
 
+void unlock_rt_memory() {
+#ifndef __APPLE__    
+    extern char __rt_text__start[], __rt_text__end[];
+    extern char __rt_data__start[], __rt_data__end[];
+    struct {
+    char *start;
+    long len;
+    } regions[] = {
+    { __rt_text__start, __rt_text__end - __rt_text__start },
+    { __rt_data__start, __rt_data__end - __rt_data__start },
+    };
+    long int total_size = 0;
+    for (unsigned int i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
+        total_size +=regions[i].len;
+        if (munlock(regions[i].start, regions[i].len) != 0) {
+            gx_print_error(
+            "system init",
+            boost::format(_("failed to unlock memory: %1%")) % strerror(errno));      
+        }
+    }
+#ifndef NDEBUG
+    fprintf(stderr,"munlock %ld bytes\n",total_size);
+#endif  
+#endif
+}
 
 namespace gx_engine {
 
@@ -208,6 +243,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 
 GxMachine::~GxMachine() {
     stop_socket();
+    unlock_rt_memory();
 #ifndef NDEBUG
     if (options.dump_parameter) {
 	pmap.dump("json");

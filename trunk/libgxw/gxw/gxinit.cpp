@@ -83,6 +83,8 @@ static image_entry image_data[] = {
 	{ "guitarix" },
     { "screw" },
     { "logo" },
+    { "bypass_on" },
+	{ "bypass_off" },
 
     { "background1" },
     { "background2" },

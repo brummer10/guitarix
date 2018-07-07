@@ -1562,9 +1562,9 @@ void PreampStereoConvolver::run_pre_conf(int count, float *input0, float *input1
 int PreampStereoConvolver::register_pre(const ParamReg& reg) {
     PreampStereoConvolver& pre = *static_cast<PreampStereoConvolver*>(reg.plugin);
     reg.registerIEnumVar("pre_st.select", "select", "B", "", pre.pre_names, &pre.preamp, 0);
-    reg.registerVar("pre_st.Level", N_("Level"),  "S", N_("Level"), &pre.level,  1.0, 0.5, 5.0, 0.5);
-    reg.registerVar("pre_st.bass", N_("Bass"),   "S", N_("Bass"), &pre.bass,   0.0, -10.0, 10.0, 0.5);
-    reg.registerVar("pre_st.treble", N_("Treble"), "S", N_("Treble"), &pre.treble, 0.0, -10.0, 10.0, 0.5);
+    reg.registerVar("pre_st.Level", N_("Level"),  "SA", N_("Level"), &pre.level,  1.0, 0.1, 2.1, 0.1);
+    reg.registerVar("pre_st.bass", N_("Bass"),   "SA", N_("Bass"), &pre.bass,   0.0, -10.0, 10.0, 0.5);
+    reg.registerVar("pre_st.treble", N_("Treble"), "SA", N_("Treble"), &pre.treble, 0.0, -10.0, 10.0, 0.5);
     pre.impf.register_par(reg);
     return 0;
 }
@@ -1679,6 +1679,46 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
 
 #include "faust/drumseq.cc"
 
+
+float* Drumout::set = 0;
+float* Drumout::data = 0;
+bool Drumout::mb = false;
+Plugin Drumout::output_drum = Plugin();
+Plugin Drumout::input_drum = Plugin();
+PluginDef Drumout::outputdrum = PluginDef();
+
+Drumout::Drumout() {
+
+
+    output_drum.set_pdef(&outputdrum);
+
+    outputdrum.version = PLUGINDEF_VERSION;
+    outputdrum.id = "drumout";
+    outputdrum.name = "?drumout";
+    outputdrum.stereo_audio = outputdrum_compute;
+}
+
+void always_inline Drumout::outputdrum_compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*) {
+    if (!(*set) || !input_drum.get_on_off() || !mb) {
+        return;
+    }
+    for (int i=0; i<count; i++) {
+        output0[i] =  input0[i] + data[i];
+        output1[i] =  input1[i] + data[i];
+    }
+    memset(data,0,count*sizeof(float));
+}
+
+void Drumout::set_data(float* mode, bool ready, float* buf) {
+    set = mode;
+    mb = ready;
+    data = buf;
+}
+
+void Drumout::set_plugin(Plugin p) {
+    input_drum = p;
+}
+
 static const char* seq_groups[] = {
 	"hat_closed.dsp", N_("DrumSequencer"),
 	"kick.dsp", N_("DrumSequencer"),
@@ -1688,7 +1728,7 @@ static const char* seq_groups[] = {
 	0
 };
 
-DrumSequencer::DrumSequencer(ParamMap& param_)
+DrumSequencer::DrumSequencer(ParamMap& param_, EngineControl& engine_, sigc::slot<void> sync_)
 	: PluginDef(), 
 	  Vectom(0),
 	  Vectom1(0),
@@ -1696,6 +1736,11 @@ DrumSequencer::DrumSequencer(ParamMap& param_)
 	  Veckick(0),
 	  Vecsnare(0),
 	  Vechat(0),
+	  engine(engine_),
+	  mem_allocated(false),
+	  sync(sync_),
+	  ready(false),
+	  outdata(0),
 	  param(param_),
 	  tomset(),
 	  tomp(0),
@@ -1725,13 +1770,17 @@ DrumSequencer::DrumSequencer(ParamMap& param_)
 	register_params = register_params_static;
 	delete_instance = del_instance;
 	plugin = this;
+    engine.signal_buffersize_change().connect(
+    sigc::mem_fun(*this, &DrumSequencer::change_buffersize));
 }
 
 DrumSequencer::~DrumSequencer() {
+    mem_free();
 }
 
 inline void DrumSequencer::init(unsigned int samplingFreq)
 {
+	bsize = int(engine.get_buffersize());
 	fSamplingFreq = samplingFreq;
 	counter = 0;
 	step = 0;
@@ -1742,12 +1791,49 @@ inline void DrumSequencer::init(unsigned int samplingFreq)
 	fSlow7 = 0.0;
 	fSlow18 = 150.0;
 	position = 0.0;
+	mem_alloc();
 	drums.init(samplingFreq);
+    Drumout::set_plugin(plugin);
 }
 
 void DrumSequencer::init_static(unsigned int samplingFreq, PluginDef *p)
 {
 	static_cast<DrumSequencer*>(p)->init(samplingFreq);
+}
+
+void DrumSequencer::mem_alloc()
+{
+    if (mem_allocated) {
+        return;
+    }
+    bsize = int(engine.get_buffersize());
+    assert(bsize>0);
+    try {
+       outdata = new float[bsize]();
+    } catch(...) {
+            gx_print_error("DrumSequencer", "cant allocate memory pool");
+            return;
+        }
+    mem_allocated = true;
+    Drumout::set_data(&fSlow22, mem_allocated, outdata);
+}
+
+void DrumSequencer::mem_free()
+{
+    ready = false;
+    mem_allocated = false;
+    Drumout::set_data(0, mem_allocated, 0);
+    if (outdata) { delete outdata; outdata = 0; }
+}
+
+void DrumSequencer::change_buffersize(unsigned int size)
+{
+    sync();
+    ready = false;
+    if (mem_allocated) {
+        mem_free();
+        mem_alloc();
+    }
 }
 
 int DrumSequencer::min_seq_size(){
@@ -1829,7 +1915,12 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 		fSlow5 = 0.0;
 		fSlow7 = 0.0;
 	}
-	drums.compute(count,input0,output0);
+    if (int(fSlow22 && mem_allocated)) {
+        memcpy(output0, input0, count * sizeof(float));
+        drums.compute(count,outdata,outdata);
+    } else {
+        drums.compute(count,input0,output0);
+    }
 }
 
 void __rt_func DrumSequencer::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
@@ -1863,6 +1954,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	reg.registerVar("seq.set_sync","","BO",N_("Set stepper back on Beat "),0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.reset_step","","BO",N_("Set stepper one Start"),0, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.follow","","BO",N_("follow playhead"),0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("seq.direct_out","","BA",N_("bypass the rack for direct output"),&fSlow22, 0.0, 0.0, 1.0, 1.0);
 	for (int i=0; i<24; i++) Vectom.push_back(0);
 	for (int i=0; i<24; i++) Vectom1.push_back(0);
 	for (int i=0; i<24; i++) Vectom2.push_back(0);

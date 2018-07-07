@@ -999,6 +999,22 @@ public:
 
 #include "faust/drumseq.h"
 
+class Drumout {
+private:
+    static float* set;
+    static bool mb;
+    static float* data;
+    static Plugin input_drum;
+    static void outputdrum_compute(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+public:
+    static void set_plugin(Plugin p);
+    static void set_data(float* mode, bool ready, float* buf);
+    static Plugin output_drum;
+    static PluginDef outputdrum;
+    Drumout();
+};
+
+
 class DrumSequencer: public PluginDef {
 private:
 	int fSamplingFreq;
@@ -1012,6 +1028,7 @@ private:
 
 	int 	counter;
 	int 	seq_size;
+    int 	bsize;
 	FAUSTFLOAT 	step;
 	FAUSTFLOAT 	step_orig;
 	FAUSTFLOAT 	fSlow1;
@@ -1023,6 +1040,7 @@ private:
 	FAUSTFLOAT 	fSlow16;
 	FAUSTFLOAT 	fSlow18;
 	FAUSTFLOAT 	fSlow20;
+	FAUSTFLOAT 	fSlow22;
 	std::vector<int> Vectom;
 	std::vector<int> Vectom1;
 	std::vector<int> Vectom2;
@@ -1030,6 +1048,11 @@ private:
 	std::vector<int> Vecsnare;
 	std::vector<int> Vechat;
 
+    EngineControl&  engine;
+	bool            mem_allocated;
+    sigc::slot<void> sync;
+	volatile bool ready;
+    float *outdata;
     ParamMap& param;
     GxSeqSettings tomset;
     SeqParameter *tomp;
@@ -1044,8 +1067,11 @@ private:
     GxSeqSettings kickset;
     SeqParameter *kickp;
 
+    void mem_alloc();
+	void mem_free();
 	void init(unsigned int samplingFreq);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
+    void change_buffersize(unsigned int size);
 	int register_par(const ParamReg& reg);
 
 	int min_seq_size();
@@ -1062,7 +1088,7 @@ private:
 	static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-	DrumSequencer(ParamMap& param_);
+	DrumSequencer(ParamMap& param_, EngineControl& engine, sigc::slot<void> sync);
 	~DrumSequencer();
 };
 

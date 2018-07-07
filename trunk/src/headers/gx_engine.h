@@ -85,6 +85,7 @@ public:
     StereoMute stereomute;
     TunerAdapter tuner;
     MidiAudioBuffer midiaudiobuffer;
+    Drumout drumout;
     MaxLevel maxlevel;
     OscilloscopeAdapter oscilloscope;
     ConvolverMonoAdapter mono_convolver;

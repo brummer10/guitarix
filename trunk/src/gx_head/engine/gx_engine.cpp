@@ -242,6 +242,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       stereomute(),
       tuner(*this),
       midiaudiobuffer(tuner),
+      drumout(),
       maxlevel(),
       oscilloscope(*this),
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), get_param()),
@@ -252,7 +253,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       preamp_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
-      record(*this, 1), record_st(*this, 2), dseq(get_param()),
+      record(*this, 1), record_st(*this, 2),
+      dseq(get_param(), *this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
       detune(get_param(), *this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
@@ -332,6 +334,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::gx_outputlevel::plugin(),  PLUGIN_POS_END);
     pl.add(balance::plugin(),                     PLUGIN_POS_END, PGN_MODE_BYPASS);
     pl.add(&stereomute,                           PLUGIN_POS_END, PGN_MODE_MUTE);
+    pl.add(&drumout.outputdrum,                   PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(&maxlevel,                             PLUGIN_POS_END, PGN_MODE_NORMAL|PGN_MODE_BYPASS);
 
     // * fx amp output *
@@ -352,7 +355,7 @@ void GxEngine::load_static_plugins() {
     pl.add(&loop.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&record.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&detune.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&dseq.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&dseq.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::bitdowner::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::thick_distortion::plugin(), PLUGIN_POS_RACK, PGN_GUI);
@@ -427,7 +430,7 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::bfuzz::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::axface::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::metronome::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::vumeter::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(pluginlib::vumeter::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
@@ -450,7 +453,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::ring_modulator_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay_st::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet_st.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&preamp_st.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&preamp_st.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::vumeter_st::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 }
 
