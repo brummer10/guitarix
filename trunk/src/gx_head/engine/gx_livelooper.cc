@@ -77,6 +77,7 @@ LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& l
       tape3_size(4194304),
       tape4(NULL),
       tape4_size(4194304),
+      outbuffer(0),
       save1(false),
       save2(false),
       save3(false),
@@ -117,6 +118,8 @@ LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& l
 }
 
 LiveLooper::~LiveLooper() {
+    outbuffer = 0;
+    d =  0;
     activate(false);
 }
 
@@ -177,6 +180,7 @@ inline void LiveLooper::init(unsigned int samplingFreq)
     load_file3 = "tape3";
     load_file4 = "tape4";
     gx_system::atomic_set(&ready,0);
+    d = static_cast<Directout*>(Directout::directoutput.get_pdef());
 }
 
 void LiveLooper::init_static(unsigned int samplingFreq, PluginDef *p)
@@ -187,10 +191,10 @@ void LiveLooper::init_static(unsigned int samplingFreq, PluginDef *p)
 void LiveLooper::mem_alloc()
 {
     try {
-        if (!tape1) tape1 = new float[tape1_size];
-        if (!tape2) tape2 = new float[tape2_size];
-        if (!tape3) tape3 = new float[tape3_size];
-        if (!tape4) tape4 = new float[tape4_size];
+        if (!tape1) tape1 = new float[tape1_size]();
+        if (!tape2) tape2 = new float[tape2_size]();
+        if (!tape3) tape3 = new float[tape3_size]();
+        if (!tape4) tape4 = new float[tape4_size]();
         } catch(...) {
             gx_print_error("dubber", "out of memory");
             return;
@@ -509,11 +513,14 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         memcpy(output0, input0, count * sizeof(float));
         return;
     }
+    int diout = int(dout);
+    if (diout)  outbuffer = d->get_buffer();
+
     // trigger save array on exit
-    if(record1 || reset1) save1 = true;
-    if(record2 || reset2) save2 = true;
-    if(record3 || reset3) save3 = true;
-    if(record4 || reset4) save4 = true;
+    if(record1 || reset1 || od1) save1 = true;
+    if(record2 || reset2 || od2) save2 = true;
+    if(record3 || reset3 || od3) save3 = true;
+    if(record4 || reset4 || od4) save4 = true;
     // make play/ reverse play button act as radio button
     if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
     else if (play1 && RP1) {rplay1 = 0.0;RP1=false;}
@@ -528,6 +535,11 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
     record2     = rectime1? record2 : 0.0;
     record3     = rectime2? record3 : 0.0;
     record4     = rectime3? record4 : 0.0;
+    // switch off overdub when buffer is full
+    od1     = rectime0? od1 : 0.0;
+    od2     = rectime1? od2 : 0.0;
+    od3     = rectime2? od3 : 0.0;
+    od4     = rectime3? od4 : 0.0;
     // reset clip when reset is pressed
     if (reset1) {fclip1=100.0;fclips1=0.0;}
     if (reset2) {fclip2=100.0;fclips2=0.0;}
@@ -553,19 +565,28 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
     float speed2 = fspeed2;
     float speed3 = fspeed3;
     float speed4 = fspeed4;
+    // switch off overdub when no record is done
+    //od1        = int(RecSize1[0])? od1  : 0.0;
+    //od2        = int(RecSize2[0])? od2  : 0.0;
+    //od3        = int(RecSize3[0])? od3  : 0.0;
+    //od4        = int(RecSize4[0])? od4  : 0.0;
     // engine var settings
     float     fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * gain)));
     float     fSlow1 = gain_out;
     int     iSlow3 = int(record1);
+    int     iod1 = int(od1);
     int     iSlow4 = int((1 - reset1));
     float     fSlow5 = (((1 - iSlow3) * gain1) * (play1+rplay1));
     int     iSlow6 = int(record2);
+    int     iod2 = int(od2);
     int     iSlow7 = int((1 - reset2));
     float     fSlow8 = (((1 - iSlow6) * gain2) * (play2+rplay2));
     int     iSlow9 = int(record3);
+    int     iod3 = int(od3);
     int     iSlow10 = int((1 - reset3));
     float     fSlow11 = (((1 - iSlow9) * gain3) * (play3+rplay3));
     int     iSlow12 = int(record4);
+    int     iod4 = int(od4);
     int     iSlow13 = int((1 - reset4));
     float     fSlow14 = (((1 - iSlow12) * gain4) * (play4+rplay4));
     float     fSlow15 = (0.0001f * fSlow1);
@@ -577,6 +598,43 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
     float   iClips2  = (100-fclips2)*0.01;
     float   iClips3  = (100-fclips3)*0.01;
     float   iClips4  = (100-fclips4)*0.01;
+    // switch off record when overdub
+    record1     = iod1? 0.0 : record1;
+    record2     = iod2? 0.0 : record2;
+    record3     = iod3? 0.0 : record3;
+    record4     = iod4? 0.0 : record4;
+    if (iod1 && (fod1 || !int(RecSize1[0]))) {
+        iSlow3 = iod1;
+        fod1 = iod1;
+        play1 = 1.0;
+    } else {
+        fod1 = 0;
+    }
+    if (iod2 && (fod2 || !int(RecSize2[0]))) {
+        iSlow6 = iod2;
+        fod2 = iod2;
+        play2 = 1.0;
+    } else {
+        fod2 = 0;
+    }
+    if (iod3 && (fod3 || !int(RecSize3[0]))) {
+        iSlow9 = iod3;
+        fod3 = iod3;
+        play3 = 1.0;
+    } else {
+        fod3 = 0;
+    }
+    if (iod4 && (fod4 || !int(RecSize4[0]))) {
+        iSlow12 = iod4;
+        fod4 = iod4;
+        play4 = 1.0;
+    } else {
+        fod4 = 0;
+    }
+    float nfod1 = 1.0 - fod1;
+    float nfod2 = 1.0 - fod2;
+    float nfod3 = 1.0 - fod3;
+    float nfod4 = 1.0 - fod4;
     // run loop
     for (int i=0; i<count; i++) {
         fRec0[0] = (fSlow0 + (0.999f * fRec0[1]));
@@ -588,8 +646,8 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         rectime0 = iTemp2*fConst2;
         int iTemp3 = fmin(tape1_size-1, (int)(tape1_size - iTemp2));
         if (iSlow3 == 1) {
-        IOTA1 = IOTA1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTA1+1;
-        tape1[IOTA1] = fTemp1;
+            IOTA1 = IOTA1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTA1+1;
+            if (!iod1) tape1[IOTA1] = fTemp1;
         }
         if (rplay1) {
         IOTAR1 = IOTAR1-speed1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):(IOTAR1-speed1)-1;
@@ -609,8 +667,8 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         rectime1 = iTemp6*fConst2;
         int iTemp7 = fmin(tape2_size-1, (int)(tape2_size - iTemp6));
         if (iSlow6 == 1) {
-        IOTA2 = IOTA2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTA2+1;
-        tape2[IOTA2] = fTemp5;
+            IOTA2 = IOTA2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTA2+1;
+            if (!iod2) tape2[IOTA2] = fTemp5;
         }
         if (rplay2) {
         IOTAR2 = IOTAR2-speed2< (iTemp7 - int(iTemp7*iClips2))? int(iTemp7*iClip2):(IOTAR2-speed2)-1;
@@ -630,8 +688,8 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         rectime2 = iTemp10*fConst2;
         int iTemp11 = fmin(tape3_size-1, (int)(tape3_size - iTemp10));
         if (iSlow9 == 1) {
-        IOTA3 = IOTA3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTA3+1;
-        tape3[IOTA3] = fTemp9;
+            IOTA3 = IOTA3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTA3+1;
+            if (!iod3) tape3[IOTA3] = fTemp9;
         }
         if (rplay3) {
         IOTAR3 = IOTAR3-speed3< (iTemp11 - int(iTemp11*iClips3))? int(iTemp11*iClip3):(IOTAR3-speed3)-1;
@@ -651,8 +709,8 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         rectime3 = iTemp14*fConst2;
         int iTemp15 = fmin(tape4_size-1, (int)(tape4_size - iTemp14));
         if (iSlow12 == 1) {
-        IOTA4 = IOTA4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTA4+1;
-        tape4[IOTA4] = fTemp13;
+            IOTA4 = IOTA4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTA4+1;
+            if (!iod4) tape4[IOTA4] = fTemp13;
         }
         if (rplay4) {
         IOTAR4 = IOTAR4-speed4< (iTemp15 - int(iTemp15*iClips4))? int(iTemp15*iClip4):(IOTAR4-speed4)-1;
@@ -665,7 +723,29 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         fRec17[0] = fmax(0.0f, fmin(1.0f, (fRec17[1] + fTemp16)));
         iRec18[0] = ((int(((fRec17[1] >= 1.0f) & (iRec19[1] != iTemp15))))?iTemp15:iRec18[1]);
         iRec19[0] = ((int(((fRec17[1] <= 0.0f) & (iRec18[1] != iTemp15))))?iTemp15:iRec19[1]);
-        output0[i] = (float)((fSlow15 * ((fSlow14 * ((fRec17[0] * tape4[int(IOTAR4)]) + ((1.0f - fRec17[0]) * tape4[int(IOTAR4)]))) + ((fSlow11 * ((fRec12[0] * tape3[int(IOTAR3)]) + ((1.0f - fRec12[0]) * tape3[int(IOTAR3)]))) + ((fSlow8 * ((fRec7[0] * tape2[int(IOTAR2)]) + ((1.0f - fRec7[0]) * tape2[int(IOTAR2)]))) + (fSlow5 * ((fRec2[0] * tape1[int(IOTAR1)]) + ((1.0f - fRec2[0]) * tape1[int(IOTAR1)]))))))) + (fTemp0));
+        if (!diout) {
+            output0[i] = (float)((fSlow15 * (((fSlow14 * ((fRec17[0] * tape4[int(IOTAR4)]) + ((1.0f - fRec17[0]) * tape4[int(IOTAR4)])))*nfod4) + (((fSlow11 * ((fRec12[0] * tape3[int(IOTAR3)]) + ((1.0f - fRec12[0]) * tape3[int(IOTAR3)])))*nfod3) + (((fSlow8 * ((fRec7[0] * tape2[int(IOTAR2)]) + ((1.0f - fRec7[0]) * tape2[int(IOTAR2)])))*nfod2) + ((fSlow5 * ((fRec2[0] * tape1[int(IOTAR1)]) + ((1.0f - fRec2[0]) * tape1[int(IOTAR1)])))*nfod1) )))) + (fTemp0));
+        } else {
+            outbuffer[i] += (float)((fSlow15 * (((fSlow14 * ((fRec17[0] * tape4[int(IOTAR4)]) + ((1.0f - fRec17[0]) * tape4[int(IOTAR4)])))*nfod4) + (((fSlow11 * ((fRec12[0] * tape3[int(IOTAR3)]) + ((1.0f - fRec12[0]) * tape3[int(IOTAR3)])))*nfod3) + (((fSlow8 * ((fRec7[0] * tape2[int(IOTAR2)]) + ((1.0f - fRec7[0]) * tape2[int(IOTAR2)])))*nfod2) + ((fSlow5 * ((fRec2[0] * tape1[int(IOTAR1)]) + ((1.0f - fRec2[0]) * tape1[int(IOTAR1)])))*nfod1) )))) );
+        }
+        // overdubbing
+        if (iod1) { 
+            if (!fod1) tape1[int(IOTAR1)] += fTemp0;
+            else tape1[int(IOTAR1)] = fTemp0;
+        }
+        if (iod2) {
+            if (!fod2) tape2[int(IOTAR2)] += fTemp0;
+            else tape2[int(IOTAR2)] = fTemp0;
+        }
+        if (iod3) {
+            if (!fod3) tape3[int(IOTAR3)] += fTemp0;
+            else tape3[int(IOTAR3)] = fTemp0;
+        }
+        if (iod4) {
+            if (!fod4) tape4[int(IOTAR4)] += fTemp0;
+            else tape4[int(IOTAR4)] = fTemp0;
+        }
+        
         // post processing
         iRec19[1] = iRec19[0];
         iRec18[1] = iRec18[0];
@@ -692,6 +772,11 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         RecSize1[1] = RecSize1[0];
         iVec0[1] = iVec0[0];
         fRec0[1] = fRec0[0];
+    }
+    if (diout) {
+        d->set_data(true);
+        memcpy(output0, input0, count * sizeof(float));
+        outbuffer = 0;
     }
 }
 
@@ -748,7 +833,12 @@ int LiveLooper::register_par(const ParamReg& reg)
     reg.registerVar("dubber.load2","","B",N_("import file"),&load2, 0.0, 0.0, 1.0, 1.0);
     reg.registerVar("dubber.load3","","B",N_("import file"),&load3, 0.0, 0.0, 1.0, 1.0);
     reg.registerVar("dubber.load4","","B",N_("import file"),&load4, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("dubber.od1","","B",N_("overdub"),&od1, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("dubber.od2","","B",N_("overdub"),&od2, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("dubber.od3","","B",N_("overdub"),&od3, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("dubber.od4","","B",N_("overdub"),&od4, 0.0, 0.0, 1.0, 1.0);
     reg.registerVar("dubber.playall","","B",N_("play all tapes "),&play_all, 0.0, 0.0, 1.0, 1.0);
+    reg.registerVar("dubber.dout","","B",N_("bypass the rack for direct output"),&dout, 0.0, 0.0, 1.0, 1.0);
     param["dubber.playall"].signal_changed_float().connect(
         sigc::hide(sigc::mem_fun(this, &LiveLooper::play_all_tapes)));
     param.reg_non_midi_par("dubber.savefile", &save_p, false);
@@ -784,7 +874,7 @@ b.create_switch_no_caption(sw_pbutton,PARAM("playall"));
 b.closeBox();
 
 b.openHorizontalBox("");
-    b.create_mid_rackknob(PARAM("gain"), "Gain");
+    b.create_small_rackknobr(PARAM("gain"), "Gain");
     
     b.openTabBox("");
     
@@ -795,7 +885,11 @@ b.openHorizontalBox("");
                     b.insertSpacer();
                     b.openVerticalBox("");
                         b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
                         b.create_p_display(PARAM("playh1"),PARAM("clips1"),PARAM("clip1"));
+                        b.insertSpacer();
+                        b.closeBox();
                         b.insertSpacer();
                         b.openHorizontalBox("");
                         b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
@@ -803,6 +897,7 @@ b.openHorizontalBox("");
                         b.create_feedback_switch(sw_prbutton,PARAM("rplay1"));
                         b.create_feedback_switch(sw_button,PARAM("reset1"));
                         b.create_fload_switch(sw_fbutton,PARAM("load1"),PARAM("loadfile1"));
+                        b.create_feedback_switch("overdub",PARAM("od1"));
                         b.closeBox();
                         b.closeBox();
                         
@@ -826,7 +921,7 @@ b.openHorizontalBox("");
             b.closeBox();
             b.openVerticalBox("");
                 b.insertSpacer();
-                b.create_small_rackknobr(PARAM("level1"), "Level");
+                b.create_small_rackknob(PARAM("level1"), "Level");
             b.closeBox();
         b.closeBox();
             
@@ -837,7 +932,11 @@ b.openHorizontalBox("");
                     b.insertSpacer();
                     b.openVerticalBox("");
                         b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
                         b.create_p_display(PARAM("playh2"),PARAM("clips2"),PARAM("clip2"));
+                        b.insertSpacer();
+                        b.closeBox();
                         b.insertSpacer();
                         b.openHorizontalBox("");
                         b.create_feedback_switch(sw_rbutton,PARAM("rec2"));
@@ -845,6 +944,7 @@ b.openHorizontalBox("");
                         b.create_feedback_switch(sw_prbutton,PARAM("rplay2"));
                         b.create_feedback_switch(sw_button,PARAM("reset2"));
                         b.create_fload_switch(sw_fbutton,PARAM("load2"),PARAM("loadfile2"));
+                        b.create_feedback_switch("overdub",PARAM("od2"));
                         b.closeBox();
                         b.closeBox();
                         b.insertSpacer();
@@ -865,7 +965,7 @@ b.openHorizontalBox("");
             
             b.openVerticalBox("");
                 b.insertSpacer();
-                b.create_small_rackknobr(PARAM("level2"), "Level");
+                b.create_small_rackknob(PARAM("level2"), "Level");
             b.closeBox();
         b.closeBox();
         
@@ -876,7 +976,11 @@ b.openHorizontalBox("");
                     b.insertSpacer();
                     b.openVerticalBox("");
                         b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
                         b.create_p_display(PARAM("playh3"),PARAM("clips3"),PARAM("clip3"));
+                        b.insertSpacer();
+                        b.closeBox();
                         b.insertSpacer();
                         b.openHorizontalBox("");
                         b.create_feedback_switch(sw_rbutton,PARAM("rec3"));
@@ -884,6 +988,7 @@ b.openHorizontalBox("");
                         b.create_feedback_switch(sw_prbutton,PARAM("rplay3"));
                         b.create_feedback_switch(sw_button,PARAM("reset3"));
                         b.create_fload_switch(sw_fbutton,PARAM("load3"),PARAM("loadfile3"));
+                        b.create_feedback_switch("overdub",PARAM("od3"));
                         b.closeBox();
                         b.closeBox();
                         b.insertSpacer();
@@ -903,7 +1008,7 @@ b.openHorizontalBox("");
             b.closeBox();
             b.openVerticalBox("");
                 b.insertSpacer();
-                b.create_small_rackknobr(PARAM("level3"), "Level");
+                b.create_small_rackknob(PARAM("level3"), "Level");
             b.closeBox();
         b.closeBox();
         
@@ -914,7 +1019,11 @@ b.openHorizontalBox("");
                     b.insertSpacer();
                     b.openVerticalBox("");
                         b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
                         b.create_p_display(PARAM("playh4"),PARAM("clips4"),PARAM("clip4"));
+                        b.insertSpacer();
+                        b.closeBox();
                         b.insertSpacer();
                         b.openHorizontalBox("");
                         b.create_feedback_switch(sw_rbutton,PARAM("rec4"));
@@ -922,6 +1031,7 @@ b.openHorizontalBox("");
                         b.create_feedback_switch(sw_prbutton,PARAM("rplay4"));
                         b.create_feedback_switch(sw_button,PARAM("reset4"));
                         b.create_fload_switch(sw_fbutton,PARAM("load4"),PARAM("loadfile4"));
+                        b.create_feedback_switch("overdub",PARAM("od4"));
                         b.closeBox();
                         b.closeBox();
                         b.insertSpacer();
@@ -941,13 +1051,25 @@ b.openHorizontalBox("");
             b.closeBox();
             b.openVerticalBox("");
                 b.insertSpacer();
-                b.create_small_rackknobr(PARAM("level4"), "Level");
+                b.create_small_rackknob(PARAM("level4"), "Level");
             b.closeBox();
         b.closeBox();
         
     b.closeBox();
     
-    b.create_mid_rackknob(PARAM("mix"), "Mix");
+    b.openVerticalBox("");
+        b.insertSpacer();
+        b.create_small_rackknobr(PARAM("mix"), "Mix");
+        b.insertSpacer();
+        b.openHorizontalBox("");
+        b.insertSpacer();
+        b.insertSpacer();
+        b.create_switch_no_caption("bypass",PARAM("dout"));
+        b.insertSpacer();
+        b.insertSpacer();
+        b.closeBox();
+        b.insertSpacer();
+    b.closeBox();
 b.closeBox();
 
 #undef PARAM

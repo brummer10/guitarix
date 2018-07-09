@@ -1664,6 +1664,96 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
 /****************************************************************
  ** class smbPitchShift
  */
+Plugin Directout::directoutput = Plugin();
+
+Directout::Directout(EngineControl& engine_, sigc::slot<void> sync_) 
+	: PluginDef(), 
+      outdata(0),
+	  engine(engine_),
+	  mem_allocated(false),
+	  sync(sync_),
+	  plugin() {
+    directoutput.set_pdef(this);
+	version = PLUGINDEF_VERSION;
+	flags = 0;
+	id = "dout";
+	name = N_("Directoutputr");
+	stereo_audio = compute_static;
+	set_samplerate = init_static;
+	activate_plugin = 0;
+	plugin = this;
+    engine.signal_buffersize_change().connect(
+    sigc::mem_fun(*this, &Directout::change_buffersize));
+}
+
+Directout::~Directout() {
+    mem_free();
+}
+
+inline void Directout::init(unsigned int samplingFreq)
+{
+	bsize = int(engine.get_buffersize());
+	fSamplingFreq = samplingFreq;
+	mem_alloc();
+}
+
+void Directout::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+	static_cast<Directout*>(p)->init(samplingFreq);
+}
+
+void Directout::mem_alloc()
+{
+    if (mem_allocated) {
+        return;
+    }
+    bsize = int(engine.get_buffersize());
+    assert(bsize>0);
+    try {
+       outdata = new float[bsize]();
+    } catch(...) {
+            gx_print_error("Directout", "cant allocate memory pool");
+            return;
+        }
+    mem_allocated = true;
+}
+
+void Directout::mem_free()
+{
+    mem_allocated = false;
+    if (outdata) { delete outdata; outdata = 0; }
+}
+
+void Directout::change_buffersize(unsigned int size)
+{
+    sync();
+    if (mem_allocated) {
+        mem_free();
+        mem_alloc();
+    }
+}
+
+void always_inline Directout::compute(int count, float *input0, float *input1, float *output0, float *output1) {
+    if (!fdfill) {
+        return;
+    }
+    for (int i=0; i<count; i++) {
+        output0[i] =  input0[i] + outdata[i];
+        output1[i] =  input1[i] + outdata[i];
+    }
+    memset(outdata,0,count*sizeof(float));
+    fdfill = false;
+}
+
+void Directout::set_data(bool dfill) {
+    fdfill = dfill;
+}
+
+void __rt_func Directout::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef *p)
+{
+	static_cast<Directout*>(p)->compute(count, input0, input1, output0, output1);
+}
+
 
 #include "gx_livelooper.cc"
 
@@ -1688,7 +1778,6 @@ Plugin Drumout::input_drum = Plugin();
 PluginDef Drumout::outputdrum = PluginDef();
 
 Drumout::Drumout() {
-
 
     output_drum.set_pdef(&outputdrum);
 

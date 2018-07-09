@@ -86,6 +86,7 @@ public:
     TunerAdapter tuner;
     MidiAudioBuffer midiaudiobuffer;
     Drumout drumout;
+    Directout directout;
     MaxLevel maxlevel;
     OscilloscopeAdapter oscilloscope;
     ConvolverMonoAdapter mono_convolver;

@@ -243,6 +243,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       tuner(*this),
       midiaudiobuffer(tuner),
       drumout(),
+      directout(*this, sigc::mem_fun(mono_chain, &StereoModuleChain::sync)),
       maxlevel(),
       oscilloscope(*this),
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), get_param()),
@@ -335,6 +336,7 @@ void GxEngine::load_static_plugins() {
     pl.add(balance::plugin(),                     PLUGIN_POS_END, PGN_MODE_BYPASS);
     pl.add(&stereomute,                           PLUGIN_POS_END, PGN_MODE_MUTE);
     pl.add(&drumout.outputdrum,                   PLUGIN_POS_END, PGN_MODE_NORMAL);
+    pl.add(&directout,                            PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(&maxlevel,                             PLUGIN_POS_END, PGN_MODE_NORMAL|PGN_MODE_BYPASS);
 
     // * fx amp output *

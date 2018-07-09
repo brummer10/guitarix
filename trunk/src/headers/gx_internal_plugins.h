@@ -752,9 +752,40 @@ public:
 
 
 /****************************************************************
- ** class LiveLooper
+ ** class Directout
  */
 
+class Directout: public PluginDef {
+public:
+    float* outdata;
+private:
+	int fSamplingFreq;
+    int 	bsize;
+    bool fdfill;
+    EngineControl&  engine;
+    bool            mem_allocated;
+    sigc::slot<void> sync;
+    void mem_alloc();
+    void mem_free();
+    void init(unsigned int samplingFreq);
+    void compute(int count,  float *input0, float *input1, float *output0, float *output1);
+    void change_buffersize(unsigned int size);
+
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+public:
+    float* get_buffer() {return outdata;};
+    void set_data(bool dfill);
+    Plugin plugin;
+    static Plugin directoutput;
+    Directout( EngineControl& engine, sigc::slot<void> sync);
+    ~Directout();
+};
+
+
+/****************************************************************
+ ** class LiveLooper
+ */
 
 class LiveLooper: public PluginDef {
 	
@@ -796,6 +827,14 @@ private:
 	float 	load2;
 	float 	load3;
 	float 	load4;
+	float 	od1;
+	float 	od2;
+	float 	od3;
+	float 	od4;
+	float 	fod1;
+	float 	fod2;
+	float 	fod3;
+	float 	fod4;
 	float 	record1;
 	int 	iVec0[2];
 	int 	IOTA1;
@@ -864,6 +903,8 @@ private:
 	float 	playh4;
 	float 	gain4;
 	float 	play_all;
+    float 	dout;
+    float* outbuffer;
 	bool save1;
 	bool save2;
 	bool save3;
@@ -889,6 +930,7 @@ private:
     sigc::slot<void> sync;
 	volatile int ready;
     FileResampler smp;
+    Directout* d;
 
     int do_resample(int inrate, int insize, float *input, int maxsize);
     int do_mono(int c, int f, float *oIn, float *tape, int n);
