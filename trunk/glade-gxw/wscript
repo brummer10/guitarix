@@ -27,7 +27,7 @@ def configure(conf):
         conf.env["GXW_SHARED_INSTALL"] = True
         conf.env["GLADE_CATALOG_DIR"] = Options.options.glade_catalog_dir
         conf.env["GLADE_MODULES_DIR"] = Options.options.glade_modules_dir
-
+        
 def build(bld):
     if not bld.env["GX_GLADE_SUPPORT"]:
         return
@@ -36,6 +36,7 @@ def build(bld):
         ccflags = bld.env['CXXFLAGS'],
         uselib = ['GTK2'],
         source = ['glade-gxw.c'],
+        linkflags = bld.env['shlib_LINKFLAGS'].append("-lc"),
         target = 'gladegx',
         lib = ["gxw"],
         libpath = bld.path.find_dir("../libgxw/gxw").bldpath(bld.env),
