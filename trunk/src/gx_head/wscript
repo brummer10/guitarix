@@ -114,6 +114,7 @@ def build(bld):
 
     builder_files = [
         './builder/midi.glade',
+        './builder/midi_channel.glade',
         './builder/ports.glade',
         './builder/iredit.glade',
         './builder/iredit_mono.glade',
