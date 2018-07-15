@@ -986,6 +986,10 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	    params[2]->getFloat(), params[3]->getInt(), params[4]->getInt());
     }
 
+    PROCEDURE(set_midi_channel) {
+	serv.jack.get_engine().controller_map.set_midi_channel(params[0]->getInt());
+    }
+
     PROCEDURE(set) {
 	if (params.size() & 1) {
 	    throw RpcError(-32602, "Invalid param -- array length must be even");

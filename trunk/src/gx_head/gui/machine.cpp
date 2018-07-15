@@ -173,6 +173,11 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 225, 453, 0.1);
     //pmap.reg_par("racktuner.scale_lim", "Limit", &scale_lim, 3.0, 1.0, 10.0, 1.0); FIXME add in detail view?
 
+    static const value_pair midi_channels[] = {{"--"},{"1"},{"2"},{"3"},{"4"},{"5"},{"6"},{"7"},{"8"},{"9"},{"10"},
+        {"11"},{"12"},{"13"},{"14"},{"15"},{"16"}, {0}};
+    EnumParameter* ep = pmap.reg_non_midi_enum_par("system.midi_channel", "Midichannel", midi_channels, (int*)0, false, 0);
+    ep->signal_changed_int().connect(sigc::mem_fun(this, &GxMachine::set_midi_channel));
+
     pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
     pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, false, false);
     pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false);
@@ -908,6 +913,10 @@ void GxMachine::midi_modifyCurrent(Parameter& param, float lower, float upper,
 
 int GxMachine::midi_param2controller(Parameter& param, const MidiController** p) {
     return engine.controller_map.param2controller(param, p);
+}
+
+void GxMachine::set_midi_channel(int s) {
+    return engine.controller_map.set_midi_channel(s);
 }
 
 // Convolver
@@ -2725,6 +2734,12 @@ void GxMachineRemote::midi_modifyCurrent(Parameter& param, float lower, float up
 
 int GxMachineRemote::midi_param2controller(Parameter& param, const MidiController** p) {
     return midi_controller_map.param2controller(param, p);
+}
+
+void GxMachineRemote::set_midi_channel(int s) {
+    START_NOTIFY(set_midi_channel);
+    jw->write(s);
+    SEND();
 }
 
 // Convolver

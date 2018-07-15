@@ -558,6 +558,30 @@ struct GxActions {
     Glib::RefPtr<Gtk::Action> online_preset_bank;
 };
 
+
+
+class SelectMidiChannel: public Gtk::Window {
+private:
+    Gtk::Label  *description;
+    Gtk::ComboBox *channelcombo;
+    gx_engine::GxMachineBase& machine;
+    sigc::signal<void> close;
+    void on_ok_button();
+    void on_cancel_button();
+    bool on_delete_event(GdkEventAny* event);
+    bool on_key_press_event(GdkEventKey *event);
+    static SelectMidiChannel* create_from_builder(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& m) {
+	return new SelectMidiChannel(cobject, bld, m);
+    }
+    SelectMidiChannel(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& m);
+public:
+    ~SelectMidiChannel();
+    static SelectMidiChannel* create(gx_system::CmdlineOptions& opt, gx_engine::GxMachineBase& machine);
+    sigc::signal<void>& signal_close() { return close; }
+};
+
+
+
 class MainWindow: public sigc::trackable {
 private:
     gx_system::CmdlineOptions& options;
@@ -588,6 +612,7 @@ private:
     gx_gui::StackBoxBuilder boxbuilder;
     gx_portmap::PortMapWindow* portmap_window;
     gx_gui::SelectJackControlPgm *select_jack_control;
+    SelectMidiChannel *select_midi_channel;
     TextLoggingBox fLoggingWindow;
     GxUiRadioMenu amp_radio_menu;
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_insert_on;
@@ -731,6 +756,8 @@ private:
     void on_select_jack_control();
     void on_load_ladspa();
     void delete_select_jack_control();
+    void on_select_midi_channel();
+    void delete_select_midi_channel();
     void on_log_activate();
     bool on_log_activated(GdkEventButton* ev);
     bool on_log_scrolled(GdkEventScroll* ev);

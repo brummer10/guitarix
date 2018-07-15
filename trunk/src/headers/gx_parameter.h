@@ -742,6 +742,7 @@ private:
     volatile gint          program_change; //RT
     volatile gint          mute_change; //RT
     volatile gint          bank_change; //RT
+    int                    channel_select;
     timespec               ts1;
     double                 time0;
     unsigned int           bpm_;
@@ -790,6 +791,7 @@ public:
     void process_trans(int transport_state);  //RT
     void update_from_controller(int ctr);
     void update_from_controllers();
+    void set_midi_channel(int s);
     sigc::signal<void, int, int>& signal_midi_value_changed() { return midi_value_changed; }
     void request_midi_value_update();
 };

@@ -150,9 +150,86 @@ void TextLoggingBox::show_msg(string msgbuf, GxLogger::MsgType msgtype, bool plu
     // modify expander bg color is closed
     if (msgtype > highest_unseen_msg_level) {
         highest_unseen_msg_level = msgtype;
-	msg_level_changed();
+        msg_level_changed();
     }
 }
+
+/****************************************************************
+ ** SelectMidiChannel
+ ** select a midi channel to use exclusive only
+ */
+
+
+SelectMidiChannel::SelectMidiChannel(BaseObjectType* cobject, Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& m)
+    : Gtk::Window(cobject),
+      description(),
+      channelcombo(),
+      machine(m),
+      close() {
+    signal_delete_event().connect(sigc::mem_fun(*this, &SelectMidiChannel::on_delete_event));
+    bld->find_widget("description", description);
+    bld->find_widget("channelcombo", channelcombo);
+    const char *v_id = machine.get_parameter("system.midi_channel").getValueNames()[machine.get_parameter_value<int>("system.midi_channel")].value_id;
+    int n = 0;
+    Glib::RefPtr<Gtk::TreeModel> model = channelcombo->get_model();
+    for (Gtk::TreeIter i = model->children().begin(); i; ++i, ++n) {
+        Glib::ustring s;
+        i->get_value(1, s);
+        if (s == v_id) {
+            channelcombo->set_active(n);
+        }
+    }
+    Gtk::Button *button;
+    bld->find_widget("ok_button", button);
+    button->signal_clicked().connect(
+        sigc::mem_fun(*this, &SelectMidiChannel::on_ok_button));
+    bld->find_widget("cancel_button", button);
+    button->signal_clicked().connect(
+        sigc::mem_fun(*this, &SelectMidiChannel::on_cancel_button));
+}
+
+SelectMidiChannel::~SelectMidiChannel() {
+}
+
+//static
+SelectMidiChannel* SelectMidiChannel::create(gx_system::CmdlineOptions& opt, gx_engine::GxMachineBase& m) {
+    Glib::RefPtr<gx_gui::GxBuilder> bld = gx_gui::GxBuilder::create_from_file(opt.get_builder_filepath("midi_channel.glade"), &m);
+    SelectMidiChannel *w;
+    bld->get_toplevel_derived("selectmidichannel", w,
+        sigc::bind(sigc::ptr_fun(SelectMidiChannel::create_from_builder), bld, sigc::ref(m)));
+    return w;
+}
+
+bool SelectMidiChannel::on_key_press_event(GdkEventKey *event) {
+    if (event->keyval == GDK_KEY_Escape && (event->state & Gtk::AccelGroup::get_default_mod_mask()) == 0) {
+        close();
+        return true;
+    }
+    return Gtk::Window::on_key_press_event(event);
+}
+
+bool SelectMidiChannel::on_delete_event(GdkEventAny* event) {
+    close();
+    return true;
+}
+
+void SelectMidiChannel::on_ok_button() {
+    Glib::ustring s;
+    channelcombo->get_active()->get_value(1, s);
+    int n = machine.get_parameter("system.midi_channel").getInt().idx_from_id(s);
+    if (n >= 0) {
+        machine.set_parameter_value("system.midi_channel", n);
+    } else {
+        gx_print_error("SelectMidiChannel", "Midi Channel out of range");
+    }
+    close();
+}
+
+void SelectMidiChannel::on_cancel_button() {
+    close();
+}
+
+
 
 #if false // unused
 /****************************************************************
@@ -1359,6 +1436,23 @@ void MainWindow::delete_select_jack_control() {
     select_jack_control = 0;
 }
 
+void MainWindow::on_select_midi_channel() {
+    if (select_midi_channel) {
+	select_midi_channel->present();
+    } else {
+	select_midi_channel = SelectMidiChannel::create(options, machine);
+	select_midi_channel->signal_close().connect(
+	    sigc::mem_fun(*this, &MainWindow::delete_select_midi_channel));
+	select_midi_channel->set_transient_for(*window);
+	select_midi_channel->show();
+    }
+}
+
+void MainWindow::delete_select_midi_channel() {
+    delete select_midi_channel;
+    select_midi_channel = 0;
+}
+
 // show loggingbox
 void MainWindow::on_log_activate() {
     if (actions.loggingbox->get_active()) {
@@ -1669,6 +1763,9 @@ void MainWindow::create_actions() {
 
     actions.group->add(Gtk::Action::create("SetBypassSwitcher", _("B_ypass Midi Switch")),
 		     sigc::mem_fun(this, &MainWindow::set_bypass_controller));
+
+    actions.group->add(Gtk::Action::create("SetMidiChannel", _("Set Midi Channel")),
+		     sigc::mem_fun(this, &MainWindow::on_select_midi_channel));
 
     /*
     ** Help and About
@@ -2763,6 +2860,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       boxbuilder(machine_, fWaveView, convolver_filename_label, convolver_mono_filename_label, gx_head_icon),
       portmap_window(0),
       select_jack_control(0),
+      select_midi_channel(0),
       fLoggingWindow(),
       amp_radio_menu(machine_, "tube.select"),
       pixbuf_insert_on(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("insert_on.png"))),

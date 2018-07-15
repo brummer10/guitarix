@@ -52,6 +52,7 @@
       <menuitem action="Animations" />
       <menuitem action="SetPresetSwitcher" />
       <menuitem action="SetBypassSwitcher" />
+      <menuitem action="SetMidiChannel" />
     </menu>
     <menu action="AboutMenu">
       <menuitem action="About"/>

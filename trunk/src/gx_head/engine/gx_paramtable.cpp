@@ -718,6 +718,10 @@ void MidiControllerList::remove_controlled_parameters(paramlist& plist,
     }
 }
 
+void MidiControllerList::set_midi_channel(int s) {
+    channel_select = s;
+}
+
 void MidiControllerList::process_trans(int transport_state) {
     unsigned int val = 0;
     switch (transport_state) {
@@ -752,21 +756,27 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
     unsigned int i;
     for (i = 0; i < event_count; i++) {
         jack_midi_event_get(&in_event, midi_input_port_buf, i);
-        if ((in_event.buffer[0] & 0xf0) == 0xc0) {  // program change on any midi channel
+        bool ch = true;
+        if (channel_select>0) {
+            if ((channel_select) != (int(in_event.buffer[0]&0x0f)+1)) {
+                ch = false;
+            }
+        }
+        if ((in_event.buffer[0] & 0xf0) == 0xc0 && ch) {  // program change on any midi channel
             gx_system::atomic_set(&program_change, in_event.buffer[1]);
             pgm_chg();
-        } else if ((in_event.buffer[0] & 0xf0) == 0xb0) {   // controller
+        } else if ((in_event.buffer[0] & 0xf0) == 0xb0 && ch) {   // controller
 			if (in_event.buffer[1]== 120) { // engine mute by All Sound Off on any midi channel
 				gx_system::atomic_set(&mute_change, in_event.buffer[2]);
 				 mute_chg();
-			} else if (in_event.buffer[1]== 32) { // bank change on any midi channel
+			} else if (in_event.buffer[1]== 32 && ch) { // bank change on any midi channel
 				gx_system::atomic_set(&bank_change, in_event.buffer[2]);
 				 bank_chg();
 			} else {
 				set_ctr_val(in_event.buffer[1], in_event.buffer[2]);
 				val_chg();
 			}
-        } else if ((in_event.buffer[0] & 0xf0) == 0x90) {   // Note On
+        } else if ((in_event.buffer[0] & 0xf0) == 0x90 && ch) {   // Note On
 			set_ctr_val(in_event.buffer[1]+200, 1);
 			val_chg();
 			//fprintf(stderr,"Note On %i", (int)in_event.buffer[1]);

@@ -188,6 +188,7 @@ public:
     virtual void midi_set_current_control(int v) = 0;
     virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle, int toggle_behaviour) = 0;
     virtual int midi_param2controller(Parameter& param, const MidiController** p) = 0;
+    virtual void set_midi_channel(int s) = 0;
     // Convolver
     virtual void reload_impresp_list(const std::string& path) = 0;
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> >& signal_impresp_list() {
@@ -379,6 +380,7 @@ public:
     virtual void midi_set_current_control(int v);
     virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle, int toggle_behaviour);
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
+    virtual void set_midi_channel(int s);
     // Convolver
     virtual void reload_impresp_list(const std::string& path);
     virtual void load_impresp_dirs(std::vector<gx_system::FileName>& dirs);
@@ -569,6 +571,7 @@ public:
     virtual void midi_set_current_control(int v);
     virtual void midi_modifyCurrent(Parameter& param, float lower, float upper, bool toggle, int toggle_behaviour);
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
+    virtual void set_midi_channel(int s);
     // Convolver
     virtual void reload_impresp_list(const std::string& path);
     virtual void load_impresp_dirs(std::vector<gx_system::FileName>& dirs);
