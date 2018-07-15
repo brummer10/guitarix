@@ -514,7 +514,10 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         return;
     }
     int diout = int(dout);
-    if (diout)  outbuffer = d->get_buffer();
+    if (diout) {
+        if(d->mem_allocated) outbuffer = d->get_buffer();
+        else diout = 0;
+     }
 
     // trigger save array on exit
     if(record1 || reset1 || od1) save1 = true;
@@ -605,28 +608,28 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
     record4     = iod4? 0.0 : record4;
     if (iod1 && (fod1 || !int(RecSize1[0]))) {
         iSlow3 = iod1;
-        fod1 = iod1;
+        fod1 = od1;
         play1 = 1.0;
     } else {
         fod1 = 0;
     }
     if (iod2 && (fod2 || !int(RecSize2[0]))) {
         iSlow6 = iod2;
-        fod2 = iod2;
+        fod2 = od2;
         play2 = 1.0;
     } else {
         fod2 = 0;
     }
     if (iod3 && (fod3 || !int(RecSize3[0]))) {
         iSlow9 = iod3;
-        fod3 = iod3;
+        fod3 = od3;
         play3 = 1.0;
     } else {
         fod3 = 0;
     }
     if (iod4 && (fod4 || !int(RecSize4[0]))) {
         iSlow12 = iod4;
-        fod4 = iod4;
+        fod4 = od4;
         play4 = 1.0;
     } else {
         fod4 = 0;

@@ -763,7 +763,6 @@ private:
     int 	bsize;
     bool fdfill;
     EngineControl&  engine;
-    bool            mem_allocated;
     sigc::slot<void> sync;
     void mem_alloc();
     void mem_free();
@@ -774,6 +773,7 @@ private:
     static void init_static(unsigned int samplingFreq, PluginDef*);
     static void compute_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
 public:
+    bool   mem_allocated;
     float* get_buffer() {return outdata;};
     void set_data(bool dfill);
     Plugin plugin;

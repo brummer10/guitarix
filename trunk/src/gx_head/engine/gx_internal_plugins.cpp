@@ -1662,7 +1662,7 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
 }
 
 /****************************************************************
- ** class smbPitchShift
+ ** class Directout
  */
 Plugin Directout::directoutput = Plugin();
 
@@ -1670,8 +1670,8 @@ Directout::Directout(EngineControl& engine_, sigc::slot<void> sync_)
 	: PluginDef(), 
       outdata(0),
 	  engine(engine_),
-	  mem_allocated(false),
 	  sync(sync_),
+	  mem_allocated(false),
 	  plugin() {
     directoutput.set_pdef(this);
 	version = PLUGINDEF_VERSION;
@@ -1754,6 +1754,10 @@ void __rt_func Directout::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLO
 	static_cast<Directout*>(p)->compute(count, input0, input1, output0, output1);
 }
 
+
+/****************************************************************
+ ** class LiveLooper
+ */
 
 #include "gx_livelooper.cc"
 
@@ -1959,6 +1963,12 @@ void DrumSequencer::reset_snare() {
 	Vecsnare = snareset.getseqline() ;
 	seq_size = min_seq_size();
 }
+
+// hat = 1600Hz
+// kick = 50Hz
+// toms = 90 - 128 - 150Hz
+// snare = 523 - 7040Hz
+// todo: add compressor
 
 void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
