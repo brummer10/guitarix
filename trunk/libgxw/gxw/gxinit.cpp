@@ -70,6 +70,8 @@ static image_entry image_data[] = {
 	{ "resetbutton_off" },
     { "follow_on" },
 	{ "follow_off" },
+    { "overdub_on" },
+	{ "overdub_off" },
 	{ "vslider" },
 	{ "wheel_back" },
     { "wheel_vertical_back" },
