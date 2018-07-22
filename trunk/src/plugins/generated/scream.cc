@@ -3,7 +3,6 @@
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
-#include "clipping.h"
 
 namespace pluginlib {
 namespace scream {
@@ -108,7 +107,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<ReCount; i++) {
 		fRec0[0] = ((double)buf[i] - (fConst6 * ((fConst4 * fRec0[1]) + (fConst2 * fRec0[2]))));
 		fRec1[0] = (fSlow0 + (0.993 * fRec1[1]));
-		buf[i] = (FAUSTFLOAT)asymclip((fConst7 * ((fRec0[1] * (1.36415289887706e-09 + (1.36415289887706e-08 * fRec1[0]))) + ((0 - (6.82076449438528e-10 + (6.82076449438528e-09 * fRec1[0]))) * (fRec0[2] + fRec0[0])))));
+		buf[i] = (FAUSTFLOAT)min(0.4514, max(-0.2514, (fConst7 * ((fRec0[1] * (1.36415289887706e-09 + (1.36415289887706e-08 * fRec1[0]))) + ((0 - (6.82076449438528e-10 + (6.82076449438528e-09 * fRec1[0]))) * (fRec0[2] + fRec0[0]))))));
 		// post processing
 		fRec1[1] = fRec1[0];
 		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];

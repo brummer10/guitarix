@@ -225,6 +225,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fslider2 (*fslider2_)
 #define fcheckbox2 (*fcheckbox2_)
 #define fcheckbox3 (*fcheckbox3_)
+#define fcheckbox4 (*fcheckbox4_)
 	double 	fSlow0 = double(fcheckbox0);
 	double 	fSlow1 = (0.0010000000000000009 * double(fslider0));
 	double 	fSlow2 = (0.0010000000000000009 * double(fslider1));
@@ -252,6 +253,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow24 = double(fcheckbox3);
 	double 	fSlow25 = (0.0010000000000000009 * double(fslider4));
 	double 	fSlow26 = (0.0010000000000000009 * double(fslider5));
+	int 	iSlow27 = int(double(fcheckbox4));
 	for (int i=0; i<count; i++) {
 		iVec0[0] = 1;
 		fVec1[0] = fSlow0;
@@ -308,10 +310,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec28[0] = ((iTemp21)?fTemp20:fTemp19);
 		double 	fRec29 = ((iTemp21)?fTemp20:(fSlow11 + (fRec28[1] + (fSlow13 * fTemp19))));
 		double fTemp22 = (fConst29 * (((2 * fRec29) + (fSlow9 * fRec26[0])) - 1));
-		double fTemp23 = sin(fTemp22);
-		double fTemp24 = cos(fTemp22);
-		fRec24[0] = ((fRec24[1] * fTemp24) + (fRec25[1] * fTemp23));
-		fRec25[0] = ((1 + ((fRec25[1] * fTemp24) + (fRec24[1] * (0 - fTemp23)))) - iVec0[1]);
+		double fTemp23 = cos(fTemp22);
+		double fTemp24 = sin(fTemp22);
+		fRec24[0] = ((fRec25[1] * fTemp24) + (fRec24[1] * fTemp23));
+		fRec25[0] = ((1 + ((fRec25[1] * fTemp23) + (fRec24[1] * (0 - fTemp24)))) - iVec0[1]);
 		fRec30[0] = ((fSlow16 * fRec31[1]) + (fSlow15 * fRec30[1]));
 		fRec31[0] = ((1 + ((fSlow15 * fRec31[1]) + (fSlow17 * fRec30[1]))) - iVec0[1]);
 		fRec32[0] = ((fSlow20 * fRec33[1]) + (fSlow19 * fRec32[1]));
@@ -409,7 +411,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec80[0] = ((1 + ((fConst101 * fRec80[1]) + (fConst103 * fRec79[1]))) - iVec0[1]);
 		fRec81[0] = (fSlow25 + (0.999 * fRec81[1]));
 		fRec82[0] = (fSlow26 + (0.999 * fRec82[1]));
-		output0[i] = (FAUSTFLOAT)((double)input0[i] + (2 * (pow(10,(0.05 * fRec82[0])) * ((0.1 * (pow(10,(0.05 * fRec81[0])) * ((5.0 * (((0.25 + fRec79[0]) * fRec78[0]) + ((0.25 + fRec75[0]) * fRec74[0]))) + ((fConst87 * (fRec72[0] * ((fConst92 * fRec69[1]) + (fConst83 * (fRec69[2] + fRec69[0]))))) + (fConst74 * (fRec67[0] * (fRec64[0] + (fRec64[2] + (2 * fRec64[1]))))))))) + ((0.5 * (pow(10,(0.05 * fRec63[0])) * (((fRec61[0] - fRec61[2]) * fRec60[0]) + ((sqrt(fRec57[0]) * ((2 * (fRec37[1] * (0 - fTemp31))) + ((fRec37[2] + fRec37[0]) / fTemp30))) / fTemp29)))) + ((((0.25 * (fRec35[0] * ((0.5 * (fRec32[0] + fRec30[0])) + (5 * fRec24[0])))) + (3 * fRec22[0])) * pow(10,(0.05 * fRec20[0]))) + (pow(10,(0.05 * fRec19[0])) * ((fConst23 * (fRec17[0] * (fRec9[0] + (fRec9[2] + (2 * fRec9[1]))))) + ((fRec7[0] * (fRec1[0] + (fRec1[2] + (2 * fRec1[1])))) / fTemp3)))))))));
+		double fTemp64 = (2 * (pow(10,(0.05 * fRec82[0])) * ((0.1 * (pow(10,(0.05 * fRec81[0])) * ((5.0 * (((0.25 + fRec79[0]) * fRec78[0]) + ((0.25 + fRec75[0]) * fRec74[0]))) + ((fConst87 * (fRec72[0] * ((fConst92 * fRec69[1]) + (fConst83 * (fRec69[2] + fRec69[0]))))) + (fConst74 * (fRec67[0] * (fRec64[0] + (fRec64[2] + (2 * fRec64[1]))))))))) + ((0.5 * (pow(10,(0.05 * fRec63[0])) * (((fRec61[0] - fRec61[2]) * fRec60[0]) + ((sqrt(fRec57[0]) * ((2 * (fRec37[1] * (0 - fTemp31))) + ((fRec37[2] + fRec37[0]) / fTemp30))) / fTemp29)))) + ((((0.25 * (fRec35[0] * ((0.5 * (fRec32[0] + fRec30[0])) + (5 * fRec24[0])))) + (3 * fRec22[0])) * pow(10,(0.05 * fRec20[0]))) + (pow(10,(0.05 * fRec19[0])) * ((fConst23 * (fRec17[0] * (fRec9[0] + (fRec9[2] + (2 * fRec9[1]))))) + ((fRec7[0] * (fRec1[0] + (fRec1[2] + (2 * fRec1[1])))) / fTemp3))))))));
+		output0[i] = (FAUSTFLOAT)((iSlow27)?fTemp64:((double)input0[i] + fTemp64));
 		// post processing
 		fRec82[1] = fRec82[0];
 		fRec81[1] = fRec81[0];
@@ -509,10 +512,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fslider2
 #undef fcheckbox2
 #undef fcheckbox3
+#undef fcheckbox4
 }
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	fcheckbox4_ = reg.registerVar("seq.direct_out","","BA",N_("bypass the rack for direct output"),&fcheckbox4, 0.0, 0.0, 1.0, 1.0);
 	reg.registerVar("seq.gain","","S",N_("Volume level in decibels"),&fslider5, -2e+01, -6e+01, 4e+01, 0.1);
 	reg.registerVar("seq.hat_closed.dsp.Gain","","S",N_("Volume level in decibels"),&fslider3, -2e+01, -6e+01, 4e+01, 0.1);
 	fcheckbox2_ = reg.registerNonMidiSharedVar("seq.hat_closed.dsp.gate",&fcheckbox2, false, true, 0.0, 0.0, 1.0, 1.0);

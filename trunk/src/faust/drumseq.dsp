@@ -13,4 +13,6 @@ kick = (vgroup("kick.dsp",component("kick.dsp"))); // kick.dsp
 snare = (vgroup("snare.dsp",component("snare.dsp"))); // snare.dsp
 tom = (vgroup("tom.dsp",component("tom.dsp"))); // tom.dsp
 gain  = vslider("gain [tooltip: Volume level in decibels]",-20,-60,40,0.1) : si.smooth(0.999) : ba.db2linear;
-process(x) = hat+kick+snare+tom : *(gain) : +(x) : _;
+B     = checkbox("direct_out[alias][tooltip:bypass the rack for direct output]");
+direct_out(x) = _<:select2(B, +(x), _):>_;
+process(x) = hat+kick+snare+tom : *(gain) : direct_out(x) : _;

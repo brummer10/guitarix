@@ -15,9 +15,9 @@ process = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) : clip with {
     s = 0.993;
     fs = float(ma.SR);
     pre = _;
-    //clip(x) = min(0.4514,max(-0.2514,x));
-    asymclip = ffunction(float asymclip(float), "clipping.h", "");
-    clip = asymclip(_);
+    clip(x) = min(0.4514,max(-0.2514,x));
+    //asymclip = ffunction(float asymclip(float), "clipping.h", "");
+    //clip = asymclip(_);
 
     
         Scream = vslider("Scream[name:Scream]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);

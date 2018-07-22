@@ -220,6 +220,8 @@ private:
 	double 	fRec81[2];
 	FAUSTFLOAT 	fslider5;
 	double 	fRec82[2];
+	FAUSTFLOAT 	fcheckbox4;
+	FAUSTFLOAT	*fcheckbox4_;
 
 
 public:
