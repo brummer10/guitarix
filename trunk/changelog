@@ -1,3 +1,16 @@
+guitarix2 (0.37.3) unstable; urgency=low
+
+  * add support for zita-convolver4
+  * implemented "Thick Distortion" plugin by Viacheslav Lotsmanov 
+  * switch to use libcurl for download online presets
+  * point online help to reddit/guitarix
+  * add direct output unit for drumsequencer (bypass rack)
+  * add overdubbing to live looper
+  * add direct output support to live looper
+  * add midi channel selector, fix bug #64
+
+ -- brummer <brummer-@web.de>  Sun, 22 Jul 2018 08:28:15 +0200 
+
 guitarix2 (0.37.1) unstable; urgency=low
 
   * fix build for FreeBSD
