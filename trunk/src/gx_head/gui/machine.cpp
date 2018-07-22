@@ -18,7 +18,6 @@
 
 #include "guitarix.h"
 #include <sys/mman.h>
-#include <malloc.h>
 #include "jsonrpc_methods.h"
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -28,6 +27,22 @@
 #ifdef HAVE_BLUEZ
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
+#endif
+
+#if !defined(__APPLE__) && !defined(__FreeBSD__)
+#include <malloc.h>
+
+void set_memory_allocation() {
+    if (mlockall(MCL_CURRENT | MCL_FUTURE))
+        gx_print_error("system init", "mlockall failed:");
+    mallopt(M_TRIM_THRESHOLD, -1);
+    mallopt(M_MMAP_MAX, 0);
+}
+
+#else
+
+void set_memory_allocation() {}
+
 #endif
 
 void lock_rt_memory() {
@@ -42,10 +57,7 @@ void lock_rt_memory() {
 	{ __rt_data__start, __rt_data__end - __rt_data__start },
     };
     long int total_size = 0;
-    if (mlockall(MCL_CURRENT | MCL_FUTURE))
-        gx_print_error("system init", "mlockall failed:");
-    mallopt(M_TRIM_THRESHOLD, -1);
-    mallopt(M_MMAP_MAX, 0);
+    set_memory_allocation();
     for (unsigned int i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
         total_size +=regions[i].len;
         if (mlock(regions[i].start, regions[i].len) != 0) {
