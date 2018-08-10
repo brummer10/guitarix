@@ -1224,8 +1224,9 @@ void PluginDesc::set_state(const ustring& fname) {
 	    jp.next(JsonParser::end_array);
 	}
 	jp.next(JsonParser::end_array);
-	assert(ctrl_ports.size() == ports.size());
-	ctrl_ports = ports;
+    if (ctrl_ports.size() == ports.size()) ctrl_ports = ports;
+	//assert(ctrl_ports.size() == ports.size());
+	//ctrl_ports = ports;
 	jp.next(JsonParser::end_array);
 	jp.next(JsonParser::end_token);
 	jp.close();
