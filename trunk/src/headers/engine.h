@@ -45,6 +45,16 @@
 #include <glibmm/miscutils.h>
 #include <giomm/file.h>
 
+/* LV2 header files */
+#include <lilv/lilv.h>
+#include "lv2/lv2plug.in/ns/ext/presets/presets.h"
+#include "lv2/lv2plug.in/ns/ext/state/state.h"
+#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
+#include <lv2/lv2plug.in/ns/ext/atom/atom.h>
+#include <lv2/lv2plug.in/ns/ext/buf-size/buf-size.h>
+#include <lv2/lv2plug.in/ns/ext/options/options.h>
+#include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
+
 /* waf generated defines */
 #include "../config.h"
 

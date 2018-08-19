@@ -26,6 +26,7 @@ using Glib::ustring;
 using gx_system::JsonParser;
 using gx_system::JsonWriter;
 using gx_system::JsonException;
+using gx_engine::LV2Features;
 
 namespace ladspa {
 
@@ -1246,6 +1247,7 @@ void PluginDesc::set_old() {
     old->copy_ports(this);
 }
 
+
 /****************************************************************
  ** class LadspaPluginList
  */
@@ -1358,29 +1360,6 @@ void LadspaPluginList::descend(const char *uri, pluginmap& d,
     }
 }
 
-
-char** LadspaPluginList::uris = NULL;
-size_t LadspaPluginList::n_uris = 0;
-
-LV2_URID LadspaPluginList::map_uri(LV2_URID_Map_Handle handle, const char* uri) {
-    for (size_t i = 0; i < n_uris; ++i) {
-        if (!strcmp(uris[i], uri)) {
-            return i + 1;
-        }
-    }
-
-    uris = (char**)realloc(uris, ++n_uris * sizeof(char*));
-    uris[n_uris - 1] = const_cast<char*>(uri);
-    return n_uris;
-}
-
-const char* LadspaPluginList::unmap_uri(LV2_URID_Map_Handle handle, LV2_URID urid) {
-    if (urid > 0 && urid <= n_uris) {
-        return uris[urid - 1];
-    }
-    return NULL;
-}
-
 void LadspaPluginList::get_preset_values(const char* port_symbol,
                                      void*       user_data,
                                      const void* value,
@@ -1426,8 +1405,6 @@ void LadspaPluginList::set_preset_values(Glib::ustring port_symbol,
  }
 
 void LadspaPluginList::get_presets(LV2Preset *pdata) {
-	LV2_URID_Map       map           = { NULL, map_uri };
-    LV2_URID_Unmap     unmap         = { NULL, unmap_uri };
 	pdata->cline  ="[\"gx_plugin_version\", 1,\n";
 	LilvNodes* presets = lilv_plugin_get_related(pdata->plugin,
       lilv_new_uri(world,LV2_PRESETS__Preset));
@@ -1441,10 +1418,10 @@ void LadspaPluginList::get_presets(LV2Preset *pdata) {
 			if (label) {
 				Glib::ustring set =  lilv_node_as_string(label);
 				pdata->has_preset = true;
-				LilvState* state = lilv_state_new_from_world(world, &map, preset);
+				LilvState* state = lilv_state_new_from_world(world, &gx_engine::LV2Features::getInstance().gx_urid_map, preset);
 				pdata->cline  +="  \"" + set + "\"" + " {\n";
 				
-				Glib::ustring stt = lilv_state_to_string(world,&map,&unmap,state,"<>",NULL);
+				Glib::ustring stt = lilv_state_to_string(world,&gx_engine::LV2Features::getInstance().gx_urid_map,&gx_engine::LV2Features::getInstance().gx_urid_unmap,state,"<>",NULL);
 				std::istringstream stream(stt);
 				std::string st;
 				Glib::ustring symbol = "";
@@ -1481,13 +1458,28 @@ void LadspaPluginList::get_presets(LV2Preset *pdata) {
 	lilv_nodes_free(presets);
 }
 
+bool LadspaPluginList::feature_is_supported(const char* uri)
+{
+	if (!strcmp(uri, "http://lv2plug.in/ns/lv2core#isLive")) {
+		return true;
+	}
+	for (const LV2_Feature*const* f = gx_engine::LV2Features::getInstance().gx_features; *f; ++f) {
+		if (!strcmp(uri, (*f)->URI)) {
+            //fprintf(stderr, "Feature %s is supported\n", uri);
+			return true;
+		}
+	}
+	return false;
+}
 void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d, gx_system::CmdlineOptions& options) {
         
     // check for requested features 
 	LilvNodes* requests = lilv_plugin_get_required_features(plugin);
 	LILV_FOREACH(nodes, f, requests) {
 		const char* uri = lilv_node_as_uri(lilv_nodes_get(requests, f));
-		if (uri) {
+		if (!feature_is_supported(uri)) {
+            //fprintf(stderr, "Plugin %s \n", lilv_node_as_string(lilv_plugin_get_uri(plugin)));
+            //fprintf(stderr, "Feature %s is not supported\n", uri);
             lilv_nodes_free(requests);
            return;
 		}
@@ -1827,8 +1819,6 @@ LadspaPluginList::~LadspaPluginList() {
     for (iterator i = begin(); i != end(); ++i) {
 	delete *i;
     }
-    free(uris);
-    uris = NULL;
     lilv_node_free(lv2_AudioPort);
     lilv_node_free(lv2_ControlPort);
     lilv_node_free(lv2_InputPort);

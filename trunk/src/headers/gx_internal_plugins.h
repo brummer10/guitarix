@@ -23,11 +23,6 @@
 #pragma once
 
 
-#include <lilv/lilv.h>
-#include "lv2/lv2plug.in/ns/ext/presets/presets.h"
-#include "lv2/lv2plug.in/ns/ext/state/state.h"
-#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
-
 namespace gx_jack { class GxJack; }
 
 namespace gx_engine {
@@ -664,6 +659,41 @@ public:
     ~ContrastConvolver();
 };
 
+/****************************************************************
+ ** class LV2Features
+ */
+
+class LV2Features {
+private:
+
+    static LV2_Options_Option gx_options[2];
+    static LV2_Feature gx_options_feature;
+
+    static LV2_URID lv2_urid_map(LV2_URID_Map_Handle, const char* const uri_);
+    static LV2_Feature gx_urid_map_feature;
+    
+    static uint32_t lv2_uri_to_id(LV2_URI_Map_Callback_Data handle, const char*, const char* uri);
+    static LV2_URI_Map_Feature gx_uri_map;
+    static LV2_Feature gx_uri_map_feature;
+    
+    static const char* lv2_urid_unmap(LV2_URID_Unmap_Handle, const LV2_URID urid);
+    static LV2_Feature gx_urid_unmap_feature;
+    LV2Features() {};
+
+public:
+    static LV2Features& getInstance()
+        {
+            static LV2Features  instance;
+            return instance;
+        }
+    static LV2_Feature* gx_features[];
+    static LV2_URID_Map gx_urid_map;
+    static LV2_URID_Unmap gx_urid_unmap;
+
+    LV2Features(LV2Features const&)     = delete;
+    void operator=(LV2Features const&)  = delete;
+
+};
 
 /****************************************************************
  ** class LadspaLoader

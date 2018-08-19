@@ -730,6 +730,99 @@ void LadspaDsp::del_instance(PluginDef *plugin) {
 
 
 /****************************************************************
+ ** class LV2Features
+ */
+
+static const int32_t min_block_length = 1;
+static const int32_t max_block_length = 8192;
+
+
+static std::vector<std::string> gx_uri_mapping = {
+    LV2_ATOM__Int,
+    LV2_ATOM__Long,
+    LV2_ATOM__Float,
+    LV2_ATOM__Double,
+    LV2_BUF_SIZE__maxBlockLength,
+    LV2_BUF_SIZE__minBlockLength,
+};
+
+
+LV2_Options_Option LV2Features::gx_options[2] = {
+    { LV2_OPTIONS_INSTANCE, 0, lv2_urid_map(NULL,LV2_BUF_SIZE__minBlockLength),
+      sizeof(int32_t), lv2_urid_map(NULL,LV2_ATOM__Int), &min_block_length },
+    { LV2_OPTIONS_INSTANCE, 0, lv2_urid_map(NULL,LV2_BUF_SIZE__maxBlockLength),
+      sizeof(int32_t), lv2_urid_map(NULL,LV2_ATOM__Int), &max_block_length },
+};
+
+LV2_Feature LV2Features::gx_options_feature = {
+    LV2_OPTIONS__options, gx_options
+};
+
+LV2_URID LV2Features::lv2_urid_map(LV2_URID_Map_Handle, const char* const uri_) {
+    if (uri_ == nullptr || uri_[0] == '\0') {
+        return 0;
+    }
+
+    const std::string uri(uri_);
+
+    LV2_URID urid = 1;
+    for (const std::string& uri2 : gx_uri_mapping)
+    {
+        if (uri2 == uri) {
+            //fprintf(stderr, "%s uri match\n", uri.c_str());
+            return urid;
+        }
+        ++urid;
+    }
+
+    gx_uri_mapping.push_back(uri);
+    return urid;
+}
+
+LV2_URID_Map LV2Features::gx_urid_map = {
+    NULL, lv2_urid_map
+};
+
+LV2_Feature LV2Features::gx_urid_map_feature = {
+    LV2_URID__map, &gx_urid_map
+};
+
+uint32_t LV2Features::lv2_uri_to_id(LV2_URI_Map_Callback_Data handle, const char*, const char* uri) {
+    return lv2_urid_map(handle, uri);
+}
+
+LV2_URI_Map_Feature LV2Features::gx_uri_map = {
+    NULL, lv2_uri_to_id
+};
+
+LV2_Feature LV2Features::gx_uri_map_feature = {
+    LV2_URI_MAP_URI, &gx_uri_map
+};
+
+const char* LV2Features::lv2_urid_unmap(LV2_URID_Unmap_Handle, const LV2_URID urid) {
+    if (urid == 0 || urid >= gx_uri_mapping.size())
+        return nullptr;
+
+    return gx_uri_mapping[urid-1].c_str();
+}
+
+LV2_URID_Unmap LV2Features::gx_urid_unmap = {
+    NULL, lv2_urid_unmap
+};
+
+LV2_Feature LV2Features::gx_urid_unmap_feature = {
+    LV2_URID__unmap, &gx_urid_unmap
+};
+
+LV2_Feature* LV2Features::gx_features[] = {
+    &gx_urid_map_feature,
+    &gx_uri_map_feature,
+    &gx_urid_unmap_feature,
+    &gx_options_feature,
+    nullptr
+};
+
+/****************************************************************
  ** class Lv2Dsp
  */
 
@@ -922,13 +1015,14 @@ void Lv2Dsp::set_shortname() {
     }
 }
 
+
 void Lv2Dsp::init(unsigned int samplingFreq, PluginDef *pldef) {
     Lv2Dsp& self = *static_cast<Lv2Dsp*>(pldef);
     self.cleanup();
     if (samplingFreq == 0) {
 	return;
     }
-    self.instance = lilv_plugin_instantiate(self.plugin, samplingFreq, 0);
+    self.instance = lilv_plugin_instantiate(self.plugin, samplingFreq, LV2Features::getInstance().gx_features);
     if (!self.instance) { 
 		gx_print_error("Lv2Dsp", ustring::compose("cant init plugin: %1 \n uri: %2", self.name, self.pd->path));
 		return;
@@ -1155,9 +1249,19 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	Glib::ustring trim = TrimEffectLabel(p1, 4);
 	const char *p = trim.c_str();
 	std::string id = self.make_id(**it);
+    if (num_controls<30) {
 	if ((row == 1 && rows == 1 ) || (row >1 && rows >1 )) {
 		b.set_next_flags(UI_LABEL_INVERSE);
 	}
+    } else if (num_controls<35) {
+	if ((row == 2 && rows == 2 ) || (row >2 && rows >2 )) {
+		b.set_next_flags(UI_LABEL_INVERSE);
+	}
+    } else {
+	if ((row == 3 && rows == 3 ) || (row >3 && rows >3 )) {
+		b.set_next_flags(UI_LABEL_INVERSE);
+	}
+    }
 	switch ((*it)->tp) {
 	case tp_scale:
 	case tp_scale_log:
