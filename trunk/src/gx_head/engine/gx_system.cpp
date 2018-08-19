@@ -465,6 +465,7 @@ CmdlineOptions::CmdlineOptions()
       rpcaddress(),
       onlygui(false),
       liveplaygui(false),
+      hideonquit(false),
       mute(false),
       setbank(),
       tuner_tet(),
@@ -552,6 +553,10 @@ CmdlineOptions::CmdlineOptions()
     opt_liveplaygui.set_short_name('L');
     opt_liveplaygui.set_long_name("liveplaygui");
     opt_liveplaygui.set_description("start with Live Play GUI");
+    Glib::OptionEntry opt_hideonquit;
+    opt_hideonquit.set_short_name('E');
+    opt_hideonquit.set_long_name("hideonquit");
+    opt_hideonquit.set_description("only hide GUI instead quit engine");
     Glib::OptionEntry opt_mute;
     opt_mute.set_short_name('M');
     opt_mute.set_long_name("mute");
@@ -577,6 +582,7 @@ CmdlineOptions::CmdlineOptions()
     main_group.add_entry(opt_rpchost, rpcaddress);
     main_group.add_entry(opt_onlygui, onlygui);
     main_group.add_entry(opt_liveplaygui, liveplaygui);
+    main_group.add_entry(opt_hideonquit, hideonquit);
     main_group.add_entry(opt_mute, mute);
     main_group.add_entry(opt_bank, setbank);
     main_group.add_entry(opt_tuner_tet, tuner_tet);

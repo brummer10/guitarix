@@ -415,6 +415,7 @@ private:
     Glib::ustring rpcaddress;
     bool onlygui;
     bool liveplaygui;
+    bool hideonquit;
     bool mute;
     Glib::ustring setbank;
     Glib::ustring tuner_tet;
@@ -484,6 +485,7 @@ public:
     bool get_clear_rc() const { return clear; }
     bool get_nogui() const { return nogui; }
     bool get_liveplaygui() const { return liveplaygui; }
+    bool get_hideonquit() const { return hideonquit; }
     bool get_mute() const { return mute; }
     const Glib::ustring& get_setbank() { return setbank; }
     const Glib::ustring& get_tuner_tet() { return tuner_tet; }

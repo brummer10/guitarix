@@ -1633,7 +1633,11 @@ void MainWindow::create_actions() {
     actions.engine_bypass_conn = actions.engine_bypass->signal_toggled().connect(
 	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
 
-    actions.quit = Gtk::Action::create("Quit",_("_Quit"));
+    if (options.get_hideonquit()) {
+        actions.quit = Gtk::Action::create("Quit",_("Hide"));
+    } else {
+        actions.quit = Gtk::Action::create("Quit",_("_Quit"));
+    }
     actions.group->add(
 	actions.quit,
 	sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_quit)));
@@ -2746,7 +2750,7 @@ void MainWindow::hide_extended_settings() {
         window->present();
         //window->deiconify();
     } else {
-        window->hide();
+        window->hide();        
         //window->iconify();
     }
 }
@@ -2806,6 +2810,13 @@ bool MainWindow::on_key_press_event(GdkEventKey *event) {
 }
 
 bool MainWindow::on_quit() {
+    if (options.get_hideonquit()) {
+        machine.save_to_state();
+        hide_extended_settings();
+        usleep(100000);
+        hide_extended_settings();
+        return true;
+    }
     if (ladspalist_window && !ladspalist_window->check_exit()) {
 	return true;
     }
@@ -2962,10 +2973,12 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     /*
     ** status icon signal connections
     */
-    status_icon->signal_activate().connect(
-	sigc::mem_fun(*this, &MainWindow::hide_extended_settings));
-    status_icon->signal_popup_menu().connect(
-	sigc::mem_fun(*this, &MainWindow::systray_menu));
+    if (!options.get_hideonquit()) {
+        status_icon->signal_activate().connect(
+        sigc::mem_fun(*this, &MainWindow::hide_extended_settings));
+        status_icon->signal_popup_menu().connect(
+        sigc::mem_fun(*this, &MainWindow::systray_menu));
+    }
 
     // add rack container
     stereorackcontainerV->pack_start(stereorackcontainer, Gtk::PACK_EXPAND_WIDGET);
