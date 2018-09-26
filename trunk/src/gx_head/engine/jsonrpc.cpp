@@ -1299,7 +1299,7 @@ bool CmdConnection::on_data_in(Glib::IOCondition cond) {
 	int n;
 	try {
 	    n = sock->receive(buf, sizeof(buf));
-	} catch(Glib::Error e) {
+	} catch(Glib::Error& e) {
 	    if (e.code() == Gio::Error::WOULD_BLOCK) {
 		return true;
 	    }

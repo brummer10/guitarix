@@ -30,7 +30,7 @@ static void gx_wheel_vertical_size_request (GtkWidget *widget, GtkRequisition *r
 static gboolean gx_wheel_vertical_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_wheel_vertical_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
 
-G_DEFINE_TYPE(GxWheelVertical, gx_wheel_vertical, GX_TYPE_REGLER);
+G_DEFINE_TYPE_WITH_PRIVATE(GxWheelVertical, gx_wheel_vertical, GX_TYPE_REGLER);
 
 static void gx_wheel_vertical_class_init(GxWheelVerticalClass *klass)
 {
@@ -50,7 +50,6 @@ static void gx_wheel_vertical_class_init(GxWheelVerticalClass *klass)
                         P_("Number of frames in the animation specified by the gtkrc"),
                         -1, 250, -1,
                         GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
-    g_type_class_add_private(klass, sizeof (GxWheelVerticalPrivate));                    
 }
 
 static void get_image_dimensions (GtkWidget *widget, GdkPixbuf *pb, 

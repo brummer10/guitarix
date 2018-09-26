@@ -455,7 +455,7 @@ void PresetIO::read_online(gx_system::JsonParser &jp) {
                 } while (jp.peek() == gx_system::JsonParser::value_key);
                 jp.next(gx_system::JsonParser::end_object);
             } while (jp.peek() == gx_system::JsonParser::begin_object);
-        } catch (gx_system::JsonException e) {
+        } catch (gx_system::JsonException& e) {
             cerr << "JsonException: " << e.what() << ": '" << jp.current_value() << "'" << endl;
             assert(false);
         }

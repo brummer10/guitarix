@@ -806,7 +806,7 @@ void CmdlineOptions::read_ui_vars() {
 	}
 	jp.next(JsonParser::end_object);
 	jp.close();
-    } catch (JsonException) {
+    } catch (JsonException&) {
 	gx_print_warning("main", "can't read/parse ui_rc");
     }
     i.close();
@@ -837,7 +837,7 @@ void CmdlineOptions::write_ui_vars() {
 	jw.write_kv("system.show_rack", system_show_rack);
 	jw.end_object(true);
 	jw.close();
-    } catch (JsonException) {
+    } catch (JsonException&) {
 	gx_print_warning("main", "can't write ui_rc");
     }
     o.close();

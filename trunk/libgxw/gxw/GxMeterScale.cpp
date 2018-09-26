@@ -35,7 +35,7 @@ struct _GxMeterScalePrivate {
 	GSList      *marks;
 };
 
-G_DEFINE_TYPE(GxMeterScale, gx_meter_scale, GTK_TYPE_WIDGET)
+G_DEFINE_TYPE_WITH_PRIVATE(GxMeterScale, gx_meter_scale, GTK_TYPE_WIDGET)
 
 GType gx_tick_position_get_type(void)
 {
@@ -93,7 +93,6 @@ static void gx_meter_scale_class_init (GxMeterScaleClass *klass)
 		                 P_("Space between tick and text"),
 		                 0, 100, 2,
 		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
-	g_type_class_add_private(gobject_class, sizeof (GxMeterScalePrivate));
 }
 
 static void gx_meter_scale_size_request(GtkWidget* wd, GtkRequisition* req)

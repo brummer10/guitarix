@@ -395,7 +395,7 @@ def append_optimization_flags(cxxflags):
     if not Options.options.debug:
         cxxflags.append ("-fomit-frame-pointer")
     cxxflags.append ("-ftree-loop-linear")
-    cxxflags.append ("-ffinite-math-only")
+    #cxxflags.append ("-ffinite-math-only")
     cxxflags.append ("-fno-math-errno")
     cxxflags.append ("-fno-signed-zeros")
     #cxxflags.append ("-ffast-math") # quicker but doesn't seem to work (difference in sound output)

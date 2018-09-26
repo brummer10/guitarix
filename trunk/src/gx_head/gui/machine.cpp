@@ -1142,7 +1142,7 @@ void GxMachineRemote::create_tcp_socket() {
     adr_list al;
     try {
 	al = Gio::Resolver::get_default()->lookup_by_name(options.get_rpcaddress());
-    } catch (Glib::Error e) {
+    } catch (Glib::Error& e) {
 	gx_print_fatal(_("Remote Connection"), e.what());
     }
     Glib::ustring msg;
@@ -1151,7 +1151,7 @@ void GxMachineRemote::create_tcp_socket() {
 	try {
 	    socket->connect(Gio::InetSocketAddress::create(*i, options.get_rpcport()));
 	    error = false;
-	} catch (Gio::Error e) {
+	} catch (Gio::Error& e) {
 	    msg = e.what();
 	    error = true;
 	}
@@ -1387,7 +1387,7 @@ bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
     while (true) {
 	try {
 	    n = socket->receive(buf, sizeof(buf));
-	} catch(Glib::Error e) {
+	} catch(Glib::Error& e) {
 	    delete jp;
 	    socket_error(2);
 	    return false;
@@ -1408,7 +1408,7 @@ bool GxMachineRemote::socket_input_handler(Glib::IOCondition cond) {
 		    jp->next(gx_system::JsonParser::value_string); // "2.0"
 		    jp->next(gx_system::JsonParser::value_key); // "method"
 		    handle_notify(jp);
-		} catch (gx_system::JsonException e) {
+		} catch (gx_system::JsonException& e) {
 		    cerr << "JsonException: " << e.what() << ": '" << jp->get_string() << "'" << endl;
 		    assert(false);
 		}
@@ -1516,7 +1516,7 @@ gx_system::JsonStringParser *GxMachineRemote::receive() {
 	    int n;
 	    try {
 		n = socket->receive(buf, sizeof(buf));
-	    } catch(Glib::Error e) {
+	    } catch(Glib::Error& e) {
 		cerr << "Glib receive error: " << e.what() << endl;
 		return 0;
 	    }
@@ -1982,7 +1982,7 @@ const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(PluginType 
 	    l.push_back(jp->current_value());
 	}
 	jp->next(gx_system::JsonParser::end_array);
-    } catch (gx_system::JsonException e) {
+    } catch (gx_system::JsonException& e) {
 	cerr << "JsonException: " << e.what() << ": '" << jp->get_string() << "'" << endl;
 	assert(false);
     }

@@ -33,4 +33,4 @@ void gxw_init();
 
 G_END_DECLS
 
-#endif /* __GX_RADIO_BUTTON_H__ */
+#endif /* __GX_INIT_H__ */

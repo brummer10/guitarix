@@ -54,7 +54,7 @@ static void gx_selector_get_property(
 static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
 static void gx_selector_style_set(GtkWidget *widget, GtkStyle *previous_style);
 
-G_DEFINE_TYPE(GxSelector, gx_selector, GX_TYPE_REGLER);
+G_DEFINE_TYPE_WITH_PRIVATE(GxSelector, gx_selector, GX_TYPE_REGLER);
 
 static void gx_selector_class_init(GxSelectorClass *klass)
 {
@@ -79,7 +79,6 @@ static void gx_selector_class_init(GxSelectorClass *klass)
 			"model", P_("Selector model"),
 			P_("The model for the selector"),
 			GTK_TYPE_TREE_MODEL, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
-	g_type_class_add_private(klass, sizeof (GxSelectorPrivate));
 }
 
 static int get_selector_state(GxSelector *selector)
