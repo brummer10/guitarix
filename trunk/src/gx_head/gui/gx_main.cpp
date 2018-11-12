@@ -301,6 +301,7 @@ class GxSplashBox: public Gtk::Window {
     explicit GxSplashBox();
     ~GxSplashBox();
     virtual void on_show();
+    virtual void on_message(const Glib::ustring& msg_, GxLogger::MsgType tp, bool plugged);
 };
 GxSplashBox::~GxSplashBox() {}
 
@@ -318,6 +319,10 @@ GxSplashBox::GxSplashBox()
     set_position(Gtk::WIN_POS_CENTER );
     set_default_size(613, 180);
     show_all();
+}
+
+void GxSplashBox::on_message(const Glib::ustring& msg_, GxLogger::MsgType tp, bool plugged) {
+    Gtk::Widget::hide();
 }
 
 void GxSplashBox::on_show() {
@@ -460,6 +465,8 @@ static void mainGtk(int argc, char *argv[]) {
     GxSplashBox * Splash = NULL;
 #ifdef NDEBUG
     Splash =  new GxSplashBox();
+    GxLogger::get_logger().signal_message().connect(
+	sigc::mem_fun(Splash, &GxSplashBox::on_message));
     g_log_set_handler("Gtk",G_LOG_LEVEL_WARNING,null_handler,NULL);
 #endif
     GxExit::get_instance().signal_msg().connect(
