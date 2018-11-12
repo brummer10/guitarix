@@ -365,14 +365,6 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
     gx_print_info(
 	_("Jack init"),
 	boost::format(_("The jack sample rate is %1%/sec")) % jack_sr);
-	if (jack_sr > 96000) {
-    gx_print_error(
-		    _("Jack Init"),
-		    _("Sample rates above 96kHz ain't be supported"));
-		cleanup_slot(true);
-		GxExit::get_instance().exit_program("** Sample rates above 96kHz ain't be supported *** exit **");
-		return false;
-		}
 
     jack_bs = jack_get_buffer_size(client); // jack buffer size
 	if (!is_power_of_two(jack_bs)) {
@@ -397,7 +389,12 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
 	gx_jack_init_port_connection(opt);
     }
     set_jack_exit(false);
-
+	if (jack_sr > 96000) {
+    gx_print_fatal(
+		    _("Jack Init"),
+		    _("Sample rates above 96kHz ain't be supported"));
+		return false;
+	}
     return true;
 }
 
