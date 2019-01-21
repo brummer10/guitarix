@@ -569,7 +569,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         IOTAR1 = IOTAR1-speed1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):(IOTAR1-speed1)-1;
         } else if (fplay1) {
         IOTAR1 = IOTAR1+speed1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):(IOTAR1+speed1)+1;
-        }
+        } else {
+			IOTAR1 = iTemp3 - int(iTemp3*iClips1);
+		}
 		
         float fTemp4 = ((int((fRec1[1] != 0.0f)))?((int(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))))?fRec1[1]:0):((int(((fRec2[1] == 0.0f) & (iTemp3 != iRec3[1]))))?fConst0:((int(((fRec2[1] == 1.0f) & (iTemp3 != iRec4[1]))))?fConst1:0)));
 		fRec1[0] = fTemp4;
@@ -590,8 +592,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         IOTAR2 = IOTAR2-speed2< (iTemp7 - int(iTemp7*iClips2))? int(iTemp7*iClip2):(IOTAR2-speed2)-1;
         } else if (fplay2) {
         IOTAR2 = IOTAR2+speed2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):(IOTAR2+speed2)+1;
-        }
-		
+        } else {
+			IOTAR2 = iTemp7 - int(iTemp7*iClips2);
+		}
         float fTemp8 = ((int((fRec6[1] != 0.0f)))?((int(((fRec7[1] > 0.0f) & (fRec7[1] < 1.0f))))?fRec6[1]:0):((int(((fRec7[1] == 0.0f) & (iTemp7 != iRec8[1]))))?fConst0:((int(((fRec7[1] == 1.0f) & (iTemp7 != iRec9[1]))))?fConst1:0)));
 		fRec6[0] = fTemp8;
 		fRec7[0] = fmax(0.0f, fmin(1.0f, (fRec7[1] + fTemp8)));
@@ -611,8 +614,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         IOTAR3 = IOTAR3-speed3< (iTemp11 - int(iTemp11*iClips3))? int(iTemp11*iClip3):(IOTAR3-speed3)-1;
         } else if (fplay3) {
         IOTAR3 = IOTAR3+speed3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):(IOTAR3+speed3)+1;
-        }
-		
+        } else {
+			IOTAR3 = iTemp11 - int(iTemp11*iClips3);
+		}
         float fTemp12 = ((int((fRec11[1] != 0.0f)))?((int(((fRec12[1] > 0.0f) & (fRec12[1] < 1.0f))))?fRec11[1]:0):((int(((fRec12[1] == 0.0f) & (iTemp11 != iRec13[1]))))?fConst0:((int(((fRec12[1] == 1.0f) & (iTemp11 != iRec14[1]))))?fConst1:0)));
 		fRec11[0] = fTemp12;
 		fRec12[0] = fmax(0.0f, fmin(1.0f, (fRec12[1] + fTemp12)));
@@ -632,8 +636,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         IOTAR4 = IOTAR4-speed4< (iTemp15 - int(iTemp15*iClips4))? int(iTemp15*iClip4):(IOTAR4-speed4)-1;
         } else if (fplay4) {
         IOTAR4 = IOTAR4+speed4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):(IOTAR4+speed4)+1;
-        }
-		
+        } else {
+			IOTAR4 = iTemp15 - int(iTemp15*iClips4);
+		}
         float fTemp16 = ((int((fRec16[1] != 0.0f)))?((int(((fRec17[1] > 0.0f) & (fRec17[1] < 1.0f))))?fRec16[1]:0):((int(((fRec17[1] == 0.0f) & (iTemp15 != iRec18[1]))))?fConst0:((int(((fRec17[1] == 1.0f) & (iTemp15 != iRec19[1]))))?fConst1:0)));
 		fRec16[0] = fTemp16;
 		fRec17[0] = fmax(0.0f, fmin(1.0f, (fRec17[1] + fTemp16)));
