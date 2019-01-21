@@ -1360,7 +1360,7 @@ void MainWindow::set_latency() {
 
 void show_forum_help() {
     GError *error = NULL;
-    gtk_show_uri(gdk_screen_get_default(), "https://www.reddit.com/r/Guitarix/",
+    gtk_show_uri(gdk_screen_get_default(), "https://sourceforge.net/p/guitarix/discussion/general/",
     gtk_get_current_event_time(), &error);
     if (error)
     {
@@ -2747,11 +2747,11 @@ void MainWindow::hide_extended_settings() {
 	(window->get_window()->get_state()
 	 & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
         window->move(options.mainwin_x, options.mainwin_y);
-        window->present();
-        //window->deiconify();
+        //window->present();
+        window->deiconify();
     } else {
-        window->hide();        
-        //window->iconify();
+        //window->hide();        
+        window->iconify();
     }
 }
 
@@ -2812,7 +2812,7 @@ bool MainWindow::on_key_press_event(GdkEventKey *event) {
 bool MainWindow::on_quit() {
     if (options.get_hideonquit()) {
         machine.save_to_state();
-        hide_extended_settings();
+        //hide_extended_settings();
         usleep(100000);
         hide_extended_settings();
         return true;
