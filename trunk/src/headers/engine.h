@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <sys/stat.h>
 #include <boost/format.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/thread/mutex.hpp>
 #include <glibmm/i18n.h>     // NOLINT
 #include <glibmm/optioncontext.h>   // NOLINT
