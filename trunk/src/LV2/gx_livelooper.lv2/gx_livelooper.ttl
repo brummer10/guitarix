@@ -429,7 +429,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 40 ;
-        lv2:portProperty lv2:toggled;
+        lv2:portProperty lv2:integer;
         lv2:symbol "reset1" ;
         lv2:name "reset1" ;
         lv2:default 0.0 ;
@@ -439,7 +439,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 41 ;
-        lv2:portProperty lv2:toggled;
+        lv2:portProperty lv2:integer;
         lv2:symbol "reset2" ;
         lv2:name "reset2" ;
         lv2:default 0.0 ;
@@ -449,7 +449,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 42 ;
-        lv2:portProperty lv2:toggled;
+        lv2:portProperty lv2:integer;
         lv2:symbol "reset3" ;
         lv2:name "reset3" ;
         lv2:default 0.0 ;
@@ -459,7 +459,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 43 ;
-        lv2:portProperty lv2:toggled;
+        lv2:portProperty lv2:integer;
         lv2:symbol "reset4" ;
         lv2:name "reset4" ;
         lv2:default 0.0 ;
