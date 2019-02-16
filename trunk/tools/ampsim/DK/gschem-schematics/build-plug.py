@@ -248,23 +248,24 @@ for sch in args.input:
         f.close()
         os.remove(dspfiletmp)
 
-        dspfileui = dspname+"_ui.cc"
-        dspfiletmpui = dspname+"_ui.cc~"
-        v = 0
-        f = open(dspfiletmpui, "a")
-        pattern = re.compile("openHorizontalBox")
-        with open(dspfileui, "r") as fi:
-            for line in fi:
-                if pattern.search(line) != None:
-                    v = 1
-                if v:
-                    f.write(line)
-        f.close()
-        fi.close()
-        with open(dspfiletmpui, 'r') as f :
-            fuidata += f.read()
-        f.close()
-        os.remove(dspfiletmpui)
+        if (b != a) :
+            dspfileui = dspname+"_ui.cc"
+            dspfiletmpui = dspname+"_ui.cc~"
+            v = 0
+            f = open(dspfiletmpui, "a")
+            pattern = re.compile("openHorizontalBox")
+            with open(dspfileui, "r") as fi:
+                for line in fi:
+                    if pattern.search(line) != None:
+                        v = 1
+                    if v:
+                        f.write(line)
+            f.close()
+            fi.close()
+            with open(dspfiletmpui, 'r') as f :
+                fuidata += f.read()
+            f.close()
+            os.remove(dspfiletmpui)
 
 if a == 1 :
     fdata +=  "\nprocess = p1 ;"
