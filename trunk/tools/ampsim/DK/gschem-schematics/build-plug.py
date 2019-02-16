@@ -1,9 +1,11 @@
 import os
+from shutil import copy2
 import argparse,sys
+import re
 sys.path.append(".")
 
 parser = argparse.ArgumentParser(description='Build script for guitarix plugins.')
-parser.add_argument('-i','--input', help='Input file name [REQUIRED]',required=True)
+parser.add_argument('-i','--input', metavar='N', nargs='+', help='Input file(s) name [ONE REQUIRED]',required=True)
 parser.add_argument('-n','--name',help='Name for plugin [OPTIONAL]', required=False)
 parser.add_argument('-s','--shortname',help='Shortname for plugin [OPTIONAL]', required=False)
 parser.add_argument('-d','--description',help='Description for plugin [OPTIONAL]', required=False)
@@ -12,32 +14,26 @@ parser.add_argument('-m','--module_id',help='Module ID for plugin [OPTIONAL]', r
 parser.add_argument('-p','--prefilter',help='prefilter for plugin [OPTIONAL]', required=False)
 parser.add_argument('--plot',help='frequency plot from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('--build',help='build guitarix plugin from the circuit [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('--buildlv2',help='build lv2 plugin from the circuit [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('--table', metavar='N', type=int,help='build nonlinear response table from the N\'t circuit [OPTIONAL]', required=False)
+parser.add_argument('--sig_max', metavar='N', type=float, nargs='+', help='max signal send to build the nonlinear response table from the circuit [OPTIONAL]', required=False)
+parser.add_argument('--table_div', metavar='N', type=int, nargs='+', help='divider for nonlinear response table from the circuit [OPTIONAL]', required=False)
+
 args = parser.parse_args()
  
 ## show values ##
-schema = args.input
-
+a = 0
+b = 0
+nonlintable = ""
+nonlinfile = ""
+nonlinuifile = ""
+nonlinname = ""
+dspfile = ""
+dspfileui = ""
+dspname = ""
+fdata = ""
+fuidata = ""
 os.chdir("../")
-workfile="gschem-schematics/"+schema
-name = args.name
-shortname = args.shortname
-description = args.description
-category = args.category
-module_id = args.module_id
-prefilter = args.prefilter
-do_plot = args.plot
-gx_build = args.build
-print ("Input file: %s" % args.input )
-del sys.argv[1:]
-
-from analog import *
-
-path = "tmp"
-
-if not module_id:
-	module_id = schema.split('.')[0].lower()
-print ("module_id: %s" % module_id )
-mod = os.path.join(path, module_id+".so")
 
 
 def calc_highpass_f0(c1, c2, pot):
@@ -81,50 +77,266 @@ def freqplot(c1,name):
     pylab.ylabel('Magnitude')
     pylab.show()
 
+def nonlin_table(c1):
+    v = ci.Circ_table(name, c1.S,c1.V, sig_max, table_div)
+    parser = dk_simulator.Parser(v.S, v.V, v.FS)
+    p = dk_simulator.get_executor(
+    name, parser, v.solver, '-p', c_tempdir='/tmp', c_verbose='--c-verbose',
+    c_debug_load='', linearize='', c_real=("double"))
+    y = p(v.signal())
+    v.generate_table(p, y,"")
+    v.plot(p,y)
+    
 
-set_log_level(INFO)
-# create plugin
-c1 = Circuit()
-c1.plugindef = dk_simulator.PluginDef(module_id)
-if not name:
-	name = module_id
-c1.plugindef.name = name
-if not shortname:
-	shortname = name
-c1.plugindef.shortname = shortname
-if not description:
-	description = name
-c1.plugindef.description = description
-if not category:
-	category = "Extern"
-c1.plugindef.category = category
-c1.plugindef.id = module_id
-c1.set_module_id(module_id)
-c1.read_gschem(workfile)
-c1.show_status()
+for sch in args.input:
+    a +=1
+    print ("%s %s" %(a, sch))
+    schema = args.input[a-1]
 
-# use to calculate dc blocker
-#c1.linearize("Triode1", "Pentode3", keep_dc=False)
-#c1.linearize("Triode2", "Pentode4", keep_dc=False)
-#c1.print_filter_coeffs()
-#c0 = Circuit(c1)
-#c1.remove_element("C1")
-#c1.join_net("V2", "V1")
-#f0 = calc_highpass_f0(c0, c1, "Volume_a")
-#print ("calc_highpass: %s" % f0 )
-#prefilter = "fi.dcblockerat(%s)" % f0
+    workfile="gschem-schematics/"+schema
+    name = args.name
+    shortname = args.shortname
+    description = args.description
+    category = args.category
+    module_id = args.module_id
+    prefilter = args.prefilter
+    do_plot = args.plot
+    gx_build = args.build
+    lv2_build = args.buildlv2
+    build_table = args.table
 
-c1.print_netlist()
+    if (args.table_div) :
+        table_div = args.table_div
+    else :
+        table_div = None
+    if (args.sig_max) :
+        sig_max = args.sig_max
+    else :
+        sig_max = None
 
-if do_plot:
-    freqplot(c1,name)
+    print ("Input file: %s" % args.input )
+    del sys.argv[1:]
 
-if gx_build or not do_plot:
-    print ("build plugin from: %s" % args.input)
-    if not prefilter:
-        c1.create_faust_module()
-    else:
-        print prefilter
-        c1.create_faust_module(pre_filter=prefilter)
+    from analog import *
+    import circ_table_gen as ci
 
-#c1.deploy(".")
+    path = "tmp"
+
+    modulename = schema.split('.')[0].lower()
+    if not module_id:
+        module_id = modulename
+    print ("module_id: %s" % module_id )
+    mod = os.path.join(path, module_id+".so")
+
+    set_log_level(INFO)
+    # create plugin
+    c1 = Circuit()
+    c1.plugindef = dk_simulator.PluginDef(module_id)
+    if not name:
+        name = module_id
+    c1.plugindef.name = name
+    if not shortname:
+        shortname = name
+    c1.plugindef.shortname = shortname
+    if not description:
+        description = name
+    c1.plugindef.description = description
+    if not category:
+        category = "Extern"
+    c1.plugindef.category = category
+    c1.plugindef.id = module_id
+    c1.set_module_id(module_id)
+    c1.read_gschem(workfile)
+    c1.show_status()
+
+    # use to calculate dc blocker
+    #c1.linearize("Triode1", "Pentode3", keep_dc=False)
+    #c1.linearize("Triode2", "Pentode4", keep_dc=False)
+    #c1.print_filter_coeffs()
+    #c0 = Circuit(c1)
+    #c1.remove_element("C1")
+    #c1.join_net("V2", "V1")
+    #f0 = calc_highpass_f0(c0, c1, "Volume_a")
+    #print ("calc_highpass: %s" % f0 )
+    #prefilter = "fi.dcblockerat(%s)" % f0
+
+    c1.print_netlist()
+
+    #print("V %s" % format(c1.V))
+    #print("S %s" % format(c1.S))
+
+    if do_plot:
+        freqplot(c1,name)
+
+    if build_table == a:
+        nonlin_table(c1)
+        # generate faust source in build dir
+        if gx_build or lv2_build :
+            src = 'dkbuild/%s_table.h' %  modulename
+            dst = 'dkbuild/%s/' % modulename
+            nonlintable = modulename
+            # copy table to build dir
+            if not os.path.exists(dst):
+                os.makedirs(dst)
+            copy2(src, dst)
+            dspname = dst+modulename
+            dspfile = dspname+".dsp"
+            dspfileui = dspname+"_ui.cc"
+            nonlinfile = dspfile
+            nonlinuifile = dspfileui
+            nonlinname = modulename
+            c1.save_faust_code(filename=str(dspname))
+            # add table to faust source
+            with open(dspfile, 'r') as f :
+               fdata = f.read()
+            fdata = fdata.replace('process', "p%s" % a)
+            fdata = fdata.replace('with', ": clip with" )
+            fdata +=  '\n    clip = ffunction(float circclip(float), "%s_table.h", "");\n' % modulename
+            f.close()
+
+            with open(dspfile, 'w') as f:
+                f.write(fdata)
+            f.close()
+            with open(dspfileui, 'r') as f:
+                fuidata = f.read()
+            f.close()
+    else :
+        dst = 'dkbuild/%s/' % modulename
+        if not os.path.exists(dst):
+            os.makedirs(dst)
+        dspname = dst+modulename
+        dspfile = dspname+".dsp"
+        dspfileui = dspname+"_ui.cc"
+        c1.save_faust_code(filename=str(dspname))
+        with open(dspfileui, 'r') as f:
+            fuidata = f.read()
+        f.close()
+       
+for sch in args.input:
+    b +=1
+    #print ("%s %s" %(a, sch))
+    schema = args.input[b-1]
+    modulename = schema.split('.')[0].lower()
+    dst = 'dkbuild/%s/' % modulename
+    dspname = dst+modulename
+    dspfile = dspname+".dsp"
+    dspfiletmp = dspname+".dsp~"
+    if build_table != b :
+        v = 0
+        f = open(dspfiletmp, "a")
+        if (build_table or b>1) :
+            pattern = re.compile("process")
+            with open(dspfile, "r") as fi:
+                for line in fi:
+                    if pattern.search(line) != None:
+                        v = 1
+                        line = line.replace("process", "p%s" % b)
+                        f.write("\n")
+                    if v:
+                        f.write(line)
+        else :
+            pattern = re.compile("process")
+            with open(dspfile, "r") as fi:
+                for line in fi:
+                    if pattern.search(line) != None:
+                        line = line.replace("process", "p%s" % b)
+                    f.write(line)
+        f.close()
+        fi.close()
+        with open(dspfiletmp, 'r') as f :
+            fdata += f.read()
+        f.close()
+        os.remove(dspfiletmp)
+
+        dspfileui = dspname+"_ui.cc"
+        dspfiletmpui = dspname+"_ui.cc~"
+        v = 0
+        f = open(dspfiletmpui, "a")
+        pattern = re.compile("openHorizontalBox")
+        with open(dspfileui, "r") as fi:
+            for line in fi:
+                if pattern.search(line) != None:
+                    v = 1
+                if v:
+                    f.write(line)
+        f.close()
+        fi.close()
+        with open(dspfiletmpui, 'r') as f :
+            fuidata += f.read()
+        f.close()
+        os.remove(dspfiletmpui)
+
+if a == 1 :
+    fdata +=  "\nprocess = p1 ;"
+elif a == 2 :
+    fdata +=  "\nprocess = p1 : p2;"
+elif a == 3 :
+    fdata +=  "\nprocess = p1 : p2 : p3;"
+elif a == 4 :
+    fdata +=  "\nprocess = p1 : p2 : p3 : p4;"
+
+if build_table :
+    with open(nonlinfile, 'w') as f:
+      f.write(fdata)
+    f.close()
+
+    with open(nonlinuifile, 'w') as f:
+      f.write(fuidata)
+    f.close()
+else :
+    with open(dspfile, 'w') as f:
+      f.write(fdata)
+    f.close()
+
+    with open(dspfileui, 'w') as f:
+      f.write(fuidata)
+    f.close()
+
+
+# create a guitarix module
+if gx_build and build_table :
+    print ("build nonlin gx_plugin from: %s" % args.input)
+    datatype="double"
+    pgm = os.path.abspath("../../build-faust")
+    opts = " " if datatype == "float" else ""
+    os.system("%s %s -c -k %s" % (pgm, opts, nonlinfile))
+
+# create a LV2 module
+if lv2_build and build_table :
+    print ("build nonlin lv2_plugin from: %s" % args.input)
+    p = os.getcwd()
+    os.chdir("buildlv2/")
+    pgm = os.path.abspath("./make_lv2_X11bundle.sh")
+    os.system("%s -p ../%s -n  %s" % (pgm, nonlinfile, name ))
+    # copy table to bundle
+    src1 = '../dkbuild/%s_table.h' %  nonlintable
+    dst1 = 'gx_%s.lv2/dsp/' % nonlintable
+    copy2(src1, dst1)
+    os.chdir('gx_%s.lv2' % nonlinname)
+    os.system('make && make install')
+    os.chdir(p)
+
+
+# default build guitarix module
+if gx_build and not build_table or (not do_plot and not build_table and not lv2_build) :
+    print ("build gx_plugin from: %s" % args.input[a-1])
+    datatype="double"
+    pgm = os.path.abspath("../../build-faust")
+    opts = " " if datatype == "float" else ""
+    os.system("%s %s -c -k %s" % (pgm, opts, dspfile))
+   # if not prefilter:
+   #     c1.create_faust_module()
+   # else:
+   #     print prefilter
+   #     c1.create_faust_module(pre_filter=prefilter)
+
+# build linear lv2 plugin
+if lv2_build and not build_table :
+    print ("build lv2_plugin from: %s" % args.input)
+    p = os.getcwd()
+    os.chdir("buildlv2/")
+    pgm = os.path.abspath("./make_lv2_X11bundle.sh")
+    os.system("%s -p ../%s -n  %s" % (pgm, dspfile, name ))
+    os.chdir('gx_%s.lv2' % modulename)
+    os.system('make && make install')
+    os.chdir(p)
