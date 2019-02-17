@@ -37,7 +37,8 @@ class gen(object):
     def timeline(self):
         return np.linspace(0, self.timespan, self.timespan*self.FS)
 
-    def finish_plot(self, args, loc=None, timeline=None):
+    def finish_plot(self, name, args, loc=None, timeline=None):
+        pl.title(name)
         pl.grid()
         pl.legend(args, loc=loc)
         pl.show()
@@ -73,7 +74,7 @@ class Circ_table(gen):
             self.max_sig = M[0]
             self.operator = 1.0/self.max_sig
         if (D) :
-            self.divider = D
+            self.divider = D[0]
 
     table_define = """
 struct table1d { // 1-dimensional function table
@@ -158,7 +159,7 @@ double always_inline circclip(double x) {
         for index, item in enumerate(y):
             y[index] = (y[index]-aj)/self.divider
         pl.plot(self.sig, y)
-        self.finish_plot(p.out_labels, timeline=self.sig)
+        self.finish_plot(self.model, p.out_labels, timeline=self.sig)
 
     def __init__(self, name, S, V, M=None, D=None):
         self.set_model(name, S, V, M, D)

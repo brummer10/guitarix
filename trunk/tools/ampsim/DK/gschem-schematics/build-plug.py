@@ -11,13 +11,13 @@ parser.add_argument('-s','--shortname',help='Shortname for plugin [OPTIONAL]', r
 parser.add_argument('-d','--description',help='Description for plugin [OPTIONAL]', required=False)
 parser.add_argument('-c','--category',help='Category for plugin [OPTIONAL]', required=False)
 parser.add_argument('-m','--module_id',help='Module ID for plugin [OPTIONAL]', required=False)
-parser.add_argument('-p','--prefilter',help='prefilter for plugin [OPTIONAL]', required=False)
-parser.add_argument('--plot',help='frequency plot from the circuit [OPTIONAL]',action="store_true", required=False)
-parser.add_argument('--build',help='build guitarix plugin from the circuit [OPTIONAL]',action="store_true", required=False)
-parser.add_argument('--buildlv2',help='build lv2 plugin from the circuit [OPTIONAL]',action="store_true", required=False)
-parser.add_argument('--table', metavar='N', type=int,help='build nonlinear response table from the N\'t circuit [OPTIONAL]', required=False)
-parser.add_argument('--sig_max', metavar='N', type=float, nargs='+', help='max signal send to build the nonlinear response table from the circuit [OPTIONAL]', required=False)
-parser.add_argument('--table_div', metavar='N', type=int, nargs='+', help='divider for nonlinear response table from the circuit [OPTIONAL]', required=False)
+parser.add_argument('-f','--prefilter',help='prefilter for plugin [OPTIONAL]', required=False)
+parser.add_argument('-p','--plot',help='frequency plot from the circuit [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-b','--build',help='build guitarix plugin from the circuit [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-l','--buildlv2',help='build lv2 plugin from the circuit [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-t','--table', metavar='N', type=int,help='build nonlinear response table from the N\'t circuit [OPTIONAL]', required=False)
+parser.add_argument('-x','--sig_max', metavar='N', type=float, nargs='+', help='max signal send to build the nonlinear response table from the circuit [OPTIONAL]', required=False)
+parser.add_argument('-/','--table_div', metavar='N', type=float, nargs='+', help='divider for nonlinear response table from the circuit [OPTIONAL]', required=False)
 
 args = parser.parse_args()
  
@@ -33,7 +33,31 @@ dspfileui = ""
 dspname = ""
 fdata = ""
 fuidata = ""
+
+name = args.name
+shortname = args.shortname
+description = args.description
+category = args.category
+prefilter = args.prefilter
+do_plot = args.plot
+gx_build = args.build
+lv2_build = args.buildlv2
+build_table = args.table
+
+if (args.table_div) :
+    table_div = args.table_div
+else :
+    table_div = None
+if (args.sig_max) :
+    sig_max = args.sig_max
+else :
+    sig_max = None
+
 os.chdir("../")
+del sys.argv[1:]
+
+from analog import *
+import circ_table_gen as ci
 
 
 def calc_highpass_f0(c1, c2, pot):
@@ -78,54 +102,30 @@ def freqplot(c1,name):
     pylab.show()
 
 def nonlin_table(c1):
-    v = ci.Circ_table(name, c1.S,c1.V, sig_max, table_div)
+    v = ci.Circ_table(modulename, c1.S,c1.V, sig_max, table_div)
     parser = dk_simulator.Parser(v.S, v.V, v.FS)
     p = dk_simulator.get_executor(
-    name, parser, v.solver, '-p', c_tempdir='/tmp', c_verbose='--c-verbose',
+    modulename, parser, v.solver, '-p', c_tempdir='/tmp', c_verbose='--c-verbose',
     c_debug_load='', linearize='', c_real=("double"))
     y = p(v.signal())
     v.generate_table(p, y,"")
     v.plot(p,y)
     
-
+# first step, generate faust code and nonlin table
 for sch in args.input:
     a +=1
-    print ("%s %s" %(a, sch))
     schema = args.input[a-1]
+    print ("\nInput file %s: %s" % (a, args.input[a-1]))
 
     workfile="gschem-schematics/"+schema
-    name = args.name
-    shortname = args.shortname
-    description = args.description
-    category = args.category
-    module_id = args.module_id
-    prefilter = args.prefilter
-    do_plot = args.plot
-    gx_build = args.build
-    lv2_build = args.buildlv2
-    build_table = args.table
-
-    if (args.table_div) :
-        table_div = args.table_div
-    else :
-        table_div = None
-    if (args.sig_max) :
-        sig_max = args.sig_max
-    else :
-        sig_max = None
-
-    print ("Input file: %s" % args.input )
-    del sys.argv[1:]
-
-    from analog import *
-    import circ_table_gen as ci
-
     path = "tmp"
 
+    module_id = args.module_id
     modulename = schema.split('.')[0].lower()
     if not module_id:
         module_id = modulename
     print ("module_id: %s" % module_id )
+
     mod = os.path.join(path, module_id+".so")
 
     set_log_level(INFO)
@@ -161,9 +161,6 @@ for sch in args.input:
     #prefilter = "fi.dcblockerat(%s)" % f0
 
     c1.print_netlist()
-
-    #print("V %s" % format(c1.V))
-    #print("S %s" % format(c1.S))
 
     if do_plot:
         freqplot(c1,name)
@@ -211,7 +208,8 @@ for sch in args.input:
         with open(dspfileui, 'r') as f:
             fuidata = f.read()
         f.close()
-       
+
+# second step, contacate faust files into one file and build plugin
 for sch in args.input:
     b +=1
     #print ("%s %s" %(a, sch))
@@ -223,7 +221,6 @@ for sch in args.input:
     dspfiletmp = dspname+".dsp~"
     if build_table != b :
         v = 0
-        f = open(dspfiletmp, "a")
         if (build_table or b>1) :
             pattern = re.compile("process")
             with open(dspfile, "r") as fi:
@@ -231,41 +228,30 @@ for sch in args.input:
                     if pattern.search(line) != None:
                         v = 1
                         line = line.replace("process", "p%s" % b)
-                        f.write("\n")
+                        fdata += "\n"
                     if v:
-                        f.write(line)
+                        fdata += line
         else :
             pattern = re.compile("process")
             with open(dspfile, "r") as fi:
                 for line in fi:
                     if pattern.search(line) != None:
                         line = line.replace("process", "p%s" % b)
-                    f.write(line)
-        f.close()
+                    fdata += line
         fi.close()
-        with open(dspfiletmp, 'r') as f :
-            fdata += f.read()
-        f.close()
-        os.remove(dspfiletmp)
 
         if (b != a) :
             dspfileui = dspname+"_ui.cc"
             dspfiletmpui = dspname+"_ui.cc~"
             v = 0
-            f = open(dspfiletmpui, "a")
             pattern = re.compile("openHorizontalBox")
             with open(dspfileui, "r") as fi:
                 for line in fi:
                     if pattern.search(line) != None:
                         v = 1
                     if v:
-                        f.write(line)
-            f.close()
+                        fuidata += line
             fi.close()
-            with open(dspfiletmpui, 'r') as f :
-                fuidata += f.read()
-            f.close()
-            os.remove(dspfiletmpui)
 
 if a == 1 :
     fdata +=  "\nprocess = p1 ;"
@@ -275,6 +261,8 @@ elif a == 3 :
     fdata +=  "\nprocess = p1 : p2 : p3;"
 elif a == 4 :
     fdata +=  "\nprocess = p1 : p2 : p3 : p4;"
+elif a == 5 :
+    fdata +=  "\nprocess = p1 : p2 : p3 : p4 : p5;"
 
 if build_table :
     with open(nonlinfile, 'w') as f:
@@ -320,7 +308,7 @@ if lv2_build and build_table :
 
 # default build guitarix module
 if gx_build and not build_table or (not do_plot and not build_table and not lv2_build) :
-    print ("build gx_plugin from: %s" % args.input[a-1])
+    print ("build gx_plugin from: %s" % args.input)
     datatype="double"
     pgm = os.path.abspath("../../build-faust")
     opts = " " if datatype == "float" else ""
