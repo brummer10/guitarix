@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 from shutil import copy2
 import argparse,sys
@@ -20,14 +22,17 @@ parser.add_argument('-x','--sig_max', metavar='N', type=float, nargs='+', help='
 parser.add_argument('-/','--table_div', metavar='N', type=float, nargs='+', help='divider for nonlinear response table from the circuit [OPTIONAL]', required=False)
 
 args = parser.parse_args()
- 
-## show values ##
+
+os.chdir("../")
+del sys.argv[1:]
+
+from analog import *
+import circ_table_gen as ci
+
+
 a = 0
 b = 0
-nonlintable = ""
-nonlinfile = ""
-nonlinuifile = ""
-nonlinname = ""
+
 dspfile = ""
 dspfileui = ""
 dspname = ""
@@ -43,22 +48,14 @@ do_plot = args.plot
 gx_build = args.build
 lv2_build = args.buildlv2
 build_table = args.table
+table_div = args.table_div
+sig_max = args.sig_max
 
-if (args.table_div) :
-    table_div = args.table_div
-else :
-    table_div = None
-if (args.sig_max) :
-    sig_max = args.sig_max
-else :
-    sig_max = None
-
-os.chdir("../")
-del sys.argv[1:]
-
-from analog import *
-import circ_table_gen as ci
-
+if name:
+    modulename = name.lower()
+else:
+    schema = args.input[a]
+    modulename = schema.split('.')[0].lower()
 
 def calc_highpass_f0(c1, c2, pot):
     from scipy.optimize import curve_fit
@@ -101,7 +98,7 @@ def freqplot(c1,name):
     pylab.ylabel('Magnitude')
     pylab.show()
 
-def nonlin_table(c1):
+def generate_nonlin_table(c1):
     v = ci.Circ_table(modulename, c1.S,c1.V, sig_max, table_div)
     parser = dk_simulator.Parser(v.S, v.V, v.FS)
     p = dk_simulator.get_executor(
@@ -110,8 +107,55 @@ def nonlin_table(c1):
     y = p(v.signal())
     v.generate_table(p, y,"")
     v.plot(p,y)
-    
-# first step, generate faust code and nonlin table
+
+def write_final_file(dspfile,fdata,dspfileui,fuidata):
+    process_line = "\nprocess = "
+    for x in xrange(1,a+1,1):
+        process_line += ' p%s ' % x
+        if a>x :
+            process_line += ':'
+        else :
+            process_line += ';'
+    fdata += process_line
+
+    with open(dspfile, 'w') as f:
+      f.write(fdata)
+    f.close()
+
+    with open(dspfileui, 'w') as f:
+      f.write(fuidata)
+    f.close()
+
+def generate_gx_plugin(arg, dspfile, nonlin=None):
+    if nonlin :
+        print ("build nonlin gx_plugin from: %s" % arg)
+    else :
+        print ("build gx_plugin from: %s" % arg)
+    datatype="double"
+    pgm = os.path.abspath("../../build-faust")
+    opts = " " if datatype == "float" else ""
+    os.system("%s %s -c -k %s" % (pgm, opts, dspfile))
+
+def generate_lv2_plugin(arg, dspfile, modulename, nonlin=None):
+    if nonlin :
+        print ("build nonlin lv2_plugin from: %s" % arg)
+    else :
+        print ("build lv2_plugin from: %s" % arg)
+    p = os.getcwd()
+    os.chdir("buildlv2/")
+    pgm = os.path.abspath("./make_lv2_X11bundle.sh")
+    os.system("%s -p ../%s -n  %s" % (pgm, dspfile, name ))
+    # copy table to bundle
+    if nonlin :
+        src1 = '../dkbuild/%s_table.h' %  modulename
+        dst1 = 'gx_%s.lv2/dsp/' % modulename
+        copy2(src1, dst1)
+    os.chdir('gx_%s.lv2' % modulename)
+    os.system('make uninstall && make && make install')
+    os.chdir(p)
+
+
+# generate faust code and nonlin table
 for sch in args.input:
     a +=1
     schema = args.input[a-1]
@@ -121,15 +165,18 @@ for sch in args.input:
     path = "tmp"
 
     module_id = args.module_id
-    modulename = schema.split('.')[0].lower()
     if not module_id:
         module_id = modulename
     print ("module_id: %s" % module_id )
 
+    dst = 'dkbuild/%s/' % modulename
+    dspname = dst+modulename
+    dspfile = dspname+".dsp"
+    dspfileui = dspname+"_ui.cc"
+
     mod = os.path.join(path, module_id+".so")
 
-    set_log_level(INFO)
-    # create plugin
+    # set_log_level(INFO)
     c1 = Circuit()
     c1.plugindef = dk_simulator.PluginDef(module_id)
     if not name:
@@ -147,185 +194,39 @@ for sch in args.input:
     c1.plugindef.id = module_id
     c1.set_module_id(module_id)
     c1.read_gschem(workfile)
-    c1.show_status()
-
-    # use to calculate dc blocker
-    #c1.linearize("Triode1", "Pentode3", keep_dc=False)
-    #c1.linearize("Triode2", "Pentode4", keep_dc=False)
-    #c1.print_filter_coeffs()
-    #c0 = Circuit(c1)
-    #c1.remove_element("C1")
-    #c1.join_net("V2", "V1")
-    #f0 = calc_highpass_f0(c0, c1, "Volume_a")
-    #print ("calc_highpass: %s" % f0 )
-    #prefilter = "fi.dcblockerat(%s)" % f0
-
-    c1.print_netlist()
+    #c1.show_status()
+    #c1.print_netlist()
 
     if do_plot:
         freqplot(c1,name)
-
-    if build_table == a:
-        nonlin_table(c1)
-        # generate faust source in build dir
-        if gx_build or lv2_build :
-            src = 'dkbuild/%s_table.h' %  modulename
-            dst = 'dkbuild/%s/' % modulename
-            nonlintable = modulename
-            # copy table to build dir
-            if not os.path.exists(dst):
-                os.makedirs(dst)
-            copy2(src, dst)
-            dspname = dst+modulename
-            dspfile = dspname+".dsp"
-            dspfileui = dspname+"_ui.cc"
-            nonlinfile = dspfile
-            nonlinuifile = dspfileui
-            nonlinname = modulename
-            c1.save_faust_code(filename=str(dspname))
-            # add table to faust source
-            with open(dspfile, 'r') as f :
-               fdata = f.read()
-            fdata = fdata.replace('process', "p%s" % a)
-            fdata = fdata.replace('with', ": clip with" )
-            fdata +=  '\n    clip = ffunction(float circclip(float), "%s_table.h", "");\n' % modulename
-            f.close()
-
-            with open(dspfile, 'w') as f:
-                f.write(fdata)
-            f.close()
-            with open(dspfileui, 'r') as f:
-                fuidata = f.read()
-            f.close()
-    else :
-        dst = 'dkbuild/%s/' % modulename
+        # generate faust source and build dir
+    if gx_build or lv2_build or not do_plot:
         if not os.path.exists(dst):
             os.makedirs(dst)
-        dspname = dst+modulename
-        dspfile = dspname+".dsp"
-        dspfileui = dspname+"_ui.cc"
-        c1.save_faust_code(filename=str(dspname))
-        with open(dspfileui, 'r') as f:
-            fuidata = f.read()
-        f.close()
-
-# second step, contacate faust files into one file and build plugin
-for sch in args.input:
-    b +=1
-    #print ("%s %s" %(a, sch))
-    schema = args.input[b-1]
-    modulename = schema.split('.')[0].lower()
-    dst = 'dkbuild/%s/' % modulename
-    dspname = dst+modulename
-    dspfile = dspname+".dsp"
-    dspfiletmp = dspname+".dsp~"
-    if build_table != b :
-        v = 0
-        if (build_table or b>1) :
-            pattern = re.compile("process")
-            with open(dspfile, "r") as fi:
-                for line in fi:
-                    if pattern.search(line) != None:
-                        v = 1
-                        line = line.replace("process", "p%s" % b)
-                        fdata += "\n"
-                    if v:
-                        fdata += line
+        if a == 1 :
+            faustdsp, faustui = c1.get_faust_code(filename=str(dspname))
         else :
-            pattern = re.compile("process")
-            with open(dspfile, "r") as fi:
-                for line in fi:
-                    if pattern.search(line) != None:
-                        line = line.replace("process", "p%s" % b)
-                    fdata += line
-        fi.close()
+            faustdsp, faustui = c1.get_simple_faust_code(filename=str(dspname))
+        if build_table == a:
+            generate_nonlin_table(c1)
+            src = 'dkbuild/%s_table.h' %  modulename
+            # copy table to build dir
+            copy2(src, dst)
+            # include table use in faust code
+            faustdsp = faustdsp.replace('with', ': clip with' )
+            faustdsp +=  '\n    clip = ffunction(float circclip(float), "%s_table.h", "");\n' % modulename
 
-        if (b != a) :
-            dspfileui = dspname+"_ui.cc"
-            dspfiletmpui = dspname+"_ui.cc~"
-            v = 0
-            pattern = re.compile("openHorizontalBox")
-            with open(dspfileui, "r") as fi:
-                for line in fi:
-                    if pattern.search(line) != None:
-                        v = 1
-                    if v:
-                        fuidata += line
-            fi.close()
-
-if a == 1 :
-    fdata +=  "\nprocess = p1 ;"
-elif a == 2 :
-    fdata +=  "\nprocess = p1 : p2;"
-elif a == 3 :
-    fdata +=  "\nprocess = p1 : p2 : p3;"
-elif a == 4 :
-    fdata +=  "\nprocess = p1 : p2 : p3 : p4;"
-elif a == 5 :
-    fdata +=  "\nprocess = p1 : p2 : p3 : p4 : p5;"
-
-if build_table :
-    with open(nonlinfile, 'w') as f:
-      f.write(fdata)
-    f.close()
-
-    with open(nonlinuifile, 'w') as f:
-      f.write(fuidata)
-    f.close()
-else :
-    with open(dspfile, 'w') as f:
-      f.write(fdata)
-    f.close()
-
-    with open(dspfileui, 'w') as f:
-      f.write(fuidata)
-    f.close()
-
+        faustdsp = faustdsp.replace('process', "p%s" % a)
+        fdata += faustdsp
+        fuidata += faustui
 
 # create a guitarix module
-if gx_build and build_table :
-    print ("build nonlin gx_plugin from: %s" % args.input)
-    datatype="double"
-    pgm = os.path.abspath("../../build-faust")
-    opts = " " if datatype == "float" else ""
-    os.system("%s %s -c -k %s" % (pgm, opts, nonlinfile))
+if gx_build or (not do_plot and not lv2_build) :
+    write_final_file(dspfile,fdata,dspfileui,fuidata)
+    generate_gx_plugin(args.input, dspfile, build_table)
 
 # create a LV2 module
-if lv2_build and build_table :
-    print ("build nonlin lv2_plugin from: %s" % args.input)
-    p = os.getcwd()
-    os.chdir("buildlv2/")
-    pgm = os.path.abspath("./make_lv2_X11bundle.sh")
-    os.system("%s -p ../%s -n  %s" % (pgm, nonlinfile, name ))
-    # copy table to bundle
-    src1 = '../dkbuild/%s_table.h' %  nonlintable
-    dst1 = 'gx_%s.lv2/dsp/' % nonlintable
-    copy2(src1, dst1)
-    os.chdir('gx_%s.lv2' % nonlinname)
-    os.system('make && make install')
-    os.chdir(p)
+elif lv2_build :
+    write_final_file(dspfile,fdata,dspfileui,fuidata)
+    generate_lv2_plugin(args.input, dspfile, modulename, build_table)
 
-
-# default build guitarix module
-if gx_build and not build_table or (not do_plot and not build_table and not lv2_build) :
-    print ("build gx_plugin from: %s" % args.input)
-    datatype="double"
-    pgm = os.path.abspath("../../build-faust")
-    opts = " " if datatype == "float" else ""
-    os.system("%s %s -c -k %s" % (pgm, opts, dspfile))
-   # if not prefilter:
-   #     c1.create_faust_module()
-   # else:
-   #     print prefilter
-   #     c1.create_faust_module(pre_filter=prefilter)
-
-# build linear lv2 plugin
-if lv2_build and not build_table :
-    print ("build lv2_plugin from: %s" % args.input)
-    p = os.getcwd()
-    os.chdir("buildlv2/")
-    pgm = os.path.abspath("./make_lv2_X11bundle.sh")
-    os.system("%s -p ../%s -n  %s" % (pgm, dspfile, name ))
-    os.chdir('gx_%s.lv2' % modulename)
-    os.system('make && make install')
-    os.chdir(p)

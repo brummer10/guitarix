@@ -1047,6 +1047,36 @@ def generate_faust_module(plugindef, b, a, potlist, flt, pre_filter=None, build_
         dsp = dk_templates.faust_filter_dry_wet_template.render(d)
     return dsp, ui
 
+def generate_simple_faust_module(plugindef, b, a, potlist, flt, pre_filter=None, build_script=None):
+    import dk_templates
+    d = {}
+    if not potlist:
+        d['have_master_slider'] = False
+    else:
+        d['have_master_slider'] = True
+        d['master_slider_id'] = potlist[0][0]
+    d['knob_ids'] = [t[0] for t in potlist]
+    if potlist:
+        if not pre_filter == "dry_wet":
+            ui = dk_templates.module_simple_ui_template.render(d)
+        else:
+            ui = dk_templates.module_simple_ui_dry_wet_template.render(d)
+    else :
+        ui = ''
+    d = {}
+    d['plugindef'] = plugindef
+    d['build_script'] = build_script
+    d['sliders'] = [dict(id=t[0], name=t[1], loga=t[2], inv=t[3]) for t in potlist]
+    d['pre_filter'] = '_' if pre_filter is None or pre_filter is "dry_wet" else pre_filter
+    d['b_list'] = ",".join(["b%d/a0" % i for i in range(len(b))])
+    d['a_list'] = ",".join(["a%d/a0" % i for i in range(1,len(a))])
+    d['coeffs'] = "\n\n    ".join(flt.coeffs_as_faust_code('b', b) + flt.coeffs_as_faust_code('a', a))
+    if not pre_filter == "dry_wet":
+        dsp = dk_templates.faust_simple_filter_template.render(d)
+    else:
+        dsp = dk_templates.faust_simple_filter_dry_wet_template.render(d)
+    return dsp, ui
+
 def build_faust_module(plugindef, b, a, potlist, flt, datatype="float", pre_filter=None, build_script=None):
     dsp, ui = generate_faust_module(plugindef, b, a, potlist, flt, pre_filter, build_script)
     modname = plugindef.id

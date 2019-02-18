@@ -1083,13 +1083,13 @@ process = pre : fi.iir((@b_list),(@a_list)) with {
     fs = float(ma.SR);
     pre = @pre_filter;
 
-    %for @sl in @sliders:
-        %if (@sl.loga)
-        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
-        %else
-        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
-        %end
-    %end
+%for @sl in @sliders:
+%if (@sl.loga)
+    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
+%else
+    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
+%end
+%end
 
     @coeffs
 };
@@ -1101,6 +1101,35 @@ b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("@master_slider_id"), "@master_slider_id");
 %end
 b.closeBox();
+b.openHorizontalBox("");
+%for @k in @knob_ids:
+    b.create_small_rackknobr(PARAM("@k"), "@k");
+%end
+b.closeBox();
+""")
+
+faust_simple_filter_template = Template("""\
+
+process = pre : fi.iir((@b_list),(@a_list)) with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
+    s = 0.993;
+    fs = float(ma.SR);
+    pre = @pre_filter;
+
+%for @sl in @sliders:
+%if (@sl.loga)
+    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
+%else
+    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
+%end
+%end
+
+    @coeffs
+};
+""")
+
+module_simple_ui_template = Template("""
 b.openHorizontalBox("");
 %for @k in @knob_ids:
     b.create_small_rackknobr(PARAM("@k"), "@k");
@@ -1136,9 +1165,13 @@ process = pre : _<:*(dry),(*(wet) : fi.iir((@b_list),(@a_list))):>_ with {
     wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
     dry = 1 - wet;
 
-    %for @sl in @sliders:
-        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
-    %end
+%for @sl in @sliders:
+%if (@sl.loga)
+    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
+%else
+    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
+%end
+%end
 
     @coeffs
 };
@@ -1150,6 +1183,34 @@ b.openHorizontalhideBox("");
     b.create_master_slider(PARAM("@master_slider_id"), "@master_slider_id");
 %end
 b.closeBox();
+b.openHorizontalBox("");
+%for @k in @knob_ids:
+    b.create_small_rackknobr(PARAM("@k"), "@k");
+%end
+    b.create_small_rackknobr(PARAM("wet_dry"), "dry/wet");
+b.closeBox();
+""")
+
+faust_simple_filter_dry_wet_template = Template("""\
+
+process = pre : _<:*(dry),(*(wet) : fi.iir((@b_list),(@a_list))):>_ with {
+    LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
+    Inverted(b, x) = ba.if(b, 1 - x, x);
+    s = 0.993;
+    fs = float(ma.SR);
+    pre = @pre_filter;
+    wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+    dry = 1 - wet;
+
+    %for @sl in @sliders:
+        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
+    %end
+
+    @coeffs
+};
+""")
+
+module_simple_ui_dry_wet_template = Template("""
 b.openHorizontalBox("");
 %for @k in @knob_ids:
     b.create_small_rackknobr(PARAM("@k"), "@k");

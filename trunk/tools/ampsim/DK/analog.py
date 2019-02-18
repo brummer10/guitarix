@@ -1,4 +1,6 @@
 from __future__ import division
+#import matplotlib
+#matplotlib.use('Qt4Agg')
 import sympy, math, shutil, sys, os, numpy, pylab, warnings, tempfile, logging, argparse
 from cStringIO import StringIO
 import dk_simulator, models, circ, mk_netlist, dk_lib, simu, signals, generate_code
@@ -768,6 +770,28 @@ class Circuit(object):
         self.sim_filter.print_coeffs('A', A, f)
         if filename is not None:
             f.close()
+
+    def get_faust_code(self, module_id=None, symbolic=False, filename=None, FS=None, pre_filter=None):
+        self._ensure_filter(symbolic=symbolic)
+        b, a = self.sim_filter.get_z_coeffs(samplerate=FS)
+        l = self.parser.get_pot_attr()
+        m_id = self._get_module_id(module_id)
+        plugindef = self.plugindef
+        if not plugindef:
+            plugindef = PluginDef(m_id)
+        dsp, ui = simu.generate_faust_module(plugindef, b, a, l, self.sim_filter, pre_filter, build_script=self.build_script)
+        return dsp, ui
+
+    def get_simple_faust_code(self, module_id=None, symbolic=False, filename=None, FS=None, pre_filter=None):
+        self._ensure_filter(symbolic=symbolic)
+        b, a = self.sim_filter.get_z_coeffs(samplerate=FS)
+        l = self.parser.get_pot_attr()
+        m_id = self._get_module_id(module_id)
+        plugindef = self.plugindef
+        if not plugindef:
+            plugindef = PluginDef(m_id)
+        dsp, ui = simu.generate_simple_faust_module(plugindef, b, a, l, self.sim_filter, pre_filter, build_script=self.build_script)
+        return dsp, ui
 
     def save_faust_code(self, module_id=None, symbolic=False, filename=None, FS=None, pre_filter=None):
         self._ensure_filter(symbolic=symbolic)

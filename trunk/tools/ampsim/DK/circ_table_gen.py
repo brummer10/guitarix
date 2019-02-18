@@ -159,6 +159,8 @@ double always_inline circclip(double x) {
         for index, item in enumerate(y):
             y[index] = (y[index]-aj)/self.divider
         pl.plot(self.sig, y)
+        pl.xlabel('Input')
+        pl.ylabel('Output')
         self.finish_plot(self.model, p.out_labels, timeline=self.sig)
 
     def __init__(self, name, S, V, M=None, D=None):
