@@ -194,7 +194,7 @@ class DKbuilder(object):
 
             if args.plot:
                 f = FrequencyPlot()
-                f.freqplot(c1,name)
+                f.freqplot(c1,self.name)
                 # generate faust source and build dir
             if args.build or args.buildlv2 or not args.plot:
                 if not os.path.exists(dst):
