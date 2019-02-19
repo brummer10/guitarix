@@ -19,6 +19,7 @@ parser.add_argument('-l','--buildlv2',help='build lv2 plugin from the circuit [O
 parser.add_argument('-t','--table', metavar='N', type=int,help='build nonlinear response table from the N\'t circuit [OPTIONAL]', required=False)
 parser.add_argument('-x','--sig_max', metavar='N', type=float, nargs='+', help='max signal send to build the nonlinear response table from the circuit [OPTIONAL]', required=False)
 parser.add_argument('-/','--table_div', metavar='N', type=float, nargs='+', help='divider for nonlinear response table from the circuit [OPTIONAL]', required=False)
+parser.add_argument('-o','--table_op', metavar='N', type=float, nargs='+', help='step operator multiplier for nonlinear response table from the circuit [OPTIONAL]', required=False)
 
 args = parser.parse_args()
 
@@ -75,8 +76,8 @@ class FrequencyPlot(object):
 
 class Generators(object):
 
-    def generate_nonlin_table(self, c1, modulename, sig_max=None, table_div=None):
-        v = ci.Circ_table(modulename, c1.S,c1.V, sig_max, table_div)
+    def generate_nonlin_table(self, c1, modulename, sig_max=None, table_div=None, table_op=None):
+        v = ci.Circ_table(modulename, c1.S,c1.V, sig_max, table_div, table_op)
         parser = dk_simulator.Parser(v.S, v.V, v.FS)
         p = dk_simulator.get_executor(
         modulename, parser, v.solver, '-p', c_tempdir='/tmp', c_verbose='--c-verbose',
@@ -113,7 +114,7 @@ class Generators(object):
         opts = " " if datatype == "float" else ""
         os.system("%s %s -c -k %s" % (pgm, opts, dspfile))
 
-    def generate_lv2_plugin(self, arg, dspfile, modulename, nonlin=None):
+    def generate_lv2_plugin(self, arg, dspfile, modulename, name=None, nonlin=None):
         if nonlin :
             print ("build nonlin lv2_plugin from: %s" % arg)
         else :
@@ -204,7 +205,7 @@ class DKbuilder(object):
                 else :
                     faustdsp, faustui = c1.get_simple_faust_code(filename=str(dspname))
                 if args.table == a:
-                    g.generate_nonlin_table(c1, self.modulename, args.sig_max, args.table_div)
+                    g.generate_nonlin_table(c1, self.modulename, args.sig_max, args.table_div, args.table_op)
                     src = 'dkbuild/%s_table.h' %  self.modulename
                     # copy table to build dir
                     copy2(src, dst)
@@ -224,7 +225,7 @@ class DKbuilder(object):
         # create a LV2 module
         elif args.buildlv2 :
             g.write_final_file(a,dspfile,fdata,dspfileui,fuidata)
-            g.generate_lv2_plugin(args.input, dspfile, self.modulename, args.table)
+            g.generate_lv2_plugin(args.input, dspfile, self.modulename, self.name, args.table)
 
 def main(argv):
     dk = DKbuilder()
