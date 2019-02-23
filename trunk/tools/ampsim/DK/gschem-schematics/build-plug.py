@@ -210,7 +210,7 @@ class DKbuilder(object):
                     faustdsp, faustui = c1.get_faust_code(filename=str(dspname))
                 else :
                     faustdsp, faustui = c1.get_simple_faust_code(filename=str(dspname))
-                if a in args.table:
+                if args.table and a in args.table:
                     self.tablename[a-1] = schema.split('.')[0].lower()
                     b += 1
                     if args.sig_max and self.index_exists(args.sig_max,b-1) :
@@ -231,7 +231,7 @@ class DKbuilder(object):
                     copy2(src, dst)
                     # include table use in faust code
                     faustdsp = faustdsp.replace('with', ': %s_clip with' ) % self.tablename[a-1]
-                    faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n' .format(st=self.tablename[a-1])
+                    faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[a-1])
 
                 faustdsp = faustdsp.replace('process', "p%s" % a)
                 fdata += faustdsp
