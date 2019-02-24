@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 # use to copy the LV2 bundle gx_sceleton.lv2 to gx_${name}.lv2
 # generate a C++ file from the faust.dsp source (by dsp2cc)
 # generate a acording name.ttl file
@@ -59,7 +61,7 @@ function select_plugin_type() {
     if [ ! -z "$type" ]; then
       break;
     else
-      echo -e $RED"Select a number from the list!"$NONE
+      echo -e $WARNING"Select a number from the list!"$NONE
     fi
   done
 }
@@ -76,7 +78,7 @@ function check_dir() {
   if [ ! -d gx_${bname}.lv2 ]; then
     mkdir -p gx_${bname}.lv2
   else
-    echo -e $RED"Directory gx_${bname}.lv2 allready exist, should we remove it? Yes/No"$NONE
+    echo -e $WARNING"Directory gx_${bname}.lv2 allready exist, should we remove it? Yes/No"$NONE
     select yn in "Yes" "No"; do
       case $yn in
         Yes ) rm -rf gx_${bname}.lv2; mkdir -p gx_${bname}.lv2; break;;
@@ -348,6 +350,7 @@ Plugin_types=(
 
 BLUE="\033[1;34m"
 RED="\033[1;31m"
+WARNING='\033[93m'
 NONE="\033[0m"
 
 tooldir=../../../
@@ -404,4 +407,4 @@ byby
 
 ############################ EOF #######################################
 
-exit
+exit 

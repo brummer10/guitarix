@@ -122,7 +122,10 @@ class Generators(object):
         p = os.getcwd()
         os.chdir("buildlv2/")
         pgm = os.path.abspath("./make_lv2_X11bundle.sh")
-        os.system("%s -p ../%s -n  %s" % (pgm, dspfile, name ))
+        result = os.system("%s -p ../%s -n  %s" % (pgm, dspfile, name ))
+        if (result):
+            print ('\033[91m'+"Error, see message above"+'\033[0m')
+            exit (1)
         # copy table to bundle
         if nonlin :
             for a in nonlin:
