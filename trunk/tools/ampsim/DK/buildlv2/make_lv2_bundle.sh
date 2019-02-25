@@ -122,22 +122,22 @@ function copy_sceleton() {
   fi
 
   set +e
-  RN=$(rename -V | grep File::Rename)
+  RN=$(rename -V  2>/dev/null| grep File::Rename)
   if [ ! -z "$RN" ] ; then
     use_to_rename='rename'
   fi
   if [ -z "$RN" ] ; then
-    RN=$(prename -V | grep File::Rename)
+    RN=$(prename -V  2>/dev/null| grep File::Rename)
     use_to_rename='prename'
   fi
   if [ -z "$RN" ] ; then
-    RN=$(perl-rename -V | grep File::Rename)
+    RN=$(perl-rename -V  2>/dev/null| grep File::Rename)
     use_to_rename='perl-rename'
   fi
   if [ -z "$RN" ] ; then
-    RNUL=$(rename -V | grep util-linux)
+    RNUL=$(rename -V  2>/dev/null| grep util-linux)
     if [ -z "$RNUL" ] ; then
-      RNUL=$(rename.ul -V | grep util-linux)
+      RNUL=$(rename.ul -V  2>/dev/null| grep util-linux)
       use_to_rename='rename.ul'
     else
       use_to_rename='rename'
@@ -150,7 +150,9 @@ function copy_sceleton() {
   elif [ ! -z "$RNUL" ] ; then
     cd ./gx_${bname}.lv2 && find . -depth -exec ${use_to_rename} sceleton ${bname} {} +  && find . -depth -type f -exec  sed -i 's/sceleton/'${bname}'/g' {} +
   else
-    echo  -e $RED"error: rename command fail, please install perl-rename or util-linux"$NONE; exit 1;
+    cd ./gx_${bname}.lv2 && find . -depth -name "*sceleton*" -exec bash -c \
+    'for f; do base=${f##*/}; mv -- "$f" "${f%/*}/${base//sceleton/'${bname}'}"; done' _ {} + && \
+    find . -depth -type f -exec  sed -i 's/sceleton/'${bname}'/g' {} +
   fi
 }
 
