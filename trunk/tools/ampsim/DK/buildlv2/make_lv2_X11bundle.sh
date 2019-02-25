@@ -52,7 +52,7 @@ esac
 }
 
 function select_plugin_type() {
-  echo -e $RED'Please select a Plugin type from the list'$NONE
+  echo -e $WARNING'Please select a Plugin type from the list'$NONE
   select type in "${Plugin_types[@]}" ; do 
     if [[ $type == "quit" ]]; then
       break
@@ -82,7 +82,7 @@ function check_dir() {
     select yn in "Yes" "No"; do
       case $yn in
         Yes ) rm -rf gx_${bname}.lv2; mkdir -p gx_${bname}.lv2; break;;
-        No ) echo  -e $RED"exit"$NONE; exit;;
+        No ) echo  -e $RED"No selected exit here"$NONE; exit 1;;
       esac
     done
   fi
@@ -100,7 +100,7 @@ function dsptocc() {
       cp -r ${faustdir}/"$bname.$extension" gx_${bname}.lv2/"$bname.cc"
     fi
   else
-    echo  -e $RED"error: "${faustdir}/"$bname.$extension not found"$NONE; exit;
+    echo  -e $RED"error: "${faustdir}/"$bname.$extension not found"$NONE; exit 1;
   fi
 }
 
@@ -120,7 +120,38 @@ function copy_sceleton() {
     cp -r gx_sceleton_stereo.lv2/* gx_${bname}.lv2/ 
     j=4
   fi
-  cd ./gx_${bname}.lv2 && find . -depth -exec rename 's/sceleton/'${bname}'/g' {} + && find . -depth -type f -exec  sed -i 's/sceleton/'${bname}'/g' {} +
+
+  set +e
+  RN=$(rename -V | grep File::Rename)
+  if [ ! -z "$RN" ] ; then
+    use_to_rename='rename'
+  fi
+  if [ -z "$RN" ] ; then
+    RN=$(prename -V | grep File::Rename)
+    use_to_rename='prename'
+  fi
+  if [ -z "$RN" ] ; then
+    RN=$(perl-rename -V | grep File::Rename)
+    use_to_rename='perl-rename'
+  fi
+  if [ -z "$RN" ] ; then
+    RNUL=$(rename -V | grep util-linux)
+    if [ -z "$RNUL" ] ; then
+      RNUL=$(rename.ul -V | grep util-linux)
+      use_to_rename='rename.ul'
+    else
+      use_to_rename='rename'
+    fi
+  fi
+  set -e
+
+  if [ ! -z "$RN" ] ; then
+    cd ./gx_${bname}.lv2 && find . -depth -exec ${use_to_rename} 's/sceleton/'${bname}'/g' {} + && find . -depth -type f -exec  sed -i 's/sceleton/'${bname}'/g' {} +
+  elif [ ! -z "$RNUL" ] ; then
+    cd ./gx_${bname}.lv2 && find . -depth -exec ${use_to_rename} sceleton ${bname} {} +  && find . -depth -type f -exec  sed -i 's/sceleton/'${bname}'/g' {} +
+  else
+    echo  -e $RED"error: rename command fail, please install perl-rename or util-linux"$NONE; exit 1;
+  fi
 }
 
 function grep_ports_enums() {

@@ -7,7 +7,7 @@ import re
 sys.path.append(".")
 
 parser = argparse.ArgumentParser(description='Build script for guitarix plugins.')
-parser.add_argument('-i','--input', metavar='N', nargs='+', help='Input file(s) name [ONE REQUIRED]',required=True)
+parser.add_argument('-i','--input', metavar='*.sch', nargs='+', help='Input schematic file(s) name [ONE REQUIRED]',required=True)
 parser.add_argument('-n','--name',help='Name for plugin [OPTIONAL]', required=False)
 parser.add_argument('-s','--shortname',help='Shortname for plugin [OPTIONAL]', required=False)
 parser.add_argument('-d','--description',help='Description for plugin [OPTIONAL]', required=False)

@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 # use to copy the LV2 bundle gx_sceleton.lv2 to gx_${name}.lv2
 # generate a C++ file from the faust.dsp source (by dsp2cc)
 # generate a acording name.ttl file
@@ -118,7 +120,38 @@ function copy_sceleton() {
     cp -r gx_sceleton_stereo.lv2/* gx_${bname}.lv2/ 
     j=4
   fi
-  cd ./gx_${bname}.lv2 && find . -depth -exec rename 's/sceleton/'${bname}'/g' {} + && find . -depth -type f -exec  sed -i 's/sceleton/'${bname}'/g' {} +
+
+  set +e
+  RN=$(rename -V | grep File::Rename)
+  if [ ! -z "$RN" ] ; then
+    use_to_rename='rename'
+  fi
+  if [ -z "$RN" ] ; then
+    RN=$(prename -V | grep File::Rename)
+    use_to_rename='prename'
+  fi
+  if [ -z "$RN" ] ; then
+    RN=$(perl-rename -V | grep File::Rename)
+    use_to_rename='perl-rename'
+  fi
+  if [ -z "$RN" ] ; then
+    RNUL=$(rename -V | grep util-linux)
+    if [ -z "$RNUL" ] ; then
+      RNUL=$(rename.ul -V | grep util-linux)
+      use_to_rename='rename.ul'
+    else
+      use_to_rename='rename'
+    fi
+  fi
+  set -e
+
+  if [ ! -z "$RN" ] ; then
+    cd ./gx_${bname}.lv2 && find . -depth -exec ${use_to_rename} 's/sceleton/'${bname}'/g' {} + && find . -depth -type f -exec  sed -i 's/sceleton/'${bname}'/g' {} +
+  elif [ ! -z "$RNUL" ] ; then
+    cd ./gx_${bname}.lv2 && find . -depth -exec ${use_to_rename} sceleton ${bname} {} +  && find . -depth -type f -exec  sed -i 's/sceleton/'${bname}'/g' {} +
+  else
+    echo  -e $RED"error: rename command fail, please install perl-rename or util-linux"$NONE; exit 1;
+  fi
 }
 
 function grep_ports_enums() {
