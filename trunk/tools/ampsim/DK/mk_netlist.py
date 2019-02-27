@@ -182,7 +182,7 @@ def read_netlist(fname):
                 if "=" in val:
                     if "N" in val: # new model: mUt = thermal voltage N = Emission coefficient
                         val = mk_dict(val,Is=Current,mUt=Number,N=Number)
-                    else: old model, mUt = (N * Vt)
+                    else: # old model, mUt = (N * Vt)
                         val = mk_dict(val,Is=Current,mUt=Number,N=1.0)
                 else:
                     val = "Diodes['%s']" % val
