@@ -1,6 +1,6 @@
 from __future__ import division
-#import matplotlib
-#matplotlib.use('Qt4Agg')
+import matplotlib
+# matplotlib.use('Qt4Agg') # set when you prefer to use the Qt backend over the Tk one
 import sympy, math, shutil, sys, os, numpy, pylab, warnings, tempfile, logging, argparse
 from cStringIO import StringIO
 import dk_simulator, models, circ, mk_netlist, dk_lib, simu, signals, generate_code
@@ -508,6 +508,8 @@ class Circuit(object):
     def read_gschem(self, filename, defs=None):
         self._clear_all()
         v = dict(vars(models))
+        v["Transistors"] = circ.Transistors
+        v["Diodes"] = circ.Diodes
         v["Tubes"] = circ.Tubes
         v["math"] = math
         if defs:
@@ -520,6 +522,8 @@ class Circuit(object):
     def read_netlist(self, filename):
         self._clear_all()
         v = vars(models)
+        v["Transistors"] = circ.Transistors
+        v["Diodes"] = circ.Diodes
         v["Tubes"] = circ.Tubes
         v["math"] = math
         with open(filename) as f:

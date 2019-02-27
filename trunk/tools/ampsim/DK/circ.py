@@ -8,6 +8,50 @@ from models import *
 import dk_simulator, dk_lib
 from numpy.fft import fftfreq
 
+
+Tubes = {
+    "12ax7" : dict(mu = 100.0, Ex = 1.4, Kp = 600.0, Kvb = 300.0, Kg1 = 1060.0, Gco = -0.2, Gcf = 1e-5),
+    "12au7" : dict(mu = 21.5, Ex = 1.3, Kp = 84.0, Kvb = 300.0, Kg1 = 1180.0, Gco = 0, Gcf = 12e-5),
+    "12au7a": dict(mu = 19.41, Ex = 1.226, Kp = 104.87, Kvb = 300.0, Kg1 = 1233.8, Gco = 0, Gcf = 9e-5),
+    "12at7" : dict(mu = 60.0, Ex = 1.35, Kp = 300.0, Kvb = 300.0, Kg1 = 460.0, Gco = -0.5, Gcf = 12e-5),
+    "12ay7" : dict(mu = 44.16, Ex = 1.11, Kp = 409.96, Kvb = 300.0, Kg1 = 1192.4, Gco = -0.5, Gcf = 12e-5),
+    "EL34"  : dict(mu = 12.3, Ex = 1.17, Kp = 61.1, Kvb = 29.9, Kg1 = 353.9, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    "EL84"  : dict(mu = 21.3, Ex = 1.24, Kp = 111.1, Kvb = 17.9, Kg1 = 401.7, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    "EF86"  : dict(mu = 34.9, Ex = 1.35, Kp = 222.06, Kvb = 4.7, Kg1 = 2648.1, Kg2 = 4627, Gco = -0.2, Gcf = 1e-5),
+    "6L6"   : dict(mu = 8.7, Ex = 1.35, Kp = 48.0, Kvb = 12.0, Kg1 = 1460.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    "6L6CG" : dict(mu = 8.7, Ex = 1.35, Kp = 48.0, Kvb = 12.0, Kg1 = 1460.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    "6V6"   : dict(mu = 10.7, Ex = 1.31, Kp = 41.16, Kvb = 12.7, Kg1 = 1672.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
+    "6AU6"  : dict(mu = 36.65, Ex = 1.376, Kp = 215.42, Kvb = 15.0, Kg1 = 1129.4, Kg2 = 1059, Gco = -0.2, Gcf = 1e-5),
+    }
+
+# values taken from Datasheets, Vt is the termal Voltage (const)
+
+Transistors = {
+    "2N5088" : dict(Vt=26e-3,Is=20.3e-15,Bf=1430,Br=4),
+    "2N3904" : dict(Vt=26e-3,Is=1e-14,Bf=300,Br=4),
+    "2N4401" : dict(Vt=26e-3,Is=9.09e-15,Bf=300,Br=4),
+    "BD139"  : dict(Vt=26e-3,Is=2.3985e-13,Bf=244.9,Br=78.11),
+    "BC108"  : dict(Vt=26e-3,Is=1.8e-14,Bf=400,Br=35.5),
+    "MPSA18" : dict(Vt=26e-3,Is=20.3e-15,Bf=1430,Br=4),
+    }
+
+# values taken from Datasheets, mUt is now Vt = the termal Voltage (const)
+# N is the Emission coefficient
+
+Diodes = {
+    "D237A"    : dict(Is=31.69e-12, mUt=26e-3, N=1.0),
+    "1N4001"   : dict(Is=29.5e-9, mUt=26e-3, N=1.984),
+    "1N34A"    : dict(Is=2.6e-6, mUt=26e-3, N=1.6),
+    "1N4148"   : dict(Is=2.52e-9, mUt=26e-3, N=1.752),
+    "LedRed"   : dict(Is=93.2e-12, mUt=26e-3, N=3.73),
+    "LedWHITE" : dict(Is=0.27e-9, mUt=26e-3, N=6.79),
+    "D311A"    : dict(Is=8e-6, mUt=26e-3, N=1.483),
+    "AA112"    : dict(Is=1.2e-6, mUt=26e-3, N=1.4),
+    "OA90-G"   : dict(Is=54.12e-6, mUt=26e-3, N=4.209),
+    "OA90-M"   : dict(Is=120.5e-6, mUt=26e-3, N=7.405),
+    }
+
+
 class Test(object):
     FS = 96000
     max_error = 1e-7
@@ -415,7 +459,6 @@ class Tonestack_test(Test):
         pl.plot(x, y)
         self.finish_plot(p.out_labels)
 
-
 class Diode_test(Test):
     S = ((D(), "V+", GND),
          (IN, "V+"),
@@ -761,7 +804,6 @@ class WahWah_ss(WahWah_test): # wah-wah small signal model
         else:
             return "Fail"
 
-
 class Transistor_test(Test): # transitor test
     S = ((R(1), "Vcc", "Vc"),
          (R(2), "Ve", GND),
@@ -834,21 +876,6 @@ class Triode1_test(Test): # triode test
         pl.plot(self.sig, -y)
         pl.plot(self.get_samples(self.sig), -self.result, "rx")
         self.finish_plot(p.out_labels)
-
-Tubes = {
-    "12ax7": dict(mu = 100.0, Ex = 1.4, Kp = 600.0, Kvb = 300.0, Kg1 = 1060.0, Gco = -0.2, Gcf = 1e-5),
-    "12au7": dict(mu = 21.5, Ex = 1.3, Kp = 84.0, Kvb = 300.0, Kg1 = 1180.0, Gco = 0, Gcf = 12e-5),
-    "12au7a": dict(mu = 19.41, Ex = 1.226, Kp = 104.87, Kvb = 300.0, Kg1 = 1233.8, Gco = 0, Gcf = 9e-5),
-    "12at7": dict(mu = 60.0, Ex = 1.35, Kp = 300.0, Kvb = 300.0, Kg1 = 460.0, Gco = -0.5, Gcf = 12e-5),
-    "12ay7": dict(mu = 44.16, Ex = 1.11, Kp = 409.96, Kvb = 300.0, Kg1 = 1192.4, Gco = -0.5, Gcf = 12e-5),
-    "EL34": dict(mu = 12.3, Ex = 1.17, Kp = 61.1, Kvb = 29.9, Kg1 = 353.9, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
-    #"6V6": dict(mu = 8.7, Ex = 1.35, Kp = 48.0, Kvb = 12.0, Kg1 = 1460.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
-    "EL84": dict(mu = 21.3, Ex = 1.24, Kp = 111.1, Kvb = 17.9, Kg1 = 401.7, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
-    "EF86": dict(mu = 34.9, Ex = 1.35, Kp = 222.06, Kvb = 4.7, Kg1 = 2648.1, Kg2 = 4627, Gco = -0.2, Gcf = 1e-5),
-    "6L6": dict(mu = 8.7, Ex = 1.35, Kp = 48.0, Kvb = 12.0, Kg1 = 1460.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
-    "6V6": dict(mu = 10.7, Ex = 1.31, Kp = 41.16, Kvb = 12.7, Kg1 = 1672.0, Kg2 = 4500.0, Gco = -0.2, Gcf = 1e-5),
-    "6AU6": dict(mu = 36.65, Ex = 1.376, Kp = 215.42, Kvb = 15.0, Kg1 = 1129.4, Kg2 = 1059, Gco = -0.2, Gcf = 1e-5),
-    }
 
 class Triode2_test(Test): # triode test 2
     S = ((Triode(), "Vg", "Va", "Vk"),

@@ -246,9 +246,14 @@ class D(Node):
     def add_count(self, tc, conn, param):
         tc["N"] += 1
     def process(self, p, conn, param, alpha):
-        Is, mUt = const = sp.symbols("Is,mUt")
-        v0, = v = sp.symbols("v:1", seq=True)
-        calc = -Is * (sp.exp(v0/mUt) - 1)
+        if 'N' in param: # new model: mUt (Vt) = thermal voltage N = Emission coefficient
+            Is, mUt, N = const = sp.symbols("Is,mUt,N")
+            v0, = v = sp.symbols("v:1", seq=True)
+            calc = -Is * (sp.exp(v0/(mUt*N)) - 1)
+        else: # old model mUt = (N * Vt)
+            Is, mUt = const = sp.symbols("Is,mUt")
+            v0, = v = sp.symbols("v:1", seq=True)
+            calc = -Is * (sp.exp(v0/mUt) - 1)
         calc = calc.subs(dict([(k,param[str(k)]) for k in const]))
         idx = p.new_row("N", self)
         p.add_2conn("Nl", idx, conn)
@@ -261,9 +266,14 @@ class D2(Node):
     def add_count(self, tc, conn, param):
         tc["N"] += 1
     def process(self, p, conn, param, alpha):
-        Is, mUt = const = sp.symbols("Is,mUt")
-        v0, = v = sp.symbols("v:1", seq=True)
-        calc = -2 * Is * sp.sinh(v0/mUt)
+        if 'N' in param: # new model: mUt (Vt) = thermal voltage N = Emission coefficient
+            Is, mUt, N = const = sp.symbols("Is,mUt,N")
+            v0, = v = sp.symbols("v:1", seq=True)
+            calc = -2 * Is * sp.sinh(v0/(mUt*N))
+        else: # old model mUt = (N * Vt)
+            Is, mUt = const = sp.symbols("Is,mUt")
+            v0, = v = sp.symbols("v:1", seq=True)
+            calc = -2 * Is * sp.sinh(v0/mUt)
         calc = calc.subs(dict([(k,param[str(k)]) for k in const]))
         idx = p.new_row("N", self)
         p.add_2conn("Nl", idx, (conn[0], conn[1]))

@@ -180,19 +180,19 @@ def read_netlist(fname):
             elif dev == "DIODE":
                 sym = mksym(sym, "D")
                 if "=" in val:
-                    ##FIXME
-                    val = mk_dict(val,Is=Current,mUt=Number)
-                    #val = mk_dict(val,Is=Current,Rs=Number,Bv=Number)
-                    #Is=Saturation current=mA, RS=Ohmic resistance=Om, BV=Reverse breakdown voltage=V
+                    if "N" in val: # new model: mUt = thermal voltage N = Emission coefficient
+                        val = mk_dict(val,Is=Current,mUt=Number,N=Number)
+                    else: old model, mUt = (N * Vt)
+                        val = mk_dict(val,Is=Current,mUt=Number,N=1.0)
                 else:
                     val = "Diodes['%s']" % val
             elif dev == "DIODE2":
                 sym = mksym(sym, "D2")
                 if "=" in val:
-                    ##FIXME
-                    val = mk_dict(val,Is=Current,mUt=Number)
-                    #val = mk_dict(val,Is=Current,Rs=Number,Bv=Number)
-                    #Is=Saturation current=mA, RS=Ohmic resistance=Om, BV=Reverse breakdown voltage=V
+                    if "N" in val: # new model: mUt = thermal voltage N = Emission coefficient
+                        val = mk_dict(val,Is=Current,mUt=Number,N=Number)
+                    else: # old model, mUt = (N * Vt)
+                        val = mk_dict(val,Is=Current,mUt=Number,N=1.0)
                 else:
                     val = "Diodes['%s']" % val
             elif dev == "TRIODE":
@@ -240,7 +240,7 @@ def read_netlist(fname):
             "\n" +
             "V = {%s}" % "".join(['%s: %s,\n     ' % v for v in sorted(values.items())])
             )
-    print '\n %s \n' % nt
+    print '\n%s \n' % nt
     return nt
     return rows, values
 

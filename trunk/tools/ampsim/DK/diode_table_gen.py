@@ -53,16 +53,16 @@ mag_dict = {
     }
 
 Diodes = {
-    "D237A" : dict(Is=31.69e-12, mUt=30e-3),
-    "1N4001" : dict(Is=29.5e-9, mUt=30e-3),
-    "1N34A" : dict(Is=2.6e-6, mUt=30e-3),
-    "1N4148" : dict(Is=2.52e-9, mUt=30e-3),
-    "LedRed" : dict(Is=93.2e-12, mUt=30e-3),
-    "LedWHITE" : dict(Is=0.27e-9, mUt=30e-3),
-    "D311A" : dict(Is=8e-6, mUt=30e-3),
-    "AA112" : dict(Is=1.2e-6, mUt=30e-3),
-    "OA90-G" : dict(Is=54.12e-6, mUt=30e-3),
-    "OA90-M" : dict(Is=120.5e-6, mUt=30e-3),
+    "D237A"    : dict(Is=31.69e-12, mUt=26e-3, N=1.0),
+    "1N4001"   : dict(Is=29.5e-9, mUt=26e-3, N=1.984),
+    "1N34A"    : dict(Is=2.6e-6, mUt=26e-3, N=1.6),
+    "1N4148"   : dict(Is=2.52e-9, mUt=26e-3, N=1.752),
+    "LedRed"   : dict(Is=93.2e-12, mUt=26e-3, N=3.73),
+    "LedWHITE" : dict(Is=0.27e-9, mUt=26e-3, N=6.79),
+    "D311A"    : dict(Is=8e-6, mUt=26e-3, N=1.483),
+    "AA112"    : dict(Is=1.2e-6, mUt=26e-3, N=1.4),
+    "OA90-G"   : dict(Is=54.12e-6, mUt=26e-3, N=4.209),
+    "OA90-M"   : dict(Is=120.5e-6, mUt=26e-3, N=7.405),
     }
 
 
