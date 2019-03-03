@@ -17,8 +17,10 @@ parser.add_argument('-p','--plot',help='frequency plot from the circuit [OPTIONA
 parser.add_argument('-b','--build',help='build guitarix plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-l','--buildlv2',help='build lv2 plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-t','--table', metavar='N', type=int, nargs='+', help='build nonlinear response table from the N\'t circuit [OPTIONAL]', required=False)
+parser.add_argument('-g','--table_neg', metavar='N', type=int, nargs='+', help='build negative nonlinear response table from the N\'t circuit (imply --table)[OPTIONAL]', required=False)
 parser.add_argument('-x','--sig_max', metavar='N', type=float, nargs='+', help='max signal send to build the nonlinear response table from the circuit [OPTIONAL]', required=False)
 parser.add_argument('-/','--table_div', metavar='N', type=float, nargs='+', help='divider for nonlinear response table from the circuit [OPTIONAL]', required=False)
+parser.add_argument('-S','--scip_div',help='skip the divider for the negative nonlinear response table[OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-o','--table_op', metavar='N', type=float, nargs='+', help='step operator multiplier for nonlinear response table from the circuit [OPTIONAL]', required=False)
 
 args = parser.parse_args()
@@ -76,15 +78,26 @@ class FrequencyPlot(object):
 
 class Generators(object):
 
-    def generate_nonlin_table(self, c1, modulename, sig_max=None, table_div=None, table_op=None):
-        v = ci.Circ_table(modulename, c1.S,c1.V, sig_max, table_div, table_op)
+    def generate_nonlin_table(self, c1, modulename, sig_max, table_op, scip_div, table_neg, table_div=None):
+        v = ci.Circ_table(modulename, c1.S,c1.V, sig_max, table_op, table_div)
         parser = dk_simulator.Parser(v.S, v.V, v.FS)
         p = dk_simulator.get_executor(
         modulename, parser, v.solver, '-p', c_tempdir='/tmp', c_verbose='--c-verbose',
         c_debug_load='', linearize='', c_real=("double"))
         y = p(v.signal())
-        v.generate_table(p, y,"")
+        td = v.generate_table(p, y,"")
         v.plot(p,y)
+        if (table_neg):
+            if (scip_div) :
+                td = None
+            v = ci.Circ_table(modulename+"_neg", c1.S,c1.V, -1.0*sig_max, table_op, td)
+            parser = dk_simulator.Parser(v.S, v.V, v.FS)
+            p = dk_simulator.get_executor(
+            modulename, parser, v.solver, '-p', c_tempdir='/tmp', c_verbose='--c-verbose',
+            c_debug_load='', linearize='', c_real=("double"))
+            y = p(v.signal())
+            v.generate_table(p, y,"")
+            v.plot(p,y)
 
     def write_final_file(self, a, dspfile,fdata,dspfileui,fuidata):
         process_line = "\nprocess = "
@@ -114,7 +127,7 @@ class Generators(object):
         opts = " " if datatype == "float" else ""
         os.system("%s %s -c -k %s" % (pgm, opts, dspfile))
 
-    def generate_lv2_plugin(self, arg, dspfile, tablename, modulename, name, nonlin=None):
+    def generate_lv2_plugin(self, arg, dspfile, tablename, modulename, name, nonlin=None, nonlin_neg=None):
         if nonlin :
             print ("build nonlin lv2_plugin from: %s" % arg)
         else :
@@ -132,6 +145,11 @@ class Generators(object):
                 src1 = '../dkbuild/%s_table.h' %  tablename[a-1]
                 dst1 = 'gx_%s.lv2/dsp/' % modulename
                 copy2(src1, dst1)
+        if nonlin_neg :
+            for a in nonlin_neg:
+                src1 = '../dkbuild/%s_neg_table.h' %  tablename[a-1]
+                dst1 = 'gx_%s.lv2/dsp/' % modulename
+                copy2(src1, dst1)
         os.chdir('gx_%s.lv2' % modulename)
         os.system('make uninstall && make && make install')
         os.chdir(p)
@@ -143,6 +161,11 @@ class DKbuilder(object):
     description = args.description
     category = args.category
     tablename = {}
+    if (args.table_neg):
+        if (not args.table):
+            args.table = args.table_neg
+        else:
+            args.table += args.table_neg
 
     if name:
         modulename = name.lower()
@@ -214,27 +237,46 @@ class DKbuilder(object):
                 else :
                     faustdsp, faustui = c1.get_simple_faust_code(filename=str(dspname))
                 if args.table and a in args.table:
+                    s = False
+                    tn = False
                     self.tablename[a-1] = schema.split('.')[0].lower()
                     b += 1
                     if args.sig_max and self.index_exists(args.sig_max,b-1) :
                         m = args.sig_max[b-1]
                     else :
-                        m = None
+                        m = 1.4
+                    if args.table_op and self.index_exists(args.table_op,b-1):
+                        o = args.table_op[b-1]
+                    else:
+                        o = 1.0
                     if args.table_div and self.index_exists(args.table_div,b-1):
                         d = args.table_div[b-1]
                     else:
                         d = None
-                    if args.table_op and self.index_exists(args.table_op,b-1):
-                        o = args.table_op[b-1]
-                    else:
-                        o = None
-                    g.generate_nonlin_table(c1, self.tablename[a-1], m, d, o)
+                    if args.table_neg and a in args.table_neg:
+                        tn = True
+                        if (args.scip_div):
+                            s = True
+                    g.generate_nonlin_table(c1, self.tablename[a-1], m, o, s, tn, d)
                     src = 'dkbuild/%s_table.h' %  self.tablename[a-1]
                     # copy table to build dir
                     copy2(src, dst)
+                    if (tn) :
+                        src = 'dkbuild/%s_neg_table.h' %  self.tablename[a-1]
+                        # copy table to build dir
+                        copy2(src, dst)
                     # include table use in faust code
-                    faustdsp = faustdsp.replace('with', ': %s_clip with' ) % self.tablename[a-1]
-                    faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[a-1])
+                    if (tn):
+                        faustdsp = faustdsp.replace('with', ': clip with' )
+                        faustdsp +=  '\nclip = _<: ba.if(signbit(_), {st}_neg_clip, {st}_clip) :>_ with '.format(st=self.tablename[a-1])
+                        faustdsp +=  '{\n'
+                        faustdsp +=  '\n    signbit = ffunction(int signbit(float), "math.h", "");\n'
+                        faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[a-1])
+                        faustdsp +=  '\n    {st}_neg_clip = ffunction(float {st}_negclip(float), "{st}_neg_table.h", "");\n'.format(st=self.tablename[a-1])
+                        faustdsp +=  '\n};\n'
+                    else :
+                        faustdsp = faustdsp.replace('with', ': %s_clip with' ) % self.tablename[a-1]
+                        faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[a-1])
 
                 faustdsp = faustdsp.replace('process', "p%s" % a)
                 fdata += faustdsp
@@ -248,7 +290,7 @@ class DKbuilder(object):
         # create a LV2 module
         elif args.buildlv2 :
             g.write_final_file(a,dspfile,fdata,dspfileui,fuidata)
-            g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, args.table)
+            g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, args.table, args.table_neg)
 
 def main(argv):
     dk = DKbuilder()
