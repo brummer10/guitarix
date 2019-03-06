@@ -52,6 +52,7 @@ opt="$opt -O3 -march=native -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffin
 g++ $opt "$DIR""$bname.cc" -o "$DIR""$bname.so"
 #rm -f "$bname.cc"
 if [ $copy = 1 ]; then
+  rm -f ~/.config/guitarix/plugins/"$bname.so"
   cp "$DIR""$bname.so" ~/.config/guitarix/plugins/.
   echo "created and copied $DIR$bname.so"
 else
