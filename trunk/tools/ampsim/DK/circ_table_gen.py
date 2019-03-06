@@ -140,12 +140,14 @@ double always_inline circclip(double x) {
         aj = 0
         if not self.divider :
             max_s = copy.deepcopy(math.fabs(y[len(self.sig)-1]))
-            if max_s > 1:
-                if(self.max_sig < 0.0) :
-                    min_s = copy.deepcopy(math.fabs(y[0]))
-                    self.divider = (max_s+min_s) *1.2
+            min_s = copy.deepcopy(math.fabs(y[0]))
+            if max_s > 1 or min_s > 1:
+                if(np.signbit(self.max_sig)) :
+                    self.divider = (max_s+min_s) *1.2 # work around dc offset
+                #elif(np.signbit(y[0])) :
+                #    self.divider = (max_s+min_s) *1.2
                 else :
-                    self.divider = max_s *1.2
+                    self.divider = (max_s) *1.2
             else :
                 self.divider = 1.0
         t1 = ("\n // --sig_max  %f") % self.max_sig
@@ -166,7 +168,7 @@ double always_inline circclip(double x) {
         for i in range(len(y)):
             c += 1
             if c == 2:
-                aj = y[0]
+                aj = y[0] # dc offset to be removed
                 sys.stdout.write('\t%g,%g,%g,%d, {' % ((y[0] -aj), (y[len(self.sig)-1] -aj )/self.divider, (len(self.sig)-1)*self.operator, len(self.sig)))
                 for item in y:
                     if z % 5 == 0:

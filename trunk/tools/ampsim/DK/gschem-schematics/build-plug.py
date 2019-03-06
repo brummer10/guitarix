@@ -161,6 +161,7 @@ class DKbuilder(object):
     description = args.description
     category = args.category
     tablename = {}
+
     if (args.table_neg):
         if (not args.table):
             args.table = args.table_neg
@@ -173,25 +174,28 @@ class DKbuilder(object):
         schema = args.input[0]
         modulename = schema.split('.')[0].lower()
 
+
     def index_exists(self,ls, i):
         return (0 <= i < len(ls)) or (-len(ls) <= i < 0)
 
     def build(self):
 
-        a = 0
-        b = 0
         fdata = ""
         fuidata = ""
+        table_counter = 0
+        dsp_counter = 0
+        ui_counter = 0
+        in_files = len(args.input)
 
         g = Generators()
         c1 = Circuit()
 
         # generate faust code and nonlin table
         for sch in args.input:
-            a +=1
-            print ("\nInput file %s: %s" % (a, args.input[a-1]))
+            dsp_counter +=1
+            print ("\nInput file %s: %s" % (dsp_counter, args.input[dsp_counter-1]))
 
-            schema = args.input[a-1]
+            schema = args.input[dsp_counter-1]
             workfile="gschem-schematics/"+schema
             path = "tmp"
 
@@ -232,64 +236,79 @@ class DKbuilder(object):
             if args.build or args.buildlv2 or not args.plot:
                 if not os.path.exists(dst):
                     os.makedirs(dst)
-                if a == 1 :
+                if dsp_counter == 1 :
                     faustdsp, faustui = c1.get_faust_code(filename=str(dspname))
                 else :
                     faustdsp, faustui = c1.get_simple_faust_code(filename=str(dspname))
-                if args.table and a in args.table:
+                if args.table and dsp_counter in args.table:
                     s = False
                     tn = False
-                    self.tablename[a-1] = schema.split('.')[0].lower()
-                    b += 1
-                    if args.sig_max and self.index_exists(args.sig_max,b-1) :
-                        m = args.sig_max[b-1]
+                    self.tablename[dsp_counter-1] = schema.split('.')[0].lower()
+                    table_counter += 1
+                    if args.sig_max and self.index_exists(args.sig_max,table_counter-1) :
+                        m = args.sig_max[table_counter-1]
                     else :
                         m = 1.4
-                    if args.table_op and self.index_exists(args.table_op,b-1):
-                        o = args.table_op[b-1]
+                    if args.table_op and self.index_exists(args.table_op,table_counter-1):
+                        o = args.table_op[table_counter-1]
                     else:
                         o = 1.0
-                    if args.table_div and self.index_exists(args.table_div,b-1):
-                        d = args.table_div[b-1]
+                    if args.table_div and self.index_exists(args.table_div,table_counter-1):
+                        d = args.table_div[table_counter-1]
                     else:
                         d = None
-                    if args.table_neg and a in args.table_neg:
+                    if args.table_neg and dsp_counter in args.table_neg:
                         tn = True
                         if (args.scip_div):
                             s = True
-                    g.generate_nonlin_table(c1, self.tablename[a-1], m, o, s, tn, d)
-                    src = 'dkbuild/%s_table.h' %  self.tablename[a-1]
+                    g.generate_nonlin_table(c1, self.tablename[dsp_counter-1], m, o, s, tn, d)
+                    src = 'dkbuild/%s_table.h' %  self.tablename[dsp_counter-1]
                     # copy table to build dir
                     copy2(src, dst)
                     if (tn) :
-                        src = 'dkbuild/%s_neg_table.h' %  self.tablename[a-1]
+                        src = 'dkbuild/%s_neg_table.h' %  self.tablename[dsp_counter-1]
                         # copy table to build dir
                         copy2(src, dst)
                     # include table use in faust code
                     if (tn):
-                        faustdsp = faustdsp.replace('with', ': clip with' )
-                        faustdsp +=  '\nclip = _<: ba.if(signbit(_), {st}_neg_clip, {st}_clip) :>_ with '.format(st=self.tablename[a-1])
+                        faustdsp = faustdsp.replace('with', ': %sclip with' ) % self.tablename[dsp_counter-1]
+                        faustdsp +=  '\n{st}clip = _<: ba.if(signbit(_), {st}_neg_clip, {st}_clip) :>_ with '.format(st=self.tablename[dsp_counter-1])
                         faustdsp +=  '{\n'
                         faustdsp +=  '\n    signbit = ffunction(int signbit(float), "math.h", "");\n'
-                        faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[a-1])
-                        faustdsp +=  '\n    {st}_neg_clip = ffunction(float {st}_negclip(float), "{st}_neg_table.h", "");\n'.format(st=self.tablename[a-1])
+                        faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
+                        faustdsp +=  '\n    {st}_neg_clip = ffunction(float {st}_negclip(float), "{st}_neg_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
                         faustdsp +=  '\n};\n'
                     else :
-                        faustdsp = faustdsp.replace('with', ': %s_clip with' ) % self.tablename[a-1]
-                        faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[a-1])
+                        faustdsp = faustdsp.replace('with', ': %s_clip with' ) % self.tablename[dsp_counter-1]
+                        faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
 
-                faustdsp = faustdsp.replace('process', "p%s" % a)
+                faustdsp = faustdsp.replace('process', "p%s" % dsp_counter)
                 fdata += faustdsp
+                if faustui:
+                    ui_counter +=1
+                    if (ui_counter ==2) and ( dsp_counter != in_files):
+                        fuidata = fuidata.rsplit("\n", 2)[0]
+                        faustui = faustui.replace('b.openHorizontalBox("");\n', '')
+                        faustui = faustui.replace('b.closeBox();\n', '')
+                    elif (ui_counter >2) and ( dsp_counter != in_files):
+                        fuidata = fuidata.rsplit("\n", 1)[0]
+                        faustui = faustui.replace('b.openHorizontalBox("");\n', '')
+                        faustui = faustui.replace('b.closeBox();\n', '')
+                    elif (ui_counter >2) and ( dsp_counter == in_files):
+                        fuidata = fuidata.rsplit("\n", 1)[0]
+                        faustui = faustui.replace('b.openHorizontalBox("");\n', '')
+                elif (ui_counter >1) and ( dsp_counter == in_files):
+                    faustui += 'b.closeBox();\n'
                 fuidata += faustui
 
         # create a guitarix module
         if args.build or (not args.table and not args.plot and not args.buildlv2) :
-            g.write_final_file(a,dspfile,fdata,dspfileui,fuidata)
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata)
             g.generate_gx_plugin(args.input, dspfile, args.table)
 
         # create a LV2 module
         elif args.buildlv2 :
-            g.write_final_file(a,dspfile,fdata,dspfileui,fuidata)
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata)
             g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, args.table, args.table_neg)
 
 def main(argv):
