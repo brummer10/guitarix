@@ -27,12 +27,13 @@ Tubes = {
 # values taken from Datasheets, Vt is the termal Voltage (const)
 
 Transistors = {
-    "2N5088" : dict(Vt=26e-3,Is=20.3e-15,Bf=1430,Br=4),
-    "2N3904" : dict(Vt=26e-3,Is=1e-14,Bf=300,Br=4),
-    "2N4401" : dict(Vt=26e-3,Is=9.09e-15,Bf=300,Br=4),
-    "BD139"  : dict(Vt=26e-3,Is=2.3985e-13,Bf=244.9,Br=78.11),
-    "BC108"  : dict(Vt=26e-3,Is=1.8e-14,Bf=400,Br=35.5),
-    "MPSA18" : dict(Vt=26e-3,Is=20.3e-15,Bf=1430,Br=4),
+    "2N5088" : dict(Vt=26e-3,Is=20.3e-15,Bf=1430,Br=4), #npn
+    "2N3904" : dict(Vt=26e-3,Is=1e-14,Bf=300,Br=4), #npn
+    "2N4401" : dict(Vt=26e-3,Is=9.09e-15,Bf=300,Br=4), #npn
+    "BD139"  : dict(Vt=26e-3,Is=2.3985e-13,Bf=244.9,Br=78.11), #npn
+    "BC108"  : dict(Vt=26e-3,Is=1.8e-14,Bf=400,Br=35.5), #npn
+    "AC128"  : dict(Vt=26e-3,Is=5e-6,Bf=90,Br=5),  #pnp
+    "MPSA18" : dict(Vt=26e-3,Is=20.3e-15,Bf=1430,Br=4),  #npn
     }
 
 # values taken from Datasheets, mUt is now Vt = the termal Voltage (const)
