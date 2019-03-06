@@ -194,23 +194,39 @@ void Gx_sceleton_::deactivate_f()
 
 void Gx_sceleton_::run_dsp_(uint32_t n_samples)
 {
+  FAUSTFLOAT buf[n_samples];
   // do inplace processing at default
   memcpy(output, input, n_samples*sizeof(float));
   // check if bypass is pressed
   if (bypass_ != static_cast<uint32_t>(*(bypass))) {
     bypass_ = static_cast<uint32_t>(*(bypass));
-    ramp_down = ramp_down_step;
-    ramp_up = 0.0;    
-    if (!bypass_) needs_ramp_down = true;
-    else needs_ramp_up = true;
+    if (!bypass_) {
+      needs_ramp_down = true;
+      needs_ramp_up = false;
+    } else {
+      needs_ramp_down = false;
+      needs_ramp_up = true;
+      bypassed = false;
+    }
   }
-  // check if raming is needed
+
+  if (needs_ramp_down || needs_ramp_up) {
+       memcpy(buf, input, n_samples*sizeof(float));
+  }
+  
+  if (!bypassed) {
+     sceleton->mono_audio(static_cast<int>(n_samples), output, output, sceleton);
+  }
+
+  // check if ramping is needed
   if (needs_ramp_down) {
+    float fade = 0;
     for (uint32_t i=0; i<n_samples; i++) {
       if (ramp_down >= 0.0) {
-        --ramp_down;
+        --ramp_down; 
       }
-      output[i] = (output[i] * ramp_down) /ramp_down_step ;
+      fade = max(0.0,ramp_down) /ramp_down_step ;
+      output[i] = output[i] * fade + buf[i] * (1.0 - fade);
     }
 
     if (ramp_down <= 0.0) {
@@ -218,23 +234,31 @@ void Gx_sceleton_::run_dsp_(uint32_t n_samples)
       sceleton->clear_state(sceleton);
       needs_ramp_down = false;
       bypassed = true;
-      //needs_ramp_up = true;
-      //ramp_down = ramp_down_step;
+      ramp_down = ramp_down_step;
+      ramp_up = 0.0;
+    } else {
+      ramp_up = ramp_down;
     }
+
   } else if (needs_ramp_up) {
-    bypassed = false;
+    float fade = 0;
     for (uint32_t i=0; i<n_samples; i++) {
-      if (ramp_up <= ramp_up_step) {
-        ++ramp_up;
+      if (ramp_up < ramp_up_step) {
+        ++ramp_up ;
       }
-      output[i] = (output[i] * ramp_up) /ramp_up_step;
+      fade = min(ramp_up_step,ramp_up) /ramp_up_step ;
+      output[i] = output[i] * fade + buf[i] * (1.0 - fade);
     }
+
     if (ramp_up >= ramp_up_step) {
       needs_ramp_up = false;
-     //ramp_up = 0.0;
+      ramp_up = 0.0;
+      ramp_down = ramp_down_step;
+    } else {
+      ramp_down = ramp_up;
     }
   }
-  if (!bypassed) sceleton->mono_audio(static_cast<int>(n_samples), output, output, sceleton);
+
 }
 
 void Gx_sceleton_::connect_all__ports(uint32_t port, void* data)
