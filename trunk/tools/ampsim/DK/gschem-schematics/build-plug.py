@@ -16,6 +16,7 @@ parser.add_argument('-m','--module_id',help='Module ID for plugin [OPTIONAL]', r
 parser.add_argument('-p','--plot',help='frequency plot from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-b','--build',help='build guitarix plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-l','--buildlv2',help='build lv2 plugin from the circuit [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-2','--stereo',help='build stereo plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-t','--table', metavar='N', type=int, nargs='+', help='build nonlinear response table from the N\'t circuit [OPTIONAL]', required=False)
 parser.add_argument('-g','--table_neg', metavar='N', type=int, nargs='+', help='build negative nonlinear response table from the N\'t circuit (imply --table)[OPTIONAL]', required=False)
 parser.add_argument('-x','--sig_max', metavar='N', type=float, nargs='+', help='max signal send to build the nonlinear response table from the circuit [OPTIONAL]', required=False)
@@ -99,15 +100,27 @@ class Generators(object):
             v.generate_table(p, y,"")
             v.plot(p,y)
 
-    def write_final_file(self, a, dspfile,fdata,dspfileui,fuidata):
-        process_line = "\nprocess = "
-        for x in xrange(1,a+1,1):
-            process_line += ' p%s ' % x
-            if a>x :
-                process_line += ':'
-            else :
-                process_line += ';'
-        fdata += process_line
+    def write_final_file(self, a, dspfile,fdata,dspfileui,fuidata, stereo=None):
+        if not stereo:
+            process_line = "\nprocess = "
+            for x in xrange(1,a+1,1):
+                process_line += ' p%s ' % x
+                if a>x :
+                    process_line += ':'
+                else :
+                    process_line += ';'
+            fdata += process_line
+        else:
+            process_line = "\nchanel = "
+            for x in xrange(1,a+1,1):
+                process_line += ' p%s ' % x
+                if a>x :
+                    process_line += ':'
+                else :
+                    process_line += ';'
+            process_line += '\nprocess = chanel , chanel ;'
+            fdata += process_line
+            
 
         with open(dspfile, 'w') as f:
           f.write(fdata)
@@ -303,12 +316,12 @@ class DKbuilder(object):
 
         # create a guitarix module
         if args.build or (not args.table and not args.plot and not args.buildlv2) :
-            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata)
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,args.stereo)
             g.generate_gx_plugin(args.input, dspfile, args.table)
 
         # create a LV2 module
         elif args.buildlv2 :
-            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata)
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,args.stereo)
             g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, args.table, args.table_neg)
 
 def main(argv):

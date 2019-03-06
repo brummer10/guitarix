@@ -112,13 +112,13 @@ function copy_sceleton() {
   fi
 
   if [ "$stereo" == "false" ] ; then
-    echo -e "copy gx_sceleton.lv2 to "$BLUE"gx_$bname.lv2"$NONE" and rename/replace strings to "$BLUE"$bname"$NONE
+    echo -e "copy gx_sceletonX11.lv2 to "$BLUE"gx_$bname.lv2"$NONE" and rename/replace strings to "$BLUE"$bname"$NONE
     cp -r gx_sceletonX11.lv2/* gx_${bname}.lv2/ 
     j=3
   else
-    echo -e "copy gx_sceleton_stereo.lv2 to "$BLUE"gx_$bname.lv2"$NONE" and rename/replace strings to "$BLUE"$bname"$NONE
-    cp -r gx_sceleton_stereo.lv2/* gx_${bname}.lv2/ 
-    j=4
+    echo -e "copy gx_sceletonX11_stereo.lv2 to "$BLUE"gx_$bname.lv2"$NONE" and rename/replace strings to "$BLUE"$bname"$NONE
+    cp -r gx_sceletonX11_stereo.lv2/* gx_${bname}.lv2/ 
+    j=5
   fi
 
   set +e
@@ -160,11 +160,7 @@ function grep_ports_enums() {
   echo -e "grep ports and copy them to  "$BLUE"gx_$bname.h"$NONE
   cat "$bname.cc" | sed -n '/enum/,/PortIndex/p' |  sed '/enum/d;/PortIndex/d;/{/d;/}/d'>ports
 
-  if [ "$stereo" == "false" ] ; then
-    sed -i -e '/BYPASS/r ports' "plugin/gx_$bname.h"
-  else
-    sed -i -e '/EFFECTS_INPUT1/r ports' "plugin/gx_$bname.h"
-  fi
+  sed -i -e '/BYPASS/r ports' "plugin/gx_$bname.h"
   echo -e "grep ports values and enums and copy them to "$BLUE"gx_$bname.ttl"$NONE
   cat "$bname.cc" | sed -n '/data;/{p;g;1!p;};h' | sed 's/ , /\n/;s/.*\n//;s/case//g;s/,/ ;/g;s/://g;s/	 //g;s/  //g;s/ //g;s/$/;/' | sed '$!N;s/\n//'>ports
   cat "$bname.cc" | sed -n '/value_pair/{p;n;1!p;};h' | sed 's/{/\n/;s/.*\n//;s/ , /\n/;s/.*\n//;s/case//g;s/}//g;s/{//g;s/;//g;s/,/ ;/g;s/://g;s/	 //g;s/;0//g;s/  //g;s/ //g;s/$/;/' > enums
