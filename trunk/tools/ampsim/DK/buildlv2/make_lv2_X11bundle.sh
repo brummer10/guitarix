@@ -20,6 +20,7 @@ usage() {
   echo "    -S x: faust use vector size x"
   echo "    -p:   path/to/source/sourcefile "
   echo "    -n    effect name "
+  echo "    -r:   use resampler"
   exit 1
 }
 
@@ -113,11 +114,19 @@ function copy_sceleton() {
 
   if [ "$stereo" == "false" ] ; then
     echo -e "copy gx_sceletonX11.lv2 to "$BLUE"gx_$bname.lv2"$NONE" and rename/replace strings to "$BLUE"$bname"$NONE
-    cp -r gx_sceletonX11.lv2/* gx_${bname}.lv2/ 
+    if [ "$resample" == "YES" ] ; then
+      cp -r gx_sceleton_rs_X11.lv2/* gx_${bname}.lv2/ 
+    else
+      cp -r gx_sceletonX11.lv2/* gx_${bname}.lv2/ 
+    fi
     j=3
   else
     echo -e "copy gx_sceletonX11_stereo.lv2 to "$BLUE"gx_$bname.lv2"$NONE" and rename/replace strings to "$BLUE"$bname"$NONE
-    cp -r gx_sceletonX11_stereo.lv2/* gx_${bname}.lv2/ 
+    if [ "$resample" == "YES" ] ; then
+      cp -r gx_sceleton_rs_X11_stereo.lv2/* gx_${bname}.lv2/ 
+    else
+      cp -r gx_sceletonX11_stereo.lv2/* gx_${bname}.lv2/
+    fi
     j=5
   fi
 
@@ -391,10 +400,11 @@ copy=0
 bname=""
 effect_category=""
 effect_name=""
+resample=""
 
 ############################# main #####################################
 
-while getopts hn:sdVSp:c OPT; do
+while getopts hn:sdVSp:rc OPT; do
   sc=0
   case "$OPT" in
   h) usage;;
@@ -407,6 +417,7 @@ while getopts hn:sdVSp:c OPT; do
   p) faustdir="$(dirname "$2")/"
      file="$(basename "$2")"
      sc=1;;
+  r) resample="YES";;
   c) copy=1;;
   \?) usage;;
   esac

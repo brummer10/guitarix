@@ -410,6 +410,8 @@ class Parser(object):
                 elif key == "gladefile":
                     self.gladefile = value
                 elif key == "samplerate":
+                    self.fixedrate = value
+                elif key == "oversample":
                     self.oversample = value
                 elif key == "insert_p":
                     self.insert_p = value
@@ -489,7 +491,10 @@ class Parser(object):
         self.toplevel = None
         self.topname = None
         self.name = None
+        self.fixedrate = None
+        self.has_fixedrate = False
         self.oversample = None
+        self.no_oversample = True
         self.has_oversample = False
         self.has_stereo = False
         self.insert_p = None
@@ -538,8 +543,12 @@ class Parser(object):
         self.skip_until(r"\s*};")
         s["post_compute"] = self.replace_mydsp(self.copy(r"\s*END USER SECTION$"))
         self.sections = s
+        if self.fixedrate is not None:
+            self.has_fixedrate = True
+            self.no_oversample = False
         if self.oversample is not None:
             self.has_oversample = True
+            self.no_oversample = False
         if self.drywetbox is not None:
             self.has_drywetbox = True
         if self.volume_p is not None:
@@ -562,6 +571,9 @@ class Parser(object):
             self.has_stereo = True
         if self.topname is None:
             self.topname = self.modname
+        if self.has_oversample and self.has_fixedrate:
+            print ("Error: you could only use one of fixedrate or oversample")
+            sys.exit(1)
         # ignore any following definitions of static class members
         #self.checkfor(r".*\bexp\b", "compute")
 
@@ -574,7 +586,7 @@ class Parser(object):
             if m:
                 g = m.groups()
                 line = "\t%s* %sput%s = &%sputX%s[index];\n" % (g[0],g[1],g[2],g[1],g[2])
-            if self.oversample:
+            if self.fixedrate or self.oversample:
                 line=re.sub("fullcount",'ReCount',line)
                 line=re.sub("inputX0",'buf',line)
                 line=re.sub("outputX0",'buf',line)
@@ -590,7 +602,7 @@ class Parser(object):
         l = []
         for line in lines:
             if not match(line):
-                if self.oversample:
+                if self.fixedrate or self.oversample:
                     line=re.sub("count",'ReCount',line)
                     line=re.sub("input0",'buf',line)
                     line=re.sub("output0",'buf',line)
@@ -938,6 +950,13 @@ class Dsp: public PluginDef {
 class Dsp {
 #endif
 private:
+#if %(has_fixedrate)s
+	gx_resample::FixedRateResampler smp;
+#if %(has_stereo)s
+	gx_resample::FixedRateResampler smps;
+#endif
+	int samplingFreq;
+#endif
 #if %(has_oversample)s
 	gx_resample::FixedRateResampler smp;
 #if %(has_stereo)s
@@ -1068,15 +1087,25 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 #endif
 #endif
-#if %(has_oversample)s
+#if %(has_fixedrate)s
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = %(oversample)s;
+	samplingFreq = %(fixedrate)s;
 	smp.setup(RsamplingFreq, samplingFreq);
 #if %(has_stereo)s
 	smps.setup(RsamplingFreq, samplingFreq);
 #endif
-#else
+#endif
+#if %(has_oversample)s
+inline void Dsp::init(unsigned int RsamplingFreq)
+{
+	samplingFreq = %(oversample)s * RsamplingFreq;
+	smp.setup(RsamplingFreq, samplingFreq);
+#if %(has_stereo)s
+	smps.setup(RsamplingFreq, samplingFreq);
+#endif
+#endif
+#if %(no_oversample)s
 inline void Dsp::init(unsigned int samplingFreq)
 {
 #endif
@@ -1139,6 +1168,22 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 #if %(has_volume_p)s
 %(volume_pre)s
 #endif
+#if %(has_fixedrate)s
+	FAUSTFLOAT buf[smp.max_out_count(%(countname)s)];
+#if %(has_stereo)s
+	FAUSTFLOAT bufs[smps.max_out_count(%(countname)s)];
+#if %(has_vector)s
+	smps.up(%(countname)s, inputX1, bufs);
+#else
+	smps.up(%(countname)s, input1, bufs);
+#endif
+#endif
+#if %(has_vector)s
+	int ReCount = smp.up(%(countname)s, inputX0, buf);
+#else
+	int ReCount = smp.up(%(countname)s, input0, buf);
+#endif
+#endif
 #if %(has_oversample)s
 	FAUSTFLOAT buf[smp.max_out_count(%(countname)s)];
 #if %(has_stereo)s
@@ -1156,6 +1201,20 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 #endif
 #endif
 %(compute_body)s\
+#if %(has_fixedrate)s
+#if %(has_vector)s
+	smp.down(buf, outputX0);
+#else
+	smp.down(buf, output0);
+#endif
+#if %(has_stereo)s
+#if %(has_vector)s
+	smps.down(bufs, outputX1);
+#else
+	smps.down(bufs, output1);
+#endif
+#endif
+#endif
 #if %(has_oversample)s
 #if %(has_vector)s
 	smp.down(buf, outputX0);
@@ -1306,14 +1365,14 @@ class Dsp: public PluginLV2 {
 class Dsp {
 #endif
 private:
+#if %(has_fixedrate)s
+	gx_resample::FixedRateResampler smp;
+#if %(has_stereo)s
+	gx_resample::FixedRateResampler smps;
+#endif
+	uint32_t samplingFreq;
+#endif
 #if %(has_oversample)s
-	double 	fLowVec0[2];
-	uint32_t 	iLowConst0;
-	double 	fLowConst1;
-	double 	fLowConst2;
-	double 	fLowConst3;
-	double 	fLowConst4;
-	double 	fLowRec0[2];
 	gx_resample::FixedRateResampler smp;
 #if %(has_stereo)s
 	gx_resample::FixedRateResampler smps;
@@ -1418,10 +1477,6 @@ Dsp::~Dsp() {
 inline void Dsp::clear_state_f()
 {
 %(state_init)s\
-#if %(has_oversample)s
-	for (int i=0; i<2; i++) fLowVec0[i] = 0;
-	for (int i=0; i<2; i++) fLowRec0[i] = 0;
-#endif
 #if %(has_insert_p)s
 %(insert_p_clearstate)s
 #endif
@@ -1438,20 +1493,25 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 
 #endif
 #endif
-#if %(has_oversample)s
+#if %(has_fixedrate)s
 inline void Dsp::init(uint32_t RsamplingFreq)
 {
-	samplingFreq = %(oversample)s;
+	samplingFreq = %(fixedrate)s;
 	smp.setup(RsamplingFreq, samplingFreq);
-	iLowConst0 = min(192000, max(1, RsamplingFreq));
-	fLowConst1 = (1.0 / tan((1.5707963267948966 * (double(iLowConst0) / double(iLowConst0)))));
-	fLowConst2 = (1 + fLowConst1);
-	fLowConst3 = (1.0 / fLowConst2);
-	fLowConst4 = (0 - ((1 - fLowConst1) / fLowConst2));
 #if %(has_stereo)s
 	smps.setup(RsamplingFreq, samplingFreq);
 #endif
-#else
+#endif
+#if %(has_oversample)s
+inline void Dsp::init(uint32_t RsamplingFreq)
+{
+	samplingFreq = %(oversample)s * RsamplingFreq;
+	smp.setup(RsamplingFreq, samplingFreq);
+#if %(has_stereo)s
+	smps.setup(RsamplingFreq, samplingFreq);
+#endif
+#endif
+#if %(no_oversample)s
 inline void Dsp::init(uint32_t samplingFreq)
 {
 #endif
@@ -1516,16 +1576,7 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 #define fsliderV0 (*fsliderV0_)
 %(volume_pre)s
 #endif
-#if %(has_oversample)s
-	for (int i=0; i<count; i++) {
-		double fLowTemp0 = (double)input0[i];
-		fLowVec0[0] = fLowTemp0;
-		fLowRec0[0] = ((fLowConst4 * fLowRec0[1]) + (fLowConst3 * (fLowVec0[0] + fLowVec0[1])));
-		output0[i] = (FAUSTFLOAT)fLowRec0[0];
-		// post processing
-		fLowRec0[1] = fLowRec0[0];
-		fLowVec0[1] = fLowVec0[0];
-	}
+#if %(has_fixedrate)s
 	FAUSTFLOAT buf[smp.max_out_count(%(countname)s)];
 #if %(has_stereo)s
 	FAUSTFLOAT bufs[smps.max_out_count(%(countname)s)];
@@ -1538,10 +1589,40 @@ void always_inline Dsp::compute(int %(countname)s%(compute_args)s)
 #if %(has_vector)s
 	int ReCount = smp.up(%(countname)s, inputX0, buf);
 #else
-	int ReCount = smp.up(%(countname)s, output0, buf);
+	int ReCount = smp.up(%(countname)s, input0, buf);
+#endif
+#endif
+#if %(has_oversample)s
+	FAUSTFLOAT buf[smp.max_out_count(%(countname)s)];
+#if %(has_stereo)s
+	FAUSTFLOAT bufs[smps.max_out_count(%(countname)s)];
+#if %(has_vector)s
+	smps.up(%(countname)s, inputX1, bufs);
+#else
+	smps.up(%(countname)s, input1, bufs);
+#endif
+#endif
+#if %(has_vector)s
+	int ReCount = smp.up(%(countname)s, inputX0, buf);
+#else
+	int ReCount = smp.up(%(countname)s, input0, buf);
 #endif
 #endif
 %(compute_body)s\
+#if %(has_fixedrate)s
+#if %(has_vector)s
+	smp.down(buf, outputX0);
+#else
+	smp.down(buf, output0);
+#endif
+#if %(has_stereo)s
+#if %(has_vector)s
+	smps.down(bufs, outputX1);
+#else
+	smps.down(bufs, output1);
+#endif
+#endif
+#endif
 #if %(has_oversample)s
 #if %(has_vector)s
 	smp.down(buf, outputX0);
@@ -1913,9 +1994,12 @@ class Output(object):
             
         s = StringIO()
         s.write(template % dict(
-            has_oversample = self.parser.has_oversample,
+            has_fixedrate = self.parser.has_fixedrate,
             has_stereo = self.parser.has_stereo,
+            fixedrate = self.parser.fixedrate,
+            has_oversample = self.parser.has_oversample,
             oversample = self.parser.oversample,
+            no_oversample = self.parser.no_oversample,
             has_insert_p = self.parser.has_insert_p,
             insert_p = self.parser.insert_p,
             has_vector = self.parser.has_vector,

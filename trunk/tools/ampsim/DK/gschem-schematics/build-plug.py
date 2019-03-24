@@ -23,6 +23,8 @@ parser.add_argument('-x','--sig_max', metavar='N', type=float, nargs='+', help='
 parser.add_argument('-/','--table_div', metavar='N', type=float, nargs='+', help='divider for nonlinear response table from the circuit [OPTIONAL]', required=False)
 parser.add_argument('-S','--scip_div',help='skip the divider for the negative nonlinear response table[OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-o','--table_op', metavar='N', type=float, nargs='+', help='step operator multiplier for nonlinear response table from the circuit [OPTIONAL]', required=False)
+parser.add_argument('--oversample', metavar='N', type=int, help='set oversample rate [OPTIONAL]', required=False)
+parser.add_argument('--fixedrate', metavar='N', type=int, help='set fixed samplerate [OPTIONAL]', required=False)
 
 args = parser.parse_args()
 
@@ -140,7 +142,7 @@ class Generators(object):
         opts = " " if datatype == "float" else ""
         os.system("%s %s -c -k %s" % (pgm, opts, dspfile))
 
-    def generate_lv2_plugin(self, arg, dspfile, tablename, modulename, name, nonlin=None, nonlin_neg=None):
+    def generate_lv2_plugin(self, arg, dspfile, tablename, modulename, name, rs, nonlin=None, nonlin_neg=None):
         if nonlin :
             print ("build nonlin lv2_plugin from: %s" % arg)
         else :
@@ -148,7 +150,10 @@ class Generators(object):
         p = os.getcwd()
         os.chdir("buildlv2/")
         pgm = os.path.abspath("./make_lv2_X11bundle.sh")
-        result = os.system("%s -p ../%s -n  %s" % (pgm, dspfile, name ))
+        if not rs :
+            result = os.system("%s -p ../%s -n  %s" % (pgm, dspfile, name ))
+        else :
+            result = os.system("%s -p ../%s -r -n  %s" % (pgm, dspfile, name ))
         if (result):
             print ('\033[91m'+"Error, see message above"+'\033[0m')
             exit (1)
@@ -173,6 +178,9 @@ class DKbuilder(object):
     shortname = args.shortname
     description = args.description
     category = args.category
+    oversample = args.oversample
+    fixedrate = args.fixedrate
+    rs = False
     tablename = {}
 
     if (args.table_neg):
@@ -236,6 +244,12 @@ class DKbuilder(object):
             if not self.category:
                 self.category = "Extern"
             c1.plugindef.category = self.category
+            if self.oversample:
+                c1.plugindef.oversample = self.oversample
+                self.rs = True
+            if self.fixedrate:
+                c1.plugindef.fixedrate = self.fixedrate
+                self.rs = True
             c1.plugindef.id = module_id
             c1.set_module_id(module_id)
             c1.read_gschem(workfile)
@@ -303,6 +317,9 @@ class DKbuilder(object):
                         fuidata = fuidata.rsplit("\n", 2)[0]
                         faustui = faustui.replace('b.openHorizontalBox("");\n', '')
                         faustui = faustui.replace('b.closeBox();\n', '')
+                    elif (ui_counter ==2) and ( dsp_counter == in_files):
+                        fuidata = fuidata.rsplit("\n", 2)[0]
+                        faustui = faustui.replace('b.openHorizontalBox("");\n', '')
                     elif (ui_counter >2) and ( dsp_counter != in_files):
                         fuidata = fuidata.rsplit("\n", 1)[0]
                         faustui = faustui.replace('b.openHorizontalBox("");\n', '')
@@ -322,7 +339,7 @@ class DKbuilder(object):
         # create a LV2 module
         elif args.buildlv2 :
             g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,args.stereo)
-            g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, args.table, args.table_neg)
+            g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, self.rs, args.table, args.table_neg)
 
 def main(argv):
     dk = DKbuilder()
