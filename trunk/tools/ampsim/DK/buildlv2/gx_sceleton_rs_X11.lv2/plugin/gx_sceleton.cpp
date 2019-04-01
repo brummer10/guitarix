@@ -44,26 +44,17 @@
 #define signbit(x) std::signbit(x)
 #endif
 
-template <int32_t N> inline float faustpower(float x)
-{
-  return powf(x, N);
-}
-template <int32_t N> inline double faustpower(double x)
-{
-  return pow(x, N);
-}
-template <int32_t N> inline int32_t faustpower(int32_t x)
-{
-  return faustpower<N/2>(x) * faustpower<N-N/2>(x);
-}
-template <>      inline int32_t faustpower<0>(int32_t x)
-{
-  return 1;
-}
-template <>      inline int32_t faustpower<1>(int32_t x)
-{
-  return x;
-}
+inline double mydsp_faustpower2_f(double x) {return (x * x);}
+inline double mydsp_faustpower3_f(double x) {return ((x * x) * x);}
+inline double mydsp_faustpower4_f(double x) {return (((x * x) * x) * x);}
+inline double mydsp_faustpower5_f(double x) {return ((((x * x) * x) * x) * x);}
+inline double mydsp_faustpower6_f(double x) {return (((((x * x) * x) * x) * x) * x);}
+
+inline float mydsp_faustpower2_f(float x) {return (x * x);}
+inline float mydsp_faustpower3_f(float x) {return ((x * x) * x);}
+inline float mydsp_faustpower4_f(float x) {return (((x * x) * x) * x);}
+inline float mydsp_faustpower5_f(float x) {return ((((x * x) * x) * x) * x);}
+inline float mydsp_faustpower6_f(float x) {return (((((x * x) * x) * x) * x) * x);}
 
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
 
