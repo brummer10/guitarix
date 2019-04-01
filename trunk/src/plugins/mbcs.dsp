@@ -5,7 +5,7 @@ declare category "Guitar Effects";
 declare description "Multi Band Compressor contributed by kokoko3k";
 
 import("stdfaust.lib");
-import("reduce.lib");
+import("reducemaps.lib");
 
 sel1         = hslider("Mode1[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
 sel2         = hslider("Mode2[enum:Compress|Bypass|Mute][tooltip: Compress or Mute the selected band, or Bypass The Compressor]",1,1,3,1);
@@ -34,7 +34,7 @@ vmeter3(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v3[nomidi:no][tool
 vmeter4(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v4[nomidi:no][tooltip: Sum of Band4 ]", -70, +5)),y;
 vmeter5(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v5[nomidi:no][tooltip: Sum of Band5 ]", -70, +5)),y;
 
-envelop         = _ : max ~ (1.0/ma.SR) : reduce(max,4096) : *(0.5); // : max(ba.db2linear(-70)) : ba.linear2db;
+envelop         = _ : max ~ (1.0/ma.SR) : mean(4096) : *(0.5); // : max(ba.db2linear(-70)) : ba.linear2db;
 
 //Stereo 
 process =   (_,_):geqs: ( gcomp5s , gcomp4s , gcomp3s, gcomp2s, gcomp1s) :>(_,_) with { 

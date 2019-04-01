@@ -1,5 +1,5 @@
 // generated from file '../src/faust/maestrowah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace maestrowah {
@@ -7,79 +7,78 @@ namespace maestrowah {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	int 	iVec0[2];
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
-	double 	fConst0;
-	double 	fConst1;
-	double 	fRec2[2];
-	double 	fRec1[2];
-	double 	fRec0[2];
-	double 	fConst2;
-	double 	fConst3;
-	double 	fRec4[2];
-	double 	fConst4;
-	double 	fConst5;
-	double 	fRec3[2];
-	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT	*fslider1_;
-	double 	fRec5[2];
-	FAUSTFLOAT 	fslider2;
-	FAUSTFLOAT	*fslider2_;
-	double 	fConst6;
-	double 	fConst7;
-	double 	fConst8;
-	double 	fConst9;
-	double 	fConst10;
-	double 	fConst11;
-	double 	fConst12;
-	double 	fConst13;
-	double 	fConst14;
-	double 	fConst15;
-	double 	fConst16;
-	double 	fConst17;
-	double 	fConst18;
-	double 	fConst19;
-	double 	fConst20;
-	double 	fConst21;
-	double 	fConst22;
-	double 	fConst23;
-	double 	fConst24;
-	double 	fConst25;
-	double 	fConst26;
-	double 	fConst27;
-	double 	fConst28;
-	double 	fConst29;
-	double 	fConst30;
-	double 	fConst31;
-	double 	fConst32;
-	double 	fConst33;
-	double 	fConst34;
-	FAUSTFLOAT 	fslider3;
-	FAUSTFLOAT	*fslider3_;
-	double 	fConst35;
-	double 	fConst36;
-	double 	fConst37;
-	double 	fVec1[2];
-	double 	fConst38;
-	double 	fConst39;
-	double 	fRec7[2];
-	double 	fRec6[5];
-	double 	fConst40;
-	double 	fConst41;
-	double 	fConst42;
-	double 	fConst43;
-	double 	fConst44;
-	double 	fConst45;
-	double 	fConst46;
-	double 	fConst47;
-	double 	fConst48;
-	double 	fConst49;
-	double 	fConst50;
-	double 	fConst51;
-	double 	fConst52;
-	double 	fConst53;
-	double 	fConst54;
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	double fConst0;
+	double fConst1;
+	double fConst2;
+	double fConst3;
+	double fConst4;
+	int iVec0[2];
+	double fConst5;
+	double fVec1[2];
+	double fRec1[2];
+	double fConst6;
+	double fConst7;
+	double fConst8;
+	FAUSTFLOAT fVslider1;
+	FAUSTFLOAT	*fVslider1_;
+	double fConst9;
+	FAUSTFLOAT fVslider2;
+	FAUSTFLOAT	*fVslider2_;
+	double fRec4[2];
+	double fRec3[2];
+	double fRec2[2];
+	double fConst10;
+	double fConst11;
+	double fConst12;
+	double fConst13;
+	double fRec6[2];
+	double fRec5[2];
+	FAUSTFLOAT fVslider3;
+	FAUSTFLOAT	*fVslider3_;
+	double fRec7[2];
+	double fConst14;
+	double fConst15;
+	double fConst16;
+	double fConst17;
+	double fConst18;
+	double fConst19;
+	double fConst20;
+	double fConst21;
+	double fConst22;
+	double fConst23;
+	double fConst24;
+	double fConst25;
+	double fConst26;
+	double fConst27;
+	double fConst28;
+	double fConst29;
+	double fConst30;
+	double fConst31;
+	double fConst32;
+	double fRec0[5];
+	double fConst33;
+	double fConst34;
+	double fConst35;
+	double fConst36;
+	double fConst37;
+	double fConst38;
+	double fConst39;
+	double fConst40;
+	double fConst41;
+	double fConst42;
+	double fConst43;
+	double fConst44;
+	double fConst45;
+	double fConst46;
+	double fConst47;
+	double fConst48;
+	double fConst49;
+	double fConst50;
+	double fConst51;
+	double fConst52;
+	double fConst53;
 
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
@@ -123,16 +122,16 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) iVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
-	for (int i=0; i<2; i++) fRec1[i] = 0;
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) fRec3[i] = 0;
-	for (int i=0; i<2; i++) fRec5[i] = 0;
-	for (int i=0; i<2; i++) fVec1[i] = 0;
-	for (int i=0; i<2; i++) fRec7[i] = 0;
-	for (int i=0; i<5; i++) fRec6[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) iVec0[l0] = 0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fVec1[l1] = 0.0;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec1[l2] = 0.0;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec4[l3] = 0.0;
+	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec3[l4] = 0.0;
+	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec2[l5] = 0.0;
+	for (int l6 = 0; (l6 < 2); l6 = (l6 + 1)) fRec6[l6] = 0.0;
+	for (int l7 = 0; (l7 < 2); l7 = (l7 + 1)) fRec5[l7] = 0.0;
+	for (int l8 = 0; (l8 < 2); l8 = (l8 + 1)) fRec7[l8] = 0.0;
+	for (int l9 = 0; (l9 < 5); l9 = (l9 + 1)) fRec0[l9] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -143,61 +142,64 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
-	fConst1 = (0.10471975511965977 / fConst0);
-	fConst2 = exp((0 - (1e+01 / fConst0)));
-	fConst3 = (1.0 - fConst2);
-	fConst4 = exp((0 - (1e+02 / fConst0)));
-	fConst5 = (1.0 - fConst4);
-	fConst6 = double(fConst0);
-	fConst7 = (4.53925105453318e-22 * fConst6);
-	fConst8 = ((fConst6 * (0 - (2.20007271917577e-18 + fConst7))) - 1.9840085993285e-14);
-	fConst9 = (3.15399184914731e-19 * fConst6);
-	fConst10 = (2.81635784152467e-14 + (fConst6 * (2.2050952353796e-17 + fConst9)));
-	fConst11 = (2.95651915836617e-20 * fConst6);
-	fConst12 = (7.65730526965241e-11 + (fConst6 * (5.39738799500148e-13 + (fConst6 * (3.70386813965067e-17 + fConst11)))));
-	fConst13 = (2.72075590065939e-21 * fConst6);
-	fConst14 = (8.86819759919558e-14 + (fConst6 * (fConst13 - 2.47828940556324e-17)));
-	fConst15 = (2.71455853073723e-21 * fConst6);
-	fConst16 = ((fConst6 * (2.47794028705763e-17 - fConst15)) - 8.86817888313842e-14);
-	fConst17 = (3.51316538913314e-20 * fConst6);
-	fConst18 = ((fConst6 * (4.11229500551683e-16 - fConst17)) - 1.76902751745081e-12);
-	fConst19 = ((fConst6 * (2.20007271917577e-18 - fConst7)) - 1.9840085993285e-14);
-	fConst20 = (2.81635784152467e-14 + (fConst6 * (fConst9 - 2.2050952353796e-17)));
-	fConst21 = ((fConst6 * (5.39738799500148e-13 + (fConst6 * (fConst11 - 3.70386813965067e-17)))) - 7.65730526965241e-11);
-	fConst22 = (1.81570042181327e-21 * fConst6);
-	fConst23 = (fConst22 - 4.40014543835154e-18);
-	fConst24 = (1.26159673965892e-18 * fConst6);
-	fConst25 = (4.4101904707592e-17 - fConst24);
-	fConst26 = faustpower<2>(fConst6);
-	fConst27 = (1.18260766334647e-19 * fConst6);
-	fConst28 = ((fConst26 * (7.40773627930135e-17 - fConst27)) - 1.53146105393048e-10);
-	fConst29 = (4.40014543835154e-18 + fConst22);
-	fConst30 = (0 - (4.4101904707592e-17 + fConst24));
-	fConst31 = (1.53146105393048e-10 + (fConst26 * (0 - (7.40773627930135e-17 + fConst27))));
-	fConst32 = (3.968017198657e-14 - (2.72355063271991e-21 * fConst26));
-	fConst33 = ((1.89239510948839e-18 * fConst26) - 5.63271568304933e-14);
-	fConst34 = ((1.7739114950197e-19 * fConst26) - 1.0794775990003e-12);
-	fConst35 = (203.47539521535035 / fConst0);
-	fConst36 = (1 + fConst35);
-	fConst37 = (0.01 / fConst36);
-	fConst38 = (1 - fConst35);
-	fConst39 = (1.0 / fConst36);
-	fConst40 = (1.08830236026375e-20 * fConst6);
-	fConst41 = (4.95657881112649e-17 - fConst40);
-	fConst42 = (1.08582341229489e-20 * fConst6);
-	fConst43 = (fConst42 - 4.95588057411526e-17);
-	fConst44 = (1.40526615565326e-19 * fConst6);
-	fConst45 = (fConst44 - 8.22459001103366e-16);
-	fConst46 = ((1.63245354039563e-20 * fConst26) - 1.77363951983912e-13);
-	fConst47 = (1.77363577662768e-13 - (1.62873511844234e-20 * fConst26));
-	fConst48 = (3.53805503490162e-12 - (2.10789923347988e-19 * fConst26));
-	fConst49 = (0 - (4.95657881112649e-17 + fConst40));
-	fConst50 = (4.95588057411526e-17 + fConst42);
-	fConst51 = (8.22459001103366e-16 + fConst44);
-	fConst52 = (8.86819759919558e-14 + (fConst6 * (2.47828940556324e-17 + fConst13)));
-	fConst53 = ((fConst6 * (0 - (2.47794028705763e-17 + fConst15))) - 8.86817888313842e-14);
-	fConst54 = ((fConst6 * (0 - (4.11229500551683e-16 + fConst17))) - 1.76902751745081e-12);
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fConst1 = (203.47539521535035 / fConst0);
+	fConst2 = (fConst1 + 1.0);
+	fConst3 = (1.0 / fConst2);
+	fConst4 = (1.0 - fConst1);
+	fConst5 = (0.01 / fConst2);
+	fConst6 = (1.1826076633464699e-19 * fConst0);
+	fConst7 = mydsp_faustpower2_f(fConst0);
+	fConst8 = (((-7.4077362793013503e-17 - fConst6) * fConst7) + 1.53146105393048e-10);
+	fConst9 = (0.10471975511965977 / fConst0);
+	fConst10 = std::exp((0.0 - (100.0 / fConst0)));
+	fConst11 = (1.0 - fConst10);
+	fConst12 = std::exp((0.0 - (10.0 / fConst0)));
+	fConst13 = (1.0 - fConst12);
+	fConst14 = (1.26159673965892e-18 * fConst0);
+	fConst15 = (((-4.4101904707591998e-17 - fConst14) * fConst7) + 7.9360343973140094e-12);
+	fConst16 = (1.8157004218132698e-21 * fConst0);
+	fConst17 = ((fConst16 + 4.4001454383515398e-18) * fConst7);
+	fConst18 = ((1.7739114950196999e-19 * fConst7) + -1.0794775990002999e-12);
+	fConst19 = ((1.8923951094883899e-18 * fConst7) + -5.6327156830493297e-14);
+	fConst20 = (3.9680171986569998e-14 - (2.72355063271991e-21 * fConst7));
+	fConst21 = (((7.4077362793013503e-17 - fConst6) * fConst7) + -1.53146105393048e-10);
+	fConst22 = (((4.4101904707591998e-17 - fConst14) * fConst7) + -7.9360343973140094e-12);
+	fConst23 = ((fConst16 + -4.4001454383515398e-18) * fConst7);
+	fConst24 = (2.95651915836617e-20 * fConst0);
+	fConst25 = (((((fConst24 + -3.7038681396506702e-17) * fConst0) + 5.3973879950014804e-13) * fConst0) + -7.6573052696524105e-11);
+	fConst26 = (3.1539918491473101e-19 * fConst0);
+	fConst27 = (((((fConst26 + -2.2050952353795999e-17) * fConst0) + 2.8163578415246699e-14) * fConst0) + -3.9680171986569999e-12);
+	fConst28 = (4.5392510545331802e-22 * fConst0);
+	fConst29 = ((((2.2000727191757699e-18 - fConst28) * fConst0) + -1.9840085993284999e-14) * fConst0);
+	fConst30 = (((((fConst24 + 3.7038681396506702e-17) * fConst0) + 5.3973879950014804e-13) * fConst0) + 7.6573052696524105e-11);
+	fConst31 = (((((fConst26 + 2.2050952353795999e-17) * fConst0) + 2.8163578415246699e-14) * fConst0) + 3.9680171986569999e-12);
+	fConst32 = ((((-2.2000727191757699e-18 - fConst28) * fConst0) + -1.9840085993284999e-14) * fConst0);
+	fConst33 = (3.5131653891331399e-20 * fConst0);
+	fConst34 = (((((-4.1122950055168299e-16 - fConst33) * fConst0) + -1.76902751745081e-12) * fConst0) + -1.9864762622198099e-11);
+	fConst35 = (2.7145585307372299e-21 * fConst0);
+	fConst36 = (((-2.4779402870576299e-17 - fConst35) * fConst0) + -8.8681788831384194e-14);
+	fConst37 = (2.7207559006593899e-21 * fConst0);
+	fConst38 = (((fConst37 + 2.4782894055632401e-17) * fConst0) + 8.8681975991955794e-14);
+	fConst39 = (1.40526615565326e-19 * fConst0);
+	fConst40 = (((fConst39 + 8.2245900110336598e-16) * fConst7) + -3.9729525244396197e-11);
+	fConst41 = (1.08582341229489e-20 * fConst0);
+	fConst42 = (fConst41 + 4.9558805741152598e-17);
+	fConst43 = (1.0883023602637499e-20 * fConst0);
+	fConst44 = (-4.95657881112649e-17 - fConst43);
+	fConst45 = (3.53805503490162e-12 - (2.1078992334798801e-19 * fConst7));
+	fConst46 = (1.7736357766276801e-13 - (1.62873511844234e-20 * fConst7));
+	fConst47 = ((1.6324535403956301e-20 * fConst7) + -1.7736395198391199e-13);
+	fConst48 = (((fConst39 + -8.2245900110336598e-16) * fConst7) + 3.9729525244396197e-11);
+	fConst49 = (fConst41 + -4.9558805741152598e-17);
+	fConst50 = (4.95657881112649e-17 - fConst43);
+	fConst51 = (((((4.1122950055168299e-16 - fConst33) * fConst0) + -1.76902751745081e-12) * fConst0) + 1.9864762622198099e-11);
+	fConst52 = (((2.4779402870576299e-17 - fConst35) * fConst0) + -8.8681788831384194e-14);
+	fConst53 = (((fConst37 + -2.4782894055632401e-17) * fConst0) + 8.8681975991955794e-14);
+	fVslider0 = FAUSTFLOAT(100.0);
+	fVslider1 = FAUSTFLOAT(0.0);
+	fVslider2 = FAUSTFLOAT(24.0);
+	fVslider3 = FAUSTFLOAT(0.0);
 	clear_state_f();
 }
 
@@ -208,49 +210,52 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-#define fslider0 (*fslider0_)
-#define fslider1 (*fslider1_)
-#define fslider2 (*fslider2_)
-#define fslider3 (*fslider3_)
-	double 	fSlow0 = (fConst1 * double(fslider0));
-	double 	fSlow1 = (4.748558434412966e-05 * (exp((5 * (1 - double(fslider1)))) - 1));
-	int 	iSlow2 = int(double(fslider2));
-	double 	fSlow3 = double(fslider3);
-	double 	fSlow4 = (fConst37 * fSlow3);
-	double 	fSlow5 = (0.01 * fSlow3);
-	double 	fSlow6 = (1 - fSlow5);
-	for (int i=0; i<count; i++) {
+#define fVslider0 (*fVslider0_)
+#define fVslider1 (*fVslider1_)
+#define fVslider2 (*fVslider2_)
+#define fVslider3 (*fVslider3_)
+	double fSlow0 = double(fVslider0);
+	double fSlow1 = (0.01 * fSlow0);
+	double fSlow2 = (1.0 - fSlow1);
+	double fSlow3 = (fConst5 * fSlow0);
+	int iSlow4 = int(double(fVslider1));
+	int iSlow5 = (iSlow4 == 0);
+	int iSlow6 = (iSlow4 == 1);
+	double fSlow7 = (fConst9 * double(fVslider2));
+	double fSlow8 = (4.748558434412966e-05 * (std::exp((5.0 * (1.0 - double(fVslider3)))) + -1.0));
+	for (int i = 0; (i < count); i = (i + 1)) {
+		double fTemp0 = double(input0[i]);
 		iVec0[0] = 1;
-		fRec2[0] = ((fSlow0 * (0 - fRec0[1])) + fRec2[1]);
-		fRec1[0] = ((1 + (fRec1[1] + (fSlow0 * fRec2[0]))) - iVec0[1]);
-		fRec0[0] = fRec1[0];
-		double fTemp0 = (double)input0[i];
-		double fTemp1 = fabs(fTemp0);
-		fRec4[0] = max(fTemp1, ((fConst3 * fTemp1) + (fConst2 * fRec4[1])));
-		fRec3[0] = ((fConst4 * fRec3[1]) + (fConst5 * fRec4[0]));
-		fRec5[0] = (fSlow1 + (0.993 * fRec5[1]));
-		double fTemp2 = ((iSlow2==0)? fRec5[0] : ((iSlow2==1)?max(0.09, min(0.75, fRec3[0])):(1 - max(0.25, min(0.91, (0.5 * (1 + fRec0[0])))))) );
-		double fTemp3 = (7.93603439731401e-10 + (fConst6 * (fConst12 + (fTemp2 * (3.968017198657e-12 + (fConst6 * (fConst10 + (fConst8 * fTemp2))))))));
-		fVec1[0] = (fSlow4 * fTemp0);
-		fRec7[0] = ((fConst39 * ((fSlow5 * fTemp0) + (fConst38 * fRec7[1]))) - fVec1[1]);
-		fRec6[0] = (fRec7[0] - (((((fRec6[2] * (4.76162063838841e-09 + (fConst26 * (fConst34 + (fTemp2 * (fConst33 + (fConst32 * fTemp2))))))) + (fRec6[1] * (3.1744137589256e-09 + (fConst6 * (fConst31 + (fTemp2 * (7.93603439731401e-12 + (fConst26 * (fConst30 + (fConst29 * fTemp2)))))))))) + (fRec6[3] * (3.1744137589256e-09 + (fConst6 * (fConst28 + (fTemp2 * ((fConst26 * (fConst25 + (fConst23 * fTemp2))) - 7.93603439731401e-12))))))) + (fRec6[4] * (7.93603439731401e-10 + (fConst6 * (fConst21 + (fTemp2 * ((fConst6 * (fConst20 + (fConst19 * fTemp2))) - 3.968017198657e-12))))))) / fTemp3));
-		output0[i] = (FAUSTFLOAT)((fSlow6 * fTemp0) + (fConst6 * ((((((fRec6[0] * ((fConst6 * (fConst54 + (fTemp2 * (fConst53 + (fConst52 * fTemp2))))) - 1.98647626221981e-11)) + (fRec6[1] * ((fConst26 * (fConst51 + (fTemp2 * (fConst50 + (fConst49 * fTemp2))))) - 3.97295252443962e-11))) + (fConst6 * (fRec6[2] * (fConst48 + (fTemp2 * (fConst47 + (fConst46 * fTemp2))))))) + (fRec6[3] * (3.97295252443962e-11 + (fConst26 * (fConst45 + (fTemp2 * (fConst43 + (fConst41 * fTemp2)))))))) + (fRec6[4] * (1.98647626221981e-11 + (fConst6 * (fConst18 + (fTemp2 * (fConst16 + (fConst14 * fTemp2)))))))) / fTemp3)));
-		// post processing
-		for (int i=4; i>0; i--) fRec6[i] = fRec6[i-1];
-		fRec7[1] = fRec7[0];
-		fVec1[1] = fVec1[0];
-		fRec5[1] = fRec5[0];
-		fRec3[1] = fRec3[0];
-		fRec4[1] = fRec4[0];
-		fRec0[1] = fRec0[0];
-		fRec1[1] = fRec1[0];
-		fRec2[1] = fRec2[0];
+		fVec1[0] = (fSlow3 * fTemp0);
+		fRec1[0] = ((fConst3 * ((fSlow1 * fTemp0) + (fConst4 * fRec1[1]))) - fVec1[1]);
+		fRec4[0] = (fRec4[1] + (fSlow7 * (0.0 - fRec2[1])));
+		fRec3[0] = ((fSlow7 * fRec4[0]) + (double((1 - iVec0[1])) + fRec3[1]));
+		fRec2[0] = fRec3[0];
+		double fTemp1 = std::fabs(fTemp0);
+		fRec6[0] = std::max<double>(fTemp1, ((fConst12 * fRec6[1]) + (fConst13 * fTemp1)));
+		fRec5[0] = ((fConst10 * fRec5[1]) + (fConst11 * fRec6[0]));
+		fRec7[0] = (fSlow8 + (0.99299999999999999 * fRec7[1]));
+		double fTemp2 = (iSlow5?fRec7[0]:(iSlow6?std::max<double>(0.089999999999999997, std::min<double>(0.75, fRec5[0])):(1.0 - std::max<double>(0.25, std::min<double>(0.91000000000000003, (0.5 * (fRec2[0] + 1.0)))))));
+		double fTemp3 = ((fConst0 * (fConst30 + (fTemp2 * (fConst31 + (fConst32 * fTemp2))))) + 7.9360343973140096e-10);
+		fRec0[0] = (fRec1[0] - (((((fRec0[1] * ((fConst0 * (fConst8 + (fTemp2 * (fConst15 + (fConst17 * fTemp2))))) + 3.1744137589256001e-09)) + (fRec0[2] * ((fConst7 * (fConst18 + (fTemp2 * (fConst19 + (fConst20 * fTemp2))))) + 4.7616206383884097e-09))) + (fRec0[3] * ((fConst0 * (fConst21 + (fTemp2 * (fConst22 + (fConst23 * fTemp2))))) + 3.1744137589256001e-09))) + (fRec0[4] * ((fConst0 * (fConst25 + (fTemp2 * (fConst27 + (fConst29 * fTemp2))))) + 7.9360343973140096e-10))) / fTemp3));
+		output0[i] = FAUSTFLOAT(((fSlow2 * fTemp0) + (fConst0 * ((((((fRec0[0] * (fConst34 + (fConst0 * (fTemp2 * (fConst36 + (fConst38 * fTemp2)))))) + (fRec0[1] * (fConst40 + (fConst7 * (fTemp2 * (fConst42 + (fConst44 * fTemp2))))))) + (fConst0 * (fRec0[2] * (fConst45 + (fTemp2 * (fConst46 + (fConst47 * fTemp2))))))) + (fRec0[3] * (fConst48 + (fConst7 * (fTemp2 * (fConst49 + (fConst50 * fTemp2))))))) + (fRec0[4] * (fConst51 + (fConst0 * (fTemp2 * (fConst52 + (fConst53 * fTemp2))))))) / fTemp3))));
 		iVec0[1] = iVec0[0];
+		fVec1[1] = fVec1[0];
+		fRec1[1] = fRec1[0];
+		fRec4[1] = fRec4[0];
+		fRec3[1] = fRec3[0];
+		fRec2[1] = fRec2[0];
+		fRec6[1] = fRec6[0];
+		fRec5[1] = fRec5[0];
+		fRec7[1] = fRec7[0];
+		for (int j0 = 4; (j0 > 0); j0 = (j0 - 1)) {
+			fRec0[j0] = fRec0[(j0 - 1)];
+		}
 	}
-#undef fslider0
-#undef fslider1
-#undef fslider2
-#undef fslider3
+#undef fVslider0
+#undef fVslider1
+#undef fVslider2
+#undef fVslider3
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
@@ -260,11 +265,11 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fslider1_ = reg.registerVar("wah.Wah","","SA","",&fslider1, 0.0, 0.0, 1.0, 0.01);
-	fslider0_ = reg.registerVar("wah.freq",N_("Alien Freq"),"SA",N_("LFO in Beats per Minute"),&fslider0, 24.0, 24.0, 3.6e+02, 1.0);
-	static const value_pair fslider2_values[] = {{"manual"},{"auto"},{"alien"},{0}};
-	fslider2_ = reg.registerSharedEnumVar("wah.mode","","SA","",fslider2_values,&fslider2, 0.0, 0.0, 2.0, 1.0);
-	fslider3_ = reg.registerVar("wah.wet_dry",N_("dry/wet"),"SA","",&fslider3, 1e+02, 0.0, 1e+02, 1.0);
+	fVslider3_ = reg.registerVar("wah.Wah","","SA","",&fVslider3, 0.0, 0.0, 1.0, 0.01);
+	fVslider2_ = reg.registerVar("wah.freq",N_("Alien Freq"),"SA",N_("LFO in Beats per Minute"),&fVslider2, 24.0, 24.0, 360.0, 1.0);
+	static const value_pair fVslider1_values[] = {{"manual"},{"auto"},{"alien"},{0}};
+	fVslider1_ = reg.registerSharedEnumVar("wah.mode","","SA","",fVslider1_values,&fVslider1, 0.0, 0.0, 2.0, 1.0);
+	fVslider0_ = reg.registerVar("wah.wet_dry",N_("dry/wet"),"SA","",&fVslider0, 100.0, 0.0, 100.0, 1.0);
 	return 0;
 }
 

@@ -2,7 +2,7 @@ Source: guitarix2
 Section: sound
 Priority: extra
 Maintainer: brummer <brummer-@web.de>
-Build-Depends: debhelper (>= 6), python-minimal, python2.5|python2.6, libjack-jackd2-dev|libjack-dev, libsndfile1-dev, libgtk2.0-dev, libgtkmm-2.4-dev, ladspa-sdk, libavcodec-dev, libavutil-dev, liblilv-dev, lv2-dev, libeigen3-dev, libavahi-gobject-dev, libbluetooth-dev, libfftw3-dev, liblrdf0-dev, libsndfile1-dev, libsigc++-2.0-dev, libgail-dev, libboost-dev, gperf
+Build-Depends: debhelper (>= 6), python-minimal, python2.5|python2.6|python2.7, libjack-jackd2-dev|libjack-dev, libsndfile1-dev, libgtk2.0-dev, libgtkmm-2.4-dev, ladspa-sdk, libavcodec-dev, libavutil-dev, liblilv-dev, lv2-dev, libeigen3-dev, libavahi-gobject-dev, libbluetooth-dev, libfftw3-dev, liblrdf0-dev, libsndfile1-dev, libsigc++-2.0-dev, libboost-dev, gperf
 Standards-Version: 3.7.3
 Homepage: <http://guitarix.org/>
 

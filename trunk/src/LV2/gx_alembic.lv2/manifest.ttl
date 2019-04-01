@@ -23,6 +23,6 @@
 <http://guitarix.sourceforge.net/plugins/gx_alembic#alembic>
     a lv2:Plugin ;
     lv2:binary <gx_alembic.so>  ;
-    rdfs:seeAlso <gx_alembic.ttl> , <modgui.ttl> .
+    rdfs:seeAlso <gx_alembic.ttl>   .
 
 

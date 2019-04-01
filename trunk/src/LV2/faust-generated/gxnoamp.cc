@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxnoamp.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace gxnoamp {
@@ -7,9 +7,9 @@ namespace gxnoamp {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
-	double 	fRec0[2];
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	double fRec0[2];
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -47,7 +47,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec0[l0] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -58,6 +58,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+	fVslider0 = FAUSTFLOAT(-6.0);
 	clear_state_f();
 }
 
@@ -68,15 +69,14 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-#define fslider0 (*fslider0_)
-	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
-	for (int i=0; i<count; i++) {
+#define fVslider0 (*fVslider0_)
+	double fSlow0 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider0))));
+	for (int i = 0; (i < count); i = (i + 1)) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-		output0[i] = (FAUSTFLOAT)((double)input0[i] * fRec0[0]);
-		// post processing
+		output0[i] = FAUSTFLOAT((fRec0[0] * double(input0[i])));
 		fRec0[1] = fRec0[0];
 	}
-#undef fslider0
+#undef fVslider0
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
@@ -90,7 +90,7 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case GAIN1: 
-		fslider0_ = (float*)data; // , -6.0, -2e+01, 2e+01, 0.1 
+		fVslider0_ = (float*)data; // , -6.0, -20.0, 20.0, 0.10000000000000001 
 		break;
 	default:
 		break;

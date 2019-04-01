@@ -175,7 +175,7 @@ enyo.kind({
 	this.digits = l;
     },
     setValue: function(v) {
-	this.setContent(v.toFixed(this.digits));
+	this.setContent(parseFloat(v).toFixed(this.digits));
     },
 });
 
@@ -304,7 +304,7 @@ enyo.kind({
 		    var builderlist = [];
 		    builderlist.push(["create_switch", null, this.fxId[0], null]);
 		    for (var i = 1; i < this.fxId.length; i++) {
-			builderlist.push(["create_small_rackknob", this.fxId[i], null]);
+				builderlist.push(["create_small_rackknob", this.fxId[i], null]);
 		    }
 		    var b = new UiBuilder();
 		    this.control_setter = {};
@@ -331,6 +331,15 @@ enyo.kind({
 				var m = this.fxId+"\\.(position|s_h|on_off|pp)$";
 				for (id in result) {
 				    if (id.match(m)) {
+					continue;
+				    }
+				    if (id.match("jconv_mono.convolver")) {
+					continue;
+				    }
+				    if (id.match("jconv.convolver")) {
+					continue;
+				    }
+				    if (id.includes("seq.sequencer")) {
 					continue;
 				    }
 				    o = result[id];

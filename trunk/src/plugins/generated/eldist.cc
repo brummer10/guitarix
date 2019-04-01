@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/eldist.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -13,16 +13,14 @@ private:
 	gx_resample::FixedRateResampler smp;
 	int samplingFreq;
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	double 	fRec0[2];
-	double 	fConst0;
-	double 	fConst1;
-	double 	fConst2;
-	double 	fConst3;
-	double 	fConst4;
-	double 	fConst5;
-	double 	fConst6;
-	double 	fRec1[2];
+	double fConst0;
+	double fConst1;
+	double fConst2;
+	FAUSTFLOAT fVslider0;
+	double fRec1[2];
+	double fConst3;
+	double fConst4;
+	double fRec0[2];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -69,8 +67,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<2; i++) fRec1[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec1[l0] = 0.0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -83,13 +81,12 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	samplingFreq = 96000;
 	smp.setup(RsamplingFreq, samplingFreq);
 	fSamplingFreq = samplingFreq;
-	fConst0 = double(min(1.92e+05, max(1.0, (double)fSamplingFreq)));
-	fConst1 = (3.9949101411109e-05 * fConst0);
-	fConst2 = (0 - (8.66687668918243e-05 + fConst1));
-	fConst3 = (4.07955525542246e-05 * fConst0);
-	fConst4 = (0.000635245647283505 + fConst3);
-	fConst5 = (fConst1 - 8.66687668918243e-05);
-	fConst6 = (0.000635245647283505 - fConst3);
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fConst1 = (3.9949101411109002e-05 * fConst0);
+	fConst2 = (fConst1 + -8.66687668918243e-05);
+	fConst3 = (4.0795552554224603e-05 * fConst0);
+	fConst4 = (-8.66687668918243e-05 - fConst1);
+	fVslider0 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
@@ -102,14 +99,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
-	double 	fSlow0 = (0.007000000000000006 * double(fslider0));
-	for (int i=0; i<ReCount; i++) {
-		fRec0[0] = (fSlow0 + (0.993 * fRec0[1]));
-		double fTemp0 = (fConst4 + (fConst2 * fRec0[0]));
-		double fTemp1 = (0.00018716364572377 + (8.14686408743197e-08 * fRec0[0]));
-		fRec1[0] = ((double)buf[i] - ((fRec1[1] * (fConst6 + (fConst5 * fRec0[0]))) / fTemp0));
-		buf[i] = (FAUSTFLOAT)asymclip((fConst0 * (((fRec1[1] * fTemp1) + (fRec1[0] * (0 - fTemp1))) / fTemp0)));
-		// post processing
+	double fSlow0 = (0.0070000000000000062 * double(fVslider0));
+	for (int i = 0; (i < ReCount); i = (i + 1)) {
+		fRec1[0] = (fSlow0 + (0.99299999999999999 * fRec1[1]));
+		double fTemp0 = (fConst3 + ((fConst4 * fRec1[0]) + 0.000635245647283505));
+		fRec0[0] = (double(buf[i]) - ((fRec0[1] * (((fConst2 * fRec1[0]) + 0.000635245647283505) - fConst3)) / fTemp0));
+		double fTemp1 = (8.1468640874319694e-08 * fRec1[0]);
+		buf[i] = FAUSTFLOAT(double(asymclip(double((fConst0 * (((fRec0[0] * ((0.0 - fTemp1) + -0.00018716364572377001)) + (fRec0[1] * (fTemp1 + 0.00018716364572377001))) / fTemp0))))));
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];
 	}
@@ -123,7 +119,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("eldist.Drive",N_("Drive"),"S","",&fslider0, 0.5, 0.0, 1.0, 0.01);
+	reg.registerVar("eldist.Drive",N_("Drive"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01);
 	return 0;
 }
 

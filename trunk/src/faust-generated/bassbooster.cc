@@ -1,5 +1,5 @@
 // generated from file '../src/faust/bassbooster.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace bassbooster {
@@ -7,14 +7,14 @@ namespace bassbooster {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	double 	fRec0[2];
-	double 	fConst0;
-	double 	fConst1;
-	double 	fConst2;
-	double 	fConst3;
-	double 	fConst4;
-	double 	fRec1[3];
+	double fConst0;
+	double fConst1;
+	double fConst2;
+	double fConst3;
+	double fConst4;
+	double fRec0[3];
+	FAUSTFLOAT fVslider0;
+	double fRec1[2];
 
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
@@ -63,8 +63,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<3; i++) fRec1[i] = 0;
+	for (int l0 = 0; (l0 < 3); l0 = (l0 + 1)) fRec0[l0] = 0.0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -75,11 +75,12 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = tan((376.99111843077515 / min(1.92e+05, max(1.0, (double)fSamplingFreq))));
-	fConst1 = faustpower<2>(fConst0);
-	fConst2 = (2 * (fConst1 - 1));
-	fConst3 = (1 + (fConst0 * (fConst0 - 1.4142135623730951)));
-	fConst4 = (1.0 / (1 + (fConst0 * (1.4142135623730951 + fConst0))));
+	fConst0 = std::tan((376.99111843077515 / std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)))));
+	fConst1 = (1.0 / ((fConst0 * (fConst0 + 1.4142135623730951)) + 1.0));
+	fConst2 = ((fConst0 * (fConst0 + -1.4142135623730951)) + 1.0);
+	fConst3 = mydsp_faustpower2_f(fConst0);
+	fConst4 = (2.0 * (fConst3 + -1.0));
+	fVslider0 = FAUSTFLOAT(10.0);
 	clear_state_f();
 }
 
@@ -90,17 +91,17 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (9.999999999998899e-05 * double(fslider0));
-	for (int i=0; i<count; i++) {
-		fRec0[0] = (fSlow0 + (0.9999 * fRec0[1]));
-		double fTemp0 = pow(10,(0.05 * fRec0[0]));
-		double fTemp1 = sqrt((2 * fTemp0));
+	double fSlow0 = (9.9999999999988987e-05 * double(fVslider0));
+	for (int i = 0; (i < count); i = (i + 1)) {
+		fRec0[0] = (double(input0[i]) - (fConst1 * ((fConst2 * fRec0[2]) + (fConst4 * fRec0[1]))));
+		fRec1[0] = (fSlow0 + (0.99990000000000001 * fRec1[1]));
+		double fTemp0 = std::pow(10.0, (0.050000000000000003 * fRec1[0]));
+		double fTemp1 = std::sqrt((2.0 * fTemp0));
 		double fTemp2 = (fConst0 * fTemp0);
-		fRec1[0] = ((double)input0[i] - (fConst4 * ((fConst3 * fRec1[2]) + (fConst2 * fRec1[1]))));
-		output0[i] = (FAUSTFLOAT)(fConst4 * ((((1 + (fConst0 * (fTemp1 + fTemp2))) * fRec1[0]) + (2 * (fRec1[1] * ((fConst1 * fTemp0) - 1)))) + (fRec1[2] * (1 + (fConst0 * (fTemp2 - fTemp1))))));
-		// post processing
-		fRec1[2] = fRec1[1]; fRec1[1] = fRec1[0];
+		output0[i] = FAUSTFLOAT((fConst1 * (((fRec0[0] * ((fConst0 * (fTemp1 + fTemp2)) + 1.0)) + (2.0 * (fRec0[1] * ((fConst3 * fTemp0) + -1.0)))) + (fRec0[2] * (1.0 - (fConst0 * (fTemp1 - fTemp2)))))));
+		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];
+		fRec1[1] = fRec1[0];
 	}
 }
 
@@ -111,7 +112,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("bassbooster.Level","","S","",&fslider0, 1e+01, 0.5, 2e+01, 0.5);
+	reg.registerVar("bassbooster.Level","","S","",&fVslider0, 10.0, 0.5, 20.0, 0.5);
 	return 0;
 }
 

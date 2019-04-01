@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_room_simulator_#_room_simulator_>
     a lv2:Plugin ;
     lv2:binary <gx_room_simulator.so>  ;
-    rdfs:seeAlso <gx_room_simulator.ttl> , <modgui.ttl>.
+    rdfs:seeAlso <gx_room_simulator.ttl>  .

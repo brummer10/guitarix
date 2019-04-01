@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxtubetremelo.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace gxtubetremelo {
@@ -7,40 +7,39 @@ namespace gxtubetremelo {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	int 	iVec0[2];
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
-	double 	fRec0[2];
-	double 	fConst0;
-	double 	fConst1;
-	double 	fConst2;
-	double 	fConst3;
-	double 	fConst4;
-	double 	fConst5;
-	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT	*fslider1_;
-	double 	fConst6;
-	int 	iRec4[2];
-	int 	iRec3[2];
-	double 	fConst7;
-	double 	fRec7[2];
-	double 	fRec6[2];
-	double 	fRec5[2];
-	FAUSTFLOAT 	fcheckbox0;
-	FAUSTFLOAT	*fcheckbox0_;
-	FAUSTFLOAT 	fslider2;
-	FAUSTFLOAT	*fslider2_;
-	double 	fRec2[2];
-	FAUSTFLOAT 	fslider3;
-	FAUSTFLOAT	*fslider3_;
-	double 	fRec8[2];
-	double 	fConst8;
-	double 	fConst9;
-	double 	fConst10;
-	double 	fRec9[2];
-	double 	fConst11;
-	double 	fRec1[2];
-	double 	fConst12;
+	double fConst0;
+	double fConst1;
+	double fConst2;
+	double fConst3;
+	double fConst4;
+	double fConst5;
+	double fConst6;
+	double fConst7;
+	int iVec0[2];
+	double fRec1[2];
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	double fRec2[2];
+	double fConst8;
+	FAUSTFLOAT fVslider1;
+	FAUSTFLOAT	*fVslider1_;
+	FAUSTFLOAT fCheckbox0;
+	FAUSTFLOAT	*fCheckbox0_;
+	double fConst9;
+	FAUSTFLOAT fVslider2;
+	FAUSTFLOAT	*fVslider2_;
+	int iRec5[2];
+	int iRec4[2];
+	double fConst10;
+	double fRec8[2];
+	double fRec7[2];
+	double fRec6[2];
+	double fRec3[2];
+	double fConst11;
+	double fRec0[2];
+	FAUSTFLOAT fVslider3;
+	FAUSTFLOAT	*fVslider3_;
+	double fRec9[2];
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -78,17 +77,17 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) iVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<2; i++) iRec4[i] = 0;
-	for (int i=0; i<2; i++) iRec3[i] = 0;
-	for (int i=0; i<2; i++) fRec7[i] = 0;
-	for (int i=0; i<2; i++) fRec6[i] = 0;
-	for (int i=0; i<2; i++) fRec5[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
-	for (int i=0; i<2; i++) fRec8[i] = 0;
-	for (int i=0; i<2; i++) fRec9[i] = 0;
-	for (int i=0; i<2; i++) fRec1[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) iVec0[l0] = 0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec2[l2] = 0.0;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) iRec5[l3] = 0;
+	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) iRec4[l4] = 0;
+	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec8[l5] = 0.0;
+	for (int l6 = 0; (l6 < 2); l6 = (l6 + 1)) fRec7[l6] = 0.0;
+	for (int l7 = 0; (l7 < 2); l7 = (l7 + 1)) fRec6[l7] = 0.0;
+	for (int l8 = 0; (l8 < 2); l8 = (l8 + 1)) fRec3[l8] = 0.0;
+	for (int l9 = 0; (l9 < 2); l9 = (l9 + 1)) fRec0[l9] = 0.0;
+	for (int l10 = 0; (l10 < 2); l10 = (l10 + 1)) fRec9[l10] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -99,19 +98,23 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
-	fConst1 = double(fConst0);
-	fConst2 = (2.08237464507809e-05 * fConst1);
-	fConst3 = (0.000460170362516827 + fConst2);
-	fConst4 = ((0.000460170362516827 - fConst2) / fConst3);
-	fConst5 = (1.0 / fConst0);
-	fConst6 = (0.5 * fConst0);
-	fConst7 = (6.283185307179586 / fConst0);
-	fConst8 = (2.08239024527461e-05 * fConst1);
-	fConst9 = (0.00045268226818868 + fConst8);
-	fConst10 = ((0.00045268226818868 - fConst8) / fConst9);
-	fConst11 = (2.7e+02 * (fConst1 / fConst9));
-	fConst12 = (fConst1 / fConst3);
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fConst1 = (2.08237464507809e-05 * fConst0);
+	fConst2 = (fConst1 + 0.00046017036251682698);
+	fConst3 = (fConst0 / fConst2);
+	fConst4 = (2.0823902452746101e-05 * fConst0);
+	fConst5 = (fConst4 + 0.00045268226818868002);
+	fConst6 = (270.0 * (fConst0 / fConst5));
+	fConst7 = ((0.00045268226818868002 - fConst4) / fConst5);
+	fConst8 = (1.0 / fConst0);
+	fConst9 = (0.5 * fConst0);
+	fConst10 = (6.2831853071795862 / fConst0);
+	fConst11 = ((0.00046017036251682698 - fConst1) / fConst2);
+	fVslider0 = FAUSTFLOAT(0.5);
+	fVslider1 = FAUSTFLOAT(0.5);
+	fCheckbox0 = FAUSTFLOAT(0.0);
+	fVslider2 = FAUSTFLOAT(5.0);
+	fVslider3 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
@@ -122,52 +125,50 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-#define fslider0 (*fslider0_)
-#define fslider1 (*fslider1_)
-#define fcheckbox0 (*fcheckbox0_)
-#define fslider2 (*fslider2_)
-#define fslider3 (*fslider3_)
-	double 	fSlow0 = (0.004073836948085289 * (exp((1 - double(fslider0))) - 1));
-	double 	fSlow1 = double(fslider1);
-	int 	iSlow2 = int((fConst6 / double(fSlow1)));
-	double 	fSlow3 = (1.0 / double(iSlow2));
-	double 	fSlow4 = (fConst7 * fSlow1);
-	int 	iSlow5 = int(double(fcheckbox0));
-	double 	fSlow6 = double(fslider2);
-	double 	fSlow7 = (0.004073836948085289 * (exp(double(fslider3)) - 1));
-	for (int i=0; i<count; i++) {
+#define fVslider0 (*fVslider0_)
+#define fVslider1 (*fVslider1_)
+#define fCheckbox0 (*fCheckbox0_)
+#define fVslider2 (*fVslider2_)
+#define fVslider3 (*fVslider3_)
+	double fSlow0 = (0.004073836948085289 * (std::exp(double(fVslider0)) + -1.0));
+	double fSlow1 = double(fVslider1);
+	int iSlow2 = int(double(fCheckbox0));
+	double fSlow3 = double(fVslider2);
+	int iSlow4 = int((fConst9 / fSlow3));
+	double fSlow5 = (1.0 / double(iSlow4));
+	double fSlow6 = (fConst10 * fSlow3);
+	double fSlow7 = (0.004073836948085289 * (std::exp((1.0 - double(fVslider3))) + -1.0));
+	for (int i = 0; (i < count); i = (i + 1)) {
 		iVec0[0] = 1;
-		fRec0[0] = (fSlow0 + (0.993 * fRec0[1]));
-		double fTemp0 = (0.000257077328090757 * fRec0[0]);
-		double fTemp1 = (fRec2[1] * (1 - (fConst5 / (fConst5 + (0.06 * exp((0 - (2.4849066497880004 * fRec2[1]))))))));
-		iRec4[0] = ((int((iRec4[1] > 0)))?((2 * (iRec3[1] < iSlow2)) - 1):(1 - (2 * (iRec3[1] > 0))));
-		iRec3[0] = (iRec3[1] + iRec4[0]);
-		fRec7[0] = ((fSlow4 * (0 - fRec5[1])) + fRec7[1]);
-		fRec6[0] = ((1 + (fRec6[1] + (fSlow4 * fRec7[0]))) - iVec0[1]);
-		fRec5[0] = fRec6[0];
-		fRec2[0] = (fTemp1 + (fConst5 * (pow((1 + (fSlow6 * (((iSlow5)?max((double)0, (0.5 * (1 + fRec5[0]))):(fSlow3 * iRec3[0])) - 1))),1.9) / (fConst5 + (0.06 * exp((0 - (2.4849066497880004 * fTemp1))))))));
-		fRec8[0] = (fSlow7 + (0.993 * fRec8[1]));
-		fRec9[0] = ((double)input0[i] - (fConst10 * fRec9[1]));
-		fRec1[0] = ((fConst11 * (((fRec9[0] * (0 - (0.000564641478707507 * fRec8[0]))) + (0.000564641478707507 * (fRec9[1] * fRec8[0]))) / (2700 + exp((13.815510557964274 / log((2.718281828459045 + (8.551967507929417 * fRec2[0])))))))) - (fConst4 * fRec1[1]));
-		output0[i] = (FAUSTFLOAT)(fConst12 * ((fRec1[0] * (fTemp0 - 0.000257077328090757)) + (fRec1[1] * (0.000257077328090757 - fTemp0))));
-		// post processing
-		fRec1[1] = fRec1[0];
-		fRec9[1] = fRec9[0];
-		fRec8[1] = fRec8[0];
-		fRec2[1] = fRec2[0];
-		fRec5[1] = fRec5[0];
-		fRec6[1] = fRec6[0];
-		fRec7[1] = fRec7[0];
-		iRec3[1] = iRec3[0];
-		iRec4[1] = iRec4[0];
-		fRec0[1] = fRec0[0];
+		fRec1[0] = (double(input0[i]) - (fConst7 * fRec1[1]));
+		fRec2[0] = (fSlow0 + (0.99299999999999999 * fRec2[1]));
+		double fTemp0 = (fRec3[1] * (1.0 - (fConst8 / (fConst8 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fRec3[1]))))))));
+		iRec5[0] = ((iRec5[1] > 0)?((2 * (iRec4[1] < iSlow4)) + -1):(1 - (2 * (iRec4[1] > 0))));
+		iRec4[0] = (iRec5[0] + iRec4[1]);
+		fRec8[0] = (fRec8[1] + (fSlow6 * (0.0 - fRec6[1])));
+		fRec7[0] = ((fSlow6 * fRec8[0]) + (double((1 - iVec0[1])) + fRec7[1]));
+		fRec6[0] = fRec7[0];
+		fRec3[0] = (fTemp0 + (fConst8 * (std::pow(((fSlow1 * ((iSlow2?std::max<double>(0.0, (0.5 * (fRec6[0] + 1.0))):(fSlow5 * double(iRec4[0]))) + -1.0)) + 1.0), 1.8999999999999999) / (fConst8 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
+		fRec0[0] = ((fConst6 * (((fRec1[0] * (0.0 - (0.00056464147870750696 * fRec2[0]))) + (0.00056464147870750696 * (fRec2[0] * fRec1[1]))) / (std::exp((13.815510557964274 / std::log(((8.5519675079294171 * fRec3[0]) + 2.7182818284590451)))) + 2700.0))) - (fConst11 * fRec0[1]));
+		fRec9[0] = (fSlow7 + (0.99299999999999999 * fRec9[1]));
+		output0[i] = FAUSTFLOAT((fConst3 * ((fRec0[1] * ((0.0 - (0.00025707732809075701 * fRec9[0])) + 0.00025707732809075701)) + (0.00025707732809075701 * (fRec0[0] * (fRec9[0] + -1.0))))));
 		iVec0[1] = iVec0[0];
+		fRec1[1] = fRec1[0];
+		fRec2[1] = fRec2[0];
+		iRec5[1] = iRec5[0];
+		iRec4[1] = iRec4[0];
+		fRec8[1] = fRec8[0];
+		fRec7[1] = fRec7[0];
+		fRec6[1] = fRec6[0];
+		fRec3[1] = fRec3[0];
+		fRec0[1] = fRec0[0];
+		fRec9[1] = fRec9[0];
 	}
-#undef fslider0
-#undef fslider1
-#undef fcheckbox0
-#undef fslider2
-#undef fslider3
+#undef fVslider0
+#undef fVslider1
+#undef fCheckbox0
+#undef fVslider2
+#undef fVslider3
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
@@ -181,20 +182,20 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case DRIVE: 
-		fslider3_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fVslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case GAIN: 
-		fslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fVslider3_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
-	// static const value_pair fcheckbox0_values[] = {{"os.triangle"},{"sine"},{0}};
+	// static const value_pair fCheckbox0_values[] = {{"os.triangle"},{"sine"},{0}};
 	case SINEWAVE: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case DEPTH: 
-		fslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fVslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case SPEED: 
-		fslider1_ = (float*)data; // , 5.0, 0.1, 14.0, 0.1 
+		fVslider2_ = (float*)data; // , 5.0, 0.10000000000000001, 14.0, 0.10000000000000001 
 		break;
 	default:
 		break;

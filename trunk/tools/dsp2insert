@@ -192,8 +192,13 @@ class Parser(object):
         if line:
             cp.append(line)
         m = re.compile(exp).match
-        o = re.compile(r"\tint fSamplingFreq;").match
+        p = re.compile(r"\tint fSamplingFreq;").match
+        o = re.compile(r" public:").match
         for line in self.lines:
+            if not line.strip():
+                continue
+            if p(line):
+                continue
             if m(line):
                 break
             if o(line):
@@ -207,16 +212,52 @@ class Parser(object):
                 n = min(n, len(m(l).group(0)))
         return [l[n:] for l in cp]
 
+    def read_init(self, exp, line=None):
+        cp = []
+        if line:
+            cp.append(line)
+        m = re.compile(exp).match
+        n = re.compile("		}").match
+        p = re.compile(r"\tint fSamplingFreq;").match
+        o = re.compile(r" public:").match
+        for line in self.lines:
+            if not line.strip():
+                continue
+            if p(line):
+                continue
+            if n(line):
+                continue
+            if m(line):
+                break
+            if o(line):
+                break
+            if line.startswith("		for"):
+                line = line.replace("{\n","")
+                line = line.replace("\t","")
+                l = next(self.lines)
+                line += l.replace("\t","")
+            cp.append(line)
+        # remove indentation
+        m = re.compile(r"\t*").match
+        n = 10
+        for l in cp:
+            if l != "\n":
+                n = min(n, len(m(l).group(0)))
+        return [l[n:] for l in cp]
+
     def get_section_list(self):
         return "includes", "var-decl", "alias-defines", "alias-undefines", "var-init", "var-free", "ui", "compute"
 
     def getIO(self, s):
-        e = r"\s*virtual int getNum%sputs\(\)\s*{\s*return\s*(\d+);\s*}" % s
+        e = r"\s*virtual int getNum%sputs" % s
+        f = r"\s*return\s*(\d+);"
         for line in self.lines:
             m = re.match(e, line)
             if m:
-                return int(m.group(1))
-        raise ValueError("getNum%sputs not found in source" % s)
+                n = re.match(f, next(self.lines))
+                if n:
+                    return int(n.group(1))
+        raise ValueError("insert getNum%sputs not found in source" % s)
 
     def parse_name(self, s):
         def findBrackets(aString):
@@ -291,6 +332,8 @@ class Parser(object):
 
         nextbox = {}
         for line in self.lines:
+            if not line.strip():
+                continue
             if stop(line):
                 return
             m = openbox(line)
@@ -342,6 +385,8 @@ class Parser(object):
                 else:
                     self.ui.add(m.group(1), m.group(2), m.group(3))
                 continue
+            if line:
+                print (line)
             assert False, line
 
     def readMeta(self):
@@ -489,11 +534,11 @@ class Parser(object):
         s = {}
         self.ui = UIDefs()
         #self.readMeta()  # (needed only for faust 9.4
-        self.headvers = self.skip_until(r"\s*//\s*(Code generated with Faust.*)").group(1)
-        s["includes"] = self.readIncludes(r"  private:")
+        self.headvers = self.skip_until(r"\s*\s*(Code generated with Faust.*)").group(1)
+        s["includes"] = self.readIncludes(r" private:")
         #self.skip_until(r"  private:")
-        var_decl = self.copy(r"  public:")
-        self.skip_until(r"^\s*virtual\s+void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
+        var_decl = self.copy(r" public:")
+        self.skip_until(r"^\svoid\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
         self.readMeta2(r"\s*}\s*\n$")
         if self.toplevel is None :
             self.toplevel = self.modname
@@ -506,7 +551,8 @@ class Parser(object):
         self.skip_until(r"\s*virtual void instanceResetUserInterface")
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void instanceClear")
-        s["var-init"] += self.copy(r"\s*}$")
+        s["var-init"] += self.read_init(r"\s*virtual void init")
+        del s["var-init"] [-1]
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
         s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl,options.init_type)
@@ -540,7 +586,7 @@ class Parser(object):
         return l
         
     def replace_ioref_vector(self, lines):
-        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*&\2put\[\3\]\[index\];"
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*&\2puts\[\3\]\[index\];"
         match = re.compile(ioref).match
         l = []
         for line in lines:
@@ -561,7 +607,7 @@ class Parser(object):
         return l
 
     def replace_ioref_scalar(self, lines):
-        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2puts\[\3\];"
         match = re.compile(ioref).match
         l = []
         for line in lines:

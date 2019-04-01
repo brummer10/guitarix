@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/impulseresponse.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace impulseresponse {
@@ -7,19 +7,19 @@ namespace impulseresponse {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
-	double 	fConst0;
-	double 	fConst1;
-	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT	*fslider1_;
-	double 	fConst2;
-	double 	fVec0[3];
-	FAUSTFLOAT 	fcheckbox0;
-	FAUSTFLOAT	*fcheckbox0_;
-	FAUSTFLOAT 	fslider2;
-	FAUSTFLOAT	*fslider2_;
-	double 	fRec0[3];
+	double fConst0;
+	double fConst1;
+	FAUSTFLOAT fHslider0;
+	FAUSTFLOAT	*fHslider0_;
+	FAUSTFLOAT fCheckbox0;
+	FAUSTFLOAT	*fCheckbox0_;
+	double fConst2;
+	FAUSTFLOAT fHslider1;
+	FAUSTFLOAT	*fHslider1_;
+	double fVec0[3];
+	FAUSTFLOAT fHslider2;
+	FAUSTFLOAT	*fHslider2_;
+	double fRec0[3];
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -57,8 +57,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<3; i++) fVec0[i] = 0;
-	for (int i=0; i<3; i++) fRec0[i] = 0;
+	for (int l0 = 0; (l0 < 3); l0 = (l0 + 1)) fVec0[l0] = 0.0;
+	for (int l1 = 0; (l1 < 3); l1 = (l1 + 1)) fRec0[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -69,9 +69,13 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
-	fConst1 = (3.141592653589793 / fConst0);
-	fConst2 = (6.283185307179586 / fConst0);
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fConst1 = (3.1415926535897931 / fConst0);
+	fConst2 = (6.2831853071795862 / fConst0);
+	fHslider0 = FAUSTFLOAT(100.0);
+	fCheckbox0 = FAUSTFLOAT(0.0);
+	fHslider1 = FAUSTFLOAT(440.0);
+	fHslider2 = FAUSTFLOAT(1.0);
 	clear_state_f();
 }
 
@@ -82,27 +86,28 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-#define fslider0 (*fslider0_)
-#define fslider1 (*fslider1_)
-#define fcheckbox0 (*fcheckbox0_)
-#define fslider2 (*fslider2_)
-	double 	fSlow0 = exp((0 - (fConst1 * double(fslider0))));
-	double 	fSlow1 = (2 * cos((fConst2 * double(fslider1))));
-	int 	iSlow2 = int(max((double)0, min((double)1, double(fcheckbox0))));
-	double 	fSlow3 = (0.5 * (double(fslider2) * (1 - faustpower<2>(fSlow0))));
-	for (int i=0; i<count; i++) {
-		double fTemp0 = (double)input0[i];
+#define fHslider0 (*fHslider0_)
+#define fCheckbox0 (*fCheckbox0_)
+#define fHslider1 (*fHslider1_)
+#define fHslider2 (*fHslider2_)
+	double fSlow0 = std::exp((-1.0 * (fConst1 * double(fHslider0))));
+	int iSlow1 = int(std::max<double>(0.0, std::min<double>(1.0, double(fCheckbox0))));
+	double fSlow2 = (2.0 * std::cos((fConst2 * double(fHslider1))));
+	double fSlow3 = (0.5 * ((1.0 - mydsp_faustpower2_f(fSlow0)) * double(fHslider2)));
+	for (int i = 0; (i < count); i = (i + 1)) {
+		double fTemp0 = double(input0[i]);
 		fVec0[0] = fTemp0;
-		fRec0[0] = ((fSlow3 * (fVec0[0] - fVec0[2])) + (fSlow0 * ((((iSlow2)?max(-0.6, min(0.6, fVec0[0])):fSlow1) * fRec0[1]) - (fSlow0 * fRec0[2]))));
-		output0[i] = (FAUSTFLOAT)(fVec0[0] + fRec0[0]);
-		// post processing
-		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
-		fVec0[2] = fVec0[1]; fVec0[1] = fVec0[0];
+		fRec0[0] = ((fSlow0 * (((iSlow1?std::max<double>(-0.59999999999999998, std::min<double>(0.59999999999999998, fTemp0)):fSlow2) * fRec0[1]) - (fSlow0 * fRec0[2]))) + (fSlow3 * (fTemp0 - fVec0[2])));
+		output0[i] = FAUSTFLOAT((fRec0[0] + fTemp0));
+		fVec0[2] = fVec0[1];
+		fVec0[1] = fVec0[0];
+		fRec0[2] = fRec0[1];
+		fRec0[1] = fRec0[0];
 	}
-#undef fslider0
-#undef fslider1
-#undef fcheckbox0
-#undef fslider2
+#undef fHslider0
+#undef fCheckbox0
+#undef fHslider1
+#undef fHslider2
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
@@ -115,18 +120,18 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	// static const value_pair fcheckbox0_values[] = {{"manual"},{"auto"},{0}};
+	// static const value_pair fCheckbox0_values[] = {{"manual"},{"auto"},{0}};
 	case AUTO_FREQ: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case BANDWIDTH: 
-		fslider0_ = (float*)data; // , 1e+02, 2e+01, 2e+04, 1e+01 
+		fHslider0_ = (float*)data; // , 100.0, 20.0, 20000.0, 10.0 
 		break;
 	case FREQ: 
-		fslider1_ = (float*)data; // , 4.4e+02, 2e+01, 1.2e+04, 1e+01 
+		fHslider1_ = (float*)data; // , 440.0, 20.0, 12000.0, 10.0 
 		break;
 	case PEAK: 
-		fslider2_ = (float*)data; // , 1.0, 0.0, 1e+01, 0.2 
+		fHslider2_ = (float*)data; // , 1.0, 0.0, 10.0, 0.20000000000000001 
 		break;
 	default:
 		break;

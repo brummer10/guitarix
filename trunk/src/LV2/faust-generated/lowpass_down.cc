@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/lowpass_down.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace lowpass_down {
@@ -7,25 +7,25 @@ namespace lowpass_down {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	double 	fConst0;
-	double 	fConst1;
-	double 	fConst2;
-	double 	fConst3;
-	double 	fConst4;
-	double 	fVec0[2];
-	double 	fConst5;
-	double 	fRec5[2];
-	double 	fConst6;
-	double 	fConst7;
-	double 	fConst8;
-	double 	fConst9;
-	double 	fConst10;
-	double 	fRec4[2];
-	double 	fRec0[2];
-	int 	iRec1[2];
-	double 	fRec2[2];
-	FAUSTFLOAT 	fbargraph0;
-	FAUSTFLOAT	*fbargraph0_;
+	double fConst0;
+	double fConst1;
+	double fConst2;
+	double fConst3;
+	double fConst4;
+	double fConst5;
+	double fConst6;
+	double fConst7;
+	double fConst8;
+	double fVec0[2];
+	double fRec4[2];
+	double fConst9;
+	double fConst10;
+	double fRec3[2];
+	double fRec0[2];
+	int iRec1[2];
+	double fRec2[2];
+	FAUSTFLOAT fVbargraph0;
+	FAUSTFLOAT	*fVbargraph0_;
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -48,7 +48,7 @@ Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;
 	id = "lowpass_down";
-	name = "?lowpass_down";
+	name = N_("lowpass_down");
 	mono_audio = compute_static;
 	stereo_audio = 0;
 	set_samplerate = init_static;
@@ -63,12 +63,12 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec5[i] = 0;
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<2; i++) iRec1[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fVec0[l0] = 0.0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec4[l1] = 0.0;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec3[l2] = 0.0;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec0[l3] = 0.0;
+	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) iRec1[l4] = 0;
+	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec2[l5] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -79,17 +79,17 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
 	fConst1 = (1.0 / fConst0);
-	fConst2 = (1.0 / tan((17690.308232364125 / fConst0)));
-	fConst3 = (1 + fConst2);
-	fConst4 = (0 - ((1 - fConst2) / fConst3));
-	fConst5 = (1.0 / fConst3);
-	fConst6 = (1.0 / tan((251.32741228718345 / fConst0)));
-	fConst7 = (0 - fConst6);
-	fConst8 = (1 + fConst6);
-	fConst9 = (1.0 / fConst8);
-	fConst10 = (0 - ((1 - fConst6) / fConst8));
+	fConst2 = std::tan((251.32741228718345 / fConst0));
+	fConst3 = (1.0 / fConst2);
+	fConst4 = (fConst3 + 1.0);
+	fConst5 = (0.0 - (1.0 / (fConst4 * fConst2)));
+	fConst6 = (1.0 / std::tan((17690.308232364125 / fConst0)));
+	fConst7 = (1.0 / (fConst6 + 1.0));
+	fConst8 = (1.0 - fConst6);
+	fConst9 = (1.0 / fConst4);
+	fConst10 = (1.0 - fConst3);
 	clear_state_f();
 }
 
@@ -100,28 +100,27 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-#define fbargraph0 (*fbargraph0_)
-	for (int i=0; i<count; i++) {
-		double fTemp0 = (double)input0[i];
-		fVec0[0] = fTemp0;
-		fRec5[0] = ((fConst5 * (fVec0[0] + fVec0[1])) + (fConst4 * fRec5[1]));
-		fRec4[0] = ((fConst10 * fRec4[1]) + (fConst9 * ((fConst6 * fRec5[0]) + (fConst7 * fRec5[1]))));
-		double 	fRec3 = max(fConst1, fabs(fRec4[0]));
-		int iTemp1 = int((iRec1[1] < 4096));
-		fRec0[0] = ((iTemp1)?max(fRec0[1], fRec3):fRec3);
-		iRec1[0] = ((iTemp1)?(1 + iRec1[1]):1);
-		fRec2[0] = ((iTemp1)?fRec2[1]:fRec0[1]);
-		fbargraph0 = fRec2[0];
-		output0[i] = (FAUSTFLOAT)fRec4[0];
-		// post processing
-		fRec2[1] = fRec2[0];
-		iRec1[1] = iRec1[0];
-		fRec0[1] = fRec0[0];
-		fRec4[1] = fRec4[0];
-		fRec5[1] = fRec5[0];
+#define fVbargraph0 (*fVbargraph0_)
+	for (int i = 0; (i < count); i = (i + 1)) {
+		int iTemp0 = (iRec1[1] < 4096);
+		double fTemp1 = double(input0[i]);
+		fVec0[0] = fTemp1;
+		fRec4[0] = (0.0 - (fConst7 * ((fConst8 * fRec4[1]) - (fVec0[1] + fTemp1))));
+		fRec3[0] = ((fConst5 * fRec4[1]) - (fConst9 * ((fConst10 * fRec3[1]) - (fConst3 * fRec4[0]))));
+		double fTemp2 = std::max<double>(fConst1, std::fabs(fRec3[0]));
+		fRec0[0] = (iTemp0?(fTemp2 + fRec0[1]):fTemp2);
+		iRec1[0] = (iTemp0?(iRec1[1] + 1):1);
+		fRec2[0] = (iTemp0?fRec2[1]:(0.000244140625 * fRec0[1]));
+		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
+		output0[i] = FAUSTFLOAT(fRec3[0]);
 		fVec0[1] = fVec0[0];
+		fRec4[1] = fRec4[0];
+		fRec3[1] = fRec3[0];
+		fRec0[1] = fRec0[0];
+		iRec1[1] = iRec1[0];
+		fRec2[1] = fRec2[0];
 	}
-#undef fbargraph0
+#undef fVbargraph0
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
@@ -135,7 +134,7 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case V1: 
-		fbargraph0_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
+		fVbargraph0_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
 		break;
 	default:
 		break;

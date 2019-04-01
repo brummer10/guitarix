@@ -1,5 +1,5 @@
 // generated from file '../src/faust/balance.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace balance {
@@ -7,9 +7,9 @@ namespace balance {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
-	double 	fRec0[2];
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	double fRec0[2];
 
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
@@ -33,7 +33,7 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "balance";
-	name = "?balance";
+	name = N_("balance");
 	groups = 0;
 	description = ""; // description (tooltip)
 	category = "";       // category
@@ -53,7 +53,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec0[l0] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -64,6 +64,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+	fVslider0 = FAUSTFLOAT(0.0);
 	clear_state_f();
 }
 
@@ -74,16 +75,15 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-#define fslider0 (*fslider0_)
-	double 	fSlow0 = (0.0010000000000000009 * double(fslider0));
-	for (int i=0; i<count; i++) {
+#define fVslider0 (*fVslider0_)
+	double fSlow0 = (0.0010000000000000009 * double(fVslider0));
+	for (int i = 0; (i < count); i = (i + 1)) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-		output0[i] = (FAUSTFLOAT)((double)input0[i] * (1 - max((double)0, fRec0[0])));
-		output1[i] = (FAUSTFLOAT)((double)input1[i] * (1 - max((double)0, (0 - fRec0[0]))));
-		// post processing
+		output0[i] = FAUSTFLOAT(((1.0 - std::max<double>(0.0, fRec0[0])) * double(input0[i])));
+		output1[i] = FAUSTFLOAT(((1.0 - std::max<double>(0.0, (-1.0 * fRec0[0]))) * double(input1[i])));
 		fRec0[1] = fRec0[0];
 	}
-#undef fslider0
+#undef fVslider0
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef *p)
@@ -93,7 +93,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fslider0_ = reg.registerVar("amp.balance",N_("Balance"),"SA","",&fslider0, 0.0, -1.0, 1.0, 0.1);
+	fVslider0_ = reg.registerVar("amp.balance",N_("Balance"),"SA","",&fVslider0, 0.0, -1.0, 1.0, 0.10000000000000001);
 	return 0;
 }
 

@@ -1,12 +1,15 @@
-declare name 		"Multi Band Distortion";
+declare id          "gx_distortion";
+declare name        "Multi Band Distortion";
 declare shortname       "Distortion";
 declare category        "Distortion";
 declare groups "resonator[Distortion resonator]";
+
 declare gladefile       "gx_distortion_ui.glade";
 declare version 	"0.01";
 declare author 		"brummer";
 declare license 	"BSD";
 declare copyright 	"(c)brummer 2008";
+
 
 import("stdfaust.lib");
 import("guitarix.lib");

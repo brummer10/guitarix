@@ -183,7 +183,7 @@ device=VARIABLE_RESISTOR
 T 46650 49000 5 10 1 1 180 6 1
 refdes=P1
 T 48300 50700 5 10 1 1 180 0 1
-value=value=80k,var=Wah
+value=value=80k,var=Wah,a=3
 }
 C 47100 47100 1 0 1 gnd-1.sym
 C 44600 46900 1 0 0 9V-plus-1.sym

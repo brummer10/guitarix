@@ -19,7 +19,7 @@ refdes=P2
 T 53200 44600 5 10 0 1 180 2 1
 device=VARIABLE_RESISTOR
 T 52800 43400 5 10 1 1 0 0 1
-value=value=100k,var=Volume
+value=value=500k,var=Volume,a=6
 }
 C 40900 44200 1 0 0 input-1.sym
 {
@@ -85,7 +85,7 @@ device=RESISTOR
 T 41100 43600 5 10 1 1 180 0 1
 refdes=R1
 T 40700 43200 5 10 1 1 0 0 1
-value=100k
+value=10k
 }
 C 47800 42600 1 0 1 gnd-1.sym
 C 45000 43900 1 180 0 resistor-2.sym
@@ -126,7 +126,7 @@ device=VARIABLE_RESISTOR
 T 42050 44000 5 10 1 1 0 6 1
 refdes=P1
 T 41500 43400 5 10 1 1 0 0 1
-value=value=100k,var=Intensity,inv=1
+value=value=100k,var=Intensity,inv=1,a=3
 }
 C 45800 44700 1 0 0 9V-plus-1.sym
 {
@@ -205,7 +205,7 @@ device=RESISTOR
 T 54100 43900 5 10 1 1 0 0 1
 refdes=R7
 T 54800 44100 5 10 1 1 180 0 1
-value=1k
+value=100
 }
 C 54400 44600 1 180 0 resistor-2.sym
 {

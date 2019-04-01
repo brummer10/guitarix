@@ -9,7 +9,7 @@ declare version "1.0";
 
 import("stdfaust.lib");
 import("guitarix.lib");
-import("reduce.lib");
+import("reducemaps.lib");
 
 /* Controls. */
 
@@ -74,7 +74,7 @@ with {
 
 vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
 
-envelop         = abs : max ~ (1.0/ma.SR) : reduce(max,4096); // : max(ba.db2linear(-70)) : ba.linear2db;
+envelop         = abs : max ~ (1.0/ma.SR) : mean(4096); // : max(ba.db2linear(-70)) : ba.linear2db;
 
 process(x)	= g(x)*x
 with {

@@ -4,7 +4,7 @@ declare category "Tone Control";
 declare description "Graphic EQ";
 
 import("stdfaust.lib");
-import("reduce.lib");
+import("reducemaps.lib");
 
 //geq = fi.filterbank(3, (31.25, 62.5, 125., 250., 500., 1000., 2000., 4000., 8000., 16000.));
 geq = fi.filterbank(3, (44., 88., 177., 354., 707., 1414., 2828., 5657., 11384., 18110.));
@@ -34,7 +34,7 @@ v9(x)		= attach(x, envelop(x) : vbargraph("v9[nomidi:no]", -70, +5));
 v10(x)		= attach(x, envelop(x) : vbargraph("v10[nomidi:no]", -70, +5));
 v11(x)		= attach(x, envelop(x) : vbargraph("v11[nomidi:no]", -70, +5));
 
-envelop         = abs : max ~ (1.0/ma.SR) : reduce(max,4096) ;
+envelop         = abs : max ~ (1.0/ma.SR) : mean(4096) ;
 
 process = geq :(*(g11):v11), (*(g10):v10),(*(g9):v9),(*(g8):v8),(*(g7):v7),(*(g6):v6),
                (*(g5):v5),(*(g4):v4),(*(g3):v3),(*(g2):v2),(*(g1):v1) :>_;

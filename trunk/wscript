@@ -27,7 +27,7 @@ use_2to3 = True
 VERSION='0.37.3'
 APPNAME='guitarix'
 
-good_faust_versions = ['0.9.90']
+good_faust_versions = ['2.15.11']
 
 g_maxlen = 40 # maximum width of message for 2-column display
 

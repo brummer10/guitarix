@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/highbooster.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace highbooster {
@@ -7,15 +7,16 @@ namespace highbooster {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	double 	fConst0;
-	double 	fConst1;
-	double 	fConst2;
-	double 	fVec0[2];
-	double 	fConst3;
-	double 	fConst4;
-	double 	fRec0[2];
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	double fConst0;
+	double fConst1;
+	double fConst2;
+	double fConst3;
+	double fVec0[2];
+	double fConst4;
+	double fConst5;
+	double fRec0[2];
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -53,8 +54,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fVec0[l0] = 0.0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -65,11 +66,13 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (1.0 / tan((4712.38898038469 / min(1.92e+05, max(1.0, (double)fSamplingFreq)))));
-	fConst1 = (1 + fConst0);
-	fConst2 = (0 - ((1 - fConst0) / fConst1));
-	fConst3 = (0 - fConst0);
-	fConst4 = (1.0 / fConst1);
+	fConst0 = std::tan((4712.3889803846896 / std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)))));
+	fConst1 = (1.0 / fConst0);
+	fConst2 = (fConst1 + 1.0);
+	fConst3 = (0.0 - (1.0 / (fConst2 * fConst0)));
+	fConst4 = (1.0 / fConst2);
+	fConst5 = (1.0 - fConst1);
+	fVslider0 = FAUSTFLOAT(0.0);
 	clear_state_f();
 }
 
@@ -80,18 +83,17 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-#define fslider0 (*fslider0_)
-	double 	fSlow0 = (pow(10,(0.05 * double(fslider0))) - 1);
-	for (int i=0; i<count; i++) {
-		double fTemp0 = (double)input0[i];
+#define fVslider0 (*fVslider0_)
+	double fSlow0 = (std::pow(10.0, (0.050000000000000003 * double(fVslider0))) + -1.0);
+	for (int i = 0; (i < count); i = (i + 1)) {
+		double fTemp0 = double(input0[i]);
 		fVec0[0] = fTemp0;
-		fRec0[0] = ((fConst4 * ((fConst0 * fVec0[0]) + (fConst3 * fVec0[1]))) + (fConst2 * fRec0[1]));
-		output0[i] = (FAUSTFLOAT)(fVec0[0] + (fSlow0 * fRec0[0]));
-		// post processing
-		fRec0[1] = fRec0[0];
+		fRec0[0] = ((fConst3 * fVec0[1]) - (fConst4 * ((fConst5 * fRec0[1]) - (fConst1 * fTemp0))));
+		output0[i] = FAUSTFLOAT(((fSlow0 * fRec0[0]) + fTemp0));
 		fVec0[1] = fVec0[0];
+		fRec0[1] = fRec0[0];
 	}
-#undef fslider0
+#undef fVslider0
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
@@ -105,7 +107,7 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case LEVEL: 
-		fslider0_ = (float*)data; // , 0.0, 0.5, 2e+01, 0.5 
+		fVslider0_ = (float*)data; // , 0.0, 0.5, 20.0, 0.5 
 		break;
 	default:
 		break;

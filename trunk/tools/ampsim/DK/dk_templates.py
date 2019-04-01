@@ -1073,6 +1073,15 @@ declare shortname "@plugindef.shortname";
 %if (@plugindef.description)\
 declare description "@plugindef.description";
 %end
+%if (@plugindef.samplerate)\
+declare samplerate "@plugindef.samplerate";
+%end
+%if (@plugindef.oversample)\
+declare oversample "@plugindef.oversample";
+%end
+%if (@plugindef.fixedrate)\
+declare samplerate "@plugindef.fixedrate";
+%end
 
 import("stdfaust.lib");
 

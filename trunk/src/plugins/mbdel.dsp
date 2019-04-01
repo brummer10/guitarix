@@ -5,7 +5,7 @@ declare category "Echo / Delay";
 declare description "Multi Band Delay";
 
 import("stdfaust.lib");
-import("reduce.lib");
+import("reducemaps.lib");
 
 hifr1      =hslider("crossover_b1_b2 [log][name:Crossover B1-B2 (hz)][tooltip: Crossover fi.bandpass frequency]" ,80 , 20, 20000, 1.08);
 hifr2      =hslider("crossover_b2_b3 [log][name:Crossover B2-B3 (hz)][tooltip: Crossover fi.bandpass frequency]",210,20,20000,1.08);
@@ -35,7 +35,7 @@ vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
 vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
 vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
 
-envelop         = abs : max ~ (1.0/ma.SR) : reduce(max,4096) ; // : max(ba.db2linear(-70)) : ba.linear2db;
+envelop         = abs : max ~ (1.0/ma.SR) : mean(4096) ; // : max(ba.db2linear(-70)) : ba.linear2db;
 
 process    = _<:(geq: ( dist5s , dist4s , dist3s, dist2s, dist1s)),_:>_  with { 
     dist1s = del(g1,d1) : vmeter1;

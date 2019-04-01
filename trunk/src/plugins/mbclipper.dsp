@@ -5,7 +5,7 @@ declare category "Distortion";
 declare description "MultiBand Clipper";
 
 import("stdfaust.lib");
-import("reduce.lib");
+import("reducemaps.lib");
 
 anti_denormal = pow(10,-20);
 anti_denormal_ac = 1 - 1' : *(anti_denormal) : + ~ *(-1);
@@ -31,7 +31,7 @@ vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
 vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
 vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
 
-envelop         = abs : max ~ (1.0/ma.SR) : reduce(max,4096); // : max(ba.db2linear(-70)) : ba.linear2db;
+envelop         = abs : max ~ (1.0/ma.SR) : mean(4096); // : max(ba.db2linear(-70)) : ba.linear2db;
     
 clip(drive) = *(pregain) : clip : *(postgain) with {
     pregain = pow(10.0,2*drive);

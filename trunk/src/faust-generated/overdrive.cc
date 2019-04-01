@@ -1,5 +1,5 @@
 // generated from file '../src/faust/overdrive.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace overdrive {
@@ -7,9 +7,9 @@ namespace overdrive {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT 	fslider1;
-	double 	fRec0[2];
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT fVslider1;
+	double fRec0[2];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -56,7 +56,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec0[l0] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -67,6 +67,8 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+	fVslider0 = FAUSTFLOAT(100.0);
+	fVslider1 = FAUSTFLOAT(1.0);
 	clear_state_f();
 }
 
@@ -77,18 +79,18 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = double(fslider0);
-	double 	fSlow1 = (0.01 * fSlow0);
-	double 	fSlow2 = double(fslider1);
-	double 	fSlow3 = (fSlow2 - 1);
-	double 	fSlow4 = (0.0001 * faustpower<2>(fSlow0));
-	double 	fSlow5 = (0.0010000000000000009 * pow(10,(0.05 * (0 - (0.5 * fSlow2)))));
-	for (int i=0; i<count; i++) {
-		double fTemp0 = (double)input0[i];
-		double fTemp1 = fabs((fSlow1 * fTemp0));
-		fRec0[0] = (fSlow5 + (0.999 * fRec0[1]));
-		output0[i] = (FAUSTFLOAT)(fTemp0 * (1 + (fSlow0 * ((0.01 * (((fSlow2 + fTemp1) * fRec0[0]) / (1 + ((fSlow4 * faustpower<2>(fTemp0)) + (fSlow3 * fTemp1))))) - 0.01))));
-		// post processing
+	double fSlow0 = double(fVslider0);
+	double fSlow1 = (0.01 * fSlow0);
+	double fSlow2 = (1.0 - fSlow1);
+	double fSlow3 = double(fVslider1);
+	double fSlow4 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * (0.0 - (0.5 * fSlow3)))));
+	double fSlow5 = (0.0001 * mydsp_faustpower2_f(fSlow0));
+	double fSlow6 = (fSlow3 + -1.0);
+	for (int i = 0; (i < count); i = (i + 1)) {
+		fRec0[0] = (fSlow4 + (0.999 * fRec0[1]));
+		double fTemp0 = double(input0[i]);
+		double fTemp1 = std::fabs((fSlow1 * fTemp0));
+		output0[i] = FAUSTFLOAT(((fSlow2 + (fSlow1 * ((fRec0[0] * (fSlow3 + fTemp1)) / (((fSlow5 * mydsp_faustpower2_f(fTemp0)) + (fSlow6 * fTemp1)) + 1.0)))) * fTemp0));
 		fRec0[1] = fRec0[0];
 	}
 }
@@ -100,8 +102,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("overdrive.drive",N_("Drive"),"S","",&fslider1, 1.0, 1.0, 2e+01, 0.1);
-	reg.registerVar("overdrive.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fslider0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerVar("overdrive.drive",N_("Drive"),"S","",&fVslider1, 1.0, 1.0, 20.0, 0.10000000000000001);
+	reg.registerVar("overdrive.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0);
 	return 0;
 }
 

@@ -40,6 +40,10 @@
 
 #define always_inline inline __attribute__((always_inline))
 
+#ifndef signbit
+#define signbit(x) std::signbit(x)
+#endif
+
 template <int32_t N> inline float faustpower(float x)
 {
   return powf(x, N);

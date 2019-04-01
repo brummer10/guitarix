@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_hornet_#_hornet_>
     a lv2:Plugin ;
     lv2:binary <gx_hornet.so>  ;
-    rdfs:seeAlso <gx_hornet.ttl> , <modgui.ttl> .
+    rdfs:seeAlso <gx_hornet.ttl>   .

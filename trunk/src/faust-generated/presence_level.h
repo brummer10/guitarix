@@ -1,5 +1,5 @@
 // generated from file '../src/faust/presence_level.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 #define FAUSTFLOAT float
 
@@ -8,8 +8,8 @@ namespace presence_level {
 class Dsp {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
 
 
 public:

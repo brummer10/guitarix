@@ -1,5 +1,5 @@
 // generated from file '../src/faust/stereoecho.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace stereoecho {
@@ -7,28 +7,28 @@ namespace stereoecho {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	int 	iVec0[2];
-	FAUSTFLOAT 	fslider0;
-	float 	fConst0;
-	float 	fConst1;
-	float 	fRec1[2];
-	float 	fRec2[2];
-	FAUSTFLOAT 	fcheckbox0;
-	FAUSTFLOAT 	fslider1;
-	float 	fConst2;
-	float 	fRec3[2];
-	float 	fRec4[2];
-	int 	iRec5[2];
-	int 	iRec6[2];
-	FAUSTFLOAT 	fslider2;
-	int 	IOTA;
+	FAUSTFLOAT fVslider0;
+	int iVec0[2];
+	float fConst0;
+	float fConst1;
+	FAUSTFLOAT fHslider0;
+	float fRec1[2];
+	float fRec2[2];
+	int iRec3[2];
+	int iRec4[2];
+	FAUSTFLOAT fCheckbox0;
+	float fConst2;
+	FAUSTFLOAT fHslider1;
+	float fRec5[2];
+	float fRec6[2];
+	int IOTA;
 	float *fRec0;
-	FAUSTFLOAT 	fslider3;
-	float 	fRec8[2];
-	float 	fRec9[2];
-	int 	iRec10[2];
-	int 	iRec11[2];
-	FAUSTFLOAT 	fslider4;
+	FAUSTFLOAT fVslider1;
+	FAUSTFLOAT fHslider2;
+	float fRec8[2];
+	float fRec9[2];
+	int iRec10[2];
+	int iRec11[2];
 	float *fRec7;
 
 	bool mem_allocated;
@@ -84,19 +84,19 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) iVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec1[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
-	for (int i=0; i<2; i++) fRec3[i] = 0;
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) iRec5[i] = 0;
-	for (int i=0; i<2; i++) iRec6[i] = 0;
-	for (int i=0; i<1048576; i++) fRec0[i] = 0;
-	for (int i=0; i<2; i++) fRec8[i] = 0;
-	for (int i=0; i<2; i++) fRec9[i] = 0;
-	for (int i=0; i<2; i++) iRec10[i] = 0;
-	for (int i=0; i<2; i++) iRec11[i] = 0;
-	for (int i=0; i<1048576; i++) fRec7[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) iVec0[l0] = 0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0f;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec2[l2] = 0.0f;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) iRec3[l3] = 0;
+	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) iRec4[l4] = 0;
+	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec5[l5] = 0.0f;
+	for (int l6 = 0; (l6 < 2); l6 = (l6 + 1)) fRec6[l6] = 0.0f;
+	for (int l7 = 0; (l7 < 1048576); l7 = (l7 + 1)) fRec0[l7] = 0.0f;
+	for (int l8 = 0; (l8 < 2); l8 = (l8 + 1)) fRec8[l8] = 0.0f;
+	for (int l9 = 0; (l9 < 2); l9 = (l9 + 1)) fRec9[l9] = 0.0f;
+	for (int l10 = 0; (l10 < 2); l10 = (l10 + 1)) iRec10[l10] = 0;
+	for (int l11 = 0; (l11 < 2); l11 = (l11 + 1)) iRec11[l11] = 0;
+	for (int l12 = 0; (l12 < 1048576); l12 = (l12 + 1)) fRec7[l12] = 0.0f;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -107,10 +107,16 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = min(1.92e+05f, max(1.0f, (float)fSamplingFreq));
-	fConst1 = (0.10471976f / fConst0);
-	fConst2 = (60 * fConst0);
-	IOTA = 0;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fConst1 = (60.0f * fConst0);
+	fConst2 = (0.104719758f / fConst0);
+	fVslider0 = FAUSTFLOAT(0.0f);
+	fHslider0 = FAUSTFLOAT(120.0f);
+	fCheckbox0 = FAUSTFLOAT(0.0f);
+	fHslider1 = FAUSTFLOAT(24.0f);
+	fVslider1 = FAUSTFLOAT(0.0f);
+	fHslider2 = FAUSTFLOAT(120.0f);
+			IOTA = 0;
 }
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
@@ -152,46 +158,44 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	float 	fSlow0 = (fConst1 * float(fslider0));
-	float 	fSlow1 = cosf(fSlow0);
-	float 	fSlow2 = sinf(fSlow0);
-	float 	fSlow3 = (0 - fSlow2);
-	float 	fSlow4 = float(fcheckbox0);
-	int 	iSlow5 = (int((fConst2 / float(fslider1))) - 1);
-	float 	fSlow6 = (0.01f * float(fslider2));
-	int 	iSlow7 = (int((fConst2 / float(fslider3))) - 1);
-	float 	fSlow8 = (0.01f * float(fslider4));
-	for (int i=0; i<count; i++) {
+	float fSlow0 = (0.00999999978f * float(fVslider0));
+	int iSlow1 = (int((fConst1 / float(fHslider0))) + -1);
+	float fSlow2 = float(fCheckbox0);
+	float fSlow3 = (fConst2 * float(fHslider1));
+	float fSlow4 = std::sin(fSlow3);
+	float fSlow5 = std::cos(fSlow3);
+	float fSlow6 = (0.00999999978f * float(fVslider1));
+	int iSlow7 = (int((fConst1 / float(fHslider2))) + -1);
+	for (int i = 0; (i < count); i = (i + 1)) {
 		iVec0[0] = 1;
-		fRec1[0] = ((fSlow2 * fRec2[1]) + (fSlow1 * fRec1[1]));
-		fRec2[0] = ((1 + ((fSlow1 * fRec2[1]) + (fSlow3 * fRec1[1]))) - iVec0[1]);
-		float fTemp0 = ((int((fRec3[1] != 0.0f)))?((int(((fRec4[1] > 0.0f) & (fRec4[1] < 1.0f))))?fRec3[1]:0):((int(((fRec4[1] == 0.0f) & (iSlow5 != iRec5[1]))))?0.0009765625f:((int(((fRec4[1] == 1.0f) & (iSlow5 != iRec6[1]))))?-0.0009765625f:0)));
-		fRec3[0] = fTemp0;
-		fRec4[0] = max(0.0f, min(1.0f, (fRec4[1] + fTemp0)));
-		iRec5[0] = ((int(((fRec4[1] >= 1.0f) & (iRec6[1] != iSlow5))))?iSlow5:iRec5[1]);
-		iRec6[0] = ((int(((fRec4[1] <= 0.0f) & (iRec5[1] != iSlow5))))?iSlow5:iRec6[1]);
-		fRec0[IOTA&1048575] = ((float)input0[i] + (fSlow6 * (((fRec0[(IOTA-int((1 + int((int(iRec5[0]) & 524287)))))&1048575] * (1.0f - fRec4[0])) + (fRec4[0] * fRec0[(IOTA-int((1 + int((int(iRec6[0]) & 524287)))))&1048575])) * (1 - (fSlow4 * fRec1[0])))));
-		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&1048575];
-		float fTemp1 = ((int((fRec8[1] != 0.0f)))?((int(((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f))))?fRec8[1]:0):((int(((fRec9[1] == 0.0f) & (iSlow7 != iRec10[1]))))?0.0009765625f:((int(((fRec9[1] == 1.0f) & (iSlow7 != iRec11[1]))))?-0.0009765625f:0)));
+		float fTemp0 = ((fRec1[1] != 0.0f)?(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))?fRec1[1]:0.0f):(((fRec2[1] == 0.0f) & (iSlow1 != iRec3[1]))?0.0009765625f:(((fRec2[1] == 1.0f) & (iSlow1 != iRec4[1]))?-0.0009765625f:0.0f)));
+		fRec1[0] = fTemp0;
+		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fTemp0 + fRec2[1])));
+		iRec3[0] = (((fRec2[1] >= 1.0f) & (iRec4[1] != iSlow1))?iSlow1:iRec3[1]);
+		iRec4[0] = (((fRec2[1] <= 0.0f) & (iRec3[1] != iSlow1))?iSlow1:iRec4[1]);
+		fRec5[0] = ((fSlow4 * fRec6[1]) + (fSlow5 * fRec5[1]));
+		fRec6[0] = ((float((1 - iVec0[1])) + (fSlow5 * fRec6[1])) - (fSlow4 * fRec5[1]));
+		fRec0[(IOTA & 1048575)] = ((fSlow0 * ((((1.0f - fRec2[0]) * fRec0[((IOTA - (std::min<int>(524288, std::max<int>(0, iRec3[0])) + 1)) & 1048575)]) + (fRec2[0] * fRec0[((IOTA - (std::min<int>(524288, std::max<int>(0, iRec4[0])) + 1)) & 1048575)])) * (1.0f - (fSlow2 * fRec5[0])))) + float(input0[i]));
+		output0[i] = FAUSTFLOAT(fRec0[((IOTA - 0) & 1048575)]);
+		float fTemp1 = ((fRec8[1] != 0.0f)?(((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f))?fRec8[1]:0.0f):(((fRec9[1] == 0.0f) & (iSlow7 != iRec10[1]))?0.0009765625f:(((fRec9[1] == 1.0f) & (iSlow7 != iRec11[1]))?-0.0009765625f:0.0f)));
 		fRec8[0] = fTemp1;
-		fRec9[0] = max(0.0f, min(1.0f, (fRec9[1] + fTemp1)));
-		iRec10[0] = ((int(((fRec9[1] >= 1.0f) & (iRec11[1] != iSlow7))))?iSlow7:iRec10[1]);
-		iRec11[0] = ((int(((fRec9[1] <= 0.0f) & (iRec10[1] != iSlow7))))?iSlow7:iRec11[1]);
-		fRec7[IOTA&1048575] = ((float)input1[i] + (fSlow8 * (((fRec7[(IOTA-int((1 + int((int(iRec10[0]) & 524287)))))&1048575] * (1.0f - fRec9[0])) + (fRec9[0] * fRec7[(IOTA-int((1 + int((int(iRec11[0]) & 524287)))))&1048575])) * (1 - (fSlow4 * (0 - fRec1[0]))))));
-		output1[i] = (FAUSTFLOAT)fRec7[(IOTA-0)&1048575];
-		// post processing
-		iRec11[1] = iRec11[0];
-		iRec10[1] = iRec10[0];
-		fRec9[1] = fRec9[0];
-		fRec8[1] = fRec8[0];
-		IOTA = IOTA+1;
-		iRec6[1] = iRec6[0];
-		iRec5[1] = iRec5[0];
-		fRec4[1] = fRec4[0];
-		fRec3[1] = fRec3[0];
-		fRec2[1] = fRec2[0];
-		fRec1[1] = fRec1[0];
+		fRec9[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec9[1] + fTemp1)));
+		iRec10[0] = (((fRec9[1] >= 1.0f) & (iRec11[1] != iSlow7))?iSlow7:iRec10[1]);
+		iRec11[0] = (((fRec9[1] <= 0.0f) & (iRec10[1] != iSlow7))?iSlow7:iRec11[1]);
+		fRec7[(IOTA & 1048575)] = ((fSlow6 * ((((1.0f - fRec9[0]) * fRec7[((IOTA - (std::min<int>(524288, std::max<int>(0, iRec10[0])) + 1)) & 1048575)]) + (fRec9[0] * fRec7[((IOTA - (std::min<int>(524288, std::max<int>(0, iRec11[0])) + 1)) & 1048575)])) * (1.0f - (fSlow2 * (0.0f - fRec5[0]))))) + float(input1[i]));
+		output1[i] = FAUSTFLOAT(fRec7[((IOTA - 0) & 1048575)]);
 		iVec0[1] = iVec0[0];
+		fRec1[1] = fRec1[0];
+		fRec2[1] = fRec2[0];
+		iRec3[1] = iRec3[0];
+		iRec4[1] = iRec4[0];
+		fRec5[1] = fRec5[0];
+		fRec6[1] = fRec6[0];
+		IOTA = (IOTA + 1);
+		fRec8[1] = fRec8[0];
+		fRec9[1] = fRec9[0];
+		iRec10[1] = iRec10[0];
+		iRec11[1] = iRec11[0];
 	}
 }
 
@@ -202,13 +206,13 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
-	reg.registerEnumVar("stereoecho.invert","","B","",fcheckbox0_values,&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("stereoecho.lbpm",N_("Time L"),"S",N_("Echo in Beats per Minute"),&fslider1, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
-	reg.registerVar("stereoecho.lfobpm",N_("LFO Freq"),"S",N_("LFO in Beats per Minute"),&fslider0, 24.0f, 24.0f, 3.6e+02f, 1.0f);
-	reg.registerVar("stereoecho.percent_l",N_("Release L"),"S","",&fslider2, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.percent_r",N_("Release R"),"S","",&fslider4, 0.0f, 0.0f, 1e+02f, 0.1f);
-	reg.registerVar("stereoecho.rbpm",N_("Time R"),"S",N_("Echo in Beats per Minute"),&fslider3, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f);
+	static const value_pair fCheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
+	reg.registerEnumVar("stereoecho.invert","","B","",fCheckbox0_values,&fCheckbox0, 0.0, 0.0, 1.0, 1.0);
+	reg.registerVar("stereoecho.lbpm",N_("Time L"),"S",N_("Echo in Beats per Minute"),&fHslider0, 120.0f, 24.0f, 360.0f, 1.0f);
+	reg.registerVar("stereoecho.lfobpm",N_("LFO Freq"),"S",N_("LFO in Beats per Minute"),&fHslider1, 24.0f, 24.0f, 360.0f, 1.0f);
+	reg.registerVar("stereoecho.percent_l",N_("Release L"),"S","",&fVslider0, 0.0f, 0.0f, 100.0f, 0.100000001f);
+	reg.registerVar("stereoecho.percent_r",N_("Release R"),"S","",&fVslider1, 0.0f, 0.0f, 100.0f, 0.100000001f);
+	reg.registerVar("stereoecho.rbpm",N_("Time R"),"S",N_("Echo in Beats per Minute"),&fHslider2, 120.0f, 24.0f, 360.0f, 1.0f);
 	return 0;
 }
 

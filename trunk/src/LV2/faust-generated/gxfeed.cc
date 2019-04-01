@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxfeed.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace gxfeed {
@@ -7,25 +7,25 @@ namespace gxfeed {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	int 	IOTA;
-	double 	fVec0[2048];
-	double 	fRec6[2];
-	double 	fVec1[1024];
-	double 	fRec8[2];
-	double 	fVec2[1024];
-	double 	fRec10[2];
-	double 	fVec3[1024];
-	double 	fRec12[2];
-	double 	fVec4[128];
-	double 	fRec4[2];
-	double 	fVec5[64];
-	double 	fRec2[2];
-	double 	fVec6[12];
-	double 	fRec0[2];
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
-	FAUSTFLOAT 	fcheckbox0;
-	FAUSTFLOAT	*fcheckbox0_;
+	FAUSTFLOAT fCheckbox0;
+	FAUSTFLOAT	*fCheckbox0_;
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	int IOTA;
+	double fVec0[2048];
+	double fRec6[2];
+	double fVec1[1024];
+	double fRec8[2];
+	double fVec2[1024];
+	double fRec10[2];
+	double fVec3[1024];
+	double fRec12[2];
+	double fVec4[128];
+	double fRec4[2];
+	double fVec5[64];
+	double fRec2[2];
+	double fVec6[12];
+	double fRec0[2];
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -48,7 +48,7 @@ Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;
 	id = "gxfeed";
-	name = "?gxfeed";
+	name = N_("gxfeed");
 	mono_audio = 0;
 	stereo_audio = compute_static;
 	set_samplerate = init_static;
@@ -63,20 +63,20 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2048; i++) fVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec6[i] = 0;
-	for (int i=0; i<1024; i++) fVec1[i] = 0;
-	for (int i=0; i<2; i++) fRec8[i] = 0;
-	for (int i=0; i<1024; i++) fVec2[i] = 0;
-	for (int i=0; i<2; i++) fRec10[i] = 0;
-	for (int i=0; i<1024; i++) fVec3[i] = 0;
-	for (int i=0; i<2; i++) fRec12[i] = 0;
-	for (int i=0; i<128; i++) fVec4[i] = 0;
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<64; i++) fVec5[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
-	for (int i=0; i<12; i++) fVec6[i] = 0;
-	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int l0 = 0; (l0 < 2048); l0 = (l0 + 1)) fVec0[l0] = 0.0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec6[l1] = 0.0;
+	for (int l2 = 0; (l2 < 1024); l2 = (l2 + 1)) fVec1[l2] = 0.0;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec8[l3] = 0.0;
+	for (int l4 = 0; (l4 < 1024); l4 = (l4 + 1)) fVec2[l4] = 0.0;
+	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec10[l5] = 0.0;
+	for (int l6 = 0; (l6 < 1024); l6 = (l6 + 1)) fVec3[l6] = 0.0;
+	for (int l7 = 0; (l7 < 2); l7 = (l7 + 1)) fRec12[l7] = 0.0;
+	for (int l8 = 0; (l8 < 128); l8 = (l8 + 1)) fVec4[l8] = 0.0;
+	for (int l9 = 0; (l9 < 2); l9 = (l9 + 1)) fRec4[l9] = 0.0;
+	for (int l10 = 0; (l10 < 64); l10 = (l10 + 1)) fVec5[l10] = 0.0;
+	for (int l11 = 0; (l11 < 2); l11 = (l11 + 1)) fRec2[l11] = 0.0;
+	for (int l12 = 0; (l12 < 12); l12 = (l12 + 1)) fVec6[l12] = 0.0;
+	for (int l13 = 0; (l13 < 2); l13 = (l13 + 1)) fRec0[l13] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -87,7 +87,9 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	IOTA = 0;
+	fCheckbox0 = FAUSTFLOAT(0.0);
+	fVslider0 = FAUSTFLOAT(0.0);
+			IOTA = 0;
 	clear_state_f();
 }
 
@@ -98,59 +100,60 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-#define fslider0 (*fslider0_)
-#define fcheckbox0 (*fcheckbox0_)
-	double 	fSlow0 = double(fslider0);
-	double 	fSlow1 = (1 - max((double)0, (0 - fSlow0)));
-	double 	fSlow2 = (1 - max((double)0, fSlow0));
-	int 	iSlow3 = int(double(fcheckbox0));
-	for (int i=0; i<count; i++) {
-		double fTemp0 = (double)input1[i];
-		double fTemp1 = (0.2 * fTemp0);
-		double fTemp2 = (fTemp1 + (0.764 * fRec6[1]));
-		fVec0[IOTA&2047] = fTemp2;
-		fRec6[0] = fVec0[(IOTA-1123)&2047];
-		double 	fRec7 = fVec0[IOTA&2047];
-		double fTemp3 = (fTemp1 + (0.783 * fRec8[1]));
-		fVec1[IOTA&1023] = fTemp3;
-		fRec8[0] = fVec1[(IOTA-1011)&1023];
-		double 	fRec9 = fVec1[IOTA&1023];
-		double fTemp4 = (fTemp1 + (0.805 * fRec10[1]));
-		fVec2[IOTA&1023] = fTemp4;
-		fRec10[0] = fVec2[(IOTA-901)&1023];
-		double 	fRec11 = fVec2[IOTA&1023];
-		double fTemp5 = (fTemp1 + (0.827 * fRec12[1]));
-		fVec3[IOTA&1023] = fTemp5;
-		fRec12[0] = fVec3[(IOTA-778)&1023];
-		double 	fRec13 = fVec3[IOTA&1023];
-		double fTemp6 = (fRec13 + (fRec11 + (fRec9 + ((0.7 * fRec4[1]) + fRec7))));
-		fVec4[IOTA&127] = fTemp6;
-		fRec4[0] = fVec4[(IOTA-124)&127];
-		double 	fRec5 = (0 - (0.7 * fVec4[IOTA&127]));
-		double fTemp7 = (fRec5 + ((0.7 * fRec2[1]) + fRec4[1]));
-		fVec5[IOTA&63] = fTemp7;
-		fRec2[0] = fVec5[(IOTA-41)&63];
-		double 	fRec3 = (0 - (0.7 * fVec5[IOTA&63]));
-		double fTemp8 = (fRec3 + ((0.7 * fRec0[1]) + fRec2[1]));
+#define fCheckbox0 (*fCheckbox0_)
+#define fVslider0 (*fVslider0_)
+	int iSlow0 = int(double(fCheckbox0));
+	double fSlow1 = double(fVslider0);
+	double fSlow2 = (1.0 - std::max<double>(0.0, fSlow1));
+	double fSlow3 = (1.0 - std::max<double>(0.0, (-1.0 * fSlow1)));
+	for (int i = 0; (i < count); i = (i + 1)) {
+		double fTemp0 = double(input1[i]);
+		double fTemp1 = (0.20000000000000001 * fTemp0);
+		double fTemp2 = (fTemp1 + (0.76400000000000001 * fRec6[1]));
+		fVec0[(IOTA & 2047)] = fTemp2;
+		fRec6[0] = fVec0[((IOTA - 1123) & 2047)];
+		double fRec7 = fTemp2;
+		double fTemp3 = (fTemp1 + (0.78300000000000003 * fRec8[1]));
+		fVec1[(IOTA & 1023)] = fTemp3;
+		fRec8[0] = fVec1[((IOTA - 1011) & 1023)];
+		double fRec9 = fTemp3;
+		double fTemp4 = ((0.82699999999999996 * fRec10[1]) + fTemp1);
+		fVec2[(IOTA & 1023)] = fTemp4;
+		fRec10[0] = fVec2[((IOTA - 778) & 1023)];
+		double fRec11 = fTemp4;
+		double fTemp5 = (fTemp1 + (0.80500000000000005 * fRec12[1]));
+		fVec3[(IOTA & 1023)] = fTemp5;
+		fRec12[0] = fVec3[((IOTA - 901) & 1023)];
+		double fRec13 = fTemp5;
+		double fTemp6 = ((0.69999999999999996 * fRec4[1]) + (fRec7 + (fRec9 + (fRec11 + fRec13))));
+		fVec4[(IOTA & 127)] = fTemp6;
+		fRec4[0] = fVec4[((IOTA - 124) & 127)];
+		double fRec5 = (0.0 - (0.69999999999999996 * fTemp6));
+		double fTemp7 = (fRec4[1] + (fRec5 + (0.69999999999999996 * fRec2[1])));
+		fVec5[(IOTA & 63)] = fTemp7;
+		fRec2[0] = fVec5[((IOTA - 41) & 63)];
+		double fRec3 = (0.0 - (0.69999999999999996 * fTemp7));
+		double fTemp8 = (fRec2[1] + (fRec3 + (0.69999999999999996 * fRec0[1])));
 		fVec6[0] = fTemp8;
 		fRec0[0] = fVec6[11];
-		double 	fRec1 = (0 - (0.7 * fVec6[0]));
-		double fTemp9 = ((iSlow3)?((fSlow2 * fTemp0) + (fSlow1 * (fRec0[1] + fRec1))):(double)input0[i]);
-		output0[i] = (FAUSTFLOAT)fTemp9;
-		output1[i] = (FAUSTFLOAT)fTemp9;
-		// post processing
-		fRec0[1] = fRec0[0];
-		for (int i=11; i>0; i--) fVec6[i] = fVec6[i-1];
-		fRec2[1] = fRec2[0];
-		fRec4[1] = fRec4[0];
-		fRec12[1] = fRec12[0];
-		fRec10[1] = fRec10[0];
-		fRec8[1] = fRec8[0];
+		double fRec1 = (0.0 - (0.69999999999999996 * fTemp8));
+		double fTemp9 = (iSlow0?((fSlow2 * fTemp0) + (fSlow3 * (fRec1 + fRec0[1]))):double(input0[i]));
+		output0[i] = FAUSTFLOAT(fTemp9);
+		output1[i] = FAUSTFLOAT(fTemp9);
+		IOTA = (IOTA + 1);
 		fRec6[1] = fRec6[0];
-		IOTA = IOTA+1;
+		fRec8[1] = fRec8[0];
+		fRec10[1] = fRec10[0];
+		fRec12[1] = fRec12[0];
+		fRec4[1] = fRec4[0];
+		fRec2[1] = fRec2[0];
+		for (int j0 = 11; (j0 > 0); j0 = (j0 - 1)) {
+			fVec6[j0] = fVec6[(j0 - 1)];
+		}
+		fRec0[1] = fRec0[0];
 	}
-#undef fslider0
-#undef fcheckbox0
+#undef fCheckbox0
+#undef fVslider0
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2 *p)
@@ -164,10 +167,10 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case FEED_ON_OFF: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case WET_DRY: 
-		fslider0_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
+		fVslider0_ = (float*)data; // , 0.0, -1.0, 1.0, 0.01 
 		break;
 	default:
 		break;

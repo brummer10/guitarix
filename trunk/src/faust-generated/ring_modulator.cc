@@ -1,18 +1,86 @@
 // generated from file '../src/faust/ring_modulator.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace ring_modulator {
+class mydspSIG0 {
+	
+  private:
+	
+	int iRec0[2];
+	
+  public:
+	
+	int getNumInputsmydspSIG0() {
+		return 0;
+		
+	}
+	int getNumOutputsmydspSIG0() {
+		return 1;
+		
+	}
+	int getInputRatemydspSIG0(int channel) {
+		int rate;
+		switch (channel) {
+			default: {
+				rate = -1;
+				break;
+			}
+			
+		}
+		return rate;
+		
+	}
+	int getOutputRatemydspSIG0(int channel) {
+		int rate;
+		switch (channel) {
+			case 0: {
+				rate = 0;
+				break;
+			}
+			default: {
+				rate = -1;
+				break;
+			}
+			
+		}
+		return rate;
+		
+	}
+	
+	void instanceInitmydspSIG0(int samplingFreq) {
+		for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) {
+			iRec0[l0] = 0;
+			
+		}
+		
+	}
+	
+	void fillmydspSIG0(int count, double* output) {
+		for (int i = 0; (i < count); i = (i + 1)) {
+			iRec0[0] = (iRec0[1] + 1);
+			output[i] = std::sin((9.5873799242852573e-05 * double((iRec0[0] + -1))));
+			iRec0[1] = iRec0[0];
+			
+		}
+		
+	}
+
+};
+
+mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
+void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
+
+static double ftbl0mydspSIG0[65536];
+
 
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	int 	iVec0[2];
-	FAUSTFLOAT 	fslider0;
-	double 	fConst0;
-	double 	fRec0[2];
-	double 	fRec1[2];
-	FAUSTFLOAT 	fslider1;
+	FAUSTFLOAT fHslider0;
+	double fConst0;
+	FAUSTFLOAT fHslider1;
+	double fRec1[2];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -59,9 +127,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) iVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<2; i++) fRec1[i] = 0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -71,8 +137,14 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int samplingFreq)
 {
+	mydspSIG0* sig0 = newmydspSIG0();
+	sig0->instanceInitmydspSIG0(samplingFreq);
+	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
+	deletemydspSIG0(sig0);
 	fSamplingFreq = samplingFreq;
-	fConst0 = (6.283185307179586 / min(1.92e+05, max(1.0, (double)fSamplingFreq)));
+	fConst0 = (1.0 / std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq))));
+	fHslider0 = FAUSTFLOAT(0.5);
+	fHslider1 = FAUSTFLOAT(240.0);
 	clear_state_f();
 }
 
@@ -83,20 +155,13 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (fConst0 * double(fslider0));
-	double 	fSlow1 = cos(fSlow0);
-	double 	fSlow2 = sin(fSlow0);
-	double 	fSlow3 = (0 - fSlow2);
-	double 	fSlow4 = double(fslider1);
-	for (int i=0; i<count; i++) {
-		iVec0[0] = 1;
-		fRec0[0] = ((fSlow2 * fRec1[1]) + (fSlow1 * fRec0[1]));
-		fRec1[0] = ((1 + ((fSlow1 * fRec1[1]) + (fSlow3 * fRec0[1]))) - iVec0[1]);
-		output0[i] = (FAUSTFLOAT)((double)input0[i] * (1 + (fSlow4 * (fRec0[0] - 1))));
-		// post processing
+	double fSlow0 = double(fHslider0);
+	double fSlow1 = (1.0 - fSlow0);
+	double fSlow2 = (fConst0 * double(fHslider1));
+	for (int i = 0; (i < count); i = (i + 1)) {
+		fRec1[0] = (fSlow2 + (fRec1[1] - std::floor((fSlow2 + fRec1[1]))));
+		output0[i] = FAUSTFLOAT(((fSlow1 + (fSlow0 * ftbl0mydspSIG0[int((65536.0 * fRec1[0]))])) * double(input0[i])));
 		fRec1[1] = fRec1[0];
-		fRec0[1] = fRec0[0];
-		iVec0[1] = iVec0[0];
 	}
 }
 
@@ -107,8 +172,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("ring_modulator.dry/wet",N_("Mix"),"S","",&fslider1, 0.5, 0.0, 1.0, 0.05);
-	reg.registerVar("ring_modulator.freq",N_("Freq"),"S","",&fslider0, 2.4e+02, 1.2e+02, 1.6e+03, 0.5);
+	reg.registerVar("ring_modulator.dry/wet",N_("Mix"),"S","",&fHslider0, 0.5, 0.0, 1.0, 0.050000000000000003);
+	reg.registerVar("ring_modulator.freq",N_("Freq"),"S","",&fHslider1, 240.0, 120.0, 1600.0, 0.5);
 	return 0;
 }
 

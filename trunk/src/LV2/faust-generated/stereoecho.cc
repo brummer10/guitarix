@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/stereoecho.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace stereoecho {
@@ -7,34 +7,34 @@ namespace stereoecho {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	int 	iVec0[2];
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
-	float 	fConst0;
-	float 	fConst1;
-	float 	fRec1[2];
-	float 	fRec2[2];
-	FAUSTFLOAT 	fcheckbox0;
-	FAUSTFLOAT	*fcheckbox0_;
-	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT	*fslider1_;
-	float 	fConst2;
-	float 	fRec3[2];
-	float 	fRec4[2];
-	int 	iRec5[2];
-	int 	iRec6[2];
-	FAUSTFLOAT 	fslider2;
-	FAUSTFLOAT	*fslider2_;
-	int 	IOTA;
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	int iVec0[2];
+	float fConst0;
+	float fConst1;
+	FAUSTFLOAT fVslider1;
+	FAUSTFLOAT	*fVslider1_;
+	float fRec1[2];
+	float fRec2[2];
+	int iRec3[2];
+	int iRec4[2];
+	FAUSTFLOAT fCheckbox0;
+	FAUSTFLOAT	*fCheckbox0_;
+	float fConst2;
+	FAUSTFLOAT fHslider0;
+	FAUSTFLOAT	*fHslider0_;
+	float fRec5[2];
+	float fRec6[2];
+	int IOTA;
 	float *fRec0;
-	FAUSTFLOAT 	fslider3;
-	FAUSTFLOAT	*fslider3_;
-	float 	fRec8[2];
-	float 	fRec9[2];
-	int 	iRec10[2];
-	int 	iRec11[2];
-	FAUSTFLOAT 	fslider4;
-	FAUSTFLOAT	*fslider4_;
+	FAUSTFLOAT fVslider2;
+	FAUSTFLOAT	*fVslider2_;
+	FAUSTFLOAT fVslider3;
+	FAUSTFLOAT	*fVslider3_;
+	float fRec8[2];
+	float fRec9[2];
+	int iRec10[2];
+	int iRec11[2];
 	float *fRec7;
 
 	bool mem_allocated;
@@ -81,19 +81,19 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) iVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec1[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
-	for (int i=0; i<2; i++) fRec3[i] = 0;
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) iRec5[i] = 0;
-	for (int i=0; i<2; i++) iRec6[i] = 0;
-	for (int i=0; i<262144; i++) fRec0[i] = 0;
-	for (int i=0; i<2; i++) fRec8[i] = 0;
-	for (int i=0; i<2; i++) fRec9[i] = 0;
-	for (int i=0; i<2; i++) iRec10[i] = 0;
-	for (int i=0; i<2; i++) iRec11[i] = 0;
-	for (int i=0; i<262144; i++) fRec7[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) iVec0[l0] = 0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0f;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec2[l2] = 0.0f;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) iRec3[l3] = 0;
+	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) iRec4[l4] = 0;
+	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec5[l5] = 0.0f;
+	for (int l6 = 0; (l6 < 2); l6 = (l6 + 1)) fRec6[l6] = 0.0f;
+	for (int l7 = 0; (l7 < 262144); l7 = (l7 + 1)) fRec0[l7] = 0.0f;
+	for (int l8 = 0; (l8 < 2); l8 = (l8 + 1)) fRec8[l8] = 0.0f;
+	for (int l9 = 0; (l9 < 2); l9 = (l9 + 1)) fRec9[l9] = 0.0f;
+	for (int l10 = 0; (l10 < 2); l10 = (l10 + 1)) iRec10[l10] = 0;
+	for (int l11 = 0; (l11 < 2); l11 = (l11 + 1)) iRec11[l11] = 0;
+	for (int l12 = 0; (l12 < 262144); l12 = (l12 + 1)) fRec7[l12] = 0.0f;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -104,10 +104,16 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = min(1.92e+05f, max(1.0f, (float)fSamplingFreq));
-	fConst1 = (6.2831855f / fConst0);
-	fConst2 = (0.001f * fConst0);
-	IOTA = 0;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fConst1 = (0.00100000005f * fConst0);
+	fConst2 = (6.28318548f / fConst0);
+	fVslider0 = FAUSTFLOAT(0.0f);
+	fVslider1 = FAUSTFLOAT(1.0f);
+	fCheckbox0 = FAUSTFLOAT(0.0f);
+	fHslider0 = FAUSTFLOAT(0.20000000000000001f);
+	fVslider2 = FAUSTFLOAT(0.0f);
+	fVslider3 = FAUSTFLOAT(1.0f);
+			IOTA = 0;
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
@@ -149,59 +155,57 @@ int Dsp::activate_static(bool start, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-#define fslider0 (*fslider0_)
-#define fcheckbox0 (*fcheckbox0_)
-#define fslider1 (*fslider1_)
-#define fslider2 (*fslider2_)
-#define fslider3 (*fslider3_)
-#define fslider4 (*fslider4_)
-	float 	fSlow0 = (fConst1 * float(fslider0));
-	float 	fSlow1 = cosf(fSlow0);
-	float 	fSlow2 = sinf(fSlow0);
-	float 	fSlow3 = (0 - fSlow2);
-	float 	fSlow4 = float(fcheckbox0);
-	int 	iSlow5 = (int((fConst2 * float(fslider1))) - 1);
-	float 	fSlow6 = (0.01f * float(fslider2));
-	int 	iSlow7 = (int((fConst2 * float(fslider3))) - 1);
-	float 	fSlow8 = (0.01f * float(fslider4));
-	for (int i=0; i<count; i++) {
+#define fVslider0 (*fVslider0_)
+#define fVslider1 (*fVslider1_)
+#define fCheckbox0 (*fCheckbox0_)
+#define fHslider0 (*fHslider0_)
+#define fVslider2 (*fVslider2_)
+#define fVslider3 (*fVslider3_)
+	float fSlow0 = (0.00999999978f * float(fVslider0));
+	int iSlow1 = (int((fConst1 * float(fVslider1))) + -1);
+	float fSlow2 = float(fCheckbox0);
+	float fSlow3 = (fConst2 * float(fHslider0));
+	float fSlow4 = std::sin(fSlow3);
+	float fSlow5 = std::cos(fSlow3);
+	float fSlow6 = (0.00999999978f * float(fVslider2));
+	int iSlow7 = (int((fConst1 * float(fVslider3))) + -1);
+	for (int i = 0; (i < count); i = (i + 1)) {
 		iVec0[0] = 1;
-		fRec1[0] = ((fSlow2 * fRec2[1]) + (fSlow1 * fRec1[1]));
-		fRec2[0] = ((1 + ((fSlow1 * fRec2[1]) + (fSlow3 * fRec1[1]))) - iVec0[1]);
-		float fTemp0 = ((int((fRec3[1] != 0.0f)))?((int(((fRec4[1] > 0.0f) & (fRec4[1] < 1.0f))))?fRec3[1]:0):((int(((fRec4[1] == 0.0f) & (iSlow5 != iRec5[1]))))?0.0009765625f:((int(((fRec4[1] == 1.0f) & (iSlow5 != iRec6[1]))))?-0.0009765625f:0)));
-		fRec3[0] = fTemp0;
-		fRec4[0] = max(0.0f, min(1.0f, (fRec4[1] + fTemp0)));
-		iRec5[0] = ((int(((fRec4[1] >= 1.0f) & (iRec6[1] != iSlow5))))?iSlow5:iRec5[1]);
-		iRec6[0] = ((int(((fRec4[1] <= 0.0f) & (iRec5[1] != iSlow5))))?iSlow5:iRec6[1]);
-		fRec0[IOTA&262143] = ((float)input0[i] + (fSlow6 * (((fRec0[(IOTA-int((1 + int((int(iRec5[0]) & 131071)))))&262143] * (1.0f - fRec4[0])) + (fRec4[0] * fRec0[(IOTA-int((1 + int((int(iRec6[0]) & 131071)))))&262143])) * (1 - (fSlow4 * fRec1[0])))));
-		output0[i] = (FAUSTFLOAT)fRec0[(IOTA-0)&262143];
-		float fTemp1 = ((int((fRec8[1] != 0.0f)))?((int(((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f))))?fRec8[1]:0):((int(((fRec9[1] == 0.0f) & (iSlow7 != iRec10[1]))))?0.0009765625f:((int(((fRec9[1] == 1.0f) & (iSlow7 != iRec11[1]))))?-0.0009765625f:0)));
+		float fTemp0 = ((fRec1[1] != 0.0f)?(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))?fRec1[1]:0.0f):(((fRec2[1] == 0.0f) & (iSlow1 != iRec3[1]))?0.0009765625f:(((fRec2[1] == 1.0f) & (iSlow1 != iRec4[1]))?-0.0009765625f:0.0f)));
+		fRec1[0] = fTemp0;
+		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec2[1] + fTemp0)));
+		iRec3[0] = (((fRec2[1] >= 1.0f) & (iRec4[1] != iSlow1))?iSlow1:iRec3[1]);
+		iRec4[0] = (((fRec2[1] <= 0.0f) & (iRec3[1] != iSlow1))?iSlow1:iRec4[1]);
+		fRec5[0] = ((fSlow4 * fRec6[1]) + (fSlow5 * fRec5[1]));
+		fRec6[0] = ((float((1 - iVec0[1])) + (fSlow5 * fRec6[1])) - (fSlow4 * fRec5[1]));
+		fRec0[(IOTA & 262143)] = ((fSlow0 * ((((1.0f - fRec2[0]) * fRec0[((IOTA - (std::min<int>(131072, std::max<int>(0, iRec3[0])) + 1)) & 262143)]) + (fRec2[0] * fRec0[((IOTA - (std::min<int>(131072, std::max<int>(0, iRec4[0])) + 1)) & 262143)])) * (1.0f - (fSlow2 * fRec5[0])))) + float(input0[i]));
+		output0[i] = FAUSTFLOAT(fRec0[((IOTA - 0) & 262143)]);
+		float fTemp1 = ((fRec8[1] != 0.0f)?(((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f))?fRec8[1]:0.0f):(((fRec9[1] == 0.0f) & (iSlow7 != iRec10[1]))?0.0009765625f:(((fRec9[1] == 1.0f) & (iSlow7 != iRec11[1]))?-0.0009765625f:0.0f)));
 		fRec8[0] = fTemp1;
-		fRec9[0] = max(0.0f, min(1.0f, (fRec9[1] + fTemp1)));
-		iRec10[0] = ((int(((fRec9[1] >= 1.0f) & (iRec11[1] != iSlow7))))?iSlow7:iRec10[1]);
-		iRec11[0] = ((int(((fRec9[1] <= 0.0f) & (iRec10[1] != iSlow7))))?iSlow7:iRec11[1]);
-		fRec7[IOTA&262143] = ((float)input1[i] + (fSlow8 * (((fRec7[(IOTA-int((1 + int((int(iRec10[0]) & 131071)))))&262143] * (1.0f - fRec9[0])) + (fRec9[0] * fRec7[(IOTA-int((1 + int((int(iRec11[0]) & 131071)))))&262143])) * (1 - (fSlow4 * (0 - fRec1[0]))))));
-		output1[i] = (FAUSTFLOAT)fRec7[(IOTA-0)&262143];
-		// post processing
-		iRec11[1] = iRec11[0];
-		iRec10[1] = iRec10[0];
-		fRec9[1] = fRec9[0];
-		fRec8[1] = fRec8[0];
-		IOTA = IOTA+1;
-		iRec6[1] = iRec6[0];
-		iRec5[1] = iRec5[0];
-		fRec4[1] = fRec4[0];
-		fRec3[1] = fRec3[0];
-		fRec2[1] = fRec2[0];
-		fRec1[1] = fRec1[0];
+		fRec9[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec9[1] + fTemp1)));
+		iRec10[0] = (((fRec9[1] >= 1.0f) & (iRec11[1] != iSlow7))?iSlow7:iRec10[1]);
+		iRec11[0] = (((fRec9[1] <= 0.0f) & (iRec10[1] != iSlow7))?iSlow7:iRec11[1]);
+		fRec7[(IOTA & 262143)] = ((fSlow6 * ((((1.0f - fRec9[0]) * fRec7[((IOTA - (std::min<int>(131072, std::max<int>(0, iRec10[0])) + 1)) & 262143)]) + (fRec9[0] * fRec7[((IOTA - (std::min<int>(131072, std::max<int>(0, iRec11[0])) + 1)) & 262143)])) * (1.0f - (fSlow2 * (0.0f - fRec5[0]))))) + float(input1[i]));
+		output1[i] = FAUSTFLOAT(fRec7[((IOTA - 0) & 262143)]);
 		iVec0[1] = iVec0[0];
+		fRec1[1] = fRec1[0];
+		fRec2[1] = fRec2[0];
+		iRec3[1] = iRec3[0];
+		iRec4[1] = iRec4[0];
+		fRec5[1] = fRec5[0];
+		fRec6[1] = fRec6[0];
+		IOTA = (IOTA + 1);
+		fRec8[1] = fRec8[0];
+		fRec9[1] = fRec9[0];
+		iRec10[1] = iRec10[0];
+		iRec11[1] = iRec11[0];
 	}
-#undef fslider0
-#undef fcheckbox0
-#undef fslider1
-#undef fslider2
-#undef fslider3
-#undef fslider4
+#undef fVslider0
+#undef fVslider1
+#undef fCheckbox0
+#undef fHslider0
+#undef fVslider2
+#undef fVslider3
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2 *p)
@@ -215,23 +219,23 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case LFOFREQ: 
-		fslider0_ = (float*)data; // , 0.2f, 0.0f, 5.0f, 0.01f 
+		fHslider0_ = (float*)data; // , 0.200000003f, 0.0f, 5.0f, 0.00999999978f 
 		break;
-	// static const value_pair fcheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
+	// static const value_pair fCheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	case INVERT: 
-		fcheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case PERCENT_L: 
-		fslider2_ = (float*)data; // , 0.0f, 0.0f, 1e+02f, 0.1f 
+		fVslider0_ = (float*)data; // , 0.0f, 0.0f, 100.0f, 0.100000001f 
 		break;
 	case PERCENT_R: 
-		fslider4_ = (float*)data; // , 0.0f, 0.0f, 1e+02f, 0.1f 
+		fVslider2_ = (float*)data; // , 0.0f, 0.0f, 100.0f, 0.100000001f 
 		break;
 	case TIME_L: 
-		fslider1_ = (float*)data; // , 1.0f, 1.0f, 2e+03f, 1.0f 
+		fVslider1_ = (float*)data; // , 1.0f, 1.0f, 2000.0f, 1.0f 
 		break;
 	case TIME_R: 
-		fslider3_ = (float*)data; // , 1.0f, 1.0f, 2e+03f, 1.0f 
+		fVslider3_ = (float*)data; // , 1.0f, 1.0f, 2000.0f, 1.0f 
 		break;
 	default:
 		break;

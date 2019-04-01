@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_hfb_#_hfb_>
     a lv2:Plugin ;
     lv2:binary <gx_hfb.so>  ;
-    rdfs:seeAlso <gx_hfb.ttl> , <modgui.ttl> .
+    rdfs:seeAlso <gx_hfb.ttl>   .

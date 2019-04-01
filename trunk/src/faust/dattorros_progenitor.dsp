@@ -23,7 +23,7 @@ decay_diffusion2 = hslider("decay diff 2[name:Decay 2]", 0.1, 0, 0.5, 0.01);
 input_diffusion1 = hslider("input diff 1[name:Input 1]", 0.1, 0, 0.75, 0.01);
 input_diffusion2 = hslider("input diff 2[name:Input 2]", 0.1, 0, 0.625, 0.01);
 bandwidth = hslider("bandwidth[name:Bandwidth]", 0.9, 0.1, 0.95, 0.0005);
-damping = hslider("damping[name:HF Damp]", 0.0005, 0.1, 0.95, 0.0005);
+damping = hslider("damping[name:HF Damp]", 0.1, 0.1, 0.95, 0.0005);
 dry_wet = hslider("dry/wet[name:Dry/Wet]", 0.5, 0, 1, 0.05);
 
 //Will be moved to .lib

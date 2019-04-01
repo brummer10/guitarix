@@ -1,5 +1,5 @@
 // generated from file '../src/faust/gain.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace gain {
@@ -7,8 +7,8 @@ namespace gain {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	double 	fRec0[2];
+	FAUSTFLOAT fVslider0;
+	double fRec0[2];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -55,7 +55,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec0[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec0[l0] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -66,6 +66,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+	fVslider0 = FAUSTFLOAT(0.0);
 	clear_state_f();
 }
 
@@ -76,11 +77,10 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
-	for (int i=0; i<count; i++) {
+	double fSlow0 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider0))));
+	for (int i = 0; (i < count); i = (i + 1)) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-		output0[i] = (FAUSTFLOAT)((double)input0[i] * fRec0[0]);
-		// post processing
+		output0[i] = FAUSTFLOAT((fRec0[0] * double(input0[i])));
 		fRec0[1] = fRec0[0];
 	}
 }
@@ -92,7 +92,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("gain.gain",N_("Gain"),"S",N_("gain (dB)"),&fslider0, 0.0, -4e+01, 4e+01, 0.1);
+	reg.registerVar("gain.gain",N_("Gain"),"S",N_("gain (dB)"),&fVslider0, 0.0, -40.0, 40.0, 0.10000000000000001);
 	return 0;
 }
 

@@ -6,7 +6,6 @@ declare description "BigMuffFuzzPadel";
 
 import("guitarix.lib");
 import("stdfaust.lib");
-import("reduce.lib");
 
 bigmuff      = _<: filter1,filter2:>_   with {
 	tone     = vslider("tone",0.5,0,1,0.01);

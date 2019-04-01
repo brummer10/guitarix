@@ -23,4 +23,4 @@
 <http://guitarix.sourceforge.net/plugins/gx_graphiceq_#_graphiceq_>
     a lv2:Plugin ;
     lv2:binary <gx_graphiceq.so>  ;
-    rdfs:seeAlso <gx_graphiceq.ttl> , <modgui.ttl> .
+    rdfs:seeAlso <gx_graphiceq.ttl>   .

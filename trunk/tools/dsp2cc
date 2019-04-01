@@ -196,9 +196,12 @@ class Parser(object):
         if line:
             cp.append(line)
         m = re.compile(exp).match
-        o = re.compile(r"\tint fSamplingFreq;").match
+        p = re.compile(r"\tint fSamplingFreq;").match
+        o = re.compile(r" public:").match
         for line in self.lines:
             if not line.strip():
+                continue
+            if p(line):
                 continue
             if m(line):
                 break
@@ -213,15 +216,52 @@ class Parser(object):
                 n = min(n, len(m(l).group(0)))
         return [l[n:] for l in cp]
 
+    def read_init(self, exp, line=None):
+        cp = []
+        if line:
+            cp.append(line)
+        m = re.compile(exp).match
+        n = re.compile("		}").match
+        p = re.compile(r"\tint fSamplingFreq;").match
+        o = re.compile(r" public:").match
+        for line in self.lines:
+            if not line.strip():
+                continue
+            if p(line):
+                continue
+            if n(line):
+                continue
+            if m(line):
+                break
+            if o(line):
+                break
+            if line.startswith("		for"):
+                line = line.replace("{\n","")
+                line = line.replace("\t","")
+                l = next(self.lines)
+                line += l.replace("\t","")
+            cp.append(line)
+        # remove indentation
+        m = re.compile(r"\t*").match
+        n = 10
+        for l in cp:
+            if l != "\n":
+                n = min(n, len(m(l).group(0)))
+        return [l[n:] for l in cp]
+
     def get_section_list(self):
-        return "includes", "var-decl", "alias-defines", "alias-undefines", "var-init", "var-free", "ui", "compute", "post_compute"
+        return "includes", "incl_class", "var-decl", "alias-defines", "alias-undefines", "var-init", "var-free", "ui", "compute", "post_compute"
+
 
     def getIO(self, s):
-        e = r"\s*virtual int getNum%sputs\(\)\s*{\s*return\s*(\d+);\s*}" % s
+        e = r"\s*virtual int getNum%sputs" % s
+        f = r"\s*return\s*(\d+);"
         for line in self.lines:
             m = re.match(e, line)
             if m:
-                return int(m.group(1))
+                n = re.match(f, next(self.lines))
+                if n:
+                    return int(n.group(1))
         raise ValueError("getNum%sputs not found in source" % s)
 
     def parse_name(self, s):
@@ -315,7 +355,7 @@ class Parser(object):
                     # ignore all other attributes for now
                     nextbox = {}
                 if not stack:
-                    if self.toplevel and grp == self.modname:
+                    if self.toplevel: #and grp == self.modname:
                         grp = self.toplevel
                     if not self.topname:
                         self.topname = grp
@@ -423,12 +463,38 @@ class Parser(object):
     def readIncludes(self, stop_expr):
         stop = re.compile(stop_expr).match
         cp = []
+        cl = False
+        l = ""
+        for line in self.lines:
+            if stop(line):
+                return cl,l,cp
+            if line.startswith('class '):
+                l = line
+                cl = True
+                return cl,l,cp
+            if line.startswith('#include "'):
+                cp.append(line)
+                
+        raise RuntimeError("EOF while looking for #include")
+
+    def readClass(self, stop_expr):
+        stop = re.compile(stop_expr).match
+        scip = re.compile('}').match
+        cp = []
+        cp += self.l
         for line in self.lines:
             if stop(line):
                 return cp
-            if line.startswith('#include "'):
-                cp.append(line)
-        raise RuntimeError("EOF while looking for #include")
+            if line.startswith('static float mydsp_faustpower'):
+                continue
+            if line.startswith('static double mydsp_faustpower'):
+                continue
+            if line.startswith('	return (value * value);'):
+                continue
+            if line.startswith('}') and not line.startswith('};'):
+                continue
+            cp.append(line)
+        raise RuntimeError("EOF while looking for Class")
 
     def change_var_decl(self, lines, init_type):
         param_matcher = re.compile(r"FAUSTFLOAT\s+([a-zA-Z_0-9]+);\n$").match
@@ -507,14 +573,19 @@ class Parser(object):
         self.groups = OrderedDict()
         self.memlist = []
         self.staticlist = []
+        self.l = ""
         s = {}
         self.ui = UIDefs()
         #self.readMeta()  # (needed only for faust 9.4
-        self.headvers = self.skip_until(r"\s*//\s*(Code generated with Faust.*)").group(1)
-        s["includes"] = self.readIncludes(r"  private:")
-        #self.skip_until(r"  private:")
-        var_decl = self.copy(r"  public:")
-        self.skip_until(r"^\s*virtual\s+void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
+        self.headvers = self.skip_until(r"\s*\s*(Code generated with Faust.*)").group(1)
+        cl,self.l,s["includes"] = self.readIncludes(r"#ifndef FAUSTCLASS")
+        if cl:
+            s["incl_class"] = self.readClass(r"#ifndef FAUSTCLASS")
+        else:
+            s["incl_class"] = ""
+        self.skip_until(r" private:")
+        var_decl = self.copy(r" public:")
+        self.skip_until(r"^\s*void\s+metadata\s*\(\s*Meta\s*\*\s*m\s*\)\s*{")
         self.readMeta2(r"\s*}\s*\n$")
         if self.toplevel is None :
             self.toplevel = self.modname
@@ -527,7 +598,8 @@ class Parser(object):
         self.skip_until(r"\s*virtual void instanceResetUserInterface")
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void instanceClear")
-        s["var-init"] += self.copy(r"\t}$")
+        s["var-init"] += self.read_init(r"\s*virtual void init")
+        del s["var-init"] [-1]
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
         s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl,options.init_type)
@@ -540,7 +612,7 @@ class Parser(object):
             self.has_vector = True
         else:
             s["compute"] = self.replace_ioref_scalar(self.copy(r"\t}$"))
-        self.skip_until(r"\s*};")
+        self.skip_until(r"\s*#endif};")
         s["post_compute"] = self.replace_mydsp(self.copy(r"\s*END USER SECTION$"))
         self.sections = s
         if self.fixedrate is not None:
@@ -577,8 +649,9 @@ class Parser(object):
         # ignore any following definitions of static class members
         #self.checkfor(r".*\bexp\b", "compute")
 
+
     def replace_ioref_vector(self, lines):
-        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*&\2put\[\3\]\[index\];"
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*&\2puts\[\3\]\[index\];"
         match = re.compile(ioref).match
         l = []
         for line in lines:
@@ -597,7 +670,7 @@ class Parser(object):
         return l
 
     def replace_ioref_scalar(self, lines):
-        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2put\[\3\];"
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*\2puts\[\3\];"
         match = re.compile(ioref).match
         l = []
         for line in lines:
@@ -609,7 +682,7 @@ class Parser(object):
                     if self.numOutputs == 2:
                         line=re.sub("input1",'bufs',line)
                         line=re.sub("output1",'bufs',line)
-                l.append(line)            
+                l.append(line)
         return l
 
     def replace_mydsp(self, lines):
@@ -774,6 +847,7 @@ template_plugin = """\
 %(includes)s\
 %(start_extra_namespace)s\
 namespace %(namespace)s {
+%(incl_class)s\
 %(var_decl)s\
 #if %(has_activate)s
 static bool mem_allocated = false;
@@ -943,6 +1017,7 @@ template_plugin_instance = """\
 
 %(start_extra_namespace)s\
 namespace %(namespace)s {
+%(incl_class)s\
 
 #if %(has_plugindef)s
 class Dsp: public PluginDef {
@@ -1358,6 +1433,7 @@ template_plugin_lv2 = """\
 
 %(start_extra_namespace)s\
 namespace %(namespace)s {
+%(incl_class)s\
 
 #if %(has_plugindef)s
 class Dsp: public PluginLV2 {
@@ -1849,6 +1925,7 @@ class Output(object):
             fps.write(ccdef)
         return load_ui
 
+
     def write_body_plugin(self, fp):
         fp.write("static int register_params(const ParamReg& reg)\n{\n")
         self.parser.ui.write(fp, prefix="reg.")
@@ -2009,6 +2086,7 @@ class Output(object):
             end_extra_namespace = "} // end namespace %s\n" % in_namespace if in_namespace else "",
             has_standalone_header = plugin_standalone,
             includes = self.parser_sect("includes"),
+            incl_class = self.parser_sect("incl_class"),
             namespace = self.parser.modname.replace("-","_"),
             var_decl = self.parser_sect("var-decl", indent=indent) % dd,
             static_decl = static_decl,

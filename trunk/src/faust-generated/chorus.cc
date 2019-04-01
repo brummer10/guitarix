@@ -1,44 +1,93 @@
 // generated from file '../src/faust/chorus.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace chorus {
+class mydspSIG0 {
+	
+  private:
+	
+	int iRec2[2];
+	
+  public:
+	
+	int getNumInputsmydspSIG0() {
+		return 0;
+		
+	}
+	int getNumOutputsmydspSIG0() {
+		return 1;
+		
+	}
+	int getInputRatemydspSIG0(int channel) {
+		int rate;
+		switch (channel) {
+			default: {
+				rate = -1;
+				break;
+			}
+			
+		}
+		return rate;
+		
+	}
+	int getOutputRatemydspSIG0(int channel) {
+		int rate;
+		switch (channel) {
+			case 0: {
+				rate = 0;
+				break;
+			}
+			default: {
+				rate = -1;
+				break;
+			}
+			
+		}
+		return rate;
+		
+	}
+	
+	void instanceInitmydspSIG0(int samplingFreq) {
+		for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) {
+			iRec2[l3] = 0;
+			
+		}
+		
+	}
+	
+	void fillmydspSIG0(int count, float* output) {
+		for (int i = 0; (i < count); i = (i + 1)) {
+			iRec2[0] = (iRec2[1] + 1);
+			output[i] = std::sin((9.58738019e-05f * float((iRec2[0] + -1))));
+			iRec2[1] = iRec2[0];
+			
+		}
+		
+	}
+
+};
+
+mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
+void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
+
+static float ftbl0mydspSIG0[65536];
+
 
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	class SIG0 {
-	  private:
-		int fSamplingFreq;
-		int 	iRec0[2];
-	  public:
-		int getNumInputs() { return 0; }
-		int getNumOutputs() { return 1; }
-		void init(int samplingFreq) {
-			fSamplingFreq = samplingFreq;
-			for (int i=0; i<2; i++) iRec0[i] = 0;
-		}
-		void fill (int count, float output[]) {
-			for (int i=0; i<count; i++) {
-				iRec0[0] = (1 + iRec0[1]);
-				output[i] = sinf((9.58738e-05f * (iRec0[0] - 1)));
-				// post processing
-				iRec0[1] = iRec0[0];
-			}
-		}
-	};
-	int 	IOTA;
+	FAUSTFLOAT fHslider0;
+	int IOTA;
 	float *fVec0;
-	static float 	ftbl0[65536];
-	FAUSTFLOAT 	fslider0;
-	float 	fConst0;
-	float 	fConst1;
-	float 	fRec1[2];
-	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT 	fslider2;
-	float 	fRec2[2];
-	float 	fConst2;
-	FAUSTFLOAT 	fslider3;
+	float fConst0;
+	float fConst1;
+	FAUSTFLOAT fHslider1;
+	float fRec0[2];
+	FAUSTFLOAT fHslider2;
+	float fConst2;
+	FAUSTFLOAT fHslider3;
+	float fRec1[2];
 	float *fVec1;
 
 	bool mem_allocated;
@@ -65,7 +114,6 @@ public:
 };
 
 
-float Dsp::ftbl0[65536];
 
 Dsp::Dsp()
 	: PluginDef(),
@@ -95,10 +143,10 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<65536; i++) fVec0[i] = 0;
-	for (int i=0; i<2; i++) fRec1[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
-	for (int i=0; i<65536; i++) fVec1[i] = 0;
+	for (int l0 = 0; (l0 < 131072); l0 = (l0 + 1)) fVec0[l0] = 0.0f;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0f;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec1[l2] = 0.0f;
+	for (int l4 = 0; (l4 < 131072); l4 = (l4 + 1)) fVec1[l4] = 0.0f;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -108,14 +156,19 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int samplingFreq)
 {
-	SIG0 sig0;
-	sig0.init(samplingFreq);
-	sig0.fill(65536,ftbl0);
+	mydspSIG0* sig0 = newmydspSIG0();
+	sig0->instanceInitmydspSIG0(samplingFreq);
+	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
+	deletemydspSIG0(sig0);
 	fSamplingFreq = samplingFreq;
-	fConst0 = min(1.92e+05f, max(1.0f, (float)fSamplingFreq));
-	fConst1 = (1.0f / fConst0);
-	fConst2 = (0.5f * fConst0);
-	IOTA = 0;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fConst1 = (0.5f * fConst0);
+	fConst2 = (1.0f / fConst0);
+	fHslider0 = FAUSTFLOAT(0.5f);
+	fHslider1 = FAUSTFLOAT(0.02f);
+	fHslider2 = FAUSTFLOAT(0.02f);
+	fHslider3 = FAUSTFLOAT(3.0f);
+			IOTA = 0;
 }
 
 void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
@@ -125,8 +178,8 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void Dsp::mem_alloc()
 {
-	if (!fVec0) fVec0 = new float[65536];
-	if (!fVec1) fVec1 = new float[65536];
+	if (!fVec0) fVec0 = new float[131072];
+	if (!fVec1) fVec1 = new float[131072];
 	mem_allocated = true;
 }
 
@@ -157,37 +210,34 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	float 	fSlow0 = (fConst1 * float(fslider0));
-	float 	fSlow1 = float(fslider1);
-	float 	fSlow2 = (0.001f * float(fslider2));
-	float 	fSlow3 = float(fslider3);
-	for (int i=0; i<count; i++) {
-		float fTemp0 = (float)input0[i];
-		fVec0[IOTA&65535] = fTemp0;
-		float fTemp1 = (fSlow0 + fRec1[1]);
-		fRec1[0] = (fTemp1 - floorf(fTemp1));
-		float fTemp2 = (65536 * (fRec1[0] - floorf(fRec1[0])));
-		float fTemp3 = floorf(fTemp2);
-		int iTemp4 = int(fTemp3);
-		fRec2[0] = (fSlow2 + (0.999f * fRec2[1]));
-		float fTemp5 = (fConst2 * (fRec2[0] * (1 + (fSlow1 * ((((1 + fTemp3) - fTemp2) * ftbl0[(iTemp4 & 65535)]) + ((fTemp2 - fTemp3) * ftbl0[((1 + iTemp4) & 65535)]))))));
-		int iTemp6 = int(fTemp5);
-		float fTemp7 = floorf(fTemp5);
-		output0[i] = (FAUSTFLOAT)(fVec0[IOTA&65535] + (fSlow3 * ((fVec0[(IOTA-int((iTemp6 & 65535)))&65535] * ((1 + fTemp7) - fTemp5)) + ((fTemp5 - fTemp7) * fVec0[(IOTA-int((int((1 + iTemp6)) & 65535)))&65535]))));
-		float fTemp8 = (float)input1[i];
-		fVec1[IOTA&65535] = fTemp8;
-		float fTemp9 = (0.25f + fRec1[0]);
-		float fTemp10 = (65536 * (fTemp9 - floorf(fTemp9)));
-		float fTemp11 = floorf(fTemp10);
+	float fSlow0 = float(fHslider0);
+	float fSlow1 = (0.00100000005f * float(fHslider1));
+	float fSlow2 = float(fHslider2);
+	float fSlow3 = (fConst2 * float(fHslider3));
+	for (int i = 0; (i < count); i = (i + 1)) {
+		float fTemp0 = float(input0[i]);
+		fVec0[(IOTA & 131071)] = fTemp0;
+		fRec0[0] = (fSlow1 + (0.999000013f * fRec0[1]));
+		fRec1[0] = (fSlow3 + (fRec1[1] - std::floor((fSlow3 + fRec1[1]))));
+		float fTemp1 = (65536.0f * (fRec1[0] - std::floor(fRec1[0])));
+		float fTemp2 = std::floor(fTemp1);
+		int iTemp3 = int(fTemp2);
+		float fTemp4 = (fConst1 * (fRec0[0] * ((fSlow2 * (((fTemp2 + (1.0f - fTemp1)) * ftbl0mydspSIG0[(iTemp3 & 65535)]) + ((fTemp1 - fTemp2) * ftbl0mydspSIG0[((iTemp3 + 1) & 65535)]))) + 1.0f)));
+		int iTemp5 = int(fTemp4);
+		float fTemp6 = std::floor(fTemp4);
+		output0[i] = FAUSTFLOAT(((fSlow0 * ((fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp5))) & 131071)] * (fTemp6 + (1.0f - fTemp4))) + ((fTemp4 - fTemp6) * fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp5 + 1)))) & 131071)]))) + fTemp0));
+		float fTemp7 = float(input1[i]);
+		fVec1[(IOTA & 131071)] = fTemp7;
+		float fTemp8 = (65536.0f * (fRec1[0] + (0.25f - std::floor((fRec1[0] + 0.25f)))));
+		float fTemp9 = std::floor(fTemp8);
+		int iTemp10 = int(fTemp9);
+		float fTemp11 = (fConst1 * (fRec0[0] * ((fSlow2 * (((fTemp9 + (1.0f - fTemp8)) * ftbl0mydspSIG0[(iTemp10 & 65535)]) + ((fTemp8 - fTemp9) * ftbl0mydspSIG0[((iTemp10 + 1) & 65535)]))) + 1.0f)));
 		int iTemp12 = int(fTemp11);
-		float fTemp13 = (fConst2 * (fRec2[0] * (1 + (fSlow1 * ((((1 + fTemp11) - fTemp10) * ftbl0[(iTemp12 & 65535)]) + ((fTemp10 - fTemp11) * ftbl0[((1 + iTemp12) & 65535)]))))));
-		int iTemp14 = int(fTemp13);
-		float fTemp15 = floorf(fTemp13);
-		output1[i] = (FAUSTFLOAT)(fVec1[IOTA&65535] + (fSlow3 * ((fVec1[(IOTA-int((iTemp14 & 65535)))&65535] * ((1 + fTemp15) - fTemp13)) + ((fTemp13 - fTemp15) * fVec1[(IOTA-int((int((1 + iTemp14)) & 65535)))&65535]))));
-		// post processing
-		fRec2[1] = fRec2[0];
+		float fTemp13 = std::floor(fTemp11);
+		output1[i] = FAUSTFLOAT(((fSlow0 * ((fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp12))) & 131071)] * (fTemp13 + (1.0f - fTemp11))) + ((fTemp11 - fTemp13) * fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp12 + 1)))) & 131071)]))) + fTemp7));
+		IOTA = (IOTA + 1);
+		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
-		IOTA = IOTA+1;
 	}
 }
 
@@ -198,10 +248,10 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("chorus.delay",N_("Delay"),"S","",&fslider2, 0.02f, 0.0f, 0.2f, 0.01f);
-	reg.registerVar("chorus.depth",N_("Depth"),"S","",&fslider1, 0.02f, 0.0f, 1.0f, 0.01f);
-	reg.registerVar("chorus.freq",N_("Freq"),"S","",&fslider0, 3.0f, 0.0f, 1e+01f, 0.01f);
-	reg.registerVar("chorus.level",N_("Level"),"S","",&fslider3, 0.5f, 0.0f, 1.0f, 0.01f);
+	reg.registerVar("chorus.delay",N_("Delay"),"S","",&fHslider1, 0.0199999996f, 0.0f, 0.200000003f, 0.00999999978f);
+	reg.registerVar("chorus.depth",N_("Depth"),"S","",&fHslider2, 0.0199999996f, 0.0f, 1.0f, 0.00999999978f);
+	reg.registerVar("chorus.freq",N_("Freq"),"S","",&fHslider3, 3.0f, 0.0f, 10.0f, 0.00999999978f);
+	reg.registerVar("chorus.level",N_("Level"),"S","",&fHslider0, 0.5f, 0.0f, 1.0f, 0.00999999978f);
 	return 0;
 }
 

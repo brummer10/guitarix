@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/noiser.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace noiser {
@@ -7,7 +7,7 @@ namespace noiser {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSamplingFreq;
-	int 	iRec0[2];
+	int iRec0[2];
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -45,7 +45,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) iRec0[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) iRec0[l0] = 0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -66,10 +66,9 @@ void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	for (int i=0; i<count; i++) {
-		iRec0[0] = (12345 + (1103515245 * iRec0[1]));
-		output0[i] = (FAUSTFLOAT)((double)input0[i] + (4.656612875245797e-21 * iRec0[0]));
-		// post processing
+	for (int i = 0; (i < count); i = (i + 1)) {
+		iRec0[0] = ((1103515245 * iRec0[1]) + 12345);
+		output0[i] = FAUSTFLOAT(((4.6566128752457968e-21 * double(iRec0[0])) + double(input0[i])));
 		iRec0[1] = iRec0[0];
 	}
 }

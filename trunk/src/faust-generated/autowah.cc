@@ -1,5 +1,5 @@
 // generated from file '../src/faust/autowah.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace autowah {
@@ -7,25 +7,25 @@ namespace autowah {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT	*fslider0_;
-	FAUSTFLOAT 	fslider1;
-	FAUSTFLOAT	*fslider1_;
-	float 	fConst0;
-	float 	fConst1;
-	float 	fConst2;
-	float 	fRec3[2];
-	float 	fConst3;
-	float 	fConst4;
-	float 	fRec2[2];
-	float 	fRec1[2];
-	FAUSTFLOAT 	fslider2;
-	FAUSTFLOAT	*fslider2_;
-	float 	fConst5;
-	float 	fRec4[2];
-	float 	fConst6;
-	float 	fRec5[2];
-	float 	fRec0[3];
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	FAUSTFLOAT fVslider1;
+	FAUSTFLOAT	*fVslider1_;
+	FAUSTFLOAT fVslider2;
+	FAUSTFLOAT	*fVslider2_;
+	float fConst0;
+	float fConst1;
+	float fConst2;
+	float fConst3;
+	float fConst4;
+	float fRec3[2];
+	float fRec2[2];
+	float fRec1[2];
+	float fConst5;
+	float fConst6;
+	float fRec4[2];
+	float fRec5[2];
+	float fRec0[3];
 
 	void clear_state_f();
 	void init(unsigned int samplingFreq);
@@ -69,12 +69,12 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec3[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
-	for (int i=0; i<2; i++) fRec1[i] = 0;
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) fRec5[i] = 0;
-	for (int i=0; i<3; i++) fRec0[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec3[l0] = 0.0f;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec2[l1] = 0.0f;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec1[l2] = 0.0f;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec4[l3] = 0.0f;
+	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec5[l4] = 0.0f;
+	for (int l5 = 0; (l5 < 3); l5 = (l5 + 1)) fRec0[l5] = 0.0f;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -85,13 +85,16 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = min(1.92e+05f, max(1.0f, (float)fSamplingFreq));
-	fConst1 = expf((0 - (1e+01f / fConst0)));
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fConst1 = std::exp((0.0f - (100.0f / fConst0)));
 	fConst2 = (1.0f - fConst1);
-	fConst3 = expf((0 - (1e+02f / fConst0)));
+	fConst3 = std::exp((0.0f - (10.0f / fConst0)));
 	fConst4 = (1.0f - fConst3);
-	fConst5 = (1413.7167f / fConst0);
-	fConst6 = (2827.4333f / fConst0);
+	fConst5 = (1413.71667f / fConst0);
+	fConst6 = (2827.43335f / fConst0);
+	fVslider0 = FAUSTFLOAT(0.0f);
+	fVslider1 = FAUSTFLOAT(100.0f);
+	fVslider2 = FAUSTFLOAT(0.10000000000000001f);
 	clear_state_f();
 }
 
@@ -102,37 +105,37 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-#define fslider0 (*fslider0_)
-#define fslider1 (*fslider1_)
-#define fslider2 (*fslider2_)
-	float 	fSlow0 = float(fslider0);
-	float 	fSlow1 = float(fslider1);
-	float 	fSlow2 = (2.0f - (fSlow1 + (0.01f * fSlow0)));
-	float 	fSlow3 = (0.01f * (fSlow0 * float(fslider2)));
-	for (int i=0; i<count; i++) {
-		float fTemp0 = (float)input0[i];
-		float fTemp1 = fabsf(fTemp0);
-		fRec3[0] = max(fTemp1, ((fConst2 * fTemp1) + (fConst1 * fRec3[1])));
-		fRec2[0] = ((fConst3 * fRec2[1]) + (fConst4 * fRec3[0]));
-		float fTemp2 = min((float)1, fRec2[0]);
-		fRec1[0] = ((0.999f * fRec1[1]) + (0.0001f * powf(4.0f,fTemp2)));
-		float fTemp3 = powf(2.0f,(2.3f * fTemp2));
-		float fTemp4 = (1 - (fConst5 * (fTemp3 / powf(2.0f,(1.0f + (2.0f * (1.0f - fTemp2)))))));
-		fRec4[0] = ((0.999f * fRec4[1]) + (0.001f * faustpower<2>(fTemp4)));
-		fRec5[0] = ((0.999f * fRec5[1]) + (0.001f * (0 - (2.0f * (fTemp4 * cosf((fConst6 * fTemp3)))))));
-		fRec0[0] = (0 - (((fRec0[1] * fRec5[0]) + (fRec0[2] * fRec4[0])) - (fSlow3 * (fTemp0 * fRec1[0]))));
-		output0[i] = (FAUSTFLOAT)((fSlow1 * (fRec0[0] - fRec0[1])) + (fSlow2 * fTemp0));
-		// post processing
-		fRec0[2] = fRec0[1]; fRec0[1] = fRec0[0];
-		fRec5[1] = fRec5[0];
-		fRec4[1] = fRec4[0];
-		fRec1[1] = fRec1[0];
-		fRec2[1] = fRec2[0];
+#define fVslider0 (*fVslider0_)
+#define fVslider1 (*fVslider1_)
+#define fVslider2 (*fVslider2_)
+	float fSlow0 = float(fVslider0);
+	float fSlow1 = float(fVslider1);
+	float fSlow2 = (0.00999999978f * (fSlow1 * float(fVslider2)));
+	float fSlow3 = ((1.0f - (0.00999999978f * fSlow1)) + (1.0f - fSlow0));
+	for (int i = 0; (i < count); i = (i + 1)) {
+		float fTemp0 = float(input0[i]);
+		float fTemp1 = std::fabs(fTemp0);
+		fRec3[0] = std::max<float>(fTemp1, ((fConst3 * fRec3[1]) + (fConst4 * fTemp1)));
+		fRec2[0] = ((fConst1 * fRec2[1]) + (fConst2 * fRec3[0]));
+		float fTemp2 = std::min<float>(1.0f, fRec2[0]);
+		fRec1[0] = ((0.999000013f * fRec1[1]) + (9.99999975e-05f * std::pow(4.0f, fTemp2)));
+		float fTemp3 = std::pow(2.0f, (2.29999995f * fTemp2));
+		float fTemp4 = (1.0f - (fConst5 * (fTemp3 / std::pow(2.0f, ((2.0f * (1.0f - fTemp2)) + 1.0f)))));
+		fRec4[0] = ((0.999000013f * fRec4[1]) - (0.00200000009f * (fTemp4 * std::cos((fConst6 * fTemp3)))));
+		fRec5[0] = ((0.999000013f * fRec5[1]) + (0.00100000005f * mydsp_faustpower2_f(fTemp4)));
+		fRec0[0] = ((fSlow2 * (fRec1[0] * fTemp0)) - ((fRec4[0] * fRec0[1]) + (fRec5[0] * fRec0[2])));
+		output0[i] = FAUSTFLOAT(((fSlow0 * (fRec0[0] - fRec0[1])) + (fSlow3 * fTemp0)));
 		fRec3[1] = fRec3[0];
+		fRec2[1] = fRec2[0];
+		fRec1[1] = fRec1[0];
+		fRec4[1] = fRec4[0];
+		fRec5[1] = fRec5[0];
+		fRec0[2] = fRec0[1];
+		fRec0[1] = fRec0[0];
 	}
-#undef fslider0
-#undef fslider1
-#undef fslider2
+#undef fVslider0
+#undef fVslider1
+#undef fVslider2
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
@@ -142,9 +145,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fslider2_ = reg.registerVar("crybaby.level","","SA","",&fslider2, 0.1f, 0.0f, 1.0f, 0.01f);
-	fslider1_ = reg.registerVar("crybaby.wah","","SA","",&fslider1, 0.0f, 0.0f, 1.0f, 0.01f);
-	fslider0_ = reg.registerVar("crybaby.wet_dry",N_("dry/wet"),"SA","",&fslider0, 1e+02f, 0.0f, 1e+02f, 1.0f);
+	fVslider2_ = reg.registerVar("crybaby.level","","SA","",&fVslider2, 0.100000001f, 0.0f, 1.0f, 0.00999999978f);
+	fVslider0_ = reg.registerVar("crybaby.wah","","SA","",&fVslider0, 0.0f, 0.0f, 1.0f, 0.00999999978f);
+	fVslider1_ = reg.registerVar("crybaby.wet_dry",N_("dry/wet"),"SA","",&fVslider1, 100.0f, 0.0f, 100.0f, 1.0f);
 	return 0;
 }
 

@@ -1,5 +1,5 @@
 // generated from file '../src/faust/compressor.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace compressor {
@@ -7,21 +7,21 @@ namespace compressor {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	double 	fConst0;
-	double 	fConst1;
-	double 	fConst2;
-	double 	fConst3;
-	double 	fRec5[2];
-	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT 	fslider1;
-	double 	fRec4[2];
-	FAUSTFLOAT 	fentry0;
-	FAUSTFLOAT 	fentry1;
-	FAUSTFLOAT 	fentry2;
-	double 	fRec0[2];
-	int 	iRec1[2];
-	double 	fRec2[2];
-	FAUSTFLOAT 	fbargraph0;
+	double fConst0;
+	double fConst1;
+	FAUSTFLOAT fEntry0;
+	FAUSTFLOAT fEntry1;
+	FAUSTFLOAT fHslider0;
+	double fConst2;
+	double fConst3;
+	double fRec4[2];
+	FAUSTFLOAT fHslider1;
+	double fRec3[2];
+	FAUSTFLOAT fEntry2;
+	double fRec0[2];
+	int iRec1[2];
+	double fRec2[2];
+	FAUSTFLOAT fVbargraph0;
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -68,11 +68,11 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec5[i] = 0;
-	for (int i=0; i<2; i++) fRec4[i] = 0;
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<2; i++) iRec1[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec4[l0] = 0.0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec3[l1] = 0.0;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec0[l2] = 0.0;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) iRec1[l3] = 0;
+	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec2[l4] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -83,10 +83,15 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = min(1.92e+05, max(1.0, (double)fSamplingFreq));
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
 	fConst1 = (1.0 / fConst0);
-	fConst2 = exp((0 - (1e+01 / fConst0)));
-	fConst3 = (1 - fConst2);
+	fConst2 = std::exp((0.0 - (10.0 / fConst0)));
+	fConst3 = (1.0 - fConst2);
+	fEntry0 = FAUSTFLOAT(2.0);
+	fEntry1 = FAUSTFLOAT(3.0);
+	fHslider0 = FAUSTFLOAT(0.002);
+	fHslider1 = FAUSTFLOAT(0.5);
+	fEntry2 = FAUSTFLOAT(-20.0);
 	clear_state_f();
 }
 
@@ -97,33 +102,32 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = exp((0 - (fConst1 / max(fConst1, double(fslider0)))));
-	double 	fSlow1 = exp((0 - (fConst1 / max(fConst1, double(fslider1)))));
-	double 	fSlow2 = double(fentry1);
-	double 	fSlow3 = (fSlow2 - double(fentry0));
-	double 	fSlow4 = (1.0 / (0.001 + fSlow2));
-	double 	fSlow5 = (double(fentry2) - 1);
-	for (int i=0; i<count; i++) {
-		double fTemp0 = (double)input0[i];
-		fRec5[0] = ((fConst3 * fabs((fTemp0 + 1e-20))) + (fConst2 * fRec5[1]));
-		double fTemp1 = ((fSlow1 * (fRec4[1] < fRec5[0])) + (fSlow0 * (fRec4[1] >= fRec5[0])));
-		fRec4[0] = ((fRec4[1] * fTemp1) + (fRec5[0] * (0 - (fTemp1 - 1))));
-		double fTemp2 = max((double)0, (fSlow3 + (20 * log10(fRec4[0]))));
-		double fTemp3 = (fSlow5 * min((double)1, max((double)0, (fSlow4 * fTemp2))));
-		double fTemp4 = ((fTemp2 * (0 - fTemp3)) / (1 + fTemp3));
-		double 	fRec3 = max(fConst1, fabs(fTemp4));
-		int iTemp5 = int((iRec1[1] < 4096));
-		fRec0[0] = ((iTemp5)?max(fRec0[1], fRec3):fRec3);
-		iRec1[0] = ((iTemp5)?(1 + iRec1[1]):1);
-		fRec2[0] = ((iTemp5)?fRec2[1]:fRec0[1]);
-		fbargraph0 = fRec2[0];
-		output0[i] = (FAUSTFLOAT)(fTemp0 * pow(10,(0.05 * fTemp4)));
-		// post processing
-		fRec2[1] = fRec2[0];
-		iRec1[1] = iRec1[0];
-		fRec0[1] = fRec0[0];
+	double fSlow0 = (1.0 - double(fEntry0));
+	double fSlow1 = double(fEntry1);
+	double fSlow2 = std::exp((0.0 - (fConst1 / std::max<double>(fConst1, double(fHslider0)))));
+	double fSlow3 = std::exp((0.0 - (fConst1 / std::max<double>(fConst1, double(fHslider1)))));
+	double fSlow4 = double(fEntry2);
+	double fSlow5 = (1.0 / (fSlow1 + 0.001));
+	for (int i = 0; (i < count); i = (i + 1)) {
+		int iTemp0 = (iRec1[1] < 4096);
+		double fTemp1 = double(input0[i]);
+		fRec4[0] = ((fConst2 * fRec4[1]) + (fConst3 * std::fabs((fTemp1 + 9.9999999999999995e-21))));
+		double fTemp2 = ((fSlow2 * double((fRec3[1] < fRec4[0]))) + (fSlow3 * double((fRec3[1] >= fRec4[0]))));
+		fRec3[0] = ((fRec3[1] * fTemp2) + (fRec4[0] * (1.0 - fTemp2)));
+		double fTemp3 = std::max<double>(0.0, (fSlow1 + ((20.0 * std::log10(fRec3[0])) - fSlow4)));
+		double fTemp4 = std::min<double>(1.0, std::max<double>(0.0, (fSlow5 * fTemp3)));
+		double fTemp5 = (fSlow0 * ((fTemp3 * fTemp4) / (1.0 - (fSlow0 * fTemp4))));
+		double fTemp6 = std::max<double>(fConst1, std::fabs(fTemp5));
+		fRec0[0] = (iTemp0?(fTemp6 + fRec0[1]):fTemp6);
+		iRec1[0] = (iTemp0?(iRec1[1] + 1):1);
+		fRec2[0] = (iTemp0?fRec2[1]:(0.000244140625 * fRec0[1]));
+		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
+		output0[i] = FAUSTFLOAT((std::pow(10.0, (0.050000000000000003 * fTemp5)) * fTemp1));
 		fRec4[1] = fRec4[0];
-		fRec5[1] = fRec5[0];
+		fRec3[1] = fRec3[0];
+		fRec0[1] = fRec0[0];
+		iRec1[1] = iRec1[0];
+		fRec2[1] = fRec2[0];
 	}
 }
 
@@ -134,12 +138,12 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("compressor.attack",N_("Attack"),"S","",&fslider1, 0.002, 0.0, 1.0, 0.001);
-	reg.registerVar("compressor.knee",N_("Knee"),"S","",&fentry1, 3.0, 0.0, 2e+01, 0.1);
-	reg.registerVar("compressor.ratio",N_("Ratio"),"S","",&fentry2, 2.0, 1.0, 2e+01, 0.1);
-	reg.registerVar("compressor.release",N_("Release"),"S","",&fslider0, 0.5, 0.0, 1e+01, 0.01);
-	reg.registerVar("compressor.threshold",N_("Threshold"),"S","",&fentry0, -2e+01, -96.0, 1e+01, 0.1);
-	reg.registerNonMidiFloatVar("compressor.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
+	reg.registerVar("compressor.attack",N_("Attack"),"S","",&fHslider0, 0.002, 0.0, 1.0, 0.001);
+	reg.registerVar("compressor.knee",N_("Knee"),"S","",&fEntry1, 3.0, 0.0, 20.0, 0.10000000000000001);
+	reg.registerVar("compressor.ratio",N_("Ratio"),"S","",&fEntry0, 2.0, 1.0, 20.0, 0.10000000000000001);
+	reg.registerVar("compressor.release",N_("Release"),"S","",&fHslider1, 0.5, 0.0, 10.0, 0.01);
+	reg.registerVar("compressor.threshold",N_("Threshold"),"S","",&fEntry2, -20.0, -96.0, 10.0, 0.10000000000000001);
+	reg.registerNonMidiFloatVar("compressor.v1",&fVbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
 	return 0;
 }
 

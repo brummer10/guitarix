@@ -1,5 +1,5 @@
 // generated from file '../src/faust/thick_distortion.dsp' by dsp2cc:
-// Code generated with Faust 0.9.90 (http://faust.grame.fr)
+// Code generated with Faust 2.15.11 (https://faust.grame.fr)
 
 
 namespace thick_distortion {
@@ -7,13 +7,13 @@ namespace thick_distortion {
 class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
-	FAUSTFLOAT 	fslider0;
-	double 	fRec0[2];
-	FAUSTFLOAT 	fslider1;
-	double 	fRec2[2];
-	FAUSTFLOAT 	fslider2;
-	double 	fRec3[2];
-	double 	fRec1[2];
+	FAUSTFLOAT fVslider0;
+	double fRec1[2];
+	FAUSTFLOAT fVslider1;
+	double fRec2[2];
+	double fRec0[2];
+	FAUSTFLOAT fVslider2;
+	double fRec3[2];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -60,10 +60,10 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int i=0; i<2; i++) fRec0[i] = 0;
-	for (int i=0; i<2; i++) fRec2[i] = 0;
-	for (int i=0; i<2; i++) fRec3[i] = 0;
-	for (int i=0; i<2; i++) fRec1[i] = 0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec1[l0] = 0.0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec2[l1] = 0.0;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec0[l2] = 0.0;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec3[l3] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -74,6 +74,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
+	fVslider0 = FAUSTFLOAT(0.80000000000000004);
+	fVslider1 = FAUSTFLOAT(0.0);
+	fVslider2 = FAUSTFLOAT(0.0);
 	clear_state_f();
 }
 
@@ -84,20 +87,19 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider0))));
-	double 	fSlow1 = (0.0010000000000000009 * double(fslider1));
-	double 	fSlow2 = (0.0010000000000000009 * pow(10,(0.05 * double(fslider2))));
-	for (int i=0; i<count; i++) {
-		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
+	double fSlow0 = (0.0010000000000000009 * double(fVslider0));
+	double fSlow1 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider1))));
+	double fSlow2 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider2))));
+	for (int i = 0; (i < count); i = (i + 1)) {
+		fRec1[0] = (fSlow0 + (0.999 * fRec1[1]));
 		fRec2[0] = (fSlow1 + (0.999 * fRec2[1]));
+		fRec0[0] = ((fRec1[0] * fRec0[1]) + ((1.0 - fRec1[0]) * std::max<double>(-1.0, std::min<double>(1.0, (fRec2[0] * double(input0[i]))))));
 		fRec3[0] = (fSlow2 + (0.999 * fRec3[1]));
-		fRec1[0] = ((fRec1[1] * fRec2[0]) + (max((double)-1, min((double)1, ((double)input0[i] * fRec3[0]))) * (1 - fRec2[0])));
-		output0[i] = (FAUSTFLOAT)(fRec1[0] * fRec0[0]);
-		// post processing
+		output0[i] = FAUSTFLOAT((fRec0[0] * fRec3[0]));
 		fRec1[1] = fRec1[0];
-		fRec3[1] = fRec3[0];
 		fRec2[1] = fRec2[0];
 		fRec0[1] = fRec0[0];
+		fRec3[1] = fRec3[0];
 	}
 }
 
@@ -108,9 +110,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("thick_distortion.input_gain",N_("Input"),"S",N_("Gain (dB)"),&fslider2, 0.0, 0.0, 1.2e+02, 0.1);
-	reg.registerVar("thick_distortion.thickness",N_("Thickness"),"S","",&fslider1, 0.8, 0.0, 1.0, 0.01);
-	reg.registerVar("thick_distortion.volume",N_("Volume"),"S",N_("Volume (dB)"),&fslider0, 0.0, -9e+01, 4e+01, 0.1);
+	reg.registerVar("thick_distortion.input_gain",N_("Input"),"S",N_("Gain (dB)"),&fVslider1, 0.0, 0.0, 120.0, 0.10000000000000001);
+	reg.registerVar("thick_distortion.thickness",N_("Thickness"),"S","",&fVslider0, 0.80000000000000004, 0.0, 1.0, 0.01);
+	reg.registerVar("thick_distortion.volume",N_("Volume"),"S",N_("Volume (dB)"),&fVslider2, 0.0, -90.0, 40.0, 0.10000000000000001);
 	return 0;
 }
 

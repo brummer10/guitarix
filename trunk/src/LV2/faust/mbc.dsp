@@ -5,7 +5,7 @@ declare category "Guitar Effects";
 declare description "Multi Band Compressor contributed by kokoko3k";
 
 import("stdfaust.lib");
-import("reduce.lib");
+import("reducemaps.lib");
 
 vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[tooltip:no]", -70, +5));
 vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[tooltip:no]", -70, +5));
@@ -18,7 +18,7 @@ vmeter8(x)		= attach(x, envelop(x) : vbargraph("v8[tooltip:no]", -70, +5));
 vmeter9(x)		= attach(x, envelop(x) : vbargraph("v9[tooltip:no]", -70, +5));
 vmeter10(x)		= attach(x, envelop(x) : vbargraph("v10[tooltip:no]", -70, +5));
 
-envelop         = abs : max ~ (1.0/ma.SR) : reduce(max,4096) ; // : max(ba.db2linear(-70)) : ba.linear2db;
+envelop         = abs : max ~ (1.0/ma.SR) : mean(4096) ; // : max(ba.db2linear(-70)) : ba.linear2db;
 
 //Mono 
 process =   geq : ( gcomp5s , gcomp4s , gcomp3s, gcomp2s, gcomp1s) :>_ with { 
