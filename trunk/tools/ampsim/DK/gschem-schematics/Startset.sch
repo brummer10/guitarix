@@ -408,5 +408,5 @@ refdes=Trans
 T 49000 44500 5 10 0 0 0 0 1
 device=TRANSFORMER_S
 T 48700 43200 5 10 0 0 0 0 1
-value=w1=2000,w2=9,R=5400
+value=w1=2000,w2=90,R=5400
 }
