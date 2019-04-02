@@ -493,6 +493,34 @@ class Trans_L(Node):
         p.N["Xr"][idx_xv, idx_v] = 1
         p.Z[idx_xv] = 1
 
+class SingleTrans_L(Node):
+    def __init__(self, n=None, nw=2):
+        self.nw = nw
+        Node.__init__(self, "STL", n)
+    def add_count(self, tc, conn, param):
+        tc["X"] += 1
+        tc["V"] += self.nw + 2
+    def process(self, p, conn, param, alpha):
+        start = p.current_row("V") + 1
+        end = start + self.nw + 1
+        for i in range(self.nw):
+            s = "W%d" % (i+1)
+            idx = p.new_row("V", self, s)
+            p.add_S(idx, conn[2*i:], 1)
+            p.S[idx, end] += param["windings"][i]
+        idx = p.new_row("V", self, "phi")
+        vps = np.array(p.S[idx, start:end-1])
+        vps += np.array(np.array(param["windings"]))
+        p.S[idx, start:end-1] = vps
+        p.S[idx, end-1] += param["R"]
+        idx_v = p.new_row("V", self, "v")
+        p.S[idx_v, idx_v] += 1
+        p.S[idx_v, idx] += alpha
+        idx_xv = p.new_row("X", self, "v")
+        p.N["Xl"][idx_xv, idx] = alpha
+        p.N["Xr"][idx_xv, idx_v] = 1
+        p.Z[idx_xv] = 1
+
 class Trans_F(Node):
     def __init__(self, n=None, nw=3):
         self.nw = nw

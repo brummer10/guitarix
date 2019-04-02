@@ -401,3 +401,12 @@ refdes=D2
 T 45200 49300 5 10 0 0 180 0 1
 value=Is=10e-12,mUt=30e-3
 }
+C 48700 43200 1 0 0 transformer-1.sym
+{
+T 49000 44500 5 10 1 1 0 0 1
+refdes=Trans
+T 49000 44500 5 10 0 0 0 0 1
+device=TRANSFORMER_S
+T 48700 43200 5 10 0 0 0 0 1
+value=w1=2000,w2=9,R=5400
+}

@@ -164,6 +164,23 @@ def read_netlist(fname):
                         print "warning: unknown parameter %s" % k
                 vl["windings"] = [v[1] for v in sorted(d.items())]
                 val = repr(vl)
+            elif dev == "TRANSFORMER_S":
+                ##FIXME
+                sym = mksym(sym, "SingleTrans_L")
+                conn = [conn[0], conn[1], conn[2], conn[3]]
+                vl = {}
+                d = {}
+                for k, v in [v.split("=") for v in val.split(",")]:
+                    if k == "R":
+                        vl[k] = float(v)
+                    elif k == "nw":
+                        vl[k] = float(v)
+                    elif k.startswith("w"):
+                        d[int(k[1:])] = float(v)
+                    else:
+                        print "warning: unknown parameter %s" % k
+                vl["windings"] = [v[1] for v in sorted(d.items())]
+                val = repr(vl)
             elif dev == "TRANSFORMERGC":
                 # Trans_GC(nw=3): dict(windings=[100.0, 100.0, 6.4], C=24e-3, a=900, o=0, n=7),
                 ##FIXME
