@@ -1,3 +1,18 @@
+guitarix2 (0.38.0) unstable; urgency=low
+
+  * fix bug #67, dont use malloc.h on FreeBSD
+  * remove assert for ports count, to allow save removing of changed LV2 plugins
+  * add new option -E --hideonquit, this makes the UI experience smooth when used as LV2 plugin
+  * add support for LV2_URID_Map, LV2_URID_Unmap and LV2_OPTIONS to allow more plugs to load
+  * fix compiler warnings with gcc 8
+  * add exit handler and warning when samplerate is above 96kHz
+  * hide splash on error message
+  * set online help to sourcforge/discussion
+  * add Russian-language translation by Valeriy Shtobbe and Olesya Gerasimenko, many thanks!
+  * update all build scripts to use faust version 2.15.11 and update all generated faust files
+
+ -- brummer <brummer-@web.de>  Sun, 07 Apr 2019 07:28:15 +0200 
+
 guitarix2 (0.37.3) unstable; urgency=low
 
   * add support for zita-convolver4
