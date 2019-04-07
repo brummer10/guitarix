@@ -25,6 +25,7 @@ parser.add_argument('-S','--scip_div',help='skip the divider for the negative no
 parser.add_argument('-o','--table_op', metavar='N', type=float, nargs='+', help='step operator multiplier for nonlinear response table from the circuit [OPTIONAL]', required=False)
 parser.add_argument('--oversample', metavar='N', type=int, help='set oversample rate [OPTIONAL]', required=False)
 parser.add_argument('--fixedrate', metavar='N', type=int, help='set fixed samplerate [OPTIONAL]', required=False)
+parser.add_argument('-f','--freqsplit', help='use frequency splitter [OPTIONAL]',action="store_true", required=False)
 
 args = parser.parse_args()
 
@@ -102,27 +103,51 @@ class Generators(object):
             v.generate_table(p, y,"")
             v.plot(p,y)
 
-    def write_final_file(self, a, dspfile,fdata,dspfileui,fuidata, stereo=None):
+    def write_final_file(self, a, dspfile,fdata,dspfileui,fuidata,freqs, stereo=None):
         if not stereo:
-            process_line = "\nprocess = "
-            for x in xrange(1,a+1,1):
-                process_line += ' p%s ' % x
-                if a>x :
-                    process_line += ':'
-                else :
-                    process_line += ';'
-            fdata += process_line
+            if not freqs:
+                process_line = "\nprocess = "
+                for x in xrange(1,a+1,1):
+                    process_line += ' p%s ' % x
+                    if a>x :
+                        process_line += ':'
+                    else :
+                        process_line += ';'
+                fdata += process_line
+            else:
+                process_line = "\namp = "
+                for x in xrange(1,a+1,1):
+                    process_line += ' p%s ' % x
+                    if a>x :
+                        process_line += ':'
+                    else :
+                        process_line += ';'
+                process_line += '\nfreq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));'
+                process_line += '\nprocess    = freq_split: ( amp , amp , amp, amp, amp) :>_;'
+                fdata += process_line
         else:
-            process_line = "\nchanel = "
-            for x in xrange(1,a+1,1):
-                process_line += ' p%s ' % x
-                if a>x :
-                    process_line += ':'
-                else :
-                    process_line += ';'
-            process_line += '\nprocess = chanel , chanel ;'
-            fdata += process_line
-            
+            if not freqs:
+                process_line = "\nchanel = "
+                for x in xrange(1,a+1,1):
+                    process_line += ' p%s ' % x
+                    if a>x :
+                        process_line += ':'
+                    else :
+                        process_line += ';'
+                process_line += '\nprocess = chanel , chanel ;'
+                fdata += process_line
+            else:
+                process_line = "\namp = "
+                for x in xrange(1,a+1,1):
+                    process_line += ' p%s ' % x
+                    if a>x :
+                        process_line += ':'
+                    else :
+                        process_line += ';'
+                process_line += '\nfreq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));'
+                process_line += "\nchanel = freq_split: ( amp , amp , amp, amp, amp) :>_;"
+                process_line += '\nprocess    = chanel , chanel ;'
+                fdata += process_line
 
         with open(dspfile, 'w') as f:
           f.write(fdata)
@@ -181,6 +206,8 @@ class DKbuilder(object):
     oversample = args.oversample
     fixedrate = args.fixedrate
     rs = False
+    freqsplit = args.freqsplit
+    frs = False
     tablename = {}
 
     if (args.table_neg):
@@ -250,6 +277,9 @@ class DKbuilder(object):
             if self.fixedrate:
                 c1.plugindef.fixedrate = self.fixedrate
                 self.rs = True
+            if self.freqsplit:
+                self.frs = True
+                
             c1.plugindef.id = module_id
             c1.set_module_id(module_id)
             c1.read_gschem(workfile)
@@ -333,12 +363,12 @@ class DKbuilder(object):
 
         # create a guitarix module
         if args.build or (not args.table and not args.plot and not args.buildlv2) :
-            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,args.stereo)
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,args.stereo)
             g.generate_gx_plugin(args.input, dspfile, args.table)
 
         # create a LV2 module
         elif args.buildlv2 :
-            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,args.stereo)
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,args.stereo)
             g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, self.rs, args.table, args.table_neg)
 
 def main(argv):
