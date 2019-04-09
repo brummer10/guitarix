@@ -26,6 +26,8 @@ class UIDefs(object):
         def write(self, fp, v, prefix):
             d = {}
             d.update(self)
+            # set diggits
+            #d["tail"] = "".join([", "+str(round(float(str(x).replace('f','')),4)) for x in d["value"]])
             d["tail"] = "".join([", "+x for x in d["value"]])
             d["prefix"] = prefix
             d["N_name"] = wrap_N_("%(name)s" % self)

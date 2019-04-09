@@ -410,6 +410,7 @@ static void mainHeadless(int argc, char *argv[]) {
     if (port == RPCPORT_DEFAULT) {
 	port = 7000;
     }
+    machine.loadstate();
     if (port != RPCPORT_NONE) {
 	machine.start_socket(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), options.get_rpcaddress(), port);
 	loop->run();
@@ -503,6 +504,7 @@ static void mainGtk(int argc, char *argv[]) {
     if (need_new_preset) {
 	gui.create_default_scratch_preset();
     }
+    machine.loadstate();
     // ----------------------- run GTK main loop ----------------------
     delete Splash;
     gui.run();
