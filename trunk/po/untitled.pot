@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-06-02 19:47+0200\n"
+"POT-Creation-Date: 2019-04-15 16:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,280 +29,1203 @@ msgstr ""
 msgid "Simple mono amplifier simulation"
 msgstr ""
 
-#: ../src/faust-generated/autowah.cc:48
+#: ../src/faust-generated/autowah.cc:52
 msgid "auto"
 msgstr ""
 
-#: ../src/faust-generated/autowah.cc:138 ../src/faust-generated/crybaby.cc:129
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:181
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:408
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:480
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:499
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:516
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:533
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:549
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:253
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:349
+#: ../src/faust-generated/autowah.cc:150
+#: ../src/faust-generated/chorus_mono.cc:457
+#: ../src/faust-generated/crybaby.cc:135
+#: ../src/faust-generated/dattorros_progenitor.cc:966
+#: ../src/faust-generated/flanger_mono.cc:357
+#: ../src/faust-generated/freeverb.cc:457
+#: ../src/faust-generated/gx_ampmodul.cc:720
+#: ../src/faust-generated/gx_distortion.cc:448
+#: ../src/faust-generated/phaser_mono.cc:385
+#: ../src/faust-generated/stereoverb.cc:665
+#: ../src/faust-generated/tremolo.cc:190
 msgid "dry/wet"
 msgstr ""
 
-#: ../src/faust-generated/balance.cc:95
-#: ../src/faust-generated/jconv_post.cc:99
-#: ../src/faust-generated/jconv_post.cc:101
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:311
+#: ../src/faust-generated/balance.cc:36
+msgid "balance"
+msgstr ""
+
+#: ../src/faust-generated/balance.cc:96
+#: ../src/faust-generated/jconv_post.cc:103
+#: ../src/faust-generated/jconv_post.cc:104
+#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:66
 msgid "Balance"
 msgstr ""
 
-#: ../src/faust-generated/bassbooster.cc:35
-#: ../src/faust-generated/bassbooster.cc:44
+#: ../src/faust-generated/bassbooster.cc:37
+#: ../src/faust-generated/bassbooster.cc:46
 msgid "Bassbooster"
 msgstr ""
 
-#: ../src/faust-generated/biquad.cc:35
-msgid "BiQuad Filter"
+#: ../src/faust-generated/bass_enhancer.cc:69
+msgid "Bass Enhancer"
+msgstr ""
+
+#. description (tooltip)
+#: ../src/faust-generated/bass_enhancer.cc:72
+#: ../src/faust-generated/panoram_enhancer.cc:139
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1857
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2170
+#: ../src/gx_head/engine/gx_internal_ui_plugins.cpp:186
+#: ../src/gx_head/engine/gx_livelooper.cc:107
+#: ../src/gx_head/engine/gx_record.cc:51 ../src/gx_head/engine/gx_record.cc:60
+#: ../src/gx_head/gui/gx_main_window.cpp:2104 ../src/plugins/abgate.cc:61
+msgid "Misc"
+msgstr ""
+
+#. category
+#: ../src/faust-generated/bass_enhancer.cc:73
+msgid "BassEnhancer"
+msgstr ""
+
+#: ../src/faust-generated/bass_enhancer.cc:246
+msgid "Harmonics"
+msgstr ""
+
+#: ../src/faust-generated/bass_enhancer.cc:430
+msgid "   frequency  "
+msgstr ""
+
+#: ../src/faust-generated/bass_enhancer.cc:431
+msgid " harmonics dB "
+msgstr ""
+
+#: ../src/faust-generated/baxandall.cc:144
+msgid "Baxandall"
 msgstr ""
 
 #. description (tooltip)
 #. define order of categories by registering
 #. them first
-#: ../src/faust-generated/biquad.cc:38
-#: ../src/faust-generated/gx_feedback.cc:38
-#: ../src/faust-generated/impulseresponse.cc:44
-#: ../src/faust-generated/low_high_pass.cc:59
-#: ../src/faust-generated/moog.cc:51 ../src/faust-generated/selecteq.cc:76
-#: ../src/faust-generated/tonecontroll.cc:95
-#: ../src/gx_head/engine/gx_engine.cpp:121
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:764
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:917
-#: ../src/gx_head/gui/gx_main_window.cpp:1912
+#: ../src/faust-generated/baxandall.cc:147 ../src/faust-generated/biquad.cc:42
+#: ../src/faust-generated/gain.cc:41 ../src/faust-generated/graphiceq.cc:358
+#: ../src/faust-generated/gx_feedback.cc:42
+#: ../src/faust-generated/highbooster.cc:48
+#: ../src/faust-generated/impulseresponse.cc:48
+#: ../src/faust-generated/low_high_pass.cc:63 ../src/faust-generated/moog.cc:55
+#: ../src/faust-generated/peak_eq.cc:58 ../src/faust-generated/selecteq.cc:90
+#: ../src/faust-generated/tonecontroll.cc:102
+#: ../src/gx_head/engine/gx_engine.cpp:233
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1022
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1160
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1345
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1483
+#: ../src/gx_head/gui/gx_main_window.cpp:2097
 msgid "Tone Control"
 msgstr ""
 
-#: ../src/faust-generated/cabinet_impulse_former.cc:84
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:566
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:270
+#: ../src/faust-generated/baxandall.cc:315
+#: ../src/faust-generated/tonecontroll.cc:638
+#: ../src/gx_head/engine/gx_engine.cpp:169
 msgid "bass"
 msgstr ""
 
-#: ../src/faust-generated/cabinet_impulse_former.cc:85
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:570
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:272
+#: ../src/faust-generated/baxandall.cc:316
+#: ../src/faust-generated/tonecontroll.cc:640
+#: ../src/gx_head/engine/gx_engine.cpp:171
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2544
 msgid "treble"
 msgstr ""
 
-#: ../src/faust-generated/chorus.cc:73
+#: ../src/faust-generated/biquad.cc:39
+msgid "BiQuad Filter"
+msgstr ""
+
+#. category
+#: ../src/faust-generated/biquad.cc:43
+msgid "BiQuadFilter"
+msgstr ""
+
+#: ../src/faust-generated/biquad.cc:99
+#: ../src/faust-generated/panoram_enhancer.cc:490
+#: ../src/faust-generated/ring_modulator.cc:361
+#: ../src/faust-generated/ring_modulator_st.cc:363
+#: ../src/gx_head/builder/tremolo_ui.glade.h:2
+msgid "Frequency"
+msgstr ""
+
+#: ../src/faust-generated/biquad.cc:240 ../src/faust-generated/biquad.cc:246
+#: ../src/faust-generated/chorus.cc:253
+#: ../src/faust-generated/chorus_mono.cc:232
+#: ../src/faust-generated/impulseresponse.cc:120
+#: ../src/faust-generated/impulseresponse.cc:376
+#: ../src/faust-generated/moog.cc:153 ../src/faust-generated/phaser.cc:208
+#: ../src/faust-generated/ring_modulator.cc:176
+#: ../src/faust-generated/ring_modulator_st.cc:178
+#: ../src/faust-generated/tremolo.cc:155 ../src/faust-generated/tremolo.cc:174
+#: ../src/faust-generated/tremolo.cc:186
+#: ../src/plugins/generated/zita_rev1.cc:569
+#: ../src/plugins/generated/zita_rev1.cc:571 ../src/plugins/vibe.cc:281
+msgid "Freq"
+msgstr ""
+
+#. end namespace vibe
+#. end namespace pluginlib
+#: ../src/faust-generated/cabinet_impulse_former.cc:86
+#: ../src/faust-generated/chorus.cc:254
+#: ../src/faust-generated/chorus_mono.cc:233
+#: ../src/faust-generated/digital_delay.cc:487
+#: ../src/faust-generated/digital_delay_st.cc:624
+#: ../src/faust-generated/flanger.cc:161
+#: ../src/faust-generated/flanger_mono.cc:132
+#: ../src/faust-generated/gx_ampmodul.cc:384
+#: ../src/faust-generated/gx_ampout.cc:92
+#: ../src/faust-generated/gx_ampout_ladspa.cc:103
+#: ../src/faust-generated/gx_distortion.cc:377
+#: ../src/faust-generated/gx_outputlevel.cc:93
+#: ../src/faust-generated/gx_outputlevel_ladspa.cc:100
+#: ../src/faust-generated/highbooster.cc:112
+#: ../src/faust-generated/highbooster.cc:253
+#: ../src/faust-generated/highbooster.cc:259
+#: ../src/faust-generated/phaser.cc:217
+#: ../src/faust-generated/phaser_mono.cc:160
+#: ../src/gx_head/builder/crybaby_ui.glade.h:2
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1100
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1242
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1423
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1565
+#: ../src/plugins/generated/mbchor.cc:1992
+#: ../src/plugins/generated/mbchor.cc:2017
+#: ../src/plugins/generated/mbchor.cc:2044
+#: ../src/plugins/generated/mbchor.cc:2071
+#: ../src/plugins/generated/mbchor.cc:2098
+#: ../src/plugins/generated/ts9sim.cc:147
+#: ../src/plugins/generated/zita_rev1.cc:570
+#: ../src/plugins/generated/zita_rev1.cc:572
+#: ../src/plugins/generated/zita_rev1.cc:575
+#: ../src/plugins/zita_rev1_ui.glade.h:1
+msgid "Level"
+msgstr ""
+
+#: ../src/faust-generated/cabinet_impulse_former.cc:87
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1101
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1243
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1424
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1566
+msgid "Bass"
+msgstr ""
+
+#: ../src/faust-generated/cabinet_impulse_former.cc:88
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1102
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1244
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1425
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1567
+msgid "Treble"
+msgstr ""
+
+#: ../src/faust-generated/chorus.cc:126
 msgid "Chorus"
 msgstr ""
 
 #. description (tooltip)
-#: ../src/faust-generated/chorus.cc:76
-#: ../src/faust-generated/chorus_mono.cc:66
-#: ../src/faust-generated/flanger.cc:52
-#: ../src/faust-generated/flanger_mono.cc:46
-#: ../src/faust-generated/phaser.cc:61
-#: ../src/faust-generated/phaser_mono.cc:55
-#: ../src/faust-generated/tremolo.cc:50
-#: ../src/gx_head/gui/gx_main_window.cpp:1916 ../src/plugins/vibe.cc:195
+#: ../src/faust-generated/chorus.cc:129
+#: ../src/faust-generated/chorus_mono.cc:125
+#: ../src/faust-generated/flanger.cc:56
+#: ../src/faust-generated/flanger_mono.cc:50
+#: ../src/faust-generated/phaser.cc:66 ../src/faust-generated/phaser_mono.cc:59
+#: ../src/faust-generated/ring_modulator.cc:113
+#: ../src/faust-generated/ring_modulator_st.cc:113
+#: ../src/faust-generated/tremolo.cc:55
+#: ../src/gx_head/gui/gx_main_window.cpp:2102
+#: ../src/plugins/generated/flanger_gx.cc:60
+#: ../src/plugins/generated/mbchor.cc:204 ../src/plugins/vibe.cc:194
 msgid "Modulation"
 msgstr ""
 
-#: ../src/faust-generated/chorus_mono.cc:63
+#: ../src/faust-generated/chorus.cc:251 ../src/faust-generated/delay.cc:56
+#: ../src/faust-generated/duck_delay.cc:151
+#: ../src/faust-generated/duck_delay_st.cc:376
+#: ../src/faust-generated/flanger.cc:158
+#: ../src/faust-generated/panoram_enhancer.cc:489
+#: ../src/gx_head/builder/iredit.glade.h:9
+#: ../src/plugins/generated/mbchor.cc:1998
+#: ../src/plugins/generated/mbchor.cc:2023
+#: ../src/plugins/generated/mbchor.cc:2050
+#: ../src/plugins/generated/mbchor.cc:2077
+#: ../src/plugins/generated/mbchor.cc:2104
+msgid "Delay"
+msgstr ""
+
+#: ../src/faust-generated/chorus.cc:252 ../src/faust-generated/flanger.cc:155
+#: ../src/faust-generated/phaser.cc:213 ../src/faust-generated/tremolo.cc:154
+#: ../src/faust-generated/tremolo.cc:188
+#: ../src/gx_head/builder/tremolo_ui.glade.h:1
+#: ../src/plugins/generated/flanger_gx.cc:168
+#: ../src/plugins/generated/mbchor.cc:2000
+#: ../src/plugins/generated/mbchor.cc:2025
+#: ../src/plugins/generated/mbchor.cc:2052
+#: ../src/plugins/generated/mbchor.cc:2079
+#: ../src/plugins/generated/mbchor.cc:2106 ../src/plugins/vibe.cc:238
+#: ../src/plugins/vibe.cc:282
+msgid "Depth"
+msgstr ""
+
+#: ../src/faust-generated/chorus.cc:507
+#: ../src/faust-generated/chorus_mono.cc:449
+#: ../src/faust-generated/chorus_mono.cc:455
+#: ../src/faust-generated/digital_delay.cc:1003
+#: ../src/faust-generated/digital_delay_st.cc:1141
+#: ../src/faust-generated/flanger.cc:537
+#: ../src/faust-generated/flanger_mono.cc:349
+#: ../src/faust-generated/flanger_mono.cc:355
+#: ../src/faust-generated/gx_ampmodul.cc:714
+#: ../src/faust-generated/gx_ampmodul.cc:721
+#: ../src/faust-generated/phaser.cc:684
+#: ../src/faust-generated/phaser_mono.cc:377
+#: ../src/faust-generated/phaser_mono.cc:383
+msgid "level"
+msgstr ""
+
+#: ../src/faust-generated/chorus.cc:511 ../src/faust-generated/flanger.cc:543
+#: ../src/faust-generated/gx_distortion.cc:449
+#: ../src/gx_head/engine/gx_engine.cpp:52
+#: ../src/gx_head/engine/gx_engine.cpp:63
+msgid "  level  "
+msgstr ""
+
+#: ../src/faust-generated/chorus.cc:512 ../src/faust-generated/flanger.cc:552
+msgid "  delay  "
+msgstr ""
+
+#: ../src/faust-generated/chorus.cc:513 ../src/faust-generated/flanger.cc:551
+msgid "  depth  "
+msgstr ""
+
+#: ../src/faust-generated/chorus.cc:514
+msgid "  freq  "
+msgstr ""
+
+#: ../src/faust-generated/chorus_mono.cc:122
 msgid "Chorus Mono"
 msgstr ""
 
-#: ../src/faust-generated/chorus_mono.cc:144
-#: ../src/faust-generated/flanger_mono.cc:129
-#: ../src/faust-generated/freeverb.cc:223
-#: ../src/faust-generated/gx_distortion.cc:359
-#: ../src/faust-generated/jconv_post.cc:103
-#: ../src/faust-generated/overdrive.cc:101
-#: ../src/faust-generated/phaser_mono.cc:151
-#: ../src/faust-generated/stereoverb.cc:366
-#: ../src/faust-generated/tremolo.cc:135
-msgid "wet/dry"
+#: ../src/faust-generated/chorus_mono.cc:234
+#: ../src/faust-generated/dattorros_progenitor.cc:383
+#: ../src/faust-generated/gx_ampmodul.cc:387
+#: ../src/faust-generated/gx_feedback.cc:103
+#: ../src/faust-generated/gx_feedback.cc:288
+#: ../src/faust-generated/overdrive.cc:106
+#: ../src/faust-generated/overdrive.cc:291
+#: ../src/faust-generated/phaser_mono.cc:162
+#: ../src/faust-generated/stereoverb.cc:378
+#: ../src/faust-generated/tremolo.cc:156
+#: ../src/gx_head/builder/crybaby_ui.glade.h:3
+#: ../src/gx_head/builder/tremolo_ui.glade.h:3
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:88
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:116
+#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:39
+#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:67
+#: ../src/plugins/generated/zita_rev1.cc:574 ../src/plugins/reversedelay.cc:147
+#: ../src/plugins/reversedelay.cc:223 ../src/plugins/reversedelay.cc:238
+msgid "Dry/Wet"
 msgstr ""
 
-#: ../src/faust-generated/chorus_mono.cc:144
-#: ../src/faust-generated/flanger_mono.cc:129
-#: ../src/faust-generated/gx_distortion.cc:359
-#: ../src/faust-generated/jconv_post.cc:103
-#: ../src/faust-generated/overdrive.cc:101
-#: ../src/faust-generated/phaser_mono.cc:151
-#: ../src/faust-generated/tremolo.cc:135
+#: ../src/faust-generated/chorus_mono.cc:234
+#: ../src/faust-generated/flanger_mono.cc:134
+#: ../src/faust-generated/gx_distortion.cc:390
+#: ../src/faust-generated/jconv_post.cc:107
+#: ../src/faust-generated/jconv_post_mono.cc:42
+#: ../src/faust-generated/overdrive.cc:106
+#: ../src/faust-generated/phaser_mono.cc:162
+#: ../src/faust-generated/tremolo.cc:156
 msgid "percentage of processed signal in output signal"
 msgstr ""
 
-#: ../src/faust-generated/compressor.cc:43
+#: ../src/faust-generated/chorus_mono.cc:456
+msgid "speed"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:51
+#: ../src/gx_head/builder/mainpanel.glade.h:24
 msgid "Compressor"
 msgstr ""
 
 #. description (tooltip)
-#: ../src/faust-generated/compressor.cc:46
-#: ../src/gx_head/engine/gx_engine.cpp:118
-#: ../src/gx_head/gui/gx_main_window.cpp:1917
+#: ../src/faust-generated/compressor.cc:54
+#: ../src/faust-generated/expander.cc:54
+#: ../src/gx_head/engine/gx_engine.cpp:227
+#: ../src/gx_head/engine/gx_engine.cpp:230
+#: ../src/gx_head/gui/gx_main_window.cpp:2103
+#: ../src/ladspa/ladspa_guitarix.cpp:921 ../src/plugins/generated/mbc.cc:146
+#: ../src/plugins/generated/mbcs.cc:172
 msgid "Guitar Effects"
 msgstr ""
 
-#: ../src/faust-generated/crybaby.cc:45
+#: ../src/faust-generated/compressor.cc:141
+#: ../src/faust-generated/duck_delay.cc:148
+#: ../src/faust-generated/duck_delay_st.cc:370 ../src/plugins/abgate.cc:72
+#: ../src/plugins/abgate.cc:417 ../src/plugins/generated/mbc.cc:2209
+#: ../src/plugins/generated/mbc.cc:2232 ../src/plugins/generated/mbc.cc:2255
+#: ../src/plugins/generated/mbc.cc:2279 ../src/plugins/generated/mbc.cc:2300
+#: ../src/plugins/generated/mbcs.cc:2366 ../src/plugins/generated/mbcs.cc:2389
+#: ../src/plugins/generated/mbcs.cc:2412 ../src/plugins/generated/mbcs.cc:2435
+#: ../src/plugins/generated/mbcs.cc:2456
+msgid "Attack"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:142
+msgid "Knee"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:143
+#: ../src/plugins/generated/mbc.cc:2208 ../src/plugins/generated/mbc.cc:2231
+#: ../src/plugins/generated/mbc.cc:2254 ../src/plugins/generated/mbc.cc:2278
+#: ../src/plugins/generated/mbc.cc:2299 ../src/plugins/generated/mbcs.cc:2365
+#: ../src/plugins/generated/mbcs.cc:2388 ../src/plugins/generated/mbcs.cc:2411
+#: ../src/plugins/generated/mbcs.cc:2434 ../src/plugins/generated/mbcs.cc:2455
+msgid "Ratio"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:144
+#: ../src/faust-generated/duck_delay.cc:150
+#: ../src/faust-generated/duck_delay_st.cc:375
+#: ../src/plugins/generated/mbc.cc:2210 ../src/plugins/generated/mbc.cc:2233
+#: ../src/plugins/generated/mbc.cc:2256 ../src/plugins/generated/mbc.cc:2280
+#: ../src/plugins/generated/mbc.cc:2301 ../src/plugins/generated/mbcs.cc:2367
+#: ../src/plugins/generated/mbcs.cc:2390 ../src/plugins/generated/mbcs.cc:2413
+#: ../src/plugins/generated/mbcs.cc:2436 ../src/plugins/generated/mbcs.cc:2457
+msgid "Release"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:145
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:80 ../src/plugins/abgate.cc:71
+#: ../src/plugins/abgate.cc:412 ../src/plugins/abgate.cc:416
+msgid "Threshold"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:481
+#: ../src/faust-generated/compressor.cc:486
+#: ../src/faust-generated/expander.cc:481
+#: ../src/faust-generated/expander.cc:486
+msgid "ratio"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:485
+#: ../src/faust-generated/expander.cc:485
+msgid "knee"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:487
+#: ../src/faust-generated/expander.cc:487
+msgid "threshold"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:489
+#: ../src/faust-generated/expander.cc:489
+msgid "attack"
+msgstr ""
+
+#: ../src/faust-generated/compressor.cc:490
+#: ../src/faust-generated/expander.cc:490
+msgid "release"
+msgstr ""
+
+#: ../src/faust-generated/crybaby.cc:46
 msgid "manual"
 msgstr ""
 
-#: ../src/faust-generated/delay.cc:45 ../src/gx_head/builder/iredit.glade.h:19
-msgid "Delay"
+#: ../src/faust-generated/dattorros_progenitor.cc:165
+msgid "Plate Reverb"
 msgstr ""
 
 #. description (tooltip)
-#: ../src/faust-generated/delay.cc:48 ../src/faust-generated/echo.cc:47
-#: ../src/faust-generated/stereodelay.cc:68
-#: ../src/faust-generated/stereoecho.cc:66
-#: ../src/gx_head/gui/gx_main_window.cpp:1915
-msgid "Echo / Delay"
-msgstr ""
-
-#: ../src/faust-generated/echo.cc:44
-msgid "Echo"
-msgstr ""
-
-#: ../src/faust-generated/flanger.cc:49
-msgid "Flanger"
-msgstr ""
-
-#: ../src/faust-generated/flanger_mono.cc:43
-msgid "Flanger Mono"
-msgstr ""
-
-#: ../src/faust-generated/freeverb.cc:68
-msgid "Freeverb"
-msgstr ""
-
-#. description (tooltip)
-#: ../src/faust-generated/freeverb.cc:71
-#: ../src/faust-generated/stereoverb.cc:109
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:354
-#: ../src/gx_head/gui/gx_main_window.cpp:1914
+#: ../src/faust-generated/dattorros_progenitor.cc:168
+#: ../src/faust-generated/freeverb.cc:75
+#: ../src/faust-generated/stereoverb.cc:113
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:487
+#: ../src/gx_head/gui/gx_main_window.cpp:2100
 #: ../src/plugins/generated/zita_rev1.cc:163
+#: ../src/plugins/zita_rev1_ui.glade.h:2
 msgid "Reverb"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:86
+#: ../src/faust-generated/dattorros_progenitor.cc:378
+#: ../src/faust-generated/impulseresponse.cc:119
+#: ../src/faust-generated/impulseresponse.cc:378
+msgid "Bandwidth"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:379
+#: ../src/faust-generated/freeverb.cc:228
+#: ../src/plugins/generated/zita_rev1.cc:565
+msgid "HF Damp"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:380
+msgid "Decay 1"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:381
+msgid "Decay 2"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:382
+#: ../src/plugins/abgate.cc:74 ../src/plugins/abgate.cc:419
+msgid "Decay"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:384
+msgid "Excursion"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:385
+msgid "Input 1"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:386
+msgid "Input 2"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:387
+msgid "Predelay"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:973
+msgid "predelay ms"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:974
+msgid " bandwidth "
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:975
+msgid " in diff 1 "
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:976
+msgid " in diff 2 "
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:977
+msgid " excursion "
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:984
+msgid "  decay   "
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:985
+msgid "dec diff 1"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:986
+msgid "dec diff 2"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:987
+msgid "HF damping"
+msgstr ""
+
+#: ../src/faust-generated/dattorros_progenitor.cc:988
+msgid "  dry/wet "
+msgstr ""
+
+#. description (tooltip)
+#: ../src/faust-generated/delay.cc:59
+#: ../src/faust-generated/digital_delay.cc:162
+#: ../src/faust-generated/digital_delay_st.cc:186
+#: ../src/faust-generated/duck_delay.cc:56
+#: ../src/faust-generated/duck_delay_st.cc:119
+#: ../src/faust-generated/echo.cc:59 ../src/faust-generated/stereodelay.cc:72
+#: ../src/faust-generated/stereoecho.cc:70
+#: ../src/gx_head/gui/gx_main_window.cpp:2101
+#: ../src/plugins/generated/mbdel.cc:139 ../src/plugins/generated/mbe.cc:139
+#: ../src/plugins/reversedelay.cc:124
+msgid "Echo / Delay"
+msgstr ""
+
+#: ../src/faust-generated/delay.cc:166
+#: ../src/faust-generated/digital_delay.cc:482
+#: ../src/faust-generated/digital_delay_st.cc:619
+#: ../src/faust-generated/echo.cc:165 ../src/faust-generated/flanger.cc:162
+#: ../src/faust-generated/flanger_mono.cc:133
+#: ../src/plugins/generated/mbchor.cc:1994
+#: ../src/plugins/generated/mbchor.cc:2019
+#: ../src/plugins/generated/mbchor.cc:2046
+#: ../src/plugins/generated/mbchor.cc:2073
+#: ../src/plugins/generated/mbchor.cc:2100
+#: ../src/plugins/generated/mbdel.cc:1573
+#: ../src/plugins/generated/mbdel.cc:1588
+#: ../src/plugins/generated/mbdel.cc:1605
+#: ../src/plugins/generated/mbdel.cc:1622
+#: ../src/plugins/generated/mbdel.cc:1639 ../src/plugins/generated/mbe.cc:1574
+#: ../src/plugins/generated/mbe.cc:1589 ../src/plugins/generated/mbe.cc:1606
+#: ../src/plugins/generated/mbe.cc:1623 ../src/plugins/generated/mbe.cc:1640
+msgid "BPM"
+msgstr ""
+
+#: ../src/faust-generated/delay.cc:166
+#: ../src/faust-generated/digital_delay.cc:482
+#: ../src/faust-generated/digital_delay_st.cc:619
+#: ../src/plugins/generated/mbdel.cc:549 ../src/plugins/generated/mbdel.cc:550
+#: ../src/plugins/generated/mbdel.cc:551 ../src/plugins/generated/mbdel.cc:552
+#: ../src/plugins/generated/mbdel.cc:553
+msgid "Delay in Beats per Minute"
+msgstr ""
+
+#: ../src/faust-generated/delay.cc:167
+#: ../src/faust-generated/digital_delay.cc:484
+#: ../src/faust-generated/digital_delay_st.cc:621
+#: ../src/faust-generated/gain.cc:95
+#: ../src/faust-generated/gx_distortion.cc:374
+#: ../src/faust-generated/jconv_post.cc:106
+#: ../src/faust-generated/jconv_post_mono.cc:41
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:59
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:115
+#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:64
+#: ../src/plugins/generated/mbd.cc:1542 ../src/plugins/generated/mbd.cc:1633
+msgid "Gain"
+msgstr ""
+
+#: ../src/faust-generated/delay.cc:346 ../src/faust-generated/delay.cc:352
+msgid " delay (bpm) "
+msgstr ""
+
+#: ../src/faust-generated/delay.cc:353
+msgid "  gain "
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:159
+#: ../src/faust-generated/digital_delay.cc:161
+msgid "Digital Delay"
+msgstr ""
+
+#. category
+#: ../src/faust-generated/digital_delay.cc:163
+msgid "Digi Delay"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:481
+#: ../src/faust-generated/digital_delay_st.cc:618
+msgid "Freeze the current delay"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:483
+#: ../src/faust-generated/digital_delay_st.cc:620
+#: ../src/faust-generated/duck_delay.cc:149
+#: ../src/faust-generated/duck_delay_st.cc:373
+#: ../src/faust-generated/flanger.cc:156
+#: ../src/faust-generated/gx_feedback.cc:39
+#: ../src/faust-generated/gx_feedback.cc:102
+#: ../src/faust-generated/gx_feedback.cc:281
+#: ../src/faust-generated/gx_feedback.cc:287
+#: ../src/faust-generated/phaser.cc:214
+#: ../src/plugins/generated/flanger_gx.cc:169
+#: ../src/plugins/reversedelay.cc:145 ../src/plugins/reversedelay.cc:236
+msgid "Feedback"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:483
+#: ../src/faust-generated/digital_delay_st.cc:620
+msgid "Percentage of the feedback level in the de.delay loop"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:484
+#: ../src/faust-generated/digital_delay_st.cc:621
+msgid "Overall gain of the de.delay line in percent"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:485
+#: ../src/faust-generated/digital_delay_st.cc:622
+msgid "Hipass"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:485
+#: ../src/faust-generated/digital_delay_st.cc:622
+msgid "Highpass filter frequency in the feddback loop"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:486
+#: ../src/faust-generated/digital_delay_st.cc:623
+msgid "Lopass"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:486
+#: ../src/faust-generated/digital_delay_st.cc:623
+msgid "Lowpass filter frequency in the feddback loop"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:487
+#: ../src/faust-generated/digital_delay_st.cc:624
+msgid "Percentage of the de.delay gain level"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:489
+#: ../src/faust-generated/digital_delay_st.cc:626
+#: ../src/gx_head/engine/gx_engine.cpp:57
+#: ../src/gx_head/engine/gx_engine.cpp:105
+msgid "Mode"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:491
+#: ../src/faust-generated/digital_delay_st.cc:628
+msgid "Notes"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:491
+#: ../src/faust-generated/digital_delay_st.cc:628
+msgid "Note setting for bpm"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:971
+#: ../src/faust-generated/digital_delay.cc:981
+#: ../src/faust-generated/digital_delay_st.cc:1109
+#: ../src/faust-generated/digital_delay_st.cc:1119
+msgid " delay (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:994
+msgid "highpass(hz)"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:996
+msgid "lowpass(hz)"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:1004
+#: ../src/faust-generated/digital_delay_st.cc:1142
+msgid "feedback"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:1009
+#: ../src/faust-generated/digital_delay_st.cc:1147
+msgid "amount"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay.cc:1012
+#: ../src/faust-generated/digital_delay_st.cc:1150
+msgid "freeze"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay_st.cc:183
+msgid "Digital Stereo Delay"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay_st.cc:185
+msgid "Digital Delay Stereo Version"
+msgstr ""
+
+#. category
+#: ../src/faust-generated/digital_delay_st.cc:187
+msgid "Digi Delay S"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay_st.cc:1132
+msgid "highpass (hz)"
+msgstr ""
+
+#: ../src/faust-generated/digital_delay_st.cc:1134
+msgid "lowpass (hz)"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay.cc:53
+msgid "Duck Delay"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay.cc:147
+#: ../src/faust-generated/duck_delay_st.cc:369
+#: ../src/plugins/generated/mbe.cc:1576 ../src/plugins/generated/mbe.cc:1591
+#: ../src/plugins/generated/mbe.cc:1608 ../src/plugins/generated/mbe.cc:1625
+#: ../src/plugins/generated/mbe.cc:1642
+msgid "Amount"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay.cc:446
+msgid "   time ms  "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay.cc:447
+msgid "   feedback "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay.cc:448
+msgid "   attack s "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay.cc:449
+msgid "  release s "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay.cc:450
+msgid "  amount dB "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:116
+msgid "Duck Delay St"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:371
+msgid "Coloration"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:372
+msgid "Effect"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:374
+msgid "Ping Pong"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:743
+msgid "effect"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:751
+msgid " time ms "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:752
+#: ../src/faust-generated/flanger.cc:550 ../src/faust-generated/phaser.cc:697
+msgid " feedback "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:753
+msgid " ping-pong"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:754
+msgid "coloration"
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:759
+msgid " attack "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:760
+msgid " release "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:761
+msgid " amount "
+msgstr ""
+
+#: ../src/faust-generated/duck_delay_st.cc:762
+msgid " effect "
+msgstr ""
+
+#: ../src/faust-generated/echo.cc:56
+msgid "Echo"
+msgstr ""
+
+#: ../src/faust-generated/echo.cc:165 ../src/faust-generated/stereoecho.cc:211
+#: ../src/faust-generated/stereoecho.cc:215 ../src/plugins/generated/mbe.cc:549
+#: ../src/plugins/generated/mbe.cc:550 ../src/plugins/generated/mbe.cc:551
+#: ../src/plugins/generated/mbe.cc:552 ../src/plugins/generated/mbe.cc:553
+msgid "Echo in Beats per Minute"
+msgstr ""
+
+#: ../src/faust-generated/echo.cc:166
+msgid "Percent"
+msgstr ""
+
+#: ../src/faust-generated/echo.cc:351
+msgid "  time (bpm) "
+msgstr ""
+
+#: ../src/faust-generated/expander.cc:51
+msgid "Expander"
+msgstr ""
+
+#: ../src/faust-generated/expander.cc:53
+msgid "expander unit"
+msgstr ""
+
+#: ../src/faust-generated/flanger.cc:53
+msgid "Flanger"
+msgstr ""
+
+#: ../src/faust-generated/flanger.cc:157
+#: ../src/gx_head/builder/iredit.glade.h:10
+#: ../src/plugins/generated/mbd.cc:1557 ../src/plugins/generated/mbd.cc:1572
+#: ../src/plugins/generated/mbd.cc:1589 ../src/plugins/generated/mbd.cc:1606
+#: ../src/plugins/generated/mbd.cc:1623
+msgid "Offset"
+msgstr ""
+
+#: ../src/faust-generated/flanger.cc:160
+msgid "Invert"
+msgstr ""
+
+#: ../src/faust-generated/flanger.cc:162
+#: ../src/faust-generated/flanger_mono.cc:133
+#: ../src/faust-generated/stereodelay.cc:223
+#: ../src/faust-generated/stereoecho.cc:212
+msgid "LFO in Beats per Minute"
+msgstr ""
+
+#: ../src/faust-generated/flanger.cc:553
+msgid " delay offset"
+msgstr ""
+
+#: ../src/faust-generated/flanger.cc:554
+msgid " LFO freq (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/flanger_mono.cc:47
+msgid "Flanger Mono"
+msgstr ""
+
+#: ../src/faust-generated/flanger_mono.cc:134
+#: ../src/faust-generated/freeverb.cc:229
+#: ../src/faust-generated/gx_distortion.cc:390 ../src/plugins/vibe.cc:239
+#: ../src/plugins/vibe.cc:273 ../src/plugins/vibe.cc:300
+msgid "Wet/Dry"
+msgstr ""
+
+#: ../src/faust-generated/flanger_mono.cc:356
+msgid "LFO freq (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/freeverb.cc:72
+msgid "Freeverb"
+msgstr ""
+
+#: ../src/faust-generated/freeverb.cc:227
+#: ../src/faust-generated/stereoverb.cc:374
+msgid "Room Size"
+msgstr ""
+
+#: ../src/faust-generated/freeverb.cc:445
+#: ../src/faust-generated/freeverb.cc:455
+#: ../src/faust-generated/stereoverb.cc:647
+#: ../src/faust-generated/stereoverb.cc:653
+msgid "RoomSize"
+msgstr ""
+
+#: ../src/faust-generated/freeverb.cc:456
+#: ../src/faust-generated/stereoverb.cc:659
+msgid "damp"
+msgstr ""
+
+#: ../src/faust-generated/gain.cc:38
+msgid "Volume"
+msgstr ""
+
+#: ../src/faust-generated/gain.cc:40
+msgid "simple volume control"
+msgstr ""
+
+#: ../src/faust-generated/gain.cc:95 ../src/faust-generated/peak_eq.cc:210
+#: ../src/faust-generated/peak_eq.cc:211 ../src/faust-generated/peak_eq.cc:212
+#: ../src/faust-generated/peak_eq.cc:213
+msgid "gain (dB)"
+msgstr ""
+
+#: ../src/faust-generated/gain.cc:237 ../src/faust-generated/gain.cc:241
+#: ../src/gx_head/builder/iredit.glade.h:16
+msgid "gain"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:355
+#: ../src/faust-generated/graphiceq.cc:357
+msgid "Graphic EQ"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1168
+#: ../src/faust-generated/selecteq.cc:351
+msgid "gain (dB) at 16 kHz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1169
+msgid "gain (dB) above 16 kHz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1170
+msgid "gain (dB) below 31.25 Hz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1171
+#: ../src/faust-generated/selecteq.cc:358
+msgid "gain (dB) at 62.5 Hz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1172
+#: ../src/faust-generated/selecteq.cc:350
+msgid "gain (dB) at 125 Hz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1173
+#: ../src/faust-generated/selecteq.cc:353
+msgid "gain (dB) at 250 Hz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1174
+#: ../src/faust-generated/selecteq.cc:357
+msgid "gain (dB) at 500 Hz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1175
+#: ../src/faust-generated/selecteq.cc:352
+msgid "gain (dB) at 1 kHz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1176
+#: ../src/faust-generated/selecteq.cc:354
+msgid "gain (dB) at 2 kHz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1177
+#: ../src/faust-generated/selecteq.cc:356
+msgid "gain (dB) at 4 kHz"
+msgstr ""
+
+#: ../src/faust-generated/graphiceq.cc:1178
+#: ../src/faust-generated/selecteq.cc:359
+msgid "gain (dB) at 8 kHz"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:108
 msgid "Postamp Tube2"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:87
+#: ../src/faust-generated/gx_ampmodul.cc:109
 msgid "Postamp Tube1"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:96
+#: ../src/faust-generated/gx_ampmodul.cc:118
 msgid "Postamp"
 msgstr ""
 
 #. description (tooltip)
 #. category
 #. description (tooltip)
-#: ../src/faust-generated/gx_ampmodul.cc:99
-#: ../src/faust-generated/gx_distortion.cc:107
+#: ../src/faust-generated/gx_ampmodul.cc:121
 #: ../src/faust-generated/gx_distortion.cc:108
-#: ../src/faust-generated/overdrive.cc:38
-#: ../src/gx_head/gui/gx_main_window.cpp:1913
+#: ../src/faust-generated/gx_distortion.cc:109
+#: ../src/faust-generated/overdrive.cc:42
+#: ../src/gx_head/gui/gx_main_window.cpp:2098
+#: ../src/plugins/generated/mbd.cc:124 ../src/plugins/generated/ts9sim.cc:59
 msgid "Distortion"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampout.cc:34
+#: ../src/faust-generated/gx_ampmodul.cc:382
+msgid "Dry/FB"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:383
+msgid "Wet/FB"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:385
+msgid "Tube I"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:386
+msgid "Tube II"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:719
+msgid "dry/feedback  "
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:722
+msgid "tube1"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:723
+msgid "tube2"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampmodul.cc:724
+msgid "  wet/feedback"
+msgstr ""
+
+#: ../src/faust-generated/gx_ampout.cc:35
 msgid "Amplifier"
 msgstr ""
 
-#. end namespace vibe
-#. end namespace pluginlib
-#: ../src/faust-generated/gx_ampout.cc:91
-#: ../src/faust-generated/gx_ampout_ladspa.cc:100
-#: ../src/faust-generated/gx_outputlevel.cc:92
-#: ../src/faust-generated/gx_outputlevel_ladspa.cc:99
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:649
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:655
-#: ../src/plugins/generated/zita_rev1.cc:545
-#: ../src/plugins/generated/zita_rev1.cc:547
-#: ../src/plugins/generated/zita_rev1.cc:555
-#: ../src/plugins/zita_rev1_ui.glade.h:1
-msgid "Level"
+#: ../src/faust-generated/gx_ampout_ladspa.cc:33
+#: ../src/faust-generated/gx_outputlevel_ladspa.cc:32
+msgid "?"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampout_ladspa.cc:32
-#: ../src/faust-generated/gx_outputlevel_ladspa.cc:31
-msgid "Default"
+#: ../src/faust-generated/gx_ampout_ladspa.cc:42
+msgid "gx_ampout_ladspa"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampout_ladspa.cc:99
+#: ../src/faust-generated/gx_ampout_ladspa.cc:102
 msgid "use Level"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampout_ladspa.cc:101
-#: ../src/faust-generated/gx_outputlevel_ladspa.cc:98
+#: ../src/faust-generated/gx_ampout_ladspa.cc:104
+#: ../src/faust-generated/gx_outputlevel_ladspa.cc:101
 msgid "Ladspa Level"
 msgstr ""
 
-#: ../src/faust-generated/gx_distortion.cc:95
+#: ../src/faust-generated/gx_distortion.cc:96
 msgid "Distortion resonator"
 msgstr ""
 
-#: ../src/faust-generated/gx_distortion.cc:104
-#: ../src/gx_head/engine/gx_engine.cpp:109
-#: ../src/ladspa/ladspa_guitarix.cpp:896
+#: ../src/faust-generated/gx_distortion.cc:105
+#: ../src/gx_head/engine/gx_engine.cpp:215
+#: ../src/ladspa/ladspa_guitarix.cpp:908
 msgid "Multi Band Distortion"
 msgstr ""
 
-#: ../src/faust-generated/gx_distortion.cc:344
-#: ../src/faust-generated/gx_distortion.cc:345
-msgid "high"
+#: ../src/faust-generated/gx_distortion.cc:373
+#: ../src/faust-generated/overdrive.cc:105
+#: ../src/faust-generated/overdrive.cc:285
+#: ../src/gx_head/builder/mainpanel.glade.h:2
+#: ../src/plugins/generated/mbd.cc:1555 ../src/plugins/generated/mbd.cc:1570
+#: ../src/plugins/generated/mbd.cc:1587 ../src/plugins/generated/mbd.cc:1604
+#: ../src/plugins/generated/mbd.cc:1621 ../src/plugins/generated/ts9sim.cc:146
+msgid "Drive"
 msgstr ""
 
-#: ../src/faust-generated/gx_distortion.cc:346
-#: ../src/faust-generated/gx_distortion.cc:347
-msgid "middle h."
+#: ../src/faust-generated/gx_distortion.cc:375
+#: ../src/faust-generated/gx_distortion.cc:376
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2544
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2595
+msgid "Hi"
 msgstr ""
 
-#: ../src/faust-generated/gx_distortion.cc:348
+#: ../src/faust-generated/gx_distortion.cc:378
+#: ../src/faust-generated/gx_distortion.cc:379
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2589
+msgid "Lo"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:380
+#: ../src/faust-generated/gx_distortion.cc:381
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2593
+msgid "HiMid"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:382
+#: ../src/faust-generated/gx_distortion.cc:383
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2591
+msgid "LoMid"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:384
 msgid "resonat"
 msgstr ""
 
-#: ../src/faust-generated/gx_distortion.cc:352
-#: ../src/faust-generated/gx_distortion.cc:355
-msgid "middle l."
+#: ../src/faust-generated/gx_distortion.cc:385
+msgid "Split Hi"
 msgstr ""
 
-#: ../src/faust-generated/gx_distortion.cc:360
-#: ../src/faust-generated/gx_distortion.cc:361
-msgid "low"
+#: ../src/faust-generated/gx_distortion.cc:386
+msgid "Split Lo"
 msgstr ""
 
-#: ../src/faust-generated/gx_feedback.cc:35
-msgid "Feedback"
+#: ../src/faust-generated/gx_distortion.cc:387
+msgid "Split Mid"
 msgstr ""
 
-#: ../src/faust-generated/gxamp.cc:147
+#: ../src/faust-generated/gx_distortion.cc:388
+msgid "Trigger"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:389
+msgid "Vibrato"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:409
+msgid "drive"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:417
+#: ../src/faust-generated/gx_distortion.cc:421
+msgid "  drive "
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:422
+#: ../src/faust-generated/gx_distortion.cc:435
+msgid " low "
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:423
+#: ../src/faust-generated/gx_distortion.cc:436
+msgid " middle l. "
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:424
+#: ../src/faust-generated/gx_distortion.cc:437
+msgid " middle h. "
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:425
+#: ../src/faust-generated/gx_distortion.cc:438
+msgid " high "
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:430
+#: ../src/faust-generated/gx_distortion.cc:434
+msgid "  gain  "
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:450
+msgid "frequency split Hz"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:457
+msgid "split low freq"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:459
+msgid "split m. freq"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:461
+msgid "split high freq"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:474
+msgid "resonator"
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:476
+msgid "trigger "
+msgstr ""
+
+#: ../src/faust-generated/gx_distortion.cc:477
+msgid " vibrato "
+msgstr ""
+
+#: ../src/faust-generated/gx_outputlevel.cc:35
+msgid "gx_outputlevel"
+msgstr ""
+
+#: ../src/faust-generated/gx_outputlevel.cc:93
+msgid "Overall Rack output Volume"
+msgstr ""
+
+#: ../src/faust-generated/gx_outputlevel_ladspa.cc:41
+msgid "gx_outputlevel_ladspa"
+msgstr ""
+
+#: ../src/faust-generated/gxamp.cc:157
 msgid "12ax7"
 msgstr ""
 
-#: ../src/faust-generated/gxamp10.cc:150
+#: ../src/faust-generated/gxamp10.cc:160
 msgid "6DJ8"
 msgstr ""
 
-#: ../src/faust-generated/gxamp11.cc:161
+#: ../src/faust-generated/gxamp11.cc:175
 msgid "12AU7 feedback"
 msgstr ""
 
-#: ../src/faust-generated/gxamp12.cc:154
+#: ../src/faust-generated/gxamp12.cc:165
 msgid "pre 6DJ8/ master 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp13.cc:161
+#: ../src/faust-generated/gxamp13.cc:175
 msgid "6DJ8 feedback"
 msgstr ""
 
-#: ../src/faust-generated/gxamp14.cc:147
+#: ../src/faust-generated/gxamp14.cc:157
 msgid "12AT7"
 msgstr ""
 
-#: ../src/faust-generated/gxamp15.cc:153
+#: ../src/faust-generated/gxamp15.cc:165
 msgid "pre 12AT7/ master 6V6"
 msgstr ""
 
@@ -310,31 +1233,31 @@ msgstr ""
 msgid "pre 12AT7/ push pull 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp17.cc:161
+#: ../src/faust-generated/gxamp17.cc:175
 msgid "12AT7 feedback"
 msgstr ""
 
-#: ../src/faust-generated/gxamp18.cc:147
+#: ../src/faust-generated/gxamp18.cc:157
 msgid "6C16"
 msgstr ""
 
-#: ../src/faust-generated/gxamp2.cc:149
+#: ../src/faust-generated/gxamp2.cc:160
 msgid "6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp3.cc:148
+#: ../src/faust-generated/gxamp3.cc:157
 msgid "12AU7"
 msgstr ""
 
-#: ../src/faust-generated/gxamp4.cc:154
+#: ../src/faust-generated/gxamp4.cc:165
 msgid "pre 12AU7/ master 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp5.cc:153
+#: ../src/faust-generated/gxamp5.cc:165
 msgid "pre 12ax7/ master 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp6.cc:206
+#: ../src/faust-generated/gxamp6.cc:205
 msgid "pre 6DJ8/ push-pull 6V6"
 msgstr ""
 
@@ -342,327 +1265,638 @@ msgstr ""
 msgid "pre 12ax7/ push-pull 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp8.cc:208
+#: ../src/faust-generated/gxamp8.cc:205
 msgid "pre 12AU7/ push-pull 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp9.cc:161
+#: ../src/faust-generated/gxamp9.cc:175
 msgid "12ax7 feedback"
 msgstr ""
 
-#: ../src/faust-generated/gxfeed.cc:162
+#: ../src/faust-generated/gxfeed.cc:50
+msgid "gxfeed"
+msgstr ""
+
+#: ../src/faust-generated/gxfeed.cc:166
 msgid "reverb_on_of"
 msgstr ""
 
-#: ../src/faust-generated/impulseresponse.cc:41
+#: ../src/faust-generated/gxnoamp.cc:36
+msgid "---"
+msgstr ""
+
+#: ../src/faust-generated/highbooster.cc:45
+msgid "Treble Boost"
+msgstr ""
+
+#: ../src/faust-generated/impulseresponse.cc:45
 msgid "ImpulseResponse"
 msgstr ""
 
-#: ../src/faust-generated/impulseresponse.cc:108
-msgid "peak gain"
-msgstr ""
-
-#: ../src/faust-generated/impulseresponse.cc:110
+#: ../src/faust-generated/impulseresponse.cc:118
 msgid "auto freq"
 msgstr ""
 
-#: ../src/faust-generated/impulseresponse.cc:111
-msgid "frequency (Hz)"
-msgstr ""
-
-#: ../src/faust-generated/impulseresponse.cc:112
+#: ../src/faust-generated/impulseresponse.cc:119
 msgid "bandwidth (Hz)"
 msgstr ""
 
-#: ../src/faust-generated/jconv_post.cc:100
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:632
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:305
-msgid "Gain"
+#: ../src/faust-generated/impulseresponse.cc:120
+msgid "frequency (Hz)"
 msgstr ""
 
-#: ../src/faust-generated/jconv_post.cc:100
-msgid "gain trim for processed signal (unit: dB)"
+#: ../src/faust-generated/impulseresponse.cc:121
+#: ../src/faust-generated/impulseresponse.cc:364
+#: ../src/faust-generated/impulseresponse.cc:377
+msgid "Peak"
 msgstr ""
 
-#: ../src/faust-generated/jconv_post.cc:101
+#: ../src/faust-generated/impulseresponse.cc:121
+msgid "peak gain"
+msgstr ""
+
+#: ../src/faust-generated/jconv_post.cc:104
 msgid "left/right trim for processed signal"
 msgstr ""
 
-#: ../src/faust-generated/jconv_post.cc:102
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:308
+#: ../src/faust-generated/jconv_post.cc:105
+#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:65
 msgid "Delta Delay"
 msgstr ""
 
-#: ../src/faust-generated/jconv_post.cc:102
-msgid "delay left or right channel by the specified amount (unit: ms)"
+#: ../src/faust-generated/jconv_post.cc:105
+msgid "de.delay left or right channel by the specified amount (unit: ms)"
 msgstr ""
 
-#: ../src/faust-generated/low_high_pass.cc:46
+#: ../src/faust-generated/jconv_post.cc:106
+#: ../src/faust-generated/jconv_post_mono.cc:41
+msgid "gain trim for processed signal (unit: dB)"
+msgstr ""
+
+#: ../src/faust-generated/jconv_post.cc:107
+#: ../src/faust-generated/jconv_post_mono.cc:42
+msgid "wet/dry"
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:50
 msgid "low_highpass"
 msgstr ""
 
-#: ../src/faust-generated/low_high_pass.cc:47
+#: ../src/faust-generated/low_high_pass.cc:51
 msgid "low_highcutoff"
 msgstr ""
 
-#: ../src/faust-generated/low_high_pass.cc:56
-msgid "low high pass"
+#: ../src/faust-generated/low_high_pass.cc:60
+msgid "Low/High Filter"
 msgstr ""
 
 #. category
-#: ../src/faust-generated/low_high_pass.cc:60
-msgid "L/H/Filter"
+#: ../src/faust-generated/low_high_pass.cc:64
+msgid "L/H Filter"
 msgstr ""
 
-#: ../src/faust-generated/low_high_pass.cc:168
-msgid "low highcutoff"
+#: ../src/faust-generated/low_high_pass.cc:179
+msgid "Highcut"
 msgstr ""
 
-#: ../src/faust-generated/low_high_pass.cc:169
-msgid "low highpass"
-msgstr ""
-
-#: ../src/faust-generated/low_high_pass.cc:170
-#: ../src/faust-generated/low_high_pass.cc:172
-msgid "low freq"
-msgstr ""
-
-#: ../src/faust-generated/low_high_pass.cc:171
-#: ../src/faust-generated/low_high_pass.cc:173
-msgid "high freq"
-msgstr ""
-
-#: ../src/faust-generated/low_high_pass.cc:172
-msgid "low-freq cutoff Hz"
-msgstr ""
-
-#: ../src/faust-generated/low_high_pass.cc:173
+#: ../src/faust-generated/low_high_pass.cc:179
 msgid "high-freq cutoff Hz"
 msgstr ""
 
-#: ../src/faust-generated/moog.cc:48
+#: ../src/faust-generated/low_high_pass.cc:180
+msgid "Lowcut"
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:180
+msgid "low-freq cutoff Hz"
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:181
+msgid "low highcutoff"
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:182
+msgid "Highpass"
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:183
+msgid "Lowpass"
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:184
+msgid "low fi.highpass"
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:546
+msgid "high-pass "
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:547
+msgid " low-pass "
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:554
+msgid "low-cut "
+msgstr ""
+
+#: ../src/faust-generated/low_high_pass.cc:555
+msgid "high-cut "
+msgstr ""
+
+#: ../src/faust-generated/moog.cc:52
 msgid "Moog Filter"
 msgstr ""
 
-#: ../src/faust-generated/noise_shaper.cc:37
+#: ../src/faust-generated/moog.cc:152 ../src/faust-generated/moog.cc:304
+#: ../src/faust-generated/peak_eq.cc:206 ../src/faust-generated/peak_eq.cc:207
+#: ../src/faust-generated/peak_eq.cc:208 ../src/faust-generated/peak_eq.cc:209
+msgid "Q"
+msgstr ""
+
+#: ../src/faust-generated/moog.cc:308
+msgid "            Q            "
+msgstr ""
+
+#: ../src/faust-generated/moog.cc:309
+msgid "            Hz           "
+msgstr ""
+
+#: ../src/faust-generated/noise_shaper.cc:38
 msgid "Shaper"
 msgstr ""
 
-#: ../src/faust-generated/noise_shaper.cc:103
-#: ../src/faust-generated/tonecontroll.cc:278
+#: ../src/faust-generated/noise_shaper.cc:104
 msgid "sharper"
 msgstr ""
 
-#: ../src/faust-generated/overdrive.cc:35
+#: ../src/faust-generated/overdrive.cc:39
 msgid "Overdrive"
 msgstr ""
 
-#: ../src/faust-generated/phaser.cc:58
+#: ../src/faust-generated/overdrive.cc:290
+msgid "  Drive "
+msgstr ""
+
+#: ../src/faust-generated/panoram_enhancer.cc:136
+msgid "Panoram Enhancer"
+msgstr ""
+
+#. category
+#: ../src/faust-generated/panoram_enhancer.cc:140
+msgid "Panoram"
+msgstr ""
+
+#: ../src/faust-generated/panoram_enhancer.cc:489
+msgid "Delay Width"
+msgstr ""
+
+#: ../src/faust-generated/panoram_enhancer.cc:490
+msgid "Frequency Width"
+msgstr ""
+
+#: ../src/faust-generated/panoram_enhancer.cc:674
+msgid "  delay width  "
+msgstr ""
+
+#: ../src/faust-generated/panoram_enhancer.cc:675
+msgid "  freq width   "
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:55
+msgid "Peak EQ"
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:206 ../src/faust-generated/peak_eq.cc:207
+#: ../src/faust-generated/peak_eq.cc:208 ../src/faust-generated/peak_eq.cc:209
+msgid "bandwidth (hz)"
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:210
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2541
+msgid "Sub"
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:211
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2542
+#: ../src/plugins/generated/zita_rev1.cc:567
+msgid "Low"
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:212
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2543
+#: ../src/plugins/generated/zita_rev1.cc:568
+msgid "Mid"
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:213
+msgid "High"
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:214 ../src/faust-generated/peak_eq.cc:215
+#: ../src/faust-generated/peak_eq.cc:216 ../src/faust-generated/peak_eq.cc:217
+msgid "frequency (hz)"
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:576 ../src/faust-generated/peak_eq.cc:585
+#: ../src/faust-generated/peak_eq.cc:594 ../src/faust-generated/peak_eq.cc:603
+msgid "peak"
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:578 ../src/faust-generated/peak_eq.cc:587
+#: ../src/faust-generated/peak_eq.cc:596 ../src/faust-generated/peak_eq.cc:605
+msgid "frequency"
+msgstr ""
+
+#: ../src/faust-generated/peak_eq.cc:580 ../src/faust-generated/peak_eq.cc:589
+#: ../src/faust-generated/peak_eq.cc:598 ../src/faust-generated/peak_eq.cc:607
+#: ../src/faust-generated/selecteq.cc:330
+#: ../src/faust-generated/selecteq.cc:332
+#: ../src/faust-generated/selecteq.cc:333
+#: ../src/faust-generated/selecteq.cc:334
+#: ../src/faust-generated/selecteq.cc:335
+#: ../src/faust-generated/selecteq.cc:337
+#: ../src/faust-generated/selecteq.cc:338
+msgid "bandwidth"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:63
 msgid "Phaser"
 msgstr ""
 
-#: ../src/faust-generated/phaser_mono.cc:52
+#: ../src/faust-generated/phaser.cc:207
+msgid "Max Freq"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:209
+#: ../src/plugins/generated/flanger_gx.cc:173 ../src/plugins/vibe.cc:237
+#: ../src/plugins/vibe.cc:283
+msgid "Width"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:210
+msgid "Min Freq"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:218
+#: ../src/faust-generated/phaser_mono.cc:161
+msgid "Speed (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:218
+#: ../src/faust-generated/phaser_mono.cc:161
+msgid "Speed in Beats per Minute"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:690
+msgid "  level "
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:698
+msgid "depth"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:699
+msgid "width"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:700
+msgid "freq"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:701
+msgid "max Hz"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:702
+msgid "min Hz"
+msgstr ""
+
+#: ../src/faust-generated/phaser.cc:703
+#: ../src/faust-generated/phaser_mono.cc:384
+msgid "speed (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/phaser_mono.cc:56
 msgid "Phaser Mono"
 msgstr ""
 
-#: ../src/faust-generated/selecteq.cc:73
+#: ../src/faust-generated/ring_modulator.cc:110
+msgid "Ring Modulator Mono"
+msgstr ""
+
+#. category
+#: ../src/faust-generated/ring_modulator.cc:114
+#: ../src/faust-generated/ring_modulator_st.cc:110
+msgid "Ring Modulator"
+msgstr ""
+
+#: ../src/faust-generated/ring_modulator.cc:175
+#: ../src/faust-generated/ring_modulator_st.cc:177
+#: ../src/plugins/generated/flanger_gx.cc:171
+msgid "Mix"
+msgstr ""
+
+#: ../src/faust-generated/ring_modulator.cc:362
+#: ../src/faust-generated/ring_modulator_st.cc:364
+msgid "   Mix   "
+msgstr ""
+
+#: ../src/faust-generated/ring_modulator_st.cc:112
+msgid "Ring Modulator Stereo Version"
+msgstr ""
+
+#: ../src/faust-generated/selecteq.cc:87
 msgid "Scaleable EQ"
 msgstr ""
 
-#: ../src/faust-generated/selecteq.cc:521
-msgid "gain (dB) at 16 kHz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:522
-msgid "gain (dB) at 8 kHz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:523
-#: ../src/faust-generated/selecteq.cc:524
-#: ../src/faust-generated/selecteq.cc:529
-#: ../src/faust-generated/selecteq.cc:531
-#: ../src/faust-generated/selecteq.cc:536
-#: ../src/faust-generated/selecteq.cc:539
-#: ../src/faust-generated/selecteq.cc:541
-#: ../src/faust-generated/selecteq.cc:544
-#: ../src/faust-generated/selecteq.cc:547
-#: ../src/faust-generated/selecteq.cc:548
+#: ../src/faust-generated/selecteq.cc:340
+#: ../src/faust-generated/selecteq.cc:341
+#: ../src/faust-generated/selecteq.cc:342
+#: ../src/faust-generated/selecteq.cc:343
+#: ../src/faust-generated/selecteq.cc:344
+#: ../src/faust-generated/selecteq.cc:345
+#: ../src/faust-generated/selecteq.cc:346
+#: ../src/faust-generated/selecteq.cc:347
+#: ../src/faust-generated/selecteq.cc:348
+#: ../src/faust-generated/selecteq.cc:349
 msgid "Hz"
 msgstr ""
 
-#: ../src/faust-generated/selecteq.cc:527
-msgid "gain (dB) at 4 kHz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:528
-msgid "gain (dB) at 2 kHz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:532
-msgid "gain (dB) at 250 Hz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:534
-msgid "gain (dB) at 1 kHz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:537
-msgid "gain (dB) at 500 Hz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:542
-msgid "gain (dB) at 62.5 Hz"
-msgstr ""
-
-#: ../src/faust-generated/selecteq.cc:545
+#: ../src/faust-generated/selecteq.cc:355
 msgid "gain (dB) at 31.25 Hz"
 msgstr ""
 
-#: ../src/faust-generated/selecteq.cc:549
-msgid "gain (dB) at 125 Hz"
+#: ../src/faust-generated/softclip.cc:32
+msgid "softclip"
 msgstr ""
 
-#: ../src/faust-generated/stereodelay.cc:65
+#: ../src/faust-generated/stereodelay.cc:69
 msgid "Stereo Delay"
 msgstr ""
 
-#: ../src/faust-generated/stereoecho.cc:63
+#: ../src/faust-generated/stereodelay.cc:221
+msgid "Gain L"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:222
+msgid "Delay L"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:222
+msgid "Left Delay in Beats per Minute"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:223
+#: ../src/faust-generated/stereoecho.cc:212
+#: ../src/faust-generated/stereoverb.cc:373
+msgid "LFO Freq"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:224
+msgid "Gain R"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:225
+msgid "Delay R"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:225
+msgid "Right Delay in Beats per Minute"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:507
+msgid "left gain"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:508
+msgid "left delay (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:511
+#: ../src/faust-generated/stereoecho.cc:511
+msgid "LFO (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:513
+msgid "mode"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:518
+msgid "right gain"
+msgstr ""
+
+#: ../src/faust-generated/stereodelay.cc:519
+msgid "right delay (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/stereoecho.cc:67
 msgid "Stereo Echo"
 msgstr ""
 
-#: ../src/faust-generated/stereoverb.cc:106
+#: ../src/faust-generated/stereoecho.cc:211
+msgid "Time L"
+msgstr ""
+
+#: ../src/faust-generated/stereoecho.cc:213
+msgid "Release L"
+msgstr ""
+
+#: ../src/faust-generated/stereoecho.cc:214
+msgid "Release R"
+msgstr ""
+
+#: ../src/faust-generated/stereoecho.cc:215
+msgid "Time R"
+msgstr ""
+
+#: ../src/faust-generated/stereoecho.cc:499
+msgid "left %"
+msgstr ""
+
+#: ../src/faust-generated/stereoecho.cc:505
+msgid "left time (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/stereoecho.cc:520
+msgid "right %"
+msgstr ""
+
+#: ../src/faust-generated/stereoecho.cc:526
+msgid "right time (bpm)"
+msgstr ""
+
+#: ../src/faust-generated/stereoverb.cc:110
 msgid "Stereo Verb"
 msgstr ""
 
-#: ../src/faust-generated/tonecontroll.cc:92
+#: ../src/faust-generated/stereoverb.cc:375
+msgid "Damp"
+msgstr ""
+
+#: ../src/faust-generated/stereoverb.cc:671
+msgid "LFO"
+msgstr ""
+
+#: ../src/faust-generated/tonecontroll.cc:99
 msgid "3 Band EQ"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_ac15.cc:46
-msgid "AC-15"
+#: ../src/faust-generated/tonecontroll.cc:305
+msgid "Sharp"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_ac30.cc:42
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:723
-msgid "AC-30"
+#: ../src/faust-generated/tonecontroll.cc:639
+#: ../src/gx_head/engine/gx_engine.cpp:170
+msgid "middle"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_ampeg.cc:42
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:884
-msgid "Ampeg"
+#: ../src/faust-generated/tonecontroll.cc:643
+msgid "sharp"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_ampeg_rev.cc:42
-msgid "Rev.Rocket"
+#: ../src/faust-generated/tonestack_ac15.cc:43
+msgid "AC-15 Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_bassman.cc:42
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:721
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:877
-msgid "Bassman"
+#: ../src/faust-generated/tonestack_ac30.cc:43
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:951
+msgid "AC-30 Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_bogner.cc:42
-msgid "Triple Giant"
+#: ../src/faust-generated/tonestack_ampeg.cc:43
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1282
+msgid "Ampeg Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_crunch.cc:42
-msgid "Hughes&Kettner"
+#: ../src/faust-generated/tonestack_ampeg_rev.cc:43
+msgid "Rev.Rocket Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_default.cc:50
+#: ../src/faust-generated/tonestack_bassman.cc:43
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:949
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1275
+msgid "Bassman Style"
+msgstr ""
+
+#: ../src/faust-generated/tonestack_bogner.cc:43
+msgid "Triple Giant Style"
+msgstr ""
+
+#: ../src/faust-generated/tonestack_crunch.cc:43
+msgid "Hughes&Kettner Style"
+msgstr ""
+
+#: ../src/faust-generated/tonestack_default.cc:51
 msgid "default"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_fender_blues.cc:42
-msgid "Junior"
+#: ../src/faust-generated/tonestack_engl.cc:43
+msgid "Engl Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_fender_default.cc:42
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:879
-msgid "Fender"
+#: ../src/faust-generated/tonestack_fender_blues.cc:43
+msgid "Junior Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_fender_deville.cc:42
-msgid "Deville"
+#: ../src/faust-generated/tonestack_fender_default.cc:43
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1277
+msgid "Fender Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_gibsen.cc:42
-msgid "Gibsen"
+#: ../src/faust-generated/tonestack_fender_deville.cc:43
+msgid "Deville Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_groove.cc:42
-msgid "Trio Preamp"
+#: ../src/faust-generated/tonestack_gibsen.cc:43
+msgid "Gibsen Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_ibanez.cc:42
-msgid "Ibanez"
+#: ../src/faust-generated/tonestack_groove.cc:43
+msgid "Trio Preamp Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_jcm2000.cc:42
-msgid "JCM-2000"
+#: ../src/faust-generated/tonestack_ibanez.cc:43
+msgid "Ibanez Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_jcm800.cc:42
-msgid "JCM-800"
+#: ../src/faust-generated/tonestack_jcm2000.cc:43
+msgid "JCM-2000 Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_jtm45.cc:42
-msgid "JTM-45"
+#: ../src/faust-generated/tonestack_jcm800.cc:43
+msgid "JCM-800 Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_m2199.cc:42
-msgid "M2199"
+#: ../src/faust-generated/tonestack_jtm45.cc:43
+msgid "JTM-45 Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_mesa.cc:42
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:727
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:882
-msgid "Mesa Boogie"
+#: ../src/faust-generated/tonestack_m2199.cc:43
+msgid "M2199 Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_mlead.cc:42
-msgid "M-Lead"
+#: ../src/faust-generated/tonestack_mesa.cc:43
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:955
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1280
+msgid "Mesa Boogie Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_peavey.cc:42
-msgid "Peavey"
+#: ../src/faust-generated/tonestack_mlead.cc:43
+msgid "M-Lead Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_princeton.cc:42
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:724
-msgid "Princeton"
+#: ../src/faust-generated/tonestack_peavey.cc:43
+msgid "Peavey Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_roland.cc:42
-msgid "Roland"
+#: ../src/faust-generated/tonestack_princeton.cc:43
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:952
+msgid "Princeton Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_soldano.cc:42
-msgid "SOL 100"
+#: ../src/faust-generated/tonestack_roland.cc:43
+msgid "Roland Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_sovtek.cc:42
-msgid "MIG 100 H"
+#: ../src/faust-generated/tonestack_soldano.cc:43
+msgid "SOL 100 Style"
 msgstr ""
 
-#: ../src/faust-generated/tonestack_twin.cc:42
-msgid "Twin Reverb"
+#: ../src/faust-generated/tonestack_sovtek.cc:43
+msgid "MIG 100 H Style"
 msgstr ""
 
-#: ../src/faust-generated/tremolo.cc:47
+#: ../src/faust-generated/tonestack_twin.cc:43
+msgid "Twin Reverb Style"
+msgstr ""
+
+#: ../src/faust-generated/tremolo.cc:52
 msgid "Tremolo"
 msgstr ""
 
 #. end namespace tremolo
 #: ../src/gx_head/builder/amp.tonestack_ui.glade.h:1
-#: ../src/gx_head/builder/crybaby_ui.glade.h:1
-#: ../src/gx_head/builder/iredit.glade.h:37
+#: ../src/gx_head/builder/iredit.glade.h:26
 #: ../src/gx_head/builder/jackstarter.glade.h:11
-#: ../src/gx_head/builder/mainpanel.glade.h:31
-#: ../src/gx_head/builder/midi.glade.h:6
-#: ../src/gx_head/builder/tremolo_ui.glade.h:1
+#: ../src/gx_head/builder/mainpanel.glade.h:33
+#: ../src/gx_head/builder/midi.glade.h:7
 msgid "label"
+msgstr ""
+
+#: ../src/gx_head/builder/amp.tonestack_ui.glade.h:2
+msgid "           "
+msgstr ""
+
+#: ../src/gx_head/builder/crybaby_ui.glade.h:1
+#: ../src/gx_head/engine/gx_engine.cpp:96
+#: ../src/gx_head/engine/gx_engine.cpp:111
+#: ../src/gx_head/engine/gx_engine.cpp:230
+#: ../src/ladspa/ladspa_guitarix.cpp:921
+msgid "Wah"
+msgstr ""
+
+#: ../src/gx_head/builder/crybaby_ui.glade.h:4
+msgid "                      "
 msgstr ""
 
 #: ../src/gx_head/builder/iredit.glade.h:1
@@ -674,172 +1908,116 @@ msgid "left"
 msgstr ""
 
 #: ../src/gx_head/builder/iredit.glade.h:3
-msgid "show only left channel"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:4
 msgid "right"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:5
-msgid "show only right channel"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:6
+#: ../src/gx_head/builder/iredit.glade.h:4
 msgid "sum"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:7
-msgid "show sum of left and right channel"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:8
+#: ../src/gx_head/builder/iredit.glade.h:5
 msgid "<b>Channel</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:9
+#: ../src/gx_head/builder/iredit.glade.h:6
 msgid "linear"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:10
-msgid "linear scale for viewing the wave form"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:11
+#: ../src/gx_head/builder/iredit.glade.h:7
 msgid "log."
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:12
-msgid "logarithmic scale"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:13
+#: ../src/gx_head/builder/iredit.glade.h:8
 msgid "<b>Display</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:14
-msgid "zoom out (center: triangle at bottom of graph)"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:15
-msgid "zoom in (center: triangle at bottom of graph)"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:16
-msgid "display entire range"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:17
-msgid ""
-"move to zoom center\n"
-"(triangle mark at bottom of graph)"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:20
-msgid "Offset"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:21
+#: ../src/gx_head/builder/iredit.glade.h:11
 msgid "Length"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:22
+#: ../src/gx_head/builder/iredit.glade.h:12
 msgid "<small>Samples</small>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:23
+#: ../src/gx_head/builder/iredit.glade.h:13
 msgid "<small>MSec</small>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:24
+#: ../src/gx_head/builder/iredit.glade.h:14
 msgid "Auto _Gain correction"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:25
+#: ../src/gx_head/builder/iredit.glade.h:15
 msgid "<b>Settings</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:26
-msgid "gain"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:27
+#: ../src/gx_head/builder/iredit.glade.h:17
 msgid "diff delay"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:28
+#: ../src/gx_head/builder/iredit.glade.h:18
 msgid "bal"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:29
+#: ../src/gx_head/builder/iredit.glade.h:19
 msgid "<small><small>dry</small></small>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:30
+#: ../src/gx_head/builder/iredit.glade.h:20
 msgid "<b>Mix</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:31
+#: ../src/gx_head/builder/iredit.glade.h:21
 msgid "<small><small>wet</small></small>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:32
-msgid "run"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:33
+#: ../src/gx_head/builder/iredit.glade.h:22
 msgid "<b>Parameter (live update)</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:34
+#: ../src/gx_head/builder/iredit.glade.h:23
 msgid "Reset"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:35
-#: ../src/gx_head/engine/gx_json.cpp:1357
-#: ../src/gx_head/engine/gx_json.cpp:1397
+#: ../src/gx_head/builder/iredit.glade.h:24
+#: ../src/gx_head/engine/gx_json.cpp:1551
+#: ../src/gx_head/engine/gx_json.cpp:1591
 msgid "Presets"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:36
+#: ../src/gx_head/builder/iredit.glade.h:25
 msgid "<b>Samplerate:</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:38
+#: ../src/gx_head/builder/iredit.glade.h:27
 msgid "<b>Chan.:</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:39
+#: ../src/gx_head/builder/iredit.glade.h:28
 msgid "<b>Length:</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:40
+#: ../src/gx_head/builder/iredit.glade.h:29
 msgid "<b>Format:</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:41
-msgid ""
-"impulse response file to use for convolution\n"
-"it can be mono or stereo\n"
-msgstr ""
-
-#: ../src/gx_head/builder/iredit.glade.h:44
+#: ../src/gx_head/builder/iredit.glade.h:30
 msgid "<b>File:</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:45
+#: ../src/gx_head/builder/iredit.glade.h:31
 msgid "<b>Dir:</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:46
+#: ../src/gx_head/builder/iredit.glade.h:32
 msgid "no file selected"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:47
+#: ../src/gx_head/builder/iredit.glade.h:33
 msgid "<b>IR File Details</b>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:48
+#: ../src/gx_head/builder/iredit.glade.h:34
 msgid ""
 "<b><big>Using the mouse in the graph window</big></b>\n"
 "\n"
@@ -862,7 +2040,7 @@ msgid ""
 "to change values with the keyboard</big>"
 msgstr ""
 
-#: ../src/gx_head/builder/iredit.glade.h:67
+#: ../src/gx_head/builder/iredit.glade.h:53
 msgid "radiobutton"
 msgstr ""
 
@@ -905,65 +2083,60 @@ msgid "don't ask on startup"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:1
-msgid "gx-2"
-msgstr ""
-
-#: ../src/gx_head/builder/mainpanel.glade.h:2
-msgid "Pre gain"
+msgid "Pre Gain"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:3
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:343
-msgid "Drive"
-msgstr ""
-
-#: ../src/gx_head/builder/mainpanel.glade.h:4
 msgid "Clean/Dist"
 msgstr ""
 
+#: ../src/gx_head/builder/mainpanel.glade.h:4
+msgid "Master Gain"
+msgstr ""
+
 #: ../src/gx_head/builder/mainpanel.glade.h:5
-msgid "Master gain"
+msgid " Bass Boost  "
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:6
-msgid " Bass boost  "
-msgstr ""
-
-#: ../src/gx_head/builder/mainpanel.glade.h:7
 msgid " Presence "
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:8
+#: ../src/gx_head/builder/mainpanel.glade.h:7
 msgid " Reverb  "
 msgstr ""
 
+#: ../src/gx_head/builder/mainpanel.glade.h:8
+msgid " Master Volume  "
+msgstr ""
+
 #: ../src/gx_head/builder/mainpanel.glade.h:9
-#: ../src/gx_head/gui/gx_jack_options.cpp:166
+#: ../src/gx_head/gui/gx_jack_options.cpp:144
 msgid "Exit"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:10
-msgid "Bank"
-msgstr ""
-
-#: ../src/gx_head/builder/mainpanel.glade.h:11
-msgid "Preset"
-msgstr ""
-
-#: ../src/gx_head/builder/mainpanel.glade.h:12
 msgid "Background:"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:13
+#: ../src/gx_head/builder/mainpanel.glade.h:11
 msgid "Brightness:"
 msgstr ""
 
+#: ../src/gx_head/builder/mainpanel.glade.h:12
+msgid "Bank"
+msgstr ""
+
+#: ../src/gx_head/builder/mainpanel.glade.h:13
+msgid "Preset"
+msgstr ""
+
 #: ../src/gx_head/builder/mainpanel.glade.h:14
-msgid "Effects"
+msgid "Pool"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:15
-msgid "Config Mode"
+msgid "Order"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:16
@@ -971,154 +2144,167 @@ msgid "Tuner"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:17
-msgid "Show Rack"
+msgid "Rack"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:18
-msgid "Horizontal"
+msgid "Split"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:19
-msgid "Live Play"
+msgid "Fold"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:20
-msgid "noise gate"
+msgid "Show"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:21
-msgid "noise shaper"
+msgid "Live"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:22
-msgid "mono level out"
+msgid "Input/Output"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:23
-msgid "clip"
-msgstr ""
-
-#: ../src/gx_head/builder/mainpanel.glade.h:24
-msgid "<span font=\"sans bold 7.5\">Tuner</span>"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:49
+msgid "Noise Gate"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:25
+msgid "Mono Level Out"
+msgstr ""
+
+#: ../src/gx_head/builder/mainpanel.glade.h:26
+msgid "Clip"
+msgstr ""
+
+#: ../src/gx_head/builder/mainpanel.glade.h:27
 #: ../src/gx_head/engine/gx_midi_plugin.cpp:55
 msgid "Midi Out"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:26
-msgctxt "preset"
+#: ../src/gx_head/builder/mainpanel.glade.h:28
 msgid "p"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:27
+#: ../src/gx_head/builder/mainpanel.glade.h:29
 msgid "ch. 1"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:28
+#: ../src/gx_head/builder/mainpanel.glade.h:30
 msgid "ch. 2"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:29
+#: ../src/gx_head/builder/mainpanel.glade.h:31
 msgid "ch. 3"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:30
+#: ../src/gx_head/builder/mainpanel.glade.h:32
 msgid "Status"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:32
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:712
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:776
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:840
+#: ../src/gx_head/builder/mainpanel.glade.h:34
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:194
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:258
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:322
 msgid "autogain"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:33
+#: ../src/gx_head/builder/mainpanel.glade.h:35
 msgid "chan:"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:34
+#: ../src/gx_head/builder/mainpanel.glade.h:36
 msgid "prog:"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:35
+#: ../src/gx_head/builder/mainpanel.glade.h:37
 msgid "autopitch"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:36
+#: ../src/gx_head/builder/mainpanel.glade.h:38
 msgid "Channel:"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:37
+#: ../src/gx_head/builder/mainpanel.glade.h:39
 msgid "mono rack"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:38
+#: ../src/gx_head/builder/mainpanel.glade.h:40
 msgid "stereo rack, vertical mode"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:39
+#: ../src/gx_head/builder/mainpanel.glade.h:41
 msgid "stereo rack, horiz. mode"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:40
+#: ../src/gx_head/builder/mainpanel.glade.h:42
 msgid "Save"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:41
+#: ../src/gx_head/builder/mainpanel.glade.h:43
 msgid "New Bank"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:42
+#: ../src/gx_head/builder/mainpanel.glade.h:44
+msgid "Online"
+msgstr ""
+
+#: ../src/gx_head/builder/mainpanel.glade.h:45
 msgid "Organize"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:43
+#: ../src/gx_head/builder/mainpanel.glade.h:46
 msgid "Close"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:44
+#: ../src/gx_head/builder/mainpanel.glade.h:47
 #: ../src/gx_head/builder/pluginpreset_listwindow.glade.h:1
 msgid "column"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:45
+#: ../src/gx_head/builder/mainpanel.glade.h:48
 msgid "container for preset window when rack is not shown"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:46
+#: ../src/gx_head/builder/mainpanel.glade.h:49
 msgid "Preset:"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:47
+#: ../src/gx_head/builder/mainpanel.glade.h:50
 msgid ""
-"Engine status: click to toggle muting\n"
-"\n"
-"  green:   running\n"
+"bypass jack insert ports: click to toggle\n"
+"  green:   used\n"
 "  yellow:   bypassed\n"
-"  red:       muted\n"
-"\n"
 "click with middle mouse button to connect\n"
 "to midi controller"
 msgstr ""
 
 #: ../src/gx_head/builder/mainpanel.glade.h:55
 msgid ""
-"jack connection status: click to toggle\n"
-"\n"
-"  connected:     green\n"
-"  disconnected: red\n"
+"Engine status: click to toggle muting\n"
+"  green:   running\n"
+"  yellow:   bypassed\n"
+"  red:       muted\n"
+"click with middle mouse button to connect\n"
+"to midi controller"
 msgstr ""
 
-#: ../src/gx_head/builder/mainpanel.glade.h:60
+#: ../src/gx_head/builder/mainpanel.glade.h:61
+msgid ""
+"jack connection status: click to toggle\n"
+"  green:   connected\n"
+"  red:       disconnected"
+msgstr ""
+
+#: ../src/gx_head/builder/mainpanel.glade.h:64
 msgid ""
 "status of event log since last view:\n"
-"\n"
 "  grey:       ok\n"
-"  yellow:   warnings\n"
-"  red:         errors occurred\n"
+"  yellow:     warnings\n"
+"  red:         errors occurred"
 msgstr ""
 
 #: ../src/gx_head/builder/midi.glade.h:1
@@ -1138,41 +2324,35 @@ msgid "MIDI Controller Number"
 msgstr ""
 
 #: ../src/gx_head/builder/midi.glade.h:5
-msgid "toggle parameter (off -> on transition toggles)"
+msgid "toggle parameter"
 msgstr ""
 
-#: ../src/gx_head/builder/midi.glade.h:7
-msgid "guitarix: MIDI Controller"
+#: ../src/gx_head/builder/midi.glade.h:6
+msgid "type"
 msgstr ""
 
 #: ../src/gx_head/builder/midi.glade.h:8
-msgid "_Delete Selected"
+msgid "guitarix: MIDI Controller"
 msgstr ""
 
 #: ../src/gx_head/builder/midi.glade.h:9
-msgid "<big><b>MIDI Controller</b></big>"
+msgid "MIDI Controller"
 msgstr ""
 
 #: ../src/gx_head/builder/midi.glade.h:10
-msgid "Edit a MIDI name to choose you own"
+msgid "_Delete Selected"
 msgstr ""
 
 #: ../src/gx_head/builder/midi.glade.h:11
-msgid "include MIDI controllers in _presets"
+msgid "Edit a MIDI name to choose your own"
 msgstr ""
 
 #: ../src/gx_head/builder/midi.glade.h:12
-msgid ""
-"When checked, MIDI controller settings are saved into a preset.\n"
-"When a preset is loaded, controller settings are changed if\n"
-"this button is checked and the preset actually contains\n"
-"controller settings.\n"
-"MIDI controller settings are always saved and loaded with the\n"
-"main session."
+msgid "include MIDI controllers in _presets"
 msgstr ""
 
 #: ../src/gx_head/builder/pluginpreset_inputwindow.glade.h:1
-msgid "Save current plugin setting under a name:"
+msgid "Save current plugin setting as:"
 msgstr ""
 
 #: ../src/gx_head/builder/ports.glade.h:1
@@ -1180,426 +2360,725 @@ msgid "guitarix port connections"
 msgstr ""
 
 #: ../src/gx_head/builder/ports.glade.h:2
-msgid "<b>_Input</b>"
+msgid "_Input"
 msgstr ""
 
 #: ../src/gx_head/builder/ports.glade.h:3
-msgid "<b>Output _1</b>"
+msgid "Output _1"
 msgstr ""
 
 #: ../src/gx_head/builder/ports.glade.h:4
-msgid "<b>Output _2</b>"
+msgid "Output _2"
 msgstr ""
 
 #: ../src/gx_head/builder/ports.glade.h:5
-msgid "<b>_Audio</b>"
+msgid "_Audio"
 msgstr ""
 
 #: ../src/gx_head/builder/ports.glade.h:6
-msgid "<b>_Output</b>"
+msgid "_Output"
 msgstr ""
 
 #: ../src/gx_head/builder/ports.glade.h:7
-msgid "<b>I_nsert</b>"
+msgid "I_nsert"
 msgstr ""
 
 #: ../src/gx_head/builder/ports.glade.h:8
-msgid "<b>_Input (Control)</b>"
+msgid "_Input (Control)"
 msgstr ""
 
 #: ../src/gx_head/builder/ports.glade.h:9
-msgid "<b>_Midi</b>"
+msgid "_Midi"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:106
-#: ../src/ladspa/ladspa_guitarix.cpp:893
+#: ../src/gx_head/builder/tremolo_ui.glade.h:4
+msgid "              "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_engine.cpp:62
+msgid "  wah   "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_engine.cpp:64
+#: ../src/gx_head/engine/gx_engine.cpp:113
+msgid "  dry/wet  "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_engine.cpp:103
+msgid "Model"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_engine.cpp:112
+msgid "Alien Freq"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_engine.cpp:212
+#: ../src/ladspa/ladspa_guitarix.cpp:905
 msgid "Tube1"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:107
-#: ../src/ladspa/ladspa_guitarix.cpp:894
+#: ../src/gx_head/engine/gx_engine.cpp:213
+#: ../src/ladspa/ladspa_guitarix.cpp:906
 msgid "Tube2"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:108
-#: ../src/ladspa/ladspa_guitarix.cpp:895
+#: ../src/gx_head/engine/gx_engine.cpp:214
+#: ../src/ladspa/ladspa_guitarix.cpp:907
 msgid "Tube 1"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:118
-#: ../src/ladspa/ladspa_guitarix.cpp:905
+#: ../src/gx_head/engine/gx_engine.cpp:227
+#: ../src/ladspa/ladspa_guitarix.cpp:918
 msgid "Crybaby"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:119
-#: ../src/gx_head/engine/gx_engine.cpp:123
-#: ../src/gx_head/engine/gx_engine.cpp:126
-#: ../src/ladspa/ladspa_guitarix.cpp:906 ../src/ladspa/ladspa_guitarix.cpp:910
-#: ../src/ladspa/ladspa_guitarix.cpp:913
+#: ../src/gx_head/engine/gx_engine.cpp:228
+#: ../src/gx_head/engine/gx_engine.cpp:231
+#: ../src/gx_head/engine/gx_engine.cpp:235
+#: ../src/gx_head/engine/gx_engine.cpp:238
+#: ../src/ladspa/ladspa_guitarix.cpp:919 ../src/ladspa/ladspa_guitarix.cpp:922
+#: ../src/ladspa/ladspa_guitarix.cpp:926 ../src/ladspa/ladspa_guitarix.cpp:929
 msgid "select"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:121
-#: ../src/ladspa/ladspa_guitarix.cpp:908
+#: ../src/gx_head/engine/gx_engine.cpp:233
+#: ../src/ladspa/ladspa_guitarix.cpp:924
 msgid "Tonestack"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:125
+#: ../src/gx_head/engine/gx_engine.cpp:237
 msgid "Amp"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:49
-msgid "Noise Gate"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:80
-#: ../src/plugins/abgate.cc:69
-msgid "Threshold"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:410
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:513
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:543
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:648
 msgid "convolver"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:410
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:543
 msgid "no impulseresponse file"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:444
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:536
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:576
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:670
 msgid "Convolver"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:714
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:942
 msgid "4x12"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:715
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:943
 msgid "2x12"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:716
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:944
 msgid "1x12"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:717
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:945
 msgid "4x10"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:718
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:946
 msgid "2x10"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:719
-msgid "HighGain"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:947
+msgid "HighGain Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:720
-msgid "Twin"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:948
+msgid "Twin Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:722
-msgid "Marshall"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:950
+msgid "Marshall Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:725
-msgid "A2"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:953
+msgid "A2 Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:726
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:954
 msgid "1x15"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:728
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:956
 msgid "Briliant"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:729
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:957
 msgid "Vitalize"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:730
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:958
 msgid "Charisma"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:763
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1021
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1159
 msgid "Cabinet"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:876
-msgid "AC30"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1274
+msgid "AC30 Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:878
-msgid "Tube"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1276
+msgid "Tube Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:880
-msgid "JCM800"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1278
+msgid "JCM800 Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:881
-msgid "JTM45"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1279
+msgid "JTM45 Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:883
-msgid "Boutique"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1281
+msgid "Boutique Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:885
-msgid "Rectifier"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1283
+msgid "Rectifier Style"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:916
-msgid "Amp impulse"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1344
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1482
+msgid "Amp Impulse"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_plugins.cpp:1015
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1586
 msgid "Contrast convolver"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_internal_ui_plugins.cpp:184
-msgid "Oscilloscope"
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1680
+msgid "Directoutputr"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1816
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1817
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1818
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1819
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1820
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1854
+msgid "DrumSequencer"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1856
+msgid "Simple Drum Step Sequencer"
+msgstr ""
+
+#. category
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:1858
+msgid "Drum"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2037
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2038
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2039
+msgid "Volume level in decibels"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2041
+#: ../src/plugins/generated/mbchor.cc:627
+#: ../src/plugins/generated/mbchor.cc:628
+#: ../src/plugins/generated/mbchor.cc:629
+#: ../src/plugins/generated/mbchor.cc:630
+#: ../src/plugins/generated/mbchor.cc:631
+msgid "Beats per Minute"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2043
+msgid "select tact"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2044
+msgid "Number of Sequences"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2045
+msgid "Randomize Sequence"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2046
+msgid "Load next unit preset"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2047
+msgid "Load previous unit preset"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2051
+msgid "Set stepper one Beat back"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2052
+msgid "Set stepper one Beat forward"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2053
+msgid "Set stepper back on Beat "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2054
+msgid "Set stepper one Start"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2055
+msgid "follow playhead"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2056
+#: ../src/gx_head/engine/gx_livelooper.cc:844
+msgid "bypass the rack for direct output"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2167
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2532
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2564
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2580
+msgid "Detune"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2169
+msgid "detune and pitch shift up"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2534
+msgid "add harmonics"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2536
+msgid "compensate latency"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2538
+msgid "latency settings"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2539
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2582
+#: ../src/plugins/generated/flanger_gx.cc:172
+msgid "Wet"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2539
+msgid "Wet amount"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2540
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2581
+msgid "Dry"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2540
+msgid "Dry amount"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2541
+msgid "low"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2542
+msgid "middle low"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_internal_plugins.cpp:2543
+msgid "middle treble"
 msgstr ""
 
 #: ../src/gx_head/engine/gx_internal_ui_plugins.cpp:185
-#: ../src/gx_head/gui/gx_main_window.cpp:1918 ../src/plugins/abgate.cc:59
-msgid "Misc"
+msgid "Oscilloscope"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:77
+#: ../src/gx_head/engine/gx_jack.cpp:81
+#: ../src/gx_head/engine/gx_preset.cpp:1270
 msgid "can't create thread"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:168
+#: ../src/gx_head/engine/gx_jack.cpp:180
 msgid "recall state"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:169
+#: ../src/gx_head/engine/gx_jack.cpp:181
 msgid "unknown jack ports section: "
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:320 ../src/gx_head/engine/gx_jack.cpp:325
+#: ../src/gx_head/engine/gx_jack.cpp:346 ../src/gx_head/engine/gx_jack.cpp:351
+#: ../src/gx_head/engine/gx_jack.cpp:394
 msgid "Jack Init"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:321
+#: ../src/gx_head/engine/gx_jack.cpp:347
 msgid "can't get requested jack instance name '%1%'"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:326
+#: ../src/gx_head/engine/gx_jack.cpp:352
 msgid "unknown jack server communication error"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:340 ../src/gx_head/engine/gx_jack.cpp:345
-#: ../src/gx_head/engine/gx_jack.cpp:682
+#: ../src/gx_head/engine/gx_jack.cpp:366 ../src/gx_head/engine/gx_jack.cpp:372
+#: ../src/gx_head/engine/gx_jack.cpp:377 ../src/gx_head/engine/gx_jack.cpp:835
 msgid "Jack init"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:341
+#: ../src/gx_head/engine/gx_jack.cpp:367
 msgid "The jack sample rate is %1%/sec"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:346
+#: ../src/gx_head/engine/gx_jack.cpp:373
+msgid ""
+"The jack buffer size is %1%/frames is not power of two, Convolver wont run"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_jack.cpp:378
 msgid "The jack buffer size is %1%/frames ... "
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:586 ../src/gx_head/engine/gx_jack.cpp:590
+#: ../src/gx_head/engine/gx_jack.cpp:395
+msgid "Sample rates above 96kHz ain't be supported"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_jack.cpp:686 ../src/gx_head/engine/gx_jack.cpp:691
 msgid "Jack Activation"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:587
+#: ../src/gx_head/engine/gx_jack.cpp:687
 msgid "Can't activate JACK gx_amp client"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:591
+#: ../src/gx_head/engine/gx_jack.cpp:692
 msgid "Can't activate JACK gx_amp_fx client"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:682
+#: ../src/gx_head/engine/gx_jack.cpp:835
 msgid "can't get memory for ringbuffer"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:903
+#: ../src/gx_head/engine/gx_jack.cpp:1026
+msgid "Jack XRun"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_jack.cpp:1027
+msgid " delay of at least %1% microsecs"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_jack.cpp:1091
 msgid "session save"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_jack.cpp:903
+#: ../src/gx_head/engine/gx_jack.cpp:1091
 msgid "can't get client uuid"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:573 ../src/gx_head/engine/gx_json.cpp:576
-#: ../src/gx_head/engine/gx_preset.cpp:162
-#: ../src/gx_head/engine/gx_preset.cpp:173
-#: ../src/gx_head/engine/gx_preset.cpp:179
-#: ../src/gx_head/engine/gx_preset.cpp:230
-#: ../src/gx_head/engine/gx_preset.cpp:316
-#: ../src/ladspa/ladspa_guitarix.cpp:208 ../src/ladspa/ladspa_guitarix.cpp:239
+#: ../src/gx_head/engine/gx_json.cpp:735 ../src/gx_head/engine/gx_json.cpp:738
+#: ../src/gx_head/engine/gx_preset.cpp:355
+#: ../src/gx_head/engine/gx_preset.cpp:366
+#: ../src/gx_head/engine/gx_preset.cpp:372
+#: ../src/gx_head/engine/gx_preset.cpp:378
+#: ../src/gx_head/engine/gx_preset.cpp:496
+#: ../src/gx_head/engine/gx_preset.cpp:581
+#: ../src/ladspa/ladspa_guitarix.cpp:213 ../src/ladspa/ladspa_guitarix.cpp:238
 msgid "recall settings"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:573
+#: ../src/gx_head/engine/gx_json.cpp:735
 msgid "loading converted state"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:577
+#: ../src/gx_head/engine/gx_json.cpp:739
 msgid "major version mismatch in %1%: found %2%, expected %3%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:628 ../src/gx_head/engine/gx_json.cpp:633
-#: ../src/gx_head/engine/gx_json.cpp:952 ../src/gx_head/engine/gx_json.cpp:958
-#: ../src/gx_head/engine/gx_json.cpp:1572
-#: ../src/gx_head/engine/gx_json.cpp:1652
-#: ../src/gx_head/engine/gx_json.cpp:1672
-#: ../src/gx_head/engine/gx_json.cpp:1698
+#: ../src/gx_head/engine/gx_json.cpp:796 ../src/gx_head/engine/gx_json.cpp:801
+#: ../src/gx_head/engine/gx_json.cpp:1197
+#: ../src/gx_head/engine/gx_json.cpp:1203
+#: ../src/gx_head/engine/gx_json.cpp:1779
+#: ../src/gx_head/engine/gx_json.cpp:1853
+#: ../src/gx_head/engine/gx_json.cpp:1873
+#: ../src/gx_head/engine/gx_json.cpp:1899
 msgid "save preset"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:629 ../src/gx_head/engine/gx_json.cpp:953
-#: ../src/gx_head/engine/gx_json.cpp:1342
-#: ../src/gx_head/engine/gx_preset.cpp:510
-#: ../src/gx_head/engine/gx_preset.cpp:550
+#: ../src/gx_head/engine/gx_json.cpp:797 ../src/gx_head/engine/gx_json.cpp:1198
+#: ../src/gx_head/engine/gx_json.cpp:1536
+#: ../src/gx_head/engine/gx_preset.cpp:792
+#: ../src/gx_head/engine/gx_preset.cpp:833
 msgid "couldn't write %1%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:634 ../src/gx_head/engine/gx_json.cpp:959
-#: ../src/gx_head/engine/gx_json.cpp:1347
-#: ../src/gx_head/engine/gx_preset.cpp:516
-#: ../src/gx_head/engine/gx_preset.cpp:556
+#: ../src/gx_head/engine/gx_json.cpp:802 ../src/gx_head/engine/gx_json.cpp:1204
+#: ../src/gx_head/engine/gx_json.cpp:1541
+#: ../src/gx_head/engine/gx_preset.cpp:798
+#: ../src/gx_head/engine/gx_preset.cpp:839
 msgid "couldn't rename %1% to %2%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:713
+#: ../src/gx_head/engine/gx_json.cpp:958
 msgid "open factory preset"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:714
+#: ../src/gx_head/engine/gx_json.cpp:959
 msgid "couldn't open %1%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:729 ../src/gx_head/engine/gx_json.cpp:795
-#: ../src/gx_head/engine/gx_json.cpp:851
-#: ../src/gx_head/engine/gx_json.cpp:1107
-#: ../src/gx_head/engine/gx_json.cpp:1418
-#: ../src/gx_head/engine/gx_preset.cpp:376
-#: ../src/gx_head/engine/gx_preset.cpp:416
-#: ../src/gx_head/engine/gx_preset.cpp:448
-#: ../src/gx_head/engine/gx_preset.cpp:520
-#: ../src/gx_head/engine/gx_preset.cpp:560
+#: ../src/gx_head/engine/gx_json.cpp:974 ../src/gx_head/engine/gx_json.cpp:1040
+#: ../src/gx_head/engine/gx_json.cpp:1096
+#: ../src/gx_head/engine/gx_json.cpp:1352
+#: ../src/gx_head/engine/gx_json.cpp:1612
+#: ../src/gx_head/engine/gx_preset.cpp:638
+#: ../src/gx_head/engine/gx_preset.cpp:678
+#: ../src/gx_head/engine/gx_preset.cpp:712
+#: ../src/gx_head/engine/gx_preset.cpp:802
+#: ../src/gx_head/engine/gx_preset.cpp:844
 msgid "parse error"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:760
+#: ../src/gx_head/engine/gx_json.cpp:1005
 msgid "create preset bank"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:761
+#: ../src/gx_head/engine/gx_json.cpp:1006
 msgid "couldn't create %1%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:788
+#: ../src/gx_head/engine/gx_json.cpp:1033
 msgid "not found"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:834
-#: ../src/gx_head/engine/gx_json.cpp:1579
+#: ../src/gx_head/engine/gx_json.cpp:1079
+#: ../src/gx_head/engine/gx_json.cpp:1786
 msgid "open preset"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:835
+#: ../src/gx_head/engine/gx_json.cpp:1080
 msgid "%1% is a state file, not a preset file"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:836
+#: ../src/gx_head/engine/gx_json.cpp:1081
 msgid "This is a state file, not a preset file"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1081
+#: ../src/gx_head/engine/gx_json.cpp:1326
 msgid "rename bank"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1082
+#: ../src/gx_head/engine/gx_json.cpp:1327
 msgid "couldn't move to %1%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1092
+#: ../src/gx_head/engine/gx_json.cpp:1337
 msgid "remove bank"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1093
+#: ../src/gx_head/engine/gx_json.cpp:1338
 msgid "couldn't remove %1%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1341
-#: ../src/gx_head/engine/gx_json.cpp:1346
+#: ../src/gx_head/engine/gx_json.cpp:1535
+#: ../src/gx_head/engine/gx_json.cpp:1540
 msgid "save banklist"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1357
+#: ../src/gx_head/engine/gx_json.cpp:1551
 msgid "factory preset list not found"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1379
+#: ../src/gx_head/engine/gx_json.cpp:1573
 msgid "not found or parse error"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1397
+#: ../src/gx_head/engine/gx_json.cpp:1591
 msgid "banks not found: '%1%'"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1535
+#: ../src/gx_head/engine/gx_json.cpp:1728
 msgid "loaded preset"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1536
+#: ../src/gx_head/engine/gx_json.cpp:1729
 msgid "%1% from file %2%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1544
+#: ../src/gx_head/engine/gx_json.cpp:1738
 msgid "loaded state"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1545
+#: ../src/gx_head/engine/gx_json.cpp:1739
 msgid "from file %1%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1551
+#: ../src/gx_head/engine/gx_json.cpp:1745
 msgid "load preset"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1552
+#: ../src/gx_head/engine/gx_json.cpp:1746
 msgid "error loading %1% from file %2%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1555
+#: ../src/gx_head/engine/gx_json.cpp:1749
 msgid "load state"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1556
+#: ../src/gx_head/engine/gx_json.cpp:1750
 msgid "error loading state from file %1%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1573
-#: ../src/gx_head/engine/gx_json.cpp:1653
-#: ../src/gx_head/engine/gx_json.cpp:1673
-#: ../src/gx_head/engine/gx_json.cpp:1699
-#: ../src/gx_head/engine/gx_json.cpp:1729
-#: ../src/gx_head/engine/gx_json.cpp:1744
-#: ../src/gx_head/engine/gx_json.cpp:1773
+#: ../src/gx_head/engine/gx_json.cpp:1765
+msgid "load online preset"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_json.cpp:1766
+msgid "error loading online presets"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_json.cpp:1780
+#: ../src/gx_head/engine/gx_json.cpp:1854
+#: ../src/gx_head/engine/gx_json.cpp:1874
+#: ../src/gx_head/engine/gx_json.cpp:1900
+#: ../src/gx_head/engine/gx_json.cpp:1930
+#: ../src/gx_head/engine/gx_json.cpp:1945
+#: ../src/gx_head/engine/gx_json.cpp:1974
 msgid "parse error in %1%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1728
+#: ../src/gx_head/engine/gx_json.cpp:1929
 msgid "reorder presetfile"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1743
+#: ../src/gx_head/engine/gx_json.cpp:1944
 msgid "delete preset"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_json.cpp:1772
+#: ../src/gx_head/engine/gx_json.cpp:1973
 msgid "convert presetfile"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:104
+#: ../src/gx_head/engine/gx_livelooper.cc:106
+msgid "Live Looper"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:231
+msgid "resampling from %1 to %2"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:258
+msgid "load file %1 "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:312
+msgid "mix down to mono file %1 "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:793
+#: ../src/gx_head/engine/gx_livelooper.cc:794
+#: ../src/gx_head/engine/gx_livelooper.cc:795
+#: ../src/gx_head/engine/gx_livelooper.cc:796
+msgid "percentage clip at the delay length "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:797
+#: ../src/gx_head/engine/gx_livelooper.cc:798
+#: ../src/gx_head/engine/gx_livelooper.cc:799
+#: ../src/gx_head/engine/gx_livelooper.cc:800
+msgid "percentage cut on the delay start "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:801
+#: ../src/gx_head/engine/gx_livelooper.cc:802
+#: ../src/gx_head/engine/gx_livelooper.cc:803
+#: ../src/gx_head/engine/gx_livelooper.cc:804
+msgid "playback speed "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:809
+msgid "overall gain of the input"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:810
+#: ../src/gx_head/engine/gx_livelooper.cc:811
+#: ../src/gx_head/engine/gx_livelooper.cc:812
+#: ../src/gx_head/engine/gx_livelooper.cc:813
+msgid "percentage of the delay gain level"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:814
+msgid "overall gain_out of the delay line in percent"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:815
+msgid "play tape 1"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:816
+msgid "play tape 2"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:817
+msgid "play tape 3"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:818
+msgid "play tape 4"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:819
+#: ../src/gx_head/engine/gx_livelooper.cc:820
+#: ../src/gx_head/engine/gx_livelooper.cc:821
+#: ../src/gx_head/engine/gx_livelooper.cc:822
+msgid "play reverse"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:827
+#: ../src/gx_head/engine/gx_livelooper.cc:828
+#: ../src/gx_head/engine/gx_livelooper.cc:829
+#: ../src/gx_head/engine/gx_livelooper.cc:830
+msgid "record"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:831
+#: ../src/gx_head/engine/gx_livelooper.cc:832
+#: ../src/gx_head/engine/gx_livelooper.cc:833
+#: ../src/gx_head/engine/gx_livelooper.cc:834
+msgid "erase"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:835
+#: ../src/gx_head/engine/gx_livelooper.cc:836
+#: ../src/gx_head/engine/gx_livelooper.cc:837
+#: ../src/gx_head/engine/gx_livelooper.cc:838
+msgid "import file"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:839
+#: ../src/gx_head/engine/gx_livelooper.cc:840
+#: ../src/gx_head/engine/gx_livelooper.cc:841
+#: ../src/gx_head/engine/gx_livelooper.cc:842
+msgid "overdub"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:843
+msgid "play all tapes "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:884
+msgid "Tape 1"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:931
+msgid "Tape 2"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:975
+msgid "Tape 3"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_livelooper.cc:1018
+msgid "Tape 4"
 msgstr ""
 
 #: ../src/gx_head/engine/gx_midi_plugin.cpp:37
@@ -1618,265 +3097,338 @@ msgstr ""
 msgid "Beat Detector"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:157
+#: ../src/gx_head/engine/gx_paramtable.cpp:180
 msgid "midi standard controllers: number expected"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:189
+#: ../src/gx_head/engine/gx_paramtable.cpp:213
 msgid "Midi controller settings"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:190
-#: ../src/gx_head/engine/gx_preset.cpp:163
-#: ../src/gx_head/engine/gx_preset.cpp:401
-#: ../src/ladspa/ladspa_guitarix.cpp:209
+#: ../src/gx_head/engine/gx_paramtable.cpp:214
+#: ../src/gx_head/engine/gx_preset.cpp:356
+#: ../src/gx_head/engine/gx_preset.cpp:663
+#: ../src/ladspa/ladspa_guitarix.cpp:214
 msgid "unknown parameter: "
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:256
-#: ../src/gx_head/engine/gx_paramtable.cpp:262
+#: ../src/gx_head/engine/gx_paramtable.cpp:288
+#: ../src/gx_head/engine/gx_paramtable.cpp:294
 msgid "recall MIDI state"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:257
+#: ../src/gx_head/engine/gx_paramtable.cpp:289
 msgid "invalid format, Parameter skipped: "
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:263
+#: ../src/gx_head/engine/gx_paramtable.cpp:295
 msgid "Parameter range outside bounds, changed: "
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:491
+#: ../src/gx_head/engine/gx_paramtable.cpp:815
 msgid "System"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:492
-#: ../src/gx_head/engine/gx_paramtable.cpp:493
+#: ../src/gx_head/engine/gx_paramtable.cpp:816
+#: ../src/gx_head/engine/gx_paramtable.cpp:817
 msgid "User Interface"
 msgstr ""
 
 #. FIXME (ui.amp.tonestack)
-#: ../src/gx_head/engine/gx_paramtable.cpp:494
+#: ../src/gx_head/engine/gx_paramtable.cpp:818
 msgid "Audio Engine"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:562
+#: ../src/gx_head/engine/gx_paramtable.cpp:977
 msgid "parameter load"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:563
+#: ../src/gx_head/engine/gx_paramtable.cpp:978
 msgid "parameter %1: value %2 out of range [%3, %4]"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:825
-#: ../src/gx_head/engine/gx_paramtable.cpp:944
-#: ../src/gx_head/engine/gx_paramtable.cpp:1062
+#: ../src/gx_head/engine/gx_paramtable.cpp:1332
+#: ../src/gx_head/engine/gx_paramtable.cpp:1497
 msgid "read parameter"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_paramtable.cpp:825
-#: ../src/gx_head/engine/gx_paramtable.cpp:944
-#: ../src/gx_head/engine/gx_paramtable.cpp:1062
+#: ../src/gx_head/engine/gx_paramtable.cpp:1332
+#: ../src/gx_head/engine/gx_paramtable.cpp:1497
 msgid "parameter %1%: unknown enum value: %2%"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_pluginloader.cpp:199
-msgid "lookup plugin"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_pluginloader.cpp:237
-#: ../src/gx_head/engine/gx_pluginloader.cpp:246
-#: ../src/gx_head/engine/gx_pluginloader.cpp:263
-#: ../src/gx_head/engine/gx_pluginloader.cpp:274
-#: ../src/gx_head/engine/gx_pluginloader.cpp:295
-#: ../src/gx_head/engine/gx_pluginloader.cpp:351
-msgid "Plugin Loader"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_pluginloader.cpp:238
-msgid "Cannot open library: %1%"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_pluginloader.cpp:247
-msgid "Cannot load symbol 'get_gx_plugin': %1%"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_pluginloader.cpp:275
-msgid "Error opening '%1%'"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_pluginloader.cpp:296
-msgid "Plugin '%1%' has wrong version %2$#4x (current version: %3$#4x)"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_pluginloader.cpp:352
-msgid "Plugin '%1%' already exists: skipped"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_pluginloader.cpp:494
+#: ../src/gx_head/engine/gx_pluginloader.cpp:311
+#: ../src/gx_head/engine/gx_pluginloader.cpp:641
 msgid "on/off"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_pluginloader.cpp:511
+#: ../src/gx_head/engine/gx_pluginloader.cpp:342
 msgid "post"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_pluginloader.cpp:511
+#: ../src/gx_head/engine/gx_pluginloader.cpp:342
 msgid "pre"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:174
+#: ../src/gx_head/engine/gx_pluginloader.cpp:403
+msgid "lookup plugin"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_pluginloader.cpp:413
+#: ../src/gx_head/engine/gx_pluginloader.cpp:422
+#: ../src/gx_head/engine/gx_pluginloader.cpp:439
+#: ../src/gx_head/engine/gx_pluginloader.cpp:450
+#: ../src/gx_head/engine/gx_pluginloader.cpp:474
+#: ../src/gx_head/engine/gx_pluginloader.cpp:502
+msgid "Plugin Loader"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_pluginloader.cpp:414
+msgid "Cannot open library: %1%"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_pluginloader.cpp:423
+msgid "Cannot load symbol 'get_gx_plugin': %1%"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_pluginloader.cpp:451
+msgid "Error opening '%1%'"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_pluginloader.cpp:475
+msgid "Plugin '%1%' has wrong version %2$#4x (current version: %3$#4x)"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_pluginloader.cpp:503
+msgid "Plugin '%1%' already exists: skipped"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_preset.cpp:367
 msgid "preset-parameter "
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:174
+#: ../src/gx_head/engine/gx_preset.cpp:367
+#: ../src/gx_head/engine/gx_preset.cpp:379
 msgid " in settings"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:180
+#: ../src/gx_head/engine/gx_preset.cpp:373
 msgid "non preset-parameter "
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:180
+#: ../src/gx_head/engine/gx_preset.cpp:373
 msgid " in preset"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:231
-#: ../src/ladspa/ladspa_guitarix.cpp:240
+#: ../src/gx_head/engine/gx_preset.cpp:379
+msgid "non saveable parameter "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_preset.cpp:465
+msgid "load online"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_preset.cpp:465
+msgid "fail to open: "
+msgstr ""
+
+#: ../src/gx_head/engine/gx_preset.cpp:497
+#: ../src/ladspa/ladspa_guitarix.cpp:239
 msgid "unknown preset section: "
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:317
+#: ../src/gx_head/engine/gx_preset.cpp:582
 msgid "unknown section: "
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:400
+#: ../src/gx_head/engine/gx_preset.cpp:662
 msgid "recall plugin settings"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:509
-#: ../src/gx_head/engine/gx_preset.cpp:515
-#: ../src/gx_head/engine/gx_preset.cpp:549
-#: ../src/gx_head/engine/gx_preset.cpp:555
+#: ../src/gx_head/engine/gx_preset.cpp:791
+#: ../src/gx_head/engine/gx_preset.cpp:797
 msgid "save plugin preset"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_preset.cpp:832
+#: ../src/gx_head/engine/gx_preset.cpp:838
+msgid "remove plugin preset"
 msgstr ""
 
 #. ***************************************************************
 #. ** GxSettings
 #.
-#: ../src/gx_head/engine/gx_preset.cpp:569
+#: ../src/gx_head/engine/gx_preset.cpp:857
 msgid "Scratchpad"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:672
+#: ../src/gx_head/engine/gx_preset.cpp:968
 msgid "no read/write access in guitarix config dir '%1%'"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:677
+#: ../src/gx_head/engine/gx_preset.cpp:973
 msgid "can't create guitarix config dir '%1%'"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:706
+#: ../src/gx_head/engine/gx_preset.cpp:1033
+msgid "can't copy to config dir"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_preset.cpp:1044
+#: ../src/gx_head/engine/gx_preset.cpp:1079
+msgid "can't remove copied file!?"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_preset.cpp:1052
+msgid "can't move; file has been copied"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_preset.cpp:1068
+msgid "can't bank"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_preset.cpp:1127
 msgid "can't copy to new config dir"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:718
+#: ../src/gx_head/engine/gx_preset.cpp:1139
 msgid "can't copy to new config preset dir"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:731
+#: ../src/gx_head/engine/gx_preset.cpp:1156
 msgid "can't create file in '%1%' !!??"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_preset.cpp:740
+#: ../src/gx_head/engine/gx_preset.cpp:1165
 msgid "can't create '%1%' in directory '%2%'"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:309
+#: ../src/gx_head/engine/gx_record.cc:48
+msgid "Recorder"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_record.cc:50 ../src/gx_head/engine/gx_record.cc:59
+msgid "Digital Record"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_record.cc:57
+msgid "Stereo Recorder"
+msgstr ""
+
+#. category
+#: ../src/gx_head/engine/gx_record.cc:61
+msgid "St-Recorder"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_record.cc:372
+#: ../src/gx_head/engine/gx_record.cc:378
+msgid "select file format"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_record.cc:373
+#: ../src/gx_head/engine/gx_record.cc:379
+msgid "Record files to ~/gxrecord/"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_record.cc:374
+#: ../src/gx_head/engine/gx_record.cc:380
+msgid "Record gain control"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_record.cc:1093
+#: ../src/gx_head/engine/gx_record.cc:1109
+msgid "gain(db)"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_system.cpp:345
+msgid "Error reading file path %1%"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_system.cpp:502
 msgid "no HOME environment variable"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:446
+#: ../src/gx_head/engine/gx_system.cpp:692
 msgid "load state file on startup"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:452
+#: ../src/gx_head/engine/gx_system.cpp:698
 msgid "directory with guitarix plugins (.so files)"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:458
-msgid "dissable auto save to state file when quit"
+#: ../src/gx_head/engine/gx_system.cpp:704
+msgid "disable auto save to state file when quit"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:465
+#: ../src/gx_head/engine/gx_system.cpp:709
+msgid "enable auto save (only in server mode)"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_system.cpp:716
 msgid "directory from which .glade files are loaded"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:471
+#: ../src/gx_head/engine/gx_system.cpp:722
 msgid "directory with skin style definitions (.rc files)"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:477
+#: ../src/gx_head/engine/gx_system.cpp:728
 msgid "print log on terminal"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:483
+#: ../src/gx_head/engine/gx_system.cpp:734
 msgid "dump parameter table in json format"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:512
-#: ../src/gx_head/engine/gx_system.cpp:600
-#: ../src/gx_head/gui/gx_main_window.cpp:1972
-#: ../src/gx_head/gui/gx_main_window.cpp:1982
-#: ../src/gx_head/gui/gx_main_window.cpp:1997
-msgid "main"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_system.cpp:512
-msgid "number of skins is 0"
-msgstr ""
-
-#: ../src/gx_head/engine/gx_system.cpp:568
+#: ../src/gx_head/engine/gx_system.cpp:903
 msgid "-c and -r cannot be used together"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:595
+#: ../src/gx_head/engine/gx_system.cpp:908
+msgid "-N and -L cannot be used together"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_system.cpp:913
+msgid "-G and -b cannot be used together"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_system.cpp:937
+#: ../src/gx_head/engine/gx_system.cpp:951
+#: ../src/gx_head/gui/gx_main_window.cpp:2154
+#: ../src/gx_head/gui/gx_main_window.cpp:2168
+#: ../src/gx_head/gui/gx_main_window.cpp:2183
+msgid "main"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_system.cpp:937
+msgid "number of skins is 0"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_system.cpp:945
 msgid "invalid style '%1%' on command line"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:601
+#: ../src/gx_head/engine/gx_system.cpp:952
 msgid "Warning --> provided more than 2 output ports, ignoring extra ports"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_system.cpp:756
-msgid "fatal system error: "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_gui_helpers.cpp:144
+#: ../src/gx_head/gui/gx_gui_helpers.cpp:131
 msgid "warning message does not exist"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_jack_options.cpp:151
-msgid "Jack XRun"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_jack_options.cpp:152
-msgid " delay of at least %1% microsecs"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_jack_options.cpp:166
+#: ../src/gx_head/gui/gx_jack_options.cpp:144
 msgid "Start Jack"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_jack_options.cpp:166
+#: ../src/gx_head/gui/gx_jack_options.cpp:144
 msgid "Ignore Jack"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_jack_options.cpp:175
+#: ../src/gx_head/gui/gx_jack_options.cpp:153
 msgid " Jack Starter "
 msgstr ""
 
-#: ../src/gx_head/gui/gx_jack_options.cpp:176
+#: ../src/gx_head/gui/gx_jack_options.cpp:154
 msgid ""
 "\n"
 "                            WARNING                    \n"
@@ -1892,47 +3444,38 @@ msgid ""
 "   set a jack start program\n"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_jconv_settings.cpp:283
-msgid "too many samples (%1%), truncated to %2%"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_jconv_settings.cpp:448
-msgid "Error reading file path %1%"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_main.cpp:103
+#: ../src/gx_head/gui/gx_main.cpp:108
 msgid "Thread create failed (signal): %1%"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main.cpp:113
+#: ../src/gx_head/gui/gx_main.cpp:118
 msgid "signal_handler"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main.cpp:113
+#: ../src/gx_head/gui/gx_main.cpp:118
 msgid "signal USR1 received, save settings"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main.cpp:154
+#: ../src/gx_head/gui/gx_main.cpp:159
 msgid "system startup"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main.cpp:155
+#: ../src/gx_head/gui/gx_main.cpp:160
 msgid "signal usr1 skipped"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main.cpp:179
+#: ../src/gx_head/gui/gx_main.cpp:184
 msgid "ctrl-c"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main.cpp:281
+#. vbox->signal_expose_event().connect(
+#. sigc::group(&gx_cairo::error_box_expose,GTK_WIDGET(vbox->gobj()),sigc::_1,(void*)0),false);
+#: ../src/gx_head/gui/gx_main.cpp:288
 msgid "GUITARIX ERROR"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main.cpp:387
-msgid "failed to lock memory: %1%"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_main.cpp:404 ../src/gx_head/gui/gx_main.cpp:483
+#: ../src/gx_head/gui/gx_main.cpp:381 ../src/gx_head/gui/gx_main.cpp:482
+#: ../src/gx_head/gui/gx_main.cpp:537
 msgid ""
 "old config directory found (.gx_head). state file and standard presets file "
 "have been copied to the new directory (.config/guitarix).\n"
@@ -1940,11 +3483,53 @@ msgid ""
 "mouse drag and drop with a file manager"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main.cpp:560
+#: ../src/gx_head/gui/gx_main.cpp:428 ../src/gx_head/gui/gx_main.cpp:445
+#: ../src/gx_head/gui/gx_main.cpp:450 ../src/gx_head/gui/gx_main.cpp:453
+msgid "Guitarix fatal error"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main.cpp:431 ../src/gx_head/gui/gx_main.cpp:436
 msgid "use \"guitarix -h\" to get a help text"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_midi.cpp:308
+#: ../src/gx_head/gui/gx_main.cpp:432
+msgid "Guitarix Commandline Option Error"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main.cpp:452 ../src/gx_head/gui/gx_main.cpp:453
+msgid "unknown error"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_midi.cpp:227
+msgid ""
+"\n"
+"     Guitarix:Midi learn \n"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_midi.cpp:229
+msgid ""
+"    Just move your midi controller to connect it \n"
+"    with the selected guitarix Controller. \n"
+"    As soon the Midi Controller is detected,  \n"
+"    you will see the Controller Number in the   \n"
+"    Midi Controller Number field. Press 'OK' to connect it,   \n"
+"    or move a other Midi controller.  \n"
+"    A exception is the MIDI BEAT CLOCK, \n"
+"    which isn't a Controller itself,\n"
+"    but could be used here to sync BPM controllers    \n"
+"    with external devices.  \n"
+"    To use it, you must insert '22' as Midi Controller Number   \n"
+"      \n"
+"    The same is true for the MIDI CLOCK start/stop function,    \n"
+"    which could be used to switch effects on/off.   \n"
+"    To use it, you must insert '23' as Midi Controller Number.   \n"
+"\n"
+"    Also Jack Transport is supported and can be used to control    \n"
+"    switch controllers (on/off) by connect then to    \n"
+"    Midi Controller Number '24'.    \n"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_midi.cpp:356
 msgid "Parameter ID: "
 msgstr ""
 
@@ -1952,17 +3537,17 @@ msgstr ""
 msgid "Logging Window"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:627
+#: ../src/gx_head/gui/gx_main_window.cpp:696
 msgid "_Bank: "
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1170
+#: ../src/gx_head/gui/gx_main_window.cpp:1237
 msgid ""
 "\n"
 "WARNING\n"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1172
+#: ../src/gx_head/gui/gx_main_window.cpp:1239
 msgid ""
 "CHANGING THE JACK_BUFFER_SIZE ON THE FLY \n"
 "MAY CAUSE UNPREDICTABLE EFFECTS \n"
@@ -1970,793 +3555,464 @@ msgid ""
 "DO YOU WANT TO PROCEED ?"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1190
+#: ../src/gx_head/gui/gx_main_window.cpp:1257
 msgid "Yes"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1191
+#: ../src/gx_head/gui/gx_main_window.cpp:1258
 msgid "No"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1203
+#: ../src/gx_head/gui/gx_main_window.cpp:1270
 msgid "Don't bother me again with such a question, I know what I am doing"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1230
+#: ../src/gx_head/gui/gx_main_window.cpp:1301
 msgid "Jack Buffer Size setting"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1231
+#: ../src/gx_head/gui/gx_main_window.cpp:1302
 msgid "we are not a jack gxjack.client, server may be down"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1245
+#: ../src/gx_head/gui/gx_main_window.cpp:1316
 msgid "Setting Jack Buffer Size"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1246
+#: ../src/gx_head/gui/gx_main_window.cpp:1317
 msgid "Could not change latency"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1249
+#: ../src/gx_head/gui/gx_main_window.cpp:1320
 msgid "Jack Buffer Size"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1250
+#: ../src/gx_head/gui/gx_main_window.cpp:1321
 msgid "latency is %1%"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1294
+#: ../src/gx_head/gui/gx_main_window.cpp:1368
 msgid "failed to load online help   "
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1305
-msgid ""
-"\n"
-"\n"
-"  This Aplication is to a large extent provided\n"
-"  with the marvelous faust compiler.Yann Orlary\n"
-"  http://faust.grame.fr/\n"
-"  A large part is based on the work of Julius Orion Smith\n"
-"  http://ccrma.stanford.edu/realsimple/faust/\n"
-"  and Albert Graef\n"
-"  http://q-lang.sourceforge.net/examples.html#Faust\n"
-"\n"
-"\n"
-"  gx_head "
+#: ../src/gx_head/gui/gx_main_window.cpp:1381
+msgid "<b>Guitarix:gx_head</b> ("
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1316
+#: ../src/gx_head/gui/gx_main_window.cpp:1384
 msgid ""
+")\n"
 "\n"
-"  for impulse response it use zita-convolver \n"
-"  byFons Adriaensen \n"
-"  http://www.kokkinizita.net/linuxaudio/index.html \n"
+"This Application is to a large extent provided\n"
+"with the marvelous faust compiler.Yann Orlary\n"
+"(http://faust.grame.fr/)\n"
 "\n"
-"  authors: Hermann Meyer <brummer-@web.de>\n"
-"  authors: James Warden <warjamy@yahoo.com>\n"
-"  authors: Andreas Degert <andreas.degert@googlemail.com>    \n"
-"  authors: Pete Shorthose <pshorthose@gmail.com>    \n"
-"  home: http://guitarix.sourceforge.net/\n"
+"A large part is based on the work of Julius Orion Smith\n"
+"(htttp://ccrma.stanford.edu/realsimple/faust/)\n"
+"and Albert Graef\n"
+"(http://q-lang.sourceforge.net/examples.html#Faust)\n"
+"\n"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:1394
+msgid ""
+"for impulse response it use zita-convolver\n"
+"by Fons Adriaensen\n"
+"(http://www.kokkinizita.net/linuxaudio/index.html)\n"
+"\n"
+"The included IR-files are contributed by\n"
+"David Fau Casquel (BESTPLUGINS)\n"
+"home: http://www.youtube.com/bestplugins\n"
+"\n"
+"authors: Hermann Meyer &lt;brummer-@web.de&gt;\n"
+"authors: James Warden &lt;warjamy@yahoo.com&gt;\n"
+"authors: Andreas Degert &lt;andreas.degert@googlemail.com&gt;\n"
+"authors: Pete Shorthose &lt;pshorthose@gmail.com&gt;\n"
+"authors: Markus Schmidt &lt;schmidt@boomshop.net&gt;\n"
+"\n"
+"website: http://guitarix.org/\n"
 msgstr ""
 
 #.
 #. ** Menu actions
 #.
-#: ../src/gx_head/gui/gx_main_window.cpp:1414
+#: ../src/gx_head/gui/gx_main_window.cpp:1581
 msgid "_Engine"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1415
+#: ../src/gx_head/gui/gx_main_window.cpp:1582
 msgid "_Latency"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1417
+#: ../src/gx_head/gui/gx_main_window.cpp:1584
 msgid "Osc. Buffer-size"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1419
+#: ../src/gx_head/gui/gx_main_window.cpp:1587
 msgid "_Presets"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1421
+#: ../src/gx_head/gui/gx_main_window.cpp:1588
+msgid "Next Preset"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:1590
+msgid "Previous Preset"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:1593
+msgid "Next Preset Midi Switch"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:1596
+msgid "Previous Preset Midi Switch"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:1600
 msgid "P_lugins"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1422
+#: ../src/gx_head/gui/gx_main_window.cpp:1601
 msgid "_Mono Plugins"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1423
+#: ../src/gx_head/gui/gx_main_window.cpp:1602
 msgid "_Stereo Plugins"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1424
+#: ../src/gx_head/gui/gx_main_window.cpp:1603
 msgid "_Tube"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1425
+#: ../src/gx_head/gui/gx_main_window.cpp:1604
 msgid "_Options"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1426
+#: ../src/gx_head/gui/gx_main_window.cpp:1605
 msgid "_Skin..."
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1427
-#: ../src/gx_head/gui/gx_main_window.cpp:1582
+#: ../src/gx_head/gui/gx_main_window.cpp:1606
+#: ../src/gx_head/gui/gx_main_window.cpp:1779
 msgid "_About"
 msgstr ""
 
 #.
 #. ** engine actions
 #.
-#: ../src/gx_head/gui/gx_main_window.cpp:1432
+#: ../src/gx_head/gui/gx_main_window.cpp:1611
 msgid "Jack Server _Connection"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1437
+#: ../src/gx_head/gui/gx_main_window.cpp:1616
 msgid "Jack _Ports"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1442
+#: ../src/gx_head/gui/gx_main_window.cpp:1621
 msgid "M_idi Controller"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1447
+#: ../src/gx_head/gui/gx_main_window.cpp:1626
 msgid "Engine _Mute"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1452
+#: ../src/gx_head/gui/gx_main_window.cpp:1631
 msgid "Engine _Bypass"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1457
+#: ../src/gx_head/gui/gx_main_window.cpp:1637
+msgid "Hide"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:1639
 msgid "_Quit"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1466
+#: ../src/gx_head/gui/gx_main_window.cpp:1649
 msgid "_Preset Selection"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1471
+#: ../src/gx_head/gui/gx_main_window.cpp:1654
 msgid "Show Plugin _Bar"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1476
+#: ../src/gx_head/gui/gx_main_window.cpp:1659
 msgid "Show _Rack"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1480
+#: ../src/gx_head/gui/gx_main_window.cpp:1663
 msgid "Show _Logging Box"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1485
+#: ../src/gx_head/gui/gx_main_window.cpp:1668
 msgid "Live _Display"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1489
+#: ../src/gx_head/gui/gx_main_window.cpp:1672
 msgid "_Meterbridge"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1496
-msgid "Tuner on/off"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_main_window.cpp:1499
+#: ../src/gx_head/gui/gx_main_window.cpp:1689
 msgid "M_idi Out"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1514
-msgid "_Tuner"
+#: ../src/gx_head/gui/gx_main_window.cpp:1704
+msgid "_Tuner show"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1518
+#: ../src/gx_head/gui/gx_main_window.cpp:1708
+msgid "Tuner stic_k "
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:1712
 msgid "R_ack Configuration"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1522
+#: ../src/gx_head/gui/gx_main_window.cpp:1716
 msgid "C_ompress all"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1526
+#: ../src/gx_head/gui/gx_main_window.cpp:1720
 msgid "E_xpand all"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1531
+#: ../src/gx_head/gui/gx_main_window.cpp:1725
 msgid "Order Rack _Horizontally"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1539
+#: ../src/gx_head/gui/gx_main_window.cpp:1733
 msgid "_Show _Values"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1544
+#: ../src/gx_head/gui/gx_main_window.cpp:1738
 msgid "Show _Tooltips"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1551
+#: ../src/gx_head/gui/gx_main_window.cpp:1744
 msgid "Include MIDI in _presets"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1554
+#: ../src/gx_head/gui/gx_main_window.cpp:1747
 msgid "_Jack Startup Control"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1559
-msgid "LADSPA Pl_ugins"
+#: ../src/gx_head/gui/gx_main_window.cpp:1752
+msgid "LADSPA/LV2 Pl_ugins"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1564
+#: ../src/gx_head/gui/gx_main_window.cpp:1757
 msgid "Reset _All Parameters"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1568
+#: ../src/gx_head/gui/gx_main_window.cpp:1761
 msgid "_Use Animations"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1572
+#: ../src/gx_head/gui/gx_main_window.cpp:1765
 msgid "L_iveplay Midi Switch"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:1768
+msgid "B_ypass Midi Switch"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:1771
+msgid "Set Midi Channel"
 msgstr ""
 
 #.
 #. ** Help and About
 #.
-#: ../src/gx_head/gui/gx_main_window.cpp:1580
+#: ../src/gx_head/gui/gx_main_window.cpp:1777
 msgid "_Help"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1973
+#: ../src/gx_head/gui/gx_main_window.cpp:2099
+msgid "Fuzz"
+msgstr ""
+
+#: ../src/gx_head/gui/gx_main_window.cpp:2155
 msgid "I really tried to get jack up and running, sorry ... "
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1982
+#: ../src/gx_head/gui/gx_main_window.cpp:2168
 msgid "can't disconnect jack"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1997
+#: ../src/gx_head/gui/gx_main_window.cpp:2183
 msgid "Ignoring jackd ..."
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:2224
-msgid "dsp load  %1% %%"
+#: ../src/gx_head/gui/gx_main_window.cpp:2559
+msgid "DSP Load  %1% %%"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:2231
-msgid "ht frames %1%"
+#: ../src/gx_head/gui/gx_main_window.cpp:2565
+msgid "HT Frames %1%"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:2238
-msgid "RT mode  yes "
+#: ../src/gx_head/gui/gx_main_window.cpp:2571
+msgid "RT Mode  YES "
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:2238
+#: ../src/gx_head/gui/gx_main_window.cpp:2571
 msgid "RT mode  <span color=\"#cc1a1a\">NO</span>"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:2244
-msgid "latency    %1%"
+#: ../src/gx_head/gui/gx_main_window.cpp:2577
+msgid "Latency    %1%"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:2296
-#: ../src/gx_head/gui/gx_main_window.cpp:2306
+#: ../src/gx_head/gui/gx_main_window.cpp:2633
+#: ../src/gx_head/gui/gx_main_window.cpp:2643
 msgid "jack has bumped us out!!   "
 msgstr ""
 
-#. rack tuner
-#: ../src/gx_head/gui/gx_main_window.cpp:2562
-msgid "Rack Tuner"
+#: ../src/gx_head/gui/gx_main_window.cpp:3084
+msgid "Overall Rack output"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:2736
-msgid "gx_head output"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:42
-msgid "high-pass "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:43
-msgid " low-pass "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:51
-msgid "low-cut "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:52
-msgid "high-cut "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:115
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:129
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:182
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:43
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:60
-msgid "  level  "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:128
-msgid "  wah   "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:130
-msgid "  dry/wet  "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:142
-msgid "drive"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:150
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:154
-msgid "  drive "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:155
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:168
-msgid " low "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:156
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:169
-msgid " middle l. "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:157
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:170
-msgid " middle h. "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:158
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:171
-msgid " high "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:163
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:167
-msgid "  gain  "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:183
-msgid "frequency split Hz"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:191
-msgid "split low freq"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:194
-msgid "split m. freq"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:197
-msgid "split high freq"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:211
-msgid "resonator"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:213
-msgid "trigger "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:214
-msgid " vibrato "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:225
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:276
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:287
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:298
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:309
-msgid "peak"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:239
-msgid " freq "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:240
-msgid " peak "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:241
-msgid " bandwidth "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:253
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:258
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:325
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:330
-msgid "ratio"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:257
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:329
-msgid "knee"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:259
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:331
-msgid "threshold"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:262
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:334
-msgid "attack"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:263
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:335
-msgid "release"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:279
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:290
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:301
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:312
-msgid "frequency"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:282
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:293
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:304
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:315
-msgid "bandwidth"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:349
-msgid "  Drive "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:350
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:615
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:635
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:284
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:314
-#: ../src/plugins/generated/zita_rev1.cc:554
-msgid "Dry/Wet"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:366
-msgid "  time  "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:378
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:384
-msgid " delay "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:386
-msgid "  gain "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:396
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:406
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:329
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:335
-msgid "RoomSize"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:407
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:342
-msgid "damp"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:444
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:450
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:459
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:474
-#: ../src/plugins/generated/zita_rev1.cc:546
-#: ../src/plugins/generated/zita_rev1.cc:548
-msgid "Freq"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:477 ../src/plugins/vibe.cc:239
-msgid "Depth"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:491
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:497
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:508
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:514
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:525
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:531
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:39
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:54
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:106
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:246
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:254
-msgid "level"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:498
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:515
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:532
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:125
-msgid "speed"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:542
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:548
-msgid "feedback"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:568
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:271
-msgid "middle"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:620
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:289
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:64
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:93
+#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:44
 msgctxt "Setup"
 msgid "S"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:638
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:317
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:75
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:122
+#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:73
 msgid "Setup"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:663
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:669
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:145
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:151
 msgid "  MIDI out  "
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:696
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:178
 msgid "channel1"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:704
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:768
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:832
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:186
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:250
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:314
 msgid "velocity"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:709
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:773
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:837
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:191
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:255
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:319
 msgid "volume"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:717
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:781
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:845
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:199
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:263
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:327
 msgid "channel"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:718
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:782
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:846
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:200
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:264
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:328
 msgid "program"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:721
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:785
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:849
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:203
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:267
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:331
 msgid "oktave"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:722
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:786
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:850
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:204
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:268
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:332
 msgid "sensity"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:748
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:812
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:876
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:230
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:294
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:358
 msgid "auto_pitch"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:760
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:242
 msgid "channel2"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:824
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:306
 msgid "channel3"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:888
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:370
 msgid "beat_detector"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:897
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:379
 msgid "stepper"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:898
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:380
 msgid "note_off"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:899
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:381
 msgid "atack_gain"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:900
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:382
 msgid "beat_gain"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:931
+#: ../src/gx_head/gui/gx_mono_rack_builder.cpp:413
 msgid "Midi gain"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:75
+#: ../src/gx_head/gui/gx_preset_window.cpp:74
 msgid "_Save changes"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:78
+#: ../src/gx_head/gui/gx_preset_window.cpp:77
 msgid "_Organize"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:221
+#: ../src/gx_head/gui/gx_preset_window.cpp:256
 msgid "damaged bank file; click to delete"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:224
+#: ../src/gx_head/gui/gx_preset_window.cpp:259
 msgid ""
 "wrong format version (is %1, need %2)\n"
 "click to convert"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:228
+#: ../src/gx_head/gui/gx_preset_window.cpp:263
 msgid "readonly bank, click to change to read-write"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:230
+#: ../src/gx_head/gui/gx_preset_window.cpp:265
 msgid "click to set to readonly"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:235
+#: ../src/gx_head/gui/gx_preset_window.cpp:270
 msgid "predefined factory preset bank"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:237
+#: ../src/gx_head/gui/gx_preset_window.cpp:272
 msgid ""
 "scratch preset bank: changes will be persistent (without explicit saving)"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:245
+#: ../src/gx_head/gui/gx_preset_window.cpp:280
 msgid "click to edit the bank name"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:250
+#: ../src/gx_head/gui/gx_preset_window.cpp:285
 msgid "click to delete the bank"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:327
-msgid "can't copy to config dir"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_preset_window.cpp:344
-msgid "can't remove copied file!?"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_preset_window.cpp:352
-msgid "can't move; file has been copied"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:44
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:69
-msgid "  delay  "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:45
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:68
-msgid "  depth  "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:46
-msgid "  freq  "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:67
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:119
-msgid " feedback "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:70
-msgid " delay offset"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:71
-msgid " LFO "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:112
-msgid "  level "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:120
-msgid "depth"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:121
-msgid "width"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:122
-msgid "freq"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:123
-msgid "max Hz"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:124
-msgid "min Hz"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:164
-msgid "left gain"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:165
-msgid "left delay"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:168
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:204
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:356
-msgid "LFO"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:176
-msgid "right gain"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:177
-msgid "right delay"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:190
-msgid "left %"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:197
-msgid "left time"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:214
-msgid "right %"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:221
-msgid "right time"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:233
-msgid "Q"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:237
-msgid "            Q            "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:238
-msgid "            Hz           "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:252
-msgid "dry/feedback  "
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:255
-msgid "tube1"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:256
-msgid "tube2"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:257
-msgid "  wet/feedback"
-msgstr ""
-
-#: ../src/gx_head/gui/gx_stereo_rack_builder.cpp:276
-msgid "sharp"
+#: ../src/gx_head/gui/gx_preset_window.cpp:759
+msgid "can't download preset from https://musical-artifacts.com/"
 msgstr ""
 
 #: ../src/gx_head/gui/gx_ui_builder.cpp:41
@@ -2768,75 +4024,363 @@ msgstr ""
 msgid " not found in "
 msgstr ""
 
-#: ../src/gx_head/gui/rack.cpp:711
+#: ../src/gx_head/gui/rack.cpp:789
 msgid "standard"
 msgstr ""
 
-#: ../src/gx_head/gui/rack.cpp:720
+#: ../src/gx_head/gui/rack.cpp:798
 msgid "save..."
 msgstr ""
 
-#: ../src/gx_head/gui/rack.cpp:725
+#: ../src/gx_head/gui/rack.cpp:803
 msgid "remove..."
 msgstr ""
 
-#: ../src/gx_head/gui/rack.cpp:1097
-msgctxt "Preset"
-msgid "p"
+#. button->set_name("effect_reset");
+#: ../src/gx_head/gui/rack.cpp:862
+msgid "Drag'n' Drop Handle"
 msgstr ""
 
-#: ../src/ladspa/ladspa_guitarix.cpp:105
-msgid "assign parameter"
+#: ../src/gx_head/gui/rack.cpp:1188
+msgid "expand effect unit"
+msgstr ""
+
+#: ../src/gx_head/gui/rack.cpp:1191
+msgid "shrink effect unit"
+msgstr ""
+
+#: ../src/gx_head/gui/rack.cpp:1214
+msgid "manage effect unit presets"
 msgstr ""
 
 #: ../src/ladspa/ladspa_guitarix.cpp:106
+msgid "assign parameter"
+msgstr ""
+
+#: ../src/ladspa/ladspa_guitarix.cpp:107
 msgid "%1% -> controller %2% [%3%]"
 msgstr ""
 
-#: ../src/headers/gx_main_window.h:231
+#: ../src/headers/gx_main_window.h:191
 msgid "External"
 msgstr ""
 
-#: ../src/plugins/abgate.cc:58
+#: ../src/plugins/abgate.cc:60
 msgid "abGate"
 msgstr ""
 
-#: ../src/plugins/abgate.cc:69
+#: ../src/plugins/abgate.cc:71
 msgid ""
 "threshold (dB) value\n"
 "put it just above the noise level"
 msgstr ""
 
-#: ../src/plugins/abgate.cc:70
-msgid "Attack"
-msgstr ""
-
-#: ../src/plugins/abgate.cc:70
+#: ../src/plugins/abgate.cc:72
 msgid "time (ms) until gate opens (sensitivity)"
 msgstr ""
 
-#: ../src/plugins/abgate.cc:71
+#: ../src/plugins/abgate.cc:73 ../src/plugins/abgate.cc:418
 msgid "Hold"
 msgstr ""
 
-#: ../src/plugins/abgate.cc:71
+#: ../src/plugins/abgate.cc:73
 msgid "time (ms) to keep open when input is below threshold"
 msgstr ""
 
-#: ../src/plugins/abgate.cc:72
-msgid "Decay"
-msgstr ""
-
-#: ../src/plugins/abgate.cc:73
+#: ../src/plugins/abgate.cc:75 ../src/plugins/abgate.cc:420
 msgid "Range"
 msgstr ""
 
-#: ../src/plugins/abgate.cc:73
+#: ../src/plugins/abgate.cc:75
 msgid "damping (dB) when the gate is closed"
 msgstr ""
 
+#: ../src/plugins/generated/flanger_gx.cc:57
+msgid "Flanger GX"
+msgstr ""
+
+#: ../src/plugins/generated/flanger_gx.cc:170
+msgid "Speed"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:143
+msgid "Multi Band Compressor"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:145 ../src/plugins/generated/mbcs.cc:171
+msgid "Multi Band Compressor contributed by kokoko3k"
+msgstr ""
+
+#. category
+#: ../src/plugins/generated/mbc.cc:147
+msgid "MB Comp"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:599 ../src/plugins/generated/mbc.cc:601
+#: ../src/plugins/generated/mbc.cc:603 ../src/plugins/generated/mbc.cc:605
+#: ../src/plugins/generated/mbc.cc:607 ../src/plugins/generated/mbcs.cc:751
+#: ../src/plugins/generated/mbcs.cc:753 ../src/plugins/generated/mbcs.cc:755
+#: ../src/plugins/generated/mbcs.cc:757 ../src/plugins/generated/mbcs.cc:759
+msgid "Compress or Mute the selected band, or Bypass The Compressor"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:608 ../src/plugins/generated/mbc.cc:609
+#: ../src/plugins/generated/mbc.cc:610 ../src/plugins/generated/mbc.cc:611
+#: ../src/plugins/generated/mbc.cc:612 ../src/plugins/generated/mbcs.cc:760
+#: ../src/plugins/generated/mbcs.cc:761 ../src/plugins/generated/mbcs.cc:762
+#: ../src/plugins/generated/mbcs.cc:763 ../src/plugins/generated/mbcs.cc:764
+msgid "Post amplification and threshold"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:613 ../src/plugins/generated/mbc.cc:614
+#: ../src/plugins/generated/mbc.cc:615 ../src/plugins/generated/mbc.cc:616
+#: ../src/plugins/generated/mbc.cc:617 ../src/plugins/generated/mbcs.cc:765
+#: ../src/plugins/generated/mbcs.cc:766 ../src/plugins/generated/mbcs.cc:767
+#: ../src/plugins/generated/mbcs.cc:768 ../src/plugins/generated/mbcs.cc:769
+msgid "Threshold correction, an anticlip measure"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:618 ../src/plugins/generated/mbc.cc:619
+#: ../src/plugins/generated/mbc.cc:620 ../src/plugins/generated/mbc.cc:621
+#: ../src/plugins/generated/mbc.cc:622 ../src/plugins/generated/mbcs.cc:770
+#: ../src/plugins/generated/mbcs.cc:771 ../src/plugins/generated/mbcs.cc:772
+#: ../src/plugins/generated/mbcs.cc:773 ../src/plugins/generated/mbcs.cc:774
+msgid "Compression ratio"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:623 ../src/plugins/generated/mbc.cc:624
+#: ../src/plugins/generated/mbc.cc:625 ../src/plugins/generated/mbc.cc:626
+#: ../src/plugins/generated/mbc.cc:627 ../src/plugins/generated/mbcs.cc:775
+#: ../src/plugins/generated/mbcs.cc:776 ../src/plugins/generated/mbcs.cc:777
+#: ../src/plugins/generated/mbcs.cc:778 ../src/plugins/generated/mbcs.cc:779
+msgid "Time before the compressor starts to kick in"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:628 ../src/plugins/generated/mbc.cc:629
+#: ../src/plugins/generated/mbc.cc:630 ../src/plugins/generated/mbc.cc:631
+#: ../src/plugins/generated/mbc.cc:632 ../src/plugins/generated/mbcs.cc:780
+#: ../src/plugins/generated/mbcs.cc:781 ../src/plugins/generated/mbcs.cc:782
+#: ../src/plugins/generated/mbcs.cc:783 ../src/plugins/generated/mbcs.cc:784
+msgid "Time before the compressor releases the sound"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:633 ../src/plugins/generated/mbchor.cc:613
+#: ../src/plugins/generated/mbcs.cc:785 ../src/plugins/generated/mbd.cc:503
+#: ../src/plugins/generated/mbdel.cc:545 ../src/plugins/generated/mbe.cc:540
+msgid "Crossover B1-B2 (hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:633 ../src/plugins/generated/mbc.cc:634
+#: ../src/plugins/generated/mbc.cc:635 ../src/plugins/generated/mbc.cc:636
+#: ../src/plugins/generated/mbchor.cc:613
+#: ../src/plugins/generated/mbchor.cc:614
+#: ../src/plugins/generated/mbchor.cc:615
+#: ../src/plugins/generated/mbchor.cc:616 ../src/plugins/generated/mbcs.cc:785
+#: ../src/plugins/generated/mbcs.cc:786 ../src/plugins/generated/mbcs.cc:787
+#: ../src/plugins/generated/mbcs.cc:788 ../src/plugins/generated/mbd.cc:503
+#: ../src/plugins/generated/mbd.cc:504 ../src/plugins/generated/mbd.cc:505
+#: ../src/plugins/generated/mbd.cc:506 ../src/plugins/generated/mbdel.cc:545
+#: ../src/plugins/generated/mbdel.cc:546 ../src/plugins/generated/mbdel.cc:547
+#: ../src/plugins/generated/mbdel.cc:548 ../src/plugins/generated/mbe.cc:540
+#: ../src/plugins/generated/mbe.cc:541 ../src/plugins/generated/mbe.cc:542
+#: ../src/plugins/generated/mbe.cc:543
+msgid "Crossover fi.bandpass frequency"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:634 ../src/plugins/generated/mbchor.cc:614
+#: ../src/plugins/generated/mbcs.cc:786 ../src/plugins/generated/mbd.cc:504
+#: ../src/plugins/generated/mbdel.cc:546 ../src/plugins/generated/mbe.cc:541
+msgid "Crossover B2-B3 (hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:635 ../src/plugins/generated/mbchor.cc:615
+#: ../src/plugins/generated/mbcs.cc:787 ../src/plugins/generated/mbd.cc:505
+#: ../src/plugins/generated/mbdel.cc:547 ../src/plugins/generated/mbe.cc:542
+msgid "Crossover B3-B4 (hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:636 ../src/plugins/generated/mbchor.cc:616
+#: ../src/plugins/generated/mbcs.cc:788 ../src/plugins/generated/mbd.cc:506
+#: ../src/plugins/generated/mbdel.cc:548 ../src/plugins/generated/mbe.cc:543
+msgid "Crossover B4-B5 (hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2195 ../src/plugins/generated/mbchor.cc:1986
+#: ../src/plugins/generated/mbcs.cc:2352 ../src/plugins/generated/mbd.cc:1550
+#: ../src/plugins/generated/mbdel.cc:1568 ../src/plugins/generated/mbe.cc:1569
+msgid "Band 1"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2200 ../src/plugins/generated/mbc.cc:2221
+#: ../src/plugins/generated/mbc.cc:2244 ../src/plugins/generated/mbc.cc:2267
+#: ../src/plugins/generated/mbc.cc:2291 ../src/plugins/generated/mbcs.cc:2357
+#: ../src/plugins/generated/mbcs.cc:2378 ../src/plugins/generated/mbcs.cc:2401
+#: ../src/plugins/generated/mbcs.cc:2424 ../src/plugins/generated/mbcs.cc:2447
+msgid "Makeup (db)"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2202 ../src/plugins/generated/mbc.cc:2223
+#: ../src/plugins/generated/mbc.cc:2246 ../src/plugins/generated/mbc.cc:2269
+#: ../src/plugins/generated/mbc.cc:2293 ../src/plugins/generated/mbcs.cc:2359
+#: ../src/plugins/generated/mbcs.cc:2380 ../src/plugins/generated/mbcs.cc:2403
+#: ../src/plugins/generated/mbcs.cc:2426 ../src/plugins/generated/mbcs.cc:2449
+msgid "Anticlip (db)"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2204 ../src/plugins/generated/mbchor.cc:2004
+#: ../src/plugins/generated/mbcs.cc:2361 ../src/plugins/generated/mbd.cc:1559
+#: ../src/plugins/generated/mbdel.cc:1577 ../src/plugins/generated/mbe.cc:1578
+msgid "Low Shelf (Hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2216 ../src/plugins/generated/mbchor.cc:2011
+#: ../src/plugins/generated/mbcs.cc:2373 ../src/plugins/generated/mbd.cc:1565
+#: ../src/plugins/generated/mbdel.cc:1583 ../src/plugins/generated/mbe.cc:1584
+msgid "Band 2"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2225 ../src/plugins/generated/mbc.cc:2248
+#: ../src/plugins/generated/mbc.cc:2272 ../src/plugins/generated/mbcs.cc:2382
+#: ../src/plugins/generated/mbcs.cc:2405 ../src/plugins/generated/mbcs.cc:2428
+msgid "Low (hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2227 ../src/plugins/generated/mbc.cc:2250
+#: ../src/plugins/generated/mbc.cc:2274 ../src/plugins/generated/mbchor.cc:2031
+#: ../src/plugins/generated/mbchor.cc:2058
+#: ../src/plugins/generated/mbchor.cc:2085
+#: ../src/plugins/generated/mbcs.cc:2384 ../src/plugins/generated/mbcs.cc:2407
+#: ../src/plugins/generated/mbcs.cc:2430 ../src/plugins/generated/mbd.cc:1576
+#: ../src/plugins/generated/mbd.cc:1593 ../src/plugins/generated/mbd.cc:1610
+#: ../src/plugins/generated/mbdel.cc:1594
+#: ../src/plugins/generated/mbdel.cc:1611
+#: ../src/plugins/generated/mbdel.cc:1628 ../src/plugins/generated/mbe.cc:1595
+#: ../src/plugins/generated/mbe.cc:1612 ../src/plugins/generated/mbe.cc:1629
+msgid "High (hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2239 ../src/plugins/generated/mbchor.cc:2038
+#: ../src/plugins/generated/mbcs.cc:2396 ../src/plugins/generated/mbd.cc:1582
+#: ../src/plugins/generated/mbdel.cc:1600 ../src/plugins/generated/mbe.cc:1601
+msgid "Band 3"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2262 ../src/plugins/generated/mbchor.cc:2065
+#: ../src/plugins/generated/mbcs.cc:2419 ../src/plugins/generated/mbd.cc:1599
+#: ../src/plugins/generated/mbdel.cc:1617 ../src/plugins/generated/mbe.cc:1618
+msgid "Band 4"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2286 ../src/plugins/generated/mbchor.cc:2092
+#: ../src/plugins/generated/mbcs.cc:2442 ../src/plugins/generated/mbd.cc:1616
+#: ../src/plugins/generated/mbdel.cc:1634 ../src/plugins/generated/mbe.cc:1635
+msgid "Band 5"
+msgstr ""
+
+#: ../src/plugins/generated/mbc.cc:2295 ../src/plugins/generated/mbcs.cc:2451
+msgid "High Shelf (hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbchor.cc:201
+#: ../src/plugins/generated/mbchor.cc:203
+msgid "Multi Band Chorus"
+msgstr ""
+
+#. category
+#: ../src/plugins/generated/mbchor.cc:205
+msgid "MB Chorus"
+msgstr ""
+
+#: ../src/plugins/generated/mbchor.cc:2029
+#: ../src/plugins/generated/mbchor.cc:2056
+#: ../src/plugins/generated/mbchor.cc:2083 ../src/plugins/generated/mbd.cc:1574
+#: ../src/plugins/generated/mbd.cc:1591 ../src/plugins/generated/mbd.cc:1608
+#: ../src/plugins/generated/mbdel.cc:1592
+#: ../src/plugins/generated/mbdel.cc:1609
+#: ../src/plugins/generated/mbdel.cc:1626 ../src/plugins/generated/mbe.cc:1593
+#: ../src/plugins/generated/mbe.cc:1610 ../src/plugins/generated/mbe.cc:1627
+msgid "Low (Hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbchor.cc:2110 ../src/plugins/generated/mbd.cc:1625
+#: ../src/plugins/generated/mbdel.cc:1643 ../src/plugins/generated/mbe.cc:1644
+msgid "High Shelf (Hz)"
+msgstr ""
+
+#: ../src/plugins/generated/mbcs.cc:169
+msgid "Multi Band Compressor Stereo"
+msgstr ""
+
+#. category
+#: ../src/plugins/generated/mbcs.cc:173
+msgid "MB Comp St"
+msgstr ""
+
+#: ../src/plugins/generated/mbd.cc:121 ../src/plugins/generated/mbd.cc:123
+msgid "MultiBand Distortion"
+msgstr ""
+
+#. category
+#: ../src/plugins/generated/mbd.cc:125
+msgid "MB Distortion"
+msgstr ""
+
+#: ../src/plugins/generated/mbd.cc:492 ../src/plugins/generated/mbd.cc:493
+#: ../src/plugins/generated/mbd.cc:494 ../src/plugins/generated/mbd.cc:495
+#: ../src/plugins/generated/mbd.cc:496
+msgid "Amount of distortion"
+msgstr ""
+
+#: ../src/plugins/generated/mbd.cc:498 ../src/plugins/generated/mbd.cc:499
+#: ../src/plugins/generated/mbd.cc:500 ../src/plugins/generated/mbd.cc:501
+#: ../src/plugins/generated/mbd.cc:502
+msgid "Brings in even harmonics"
+msgstr ""
+
+#: ../src/plugins/generated/mbdel.cc:136
+msgid "MultiBand Delay"
+msgstr ""
+
+#: ../src/plugins/generated/mbdel.cc:138
+msgid "Multi Band Delay"
+msgstr ""
+
+#. category
+#: ../src/plugins/generated/mbdel.cc:140
+msgid "MB Delay"
+msgstr ""
+
+#: ../src/plugins/generated/mbdel.cc:1575
+#: ../src/plugins/generated/mbdel.cc:1590
+#: ../src/plugins/generated/mbdel.cc:1607
+#: ../src/plugins/generated/mbdel.cc:1624
+#: ../src/plugins/generated/mbdel.cc:1641
+msgid "Gain (db)"
+msgstr ""
+
+#: ../src/plugins/generated/mbe.cc:136
+msgid "MultiBand Echo"
+msgstr ""
+
+#: ../src/plugins/generated/mbe.cc:138
+msgid "Multi Band Echo"
+msgstr ""
+
+#. category
+#: ../src/plugins/generated/mbe.cc:140
+msgid "MB Echo"
+msgstr ""
+
+#: ../src/plugins/generated/ts9sim.cc:56
+msgid "Tube Screamer"
+msgstr ""
+
+#: ../src/plugins/generated/ts9sim.cc:148
+msgid "Tone"
+msgstr ""
+
 #: ../src/plugins/generated/zita_rev1.cc:147
-msgid "RM Peaking Equalizer 2"
+msgid "Decay Times in Bands"
 msgstr ""
 
 #: ../src/plugins/generated/zita_rev1.cc:148
@@ -2844,8 +4388,7 @@ msgid "RM Peaking Equalizer 1"
 msgstr ""
 
 #: ../src/plugins/generated/zita_rev1.cc:149
-#: ../src/plugins/zita_rev1_ui.glade.h:5
-msgid "Output"
+msgid "RM Peaking Equalizer 2"
 msgstr ""
 
 #: ../src/plugins/generated/zita_rev1.cc:150
@@ -2853,143 +4396,155 @@ msgid "Input"
 msgstr ""
 
 #: ../src/plugins/generated/zita_rev1.cc:151
-msgid "Decay Times in Bands"
+msgid "Output"
 msgstr ""
 
 #: ../src/plugins/generated/zita_rev1.cc:160
 msgid "Zita Rev1"
 msgstr ""
 
-#: ../src/plugins/generated/zita_rev1.cc:545
-msgid "Output scale factor"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:546
-msgid ""
-"Center-frequency of second-order Regalia-Mitra peaking equalizer section 2"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:547
-msgid ""
-"Peak level in dB of second-order Regalia-Mitra peaking equalizer section 1"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:548
-msgid ""
-"Center-frequency of second-order Regalia-Mitra peaking equalizer section 1"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:549
-msgid "In Delay"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:549
-msgid "Delay in ms before reverberation begins"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:550
-msgid "Low"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:550
-msgid "T60 = time (in seconds) to decay 60dB in low-frequency band"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:551
-msgid "Freq X"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:551
-msgid "Crossover frequency (Hz) separating low and middle frequencies"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:552
-msgid "HF Damping"
-msgstr ""
-
-#: ../src/plugins/generated/zita_rev1.cc:552
+#: ../src/plugins/generated/zita_rev1.cc:565
 msgid ""
 "Frequency (Hz) at which the high-frequency T60 is half the middle-band's T60"
 msgstr ""
 
-#: ../src/plugins/generated/zita_rev1.cc:553
-msgid "Mid"
+#: ../src/plugins/generated/zita_rev1.cc:566
+msgid "Freq X"
 msgstr ""
 
-#: ../src/plugins/generated/zita_rev1.cc:553
+#: ../src/plugins/generated/zita_rev1.cc:566
+msgid "Crossover frequency (Hz) separating low and middle frequencies"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:567
+msgid "T60 = time (in seconds) to decay 60dB in low-frequency band"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:568
 msgid "T60 = time (in seconds) to decay 60dB in middle band"
 msgstr ""
 
-#: ../src/plugins/generated/zita_rev1.cc:554
-msgid "-1 = dry, 1 = wet"
+#: ../src/plugins/generated/zita_rev1.cc:569
+msgid ""
+"Center-frequency of second-order Regalia-Mitra peaking equalizer section 1"
 msgstr ""
 
-#: ../src/plugins/generated/zita_rev1.cc:555
+#: ../src/plugins/generated/zita_rev1.cc:570
+msgid ""
+"Peak level in dB of second-order Regalia-Mitra peaking equalizer section 1"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:571
+msgid ""
+"Center-frequency of second-order Regalia-Mitra peaking equalizer section 2"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:572
 msgid ""
 "Peak level in dB of second-order Regalia-Mitra peaking equalizer section 2"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:187 ../src/plugins/vibe.cc:192
+#: ../src/plugins/generated/zita_rev1.cc:573
+msgid "Pre Delay"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:573
+msgid "Delay in ms before reverberation begins"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:574
+msgid "-1 = dry, 1 = wet"
+msgstr ""
+
+#: ../src/plugins/generated/zita_rev1.cc:575
+msgid "Output scale factor"
+msgstr ""
+
+#: ../src/plugins/reversedelay.cc:123
+msgid "ReverseDelay"
+msgstr ""
+
+#: ../src/plugins/reversedelay.cc:144 ../src/plugins/reversedelay.cc:228
+msgid "Time (ms)"
+msgstr ""
+
+#: ../src/plugins/reversedelay.cc:144
+msgid "Delay time in milliseconds"
+msgstr ""
+
+#: ../src/plugins/reversedelay.cc:146 ../src/plugins/reversedelay.cc:237
+msgid "Window (%)"
+msgstr ""
+
+#: ../src/plugins/reversedelay.cc:146
+msgid "Crossfade between delayed chunks in percents"
+msgstr ""
+
+#: ../src/plugins/reversedelay.cc:147
+msgid "Dey/Wet"
+msgstr ""
+
+#: ../src/plugins/reversedelay.cc:232
+msgid "Buf state"
+msgstr ""
+
+#: ../src/plugins/vibe.cc:186 ../src/plugins/vibe.cc:191
 msgid "Vibe"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:191
+#: ../src/plugins/vibe.cc:190
 msgid "Vibe Mono"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:230
+#: ../src/plugins/vibe.cc:229 ../src/plugins/vibe.cc:295
 msgid "Pan"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:230
+#: ../src/plugins/vibe.cc:229
 msgid "panning of output (left / right)"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:231
-msgid "L/R.Cr"
+#: ../src/plugins/vibe.cc:230
+msgid "XOver"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:231
+#: ../src/plugins/vibe.cc:230
 msgid "left/right channel crossing"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:238
-msgid "Width"
-msgstr ""
-
-#: ../src/plugins/vibe.cc:238
+#: ../src/plugins/vibe.cc:237
 msgid "LFO amplitude"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:239
+#: ../src/plugins/vibe.cc:238
 msgid "DC level in LFO"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:240
-msgid "Wet/Dry"
-msgstr ""
-
-#: ../src/plugins/vibe.cc:240
+#: ../src/plugins/vibe.cc:239
 msgid "output mix (signal / effect)"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:241
+#: ../src/plugins/vibe.cc:240 ../src/plugins/vibe.cc:284
 msgctxt "Feedback"
-msgid "Fb"
+msgid "F/B"
 msgstr ""
 
-#: ../src/plugins/vibe.cc:241
+#: ../src/plugins/vibe.cc:240
 msgid "sound modification by feedback"
 msgstr ""
 
-#: ../src/plugins/zita_rev1_ui.glade.h:2
-msgid "Reverb Time T60"
+#: ../src/plugins/vibe.cc:293
+msgid "Stereo"
+msgstr ""
+
+#: ../src/plugins/vibe.cc:297
+msgid "L/R.Cr"
 msgstr ""
 
 #: ../src/plugins/zita_rev1_ui.glade.h:3
-msgid "Eq1"
+msgid "Filter 1"
 msgstr ""
 
 #: ../src/plugins/zita_rev1_ui.glade.h:4
-msgid "Eq2"
+msgid "Filter 2"
 msgstr ""
