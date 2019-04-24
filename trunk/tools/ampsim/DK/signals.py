@@ -191,7 +191,7 @@ class GeneratedSignal(object):
             pylab.xlim(left=lower_freq, right=upper_freq)
             for i, line in enumerate(lines):
                 if label:
-                    line.set_label("%d, %s" % (i+1, label))
+                    line.set_label("%d. %s" % (i+1, label))
                 else:
                     line.set_label("%d" % (i+1))
             return lines

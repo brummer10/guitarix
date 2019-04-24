@@ -13,7 +13,7 @@ parser.add_argument('-s','--shortname',help='Shortname for plugin [OPTIONAL]', r
 parser.add_argument('-d','--description',help='Description for plugin [OPTIONAL]', required=False)
 parser.add_argument('-c','--category',help='Category for plugin [OPTIONAL]', required=False)
 parser.add_argument('-m','--module_id',help='Module ID for plugin [OPTIONAL]', required=False)
-parser.add_argument('-p','--plot',help='frequency plot from the circuit [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-p','--plot', type=str,help='frequency response (freq), sinewave (sine) or harmonics (harm) plot from the circuit [OPTIONAL]', required=False)
 parser.add_argument('-b','--build',help='build guitarix plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-l','--buildlv2',help='build lv2 plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-2','--stereo',help='build stereo plugin from the circuit [OPTIONAL]',action="store_true", required=False)
@@ -26,6 +26,8 @@ parser.add_argument('-o','--table_op', metavar='N', type=float, nargs='+', help=
 parser.add_argument('--oversample', metavar='N', type=int, help='set oversample rate [OPTIONAL]', required=False)
 parser.add_argument('--fixedrate', metavar='N', type=int, help='set fixed samplerate [OPTIONAL]', required=False)
 parser.add_argument('-f','--freqsplit', help='use frequency splitter [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-v','--vectorize', help='generate vectorized loop [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-V','--vector_size', metavar='N', type=int, help='use vector size N [OPTIONAL]', required=False)
 
 args = parser.parse_args()
 
@@ -66,7 +68,7 @@ class Filter(object):
 
 class FrequencyPlot(object):
 
-    def freqplot(self, c1,name):
+    def freq_plot(self, c1,name):
         sig = Signal()
         s = c1.make_signal_vector(sig(sig.impulse(), timespan=1))
         c1.stream(s)
@@ -75,6 +77,33 @@ class FrequencyPlot(object):
         ax.grid()
         ax.yaxis.set_major_formatter(pylab.FormatStrFormatter('%d dB'))
         ax.xaxis.set_major_formatter(pylab.FormatStrFormatter('%d Hz'))
+        pylab.title(name)
+        pylab.xlabel('Frequency')
+        pylab.ylabel('Magnitude')
+        pylab.show()
+
+    def sine_plot(self, c1,name):
+        sig = Signal()
+        s = c1.make_signal_vector(sig(sig.sine(), timespan=0.00907))
+        c1.stream(s)
+        s.plot(c1.last_output)
+        ax = pylab.gca()
+        ax.grid()
+        ax.yaxis.set_major_formatter(pylab.FormatStrFormatter('%d dB'))
+        pylab.title(name)
+        pylab.ylabel('Magnitude')
+        pylab.show()
+
+    def harmonic_plot(self, c1,name):
+        sig = Signal()
+        s = c1.make_signal_vector(sig(sig.sweep()))
+        c1.stream(s)
+        s.plot(c1.last_output,"Harmonic")
+        ax = pylab.gca()
+        ax.grid()
+        ax.yaxis.set_major_formatter(pylab.FormatStrFormatter('%d dB'))
+        ax.xaxis.set_major_formatter(pylab.FormatStrFormatter('%d Hz'))
+        ax.legend()
         pylab.title(name)
         pylab.xlabel('Frequency')
         pylab.ylabel('Magnitude')
@@ -157,7 +186,7 @@ class Generators(object):
           f.write(fuidata)
         f.close()
 
-    def generate_gx_plugin(self, arg, dspfile, nonlin=None):
+    def generate_gx_plugin(self, arg, dspfile, vec, vs, nonlin=None):
         if nonlin :
             print ("build nonlin gx_plugin from: %s" % arg)
         else :
@@ -165,9 +194,13 @@ class Generators(object):
         datatype="double"
         pgm = os.path.abspath("../../build-faust")
         opts = " " if datatype == "float" else ""
+        if (vec):
+            opts += " -V "
+        if (vs):
+            opts += " -S %s " % vs
         os.system("%s %s -c -k %s" % (pgm, opts, dspfile))
 
-    def generate_lv2_plugin(self, arg, dspfile, tablename, modulename, name, rs, nonlin=None, nonlin_neg=None):
+    def generate_lv2_plugin(self, arg, dspfile, tablename, modulename, name, rs, vec, vs, nonlin=None, nonlin_neg=None):
         if nonlin :
             print ("build nonlin lv2_plugin from: %s" % arg)
         else :
@@ -175,10 +208,16 @@ class Generators(object):
         p = os.getcwd()
         os.chdir("buildlv2/")
         pgm = os.path.abspath("./make_lv2_X11bundle.sh")
+        if (vec):
+            opts = " -V "
+        else:
+            opt = ""
+        if (vs):
+            opts += " -S %s " % vs
         if not rs :
-            result = os.system("%s -p ../%s -n  %s" % (pgm, dspfile, name ))
+            result = os.system("%s -p ../%s %s -n  %s" % (pgm, dspfile, opt, name ))
         else :
-            result = os.system("%s -p ../%s -r -n  %s" % (pgm, dspfile, name ))
+            result = os.system("%s -p ../%s %s -r -n  %s" % (pgm, dspfile, opt, name ))
         if (result):
             print ('\033[91m'+"Error, see message above"+'\033[0m')
             exit (1)
@@ -222,6 +261,16 @@ class DKbuilder(object):
         schema = args.input[0]
         modulename = schema.split('.')[0].lower()
 
+    if (args.vectorize):
+        vec = True
+    else:
+        vec = False
+
+    if (args.vector_size):
+        vs = args.vector_size
+        vec = True
+    else:
+        vs = 0
 
     def index_exists(self,ls, i):
         return (0 <= i < len(ls)) or (-len(ls) <= i < 0)
@@ -288,7 +337,12 @@ class DKbuilder(object):
 
             if args.plot:
                 f = FrequencyPlot()
-                f.freqplot(c1,self.name)
+                if args.plot == "harm":
+                    f.harmonic_plot(c1,self.name)
+                elif args.plot == "sine":
+                    f.sine_plot(c1,self.name)
+                else:
+                    f.freq_plot(c1,self.name)
                 # generate faust source and build dir
             if args.build or args.buildlv2 or not args.plot:
                 if not os.path.exists(dst):
@@ -364,12 +418,12 @@ class DKbuilder(object):
         # create a guitarix module
         if args.build or (not args.table and not args.plot and not args.buildlv2) :
             g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,args.stereo)
-            g.generate_gx_plugin(args.input, dspfile, args.table)
+            g.generate_gx_plugin(args.input, dspfile, self.vec, self.vs, args.table)
 
         # create a LV2 module
         elif args.buildlv2 :
             g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,args.stereo)
-            g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, self.rs, args.table, args.table_neg)
+            g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, self.rs, self.vec, self.vs, args.table, args.table_neg)
 
 def main(argv):
     dk = DKbuilder()
