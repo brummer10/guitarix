@@ -638,8 +638,8 @@ class Parser(object):
                 self.faust_opt.append('-V')
             if self.options.add:
                 self.faust_opt.append(options.add);
-            cmd ='../tools/dsp2insert -o /tmp/'+self.insert_p+'.py'+' '+'  %s'.join(self.faust_opt)+' --init-type=insert ../src/faust/'+self.insert_p+'.dsp'
-            #print('%s\n' % cmd)
+            cmd ='../tools/dsp2insert -o /tmp/'+self.insert_p+'.py'+' '+'  '.join(self.faust_opt)+' --init-type=insert ../src/faust/'+self.insert_p+'.dsp'
+           # print('%s\n' % cmd)
             os.system(cmd) 
         if self.numOutputs == 2:
             self.has_stereo = True
@@ -651,18 +651,18 @@ class Parser(object):
         # ignore any following definitions of static class members
         #self.checkfor(r".*\bexp\b", "compute")
 
-
     def replace_ioref_vector(self, lines):
-        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*&\2puts\[\3\]\[index\];"
+        #ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)_ptr\s*=\s*\2puts\[\3\]\[index\];"
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)_ptr\s*"
         match = re.compile(ioref).match
         l = []
         for line in lines:
             m = match(line)
             if m:
                 g = m.groups()
-                line = "\t%s* %sput%s = &%sputX%s[index];\n" % (g[0],g[1],g[2],g[1],g[2])
+                line = "%s* %sput%s_ptr = &%sputX%s[0];\n" % (g[0],g[1],g[2],g[1],g[2])
             if self.fixedrate or self.oversample:
-                line=re.sub("fullcount",'ReCount',line)
+                line=re.sub("count",'ReCount',line)
                 line=re.sub("inputX0",'buf',line)
                 line=re.sub("outputX0",'buf',line)
                 if self.numOutputs == 2:
@@ -984,6 +984,19 @@ dry_wetbox_mono_post1 = """\
 	}
 """
 
+dry_wetbox_vec_mono_pre1 = """\
+	double 	fSlowdw0 = (0.01 * fsliderdw0);
+	double 	fSlowdw1 = (1 - fSlowdw0);
+	FAUSTFLOAT 	dryinput[count];
+	memcpy(&dryinput, inputX0, count * sizeof(float));
+"""
+
+dry_wetbox_vec_mono_post1 = """\
+	for (int i=0; i<count; i++) {
+		outputX0[i] = ((fSlowdw1 * (double)dryinput[i]) + (fSlowdw0 * (double)outputX0[i]));
+	}
+"""
+
 volume_mono_pre = """\
 	double 	fSlowV0 = (0.0010000000000000009 * double(fsliderV0));
 """
@@ -992,6 +1005,15 @@ volume_mono_post = """\
 	for (int i=0; i<count; i++) {
 		fRecV0[0] = ((0.999 * fRecV0[1]) + fSlowV0);
 		output0[i] = (FAUSTFLOAT)((double)output0[i] * fRecV0[0]);
+		// post processing
+		fRecV0[1] = fRecV0[0];
+	}
+"""
+
+volume_vec_mono_post = """\
+	for (int i=0; i<count; i++) {
+		fRecV0[0] = ((0.999 * fRecV0[1]) + fSlowV0);
+		outputX0[i] = (FAUSTFLOAT)((double)outputX0[i] * fRecV0[0]);
 		// post processing
 		fRecV0[1] = fRecV0[0];
 	}
@@ -2053,15 +2075,22 @@ class Output(object):
             insert_p_compute = ""
 
         if self.parser.has_drywetbox:
-            dry_wetbox_mono_pre = dry_wetbox_mono_pre1
-            dry_wetbox_mono_post = dry_wetbox_mono_post1
+            if self.options.vectorize:
+                dry_wetbox_mono_pre = dry_wetbox_vec_mono_pre1
+                dry_wetbox_mono_post = dry_wetbox_vec_mono_post1
+            else:
+                dry_wetbox_mono_pre = dry_wetbox_mono_pre1
+                dry_wetbox_mono_post = dry_wetbox_mono_post1
         else:
             dry_wetbox_mono_pre = ""
             dry_wetbox_mono_post = ""
 
         if self.parser.has_volume_p:
             volume_pre = volume_mono_pre
-            volume_post = volume_mono_post
+            if self.options.vectorize:
+                volume_post = volume_vec_mono_post
+            else:
+                volume_post = volume_mono_post
             volume_name = self.parser.volume_p
             Volume_Name = self.parser.volume_p.upper()
         else:
@@ -2267,6 +2296,7 @@ def main():
         faust_opt.append('-vec')
     if options.add:
         faust_opt.append(options.add);
+    print (faust_opt)
     faust = Popen("faust %s %s" % (" ".join(faust_opt), fname), shell=True, stdout=PIPE)
     try:
         parser = Parser(faust.stdout,

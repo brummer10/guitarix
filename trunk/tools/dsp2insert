@@ -586,7 +586,8 @@ class Parser(object):
         return l
         
     def replace_ioref_vector(self, lines):
-        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*&\2puts\[\3\]\[index\];"
+        #ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)\s*=\s*&\2puts\[\3\]\[index\];"
+        ioref = r"\s*(float|FAUSTFLOAT)\s*\*\s*(in|out)put(\d+)_ptr\s*"
         match = re.compile(ioref).match
         l = []
         for line in lines:
@@ -595,11 +596,17 @@ class Parser(object):
             line=re.sub("Rec",'RecCl',line)
             line=re.sub("Yec",'YecCl',line)
             line=re.sub("index",'indexCl',line)
+            line=re.sub("count",'ReCount',line)
             m = match(line)
+            #if not match(line):
             if m:
                 g = m.groups()
-                line = "\t%s* %sput%s = &%sputX%s[index];\n" % (g[0],g[1],g[2],g[1],g[2])
+                line = "\t%s* %sput%s_ptr = &%sputX%s[0];\n" % (g[0],g[1],g[2],g[1],g[2])
             if self.oversample:
+                line=re.sub("inputX0",'bufCl',line)
+                line=re.sub("outputX0",'bufCl',line)
+                line=re.sub("input0_ptr",'input0_Clptr',line)
+                line=re.sub("output0_ptr",'output0_Clptr',line)
                 if self.numOutputs == 2:
                     line=re.sub("inputX1",'bufsCl',line)
                     line=re.sub("outputX1",'bufsCl',line)
@@ -797,7 +804,7 @@ class Output(object):
         self.options = options
         self.has_activate = len(self.parser.memlist) > 0
         if self.options.vectorize:
-            self.countname = "fullcount"
+            self.countname = "count"
             self.inputdecl = ", FAUSTFLOAT *inputX%d"
             self.outputdecl = ", FAUSTFLOAT *outputX%d"
             self.inputcall = ", inputX%d"
