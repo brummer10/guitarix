@@ -13,7 +13,7 @@ parser.add_argument('-s','--shortname',help='Shortname for plugin [OPTIONAL]', r
 parser.add_argument('-d','--description',help='Description for plugin [OPTIONAL]', required=False)
 parser.add_argument('-c','--category',help='Category for plugin [OPTIONAL]', required=False)
 parser.add_argument('-m','--module_id',help='Module ID for plugin [OPTIONAL]', required=False)
-parser.add_argument('-p','--plot', type=str,help='frequency response (freq), sinewave (sine) or harmonics (harm) plot from the circuit [OPTIONAL]', required=False)
+parser.add_argument('-p','--plot', type=str, nargs='?', const='freq', help='frequency response (freq), sinewave (sine) or harmonics (harm) plot from the circuit [OPTIONAL]', required=False)
 parser.add_argument('-b','--build',help='build guitarix plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-l','--buildlv2',help='build lv2 plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-2','--stereo',help='build stereo plugin from the circuit [OPTIONAL]',action="store_true", required=False)
@@ -28,8 +28,30 @@ parser.add_argument('--fixedrate', metavar='N', type=int, help='set fixed sample
 parser.add_argument('-f','--freqsplit', help='use frequency splitter [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-v','--vectorize', help='generate vectorized loop [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-V','--vector_size', metavar='N', type=int, help='use vector size N [OPTIONAL]', required=False)
+parser.add_argument('-r','--reduce_gain', metavar='N=value', nargs='+', help='reduce gain output from the circuit N by value [OPTIONAL]', required=False)
 
 args = parser.parse_args()
+
+def parse_var(s):
+    items = s.split('=')
+    key = items[0].strip() # we remove blanks around keys, as is logical
+    if len(items) > 1:
+        # rejoin the rest:
+        value = '='.join(items[1:])
+    return (key, value)
+
+
+def parse_vars(items):
+    """
+    Parse a series of key-value pairs and return a dictionary
+    """
+    d = {}
+
+    if items:
+        for item in items:
+            key, value = parse_var(item)
+            d[key] = value
+    return d
 
 os.chdir("../")
 
@@ -132,12 +154,14 @@ class Generators(object):
             v.generate_table(p, y,"")
             v.plot(p,y)
 
-    def write_final_file(self, a, dspfile,fdata,dspfileui,fuidata,freqs, stereo=None):
+    def write_final_file(self, a, dspfile,fdata,dspfileui,fuidata,freqs,gain_stages, stereo=None):
         if not stereo:
             if not freqs:
                 process_line = "\nprocess = "
                 for x in xrange(1,a+1,1):
                     process_line += ' p%s ' % x
+                    if str(x) in gain_stages:
+                        process_line += ': *(%s)' % gain_stages[str(x)]
                     if a>x :
                         process_line += ':'
                     else :
@@ -147,6 +171,8 @@ class Generators(object):
                 process_line = "\namp = "
                 for x in xrange(1,a+1,1):
                     process_line += ' p%s ' % x
+                    if str(x) in gain_stages:
+                        process_line += ': *(%s)' % gain_stages[str(x)]
                     if a>x :
                         process_line += ':'
                     else :
@@ -159,6 +185,8 @@ class Generators(object):
                 process_line = "\nchanel = "
                 for x in xrange(1,a+1,1):
                     process_line += ' p%s ' % x
+                    if str(x) in gain_stages:
+                        process_line += ': *(%s)' % gain_stages[str(x)]
                     if a>x :
                         process_line += ':'
                     else :
@@ -169,6 +197,8 @@ class Generators(object):
                 process_line = "\namp = "
                 for x in xrange(1,a+1,1):
                     process_line += ' p%s ' % x
+                    if str(x) in gain_stages:
+                        process_line += ': *(%s)' % gain_stages[str(x)]
                     if a>x :
                         process_line += ':'
                     else :
@@ -248,6 +278,7 @@ class DKbuilder(object):
     freqsplit = args.freqsplit
     frs = False
     tablename = {}
+    gain_stages = {}
 
     if (args.table_neg):
         if (not args.table):
@@ -271,6 +302,10 @@ class DKbuilder(object):
         vec = True
     else:
         vs = 0
+
+    if (args.reduce_gain):
+        gain_stages = parse_vars(args.reduce_gain)
+        print (gain_stages)
 
     def index_exists(self,ls, i):
         return (0 <= i < len(ls)) or (-len(ls) <= i < 0)
@@ -417,12 +452,12 @@ class DKbuilder(object):
 
         # create a guitarix module
         if args.build or (not args.table and not args.plot and not args.buildlv2) :
-            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,args.stereo)
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,self.gain_stages,args.stereo)
             g.generate_gx_plugin(args.input, dspfile, self.vec, self.vs, args.table)
 
         # create a LV2 module
         elif args.buildlv2 :
-            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,args.stereo)
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,self.gain_stages,args.stereo)
             g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, self.rs, self.vec, self.vs, args.table, args.table_neg)
 
 def main(argv):
