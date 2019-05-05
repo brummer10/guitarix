@@ -305,7 +305,6 @@ class DKbuilder(object):
 
     if (args.reduce_gain):
         gain_stages = parse_vars(args.reduce_gain)
-        print (gain_stages)
 
     def index_exists(self,ls, i):
         return (0 <= i < len(ls)) or (-len(ls) <= i < 0)
