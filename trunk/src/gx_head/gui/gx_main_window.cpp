@@ -2113,6 +2113,7 @@ void MainWindow::fill_pluginlist() {
     std::sort(p.begin(), p.end(), plugins_by_name_less);
     for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
 	register_plugin(*v);
+    //fprintf(stderr, "%s\n",(*v)->get_name());
     }
 }
 

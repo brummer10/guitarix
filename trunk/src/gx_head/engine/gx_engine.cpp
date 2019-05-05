@@ -220,7 +220,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
     : ModuleSequencer(),
       resamp(),
       plugin_changed(),
-      ladspaloader(options),
+      ladspaloader(options, get_param()),
       controller_map(),
       // ModuleSelector's
       crybaby(

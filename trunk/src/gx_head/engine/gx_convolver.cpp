@@ -619,11 +619,32 @@ bool __rt_func GxSimpleConvolver::compute(int count, float* input, float *output
         }
         return true;
     }
-    memcpy(inpdata(0), input, count * sizeof(float));
+    int flags = 0;
+    if (static_cast<unsigned int>(count) == buffersize)
+    {
+      memcpy(inpdata(0), input, count * sizeof(float));
 
-    int flags = process(sync);
+      flags = process(sync);
 
-    memcpy(output, outdata(0), count * sizeof(float));
+      memcpy(output, outdata(0), count * sizeof(float));
+    } else {
+        float *in, *out;
+      in = inpdata(0);
+      out = outdata(0);
+      unsigned int b = 0;
+      unsigned int c = 1;
+      for(int i = 0; i<count; ++i){
+        in[b] = input[i];
+        if(++b == buffersize) {
+          b=0;
+          flags = process();
+          for(unsigned int d = 0; d<buffersize; ++d) {
+            output[d*c] = out[d];
+          }
+          ++c;
+        }
+      }
+    }
     return flags == 0;
 }
 

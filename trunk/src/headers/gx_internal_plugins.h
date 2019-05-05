@@ -699,7 +699,7 @@ public:
  ** class LadspaLoader
  */
 
-enum widget_type { tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int };
+enum widget_type { tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int, tp_enabled };
 
 struct paradesc: boost::noncopyable {
     int index;
@@ -752,6 +752,7 @@ private:
     const gx_system::CmdlineOptions& options;
     pluginarray plugins;
     LilvWorld* world;
+    ParamMap& param;
     const LilvPlugins* lv2_plugins;
     LilvNode* lv2_AudioPort;
     LilvNode* lv2_ControlPort;
@@ -761,7 +762,7 @@ private:
     void read_module_config(const std::string& filename, plugdesc *p);
     void read_module_list(pluginarray& p);
 public:
-    LadspaLoader(const gx_system::CmdlineOptions& options);
+    LadspaLoader(const gx_system::CmdlineOptions& options, ParamMap& param);
     ~LadspaLoader();
     bool load(pluginarray& p);
     unsigned int size() { return plugins.size(); }
@@ -777,6 +778,7 @@ public:
 	{ return "ladspa"+gx_system::to_string(uid)+".js"; }
     static std::string get_ladspa_filename(std::string uid_key)
 	{ return "ladspa"+uid_key.substr(9)+".js"; }
+    ParamMap& get_parameter_map() const { return param; }
     friend class Lv2Dsp;
 };
 

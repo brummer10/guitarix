@@ -55,6 +55,7 @@
 #include <lv2/lv2plug.in/ns/ext/buf-size/buf-size.h>
 #include <lv2/lv2plug.in/ns/ext/options/options.h>
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
+#include <lv2/lv2plug.in/ns/ext/port-props/port-props.h>
 
 /* waf generated defines */
 #include "../config.h"
@@ -72,6 +73,10 @@
 
 #ifdef LADSPA_SO
 #define gettext(x) dgettext(GETTEXT_PACKAGE, x)
+#endif
+
+#ifndef LV2_CORE__enabled
+#define LV2_CORE__enabled LV2_CORE_PREFIX "enabled"
 #endif
 
 using namespace std;

@@ -180,6 +180,7 @@ void ChangeableValues::serializeJSON(gx_system::JsonWriter& jw) {
 
 int ChangeableValues::get_excl_flags(DisplayType t) const {
     switch (t) {
+    case tp_enabled:        return low_set|up_set;
     case tp_toggle:         return low_set|up_set;
     case tp_display:        return dflt_set;
     case tp_display_toggle: return dflt_set|low_set|up_set;
@@ -529,7 +530,7 @@ void PortDesc::fixup(bool newrow) {
 }
 
 float PortDesc::calc_step() {
-    if (get_tp() == tp_toggle || get_tp() == tp_enum || get_tp() == tp_int) {
+    if (get_tp() == tp_enabled || get_tp() == tp_toggle || get_tp() == tp_enum || get_tp() == tp_int) {
 	return 1.0;
     }
     float up = get_up();
@@ -1488,9 +1489,20 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d, gx_sys
 
     int n_in = 0;
     int n_out = 0;
+    unsigned int ena_port = 0;
+    bool ena = false;
     std::vector<PortDesc*> ctrl_ports;
     int pos = 0;
     unsigned int num_ports = lilv_plugin_get_num_ports(plugin);
+    
+    LilvNode* is_ena = lilv_new_uri(world, LV2_CORE__enabled);
+    const LilvPort* enabled_port = lilv_plugin_get_port_by_designation(plugin, lv2_ControlPort, is_ena);
+    if (enabled_port) {
+        ena_port = lilv_port_get_index(plugin, enabled_port);
+        ena = true;
+    }
+    lilv_node_free(is_ena);
+   
     for (unsigned int n = 0; n < num_ports; n++) {
 	const LilvPort* port = lilv_plugin_get_port_by_index(plugin, n);
 	if (lilv_port_is_a(plugin, port, lv2_AudioPort)) {
@@ -1546,6 +1558,13 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d, gx_sys
 		pdesc->factory.set_tp(tp_enum);
 	    }
 	    lilv_scale_points_free(sp);
+        
+        if (ena) {
+            if (n == ena_port) {
+                pdesc->factory.set_tp(tp_enabled);
+            }
+        }
+        
 	    ctrl_ports.push_back(pdesc);
 	    pos += 1;
 	} else {

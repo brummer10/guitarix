@@ -223,6 +223,7 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     display_type_list = Gtk::ListStore::create(recdef);
     append_displaytype(display_type_list, tp_scale);
     append_displaytype(display_type_list, tp_scale_log);
+    append_displaytype(display_type_list, tp_enabled);
     append_displaytype(display_type_list, tp_toggle);
     append_displaytype(display_type_list, tp_int);
     append_displaytype(display_type_list, tp_enum);
@@ -398,7 +399,7 @@ void PluginDisplay::display_lower(Gtk::CellRenderer *cell, const Gtk::TreeIter& 
     tcell->property_foreground_set().set_value(false);
     tcell->property_background_set().set_value(false);
     DisplayType tp = q->get_tp();
-    if (tp == tp_toggle || tp == tp_display_toggle || tp == tp_none) {
+    if (tp == tp_enabled || tp == tp_toggle || tp == tp_display_toggle || tp == tp_none) {
         cell->property_visible().set_value(false);
         return;
     }
@@ -416,7 +417,7 @@ void PluginDisplay::display_upper(Gtk::CellRenderer *cell, const Gtk::TreeIter& 
     tcell->property_foreground_set().set_value(false);
     tcell->property_background_set().set_value(false);
     DisplayType tp = q->get_tp();
-    if (tp == tp_toggle || tp == tp_display_toggle || tp == tp_none) {
+    if (tp == tp_enabled ||tp == tp_toggle ||  tp == tp_display_toggle || tp == tp_none) {
         cell->property_visible().set_value(false);
         return;
     }
@@ -949,6 +950,10 @@ void PluginDisplay::on_type_edited(const ustring& path, const ustring& newtext) 
 	    if (!(q->get_low() <= dflt && dflt <= q->get_up())) {
 		q->set_dflt(q->get_low());
 	    }
+	} else if (tp == tp_enabled) {
+	    q->set_dflt(int(q->get_dflt() != 0));
+	    q->set_low(0);
+	    q->set_up(1);
 	} else if (tp == tp_toggle) {
 	    q->set_dflt(int(q->get_dflt() != 0));
 	    q->set_low(0);

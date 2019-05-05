@@ -590,6 +590,7 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    case tp_int:            tp = "S";  break;
 	    case tp_scale:          tp = "S";  break;
 	    case tp_scale_log:      tp = "SL"; break;
+	    case tp_enabled:        tp = "B";  break;
 	    case tp_toggle:         tp = "B";  break;
 	    case tp_display:        tp = "SO"; break;
 	    case tp_display_toggle: tp = "BO"; break;
@@ -672,6 +673,13 @@ int LadspaDsp::uiloader(const UiBuilder& b, int form) {
 		p = "";
 	    }
 	    b.create_small_rackknobr(id.c_str(), p);
+	    break;
+	case tp_enabled:
+	    if ((*it)->has_caption) {
+		b.create_switch("switch",id.c_str(), "Power");
+	    } else {
+		b.create_switch_no_caption("switchit",id.c_str());
+	    }
 	    break;
 	case tp_toggle:
 	    if ((*it)->has_caption) {
@@ -851,6 +859,7 @@ private:
     void set_shortname();
     float dry_wet;
     std::string idd;
+    void set_enabled(bool v,Parameter& p);
     inline void mono_dry_wet(int count, float *input0, float *input1, float *output0);
     inline void stereo_dry_wet(int count, float *input0, float *input1, float *input2, float *input3, float *output0, float *output1);
     inline void down_to_mono(int count, float *input0, float *input1, float *output0);
@@ -1136,6 +1145,14 @@ std::string Lv2Dsp::make_id(const paradesc& p) {
     return pd->id_str + "." + to_string(p.index);
 }
 
+void Lv2Dsp::set_enabled(bool v,Parameter& p) {
+    if(v) {
+        p.getFloat().set(1.0);
+    } else {
+        p.getFloat().set(0.0);
+    }
+}
+    
 int Lv2Dsp::registerparam(const ParamReg& reg) {
     Lv2Dsp& self = *static_cast<Lv2Dsp*>(reg.plugin);
     int n = 0;
@@ -1169,6 +1186,13 @@ int Lv2Dsp::registerparam(const ParamReg& reg) {
 	if (d->tp == tp_enum) {
 	    reg.registerEnumVar(self.make_id(*d).c_str(), snm.c_str(), "S", nm, d->values, &self.ports[d->index],
 				d->dflt, d->low, d->up, d->step);
+	} else if (d->tp == tp_enabled) {
+	    reg.registerVar(self.make_id(*d).c_str(), snm.c_str(),"BA" , nm, &self.ports[d->index],
+			    d->dflt, d->low, d->up, d->step);
+        ParamMap& pmap = self.loader.get_parameter_map();
+        pmap[self.pd->id_str + ".on_off"].signal_changed_bool().connect(
+            sigc::bind(sigc::mem_fun(self, &Lv2Dsp::set_enabled),sigc::ref(pmap[self.make_id(*d)])));
+        
 	} else {
 	    const char *tp = 0;
 	    switch (d->tp) {
@@ -1270,6 +1294,8 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
 	    }
 	    b.create_small_rackknobr(id.c_str(), p);
 	    break;
+	case tp_enabled:
+	    break;
 	case tp_toggle:
 	    if ((*it)->has_caption) {
 		b.create_switch("switch_mid",id.c_str(), p);
@@ -1339,10 +1365,11 @@ PluginDef *LadspaLoader::create(const plugdesc *p) {
     }
 }
 
-LadspaLoader::LadspaLoader(const gx_system::CmdlineOptions& options_)
+LadspaLoader::LadspaLoader(const gx_system::CmdlineOptions& options_,ParamMap& param_)
     : options(options_),
       plugins(),
       world(lilv_world_new()),
+      param(param_),
       lv2_plugins(),
       lv2_AudioPort(lilv_new_uri(world, LV2_CORE__AudioPort)),
       lv2_ControlPort(lilv_new_uri(world, LV2_CORE__ControlPort)),

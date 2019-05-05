@@ -25,7 +25,7 @@ namespace ladspa {
  */
 
 enum DisplayType {
-    tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int,
+    tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int, tp_enabled,
 };
 
 class ChangeableValues {
