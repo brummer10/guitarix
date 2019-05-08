@@ -30,7 +30,7 @@ using gx_system::JsonException;
 namespace ladspa {
 
 const char *step_type_names[] = { "coarse", "normal", "fine" };
-const char *display_type_names[] = { "Scale", "Log. Scale", "Toggle", "Enum", "Display", "Led", "Hide", "Int" };
+const char *display_type_names[] = { "Scale", "Log. Scale", "Toggle", "Enum", "Display", "Led", "Hide", "Int", "Toggle" };
 
 
 /****************************************************************
