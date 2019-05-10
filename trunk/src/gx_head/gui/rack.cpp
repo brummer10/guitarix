@@ -176,6 +176,7 @@ void PluginUI::update_rackbox() {
 	delete rackbox;
     rackbox = 0;
     display(true,false);
+    rackbox->get_parent()->reorder(get_id(), n);
 	//rackbox = main.add_rackbox(*this, plugin->get_plug_visible(), n, false);
     } else {
 	delete rackbox;
