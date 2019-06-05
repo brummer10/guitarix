@@ -169,7 +169,7 @@ fuzzy_tube(a,b,c,fuzzy) = _ <: _ + nonlin(a,b,c) * fuzzy * 0.5 : sym_clip(0.7);
 */
 
 ampctrl = environment {
-    drive = vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01);
+    drive = vslider(".gxdistortion.drive[alias]",0.35, 0, 1, 0.01) : smoothi(0.999);
     wet_dry = vslider(".gxdistortion.wet_dry[alias]",  100, 0, 100, 1) : /(100) : smoothi(0.999);
     preamp =  vslider(".amp2.stage1.Pregain[alias]",-6,-20,20,0.1) : ba.db2linear : smoothi(0.999);
     gain1 = vslider(".amp2.stage2.gain1[alias]", -6, -20.0, 20.0, 0.1) : ba.db2linear : smoothi(0.999);

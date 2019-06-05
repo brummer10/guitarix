@@ -139,7 +139,7 @@ distortion1 	=  _:ef.cubicnl(0.45*drive,0.0): *(1.2589412); // l
 distortion2 	=  _:ef.cubicnl(0.4*drive,0.0) : *(1.584893192); // h
 distortion3 	=  _:ef.cubicnl(1.0*drive,0.0) : *(1.584893192); //ml
 distortion4 	=  _:ef.cubicnl(0.6*drive,0.0) : *(1.333521432); //mh
-distortion	= fi.lowpass(2,15000.0): fi.highpass(1,31.0)  : filterbankN((F,(F1,F2))) : distortion2,distortion4 ,distortion3,distortion1 :>fi.lowpass(1,6531.0);
+distortion	= fi.lowpass(2,15000.0): fi.highpass(1,31.0)  : filterbankN((F,F1,F2)) : distortion2,distortion4 ,distortion3,distortion1 :>fi.lowpass(1,6531.0);
 
 wet_dry = (drive - 0.5) * 2;
 };
