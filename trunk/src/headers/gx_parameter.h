@@ -242,12 +242,14 @@ protected:
     friend class ParamRegImpl;
 public:
     bool set(float val) const;
+    bool ramp_value(float val);
     float get_value() const { return *value; }
     void convert_from_range(float low, float up);
     virtual void stdJSON_value();
     virtual bool on_off_value();
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
     virtual void readJSON_value(gx_system::JsonParser& jp);
+    virtual void rampJSON_value(gx_system::JsonParser& jp);
     virtual bool compareJSON_value();
     virtual void setJSON_value();
     virtual bool hasRange() const;

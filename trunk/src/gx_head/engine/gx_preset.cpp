@@ -380,7 +380,12 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
             jp.skip_object();
             continue;
 	}
-	p->readJSON_value(jp);
+    if (p->id() == "amp2.stage1.Pregain" || p->id() == "gxdistortion.drive") {
+        gx_engine::FloatParameter& pf = p->getFloat();
+        pf.rampJSON_value(jp);
+    } else {
+        p->readJSON_value(jp);
+    }
 	collectRackOrder(p, jp, u);
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
@@ -480,7 +485,7 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
 	    dynamic_cast<gx_engine::JConvParameter*>(&param["jconv.convolver"])->readJSON_value(jp);
         } else if (jp.current_value() == "seq") { 
 	    dynamic_cast<gx_engine::SeqParameter*>(&param["seq.sequencer"])->readJSON_value(jp);
-        fprintf(stderr,"seq.sequencer found\n");
+        //fprintf(stderr,"seq.sequencer found\n");
         } else if (jp.current_value() == "midi_controller") {
             if (use_midi) {
                 m = new gx_engine::ControllerArray();

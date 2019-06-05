@@ -1230,6 +1230,30 @@ void FloatParameter::writeJSON(gx_system::JsonWriter& jw) const {
     jw.write_kv(_id.c_str(), *value);
 }
 
+bool FloatParameter::ramp_value(float val) {
+    if (std::abs(json_value - val) < 10*FLT_EPSILON || std::abs(json_value )> std::abs(val)) {
+        json_value = val;
+        setJSON_value();
+        return false;
+    } else if (val<=std_value) {
+        json_value = val;
+        setJSON_value();
+        return false;
+    }
+    float v = val * 0.1;
+    json_value += v;
+    setJSON_value();
+    //fprintf(stderr, "set value %f of %f\n",json_value, val);
+    return true;
+}
+
+void FloatParameter::rampJSON_value(gx_system::JsonParser& jp) {
+    jp.next(gx_system::JsonParser::value_number);
+    json_value = std_value;
+     Glib::signal_timeout().connect(sigc::bind<float>(
+         sigc::mem_fun (*this, &FloatParameter::ramp_value),jp.current_value_float()), 10);
+}
+
 void FloatParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::value_number);
     json_value = jp.current_value_float();
