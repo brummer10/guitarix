@@ -44,6 +44,8 @@ ProcessingChainBase::ProcessingChainBase():
     modules(),
     next_commit_needs_ramp() {
     sem_init(&sync_sem, 0, 0);
+    set_samplerate(96000);
+
 }
 
 void ProcessingChainBase::set_samplerate(int samplerate) {
