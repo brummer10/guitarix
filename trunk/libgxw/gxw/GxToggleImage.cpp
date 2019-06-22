@@ -96,8 +96,8 @@ static void gx_toggle_image_size_request (GtkWidget * widget, GtkRequisition * r
 		gtk_misc_get_padding(GTK_MISC(widget), &xpad, &ypad);
 		requisition->width = gdk_pixbuf_get_width(img) + xpad * 2;
 		requisition->height = gdk_pixbuf_get_height(img) + ypad * 2;
+		g_object_unref(img);
 	}
-	g_object_unref(img);
 }
 
 static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
