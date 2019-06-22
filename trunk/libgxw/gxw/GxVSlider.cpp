@@ -114,9 +114,13 @@ static gboolean gx_vslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 {
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	r->width = gdk_pixbuf_get_width(pb);
-	r->height = gdk_pixbuf_get_height(pb);
-	g_object_unref(pb);
+	if (GDK_IS_PIXBUF(pb)) {
+		r->width = gdk_pixbuf_get_width(pb);
+		r->height = gdk_pixbuf_get_height(pb);
+		g_object_unref(pb);
+	} else {
+		r->width = r->height = 0;
+	}
 }
 
 static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
@@ -220,9 +224,15 @@ static void gx_vslider_render_pixbuf (GtkWidget *widget)
     GxVSlider *vslider = GX_VSLIDER(widget);
     gtk_widget_style_get(widget, "slider-width", &vslider->slider_height, NULL);
     vslider->image        = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-    vslider->width        = gdk_pixbuf_get_width(vslider->image);
-    vslider->height       = gdk_pixbuf_get_height(vslider->image) - vslider->slider_height * 2;
+    if (GDK_IS_PIXBUF(vslider->image)) {
+        vslider->width = gdk_pixbuf_get_width(vslider->image);
+        vslider->height = gdk_pixbuf_get_height(vslider->image) - vslider->slider_height * 2;
+    } else {
+        g_warning("GxVSlider icon is NULL");
+        vslider->width = vslider->height = 0;
+    }
     GdkRectangle rect;
+    rect.x = rect.y = 0;
     rect.width  = vslider->width;
     rect.height = vslider->height;
     vslider->image_rect = rect;
