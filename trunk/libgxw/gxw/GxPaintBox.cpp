@@ -576,35 +576,25 @@ static void draw_screws (GtkWidget *wi, GdkEventExpose *ev)
 	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
 	double x1 = gdk_pixbuf_get_height(stock_image);
 	double y1 = gdk_pixbuf_get_width(stock_image);
-        GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
-    if (h > 2 * y1) {
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-                    stock_image, 0, 0,
-                    x0, y0, x1, y1,
-                    GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-                    stock_image, 0, 0,
-                    x0, y0 + h - y1, x1, y1,
-                    GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-                    stock_image, 0, 0,
-                    x0 + w - x1, y0 + h - y1, x1, y1,
-                    GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-                    stock_image, 0, 0,
-                    x0 + w - x1, y0, x1, y1,
-                    GDK_RGB_DITHER_NORMAL, 0, 0);
-    } else if (h > y1) {
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-                    stock_image, 0, 0,
-                    x0, y0 + int(h / 2) - int(y1 / 2), x1, y1,
-                    GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-                    stock_image, 0, 0,
-                    x0 + w - x1, y0 + int(h / 2) - int(y1 / 2), x1, y1,
-                    GDK_RGB_DITHER_NORMAL, 0, 0);
-    }
-    g_object_unref(stock_image);
+	cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(wi)));
+	if (h > 2 * y1) {
+		gdk_cairo_set_source_pixbuf(cr, stock_image, x0, y0);
+		cairo_paint(cr);
+		gdk_cairo_set_source_pixbuf(cr, stock_image, x0, y0 + h - y1);
+		cairo_paint(cr);
+		gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + w - x1, y0 + h - y1);
+		cairo_paint(cr);
+		gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + w - x1, y0);
+		cairo_paint(cr);
+	} else if (h > y1) {
+		gdk_cairo_set_source_pixbuf(cr, stock_image, x0, y0 + int(h / 2) - int(y1 / 2));
+		cairo_paint(cr);
+		gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + w - x1,
+					    y0 + int(h / 2) - int(y1 / 2));
+		cairo_paint(cr);
+	}
+	g_object_unref(stock_image);
+	cairo_destroy(cr);
 }
 
 static void draw_watermark(GtkWidget *wi, GdkEventExpose *ev)
@@ -714,19 +704,19 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
     int spf;
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
     if (spf == 1000)  {
-        cairo_move_to  (cr, x0, y0 + radius);
-        cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
-        cairo_line_to (cr, x1 - radius, y0);
-        cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
-        cairo_line_to (cr, x1 , y1 - radius);
-        cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
-        cairo_line_to (cr, x0 + radius, y1);
-        cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
-        cairo_close_path (cr);
-        cairo_stroke (cr);
-        cairo_destroy(cr);
-        gdk_region_destroy (region);
-        return;
+	cairo_move_to  (cr, x0, y0 + radius);
+	cairo_curve_to (cr, x0 , y0, x0 , y0, x0 + radius, y0);
+	cairo_line_to (cr, x1 - radius, y0);
+	cairo_curve_to (cr, x1, y0, x1, y0, x1, y0 + radius);
+	cairo_line_to (cr, x1 , y1 - radius);
+	cairo_curve_to (cr, x1, y1, x1, y1, x1 - radius, y1);
+	cairo_line_to (cr, x0 + radius, y1);
+	cairo_curve_to (cr, x0, y1, x0, y1, x0, y1- radius);
+	cairo_close_path (cr);
+	cairo_stroke (cr);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
+	return;
     }
 
 
@@ -798,7 +788,7 @@ static void rack_expose (GtkWidget *wi, GdkEventExpose *ev) {
 }
 
 static void live_box_expose (GtkWidget *wi, GdkEventExpose *ev) {
-    cairo_t *cr;
+	cairo_t *cr;
 	/* create a cairo context */
 	cr = gdk_cairo_create(gtk_widget_get_window(wi));
 	GtkAllocation allocation;
@@ -808,33 +798,33 @@ static void live_box_expose (GtkWidget *wi, GdkEventExpose *ev) {
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
-    GxPaintBox *paintbox = GX_PAINT_BOX(wi);
-	gint w      = allocation.width;
-	gint h      = allocation.height;
-    static int spf, opf, rel = 0;
-    gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-    gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
-    
-    static double ne_w = 0.;
+	GxPaintBox *paintbox = GX_PAINT_BOX(wi);
+	gint w	    = allocation.width;
+	gint h	    = allocation.height;
+	static int spf, opf, rel = 0;
+	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+	gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
+
+	static double ne_w = 0.;
 	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox->priv->gxr_image))) {
 		ne_w = w*h;
-        opf = spf;
-        while (G_IS_OBJECT(paintbox->priv->gxr_image)) {
+		opf = spf;
+		while (G_IS_OBJECT(paintbox->priv->gxr_image)) {
 			g_object_unref(paintbox->priv->gxr_image);
 		}
-        GdkPixbuf  *stock_image = gtk_widget_render_icon(
-            wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
-        paintbox->priv->gxr_image = gdk_pixbuf_scale_simple(
+		GdkPixbuf  *stock_image = gtk_widget_render_icon(
+			wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
+		paintbox->priv->gxr_image = gdk_pixbuf_scale_simple(
 			stock_image, allocation.width, allocation.height, GDK_INTERP_NEAREST);
-        g_object_unref(stock_image);
-    }
+		g_object_unref(stock_image);
+	}
 	//cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
 	gdk_cairo_set_source_pixbuf(cr, paintbox->priv->gxr_image, 0, 0);
 
-    cairo_paint (cr);
+	cairo_paint (cr);
 	cairo_destroy(cr);
-    gdk_region_destroy (region);  
+	gdk_region_destroy (region);
 }
 
 static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
@@ -936,27 +926,17 @@ static void rack_unit_expose(GtkWidget *wi, GdkEventExpose *ev)
 	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
 	double x1 = gdk_pixbuf_get_height(stock_image);
 	double y1 = gdk_pixbuf_get_width(stock_image);
-	GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
-	GdkGC *gc = gdk_gc_new(drawable);
-	gdk_draw_pixbuf(drawable, gc,
-				stock_image, 0, 0,
-				x0+3, y0+5, x1,y1,
-				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(drawable, gc,
-				stock_image, 0, 0,
-				x0+3, y0+rect_height-(5+y1), x1,y1,
-				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(drawable, gc,
-				stock_image, 0, 0,
-				x0+rect_width-(6+x1), y0+rect_height-(5+y1), x1,y1,
-				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(drawable, gc,
-				stock_image, 0, 0,
-				x0+rect_width-(6+x1), y0+5, x1,y1,
-				GDK_RGB_DITHER_NORMAL, 0, 0);
+	cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(wi)));
+	gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + 3, y0 + 5);
+	cairo_paint(cr);
+	gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + 3, y0 + rect_height - (5 + y1));
+	cairo_paint(cr);
+	gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + rect_width - (6 + x1),
+				    y0 + rect_height - (5 + y1));
+	cairo_paint(cr);
+	gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + rect_width - (6 + x1), y0 + 5);
+	cairo_paint(cr);
 	g_object_unref(stock_image);
-	g_object_unref(gc);
-
 }
 
 static void rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
@@ -969,42 +949,39 @@ static void logo_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
-    GdkRegion *region;
+	GdkRegion *region;
 	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
-    GxPaintBox *paintbox = GX_PAINT_BOX(wi);
-	gint x0      = allocation.x;
-	gint y0      = allocation.y;
-	gint w      = allocation.width;
-	gint h      = allocation.height;
+	GxPaintBox *paintbox = GX_PAINT_BOX(wi);
+	gint x0	     = allocation.x;
+	gint y0	     = allocation.y;
+	gint w	    = allocation.width;
+	gint h	    = allocation.height;
 	static double x1 ;
-	static double y1 ;
 	static double align_right; ;
-	
-    static int spf, opf, rel = 0;
-    gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
-    gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
-    
-    static double ne_w = 0.;
+
+	static int spf, opf, rel = 0;
+	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
+	gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
+
+	static double ne_w = 0.;
 	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox->priv->logo_image))) {
 		ne_w = w*h;
-        opf = spf;
-        if (G_IS_OBJECT(paintbox->priv->logo_image)) {
+		opf = spf;
+		if (G_IS_OBJECT(paintbox->priv->logo_image)) {
 			g_object_unref(paintbox->priv->logo_image);
 		}
-	    paintbox->priv->logo_image = NULL;
-        paintbox->priv->logo_image = gtk_widget_render_icon(
-            wi,get_logo_id(wi),(GtkIconSize)-1,NULL);
-	    y1 = gdk_pixbuf_get_height(paintbox->priv->logo_image);
-	    x1 = gdk_pixbuf_get_width(paintbox->priv->logo_image);
-	    align_right = x0+w-x1;
-    }
-    gdk_draw_pixbuf(GDK_DRAWABLE(gtk_widget_get_window(wi)),
-	                gdk_gc_new(GDK_DRAWABLE(gtk_widget_get_window(wi))),
-	                paintbox->priv->logo_image, 0, 0,
-	                align_right, y0, x1, y1,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-    gdk_region_destroy (region);  
+		paintbox->priv->logo_image = NULL;
+		paintbox->priv->logo_image = gtk_widget_render_icon(
+			wi,get_logo_id(wi),(GtkIconSize)-1,NULL);
+		x1 = gdk_pixbuf_get_width(paintbox->priv->logo_image);
+		align_right = x0+w-x1;
+	}
+	cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(wi)));
+	gdk_cairo_set_source_pixbuf(cr, paintbox->priv->logo_image, align_right, y0);
+	cairo_paint(cr);
+	cairo_destroy(cr);
+	gdk_region_destroy (region);
 }
 
 static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
@@ -1144,27 +1121,27 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
 	double x,y;
 
     if (spf == 6 || spf == 8) {
-        if(strcmp(title,"oscilloscope")==0) return;
-        GdkPixbuf * stock_image;
-        if (spf == 6) {
-            stock_image =gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
-        } else {
-            stock_image =gtk_widget_render_icon(wi,get_widget_id3(wi),(GtkIconSize)-1,NULL);
-        }
-        guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
-        gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
-        gint width = gdk_pixbuf_get_width (stock_image);
-        gint height = gdk_pixbuf_get_height (stock_image);
-        cairo_surface_t *s_image = cairo_image_surface_create_for_data (pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
+	if(strcmp(title,"oscilloscope")==0) return;
+	GdkPixbuf * stock_image;
+	if (spf == 6) {
+	    stock_image =gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
+	} else {
+	    stock_image =gtk_widget_render_icon(wi,get_widget_id3(wi),(GtkIconSize)-1,NULL);
+	}
+	guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
+	gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
+	gint width = gdk_pixbuf_get_width (stock_image);
+	gint height = gdk_pixbuf_get_height (stock_image);
+	cairo_surface_t *s_image = cairo_image_surface_create_for_data (pb_pixel,CAIRO_FORMAT_RGB24 ,width, height,pixbuf_rowstride);
 
-        pat = cairo_pattern_create_for_surface(s_image);
-        cairo_set_source (cr, pat);
-        cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
-        
-        cairo_rectangle(cr,x0+4,y0+4,rect_width-8,rect_height-8);
-        cairo_fill(cr);
-        g_object_unref(stock_image);
-        cairo_surface_destroy(s_image);
+	pat = cairo_pattern_create_for_surface(s_image);
+	cairo_set_source (cr, pat);
+	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+	
+	cairo_rectangle(cr,x0+4,y0+4,rect_width-8,rect_height-8);
+	cairo_fill(cr);
+	g_object_unref(stock_image);
+	cairo_surface_destroy(s_image);
     }
 
 
@@ -1386,36 +1363,29 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
     if (spf >= 7) {
         rack_amp_expose(wi,ev);
         line_expose(wi,ev);
-        GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
+        cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(wi)));
         if ( spf <10) {
         paintbox->priv->gxh_image = gtk_widget_render_icon(wi,"guitarix",(GtkIconSize)-1,NULL);
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-	                paintbox->priv->gxh_image, 0, 0,
-	                x0+38, y0+20, 131,26,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_cairo_set_source_pixbuf(cr, paintbox->priv->gxh_image, x0 + 38, y0 + 20);
+        cairo_rectangle(cr, x0 + 38, y0 + 20, 131, 26);
+        cairo_fill(cr);
         g_object_unref(paintbox->priv->gxh_image);
         paintbox->priv->gxh_image = NULL;
         }
         GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
         double x1 = gdk_pixbuf_get_height(stock_image);
         double y1 = gdk_pixbuf_get_width(stock_image);
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-	                stock_image, 0, 0,
-	                x0+5, y0+5, x1,y1,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-	                stock_image, 0, 0,
-	                x0+5, y0+rect_height-(5+y1), x1,y1,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-	                stock_image, 0, 0,
-	                x0+rect_width-(5+x1), y0+rect_height-(5+y1), x1,y1,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-	                stock_image, 0, 0,
-	                x0+rect_width-(5+x1), y0+5, x1,y1,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
+        gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + 5, y0 + 5);
+        cairo_paint(cr);
+        gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + 5, y0 + rect_height - (5 + y1));
+        cairo_paint(cr);
+        gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + rect_width - (5 + x1),
+                                    y0 + rect_height -(5 + y1));
+        cairo_paint(cr);
+        gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + rect_width - (5 + x1), y0 + 5);
+        cairo_paint(cr);
         g_object_unref(stock_image);
+        cairo_destroy(cr);
         return;
     }
 
@@ -1677,10 +1647,13 @@ static void amp_skin_expose(GtkWidget *wi, GdkEventExpose *ev)
         g_object_unref(stock_image);
     }
     GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
-    gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-	                paintbox->priv->gxr_image, 0, 0,
-	                x0, y0, w,h,
-	                GDK_RGB_DITHER_NORMAL, 0, 0);
+    cairo_t *cr = gdk_cairo_create(drawable);
+    GdkPixbuf *pixbuf = gdk_pixbuf_scale_simple(paintbox->priv->gxr_image, w, h,
+                                                GDK_INTERP_NEAREST);
+    gdk_cairo_set_source_pixbuf(cr, pixbuf, x0, y0);
+    cairo_paint(cr);
+    g_object_unref(pixbuf);
+    cairo_destroy(cr);
     gdk_region_destroy (region);  
 }
 

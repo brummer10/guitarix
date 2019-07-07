@@ -579,8 +579,7 @@ static gboolean gx_rack_tuner_show_in_limit(gpointer data)
 	}
 	tuner->priv->pos += 1;
 	GdkWindow *w = gtk_widget_get_window(GTK_WIDGET(tuner));
-	gint width;
-	gdk_drawable_get_size(w, &width, NULL);
+	gint width = gdk_window_get_width(w);
 	gtk_widget_queue_draw_area(
 	    GTK_WIDGET(tuner), 0, floor(led_y0* gx_tuner_get_scale(&tuner->parent)),
 	    width, ceil(led_height* gx_tuner_get_scale(&tuner->parent)));
@@ -807,8 +806,7 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 	snprintf(buf, sizeof(buf), "%.1f Hz", gx_tuner_get_freq(&tuner->parent));
 	cairo_text_extents_t ex;
 	cairo_text_extents(cr,buf, &ex);
-	gint width;
-	gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(tuner)), &width, NULL);
+	gint width = gdk_window_get_width(gtk_widget_get_window(GTK_WIDGET(tuner)));
 	cairo_move_to(
 		cr, width/ gx_tuner_get_scale(&tuner->parent) -pad-ex.width-10, tri_y0-ex.y_bearing);
 	cairo_show_text(cr,buf);
