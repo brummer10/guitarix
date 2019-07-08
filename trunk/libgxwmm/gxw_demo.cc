@@ -2,6 +2,7 @@
 #include <gtkmm/main.h>
 #include <gtkmm/window.h>
 #include <gtkmm/box.h>
+#include <gxwmm/init.h>
 #include <gxwmm/switch.h>
 #include <gxwmm/smallknob.h>
 #include <gxwmm/bigknob.h>
@@ -61,7 +62,7 @@ Demo::Demo():
 
 int main (int argc, char *argv[])
 {
-
+	Gxw::init();
 	Gtk::Main kit(argc, argv);
 
 	Demo demo;
