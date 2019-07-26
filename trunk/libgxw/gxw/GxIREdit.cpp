@@ -560,7 +560,7 @@ static GxRgba no_data_color = { 1.0, 1.0, 1.0, 0.6 };
 
 static void set_color_from_style(cairo_t *c, GxIREdit *ir_edit, gint type, double alpha)
 {
-	GtkStyle *s = GTK_WIDGET(ir_edit)->style;
+	GtkStyle *s = gtk_widget_get_style(GTK_WIDGET(ir_edit));
 	GdkColor *clr;
 	switch (type) {
 	case COLOR_BG: clr = s->bg; break;

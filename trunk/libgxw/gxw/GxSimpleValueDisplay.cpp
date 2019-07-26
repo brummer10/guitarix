@@ -52,8 +52,10 @@ static gboolean gx_simple_value_display_expose(GtkWidget *widget, GdkEventExpose
 	image_rect.height = 0;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 #ifdef FILL_ALLOCATION_WIDTH
-	value_rect.x = widget->allocation.x;
-	value_rect.width = widget->allocation.width;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	value_rect.x = allocation.x;
+	value_rect.width = allocation.width;
 #endif
 	_gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
 	return FALSE;
@@ -70,7 +72,9 @@ static gboolean gx_simple_value_display_button_press (GtkWidget *widget, GdkEven
 	image_rect.width = 0;
 	image_rect.height = 0;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	if (_approx_in_rectangle(event->x + widget->allocation.x, event->y + widget->allocation.y, &value_rect)) {
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	if (_approx_in_rectangle(event->x + allocation.x, event->y + allocation.y, &value_rect)) {
 		gboolean ret;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &value_rect, event, &ret);
 	}

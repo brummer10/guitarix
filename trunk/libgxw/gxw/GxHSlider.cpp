@@ -68,14 +68,16 @@ static gboolean gx_hslider_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	g_assert(GX_IS_HSLIDER(widget));
     GxHSlider *slider = GX_HSLIDER(widget);
-    int x = widget->allocation.x;
-    int y = widget->allocation.y;
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(widget, &allocation);
+    int x = allocation.x;
+    int y = allocation.y;
     slider->image_rect.x = slider->image_rect.y = 0;
 	GdkRectangle  value_rect;
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->width - slider->slider_width);
 	_gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect);
 	if (gtk_widget_has_focus(widget)) {
-        gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
+		gtk_paint_focus(gtk_widget_get_style(widget), gtk_widget_get_window(widget), GTK_STATE_NORMAL, NULL, widget, NULL,
                         x, y, slider->width, slider->height);
 	}
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
@@ -115,10 +117,12 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
 {
     GxHSlider *slider = GX_HSLIDER(widget);
 	GdkRectangle value_rect;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
     slider->image_rect.x = slider->image_rect.y = 0;
     _gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect);
-	x += widget->allocation.x;
-	y += widget->allocation.y;
+	x += allocation.x;
+	y += allocation.y;
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &slider->image_rect, &value_rect, event)) {
 			return FALSE;

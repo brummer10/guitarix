@@ -268,9 +268,9 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
 		cairo_destroy (cr);
 	}
 	else {
-		cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+		cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
 		if (gtk_widget_has_focus(widget)) {
-			gtk_paint_focus(widget->style, widget->window, GTK_STATE_NORMAL, NULL, widget, NULL,
+			gtk_paint_focus(gtk_widget_get_style(widget), gtk_widget_get_window(widget), GTK_STATE_NORMAL, NULL, widget, NULL,
 					image_rect->x, image_rect->y, image_rect->width, image_rect->height);
 		}
 		cairo_surface_t *surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 
@@ -324,8 +324,10 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
 	
 	g_object_unref(pb);
-	x += widget->allocation.x;
-	y += widget->allocation.y;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	x += allocation.x;
+	y += allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {

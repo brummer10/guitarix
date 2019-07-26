@@ -451,11 +451,11 @@ static void gx_fast_meter_size_request (GtkWidget* wd, GtkRequisition* req)
     gtk_widget_style_get(wd, "led-width", &lw, "led-height", &lh, "led-border", &lb, "dimen", &dim_, NULL);
     dim = fm->dimen ? fm->dimen : dim_;
     if (fm->horiz) {
-        xs = wd->style->xthickness;
-        ys = wd->style->ythickness;
+        xs = gtk_widget_get_style(wd)->xthickness;
+        ys = gtk_widget_get_style(wd)->ythickness;
     } else {
-        xs = wd->style->ythickness;
-        ys = wd->style->xthickness;
+        xs = gtk_widget_get_style(wd)->ythickness;
+        ys = gtk_widget_get_style(wd)->xthickness;
     }
     if (!fm->horiz) {
         tm = !fm->type ? 2 * xs : int(1.5 * xs);
@@ -492,11 +492,13 @@ void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
     if (new_top) {
         new_top += (lh + lb);
     }
-	rect.x       = b.x + widget->allocation.x;
-	rect.width   = hrz ? new_top : b.width;
-	rect.height  = hrz ? b.width : new_top;
-	rect.y       = hrz ? b.y : b.y + b.height - new_top;
-    rect.y += widget->allocation.y;
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(widget, &allocation);
+    rect.x       = b.x + allocation.x;
+    rect.width   = hrz ? new_top : b.width;
+    rect.height  = hrz ? b.width : new_top;
+    rect.y       = hrz ? b.y : b.y + b.height - new_top;
+    rect.y += allocation.y;
     
 	if (new_top >= tom) {
         if (hrz) {
@@ -562,8 +564,10 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
     int hrz    = fm->horiz;
 	int height = cairo_image_surface_get_height(fm->surface);
 	int width  = cairo_image_surface_get_width(fm->surface);
-    int x = wd->allocation.x;
-    int y = wd->allocation.y;
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(wd, &allocation);
+    int x = allocation.x;
+    int y = allocation.y;
     
     top_of_meter  = (gint) floor (float(hrz ? b.width : b.height) * fm->current_level);
     top_of_meter -= top_of_meter % (lh + lb);
@@ -571,7 +575,7 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
         top_of_meter += (lh + lb);
     fm->top_of_meter = top_of_meter;
     
-	cairo_t *cr = gdk_cairo_create(GTK_WIDGET(fm)->window);
+    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(GTK_WIDGET(fm)));
     
     cairo_rectangle(cr, x, y, width, height);
     cairo_clip(cr);
@@ -652,24 +656,27 @@ static void request_vertical_meter(GtkWidget *widget)
     
     int xs, ys;
     
+    GtkStyle* style = gtk_widget_get_style(widget);
     if (hrz) {
-        xs = widget->style->xthickness;
-        ys = widget->style->ythickness;
+        xs = style->xthickness;
+        ys = style->ythickness;
     } else {
-        xs = widget->style->ythickness;
-        ys = widget->style->xthickness;
+        xs = style->ythickness;
+        ys = style->xthickness;
     }
     //printf("tw %d th %d tb %d dim %d type %d\n", lw, lh, lb, dim, type);
     
     int width, height;
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(widget, &allocation);
     if (!hrz) {
         tm = !fm->type ? 2 * xs : int(1.5 * xs);
-        width  = min(widget->allocation.width, lb + dim * (lw + lb) + tm);
-        height = max(widget->allocation.height, lb + min_size * (lh + lb) + 2 * ys);
+        width  = min(allocation.width, lb + dim * (lw + lb) + tm);
+        height = max(allocation.height, lb + min_size * (lh + lb) + 2 * ys);
     } else {
         tm = !fm->type ? 2 * ys : int(1.5 * ys);
-        width  = max(widget->allocation.width, lb + min_size * (lh + lb) + 2 * xs);
-        height = min(widget->allocation.height, lb + dim * (lw + lb) + tm);
+        width  = max(allocation.width, lb + min_size * (lh + lb) + 2 * xs);
+        height = min(allocation.height, lb + dim * (lw + lb) + tm);
     }
     
     cairo_t *cr;

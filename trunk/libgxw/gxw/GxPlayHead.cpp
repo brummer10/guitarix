@@ -60,9 +60,11 @@ static gboolean gx_play_head_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	g_assert(GX_IS_PLAYHEAD(widget));
     GxPlayHead *phead = GX_PLAYHEAD(widget);
-    int x = widget->allocation.x;
-    int y = widget->allocation.y;
-	int rect_width  = widget->allocation.width;
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(widget, &allocation);
+    int x = allocation.x;
+    int y = allocation.y;
+    int rect_width  = allocation.width;
     phead->image_rect.x = phead->image_rect.y = 0;
 	//GdkRectangle  value_rect;
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), rect_width - (phead->height*2));

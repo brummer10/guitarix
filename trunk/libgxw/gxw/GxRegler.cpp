@@ -26,8 +26,6 @@
 #include "GxGradient.h"
 #include <gdk/gdkkeysyms.h>
 
-#define gtk_widget_get_requisition(w, r) (*r = (w)->requisition)
-
 #define P_(s) (s)   // FIXME -> gettext
 #define I_(s) (s)   // FIXME -> gettext
 
@@ -732,7 +730,7 @@ static void gx_regler_move_slider(GtkRange *range, GtkScrollType scroll)
 	             NULL);
 	if (cursor_only) {
 		GtkWidget *toplevel = gtk_widget_get_toplevel(GTK_WIDGET(range));
-		if (range->orientation == GTK_ORIENTATION_HORIZONTAL) {
+		if (gtk_orientable_get_orientation(GTK_ORIENTABLE(range)) == GTK_ORIENTATION_HORIZONTAL) {
 			if (scroll == GTK_SCROLL_STEP_UP || scroll == GTK_SCROLL_STEP_DOWN) {
 				if (toplevel) {
 					gtk_widget_child_focus(toplevel,
@@ -777,7 +775,7 @@ static void ensure_digits(GxRegler *regler)
 		v *= 10;
 		n++;
 	}
-	GTK_RANGE(regler)->round_digits = n;
+	gtk_range_set_round_digits(GTK_RANGE(regler), n);
 }
 
 static gboolean gx_regler_change_value(GtkRange *range, GtkScrollType scroll, gdouble value)
@@ -902,8 +900,10 @@ gboolean _gx_regler_check_display_popup(GxRegler *regler, GdkRectangle *image_re
 					GdkRectangle *value_rect, GdkEventButton *event)
 {
 	// check if value entry popup requested
-	gdouble x = event->x + GTK_WIDGET(regler)->allocation.x;
-	gdouble y = event->y + GTK_WIDGET(regler)->allocation.y;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(GTK_WIDGET(regler), &allocation);
+	gdouble x = event->x + allocation.x;
+	gdouble y = event->y + allocation.y;
 	GdkRectangle *rect = NULL;
 	if (image_rect && _approx_in_rectangle(x, y, image_rect)) {
 		if (event->button == 3) {
@@ -933,7 +933,7 @@ static gchar* _gx_regler_format_value(GxRegler *regler, gdouble value)
 	if (fmt) {
 		return fmt;
 	} else {
-		int rd = GTK_RANGE(regler)->round_digits;
+		int rd = gtk_range_get_round_digits(GTK_RANGE(regler));
 		if (rd < 0) {
 			rd = 0;
 		}
@@ -953,7 +953,7 @@ static void set_value_color(GtkWidget *wi, cairo_t *cr)
 	GxGradient *grad;
 	gtk_widget_style_get(wi, "value-color", &grad, NULL);
 	if (!grad) {
-		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
+		GdkColor *p2 = &gtk_widget_get_style(wi)->fg[GTK_STATE_NORMAL];
 		cairo_set_source_rgba(cr,cairo_clr(p2->red),
 			cairo_clr(p2->green), cairo_clr(p2->blue), 0.8);
 		return;
@@ -998,7 +998,7 @@ void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
     pango_layout_set_text(l, txt, -1);
     g_free (txt);
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
-    gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
+    gtk_paint_layout(gtk_widget_get_style(widget), gtk_widget_get_window(widget), gtk_widget_get_state(widget),
                      FALSE, rect, widget, "label", rect->x+(rect->width - logical_rect.width)/2,
                      rect->y, regler->value_layout);
 }
@@ -1014,7 +1014,7 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	if (!show_value) {
 		return;
 	}
-	cairo_t *cr = gdk_cairo_create(widget->window);
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	GtkBorder border;
 	get_value_border(widget, &border);
 	//gint inset = max(0, min(2, min(min(border.left-4, border.right-4), min(border.top-1, border.bottom-1))));
@@ -1257,9 +1257,9 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 	gtk_widget_show(spinner);
 	gtk_widget_realize(GTK_WIDGET(dialog));
 	GtkRequisition rq;
-	gtk_widget_get_requisition(dialog, &rq);
+	gtk_widget_get_requisition(GTK_WIDGET(dialog), &rq);
 	gint xorg, yorg;
-	gdk_window_get_origin(GTK_WIDGET(regler)->window, &xorg, &yorg);
+	gdk_window_get_origin(gtk_widget_get_window(GTK_WIDGET(regler)), &xorg, &yorg);
 	gtk_window_move(GTK_WINDOW(dialog), xorg+rect->x+(rect->width-rq.width)/2, yorg+rect->y+(rect->height-rq.height)/2);
 	gtk_widget_show(dialog);
 	return FALSE;
@@ -1336,7 +1336,7 @@ static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec)
 static void gx_regler_init(GxRegler *regler)
 {
 	regler->priv = GX_REGLER_GET_PRIVATE (regler);
-	GTK_RANGE(regler)->round_digits = -1;
+	gtk_range_set_round_digits(GTK_RANGE(regler), -1);
 	regler->value_position = GTK_POS_BOTTOM;
 	regler->show_value = TRUE;
 	regler->value_xalign = 0.5;

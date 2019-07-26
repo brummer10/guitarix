@@ -20,8 +20,6 @@
 #include <string.h>
 #include <algorithm>
 
-#define gtk_widget_get_requisition(w, r) (*r = (w)->requisition)
-
 #define P_(s) (s)   // FIXME -> gettext
 
 /****************************************************************
@@ -131,20 +129,25 @@ static void gx_selector_get_positions(
 	get_selector_border(widget, &selector_border);
     gint iwidth = GX_SELECTOR(widget)->icon_width;
     gint iheight = GX_SELECTOR(widget)->icon_height;
-	int width = widget->allocation.width; // fill allocated width
-	int height = widget->requisition.height;
-	int x = widget->allocation.x + widget->style->xthickness;
-	int y = widget->allocation.y + widget->style->ythickness + (widget->allocation.height - height) / 2;
-	arrow->x = x + width - 2 * widget->style->xthickness - iwidth;
-	arrow->y = y + selector_border.bottom - widget->style->ythickness +
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	GtkRequisition requisition;
+	gtk_widget_get_requisition(widget, &requisition);
+	GtkStyle *style = gtk_widget_get_style(widget);
+	int width = allocation.width; // fill allocated width
+	int height = requisition.height;
+	int x = allocation.x + style->xthickness;
+	int y = allocation.y + style->ythickness + (allocation.height - height) / 2;
+	arrow->x = x + width - 2 * style->xthickness - iwidth;
+	arrow->y = y + selector_border.bottom - style->ythickness +
 		(height - selector_border.bottom - selector_border.top - iheight) / 2;
 	arrow->width = iwidth;
 	arrow->height = iheight;
 	if (text) {
 		text->x = x;
 		text->y = y;
-		text->width = width - 3 * widget->style->xthickness - iwidth;
-		text->height = height - 2 * widget->style->ythickness;
+		text->width = width - 3 * style->xthickness - iwidth;
+		text->height = height - 2 * style->ythickness;
 		*off_x = selector_border.left;
 		*off_y = selector_border.bottom;
 	}
@@ -178,33 +181,38 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
         rad = 0;
     if (!bevel)
         bevel = 0;
-    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
-    GdkRegion *reg = gdk_region_rectangle(&widget->allocation);
+    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(widget, &allocation);
+    GdkRegion *reg = gdk_region_rectangle(&allocation);
     if (event->region)
         gdk_region_intersect(reg, event->region);
     gdk_cairo_region(cr, reg);
     cairo_clip (cr);
-   
-    gx_draw_rect(widget, "bg", NULL, widget->allocation.x,
-        widget->allocation.y + (widget->allocation.height - widget->requisition.height) / 2,
-        widget->allocation.width,
-        widget->requisition.height,
+
+    GtkRequisition requisition;
+    gtk_widget_get_requisition(widget, &requisition);
+    gx_draw_rect(widget, "bg", NULL, allocation.x,
+        allocation.y + (allocation.height - requisition.height) / 2,
+        allocation.width,
+        requisition.height,
         rad,
         bevel);
-    
-    if (widget->style->ythickness >= 3)
+
+    GtkStyle* style = gtk_widget_get_style(widget);
+    if (style->ythickness >= 3)
         gx_draw_inset(widget, text.x, text.y, text.width, text.height,
-            std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0), 1);
+            std::max(rad - std::max(style->ythickness, style->ythickness), 0), 1);
         
     gx_draw_rect(widget, "base", NULL, text.x,
         text.y,
         text.width,
         text.height,
-        std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0),
+        std::max(rad - std::max(style->ythickness, style->ythickness), 0),
         0);
     
     gx_draw_glass(widget, text.x, text.y, text.width, text.height,
-        std::max(rad - std::max(widget->style->ythickness, widget->style->ythickness), 0));
+        std::max(rad - std::max(style->ythickness, style->ythickness), 0));
     
     gdk_cairo_set_source_pixbuf(cr, selector->icon, arrow.x, arrow.y);
     cairo_rectangle(cr, arrow.x, arrow.y, arrow.width, arrow.height);
@@ -223,7 +231,8 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 		pango_layout_get_pixel_extents(layout, NULL, &logical);
 		x = text.x + (text.width - logical.width) / 2;
 		y = text.y + off_y + (priv->textsize.height - logical.height)/ 2;
-		gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
+		gtk_paint_layout(style, gtk_widget_get_window(widget),
+		                 gtk_widget_get_state(widget),
 		                 FALSE, NULL, widget, "label", x, y, layout);
 		g_free(s);
 	}
@@ -289,10 +298,11 @@ static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisit
 		priv->textsize.width = width;
 		priv->textsize.height = height;
         height = std::max(height, selector->icon_height);
+		GtkStyle* style = gtk_widget_get_style(widget);
 		requisition->width = width + selector->icon_width +
-			selector_border.left + selector_border.right + 3 * widget->style->xthickness;
+			selector_border.left + selector_border.right + 3 * style->xthickness;
 		requisition->height = height + selector_border.top + selector_border.bottom +
-			2 * widget->style->ythickness;
+			2 * style->ythickness;
 		priv->req_ok = TRUE;
 		g_object_unref(l);
 	}
@@ -307,8 +317,10 @@ static void posfunc(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer
 	GtkRequisition req;
 	gtk_widget_get_requisition(GTK_WIDGET(menu), &req);
 	gdk_window_get_origin(win, x, y);
-	*x += w->allocation.x;
-	*y += w->allocation.y - (req.height * i) / n;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(w, &allocation);
+	*x += allocation.x;
+	*y += allocation.y - (req.height * i) / n;
 	*push_in = TRUE;
 }
 
@@ -391,10 +403,14 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		set_value_from_selector_state(GX_SELECTOR(widget), i);
 		break;
 	case 3: // right button show num entry
-		rect.width = widget->requisition.width;
-		rect.height = widget->requisition.height;
-		rect.x = widget->allocation.x + (widget->allocation.width - widget->requisition.width) / 2;
-		rect.y = widget->allocation.y + (widget->allocation.height - widget->requisition.height) / 2;
+		GtkRequisition requisition;
+		GtkAllocation allocation;
+		gtk_widget_get_requisition(widget, &requisition);
+		gtk_widget_get_allocation(widget, &allocation);
+		rect.width = requisition.width;
+		rect.height = requisition.height;
+		rect.x = allocation.x + (allocation.width - requisition.width) / 2;
+		rect.y = allocation.y + (allocation.height - requisition.height) / 2;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &rect, event, &ret);
 		return ret;
 		break;

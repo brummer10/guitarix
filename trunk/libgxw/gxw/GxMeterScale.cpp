@@ -191,13 +191,16 @@ static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)
 	gtk_widget_style_get(widget, "tick-size", &tick_size, "tick-space", &tick_space, NULL);
 
 	/* create a cairo context */
-	cr = gdk_cairo_create(widget->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	cairo_set_font_size (cr, 7.0);
 
-	double x0      = widget->allocation.x;
-	double y0      = widget->allocation.y;
-	double rect_width  = widget->allocation.width;
-	double rect_height = widget->allocation.height;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+
+	double x0      = allocation.x;
+	double y0      = allocation.y;
+	double rect_width  = allocation.width;
+	double rect_height = allocation.height;
 
 	cairo_rectangle (cr, x0,y0,rect_width,rect_height);
 	cairo_set_source_rgb (cr, 0, 0, 0);

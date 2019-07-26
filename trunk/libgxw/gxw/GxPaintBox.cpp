@@ -352,11 +352,12 @@ static void set_skin_color(GtkWidget *wi, cairo_pattern_t *pat)
 	GxGradient *grad;
 	gtk_widget_style_get(wi, "skin-gradient", &grad, NULL);
 	if (!grad) {
-		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
+		GtkStyle* style = gtk_widget_get_style(wi);
+		GdkColor *p1 = &style->bg[GTK_STATE_NORMAL];
 		cairo_pattern_add_color_stop_rgba(
 			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
 			cairo_clr(p1->blue), 0.8);
-		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
+		GdkColor *p2 = &style->fg[GTK_STATE_NORMAL];
 		cairo_pattern_add_color_stop_rgba(
 			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
 			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
@@ -377,11 +378,12 @@ static void set_box_color(GtkWidget *wi, cairo_pattern_t *pat)
 	GxGradient *grad;
 	gtk_widget_style_get(wi, "box-gradient", &grad, NULL);
 	if (!grad) {
-		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
+		GtkStyle* style = gtk_widget_get_style(wi);
+		GdkColor *p1 = &style->bg[GTK_STATE_NORMAL];
 		cairo_pattern_add_color_stop_rgba(
 			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
 			cairo_clr(p1->blue), 0.8);
-		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
+		GdkColor *p2 = &style->fg[GTK_STATE_NORMAL];
 		cairo_pattern_add_color_stop_rgba(
 			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
 			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
@@ -403,16 +405,18 @@ static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
     if (spf == 1000)
         return;
     GxPaintBox *pb = GX_PAINT_BOX(wi);
-    cairo_t *cr = gdk_cairo_create(wi->window);
-	GdkRegion *region = gdk_region_rectangle(&wi->allocation);
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+	GdkRegion *region = gdk_region_rectangle(&allocation);
 	gdk_region_intersect(region, ev->region);
 	gdk_cairo_region(cr, region);
 	cairo_clip(cr);
-    
-	double x0 = wi->allocation.x;
-	double y0 = wi->allocation.y;
-	double w  = wi->allocation.width;
-	double h  = wi->allocation.height;
+
+	double x0 = allocation.x;
+	double y0 = allocation.y;
+	double w  = allocation.width;
+	double h  = allocation.height;
     double h_ = h - 4;
     
     gint inverse;
@@ -473,18 +477,21 @@ static void draw_skin (GtkWidget *wi, GdkEventExpose *ev)
 
 static void draw_tiled (GtkWidget *wi, GdkEventExpose *ev, const gchar * id )
 {
-    cairo_t *cr = gdk_cairo_create(wi->window);
+    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(wi));
     GxPaintBox *pb = GX_PAINT_BOX(wi);
-	GdkRegion *region = gdk_region_rectangle (&wi->allocation);
+
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+	GdkRegion *region = gdk_region_rectangle (&allocation);
     
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
     
-    double x0 = wi->allocation.x;
-	double y0 = wi->allocation.y;
-	double w  = wi->allocation.width;
-	double h  = wi->allocation.height;
+	double x0 = allocation.x;
+	double y0 = allocation.y;
+	double w  = allocation.width;
+	double h  = allocation.height;
     
     GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb), id, (GtkIconSize)-1, NULL);
 	gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
@@ -498,18 +505,21 @@ static void draw_tiled (GtkWidget *wi, GdkEventExpose *ev, const gchar * id )
 
 static void draw_handles (GtkWidget *wi, GdkEventExpose *ev)
 {
-	cairo_t *cr = gdk_cairo_create(wi->window);
+	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(wi));
     GxPaintBox *pb = GX_PAINT_BOX(wi);
-	GdkRegion *region = gdk_region_rectangle (&wi->allocation);
+
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+	GdkRegion *region = gdk_region_rectangle (&allocation);
     
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0 = wi->allocation.x;
-	double y0 = wi->allocation.y;
-	double w  = wi->allocation.width;
-	double h  = wi->allocation.height - 4;
+	double x0 = allocation.x;
+	double y0 = allocation.y;
+	double w  = allocation.width;
+	double h  = allocation.height - 4;
     
     // left
     GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb), "handle_left", (GtkIconSize)-1, NULL);
@@ -546,37 +556,40 @@ static void draw_handles (GtkWidget *wi, GdkEventExpose *ev)
 
 static void draw_screws (GtkWidget *wi, GdkEventExpose *ev)
 {
-	double x0 = wi->allocation.x;
-	double y0 = wi->allocation.y;
-	double w  = wi->allocation.width;
-	double h  = wi->allocation.height - 3;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+	double x0 = allocation.x;
+	double y0 = allocation.y;
+	double w  = allocation.width;
+	double h  = allocation.height - 3;
 
 	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
 	double x1 = gdk_pixbuf_get_height(stock_image);
 	double y1 = gdk_pixbuf_get_width(stock_image);
+        GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
     if (h > 2 * y1) {
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
                     stock_image, 0, 0,
                     x0, y0, x1, y1,
                     GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
                     stock_image, 0, 0,
                     x0, y0 + h - y1, x1, y1,
                     GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
                     stock_image, 0, 0,
                     x0 + w - x1, y0 + h - y1, x1, y1,
                     GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
                     stock_image, 0, 0,
                     x0 + w - x1, y0, x1, y1,
                     GDK_RGB_DITHER_NORMAL, 0, 0);
     } else if (h > y1) {
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
                     stock_image, 0, 0,
                     x0, y0 + int(h / 2) - int(y1 / 2), x1, y1,
                     GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
                     stock_image, 0, 0,
                     x0 + w - x1, y0 + int(h / 2) - int(y1 / 2), x1, y1,
                     GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -586,17 +599,19 @@ static void draw_screws (GtkWidget *wi, GdkEventExpose *ev)
 
 static void draw_watermark(GtkWidget *wi, GdkEventExpose *ev)
 {
-	cairo_t * cr = gdk_cairo_create(wi->window);
+	cairo_t * cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0 = wi->allocation.x;
-	double y0 = wi->allocation.y;
-	double w  = wi->allocation.width;
-	double h  = wi->allocation.height;
+	double x0 = allocation.x;
+	double y0 = allocation.y;
+	double w  = allocation.width;
+	double h  = allocation.height;
     
     GdkPixbuf * wm  = gtk_widget_render_icon(wi, "watermark", (GtkIconSize)-1, NULL);
     gint wwm = gdk_pixbuf_get_width(wm);
@@ -662,17 +677,19 @@ static void rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_t *cr;
     cairo_pattern_t*pat;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	double x0      = allocation.x+1;
+	double y0      = allocation.y+1;
+	double rect_width  = allocation.width-2;
+	double rect_height = allocation.height-2;
     
     double radius = 12.;
 	if (rect_width<12) radius = rect_width;
@@ -773,15 +790,17 @@ static void rack_expose (GtkWidget *wi, GdkEventExpose *ev) {
 static void live_box_expose (GtkWidget *wi, GdkEventExpose *ev) {
     cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
     GxPaintBox *paintbox = GX_PAINT_BOX(wi);
-	gint w      = wi->allocation.width;
-	gint h      = wi->allocation.height;
+	gint w      = allocation.width;
+	gint h      = allocation.height;
     static int spf, opf, rel = 0;
     gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
     gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
@@ -796,7 +815,7 @@ static void live_box_expose (GtkWidget *wi, GdkEventExpose *ev) {
         GdkPixbuf  *stock_image = gtk_widget_render_icon(
             wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
         paintbox->gxr_image = gdk_pixbuf_scale_simple(
-			stock_image,wi->allocation.width ,wi->allocation.height , GDK_INTERP_NEAREST);
+			stock_image, allocation.width, allocation.height, GDK_INTERP_NEAREST);
         g_object_unref(stock_image);
     }
 	//cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
@@ -812,17 +831,19 @@ static void rack_handle_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	double x0      = allocation.x+1;
+	double y0      = allocation.y+1;
+	double rect_width  = allocation.width-2;
+	double rect_height = allocation.height-2;
     
     double radius = 12.;
 	if (rect_width<12) radius = rect_width;
@@ -895,28 +916,31 @@ static void rack_unit_expose(GtkWidget *wi, GdkEventExpose *ev)
 	rectangle_skin_color_expose(wi, ev);
 	rack_handle_expose(wi, ev);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+	double x0      = allocation.x+1;
+	double y0      = allocation.y+1;
+	double rect_width  = allocation.width-2;
+	double rect_height = allocation.height-2;
 
 	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
 	double x1 = gdk_pixbuf_get_height(stock_image);
 	double y1 = gdk_pixbuf_get_width(stock_image);
-	GdkGC *gc = gdk_gc_new(GDK_DRAWABLE(wi->window));
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
+	GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
+	GdkGC *gc = gdk_gc_new(drawable);
+	gdk_draw_pixbuf(drawable, gc,
 				stock_image, 0, 0,
 				x0+3, y0+5, x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
+	gdk_draw_pixbuf(drawable, gc,
 				stock_image, 0, 0,
 				x0+3, y0+rect_height-(5+y1), x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
+	gdk_draw_pixbuf(drawable, gc,
 				stock_image, 0, 0,
 				x0+rect_width-(6+x1), y0+rect_height-(5+y1), x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
-	gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gc,
+	gdk_draw_pixbuf(drawable, gc,
 				stock_image, 0, 0,
 				x0+rect_width-(6+x1), y0+5, x1,y1,
 				GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -933,14 +957,16 @@ static void rack_unit_shrink_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static void logo_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
     GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
     GxPaintBox *paintbox = GX_PAINT_BOX(wi);
-    gint x0      = wi->allocation.x;
-	gint y0      = wi->allocation.y;
-	gint w      = wi->allocation.width;
-	gint h      = wi->allocation.height;
+	gint x0      = allocation.x;
+	gint y0      = allocation.y;
+	gint w      = allocation.width;
+	gint h      = allocation.height;
 	static double x1 ;
 	static double y1 ;
 	static double align_right; ;
@@ -963,7 +989,8 @@ static void logo_expose(GtkWidget *wi, GdkEventExpose *ev)
 	    x1 = gdk_pixbuf_get_width(paintbox->logo_image);
 	    align_right = x0+w-x1;
     }
-    gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+    gdk_draw_pixbuf(GDK_DRAWABLE(gtk_widget_get_window(wi)),
+	                gdk_gc_new(GDK_DRAWABLE(gtk_widget_get_window(wi))),
 	                paintbox-> logo_image, 0, 0,
 	                align_right, y0, x1, y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -975,17 +1002,19 @@ static void rack_amp_expose(GtkWidget *wi, GdkEventExpose *ev)
 	rectangle_skin_color_expose(wi, ev);
     cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	double x0      = allocation.x+1;
+	double y0      = allocation.y+1;
+	double rect_width  = allocation.width-2;
+	double rect_height = allocation.height-2;
     
     double radius = 12.;
 	if (rect_width<12) radius = rect_width;
@@ -1050,17 +1079,19 @@ static void zac_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-3;
+	double x0      = allocation.x+1;
+	double y0      = allocation.y+1;
+	double rect_width  = allocation.width-2;
+	double rect_height = allocation.height-3;
 
 	cairo_rectangle (cr, x0,y0,rect_width,rect_height+3);
 	cairo_pattern_t*pat =
@@ -1086,18 +1117,20 @@ static void RackBox_expose(GtkWidget *wi, GdkEventExpose *ev)
     cairo_pattern_t*pat;
 
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 	const gchar * title = gtk_widget_get_name(GTK_WIDGET(wi));
 
-	double x0      = wi->allocation.x;
-	double y0      = wi->allocation.y;
-	double rect_width  = wi->allocation.width;
-	double rect_height = wi->allocation.height;
+	double x0      = allocation.x;
+	double y0      = allocation.y;
+	double rect_width  = allocation.width;
+	double rect_height = allocation.height;
 	double x,y;
 
     if (spf == 6 || spf == 8) {
@@ -1179,18 +1212,20 @@ static void compressor_expose(GtkWidget *wi, GdkEventExpose *ev)
 	cairo_text_extents_t extents;
 
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 	const gchar * title = gtk_widget_get_name(GTK_WIDGET(wi));
 
-	double x0      = wi->allocation.x;
-	double y0      = wi->allocation.y;
-	double rect_width  = wi->allocation.width;
-	double rect_height = wi->allocation.height;
+	double x0      = allocation.x;
+	double y0      = allocation.y;
+	double rect_width  = allocation.width;
+	double rect_height = allocation.height;
 	double x,y;
 	
 	
@@ -1279,17 +1314,19 @@ static void line_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	gint x0      = wi->allocation.x+3;
-	gint y0      = wi->allocation.y+3;
-	gint rect_width  = wi->allocation.width-6;
-	gint rect_height = wi->allocation.height-6;
+	gint x0      = allocation.x+3;
+	gint y0      = allocation.y+3;
+	gint rect_width  = allocation.width-6;
+	gint rect_height = allocation.height-6;
 
 
 	double radius = 12.;
@@ -1323,10 +1360,12 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	GxPaintBox *paintbox =  GX_PAINT_BOX(wi);
 	
-	gint x0      = wi->allocation.x+1;
-	gint y0      = wi->allocation.y+1;
-	gint rect_width  = wi->allocation.width-2;
-	gint rect_height = wi->allocation.height-3;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+	gint x0      = allocation.x+1;
+	gint y0      = allocation.y+1;
+	gint rect_width  = allocation.width-2;
+	gint rect_height = allocation.height-3;
 
 	static int nf = 0;
 	static double ne_w1 = 0.;
@@ -1337,9 +1376,10 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
     if (spf >= 7) {
         rack_amp_expose(wi,ev);
         line_expose(wi,ev);
+        GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
         if ( spf <10) {
         paintbox->gxh_image = gtk_widget_render_icon(wi,"guitarix",(GtkIconSize)-1,NULL);
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
 	                paintbox->gxh_image, 0, 0,
 	                x0+38, y0+20, 131,26,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -1349,19 +1389,19 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
         GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
         double x1 = gdk_pixbuf_get_height(stock_image);
         double y1 = gdk_pixbuf_get_width(stock_image);
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
 	                stock_image, 0, 0,
 	                x0+5, y0+5, x1,y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
 	                stock_image, 0, 0,
 	                x0+5, y0+rect_height-(5+y1), x1,y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
 	                stock_image, 0, 0,
 	                x0+rect_width-(5+x1), y0+rect_height-(5+y1), x1,y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
-        gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+        gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
 	                stock_image, 0, 0,
 	                x0+rect_width-(5+x1), y0+5, x1,y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -1463,23 +1503,25 @@ static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
     int spf;
 	gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
     if (spf == 1000)  return;
-	gint rect_width  = wi->allocation.width-2;
-	gint rect_height = wi->allocation.height-3;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+	gint rect_width  = allocation.width-2;
+	gint rect_height = allocation.height-3;
 	if (rect_width <= 0 || rect_height <= 0) {
 	    return;
 	}
 	cairo_t *cr;
 	GxPaintBox *paintbox = GX_PAINT_BOX(wi);
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 	
-	gint x0      = wi->allocation.x+1;
-	gint y0      = wi->allocation.y+1;
+	gint x0      = allocation.x+1;
+	gint y0      = allocation.y+1;
 
 	static double ne_w = 0.;
 	if (ne_w != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
@@ -1597,14 +1639,16 @@ static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 
 static void amp_skin_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
     GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
     GxPaintBox *paintbox = GX_PAINT_BOX(wi);
-    gint x0      = wi->allocation.x;
-	gint y0      = wi->allocation.y;
-	gint w      = wi->allocation.width;
-	gint h      = wi->allocation.height;
+	gint x0      = allocation.x;
+	gint y0      = allocation.y;
+	gint w      = allocation.width;
+	gint h      = allocation.height;
     static int spf, opf, rel = 0;
     gtk_widget_style_get(GTK_WIDGET(wi), "icon-set", &spf, NULL);
     gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
@@ -1619,10 +1663,11 @@ static void amp_skin_expose(GtkWidget *wi, GdkEventExpose *ev)
         GdkPixbuf  *stock_image = gtk_widget_render_icon(
             wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
         paintbox->gxr_image = gdk_pixbuf_scale_simple(
-			stock_image,wi->allocation.width ,wi->allocation.height , GDK_INTERP_NEAREST);
+			stock_image, allocation.width, allocation.height, GDK_INTERP_NEAREST);
         g_object_unref(stock_image);
     }
-    gdk_draw_pixbuf(GDK_DRAWABLE(wi->window), gdk_gc_new(GDK_DRAWABLE(wi->window)),
+    GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
+    gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
 	                paintbox-> gxr_image, 0, 0,
 	                x0, y0, w,h,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
@@ -1633,18 +1678,20 @@ static void level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 	cairo_set_font_size (cr, 7.0);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+2;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-4;
+	double x0      = allocation.x+1;
+	double y0      = allocation.y+2;
+	double rect_width  = allocation.width-2;
+	double rect_height = allocation.height-4;
 
 	int  db_points[] = { -50, -40, -30, -20, -10, -3, 0, 4 };
 	char  buf[32];
@@ -1703,18 +1750,20 @@ static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 {
 	cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 	cairo_set_font_size (cr, 7.0);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+2;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-4;
+	double x0      = allocation.x+1;
+	double y0      = allocation.y+2;
+	double rect_width  = allocation.width-2;
+	double rect_height = allocation.height-4;
 
 	int  db_points[] = { -50, -40, -30, -20, -10, -3, 0, 4 };
 	char  buf[32];

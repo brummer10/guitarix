@@ -84,14 +84,16 @@ static void draw_indicator(GtkCheckButton *check_button, GdkRectangle *rect)
 	                     "indicator-size", &indicator_size,
 	                     "indicator-spacing", &indicator_spacing,
 	                     NULL);
-	x = widget->allocation.x + indicator_spacing + GTK_CONTAINER (widget)->border_width;
-	y = widget->allocation.y + (widget->allocation.height - indicator_size) / 2;
-	child = GTK_BIN (check_button)->child;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	x = allocation.x + indicator_spacing + gtk_container_get_border_width(GTK_CONTAINER (widget));
+	y = allocation.y + (allocation.height - indicator_size) / 2;
+	child = gtk_bin_get_child(GTK_BIN (check_button));
 	if (!interior_focus || !(child && gtk_widget_get_visible (child))) {
 		x += focus_width + focus_pad;      
 	}
 	if (gtk_widget_get_direction (widget) == GTK_TEXT_DIR_RTL) {
-		x = widget->allocation.x + widget->allocation.width - (indicator_size + x - widget->allocation.x);
+		x = allocation.x + allocation.width - (indicator_size + x - allocation.x);
 	}
 	const char *s;
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_button))) {

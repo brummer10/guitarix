@@ -192,7 +192,7 @@ static void button_paint(
 	widget = GTK_WIDGET (button);
 
 	if (gtk_widget_is_drawable (widget)) {
-		border_width = GTK_CONTAINER (widget)->border_width;
+		border_width = gtk_container_get_border_width(GTK_CONTAINER (widget));
 
 		gtk_button_get_props (
 			button, &default_border, &default_outside_border,
@@ -200,15 +200,18 @@ static void button_paint(
 		gtk_widget_style_get (
 			widget, "focus-line-width", &focus_width,
 			"focus-padding", &focus_pad, NULL); 
-	
-		x = widget->allocation.x + border_width;
-		y = widget->allocation.y + border_width;
-		width = widget->allocation.width - border_width * 2;
-		height = widget->allocation.height - border_width * 2;
 
+		GtkAllocation allocation;
+		gtk_widget_get_allocation(widget, &allocation);
+		x = allocation.x + border_width;
+		y = allocation.y + border_width;
+		width = allocation.width - border_width * 2;
+		height = allocation.height - border_width * 2;
+
+		GtkStyle* style = gtk_widget_get_style(widget);
 		if (gtk_widget_has_default (widget) &&
-		    GTK_BUTTON (widget)->relief == GTK_RELIEF_NORMAL) {
-			gtk_paint_box (widget->style, widget->window,
+		    gtk_button_get_relief(GTK_BUTTON (widget)) == GTK_RELIEF_NORMAL) {
+			gtk_paint_box (style, gtk_widget_get_window(widget),
 			               GTK_STATE_NORMAL, GTK_SHADOW_IN,
 			               area, widget, "buttondefault",
 			               x, y, width, height);
@@ -230,8 +233,8 @@ static void button_paint(
 			height -= 2 * (focus_width + focus_pad);
 		}
 
-		if (button->relief != GTK_RELIEF_NONE) {
-			gtk_paint_box (widget->style, widget->window,
+		if (gtk_button_get_relief(button) != GTK_RELIEF_NONE) {
+			gtk_paint_box (style, gtk_widget_get_window(widget),
 			               state_type,
 			               shadow_type, area, widget, "button",
 			               x, y, width, height);
@@ -264,7 +267,8 @@ static void button_paint(
 			}
 
 			gtk_paint_focus(
-				widget->style, widget->window, gtk_widget_get_state(widget),
+				style, gtk_widget_get_window(widget),
+				gtk_widget_get_state(widget),
 				area, widget, "button", x, y, width, height);
 		}
 	}
@@ -273,14 +277,14 @@ static void button_paint(
 static gboolean gx_switch_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	if (gtk_widget_is_drawable (widget)) {
-		GtkWidget *child = GTK_BIN (widget)->child;
+		GtkWidget *child = gtk_bin_get_child(GTK_BIN (widget));
 		GtkButton *button = GTK_BUTTON (widget);
 		GtkStateType state_type;
 		GtkShadowType shadow_type;
 
 		state_type = gtk_widget_get_state (widget);
       
-		if (GTK_TOGGLE_BUTTON (widget)->inconsistent) {
+		if (gtk_toggle_button_get_inconsistent(GTK_TOGGLE_BUTTON (widget))) {
 			if (state_type == GTK_STATE_ACTIVE) {
 				state_type = GTK_STATE_NORMAL;
 			}

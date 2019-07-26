@@ -153,9 +153,11 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 	GxWheelPrivate *priv = wheel->priv;
 	gint fcount;
 	get_image_dimensions (widget, wb, &image_rect, &fcount); 
-	x += widget->allocation.x;
-	y += widget->allocation.y;
-	
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	x += allocation.x;
+	y += allocation.y;
+
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 	if (!drag) {
 		GdkRectangle *rect = NULL;

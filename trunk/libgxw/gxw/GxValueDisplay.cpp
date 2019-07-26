@@ -52,8 +52,10 @@ static gboolean gx_value_display_expose(GtkWidget *widget, GdkEventExpose *event
 	image_rect.height = 0;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 #ifdef FILL_ALLOCATION_WIDTH
-	value_rect.x = widget->allocation.x;
-	value_rect.width = widget->allocation.width;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	value_rect.x = allocation.x;
+	value_rect.width = allocation.width;
 #endif
 	_gx_regler_display_value(GX_REGLER(widget), &value_rect);
 	return FALSE;

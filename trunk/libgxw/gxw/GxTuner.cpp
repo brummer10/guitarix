@@ -210,11 +210,13 @@ static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 	static const char* octave[] = {"0","1","2","3","4","5"," "};
 	GxTuner *tuner = GX_TUNER(widget);
 	cairo_t *cr;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
 
-	double x0      = (widget->allocation.width - 100 * tuner->scale) * 0.5;
-	double y0      = (widget->allocation.height - 90 * tuner->scale) * 0.5;
+	double x0      = (allocation.width - 100 * tuner->scale) * 0.5;
+	double y0      = (allocation.height - 90 * tuner->scale) * 0.5;
 
-	cr = gdk_cairo_create(widget->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	cairo_set_source_surface(cr, tuner->surface_tuner, x0, y0);
 	cairo_scale(cr, tuner->scale, tuner->scale);
 	cairo_paint (cr);

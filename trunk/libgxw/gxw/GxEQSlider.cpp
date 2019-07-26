@@ -101,8 +101,10 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
 	get_width_height(widget, &image_rect);
 	image_rect.height = (image_rect.height + slider_height) / 2;
-	x += widget->allocation.x;
-	y += widget->allocation.y;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	x += allocation.x;
+	y += allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {

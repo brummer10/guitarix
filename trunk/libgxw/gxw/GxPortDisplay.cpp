@@ -62,8 +62,10 @@ static void port_display_expose(GdkEventExpose *ev,
 {
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
     GxPortDisplay *port_display = GX_PORT_DISPLAY(widget);
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(widget, &allocation);
     GdkRegion *region;
-	region = gdk_region_rectangle (&widget->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
     gdk_cairo_region (cr, region);
     cairo_clip (cr);
@@ -94,7 +96,7 @@ static void port_display_expose(GdkEventExpose *ev,
 
 static gboolean gx_port_display_expose(GtkWidget *widget, GdkEventExpose *event)
 {
-    if (GDK_IS_WINDOW (widget->window)) {
+    if (GDK_IS_WINDOW (gtk_widget_get_window(widget))) {
 	  g_assert(GX_IS_PORT_DISPLAY(widget));
 	  gint display_width;
 	  GdkRectangle image_rect, value_rect;

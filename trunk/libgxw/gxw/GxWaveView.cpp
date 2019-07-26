@@ -62,11 +62,11 @@ static void set_box_color(GtkWidget *wi, cairo_pattern_t *pat)
 	GxGradient *grad;
 	gtk_widget_style_get(wi, "box-gradient", &grad, NULL);
 	if (!grad) {
-		GdkColor *p1 = &wi->style->bg[GTK_STATE_NORMAL];
+		GdkColor *p1 = &gtk_widget_get_style(wi)->bg[GTK_STATE_NORMAL];
 		cairo_pattern_add_color_stop_rgba(
 			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
 			cairo_clr(p1->blue), 0.8);
-		GdkColor *p2 = &wi->style->fg[GTK_STATE_NORMAL];
+		GdkColor *p2 = &gtk_widget_get_style(wi)->fg[GTK_STATE_NORMAL];
 		cairo_pattern_add_color_stop_rgba(
 			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
 			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
@@ -86,7 +86,7 @@ static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
 {
 	
     cairo_t *crp; 
-    GdkPixmap*  pix = gdk_pixmap_new(widget->window,background_width,background_height,-1);
+    GdkPixmap*  pix = gdk_pixmap_new(gtk_widget_get_window(widget),background_width,background_height,-1);
 	waveview->liveview_image = gdk_pixbuf_new(
 		GDK_COLORSPACE_RGB,FALSE,8,background_width,background_height);
 	g_assert(waveview->liveview_image != NULL);
@@ -176,7 +176,7 @@ static void draw_text(GtkWidget *widget, GdkEventExpose *event, gchar *str,
 	} else {
 		yorg += 1;
 	}
-	gtk_paint_layout(widget->style, widget->window, gtk_widget_get_state(widget),
+	gtk_paint_layout(gtk_widget_get_style(widget), gtk_widget_get_window(widget), gtk_widget_get_state(widget),
 		                 FALSE, NULL, widget, "label", xorg, yorg, layout);
 	g_object_unref(layout);
 }
@@ -189,7 +189,7 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	int liveviewx = (int)((widget->allocation.width  - liveview_x) * 0.5) + 10;
 	int liveviewy = (int)((widget->allocation.height - liveview_y) * 0.5) + 15;
 
-	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(widget->window));
+	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
 	GdkRegion *region;
 	region = gdk_region_rectangle (&widget->allocation);
 	gdk_region_intersect (region, event->region);
