@@ -63,7 +63,7 @@ static void level_slider_expose(
 	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image)
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	sliderstate = rect->height * log_meter(adj->value);
+	sliderstate = rect->height * log_meter(gtk_adjustment_get_value(adj));
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	gdk_cairo_set_source_pixbuf(cr, image, rect->x, rect->y - (gint)sliderstate);
 	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
@@ -162,7 +162,7 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
     }
 	value = (posy - last_y) * sc;
 	last_y = posy;
-	gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
+	gtk_range_set_value(GTK_RANGE(widget), gtk_adjustment_get_value(adj) + value * (gtk_adjustment_get_upper(adj) - gtk_adjustment_get_lower(adj)));
 	return TRUE;
 }
 

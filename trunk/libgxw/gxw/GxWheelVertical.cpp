@@ -143,11 +143,14 @@ static gboolean wheel_vertical_set_from_pointer(GtkWidget *widget, gdouble x, gd
     }
 
     double value;
+    gdouble lower = gtk_adjustment_get_lower(adj);
+    gdouble upper = gtk_adjustment_get_upper(adj);
+    gdouble adj_value = gtk_adjustment_get_value(adj);
     if (!drag) {
         priv->last_x = y;
 	if (event && event->type == GDK_2BUTTON_PRESS) {
 	    const int frame = 5;
-	    value = adj->lower + ((y - (image_rect.y+frame)) * (adj->upper - adj->lower)) / (image_rect.height-2*frame);
+	    value = lower + ((y - (image_rect.y+frame)) * (upper - lower)) / (image_rect.height-2*frame);
 	    gtk_range_set_value(GTK_RANGE(widget), value);
 	}
         return TRUE;
@@ -155,9 +158,9 @@ static gboolean wheel_vertical_set_from_pointer(GtkWidget *widget, gdouble x, gd
     int mode = ((state & GDK_CONTROL_MASK) == 0);
     const double scaling = 0.01;
     double scal = (mode ? scaling : scaling*0.1);
-    value = adj->value + (((y - priv->last_x) * scal) * (adj->upper - adj->lower));
+    value = adj_value + (((y - priv->last_x) * scal) * (upper - lower));
     priv->last_x = y;
-    if (adj->value != value) 
+    if (adj_value != value)
         gtk_range_set_value(GTK_RANGE(widget), value);
     g_object_unref(wb);
     return TRUE;

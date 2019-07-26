@@ -185,13 +185,14 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 {
 	g_assert(GX_IS_WAVE_VIEW(widget));
 	GxWaveView *waveview = GX_WAVE_VIEW(widget);
-
-	int liveviewx = (int)((widget->allocation.width  - liveview_x) * 0.5) + 10;
-	int liveviewy = (int)((widget->allocation.height - liveview_y) * 0.5) + 15;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	int liveviewx = (int)((allocation.width	 - liveview_x) * 0.5) + 10;
+	int liveviewy = (int)((allocation.height - liveview_y) * 0.5) + 15;
 
 	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
 	GdkRegion *region;
-	region = gdk_region_rectangle (&widget->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, event->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);

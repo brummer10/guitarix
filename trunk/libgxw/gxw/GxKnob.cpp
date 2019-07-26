@@ -335,8 +335,10 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 		}
 	}
 	static double last_y = 2e20;
-		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	double radius =  min(image_rect.width, image_rect.height) / 2;
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	gdouble lower = gtk_adjustment_get_lower(adj);
+	gdouble upper = gtk_adjustment_get_upper(adj);
+	double radius =	 min(image_rect.width, image_rect.height) / 2;
 	double posx = radius - x + image_rect.x; // x axis right -> left
 	double posy = radius - y + image_rect.y; // y axis top -> bottom
 	double value;
@@ -353,7 +355,8 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 		double scal = (finemode ? scaling*0.1 : scaling);
 		value = (posy - last_y) * scal;
 		last_y = posy;
-		gtk_range_set_value(GTK_RANGE(widget), adj->value + value * (adj->upper - adj->lower));
+		gdouble adj_value = gtk_adjustment_get_value(adj);
+		gtk_range_set_value(GTK_RANGE(widget), adj_value + value * (upper - lower));
 		return TRUE;
 	}
 
@@ -382,7 +385,7 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 		priv->last_quadrant = 0;
 	}
 	angle = (angle - scale_zero) / (2 * (M_PI-scale_zero)); // normalize to 0..1
-	gtk_range_set_value(GTK_RANGE(widget), adj->lower + angle * (adj->upper - adj->lower));
+	gtk_range_set_value(GTK_RANGE(widget), lower + angle * (upper - lower));
 	return TRUE;
 }
 

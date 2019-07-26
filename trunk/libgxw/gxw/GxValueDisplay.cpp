@@ -72,7 +72,9 @@ static gboolean gx_value_display_button_press (GtkWidget *widget, GdkEventButton
 	image_rect.width = 0;
 	image_rect.height = 0;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	if (_approx_in_rectangle(event->x + widget->allocation.x, event->y + widget->allocation.y, &value_rect)) {
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	if (_approx_in_rectangle(event->x + allocation.x, event->y + allocation.y, &value_rect)) {
 		gboolean ret;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &value_rect, event, &ret);
 	}

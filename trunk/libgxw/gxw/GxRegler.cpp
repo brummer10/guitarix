@@ -592,7 +592,8 @@ static void step_back(GtkRange *range)
 	gdouble newval;
 	gboolean handled;
 
-	newval = range->adjustment->value - range->adjustment->step_increment;
+	GtkAdjustment *adjustment = gtk_range_get_adjustment(range);
+	newval = gtk_adjustment_get_value(adjustment) - gtk_adjustment_get_step_increment(adjustment);
 	g_signal_emit_by_name(range, "change-value", GTK_SCROLL_STEP_BACKWARD, newval, &handled);
 }
 
@@ -601,7 +602,8 @@ static void step_forward(GtkRange *range)
 	gdouble newval;
 	gboolean handled;
 
-	newval = range->adjustment->value + range->adjustment->step_increment;
+	GtkAdjustment *adjustment = gtk_range_get_adjustment(range);
+	newval = gtk_adjustment_get_value(adjustment) + gtk_adjustment_get_step_increment(adjustment);
 	g_signal_emit_by_name(range, "change-value", GTK_SCROLL_STEP_FORWARD, newval, &handled);
 }
 
@@ -611,7 +613,8 @@ static void page_back(GtkRange *range)
 	gdouble newval;
 	gboolean handled;
 
-	newval = range->adjustment->value - range->adjustment->page_increment;
+	GtkAdjustment *adjustment = gtk_range_get_adjustment(range);
+	newval = gtk_adjustment_get_value(adjustment) - gtk_adjustment_get_page_increment(adjustment);
 	g_signal_emit_by_name(range, "change-value", GTK_SCROLL_PAGE_BACKWARD, newval, &handled);
 }
 
@@ -620,14 +623,16 @@ static void page_forward(GtkRange *range)
 	gdouble newval;
 	gboolean handled;
 
-	newval = range->adjustment->value + range->adjustment->page_increment;
+	GtkAdjustment *adjustment = gtk_range_get_adjustment(range);
+	newval = gtk_adjustment_get_value(adjustment) + gtk_adjustment_get_page_increment(adjustment);
 	g_signal_emit_by_name(range, "change-value", GTK_SCROLL_PAGE_FORWARD, newval, &handled);
 }
 
 static void scroll_begin(GtkRange *range)
 {
 	gboolean handled;
-	g_signal_emit_by_name(range, "change-value", GTK_SCROLL_START, range->adjustment->lower,
+	g_signal_emit_by_name(range, "change-value", GTK_SCROLL_START,
+	              gtk_adjustment_get_lower(gtk_range_get_adjustment(range)),
 	              &handled);
 }
 
@@ -636,25 +641,28 @@ static void scroll_end(GtkRange *range)
 	gdouble newval;
 	gboolean handled;
 
-	newval = range->adjustment->upper - range->adjustment->page_size;
+	GtkAdjustment *adjustment = gtk_range_get_adjustment(range);
+	newval = gtk_adjustment_get_upper(adjustment) - gtk_adjustment_get_page_size(adjustment);
 	g_signal_emit_by_name(range, "change-value", GTK_SCROLL_END, newval, &handled);
 }
 
 static gboolean should_invert(GtkRange *range)
 {
-	if (range->orientation == GTK_ORIENTATION_HORIZONTAL) {
+	gboolean inverted = gtk_range_get_inverted(range);
+	if (gtk_orientable_get_orientation(GTK_ORIENTABLE(range)) == GTK_ORIENTATION_HORIZONTAL) {
+		gboolean flippable = gtk_range_get_flippable(range);
 		return
-			(range->inverted && !range->flippable) ||
-			(range->inverted && range->flippable && gtk_widget_get_direction (GTK_WIDGET (range)) == GTK_TEXT_DIR_LTR) ||
-			(!range->inverted && range->flippable && gtk_widget_get_direction (GTK_WIDGET (range)) == GTK_TEXT_DIR_RTL);
+			(inverted && !flippable) ||
+			(inverted && flippable && gtk_widget_get_direction (GTK_WIDGET (range)) == GTK_TEXT_DIR_LTR) ||
+			(!inverted && flippable && gtk_widget_get_direction (GTK_WIDGET (range)) == GTK_TEXT_DIR_RTL);
 	} else {
-		return range->inverted;
+		return inverted;
 	}
 }
 
 static gboolean gx_regler_scroll(GtkRange *range, GtkScrollType scroll)
 {
-	gdouble old_value = range->adjustment->value;
+	gdouble old_value = gtk_adjustment_get_value(gtk_range_get_adjustment(range));
 
 	switch (scroll) {
     case GTK_SCROLL_STEP_DOWN:
@@ -719,7 +727,7 @@ static gboolean gx_regler_scroll(GtkRange *range, GtkScrollType scroll)
       break;
     }
 
-  return range->adjustment->value != old_value;
+    return gtk_adjustment_get_value(gtk_range_get_adjustment(range)) != old_value;
 }
 
 static void gx_regler_move_slider(GtkRange *range, GtkScrollType scroll)
@@ -758,11 +766,11 @@ static void gx_regler_move_slider(GtkRange *range, GtkScrollType scroll)
 static void ensure_digits(GxRegler *regler)
 {
 	GxReglerPrivate *priv = regler->priv;
-	GtkAdjustment *adj = GTK_RANGE(regler)->adjustment;
+	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
 	if (!adj) {
 		return;
 	}
-	gdouble v = adj->step_increment;
+	gdouble v = gtk_adjustment_get_step_increment(adj);
 	if (v == priv->last_step) {
 		return;
 	}
@@ -830,11 +838,12 @@ static const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for kno
 gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step)
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
-	double df = adj->upper - adj->lower;
+	gdouble lower = gtk_adjustment_get_lower(adj);
+	double df = gtk_adjustment_get_upper(adj) - lower;
 	if (df == 0.0) {
 		return 0.0;
 	} else {
-		return (adj->value - adj->lower) * step / df;
+		return (gtk_adjustment_get_value(adj) - lower) * step / df;
 	}
 }
 
@@ -842,8 +851,10 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
                               GdkRectangle *value_rect)
 {
 	GtkWidget *widget = GTK_WIDGET(regler);
-	gint x = widget->allocation.x;
-	gint y = widget->allocation.y;
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(widget, &allocation);
+	gint x = allocation.x;
+	gint y = allocation.y;
 	gint width = image_rect->width;
 	gint height =  image_rect->height;
 	gboolean show_value;
@@ -857,28 +868,28 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 		gtk_widget_style_get(widget, "value-spacing", &value_spacing, NULL);
 		switch (regler->value_position) {
 		case GTK_POS_LEFT:
-			text_x = x + (widget->allocation.width - width - text_width - value_spacing) / 2;
-			text_y = y + (widget->allocation.height - text_height) / 2;
-			image_rect->x = x + (widget->allocation.width - width + text_width + value_spacing) / 2;
-			image_rect->y = y + (widget->allocation.height - height) / 2;
+			text_x = x + (allocation.width - width - text_width - value_spacing) / 2;
+			text_y = y + (allocation.height - text_height) / 2;
+			image_rect->x = x + (allocation.width - width + text_width + value_spacing) / 2;
+			image_rect->y = y + (allocation.height - height) / 2;
 			break;
 		case GTK_POS_RIGHT:
-			text_x = x + value_spacing + (widget->allocation.width + width - text_width - value_spacing) / 2;
-			text_y = y + (widget->allocation.height - text_height) / 2;
-			image_rect->x = x + (widget->allocation.width - width - text_width - value_spacing) / 2;
-			image_rect->y = y + (widget->allocation.height - height) / 2;
+			text_x = x + value_spacing + (allocation.width + width - text_width - value_spacing) / 2;
+			text_y = y + (allocation.height - text_height) / 2;
+			image_rect->x = x + (allocation.width - width - text_width - value_spacing) / 2;
+			image_rect->y = y + (allocation.height - height) / 2;
 			break;
 		case GTK_POS_TOP:
-			text_x = x + (widget->allocation.width - text_width) / 2;
-			text_y = y + (widget->allocation.height - height - text_height - value_spacing) / 2;
-			image_rect->x = x + (widget->allocation.width - width) / 2;
-			image_rect->y = y + (widget->allocation.height - height + text_height + value_spacing) / 2;
+			text_x = x + (allocation.width - text_width) / 2;
+			text_y = y + (allocation.height - height - text_height - value_spacing) / 2;
+			image_rect->x = x + (allocation.width - width) / 2;
+			image_rect->y = y + (allocation.height - height + text_height + value_spacing) / 2;
 			break;
 		case GTK_POS_BOTTOM:
-			text_x = x + (widget->allocation.width - text_width) / 2;
-			text_y = y + value_spacing + (widget->allocation.height + height - text_height - value_spacing) / 2;
-			image_rect->x = x + (widget->allocation.width - width) / 2;
-			image_rect->y = y + (widget->allocation.height - height - text_height - value_spacing) / 2;
+			text_x = x + (allocation.width - text_width) / 2;
+			text_y = y + value_spacing + (allocation.height + height - text_height - value_spacing) / 2;
+			image_rect->x = x + (allocation.width - width) / 2;
+			image_rect->y = y + (allocation.height - height - text_height - value_spacing) / 2;
 			break;
 		}
 		if (value_rect) {
@@ -888,8 +899,8 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 			value_rect->height = text_height;
 		}
 	} else {
-		image_rect->x = x + (widget->allocation.width - width) / 2;
-		image_rect->y = y + (widget->allocation.height - height) / 2;
+		image_rect->x = x + (allocation.width - width) / 2;
+		image_rect->y = y + (allocation.height - height) / 2;
 		if (value_rect) {
 			value_rect->x = value_rect->y = value_rect->width = value_rect->height = 0;
 		}
@@ -990,11 +1001,12 @@ void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
 		return;
 	}
     GtkWidget *widget = GTK_WIDGET(regler);
+    GtkAdjustment* adjustment = gtk_range_get_adjustment(GTK_RANGE(regler));
     PangoLayout *l = regler->value_layout;
     PangoRectangle logical_rect;
 	gchar *txt;
 	ensure_digits(regler);
-	txt = _gx_regler_format_value(regler, GTK_RANGE(regler)->adjustment->value);
+	txt = _gx_regler_format_value(regler, gtk_adjustment_get_value(adjustment));
     pango_layout_set_text(l, txt, -1);
     g_free (txt);
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
@@ -1033,7 +1045,7 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 
 	gchar *txt;
 	ensure_digits(regler);
-	txt = _gx_regler_format_value(regler, GTK_RANGE(regler)->adjustment->value);
+	txt = _gx_regler_format_value(regler, gtk_adjustment_get_value(gtk_range_get_adjustment(GTK_RANGE(regler))));
 	set_value_color(GTK_WIDGET(regler),cr);
     PangoLayout *l = regler->value_layout;
     pango_layout_set_text(l, txt, -1);
@@ -1107,15 +1119,19 @@ static void gx_regler_set_value (GtkWidget *widget, int dir_down)
 	g_assert(GX_IS_REGLER(widget));
 
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
+	gdouble adj_value = gtk_adjustment_get_value(adj);
+	gdouble lower = gtk_adjustment_get_lower(adj);
+	gdouble upper = gtk_adjustment_get_upper(adj);
+	gdouble step_increment = gtk_adjustment_get_step_increment(adj);
 
-	int oldstep = (int)(0.5f + (adj->value - adj->lower) / adj->step_increment);
+	int oldstep = (int)(0.5f + (adj_value - lower) / step_increment);
 	int step;
-	int nsteps = (int)(0.5f + (adj->upper - adj->lower) / adj->step_increment);
+	int nsteps = (int)(0.5f + (upper - lower) / step_increment);
 	if (dir_down)
 		step = oldstep - 1;
 	else
 		step = oldstep + 1;
-	float value = adj->lower + step * (double)(adj->upper - adj->lower) / nsteps;
+	gdouble value = lower + step * (upper - lower) / nsteps;
 	gtk_widget_grab_focus(widget);
 	gtk_range_set_value(GTK_RANGE(widget), value);
 }
@@ -1160,7 +1176,7 @@ static gboolean dialog_key_press_before(
 {
 	if (event->keyval == GDK_Escape) {
 		// spinbutton to current adjustment value
-		gtk_adjustment_value_changed(GTK_SPIN_BUTTON(widget)->adjustment);
+		gtk_adjustment_value_changed(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(widget)));
 		gtk_widget_destroy(GTK_WIDGET(data));
 		return TRUE;
 	}
@@ -1232,14 +1248,17 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 	ensure_digits(regler);
 	GtkAdjustment *src_adj = GTK_ADJUSTMENT(
 		gtk_adjustment_new(
-			dst_adj->value, dst_adj->lower, dst_adj->upper,
-			dst_adj->step_increment, dst_adj->page_increment, dst_adj->page_size));
-	int rd = GTK_RANGE(regler)->round_digits;
+			gtk_adjustment_get_value(dst_adj), gtk_adjustment_get_lower(dst_adj),
+			gtk_adjustment_get_upper(dst_adj),
+			gtk_adjustment_get_step_increment(dst_adj),
+			gtk_adjustment_get_page_increment(dst_adj),
+			gtk_adjustment_get_page_size(dst_adj)));
+	int rd = gtk_range_get_round_digits(GTK_RANGE(regler));
 	if (rd < 0) {
 		rd = 0;
 	}
 	GtkWidget *spinner = gtk_spin_button_new(
-		src_adj, src_adj->step_increment, rd);
+		src_adj, gtk_adjustment_get_step_increment(src_adj), rd);
 	g_signal_connect(spinner, "output", G_CALLBACK(gx_regler_spinner_output), regler);
 	g_signal_connect(spinner, "input", G_CALLBACK(gx_regler_spinner_input), regler);
 	g_signal_connect(src_adj, "value-changed", G_CALLBACK(gx_regler_relay_value), dst_adj);
@@ -1330,7 +1349,7 @@ static void gx_regler_change_adjustment(GxRegler *regler, GtkAdjustment *adjustm
 static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec)
 {
 	GxRegler *regler = GX_REGLER(gobject);
-	gx_regler_change_adjustment(regler, regler->parent.adjustment);
+	gx_regler_change_adjustment(regler, gtk_range_get_adjustment(&regler->parent));
 }
 
 static void gx_regler_init(GxRegler *regler)
@@ -1412,7 +1431,7 @@ static void gx_regler_get_property(
 		g_value_set_object(value, regler->label);
 		break;
 	case PROP_DIGITS:
-		g_value_set_int(value, GTK_RANGE(object)->round_digits);
+		g_value_set_int(value, gtk_range_get_round_digits(GTK_RANGE(object)));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

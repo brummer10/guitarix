@@ -404,11 +404,11 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		break;
 	case 3: // right button show num entry
 		GtkRequisition requisition;
-		GtkAllocation allocation;
 		gtk_widget_get_requisition(widget, &requisition);
-		gtk_widget_get_allocation(widget, &allocation);
 		rect.width = requisition.width;
 		rect.height = requisition.height;
+		GtkAllocation allocation;
+		gtk_widget_get_allocation(widget, &allocation);
 		rect.x = allocation.x + (allocation.width - requisition.width) / 2;
 		rect.y = allocation.y + (allocation.height - requisition.height) / 2;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &rect, event, &ret);

@@ -131,20 +131,22 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
 	gint off =  slider->image_rect.x + slider->slider_width/2;
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
     static double last_x = 2e20;
+    gdouble lower = gtk_adjustment_get_lower(adj);
+    gdouble upper = gtk_adjustment_get_upper(adj);
 	if (!drag) {
 		last_x = x;
 		if (event && event->type == GDK_2BUTTON_PRESS) {
-		    double value = adj->lower + ((x - off) / slider->width) * (adj->upper - adj->lower);
+		    double value = lower + ((x - off) / slider->width) * (upper - lower);
 		    gtk_range_set_value(GTK_RANGE(widget), value);
 		}
 	} else {
-		double value = ((x - last_x) / slider->width) * (adj->upper - adj->lower);
+		double value = ((x - last_x) / slider->width) * (upper - lower);
 		value *= get_mouse_scale_factor(widget);
 		if (state & (GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
 			value *= 0.1;
 		}
 		last_x = x;
-		gtk_range_set_value(GTK_RANGE(widget), adj->value + value);
+		gtk_range_set_value(GTK_RANGE(widget), gtk_adjustment_get_value(adj) + value);
 	}
 	return TRUE;
 }

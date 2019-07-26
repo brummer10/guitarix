@@ -250,10 +250,10 @@ static void button_paint(
 				"displace-focus", &displace_focus, NULL);
 
 			if (interior_focus) {
-				x += widget->style->xthickness + focus_pad;
-				y += widget->style->ythickness + focus_pad;
-				width -= 2 * (widget->style->xthickness + focus_pad);
-				height -=  2 * (widget->style->ythickness + focus_pad);
+				x += style->xthickness + focus_pad;
+				y += style->ythickness + focus_pad;
+				width -= 2 * (style->xthickness + focus_pad);
+				height -=  2 * (style->ythickness + focus_pad);
 			} else {
 				x -= focus_width + focus_pad;
 				y -= focus_width + focus_pad;
