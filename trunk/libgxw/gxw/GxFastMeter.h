@@ -40,24 +40,11 @@ G_BEGIN_DECLS
 
 typedef struct _GxFastMeter GxFastMeter;
 typedef struct _GxFastMeterClass GxFastMeterClass;
+typedef struct _GxFastMeterPrivate GxFastMeterPrivate;
 
 struct _GxFastMeter {
 	GtkDrawingArea parent;
-
-	cairo_surface_t *surface, *overlay;
-	gint          top_of_meter;
-	GdkRectangle  last_peak_rect, bar;
-    GtkRequisition* request;
-    
-	gchar *GSEAL(var_id);
-	int hold_cnt;
-	int hold_state;
-
-	float         current_level;
-	float         current_peak;
-    float         old_peak_db;
-	gint dimen, clr0, clr1, clr2, clr3, type;
-    bool horiz;
+	GxFastMeterPrivate *priv;
 };
 
 struct _GxFastMeterClass {
