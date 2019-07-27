@@ -36,21 +36,12 @@ G_BEGIN_DECLS
 
 typedef struct _GxWaveView GxWaveView;
 typedef struct _GxWaveViewClass GxWaveViewClass;
+typedef struct _GxWaveViewPrivate GxWaveViewPrivate;
 
 struct _GxWaveView
 {
 	GtkDrawingArea parent;
-	GdkPixbuf *liveview_image;
-	const float *frame;
-	int frame_size;
-	gchar *text_top_left;
-	gchar *text_top_right;
-	gchar *text_bottom_left;
-	gchar *text_bottom_right;
-	double text_pos_left;
-	double text_pos_right;
-	double m_wave;
-	double m_loud;
+	GxWaveViewPrivate *priv;
 };
 
 struct _GxWaveViewClass

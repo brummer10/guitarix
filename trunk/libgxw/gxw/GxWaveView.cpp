@@ -27,6 +27,21 @@ part of guitarix, show a wave with Gtk
 
 #define P_(s) (s)   // FIXME -> gettext
 
+struct _GxWaveViewPrivate
+{
+	GdkPixbuf *liveview_image;
+	const float *frame;
+	int frame_size;
+	gchar *text_top_left;
+	gchar *text_top_right;
+	gchar *text_bottom_left;
+	gchar *text_bottom_right;
+	double text_pos_left;
+	double text_pos_right;
+	double m_wave;
+	double m_loud;
+};
+
 enum {
 	PROP_TEXT_TOP_LEFT = 1,
 	PROP_TEXT_TOP_RIGHT,
@@ -44,7 +59,9 @@ static void gx_wave_view_set_property(
 static void gx_wave_view_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 
-G_DEFINE_TYPE(GxWaveView, gx_wave_view, GTK_TYPE_DRAWING_AREA);
+G_DEFINE_TYPE_WITH_PRIVATE(GxWaveView, gx_wave_view, GTK_TYPE_DRAWING_AREA);
+
+#define GX_WAVE_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_WAVE_VIEW, GxWaveViewPrivate))
 
 static const int liveview_x = 300;
 static const int liveview_y = 110;
@@ -87,9 +104,9 @@ static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
 	
     cairo_t *crp; 
     GdkPixmap*  pix = gdk_pixmap_new(gtk_widget_get_window(widget),background_width,background_height,-1);
-	waveview->liveview_image = gdk_pixbuf_new(
+	waveview->priv->liveview_image = gdk_pixbuf_new(
 		GDK_COLORSPACE_RGB,FALSE,8,background_width,background_height);
-	g_assert(waveview->liveview_image != NULL);
+	g_assert(waveview->priv->liveview_image != NULL);
 	
     crp = gdk_cairo_create (pix);     
 	
@@ -155,7 +172,7 @@ static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
     cairo_destroy (crp); 
 
 	gdk_pixbuf_get_from_drawable(
-		waveview->liveview_image,
+		waveview->priv->liveview_image,
 		GDK_DRAWABLE(pix), gdk_colormap_get_system(),
 		0, 0,0,0,background_width,background_height);
 	g_object_unref(pix);
@@ -199,42 +216,42 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	gx_draw_inset(widget,liveviewx-2, liveviewy-1, 284,82, 0, 4);
     gx_draw_glass(widget,liveviewx, liveviewy-1, 280,82, 0);
 
-	if (!waveview->liveview_image) {
+	if (!waveview->priv->liveview_image) {
 		wave_view_background(waveview, widget, liveviewx, liveviewy);
 	} else {
-		gdk_cairo_set_source_pixbuf(cr, waveview->liveview_image, liveviewx-1, liveviewy-1);
+		gdk_cairo_set_source_pixbuf(cr, waveview->priv->liveview_image, liveviewx-1, liveviewy-1);
 		cairo_paint (cr);
 	}
 
 	cairo_set_source_rgb(cr, 1, 1, 1);
-	draw_text(widget, event, waveview->text_top_left, liveviewx + (int)(background_width * waveview->text_pos_left / 100),
+	draw_text(widget, event, waveview->priv->text_top_left, liveviewx + (int)(background_width * waveview->priv->text_pos_left / 100),
 	          liveviewy, GTK_CORNER_TOP_LEFT);
-	draw_text(widget, event, waveview->text_top_right, liveviewx + (int)(background_width * waveview->text_pos_right / 100),
+	draw_text(widget, event, waveview->priv->text_top_right, liveviewx + (int)(background_width * waveview->priv->text_pos_right / 100),
 	          liveviewy, GTK_CORNER_TOP_RIGHT);
-	draw_text(widget, event, waveview->text_bottom_left, liveviewx + (int)(background_width * waveview->text_pos_left / 100),
+	draw_text(widget, event, waveview->priv->text_bottom_left, liveviewx + (int)(background_width * waveview->priv->text_pos_left / 100),
 	          liveviewy, GTK_CORNER_BOTTOM_LEFT);
-	draw_text(widget, event, waveview->text_bottom_right, liveviewx + (int)(background_width * waveview->text_pos_right / 100),
+	draw_text(widget, event, waveview->priv->text_bottom_right, liveviewx + (int)(background_width * waveview->priv->text_pos_right / 100),
 	          liveviewy, GTK_CORNER_BOTTOM_RIGHT);
 
 	cairo_move_to (cr, liveviewx+280, liveviewy+40);
 
 	float wave_go = 0;
-	float sc = 280.0/waveview->frame_size;
+	float sc = 280.0/waveview->priv->frame_size;
 	float sc1 = liveviewx+280+sc;
 	float sc2 = liveviewy+40;
 	//----- draw the frame
-	for (int i = 0; i < waveview->frame_size; i++)
+	for (int i = 0; i < waveview->priv->frame_size; i++)
 	{
-		float x_in = waveview->frame[i];
-		cairo_line_to (cr, sc1 - sc*(i+1), sc2 - x_in*waveview->m_wave);
-		//cairo_line_to (cr, sc1 - sc*(i+1), sc2 + x_in*waveview->m_wave);
+		float x_in = waveview->priv->frame[i];
+		cairo_line_to (cr, sc1 - sc*(i+1), sc2 - x_in*waveview->priv->m_wave);
+		//cairo_line_to (cr, sc1 - sc*(i+1), sc2 + x_in*waveview->priv->m_wave);
 		wave_go = fmax(wave_go, fabs(x_in));
 	}
 
 	//----- get the sample, for display the gain value
 
 	float wave_db = log(fabs( wave_go))*6/log(2);
-	double xl     = floor(exp(log(1.055)*2.1*wave_db)*waveview->m_loud);
+	double xl     = floor(exp(log(1.055)*2.1*wave_db)*waveview->priv->m_loud);
 
 	if (xl > 125.0) xl = 125.0;
 	else if (xl < -125.0) xl = -125.0;
@@ -351,27 +368,26 @@ static void gx_wave_view_class_init (GxWaveViewClass *klass)
 
 static void gx_wave_view_init(GxWaveView *waveview)
 {
-	GtkWidget *widget = GTK_WIDGET(waveview);
-	waveview->frame = NULL;
-	waveview->frame_size = 0;
-	waveview->text_top_left = NULL;
-	waveview->text_top_right = NULL;
-	waveview->text_bottom_left = NULL;
-	waveview->text_bottom_right = NULL;
-	waveview->text_pos_left = 5;
-	waveview->text_pos_right = 70;
-	waveview->m_wave = 75;
-	waveview->m_loud = 150;
-	widget->requisition.width = liveview_x;
-	widget->requisition.height = liveview_y;
+	waveview->priv = GX_WAVE_VIEW_GET_PRIVATE(waveview);
+	waveview->priv->frame = NULL;
+	waveview->priv->frame_size = 0;
+	waveview->priv->text_top_left = NULL;
+	waveview->priv->text_top_right = NULL;
+	waveview->priv->text_bottom_left = NULL;
+	waveview->priv->text_bottom_right = NULL;
+	waveview->priv->text_pos_left = 5;
+	waveview->priv->text_pos_right = 70;
+	waveview->priv->m_wave = 75;
+	waveview->priv->m_loud = 150;
+	gtk_widget_set_size_request(GTK_WIDGET(waveview), liveview_x, liveview_y);
 }
 
 static void gx_wave_view_destroy (GtkObject *obj)
 {
 	GxWaveView *waveview = GX_WAVE_VIEW(obj);
-	if (waveview->liveview_image) {
-		g_object_unref(waveview->liveview_image);
-		waveview->liveview_image = 0;
+	if (waveview->priv->liveview_image) {
+		g_object_unref(waveview->priv->liveview_image);
+		waveview->priv->liveview_image = 0;
 	}
 	GTK_OBJECT_CLASS(gx_wave_view_parent_class)->destroy(obj);
 }
@@ -385,16 +401,16 @@ GtkWidget* gx_wave_view_new()
 void gx_wave_view_set_frame(GxWaveView *waveview, const float *frame, int frame_size)
 {
 	g_assert(GX_IS_WAVE_VIEW(waveview));
-	waveview->frame = frame;
-	waveview->frame_size = frame_size;
+	waveview->priv->frame = frame;
+	waveview->priv->frame_size = frame_size;
 	gtk_widget_queue_draw(GTK_WIDGET(waveview));
 }
 
 void gx_wave_view_set_multiplicator(GxWaveView *waveview, double m_wave, double m_loud)
 {
 	g_assert(GX_IS_WAVE_VIEW(waveview));
-	waveview->m_wave = m_wave;
-	waveview->m_loud = m_loud;
+	waveview->priv->m_wave = m_wave;
+	waveview->priv->m_loud = m_loud;
 }
 
 void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkCornerType pos)
@@ -404,19 +420,19 @@ void gx_wave_view_set_text(GxWaveView *waveview, const gchar *text, GtkCornerTyp
 	g_assert(GX_IS_WAVE_VIEW(waveview));
 	switch (pos) {
 	case GTK_CORNER_TOP_LEFT:
-		f = &waveview->text_top_left;
+		f = &waveview->priv->text_top_left;
 		p = "text-top-left";
 		break;
 	case GTK_CORNER_TOP_RIGHT:
-		f = &waveview->text_top_right;
+		f = &waveview->priv->text_top_right;
 		p = "text-top-right";
 		break;
 	case GTK_CORNER_BOTTOM_LEFT:
-		f = &waveview->text_bottom_left;
+		f = &waveview->priv->text_bottom_left;
 		p = "text-bottom-left";
 		break;
 	case GTK_CORNER_BOTTOM_RIGHT:
-		f = &waveview->text_bottom_right;
+		f = &waveview->priv->text_bottom_right;
 		p = "text-bottom-right";
 		break;
 	default:
@@ -447,11 +463,11 @@ static void gx_wave_view_set_property(GObject *object, guint prop_id,
 		gx_wave_view_set_text(wv, g_value_get_string(value), GTK_CORNER_BOTTOM_RIGHT);
 		break;
 	case PROP_TEXT_POS_LEFT:
-		wv->text_pos_left = g_value_get_double(value);
+		wv->priv->text_pos_left = g_value_get_double(value);
 		g_object_notify(object, "text-pos-left");
 		break;
 	case PROP_TEXT_POS_RIGHT:
-		wv->text_pos_right = g_value_get_double(value);
+		wv->priv->text_pos_right = g_value_get_double(value);
 		g_object_notify(object, "text-pos-right");
 		break;
 	default:
@@ -467,22 +483,22 @@ static void gx_wave_view_get_property(GObject *object, guint prop_id,
 
 	switch(prop_id) {
 	case PROP_TEXT_TOP_LEFT:
-		g_value_set_string (value, wv->text_top_left);
+		g_value_set_string (value, wv->priv->text_top_left);
 		break;
 	case PROP_TEXT_TOP_RIGHT:
-		g_value_set_string (value, wv->text_top_right);
+		g_value_set_string (value, wv->priv->text_top_right);
 		break;
 	case PROP_TEXT_BOTTOM_LEFT:
-		g_value_set_string (value, wv->text_bottom_left);
+		g_value_set_string (value, wv->priv->text_bottom_left);
 		break;
 	case PROP_TEXT_BOTTOM_RIGHT:
-		g_value_set_string (value, wv->text_bottom_right);
+		g_value_set_string (value, wv->priv->text_bottom_right);
 		break;
 	case PROP_TEXT_POS_LEFT:
-		g_value_set_double (value, wv->text_pos_left);
+		g_value_set_double (value, wv->priv->text_pos_left);
 		break;
 	case PROP_TEXT_POS_RIGHT:
-		g_value_set_double (value, wv->text_pos_right);
+		g_value_set_double (value, wv->priv->text_pos_right);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
