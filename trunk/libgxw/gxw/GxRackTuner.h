@@ -30,41 +30,14 @@ G_BEGIN_DECLS
 #define GX_IS_RACK_TUNER_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  GX_TYPE_RACK_TUNER))
 
 typedef struct _GxRackTuner GxRackTuner;
+typedef struct _GxRackTunerPrivate GxRackTunerPrivate;
 typedef struct _GxRackTunerClass GxRackTunerClass;
 
 #define RACKTUNER_MAXTARGETS (12)
 struct _GxRackTuner
 {
 	GxTuner        parent;
-	// properties
-	double   GSEAL (scale_lim);
-	double   GSEAL (speed);
-	gboolean GSEAL (display_flat);
-	gboolean GSEAL (streaming);
-	gint     GSEAL (timestep);
-	gint     GSEAL (in_limit_timestep);
-	gint     GSEAL (n_targets);
-	gint     GSEAL (targets)[RACKTUNER_MAXTARGETS];
-	gint     GSEAL (temperament);
-	// state
-	double   GSEAL (pos); // led lighted position
-	gboolean GSEAL (in_limit);
-	gint     GSEAL (indicate_oc);
-	gint     GSEAL (vis);
-	double   GSEAL (scale_val);
-	const char **GSEAL (note);
-	double   GSEAL (last_freq);
-	guint    GSEAL (freqpoll_id);
-	guint    GSEAL (in_limit_id);
-	gint     GSEAL (target_oc);
-	gint     GSEAL (target_note);
-	gint     GSEAL (target_temperament);
-	gint     GSEAL (target_adjust);
-	gint     GSEAL (strng);   // number of current string (1 == string with highest pitch)
-	// caculated layout
-	gint    GSEAL (led_count);
-    gint    GSEAL (width);
-    gint    GSEAL (padding);
+	GxRackTunerPrivate *priv;
 };
 
 struct _GxRackTunerClass

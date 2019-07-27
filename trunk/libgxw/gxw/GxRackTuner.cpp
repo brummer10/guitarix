@@ -24,6 +24,39 @@
 #define I_(x)  x  //FIXME whats this??
 #define P_(s) (s)   // FIXME -> gettext
 
+struct _GxRackTunerPrivate
+{
+	// properties
+	double   scale_lim;
+	double   speed;
+	gboolean display_flat;
+	gboolean streaming;
+	gint     timestep;
+	gint     in_limit_timestep;
+	gint     n_targets;
+	gint     targets[RACKTUNER_MAXTARGETS];
+	gint     temperament;
+	// state
+	double   pos; // led lighted position
+	gboolean in_limit;
+	gint     indicate_oc;
+	gint     vis;
+	double   scale_val;
+	const char **note;
+	double   last_freq;
+	guint    freqpoll_id;
+	guint    in_limit_id;
+	gint     target_oc;
+	gint     target_note;
+	gint     target_temperament;
+	gint     target_adjust;
+	gint     strng;   // number of current string (1 == string with highest pitch)
+	// caculated layout
+	gint    led_count;
+	gint    width;
+	gint    padding;
+};
+
 enum {
 	PROP_FREQ = 1,
 	PROP_SCALE_LIM,
@@ -61,7 +94,9 @@ static const int pad = 4;
 static const int tri_y0 = 25;  // center line of triangles
 static const int min_led = 32;
 
-G_DEFINE_TYPE(GxRackTuner, gx_rack_tuner, GX_TYPE_TUNER);
+G_DEFINE_TYPE_WITH_PRIVATE(GxRackTuner, gx_rack_tuner, GX_TYPE_TUNER);
+
+#define GX_RACK_TUNER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_RACK_TUNER, GxRackTunerPrivate))
 
 static void gx_rack_tuner_map(GtkWidget*);
 static void gx_rack_tuner_unmap(GtkWidget*);
@@ -158,33 +193,34 @@ static const char *octave[] = {"0","1","2","3","4","5"," "};
 static void gx_rack_tuner_init (GxRackTuner *tuner)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->scale_lim = 0.03;
-	tuner->speed = 0.15;
-	tuner->display_flat = FALSE;
-	tuner->streaming = FALSE;
-	tuner->timestep = 50;
-	tuner->in_limit_timestep = 8;
-	tuner->n_targets = 0;
-	tuner->temperament = 0;
+	tuner->priv = GX_RACK_TUNER_GET_PRIVATE(tuner);
+	tuner->priv->scale_lim = 0.03;
+	tuner->priv->speed = 0.15;
+	tuner->priv->display_flat = FALSE;
+	tuner->priv->streaming = FALSE;
+	tuner->priv->timestep = 50;
+	tuner->priv->in_limit_timestep = 8;
+	tuner->priv->n_targets = 0;
+	tuner->priv->temperament = 0;
 	// state
-	tuner->pos = 0.0;
-	tuner->in_limit = FALSE;
-	tuner->indicate_oc = 0;
-	tuner->vis = 0;
-	tuner->scale_val = 0.0;
-	tuner->note = note_sharp;
-	tuner->last_freq = 0.0;
-	tuner->freqpoll_id = 0;
-	tuner->in_limit_id = 0;
-	tuner->target_oc = 0;
-	tuner->target_note = 0;
-	tuner->target_temperament = 12;
-	tuner->target_adjust = 3;
-	tuner->strng = 0;
+	tuner->priv->pos = 0.0;
+	tuner->priv->in_limit = FALSE;
+	tuner->priv->indicate_oc = 0;
+	tuner->priv->vis = 0;
+	tuner->priv->scale_val = 0.0;
+	tuner->priv->note = note_sharp;
+	tuner->priv->last_freq = 0.0;
+	tuner->priv->freqpoll_id = 0;
+	tuner->priv->in_limit_id = 0;
+	tuner->priv->target_oc = 0;
+	tuner->priv->target_note = 0;
+	tuner->priv->target_temperament = 12;
+	tuner->priv->target_adjust = 3;
+	tuner->priv->strng = 0;
 	// caculated layout
-	tuner->led_count = 0;
-	tuner->width = 0;
-	tuner->padding = 0;
+	tuner->priv->led_count = 0;
+	tuner->priv->width = 0;
+	tuner->priv->padding = 0;
 }
 
 static void gx_rack_tuner_destroy(GtkObject *object)
@@ -204,51 +240,51 @@ void gx_rack_tuner_set_freq(GxRackTuner *tuner, double freq)
 void gx_rack_tuner_set_scale_lim(GxRackTuner *tuner, double scale_lim)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->scale_lim = scale_lim;
+	tuner->priv->scale_lim = scale_lim;
 	g_object_notify(G_OBJECT(tuner), "scale_lim");
 }
 
 double gx_rack_tuner_get_scale_lim(GxRackTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
-	return tuner->scale_lim;
+	return tuner->priv->scale_lim;
 }
 
 void gx_rack_tuner_set_speed(GxRackTuner *tuner, double speed)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->speed = speed;
+	tuner->priv->speed = speed;
 	g_object_notify(G_OBJECT(tuner), "speed");
 }
 
 double gx_rack_tuner_get_speed(GxRackTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
-	return tuner->speed;
+	return tuner->priv->speed;
 }
 
 void gx_rack_tuner_set_streaming(GxRackTuner *tuner, gboolean streaming)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->streaming = streaming;
+	tuner->priv->streaming = streaming;
 	g_object_notify(G_OBJECT(tuner), "streaming");
 }
 
 gboolean gx_rack_tuner_get_streaming(GxRackTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
-	return tuner->streaming;
+	return tuner->priv->streaming;
 }
 
 void gx_rack_tuner_set_display_flat(GxRackTuner *tuner, gboolean display_flat)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->display_flat = display_flat;
-    if (tuner->temperament == 0) {
+	tuner->priv->display_flat = display_flat;
+    if (tuner->priv->temperament == 0) {
         if (display_flat) {
-            tuner->note = note_flat;
+            tuner->priv->note = note_flat;
         } else {
-            tuner->note = note_sharp;
+            tuner->priv->note = note_sharp;
         }
 	}
 	g_object_notify(G_OBJECT(tuner), "display_flat");
@@ -257,73 +293,73 @@ void gx_rack_tuner_set_display_flat(GxRackTuner *tuner, gboolean display_flat)
 gboolean gx_rack_tuner_get_display_flat(GxRackTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
-	return tuner->display_flat;
+	return tuner->priv->display_flat;
 }
 
 void gx_rack_tuner_set_timestep(GxRackTuner *tuner, gint timestep)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->timestep = timestep;
+	tuner->priv->timestep = timestep;
 	g_object_notify(G_OBJECT(tuner), "timestep");
 }
 
 gint gx_rack_tuner_get_timestep(GxRackTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
-	return tuner->timestep;
+	return tuner->priv->timestep;
 }
 
 void gx_rack_tuner_set_limit_timestep(GxRackTuner *tuner, gint in_limit_timestep)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->in_limit_timestep = in_limit_timestep;
+	tuner->priv->in_limit_timestep = in_limit_timestep;
 	g_object_notify(G_OBJECT(tuner), "limit_timestep");
 }
 
 gint gx_rack_tuner_get_limit_timestep(GxRackTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
-	return tuner->in_limit_timestep;
+	return tuner->priv->in_limit_timestep;
 }
 
 void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
 {
     g_assert(GX_IS_RACK_TUNER(tuner));
-    tuner->temperament = temperament;
-    switch(tuner->temperament) {
+    tuner->priv->temperament = temperament;
+    switch(tuner->priv->temperament) {
     case  0:
-        tuner->target_temperament = 12;
-        tuner->target_adjust = 3;
-        if (tuner->display_flat) {
-            tuner->note = note_flat;
+        tuner->priv->target_temperament = 12;
+        tuner->priv->target_adjust = 3;
+        if (tuner->priv->display_flat) {
+            tuner->priv->note = note_flat;
         } else {
-            tuner->note = note_sharp;
+            tuner->priv->note = note_sharp;
         }
         break;
     case 1: 
-        tuner->target_temperament = 19;
-        tuner->target_adjust = 6;
-        tuner->note = note_19;
+        tuner->priv->target_temperament = 19;
+        tuner->priv->target_adjust = 6;
+        tuner->priv->note = note_19;
         break;
     case 2: 
-        tuner->target_temperament = 24;
-        tuner->target_adjust = 7;
-        tuner->note = note_24;
+        tuner->priv->target_temperament = 24;
+        tuner->priv->target_adjust = 7;
+        tuner->priv->note = note_24;
         break;
     case 3: 
-        tuner->target_temperament = 31;
-        tuner->target_adjust = 9;
-        tuner->note = note_31;
+        tuner->priv->target_temperament = 31;
+        tuner->priv->target_adjust = 9;
+        tuner->priv->note = note_31;
         break;
     case 4:
-        tuner->target_temperament = 53;
-        tuner->target_adjust = 15;
-        tuner->note = note_53;
+        tuner->priv->target_temperament = 53;
+        tuner->priv->target_adjust = 15;
+        tuner->priv->note = note_53;
         break;
     default:
-        tuner->target_temperament = 12;
-        tuner->target_adjust = 3;
-        tuner->note = note_sharp;
+        tuner->priv->target_temperament = 12;
+        tuner->priv->target_adjust = 3;
+        tuner->priv->note = note_sharp;
         break;
     }
     g_object_notify(G_OBJECT(tuner), "temperament");
@@ -332,13 +368,13 @@ void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
 gint gx_rack_tuner_get_temperament(GxRackTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
-	return tuner->temperament;
+	return tuner->priv->temperament;
 }
 
 void gx_rack_tuner_clear_notes(GxRackTuner *tuner)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->n_targets = 0;
+	tuner->priv->n_targets = 0;
 }
 
 
@@ -347,12 +383,12 @@ void gx_rack_tuner_clear_notes(GxRackTuner *tuner)
 gboolean gx_rack_tuner_push_note(GxRackTuner *tuner, gint note, gint A, gint TET)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	if (tuner->n_targets >= RACKTUNER_MAXTARGETS) {
+	if (tuner->priv->n_targets >= RACKTUNER_MAXTARGETS) {
 		return FALSE;
 	}
     double note2freq = 440.00*pow(2.0, double(note-A)/TET);
-    gint freq2note = round(tuner->target_temperament*(log2(note2freq/440.00)+4));
-    tuner->targets[tuner->n_targets++] = freq2note ;
+    gint freq2note = round(tuner->priv->target_temperament*(log2(note2freq/440.00)+4));
+    tuner->priv->targets[tuner->priv->n_targets++] = freq2note ;
 	return TRUE;
 }
 
@@ -407,25 +443,25 @@ static void gx_rack_tuner_get_property(GObject *object, guint prop_id,
 		g_value_set_double(value, gx_tuner_get_freq(&tuner->parent));
 		break;
 	case PROP_SCALE_LIM:
-		g_value_set_double(value, tuner->scale_lim);
+		g_value_set_double(value, tuner->priv->scale_lim);
 		break;
 	case PROP_SPEED:
-		g_value_set_double(value, tuner->speed);
+		g_value_set_double(value, tuner->priv->speed);
 		break;
 	case PROP_DISPLAY_FLAT:
-		g_value_set_boolean(value, tuner->display_flat);
+		g_value_set_boolean(value, tuner->priv->display_flat);
 		break;
 	case PROP_STREAMING:
-		g_value_set_boolean(value, tuner->streaming);
+		g_value_set_boolean(value, tuner->priv->streaming);
 		break;
 	case PROP_TIMESTEP:
-		g_value_set_int(value, tuner->timestep);
+		g_value_set_int(value, tuner->priv->timestep);
 		break;
 	case PROP_LIMIT_TIMESTEP:
-		g_value_set_int(value, tuner->in_limit_timestep);
+		g_value_set_int(value, tuner->priv->in_limit_timestep);
 		break;
 	case PROP_TEMPERAMENT:
-		g_value_set_int(value, tuner->temperament);
+		g_value_set_int(value, tuner->priv->temperament);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -448,67 +484,67 @@ static void gx_rack_tuner_pitch_to_note(GxRackTuner *tuner, double fnote, int *o
 		*scale = fnote - *note;
 	}
 
-	*oc = int(round((fnoter+tuner->target_adjust)/tuner->target_temperament));
+	*oc = int(round((fnoter+tuner->priv->target_adjust)/tuner->priv->target_temperament));
 	int octsz = sizeof(octave) / sizeof(octave[0]);
 	if (*oc < 0 || *oc >= octsz) {
 		*oc = octsz - 1;
 	}
-	*note = *note % tuner->target_temperament;
+	*note = *note % tuner->priv->target_temperament;
 	if (*note < 0) {
-		*note += tuner->target_temperament;
+		*note += tuner->priv->target_temperament;
 	}
 }
 
 static void gx_rack_tuner_calc(GxRackTuner *tuner)
 {
-	double fvis = tuner->target_temperament * (log2(gx_tuner_get_freq(&tuner->parent)/gx_tuner_get_reference_pitch(&tuner->parent)) + 4);
-	gx_rack_tuner_pitch_to_note(tuner, fvis, &tuner->indicate_oc, &tuner->vis, &tuner->scale_val);
-	if (tuner->n_targets == 0) {
+	double fvis = tuner->priv->target_temperament * (log2(gx_tuner_get_freq(&tuner->parent)/gx_tuner_get_reference_pitch(&tuner->parent)) + 4);
+	gx_rack_tuner_pitch_to_note(tuner, fvis, &tuner->priv->indicate_oc, &tuner->priv->vis, &tuner->priv->scale_val);
+	if (tuner->priv->n_targets == 0) {
 		return;
 	}
 	double m0 = 1e10;
 	int i0 = 0;
-	for (int i = 0; i < tuner->n_targets; ++i) {
-		double t = fabs(fvis-tuner->targets[i]);
+	for (int i = 0; i < tuner->priv->n_targets; ++i) {
+		double t = fabs(fvis-tuner->priv->targets[i]);
 		if (t < m0) {
 			m0 = t;
 			i0 = i;
 		}
-        tuner->strng = tuner->n_targets - i0;
-        int val = tuner->targets[i0];
-		gx_rack_tuner_pitch_to_note(tuner, val, &tuner->target_oc, &tuner->target_note, NULL);
-		tuner->scale_val = fvis - val;
-		if (tuner->scale_val > 0.5) {
-			tuner->scale_val = 0.5;
-		} else if (tuner->scale_val < -0.5) {
-			tuner->scale_val = -0.5;
+        tuner->priv->strng = tuner->priv->n_targets - i0;
+        int val = tuner->priv->targets[i0];
+		gx_rack_tuner_pitch_to_note(tuner, val, &tuner->priv->target_oc, &tuner->priv->target_note, NULL);
+		tuner->priv->scale_val = fvis - val;
+		if (tuner->priv->scale_val > 0.5) {
+			tuner->priv->scale_val = 0.5;
+		} else if (tuner->priv->scale_val < -0.5) {
+			tuner->priv->scale_val = -0.5;
 		}
 	}
 }
 
 gboolean gx_rack_tuner_get_poll_status(GxRackTuner *tuner) {
-	return (tuner->freqpoll_id != 0);
+	return (tuner->priv->freqpoll_id != 0);
 }
 
 static void gx_rack_tuner_remove_handler(GxRackTuner *tuner)
 {
-	if (tuner->freqpoll_id) {
-		g_source_remove(tuner->freqpoll_id);
-		tuner->freqpoll_id = 0;
+	if (tuner->priv->freqpoll_id) {
+		g_source_remove(tuner->priv->freqpoll_id);
+		tuner->priv->freqpoll_id = 0;
 		g_signal_emit_by_name(tuner, "poll-status-changed", FALSE);
 	}
-	if (tuner->in_limit_id) {
-		g_source_remove(tuner->in_limit_id);
-		tuner->in_limit_id = 0;
+	if (tuner->priv->in_limit_id) {
+		g_source_remove(tuner->priv->in_limit_id);
+		tuner->priv->in_limit_id = 0;
 	}
 }
 
 static void gx_rack_tuner_check_poll(GxRackTuner *tuner) 
 {
 	if (gtk_widget_get_sensitive(GTK_WIDGET(tuner)) && gtk_widget_get_mapped(GTK_WIDGET(tuner))) {
-		if (!tuner->freqpoll_id) {
-			tuner->freqpoll_id = gdk_threads_add_timeout(
-				tuner->timestep, gx_rack_tuner_freq_poll_handler, tuner);
+		if (!tuner->priv->freqpoll_id) {
+			tuner->priv->freqpoll_id = gdk_threads_add_timeout(
+				tuner->priv->timestep, gx_rack_tuner_freq_poll_handler, tuner);
 			g_signal_emit_by_name(tuner, "poll-status-changed", TRUE);
 			gx_rack_tuner_freq_poll_handler(tuner);
 		}
@@ -537,11 +573,11 @@ static void gx_rack_tuner_state_changed(GtkWidget *widget, GtkStateType oldstate
 static gboolean gx_rack_tuner_show_in_limit(gpointer data)
 {
 	GxRackTuner *tuner = GX_RACK_TUNER(data);
-	if (!tuner->in_limit || tuner->pos >= tuner->led_count/2-2) {
-		tuner->in_limit_id = 0;
+	if (!tuner->priv->in_limit || tuner->priv->pos >= tuner->priv->led_count/2-2) {
+		tuner->priv->in_limit_id = 0;
 		return FALSE;
 	}
-	tuner->pos += 1;
+	tuner->priv->pos += 1;
 	GdkWindow *w = gtk_widget_get_window(GTK_WIDGET(tuner));
 	gint width;
 	gdk_drawable_get_size(w, &width, NULL);
@@ -557,33 +593,33 @@ static gboolean gx_rack_tuner_freq_poll_handler(gpointer data)
 	g_signal_emit_by_name(tuner, "frequency-poll");
 
 	double freq = gx_tuner_get_freq(&tuner->parent);
-	if (freq != tuner->last_freq) {
-		tuner->last_freq = freq;
+	if (freq != tuner->priv->last_freq) {
+		tuner->priv->last_freq = freq;
 		gx_rack_tuner_calc(tuner);
 	} else {
-		if (freq == 0.0 || fabs(tuner->scale_val) < tuner->scale_lim) {
+		if (freq == 0.0 || fabs(tuner->priv->scale_val) < tuner->priv->scale_lim) {
 			return TRUE;
 		}
 	}
-	if (tuner->streaming) {
-		if (fabs(tuner->scale_val) >= tuner->scale_lim) {
-			tuner->in_limit = FALSE;
-			double step = tuner->speed * tuner->timestep;
-			double step_lim = tuner->led_count/8;
+	if (tuner->priv->streaming) {
+		if (fabs(tuner->priv->scale_val) >= tuner->priv->scale_lim) {
+			tuner->priv->in_limit = FALSE;
+			double step = tuner->priv->speed * tuner->priv->timestep;
+			double step_lim = tuner->priv->led_count/8;
 			if (step > step_lim) {
 				step = step_lim;
 			}
-			tuner->pos += step * tuner->scale_val;
-			if (tuner->pos >= tuner->led_count) {
-				tuner->pos = 0.0;
-			} else if (tuner->pos < 0) {
-				tuner->pos = tuner->led_count-1;
+			tuner->priv->pos += step * tuner->priv->scale_val;
+			if (tuner->priv->pos >= tuner->priv->led_count) {
+				tuner->priv->pos = 0.0;
+			} else if (tuner->priv->pos < 0) {
+				tuner->priv->pos = tuner->priv->led_count-1;
 			}
-		} else if (!tuner->in_limit) {
-			tuner->in_limit = TRUE;
-			tuner->pos = 0;
-			if (!tuner->in_limit_id) {
-				tuner->in_limit_id = gdk_threads_add_timeout(tuner->in_limit_timestep, gx_rack_tuner_show_in_limit, tuner);
+		} else if (!tuner->priv->in_limit) {
+			tuner->priv->in_limit = TRUE;
+			tuner->priv->pos = 0;
+			if (!tuner->priv->in_limit_id) {
+				tuner->priv->in_limit_id = gdk_threads_add_timeout(tuner->priv->in_limit_timestep, gx_rack_tuner_show_in_limit, tuner);
 			}
 		}
     }
@@ -607,7 +643,7 @@ static void gx_rack_tuner_triangle(GxRackTuner *tuner, cairo_t *cr, double posx,
 
 static void gx_rack_tuner_display_note(GxRackTuner *tuner, cairo_t *cr, double center, double y0, int indicate_oc, int vis, double scale)
 {
-	if (vis > tuner->target_temperament) return;
+	if (vis > tuner->priv->target_temperament) return;
 	cairo_text_extents_t ex, ex_oct;
 	double pitch_add = fabs(gx_tuner_get_reference_pitch(&tuner->parent) - 440.00);
 	cairo_set_source_rgba(cr, fabs(scale)+(pitch_add*0.1), 1-(scale*scale+(pitch_add*0.1)), 0.2, 1-fabs(scale));
@@ -625,7 +661,7 @@ static void gx_rack_tuner_display_note(GxRackTuner *tuner, cairo_t *cr, double c
 	double x0 = center-wdt/2+1;
 	y0 += g_height/2;
 	cairo_move_to(cr, x0, y0);
-	const char *nt = tuner->note[vis];
+	const char *nt = tuner->priv->note[vis];
 	char buf[2];
 	buf[0] = nt[0];
 	buf[1] = 0;
@@ -645,7 +681,7 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 	double scale = gx_tuner_get_scale(&tuner->parent);
 	cairo_scale(cr, scale, scale);
 	cairo_set_line_width(cr,1);
-	double center = tuner->padding + tuner->width/2;
+	double center = tuner->priv->padding + tuner->priv->width/2;
 	double dist = 20;
 	double tri0 = center-15-dist;
 	double tri1 = center+15+dist;
@@ -657,9 +693,9 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 	if (paint_bg) {
 		cairo_set_source_rgb(cr, 0, 0, 0);
 		cairo_paint(cr);
-		for (int i = 0; i < tuner->led_count; ++i) {
+		for (int i = 0; i < tuner->priv->led_count; ++i) {
 			cairo_set_source_rgb(cr,0.1,0.1,0.1);
-			cairo_rectangle(cr,tuner->padding+i*led_spacing, led_y0, led_width, led_height);
+			cairo_rectangle(cr,tuner->priv->padding+i*led_spacing, led_y0, led_width, led_height);
 			cairo_fill(cr);
 		}
 		cairo_set_source_rgb(cr,0.1,0.1,0.1);
@@ -667,55 +703,55 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 		gx_rack_tuner_triangle(tuner, cr, tri1, 25, -15, 10);
 		return;
 	}
-	if (tuner->streaming) {
+	if (tuner->priv->streaming) {
         
         cairo_set_source (cr, pat);
-		if (tuner->in_limit) {
+		if (tuner->priv->in_limit) {
 			//cairo_set_source_rgb(cr,1, 0, 0);
             
-			int n = tuner->led_count/2-tuner->pos;
+			int n = tuner->priv->led_count/2-tuner->priv->pos;
 			if (n > 4) {
 				n = 4;
 			}
 			for (int i = 0; i < n; ++i) {
-				cairo_rectangle(cr,tuner->padding+(tuner->pos+i)*led_spacing, led_y0, led_width, led_height);
-				cairo_rectangle(cr,tuner->padding+(tuner->led_count-1-i-tuner->pos)*led_spacing, led_y0, led_width, led_height);
+				cairo_rectangle(cr,tuner->priv->padding+(tuner->priv->pos+i)*led_spacing, led_y0, led_width, led_height);
+				cairo_rectangle(cr,tuner->priv->padding+(tuner->priv->led_count-1-i-tuner->priv->pos)*led_spacing, led_y0, led_width, led_height);
 			}
 			cairo_fill(cr);
             
 		} else {
-			// led display: 2 .. tuner->led_count/8+1
-			int lim = 1+int(1+(fabs(tuner->scale_val)-tuner->scale_lim)*tuner->led_count/4.0);
+			// led display: 2 .. tuner->priv->led_count/8+1
+			int lim = 1+int(1+(fabs(tuner->priv->scale_val)-tuner->priv->scale_lim)*tuner->priv->led_count/4.0);
 			//cairo_set_source_rgb(cr,1, 0, 0);
-			if (fabs(tuner->scale_val) >= tuner->scale_lim) {
-				for (int i = 0; i < tuner->led_count; ++i) {
-					int j = int(tuner->led_count+i-tuner->pos) % (tuner->led_count/2);
+			if (fabs(tuner->priv->scale_val) >= tuner->priv->scale_lim) {
+				for (int i = 0; i < tuner->priv->led_count; ++i) {
+					int j = int(tuner->priv->led_count+i-tuner->priv->pos) % (tuner->priv->led_count/2);
 					if (j < 0) {
 						j = -j;
 					}
 					if (lim <= j) {
 						continue;
 					}
-					cairo_rectangle(cr,tuner->padding+i*led_spacing, led_y0, led_width, led_height);
+					cairo_rectangle(cr,tuner->priv->padding+i*led_spacing, led_y0, led_width, led_height);
 				}
 			}
 			cairo_fill(cr);
 		}
 	} else {
-		double s = 0.5+tuner->scale_val;
+		double s = 0.5+tuner->priv->scale_val;
 		if (s < 0) {
 			s = 0;
 		} else if (s > 1) {
 			s = 1;
 		}
-		double sz = 2 * tuner->width * tuner->scale_lim;
-		cairo_rectangle(cr,tuner->padding+s*(tuner->width-sz), led_y0, sz, led_height);
+		double sz = 2 * tuner->priv->width * tuner->priv->scale_lim;
+		cairo_rectangle(cr,tuner->priv->padding+s*(tuner->priv->width-sz), led_y0, sz, led_height);
 		cairo_set_source_rgb(cr,1, 0, 0);
         cairo_set_source (cr, pat);
 		cairo_fill(cr);
-		if (fabs(tuner->scale_val) < 0.4) {
+		if (fabs(tuner->priv->scale_val) < 0.4) {
 			cairo_set_source_rgb(cr,1, 1, 0);
-			cairo_rectangle(cr,tuner->padding+0.5*(tuner->width-led_width), led_y0, led_width, led_height);
+			cairo_rectangle(cr,tuner->priv->padding+0.5*(tuner->priv->width-led_width), led_y0, led_width, led_height);
 			cairo_fill(cr);
 		}
 	}
@@ -724,20 +760,20 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 	if (ex_y + ex_h <= 10) {
 		return;
 	}
-	if (tuner->scale_val < tuner->scale_lim) {
+	if (tuner->priv->scale_val < tuner->priv->scale_lim) {
 		cairo_set_source_rgb(cr,0.80,0.79,0.01);
 		gx_rack_tuner_triangle(tuner, cr, tri0, tri_y0, 15, 10);
 	}
-	if (tuner->scale_val > -tuner->scale_lim) {
+	if (tuner->priv->scale_val > -tuner->priv->scale_lim) {
 		cairo_set_source_rgb(cr,0.80,0.79,0.01);
 		gx_rack_tuner_triangle(tuner, cr, tri1, tri_y0, -15, 10);
 	}
-	gx_rack_tuner_display_note(tuner, cr, center, tri_y0, tuner->indicate_oc, tuner->vis, tuner->scale_val);
+	gx_rack_tuner_display_note(tuner, cr, center, tri_y0, tuner->priv->indicate_oc, tuner->priv->vis, tuner->priv->scale_val);
 
-	if (tuner->n_targets > 0) {
+	if (tuner->priv->n_targets > 0) {
 		cairo_set_font_size(cr,12.0);
 		char sd[10];
-		int n = snprintf(sd, sizeof(sd), "%d: %s", tuner->strng, tuner->note[tuner->target_note]);
+		int n = snprintf(sd, sizeof(sd), "%d: %s", tuner->priv->strng, tuner->priv->note[tuner->priv->target_note]);
 		char c = sd[n-1];
 		if (c == '#' || c == 'b') {
 			sd[n-1] = 0;
@@ -756,7 +792,7 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 		cairo_get_current_point(cr, &pt_x, &pt_y);
 		cairo_set_font_size(cr,9.0);
 		cairo_rel_move_to(cr,0,-ex.y_bearing/2);
-		cairo_show_text(cr, octave[tuner->target_oc]);
+		cairo_show_text(cr, octave[tuner->priv->target_oc]);
 		if (c == '#' || c == 'b') {
 			cairo_move_to(cr,pt_x, tri_y0);
 			sd[0] = c;
@@ -783,11 +819,11 @@ static gboolean gx_rack_tuner_configure_event(GtkWidget *widget, GdkEventConfigu
 {
 	GxRackTuner *tuner = GX_RACK_TUNER(widget);
 	double swidth = ev->width / gx_tuner_get_scale(&tuner->parent);
-	tuner->led_count = (int(1 + (swidth - 2 * pad - led_width) / led_spacing) / 4) * 4;
-	tuner->width = (tuner->led_count-1) * led_spacing + led_width;
-	tuner->padding = (swidth - tuner->width) / 2;
-	if (tuner->streaming && tuner->in_limit && !tuner->in_limit_id) {
-		tuner->pos = tuner->led_count/2-2;
+	tuner->priv->led_count = (int(1 + (swidth - 2 * pad - led_width) / led_spacing) / 4) * 4;
+	tuner->priv->width = (tuner->priv->led_count-1) * led_spacing + led_width;
+	tuner->priv->padding = (swidth - tuner->priv->width) / 2;
+	if (tuner->priv->streaming && tuner->priv->in_limit && !tuner->priv->in_limit_id) {
+		tuner->priv->pos = tuner->priv->led_count/2-2;
 	}
 	cairo_surface_t *surface_tuner = cairo_image_surface_create(
 		CAIRO_FORMAT_RGB24, ev->width, ev->height);
