@@ -106,9 +106,8 @@ static void gx_tuner_init (GxTuner *tuner)
 	tuner->reference_pitch = 440.0;
 	tuner->scale = 1.0;
 	tuner_surface_init(tuner);
-	GtkWidget *widget = GTK_WIDGET(tuner);
-	widget->requisition.width = tuner_width * tuner->scale;
-	widget->requisition.height = tuner_height * tuner->scale;
+	gtk_widget_set_size_request(GTK_WIDGET(tuner), tuner_width * tuner->scale,
+	                            tuner_height * tuner->scale);
 }
 
 static void gx_tuner_finalize(GObject *object)
@@ -144,8 +143,8 @@ void gx_tuner_set_scale(GxTuner *tuner, double scale)
 	g_assert(GX_IS_TUNER(tuner));
 	tuner_surface_finalize(tuner);
 	tuner->scale = scale;
-	GTK_WIDGET(tuner)->requisition.width = tuner_width * tuner->scale;
-	GTK_WIDGET(tuner)->requisition.height = tuner_height * tuner->scale;
+	gtk_widget_set_size_request(GTK_WIDGET(tuner), tuner_width * tuner->scale,
+	                            tuner_height * tuner->scale);
 	tuner_surface_init(tuner);
 	gtk_widget_queue_resize(GTK_WIDGET(tuner));
 	g_object_notify(G_OBJECT(tuner), "scale");
