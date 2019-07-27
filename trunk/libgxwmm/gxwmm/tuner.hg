@@ -27,6 +27,7 @@ class Tuner: public Gtk::DrawingArea {
 	public:
 	_CTOR_DEFAULT
 	_WRAP_METHOD(void set_freq(double), gx_tuner_set_freq)
+	_WRAP_METHOD(void get_freq(double), gx_tuner_get_freq)
 	_WRAP_METHOD(void set_reference_pitch(double), gx_tuner_set_reference_pitch)
 	_WRAP_METHOD(double get_reference_pitch(), gx_tuner_get_reference_pitch)
 	_WRAP_METHOD(void set_scale(double), gx_tuner_set_scale)
