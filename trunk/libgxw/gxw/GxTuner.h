@@ -31,14 +31,12 @@ G_BEGIN_DECLS
 
 typedef struct _GxTuner GxTuner;
 typedef struct _GxTunerClass GxTunerClass;
+typedef struct _GxTunerPrivate GxTunerPrivate;
 
 struct _GxTuner
 {
 	GtkDrawingArea parent;
-	double GSEAL (freq);
-	double GSEAL (reference_pitch);
-	double GSEAL (scale);
-	cairo_surface_t *GSEAL (surface_tuner);
+	GxTunerPrivate *priv;
 };
 
 struct _GxTunerClass
@@ -51,12 +49,16 @@ struct _GxTunerClass
 GType gx_tuner_get_type();
 
 void gx_tuner_set_freq(GxTuner *tuner, double freq);
+double gx_tuner_get_freq(GxTuner *tuner);
 void gx_tuner_set_reference_pitch(GxTuner *tuner, double reference_pitch);
 double gx_tuner_get_reference_pitch(GxTuner *tuner);
 void gx_tuner_set_scale(GxTuner *tuner, double scale);
 double gx_tuner_get_scale(GxTuner *tuner);
 
 GtkWidget *gx_tuner_new(void);
+
+cairo_surface_t *gx_tuner_get_surface_tuner(GxTuner *tuner);
+void gx_tuner_set_surface_tuner(GxTuner *tuner, cairo_surface_t *surface_tuner);
 
 G_END_DECLS
 

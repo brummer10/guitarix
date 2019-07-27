@@ -196,7 +196,7 @@ static void gx_rack_tuner_destroy(GtkObject *object)
 void gx_rack_tuner_set_freq(GxRackTuner *tuner, double freq)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->parent.freq = freq;
+	gx_tuner_set_freq(&tuner->parent, freq);
 	g_object_notify(G_OBJECT(tuner), "freq");
 }
 
@@ -404,7 +404,7 @@ static void gx_rack_tuner_get_property(GObject *object, guint prop_id,
 
 	switch(prop_id) {
 	case PROP_FREQ:
-		g_value_set_double(value, tuner->parent.freq);
+		g_value_set_double(value, gx_tuner_get_freq(&tuner->parent));
 		break;
 	case PROP_SCALE_LIM:
 		g_value_set_double(value, tuner->scale_lim);
@@ -435,7 +435,7 @@ static void gx_rack_tuner_get_property(GObject *object, guint prop_id,
 
 static void gx_rack_tuner_size_request(GtkWidget *widget, GtkRequisition *requisition)
 {
-	double s = GX_RACK_TUNER(widget)->parent.scale;
+	double s = gx_tuner_get_scale(&GX_RACK_TUNER(widget)->parent);
 	requisition->width = ((min_led-1) * led_spacing + led_width + 2 * pad) * s;
 	requisition->height = 40 * s;
 }
@@ -461,7 +461,7 @@ static void gx_rack_tuner_pitch_to_note(GxRackTuner *tuner, double fnote, int *o
 
 static void gx_rack_tuner_calc(GxRackTuner *tuner)
 {
-	double fvis = tuner->target_temperament * (log2(tuner->parent.freq/tuner->parent.reference_pitch) + 4);
+	double fvis = tuner->target_temperament * (log2(gx_tuner_get_freq(&tuner->parent)/gx_tuner_get_reference_pitch(&tuner->parent)) + 4);
 	gx_rack_tuner_pitch_to_note(tuner, fvis, &tuner->indicate_oc, &tuner->vis, &tuner->scale_val);
 	if (tuner->n_targets == 0) {
 		return;
@@ -546,8 +546,8 @@ static gboolean gx_rack_tuner_show_in_limit(gpointer data)
 	gint width;
 	gdk_drawable_get_size(w, &width, NULL);
 	gtk_widget_queue_draw_area(
-	    GTK_WIDGET(tuner), 0, floor(led_y0*tuner->parent.scale),
-	    width, ceil(led_height*tuner->parent.scale));
+	    GTK_WIDGET(tuner), 0, floor(led_y0* gx_tuner_get_scale(&tuner->parent)),
+	    width, ceil(led_height* gx_tuner_get_scale(&tuner->parent)));
 	return TRUE;
 }
 
@@ -556,11 +556,12 @@ static gboolean gx_rack_tuner_freq_poll_handler(gpointer data)
 	GxRackTuner *tuner = GX_RACK_TUNER(data);
 	g_signal_emit_by_name(tuner, "frequency-poll");
 
-	if (tuner->parent.freq != tuner->last_freq) {
-		tuner->last_freq = tuner->parent.freq;
+	double freq = gx_tuner_get_freq(&tuner->parent);
+	if (freq != tuner->last_freq) {
+		tuner->last_freq = freq;
 		gx_rack_tuner_calc(tuner);
 	} else {
-		if (tuner->parent.freq == 0.0 || fabs(tuner->scale_val) < tuner->scale_lim) {
+		if (freq == 0.0 || fabs(tuner->scale_val) < tuner->scale_lim) {
 			return TRUE;
 		}
 	}
@@ -608,7 +609,7 @@ static void gx_rack_tuner_display_note(GxRackTuner *tuner, cairo_t *cr, double c
 {
 	if (vis > tuner->target_temperament) return;
 	cairo_text_extents_t ex, ex_oct;
-	double pitch_add = fabs(tuner->parent.reference_pitch - 440.00);
+	double pitch_add = fabs(gx_tuner_get_reference_pitch(&tuner->parent) - 440.00);
 	cairo_set_source_rgba(cr, fabs(scale)+(pitch_add*0.1), 1-(scale*scale+(pitch_add*0.1)), 0.2, 1-fabs(scale));
 	cairo_set_font_size(cr, 18.0);
 	cairo_text_extents(cr, "M", &ex);
@@ -641,7 +642,8 @@ static void gx_rack_tuner_display_note(GxRackTuner *tuner, cairo_t *cr, double c
 
 static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_bg)
 {
-	cairo_scale(cr,tuner->parent.scale, tuner->parent.scale);
+	double scale = gx_tuner_get_scale(&tuner->parent);
+	cairo_scale(cr, scale, scale);
 	cairo_set_line_width(cr,1);
 	double center = tuner->padding + tuner->width/2;
 	double dist = 20;
@@ -766,13 +768,13 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 	cairo_set_source_rgba(cr,0.8, 0.8, 0.2,0.6);
 	cairo_set_font_size(cr,8.0);
 	char buf[12];
-	snprintf(buf, sizeof(buf), "%.1f Hz", tuner->parent.freq);
+	snprintf(buf, sizeof(buf), "%.1f Hz", gx_tuner_get_freq(&tuner->parent));
 	cairo_text_extents_t ex;
 	cairo_text_extents(cr,buf, &ex);
 	gint width;
 	gdk_drawable_get_size(gtk_widget_get_window(GTK_WIDGET(tuner)), &width, NULL);
 	cairo_move_to(
-		cr, width/tuner->parent.scale-pad-ex.width-10, tri_y0-ex.y_bearing);
+		cr, width/ gx_tuner_get_scale(&tuner->parent) -pad-ex.width-10, tri_y0-ex.y_bearing);
 	cairo_show_text(cr,buf);
     cairo_pattern_destroy(pat);
 }
@@ -780,19 +782,17 @@ static void gx_rack_tuner_paint(GxRackTuner *tuner, cairo_t *cr, gboolean paint_
 static gboolean gx_rack_tuner_configure_event(GtkWidget *widget, GdkEventConfigure *ev)
 {
 	GxRackTuner *tuner = GX_RACK_TUNER(widget);
-	double swidth = ev->width / tuner->parent.scale;
+	double swidth = ev->width / gx_tuner_get_scale(&tuner->parent);
 	tuner->led_count = (int(1 + (swidth - 2 * pad - led_width) / led_spacing) / 4) * 4;
 	tuner->width = (tuner->led_count-1) * led_spacing + led_width;
 	tuner->padding = (swidth - tuner->width) / 2;
 	if (tuner->streaming && tuner->in_limit && !tuner->in_limit_id) {
 		tuner->pos = tuner->led_count/2-2;
 	}
-	if (tuner->parent.surface_tuner) {
-		cairo_surface_destroy(tuner->parent.surface_tuner);
-	}
-	tuner->parent.surface_tuner =  cairo_image_surface_create(
+	cairo_surface_t *surface_tuner = cairo_image_surface_create(
 		CAIRO_FORMAT_RGB24, ev->width, ev->height);
-	cairo_t *cr = cairo_create(tuner->parent.surface_tuner);
+	gx_tuner_set_surface_tuner(&tuner->parent, surface_tuner);
+	cairo_t *cr = cairo_create(surface_tuner);
 	gx_rack_tuner_paint(tuner, cr, TRUE);
 	cairo_destroy(cr);
 	return FALSE;
@@ -804,9 +804,9 @@ static gboolean gx_rack_tuner_expose_event(GtkWidget *widget, GdkEventExpose *ev
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	gdk_cairo_region(cr,ev->region);
 	cairo_clip(cr);
-	cairo_set_source_surface(cr,tuner->parent.surface_tuner, 0, 0);
+	cairo_set_source_surface(cr, gx_tuner_get_surface_tuner(&tuner->parent), 0, 0);
 	cairo_paint(cr);
-	if (gtk_widget_get_sensitive(widget) && tuner->parent.freq) {
+	if (gtk_widget_get_sensitive(widget) && gx_tuner_get_freq(&tuner->parent)) {
 		gx_rack_tuner_paint(tuner, cr, FALSE);
 	}
 	cairo_destroy(cr);
