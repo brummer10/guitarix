@@ -24,6 +24,11 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
+struct _GxRadioButtonPrivate
+{
+	gchar *base_name;
+};
+
 enum {
 	PROP_BASE_NAME = 1,
 };
@@ -35,7 +40,9 @@ static void gx_radio_button_get_property(
 static void gx_radio_button_destroy (GtkObject *obj);
 static void draw_indicator(GtkCheckButton *check_button, GdkRectangle *rect);
 
-G_DEFINE_TYPE(GxRadioButton, gx_radio_button, GTK_TYPE_RADIO_BUTTON);
+G_DEFINE_TYPE_WITH_PRIVATE(GxRadioButton, gx_radio_button, GTK_TYPE_RADIO_BUTTON);
+
+#define GX_RADIO_BUTTON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_RADIO_BUTTON, GxRadioButtonPrivate))
 
 static void gx_radio_button_class_init(GxRadioButtonClass *klass)
 {
@@ -56,14 +63,15 @@ static void gx_radio_button_class_init(GxRadioButtonClass *klass)
 
 static void gx_radio_button_init(GxRadioButton *radio_button)
 {
-	radio_button->base_name = g_strdup("switch");
+	radio_button->priv = GX_RADIO_BUTTON_GET_PRIVATE(radio_button);
+	radio_button->priv->base_name = g_strdup("switch");
 }
 
 static void gx_radio_button_destroy (GtkObject *obj)
 {
 	GxRadioButton *radio_button = GX_RADIO_BUTTON(obj);
-	g_free(radio_button->base_name);
-	radio_button->base_name = 0;
+	g_free(radio_button->priv->base_name);
+	radio_button->priv->base_name = 0;
 	GTK_OBJECT_CLASS(gx_radio_button_parent_class)->destroy(obj);
 }
 
@@ -101,7 +109,7 @@ static void draw_indicator(GtkCheckButton *check_button, GdkRectangle *rect)
 	} else {
 		s = "_off";
 	}
-	char *nm = g_strconcat(GX_RADIO_BUTTON(check_button)->base_name, s, NULL);
+	char *nm = g_strconcat(GX_RADIO_BUTTON(check_button)->priv->base_name, s, NULL);
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, nm, GtkIconSize(-1), NULL);
 	g_free(nm);
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
@@ -120,8 +128,8 @@ gx_radio_button_set_property (GObject *object, guint prop_id, const GValue *valu
 	switch(prop_id) {
 	case PROP_BASE_NAME: {
 		const char *str = g_value_get_string(value);
-		g_free(radio_button->base_name);
-		radio_button->base_name = g_strdup(str ? str : "");
+		g_free(radio_button->priv->base_name);
+		radio_button->priv->base_name = g_strdup(str ? str : "");
 		g_object_notify(object, "base-name");
 		break;
 	}
@@ -139,7 +147,7 @@ gx_radio_button_get_property(GObject *object, guint prop_id, GValue *value,
 
 	switch(prop_id) {
 	case PROP_BASE_NAME:
-		g_value_set_string(value, radio_button->base_name);
+		g_value_set_string(value, radio_button->priv->base_name);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
