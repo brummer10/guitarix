@@ -38,6 +38,12 @@ struct _GxReglerPrivate
 	GtkRequisition value_req;
 	gdouble last_step;
 	GtkAdjustment *adjustment;
+	gchar *var_id;
+	GtkLabel *label;
+	gboolean show_value:1;
+	GtkPositionType value_position:2;
+	gdouble value_xalign;
+	PangoLayout *value_layout;
 };
 
 enum {
@@ -96,8 +102,8 @@ gx_regler_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdou
 {
 	g_return_if_fail(GX_IS_REGLER(self));
 	GxRegler *regler = GX_REGLER(self);
-	if (regler->label) {
-		gtk_label_set_text(regler->label, name);
+	if (regler->priv->label) {
+		gtk_label_set_text(regler->priv->label, name);
 	}
 	GtkRange *range = GTK_RANGE(self);
 	gtk_range_set_range(range, lower, upper);
@@ -556,9 +562,9 @@ static void gx_regler_class_init(GxReglerClass *klass)
 static void gx_regler_destroy(GtkObject *object)
 {
 	GxRegler *regler = GX_REGLER(object);
-	if (regler->label) {
-		g_object_unref(regler->label);
-		regler->label = 0;
+	if (regler->priv->label) {
+		g_object_unref(regler->priv->label);
+		regler->priv->label = NULL;
 	}
 	gx_regler_change_adjustment(regler, NULL);
 	g_signal_handlers_disconnect_by_func(
@@ -569,9 +575,9 @@ static void gx_regler_destroy(GtkObject *object)
 static void gx_regler_finalize(GObject *object)
 {
 	GxRegler *regler = GX_REGLER(object);
-	g_free(regler->var_id);
-	if (regler->value_layout) {
-		g_object_unref(regler->value_layout);
+	g_free(regler->priv->var_id);
+	if (regler->priv->value_layout) {
+		g_object_unref(regler->priv->value_layout);
 	}
 	G_OBJECT_CLASS(gx_regler_parent_class)->finalize(object);
 }
@@ -821,8 +827,8 @@ gboolean _approx_in_rectangle(gdouble x, gdouble y, GdkRectangle *rect)
 
 static void gx_regler_ensure_layout(GxRegler *regler)
 {
-	if (regler->show_value && !regler->value_layout) {
-		regler->value_layout = gtk_widget_create_pango_layout(GTK_WIDGET(regler), NULL);
+	if (regler->priv->show_value && !regler->priv->value_layout) {
+		regler->priv->value_layout = gtk_widget_create_pango_layout(GTK_WIDGET(regler), NULL);
 	}
 }
 
@@ -859,14 +865,14 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 	gint height =  image_rect->height;
 	gboolean show_value;
 	gtk_widget_style_get(widget, "show-value", &show_value, NULL);
-	if (regler->show_value && show_value) {
+	if (regler->priv->show_value && show_value) {
 		GxReglerPrivate *priv = regler->priv;
 		gint text_width = priv->value_req.width;
 		gint text_height = priv->value_req.height;
 		gint text_x = 0, text_y = 0;
 		gint value_spacing;
 		gtk_widget_style_get(widget, "value-spacing", &value_spacing, NULL);
-		switch (regler->value_position) {
+		switch (priv->value_position) {
 		case GTK_POS_LEFT:
 			text_x = x + (allocation.width - width - text_width - value_spacing) / 2;
 			text_y = y + (allocation.height - text_height) / 2;
@@ -992,7 +998,7 @@ static void get_value_border(GtkWidget *widget, GtkBorder *value_border)
 
 void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
 {
-	if (!regler->show_value) {
+	if (!regler->priv->show_value) {
 		return;
 	}
 	gboolean show_value;
@@ -1002,7 +1008,7 @@ void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
 	}
     GtkWidget *widget = GTK_WIDGET(regler);
     GtkAdjustment* adjustment = gtk_range_get_adjustment(GTK_RANGE(regler));
-    PangoLayout *l = regler->value_layout;
+    PangoLayout *l = regler->priv->value_layout;
     PangoRectangle logical_rect;
 	gchar *txt;
 	ensure_digits(regler);
@@ -1012,12 +1018,12 @@ void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
     gtk_paint_layout(gtk_widget_get_style(widget), gtk_widget_get_window(widget), gtk_widget_get_state(widget),
                      FALSE, rect, widget, "label", rect->x+(rect->width - logical_rect.width)/2,
-                     rect->y, regler->value_layout);
+                     rect->y, regler->priv->value_layout);
 }
 
 void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 {
-	if (!regler->show_value) {
+	if (!regler->priv->show_value) {
 		return;
 	}
 	gboolean show_value;
@@ -1047,12 +1053,12 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	ensure_digits(regler);
 	txt = _gx_regler_format_value(regler, gtk_adjustment_get_value(gtk_range_get_adjustment(GTK_RANGE(regler))));
 	set_value_color(GTK_WIDGET(regler),cr);
-    PangoLayout *l = regler->value_layout;
+    PangoLayout *l = regler->priv->value_layout;
     pango_layout_set_text(l, txt, -1);
     g_free(txt);
     PangoRectangle logical_rect;
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
-    gdouble off = border_width + border.left + regler->value_xalign *
+    gdouble off = border_width + border.left + regler->priv->value_xalign *
 		(rect->width - logical_rect.width - (2*border_width + border.left + border.right));
     cairo_move_to(cr, x0-1+off, y0+3);
     pango_cairo_show_layout(cr, l);
@@ -1062,7 +1068,7 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 
 void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 {
-	if (!regler->show_value) {
+	if (!regler->priv->show_value) {
 		return;
 	}
 	gboolean show_value;
@@ -1080,19 +1086,19 @@ void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 	gchar *txt;
 	ensure_digits(regler);
 	txt = _gx_regler_format_value(regler, gtk_adjustment_get_lower(adj));
-	pango_layout_set_text(regler->value_layout, txt, -1);
+	pango_layout_set_text(regler->priv->value_layout, txt, -1);
 	g_free(txt);
-	pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect1);
+	pango_layout_get_pixel_extents(regler->priv->value_layout, NULL, &logical_rect1);
 	txt = _gx_regler_format_value(regler, gtk_adjustment_get_upper(adj));
-	pango_layout_set_text(regler->value_layout, txt, -1);
+	pango_layout_set_text(regler->priv->value_layout, txt, -1);
 	g_free(txt);
-	pango_layout_get_pixel_extents(regler->value_layout, NULL, &logical_rect2);
+	pango_layout_get_pixel_extents(regler->priv->value_layout, NULL, &logical_rect2);
 	gint height = max(logical_rect1.height,logical_rect2.height) + border.top + border.bottom;
 	gint width = max(logical_rect1.width,logical_rect2.width) + border.left + border.right;
 	GxReglerPrivate *priv = regler->priv;
 	priv->value_req.width = width;
 	priv->value_req.height = height;
-	switch (regler->value_position) {
+	switch (regler->priv->value_position) {
 	case GTK_POS_LEFT:
 	case GTK_POS_RIGHT:
 		requisition->width += width + value_spacing;
@@ -1356,9 +1362,9 @@ static void gx_regler_init(GxRegler *regler)
 {
 	regler->priv = GX_REGLER_GET_PRIVATE (regler);
 	gtk_range_set_round_digits(GTK_RANGE(regler), -1);
-	regler->value_position = GTK_POS_BOTTOM;
-	regler->show_value = TRUE;
-	regler->value_xalign = 0.5;
+	regler->priv->value_position = GTK_POS_BOTTOM;
+	regler->priv->show_value = TRUE;
+	regler->priv->value_xalign = 0.5;
 	gtk_widget_set_can_focus(GTK_WIDGET(regler), TRUE);
 	gtk_widget_set_receives_default(GTK_WIDGET(regler), TRUE);
 	gtk_widget_set_has_window(GTK_WIDGET(regler), FALSE);
@@ -1371,8 +1377,8 @@ static void gx_regler_init(GxRegler *regler)
 
 static void gx_regler_set_var_id(GxRegler *regler, const gchar *str)
 {
-	g_free(regler->var_id);
-	regler->var_id = g_strdup(str ? str : "");
+	g_free(regler->priv->var_id);
+	regler->priv->var_id = g_strdup(str ? str : "");
 	g_object_notify(G_OBJECT(regler), "var-id");
 }
 
@@ -1394,7 +1400,7 @@ static void gx_regler_set_property (
 		gx_regler_set_value_position(regler, GtkPositionType(g_value_get_enum(value)));
 		break;
 	case PROP_VALUE_XALIGN:
-		regler->value_xalign = g_value_get_double(value);
+		regler->priv->value_xalign = g_value_get_double(value);
 		gtk_widget_queue_draw(GTK_WIDGET(object));
 		g_object_notify(object, "value-xalign");
 		break;
@@ -1416,19 +1422,19 @@ static void gx_regler_get_property(
 
 	switch(prop_id) {
 	case PROP_VAR_ID:
-		g_value_set_string (value, regler->var_id);
+		g_value_set_string (value, regler->priv->var_id);
 		break;
 	case PROP_SHOW_VALUE:
-		g_value_set_boolean(value, regler->show_value);
+		g_value_set_boolean(value, regler->priv->show_value);
 		break;
 	case PROP_VALUE_POSITION:
-		g_value_set_enum(value, regler->value_position);
+		g_value_set_enum(value, regler->priv->value_position);
 		break;
 	case PROP_VALUE_XALIGN:
-		g_value_set_double(value, regler->value_xalign);
+		g_value_set_double(value, regler->priv->value_xalign);
 		break;
 	case PROP_LABEL_REF:
-		g_value_set_object(value, regler->label);
+		g_value_set_object(value, regler->priv->label);
 		break;
 	case PROP_DIGITS:
 		g_value_set_int(value, gtk_range_get_round_digits(GTK_RANGE(object)));
@@ -1446,7 +1452,7 @@ static void gx_regler_get_property(
 void gx_regler_set_show_value(GxRegler *regler, gboolean value)
 {
 	g_return_if_fail(GX_IS_REGLER(regler));
-	regler->show_value = value;
+	regler->priv->show_value = value;
 	gtk_widget_queue_resize(GTK_WIDGET(regler));
 	g_object_notify(G_OBJECT(regler), "show-value");
 }
@@ -1454,13 +1460,13 @@ void gx_regler_set_show_value(GxRegler *regler, gboolean value)
 gboolean gx_regler_get_show_value(GxRegler *regler)
 {
 	g_return_val_if_fail(GX_IS_REGLER(regler), 0);
-	return regler->show_value;
+	return regler->priv->show_value;
 }
 
 void gx_regler_set_value_position(GxRegler *regler, GtkPositionType value)
 {
 	g_return_if_fail(GX_IS_REGLER(regler));
-	regler->value_position = value;
+	regler->priv->value_position = value;
 	gtk_widget_queue_resize(GTK_WIDGET(regler));
 	g_object_notify(G_OBJECT(regler), "value-position");
 }
@@ -1468,19 +1474,19 @@ void gx_regler_set_value_position(GxRegler *regler, GtkPositionType value)
 GtkPositionType gx_regler_get_value_position(GxRegler *regler)
 {
 	g_return_val_if_fail(GX_IS_REGLER(regler), GTK_POS_BOTTOM);
-	return regler->value_position;
+	return regler->priv->value_position;
 }
 
 void gx_regler_set_label_ref(GxRegler *regler, GtkLabel *label)
 {
 	g_return_if_fail(GX_IS_REGLER(regler));
-	if (regler->label) {
-		g_object_unref(regler->label);
-		regler->label = 0;
+	if (regler->priv->label) {
+		g_object_unref(regler->priv->label);
+		regler->priv->label = NULL;
 	}
 	if (label) {
 		g_return_if_fail(GTK_IS_LABEL(label));
-		regler->label = label;
+		regler->priv->label = label;
 		g_object_ref(label);
 	}
 	g_object_notify(G_OBJECT(regler), "label-ref");
@@ -1490,5 +1496,5 @@ void gx_regler_set_label_ref(GxRegler *regler, GtkLabel *label)
 GtkLabel *gx_regler_get_label_ref(GxRegler *regler)
 {
 	g_return_val_if_fail(GX_IS_REGLER(regler), 0);
-	return regler->label;
+	return regler->priv->label;
 }

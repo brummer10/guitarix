@@ -43,12 +43,6 @@ struct _GxRegler
 {
 	GtkRange parent;
 	GxReglerPrivate *priv;
-	gchar *GSEAL(var_id);
-	GtkLabel *GSEAL(label);
-	gboolean GSEAL(show_value):1;
-	GtkPositionType GSEAL(value_position):2;
-	gdouble GSEAL(value_xalign);
-	PangoLayout *GSEAL(value_layout);
 };
 
 struct _GxReglerClass {

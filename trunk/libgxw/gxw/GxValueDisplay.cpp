@@ -83,5 +83,5 @@ static gboolean gx_value_display_button_press (GtkWidget *widget, GdkEventButton
 
 static void gx_value_display_init(GxValueDisplay *value_display)
 {
-	value_display->parent.show_value = TRUE;
+	gx_regler_set_show_value(&value_display->parent, TRUE);
 }
