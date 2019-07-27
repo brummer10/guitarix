@@ -31,12 +31,12 @@ G_BEGIN_DECLS
 #define GX_TOGGLE_IMAGE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_TOGGLE_IMAGE, GxToggleImageClass))
 
 typedef struct _GxToggleImage GxToggleImage;
+typedef struct _GxToggleImagePrivate GxToggleImagePrivate;
 typedef struct _GxToggleImageClass GxToggleImageClass;
 
 struct _GxToggleImage {
 	GtkMisc parent;
-	gchar *GSEAL(var_id);
-	gchar *GSEAL(base_name);
+	GxToggleImagePrivate* priv;
 };
 
 struct _GxToggleImageClass {
