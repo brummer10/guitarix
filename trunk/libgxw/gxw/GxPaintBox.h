@@ -32,19 +32,12 @@ G_BEGIN_DECLS
 #define GX_PAINT_BOX_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), GX_TYPE_PAINT_BOX, GxPaintBoxClass))
 
 typedef struct _GxPaintBox GxPaintBox;
+typedef struct _GxPaintBoxPrivate GxPaintBoxPrivate;
 typedef struct _GxPaintBoxClass GxPaintBoxClass;
-
-
 
 struct _GxPaintBox {
 	GtkBox box;
-	gchar *paint_func;
-	void (*expose_func)(GtkWidget*, GdkEventExpose*);
-	GdkPixbuf *gxh_image;
-	GdkPixbuf *gxr_image;
-	GdkPixbuf *logo_image;
-	guint GSEAL(icon_set);
-    guint GSEAL(force_reload);
+	GxPaintBoxPrivate* priv;
 };
 
 struct _GxPaintBoxClass {

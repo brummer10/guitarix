@@ -25,8 +25,15 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-
-
+struct _GxPaintBoxPrivate {
+	gchar *paint_func;
+	void (*expose_func)(GtkWidget*, GdkEventExpose*);
+	GdkPixbuf *gxh_image;
+	GdkPixbuf *gxr_image;
+	GdkPixbuf *logo_image;
+	guint icon_set;
+	guint force_reload;
+};
 
 enum {
 	PROP_PAINT_FUNC = 1,
@@ -42,7 +49,9 @@ static void gx_paint_box_get_property(
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event);
 static void gx_paint_box_style_set (GtkWidget *widget, GtkStyle  *previous_style);
 
-G_DEFINE_TYPE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
+G_DEFINE_TYPE_WITH_PRIVATE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
+
+#define GX_PAINT_BOX_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_PAINT_BOX, GxPaintBoxPrivate))
 
 #define get_stock_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->stock_id)
 #define get_widget_id(widget) (GX_PAINT_BOX_CLASS(GTK_OBJECT_GET_CLASS(widget))->widget_id)
@@ -194,8 +203,8 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 void gx_paint_box_call_paint_func(GxPaintBox *paint_box, GdkEventExpose *event)
 {
 	g_return_if_fail(GX_IS_PAINT_BOX(paint_box));
-	if (paint_box->expose_func) {
-		paint_box->expose_func(GTK_WIDGET(paint_box), event);
+	if (paint_box->priv->expose_func) {
+		paint_box->priv->expose_func(GTK_WIDGET(paint_box), event);
 	}
 }
 
@@ -206,20 +215,20 @@ static void set_paint_func(GxPaintBox *paint_box, const gchar *paint_func)
 	gchar *spf;
 	gtk_widget_style_get(GTK_WIDGET(paint_box), "paint-func", &spf, NULL);
 	if (spf) {
-		if (paint_box->paint_func && strcmp(paint_box->paint_func, spf) == 0) {
+		if (paint_box->priv->paint_func && strcmp(paint_box->priv->paint_func, spf) == 0) {
 			return;
 		}
 	} else {
 		if (!paint_func) {
 			paint_func = "";
 		}
-		if (paint_box->paint_func && strcmp(paint_box->paint_func, paint_func) == 0) {
+		if (paint_box->priv->paint_func && strcmp(paint_box->priv->paint_func, paint_func) == 0) {
 			return;
 		}
 		spf = g_strdup(paint_func);
 	}
-	g_free(paint_box->paint_func);
-	paint_box->paint_func = spf;
+	g_free(paint_box->priv->paint_func);
+	paint_box->priv->paint_func = spf;
 	set_expose_func(paint_box, spf);
 	g_object_notify(G_OBJECT(paint_box), "paint-func");
 }
@@ -227,48 +236,49 @@ static void set_paint_func(GxPaintBox *paint_box, const gchar *paint_func)
 static void gx_paint_box_style_set(GtkWidget *widget, GtkStyle  *previous_style)
 {
 	GxPaintBox *paint_box = GX_PAINT_BOX(widget);
-	set_paint_func(paint_box, paint_box->paint_func);
+	set_paint_func(paint_box, paint_box->priv->paint_func);
 }
 
 static void gx_paint_box_init (GxPaintBox *paint_box)
 {
+	paint_box->priv = GX_PAINT_BOX_GET_PRIVATE(paint_box);
 	gtk_widget_set_redraw_on_allocate(GTK_WIDGET(paint_box), TRUE);
-	paint_box->paint_func = g_strdup("");
+	paint_box->priv->paint_func = g_strdup("");
 	set_paint_func(paint_box, NULL);
-	paint_box->gxh_image = NULL;
-	paint_box->gxr_image = NULL;
-	paint_box->logo_image = NULL;
-	paint_box->icon_set = 0;
-    paint_box->force_reload = 0;
+	paint_box->priv->gxh_image = NULL;
+	paint_box->priv->gxr_image = NULL;
+	paint_box->priv->logo_image = NULL;
+	paint_box->priv->icon_set = 0;
+	paint_box->priv->force_reload = 0;
 }
 
 static void gx_paint_box_destroy(GtkObject *object)
 {
 	GxPaintBox *paint_box = GX_PAINT_BOX(object);
-	if (paint_box->paint_func) {
-		g_free(paint_box->paint_func);
-		paint_box->paint_func = NULL;
+	if (paint_box->priv->paint_func) {
+		g_free(paint_box->priv->paint_func);
+		paint_box->priv->paint_func = NULL;
 	}
-	while (G_IS_OBJECT(paint_box->gxh_image)) {
-        g_object_unref(paint_box->gxh_image);
+	while (G_IS_OBJECT(paint_box->priv->gxh_image)) {
+        g_object_unref(paint_box->priv->gxh_image);
 	}
-	paint_box->gxh_image = NULL;
-	while (G_IS_OBJECT(paint_box->gxr_image)) {
-        g_object_unref(paint_box->gxr_image);
+	paint_box->priv->gxh_image = NULL;
+	while (G_IS_OBJECT(paint_box->priv->gxr_image)) {
+        g_object_unref(paint_box->priv->gxr_image);
 	}
-	paint_box->gxr_image = NULL;
-	while (G_IS_OBJECT(paint_box->logo_image)) {
-        g_object_unref(paint_box->logo_image);
+	paint_box->priv->gxr_image = NULL;
+	while (G_IS_OBJECT(paint_box->priv->logo_image)) {
+        g_object_unref(paint_box->priv->logo_image);
 	}
-	paint_box->logo_image = NULL;
+	paint_box->priv->logo_image = NULL;
 	GTK_OBJECT_CLASS(gx_paint_box_parent_class)->destroy(object);
 }
 
 static gboolean gx_paint_box_expose(GtkWidget *widget, GdkEventExpose *event)
 {
 	GxPaintBox *paint_box = GX_PAINT_BOX(widget);
-	if (paint_box->expose_func) {
-		paint_box->expose_func(widget, event);
+	if (paint_box->priv->expose_func) {
+		paint_box->priv->expose_func(widget, event);
 	}
 	GTK_WIDGET_CLASS(GTK_OBJECT_CLASS(gx_paint_box_parent_class))->expose_event(widget, event);
 	return FALSE;
@@ -278,14 +288,14 @@ static void set_reload(GxPaintBox *paint_box, int value)
 {
 	int spf;
 	gtk_widget_style_get(GTK_WIDGET(paint_box), "force-reload", &spf, NULL);
-	 paint_box->force_reload = spf;
+	paint_box->priv->force_reload = spf;
 }
 
 static void set_icon(GxPaintBox *paint_box, int value)
 {
 	int spf;
 	gtk_widget_style_get(GTK_WIDGET(paint_box), "icon-set", &spf, NULL);
-	 paint_box->icon_set = spf;
+	paint_box->priv->icon_set = spf;
 }
 
 static void gx_paint_box_set_property(
@@ -313,13 +323,13 @@ static void gx_paint_box_get_property(
 {
 	switch (prop_id) {
 	case PROP_PAINT_FUNC:
-		g_value_set_string(value, GX_PAINT_BOX(object)->paint_func);
+		g_value_set_string(value, GX_PAINT_BOX(object)->priv->paint_func);
 		break;
 	case PROP_ICON_SET:
-		g_value_set_int (value, GX_PAINT_BOX(object)->icon_set);
+		g_value_set_int (value, GX_PAINT_BOX(object)->priv->icon_set);
 		break;
 	case PROP_FORCE_RELOAD:
-		g_value_set_int (value, GX_PAINT_BOX(object)->force_reload);
+		g_value_set_int (value, GX_PAINT_BOX(object)->priv->force_reload);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -806,21 +816,21 @@ static void live_box_expose (GtkWidget *wi, GdkEventExpose *ev) {
     gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
     
     static double ne_w = 0.;
-	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
+	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox->priv->gxr_image))) {
 		ne_w = w*h;
         opf = spf;
-        while (G_IS_OBJECT(paintbox-> gxr_image)) {
-			g_object_unref(paintbox->gxr_image);
+        while (G_IS_OBJECT(paintbox->priv->gxr_image)) {
+			g_object_unref(paintbox->priv->gxr_image);
 		}
         GdkPixbuf  *stock_image = gtk_widget_render_icon(
             wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
-        paintbox->gxr_image = gdk_pixbuf_scale_simple(
+        paintbox->priv->gxr_image = gdk_pixbuf_scale_simple(
 			stock_image, allocation.width, allocation.height, GDK_INTERP_NEAREST);
         g_object_unref(stock_image);
     }
 	//cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
-	gdk_cairo_set_source_pixbuf(cr, paintbox->gxr_image, 0, 0);
+	gdk_cairo_set_source_pixbuf(cr, paintbox->priv->gxr_image, 0, 0);
 
     cairo_paint (cr);
 	cairo_destroy(cr);
@@ -976,22 +986,22 @@ static void logo_expose(GtkWidget *wi, GdkEventExpose *ev)
     gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
     
     static double ne_w = 0.;
-	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> logo_image))) {
+	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox->priv->logo_image))) {
 		ne_w = w*h;
         opf = spf;
-        if (G_IS_OBJECT(paintbox-> logo_image)) {
-			g_object_unref(paintbox->logo_image);
+        if (G_IS_OBJECT(paintbox->priv->logo_image)) {
+			g_object_unref(paintbox->priv->logo_image);
 		}
-	    paintbox->logo_image = NULL;
-        paintbox->logo_image = gtk_widget_render_icon(
+	    paintbox->priv->logo_image = NULL;
+        paintbox->priv->logo_image = gtk_widget_render_icon(
             wi,get_logo_id(wi),(GtkIconSize)-1,NULL);
-	    y1 = gdk_pixbuf_get_height(paintbox->logo_image);
-	    x1 = gdk_pixbuf_get_width(paintbox->logo_image);
+	    y1 = gdk_pixbuf_get_height(paintbox->priv->logo_image);
+	    x1 = gdk_pixbuf_get_width(paintbox->priv->logo_image);
 	    align_right = x0+w-x1;
     }
     gdk_draw_pixbuf(GDK_DRAWABLE(gtk_widget_get_window(wi)),
 	                gdk_gc_new(GDK_DRAWABLE(gtk_widget_get_window(wi))),
-	                paintbox-> logo_image, 0, 0,
+	                paintbox->priv->logo_image, 0, 0,
 	                align_right, y0, x1, y1,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
     gdk_region_destroy (region);  
@@ -1378,13 +1388,13 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
         line_expose(wi,ev);
         GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
         if ( spf <10) {
-        paintbox->gxh_image = gtk_widget_render_icon(wi,"guitarix",(GtkIconSize)-1,NULL);
+        paintbox->priv->gxh_image = gtk_widget_render_icon(wi,"guitarix",(GtkIconSize)-1,NULL);
         gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-	                paintbox->gxh_image, 0, 0,
+	                paintbox->priv->gxh_image, 0, 0,
 	                x0+38, y0+20, 131,26,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
-        g_object_unref(paintbox->gxh_image);
-        paintbox->gxh_image = NULL;
+        g_object_unref(paintbox->priv->gxh_image);
+        paintbox->priv->gxh_image = NULL;
         }
         GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
         double x1 = gdk_pixbuf_get_height(stock_image);
@@ -1409,74 +1419,74 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
         return;
     }
 
-	if (nf != spf || ne_w1 != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox-> gxh_image))) {
+	if (nf != spf || ne_w1 != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox->priv->gxh_image))) {
 		ne_w1 = rect_width*rect_height;
 		nf = spf;
-		if (G_IS_OBJECT(paintbox-> gxh_image)) {
-			g_object_unref(paintbox->gxh_image);
-            paintbox->gxh_image = NULL;
+		if (G_IS_OBJECT(paintbox->priv->gxh_image)) {
+			g_object_unref(paintbox->priv->gxh_image);
+            paintbox->priv->gxh_image = NULL;
 		}
 		GdkPixbuf  *stock_image, *frame;
 		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
 		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
 		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
 		
-		paintbox->gxh_image = gdk_pixbuf_scale_simple(
+		paintbox->priv->gxh_image = gdk_pixbuf_scale_simple(
 			stock_image, rect_width, rect_height, GDK_INTERP_NEAREST);
 		// upper border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,24,0,gdk_pixbuf_get_width(stock_image)-48,12);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxh_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
+			frame, paintbox->priv->gxh_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
 		// under border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,24,gdk_pixbuf_get_height(stock_image)-12,
 			gdk_pixbuf_get_width(stock_image)-48,12);
 		gdk_pixbuf_scale (
-			frame,paintbox->gxh_image,0,gdk_pixbuf_get_height(paintbox->gxh_image)-12,
-			rect_width,12,0,gdk_pixbuf_get_height(paintbox->gxh_image)-12,
+			frame,paintbox->priv->gxh_image,0,gdk_pixbuf_get_height(paintbox->priv->gxh_image)-12,
+			rect_width,12,0,gdk_pixbuf_get_height(paintbox->priv->gxh_image)-12,
 			scalew,1,GDK_INTERP_BILINEAR);
 		// left border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,24,12,gdk_pixbuf_get_height(stock_image)-48);	
 		gdk_pixbuf_scale(
-			frame, paintbox->gxh_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
+			frame, paintbox->priv->gxh_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
 		// right border	
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-12,
 			24,12,gdk_pixbuf_get_height(stock_image)-48);
 		gdk_pixbuf_scale(
-			frame,paintbox->gxh_image,gdk_pixbuf_get_width(paintbox->gxh_image)-12,
-			12,12,rect_height-24,gdk_pixbuf_get_width(paintbox->gxh_image)-12,
+			frame,paintbox->priv->gxh_image,gdk_pixbuf_get_width(paintbox->priv->gxh_image)-12,
+			12,12,rect_height-24,gdk_pixbuf_get_width(paintbox->priv->gxh_image)-12,
 			0,1,scaleh,GDK_INTERP_BILINEAR);
 		//left upper corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,0,20,20);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxh_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
+			frame, paintbox->priv->gxh_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
 		//right upper corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-20,0,20,20);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxh_image,gdk_pixbuf_get_width(paintbox->gxh_image)-20,
-			0,20,20,gdk_pixbuf_get_width(paintbox->gxh_image)-20,0,1,1,
+			frame, paintbox->priv->gxh_image,gdk_pixbuf_get_width(paintbox->priv->gxh_image)-20,
+			0,20,20,gdk_pixbuf_get_width(paintbox->priv->gxh_image)-20,0,1,1,
 			GDK_INTERP_BILINEAR);
 		//left under corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,gdk_pixbuf_get_height(stock_image)-20,20,20);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxh_image,0,gdk_pixbuf_get_height(paintbox->gxh_image)-20,
-			20,20,0,gdk_pixbuf_get_height(paintbox->gxh_image)-20,1,1,
+			frame, paintbox->priv->gxh_image,0,gdk_pixbuf_get_height(paintbox->priv->gxh_image)-20,
+			20,20,0,gdk_pixbuf_get_height(paintbox->priv->gxh_image)-20,1,1,
 			GDK_INTERP_BILINEAR);
 		//right under corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-20,
 			gdk_pixbuf_get_height(stock_image)-20,20,20);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxh_image,gdk_pixbuf_get_width(paintbox->gxh_image)-20,
-			gdk_pixbuf_get_height(paintbox->gxh_image)-20,
-			20,20,gdk_pixbuf_get_width(paintbox->gxh_image)-20,
-			gdk_pixbuf_get_height(paintbox->gxh_image)-20,1,1,
+			frame, paintbox->priv->gxh_image,gdk_pixbuf_get_width(paintbox->priv->gxh_image)-20,
+			gdk_pixbuf_get_height(paintbox->priv->gxh_image)-20,
+			20,20,gdk_pixbuf_get_width(paintbox->priv->gxh_image)-20,
+			gdk_pixbuf_get_height(paintbox->priv->gxh_image)-20,1,1,
 			GDK_INTERP_BILINEAR);
 				
 		// base 
@@ -1484,7 +1494,7 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 			stock_image,32,24,gdk_pixbuf_get_width(stock_image)-68,
 			gdk_pixbuf_get_height(stock_image)-48);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxh_image,12,12,rect_width-24,rect_height-24,
+			frame, paintbox->priv->gxh_image,12,12,rect_width-24,rect_height-24,
 			12,12,scalew,scaleh,GDK_INTERP_TILES);
 		//g_object_unref(_image);
 		g_object_unref(stock_image);
@@ -1492,7 +1502,7 @@ static void gxhead_expose(GtkWidget *wi, GdkEventExpose *ev)
 	}
 	// draw to display
 	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(wi));
-	gdk_cairo_set_source_pixbuf(cr, paintbox->gxh_image, x0, y0);
+	gdk_cairo_set_source_pixbuf(cr, paintbox->priv->gxh_image, x0, y0);
 	cairo_rectangle(cr, x0, y0, rect_width, rect_height);
 	cairo_fill(cr);
 	cairo_destroy(cr);
@@ -1524,79 +1534,79 @@ static void gxrack_expose(GtkWidget *wi, GdkEventExpose *ev)
 	gint y0      = allocation.y+1;
 
 	static double ne_w = 0.;
-	if (ne_w != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
+	if (ne_w != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox->priv->gxr_image))) {
 		ne_w = rect_width*rect_height;
-		if (G_IS_OBJECT(paintbox-> gxr_image)) {
-			g_object_unref(paintbox->gxr_image);
+		if (G_IS_OBJECT(paintbox->priv->gxr_image)) {
+			g_object_unref(paintbox->priv->gxr_image);
 		}
 		GdkPixbuf  *stock_image, *frame;
 		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
 		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
 		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
 		
-		paintbox->gxr_image = gdk_pixbuf_scale_simple(
+		paintbox->priv->gxr_image = gdk_pixbuf_scale_simple(
 			stock_image, rect_width, rect_height, GDK_INTERP_NEAREST);
 		// upper border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,24,0,gdk_pixbuf_get_width(stock_image)-48,12);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
+			frame, paintbox->priv->gxr_image,0,0,rect_width,12,0,0,scalew,1,GDK_INTERP_BILINEAR);
 		// under border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,24,gdk_pixbuf_get_height(stock_image)-12,
 			gdk_pixbuf_get_width(stock_image)-48,12);
 		gdk_pixbuf_scale (
-			frame,paintbox->gxr_image,0,gdk_pixbuf_get_height(paintbox->gxr_image)-12,
-			rect_width,12,0,gdk_pixbuf_get_height(paintbox->gxr_image)-12,
+			frame,paintbox->priv->gxr_image,0,gdk_pixbuf_get_height(paintbox->priv->gxr_image)-12,
+			rect_width,12,0,gdk_pixbuf_get_height(paintbox->priv->gxr_image)-12,
 			scalew,1,GDK_INTERP_BILINEAR);
 		// left border
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,24,12,gdk_pixbuf_get_height(stock_image)-48);
 		gdk_pixbuf_scale(
-			frame, paintbox->gxr_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
+			frame, paintbox->priv->gxr_image,0,12,12,rect_height-24,0,0,1,scaleh,GDK_INTERP_BILINEAR);
 		// right border	
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-12,
 			24,12,gdk_pixbuf_get_height(stock_image)-48);
 		gdk_pixbuf_scale(
-			frame,paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-12,
-			12,12,rect_height-24,gdk_pixbuf_get_width(paintbox->gxr_image)-12,
+			frame,paintbox->priv->gxr_image,gdk_pixbuf_get_width(paintbox->priv->gxr_image)-12,
+			12,12,rect_height-24,gdk_pixbuf_get_width(paintbox->priv->gxr_image)-12,
 			0,1,scaleh,GDK_INTERP_BILINEAR);
 		//left upper corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,0,20,20);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
+			frame, paintbox->priv->gxr_image,0,0,20,20,0,0,1,1,GDK_INTERP_BILINEAR);
 		//right upper corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-20,0,20,20);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
-			0,20,20,gdk_pixbuf_get_width(paintbox->gxr_image)-20,0,1,1,
+			frame, paintbox->priv->gxr_image,gdk_pixbuf_get_width(paintbox->priv->gxr_image)-20,
+			0,20,20,gdk_pixbuf_get_width(paintbox->priv->gxr_image)-20,0,1,1,
 			GDK_INTERP_BILINEAR);
 		//left under corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,0,gdk_pixbuf_get_height(stock_image)-20,20,20);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,0,gdk_pixbuf_get_height(paintbox->gxr_image)-20,
-			20,20,0,gdk_pixbuf_get_height(paintbox->gxr_image)-20,1,1,
+			frame, paintbox->priv->gxr_image,0,gdk_pixbuf_get_height(paintbox->priv->gxr_image)-20,
+			20,20,0,gdk_pixbuf_get_height(paintbox->priv->gxr_image)-20,1,1,
 			GDK_INTERP_BILINEAR);
 		//right under corner
 		frame = gdk_pixbuf_new_subpixbuf(
 			stock_image,gdk_pixbuf_get_width(stock_image)-20,
 			gdk_pixbuf_get_height(stock_image)-20,20,20);
 		gdk_pixbuf_scale (
-			frame, paintbox->gxr_image,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
-			gdk_pixbuf_get_height(paintbox->gxr_image)-20,
-			20,20,gdk_pixbuf_get_width(paintbox->gxr_image)-20,
-			gdk_pixbuf_get_height(paintbox->gxr_image)-20,1,1,
+			frame, paintbox->priv->gxr_image,gdk_pixbuf_get_width(paintbox->priv->gxr_image)-20,
+			gdk_pixbuf_get_height(paintbox->priv->gxr_image)-20,
+			20,20,gdk_pixbuf_get_width(paintbox->priv->gxr_image)-20,
+			gdk_pixbuf_get_height(paintbox->priv->gxr_image)-20,1,1,
 			GDK_INTERP_BILINEAR);
 		g_object_unref(stock_image);
 		g_object_unref(frame);
 	}
 	
 	// draw to display
-	gdk_cairo_set_source_pixbuf (cr, paintbox->gxr_image, x0, y0);
+	gdk_cairo_set_source_pixbuf (cr, paintbox->priv->gxr_image, x0, y0);
 	cairo_rectangle(cr, x0, y0, rect_width, rect_height);
 	cairo_fill(cr);
 
@@ -1654,21 +1664,21 @@ static void amp_skin_expose(GtkWidget *wi, GdkEventExpose *ev)
     gtk_widget_style_get(GTK_WIDGET(wi), "force-reload", &rel, NULL);
     
     static double ne_w = 0.;
-	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox-> gxr_image))) {
+	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox->priv->gxr_image))) {
 		ne_w = w*h;
         opf = spf;
-        while (G_IS_OBJECT(paintbox-> gxr_image)) {
-			g_object_unref(paintbox->gxr_image);
+        while (G_IS_OBJECT(paintbox->priv->gxr_image)) {
+			g_object_unref(paintbox->priv->gxr_image);
 		}
         GdkPixbuf  *stock_image = gtk_widget_render_icon(
             wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
-        paintbox->gxr_image = gdk_pixbuf_scale_simple(
-			stock_image, allocation.width, allocation.height, GDK_INTERP_NEAREST);
+        paintbox->priv->gxr_image = gdk_pixbuf_scale_simple(
+			stock_image, allocation.width, allocation.height , GDK_INTERP_NEAREST);
         g_object_unref(stock_image);
     }
     GdkDrawable *drawable = GDK_DRAWABLE(gtk_widget_get_window(wi));
     gdk_draw_pixbuf(drawable, gdk_gc_new(drawable),
-	                paintbox-> gxr_image, 0, 0,
+	                paintbox->priv->gxr_image, 0, 0,
 	                x0, y0, w,h,
 	                GDK_RGB_DITHER_NORMAL, 0, 0);
     gdk_region_destroy (region);  
@@ -1813,52 +1823,52 @@ static void simple_level_meter_expose(GtkWidget *wi, GdkEventExpose *ev)
 static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 {
 	if (strcmp(paint_func, "rectangle_skin_color_expose") == 0) {
-		paint_box->expose_func = rectangle_skin_color_expose;
+		paint_box->priv->expose_func = rectangle_skin_color_expose;
 	} else if (strcmp(paint_func, "rack_unit_expose") == 0) {
-		paint_box->expose_func = rack_unit_expose;
+		paint_box->priv->expose_func = rack_unit_expose;
 	} else if (strcmp(paint_func, "rack_unit_shrink_expose") == 0) {
-		paint_box->expose_func = rack_unit_shrink_expose;
+		paint_box->priv->expose_func = rack_unit_shrink_expose;
 	} else if (strcmp(paint_func, "rack_amp_expose") == 0) {
-		paint_box->expose_func = rack_amp_expose;
+		paint_box->priv->expose_func = rack_amp_expose;
 	} else if (strcmp(paint_func, "zac_expose") == 0) {
-		paint_box->expose_func = zac_expose;
+		paint_box->priv->expose_func = zac_expose;
 	} else if (strcmp(paint_func, "gxhead_expose") == 0) {
-		paint_box->expose_func = gxhead_expose;
+		paint_box->priv->expose_func = gxhead_expose;
 	} else if (strcmp(paint_func, "RackBox_expose") == 0) {
-		paint_box->expose_func = RackBox_expose;
+		paint_box->priv->expose_func = RackBox_expose;
 	} else if (strcmp(paint_func, "gxrack_expose") == 0) {
-		paint_box->expose_func = gxrack_expose;
+		paint_box->priv->expose_func = gxrack_expose;
 	} else if (strcmp(paint_func, "compressor_expose") == 0) {
-		paint_box->expose_func = compressor_expose;
+		paint_box->priv->expose_func = compressor_expose;
 	} else if (strcmp(paint_func, "simple_level_meter_expose") == 0) {
-	    paint_box->expose_func = simple_level_meter_expose;
+	    paint_box->priv->expose_func = simple_level_meter_expose;
 	} else if (strcmp(paint_func, "level_meter_expose") == 0) {
-	    paint_box->expose_func = level_meter_expose;
+	    paint_box->priv->expose_func = level_meter_expose;
 	} else if (strcmp(paint_func, "amp_skin_expose") == 0) {
-	    paint_box->expose_func = amp_skin_expose;
+	    paint_box->priv->expose_func = amp_skin_expose;
 	} else if (strcmp(paint_func, "gx_rack_unit_expose") == 0) {
-		paint_box->expose_func = gx_rack_unit_expose;
+		paint_box->priv->expose_func = gx_rack_unit_expose;
 	} else if (strcmp(paint_func, "gx_rack_unit_shrink_expose") == 0) {
-		paint_box->expose_func = gx_rack_unit_shrink_expose;
+		paint_box->priv->expose_func = gx_rack_unit_shrink_expose;
 	} else if (strcmp(paint_func, "gx_rack_amp_expose") == 0) {
-		paint_box->expose_func = gx_rack_amp_expose;
+		paint_box->priv->expose_func = gx_rack_amp_expose;
 	} else if (strcmp(paint_func, "gx_lv2_unit_expose") == 0) {
-		paint_box->expose_func = gx_lv2_unit_expose;
+		paint_box->priv->expose_func = gx_lv2_unit_expose;
 	} else if (strcmp(paint_func, "draw_skin") == 0) {
-		paint_box->expose_func = draw_skin;
+		paint_box->priv->expose_func = draw_skin;
 	} else if (strcmp(paint_func, "rack_expose") == 0) {
-		paint_box->expose_func = rack_expose;
+		paint_box->priv->expose_func = rack_expose;
 	} else if (strcmp(paint_func, "box_uni_1_expose") == 0) {
-		paint_box->expose_func = box_uni_1_expose;
+		paint_box->priv->expose_func = box_uni_1_expose;
     } else if (strcmp(paint_func, "box_uni_2_expose") == 0) {
-		paint_box->expose_func = box_uni_2_expose;
+		paint_box->priv->expose_func = box_uni_2_expose;
     } else if (strcmp(paint_func, "box_skin_expose") == 0) {
-		paint_box->expose_func = box_skin_expose;
+		paint_box->priv->expose_func = box_skin_expose;
     } else if (strcmp(paint_func, "live_box_expose") == 0) {
-		paint_box->expose_func = live_box_expose;
+		paint_box->priv->expose_func = live_box_expose;
     } else if (strcmp(paint_func, "logo_expose") == 0) {
-		paint_box->expose_func = logo_expose;
+		paint_box->priv->expose_func = logo_expose;
     } else {
-		paint_box->expose_func = 0;
+		paint_box->priv->expose_func = 0;
 	}
 }
