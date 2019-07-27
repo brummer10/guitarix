@@ -32,6 +32,7 @@ typedef struct {
 } GxMeterScaleMark;
 
 struct _GxMeterScalePrivate {
+	GxTickPosition tick_pos;
 	GSList      *marks;
 };
 
@@ -118,7 +119,7 @@ static void gx_meter_scale_size_request(GtkWidget* wd, GtkRequisition* req)
 		h += logical_rect.width;
 	}
 	g_object_unref(layout);
-	switch (meter_scale->tick_pos) {
+	switch (meter_scale->priv->tick_pos) {
 	case GX_TICK_LEFT:
 	case GX_TICK_RIGHT:
 		w += tick_size + 2*tick_space;
@@ -171,7 +172,7 @@ static void gx_meter_scale_init(GxMeterScale *meter_scale)
 {
 	meter_scale->priv = G_TYPE_INSTANCE_GET_PRIVATE (meter_scale, GX_TYPE_METER_SCALE, GxMeterScalePrivate);
 	gtk_widget_set_has_window(GTK_WIDGET(meter_scale), FALSE);
-	meter_scale->tick_pos = GX_TICK_RIGHT;
+	meter_scale->priv->tick_pos = GX_TICK_RIGHT;
 }
 
 static void gx_meter_scale_destroy(GtkObject *object)
@@ -223,7 +224,7 @@ static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)
 		GxMeterScaleMark *mark = (GxMeterScaleMark*)(m->data);
 		int sign_offset = 0;
 		char *text;
-		if (meter_scale->tick_pos != GX_TICK_RIGHT) {
+		if (meter_scale->priv->tick_pos != GX_TICK_RIGHT) {
 			// bit of a hack: for center and left alignment try to compensate for
 			// the "-" sign by adding space in front of positive numbers
 			if (pango_parse_markup(mark->markup, -1, 0, NULL, &text, NULL, NULL)) {
@@ -241,7 +242,7 @@ static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)
 		pango_layout_set_markup (layout, mark->markup, -1);
 		pango_layout_get_pixel_extents (layout, NULL, &logical_rect);
 		gdouble y = y0 + rect_height - int(round(rect_height * mark->value)) + 0.5;
-		switch (meter_scale->tick_pos) {
+		switch (meter_scale->priv->tick_pos) {
 		case GX_TICK_LEFT:
 			cairo_move_to(cr, x0, y);
 			cairo_rel_line_to(cr, tick_size, 0);
@@ -293,7 +294,7 @@ static void meter_scale_set_property(
 
 	switch(prop_id) {
 	case PROP_TICK_POS:
-		meter_scale->tick_pos = (GxTickPosition)g_value_get_enum(value);
+		meter_scale->priv->tick_pos = (GxTickPosition)g_value_get_enum(value);
 		gtk_widget_queue_resize(GTK_WIDGET(object));
 		g_object_notify(object, "tick-pos");
 		break;
@@ -310,7 +311,7 @@ static void meter_scale_get_property(
 
 	switch(prop_id) {
 	case PROP_TICK_POS:
-		g_value_set_enum(value, meter_scale->tick_pos);
+		g_value_set_enum(value, meter_scale->priv->tick_pos);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);

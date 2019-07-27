@@ -44,7 +44,6 @@ typedef struct _GxMeterScalePrivate GxMeterScalePrivate;
 struct _GxMeterScale {
 	GtkWidget parent;
 	GxMeterScalePrivate *priv;
-	GxTickPosition GSEAL (tick_pos);
 };
 
 struct _GxMeterScaleClass {
