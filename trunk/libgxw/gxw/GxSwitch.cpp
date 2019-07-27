@@ -25,6 +25,11 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
+struct _GxSwitchPrivate {
+	gchar *var_id;
+	GtkLabel *label;
+};
+
 enum {
 	PROP_VAR_ID = 1,
 	PROP_LABEL_REF,
@@ -35,8 +40,11 @@ enum {
 static void gx_control_parameter_interface_init (GxControlParameterIface *iface);
 
 G_DEFINE_TYPE_WITH_CODE(GxSwitch, gx_switch, GTK_TYPE_TOGGLE_BUTTON,
+                        G_ADD_PRIVATE(GxSwitch)
                         G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
                                               gx_control_parameter_interface_init));
+
+#define GX_SWITCH_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_SWITCH, GxSwitchPrivate))
 
 static void gx_switch_destroy(GtkObject *object);
 static void gx_switch_set_property(
@@ -51,8 +59,8 @@ static void
 gx_switch_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step)
 {
 	GxSwitch *swtch = GX_SWITCH(self);
-	if (swtch->label) {
-		gtk_label_set_text(swtch->label, name);
+	if (swtch->priv->label) {
+		gtk_label_set_text(swtch->priv->label, name);
 	}
 }
 
@@ -309,6 +317,9 @@ static gboolean gx_switch_expose(GtkWidget *widget, GdkEventExpose *event)
 
 static void gx_switch_init(GxSwitch *swtch)
 {
+	swtch->priv = GX_SWITCH_GET_PRIVATE(swtch);
+	swtch->priv->var_id = NULL;
+	swtch->priv->label = NULL;
 	//GTK_BUTTON(swtch)->relief = GTK_RELIEF_NONE;
 }
 
@@ -317,12 +328,12 @@ static void gx_switch_init(GxSwitch *swtch)
 static void gx_switch_destroy(GtkObject *object)
 {
 	GxSwitch *swtch = GX_SWITCH(object);
-	if (swtch->label) {
-		g_object_unref(swtch->label);
-		swtch->label = 0;
+	if (swtch->priv->label) {
+		g_object_unref(swtch->priv->label);
+		swtch->priv->label = 0;
 	}
-	g_free(swtch->var_id);
-	swtch->var_id = 0;
+	g_free(swtch->priv->var_id);
+	swtch->priv->var_id = 0;
 	GTK_OBJECT_CLASS(gx_switch_parent_class)->destroy (object);
 }
 
@@ -350,13 +361,13 @@ gboolean gx_switch_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 void gx_switch_set_label_ref(GxSwitch *swtch, GtkLabel *label)
 {
 	g_return_if_fail(GX_IS_SWITCH(swtch));
-	if (swtch->label) {
-		g_object_unref(swtch->label);
-		swtch->label = 0;
+	if (swtch->priv->label) {
+		g_object_unref(swtch->priv->label);
+		swtch->priv->label = 0;
 	}
 	if (label) {
 		g_return_if_fail(GTK_IS_LABEL(label));
-		swtch->label = label;
+		swtch->priv->label = label;
 		g_object_ref(label);
 	}
 	g_object_notify(G_OBJECT(swtch), "label-ref");
@@ -365,7 +376,7 @@ void gx_switch_set_label_ref(GxSwitch *swtch, GtkLabel *label)
 GtkLabel *gx_switch_get_label_ref(GxSwitch *swtch)
 {
 	g_return_val_if_fail(GX_IS_SWITCH(swtch), 0);
-	return swtch->label;
+	return swtch->priv->label;
 }
 
 void gx_switch_set_base_name(GxSwitch *swtch, const char *base_name)
@@ -411,8 +422,8 @@ gx_switch_set_property (GObject *object, guint prop_id, const GValue *value,
 	switch(prop_id) {
 	case PROP_VAR_ID: {
 		const char *str = g_value_get_string(value);
-		g_free(swtch->var_id);
-		swtch->var_id = g_strdup(str ? str : "");
+		g_free(swtch->priv->var_id);
+		swtch->priv->var_id = g_strdup(str ? str : "");
 		g_object_notify(object, "var-id");
 		break;
 	}
@@ -438,10 +449,10 @@ gx_switch_get_property(GObject *object, guint prop_id, GValue *value,
 
 	switch(prop_id) {
 	case PROP_VAR_ID:
-		g_value_set_string(value, swtch->var_id);
+		g_value_set_string(value, swtch->priv->var_id);
 		break;
 	case PROP_LABEL_REF:
-		g_value_set_object(value, swtch->label);
+		g_value_set_object(value, swtch->priv->label);
 		break;
 	case PROP_BASE_NAME: {
 		GtkWidget *img = gtk_button_get_image(GTK_BUTTON(object));
