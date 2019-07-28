@@ -269,7 +269,8 @@ static void button_paint(
 				height += 2 * (focus_width + focus_pad);
 			}
 
-			if (button->depressed && displace_focus) {
+			GtkStateType state = gtk_widget_get_state(widget);
+			if (state == GTK_STATE_ACTIVE && displace_focus) {
 				x += child_displacement_x;
 				y += child_displacement_y;
 			}
@@ -298,7 +299,7 @@ static gboolean gx_switch_expose(GtkWidget *widget, GdkEventExpose *event)
 			}
 			shadow_type = GTK_SHADOW_ETCHED_IN;
 		} else {
-			shadow_type = button->depressed ? GTK_SHADOW_IN : GTK_SHADOW_OUT;
+			shadow_type = state_type == GTK_STATE_ACTIVE ? GTK_SHADOW_IN : GTK_SHADOW_OUT;
 		}
 		button_paint(button, &event->area, state_type, shadow_type,
 		             "togglebutton", "togglebuttondefault");
