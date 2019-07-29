@@ -35,7 +35,7 @@ enum {
 	PROP_SCALE = 3
 };
 
-static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event);
+static gboolean gx_tuner_draw (GtkWidget *widget, cairo_t *cr);
 static void draw_background(GxTuner *tuner);
 static void gx_tuner_class_init (GxTunerClass *klass);
 static void gx_tuner_init(GxTuner *tuner);
@@ -71,7 +71,7 @@ G_DEFINE_TYPE_WITH_PRIVATE(GxTuner, gx_tuner, GTK_TYPE_DRAWING_AREA);
 static void gx_tuner_class_init(GxTunerClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	GTK_WIDGET_CLASS(klass)->expose_event = gtk_tuner_expose;
+	GTK_WIDGET_CLASS(klass)->draw = gx_tuner_draw;
 	gobject_class->finalize = gx_tuner_finalize;
 	gobject_class->set_property = gx_tuner_set_property;
 	gobject_class->get_property = gx_tuner_get_property;
@@ -220,19 +220,17 @@ static void gx_tuner_get_property(GObject *object, guint prop_id,
 	}
 }
 
-static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_tuner_draw (GtkWidget *widget, cairo_t *cr)
 {
 	static const char* note[12] = {"F#","G ","G#","A ","A#","B ","C ","C#","D ","D#","E ","F "};
 	static const char* octave[] = {"0","1","2","3","4","5"," "};
 	GxTuner *tuner = GX_TUNER(widget);
-	cairo_t *cr;
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(widget, &allocation);
 
 	double x0      = (allocation.width - 100 * tuner->priv->scale) * 0.5;
 	double y0      = (allocation.height - 90 * tuner->priv->scale) * 0.5;
 
-	cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	cairo_set_source_surface(cr, tuner->priv->surface_tuner, x0, y0);
 	cairo_scale(cr, tuner->priv->scale, tuner->priv->scale);
 	cairo_paint (cr);
@@ -282,8 +280,6 @@ static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 	cairo_line_to(cr, (scale*2*rect_width)+x0+50, y0+(scale*scale*30)+2);
 	cairo_set_source_rgb(cr,  0.5, 0.1, 0.1);
 	cairo_stroke(cr);
-
-	cairo_destroy(cr);
 
 	return FALSE;
 }

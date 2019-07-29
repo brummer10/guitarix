@@ -21,17 +21,18 @@
 #include <algorithm> 
 
 void gx_draw_rect (GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, float bevel) {
-    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
+    GdkDrawingContext* ctx = gdk_window_begin_draw_frame(gtk_widget_get_window(widget), nullptr);
+    cairo_t * cr = gdk_drawing_context_get_cairo_context(ctx);
     float r, g, b;
     gx_get_color(widget, type, state, &r, &g, &b);
     gx_create_rectangle(cr, x, y, width, height, rad);
 	cairo_set_source_rgb(cr, r, g, b);
 	cairo_fill(cr);
-    
+
     if (bevel)
         gx_bevel(cr, x, y, width, height, rad, bevel);
-        
-    cairo_destroy(cr);
+
+    gdk_window_end_draw_frame(gtk_widget_get_window(widget), ctx);
 }
 void _gx_draw_inset (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad, gint depth) {
     cairo_pattern_t *pat = cairo_pattern_create_linear (x, y, x, y + height);
@@ -43,9 +44,10 @@ void _gx_draw_inset (cairo_t * cr, gint x, gint y, gint width, gint height, gint
     cairo_pattern_destroy (pat);
 }
 void gx_draw_inset (GtkWidget * widget, gint x, gint y, gint width, gint height, gint rad, gint depth) {
-    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
+    GdkDrawingContext* ctx = gdk_window_begin_draw_frame(gtk_widget_get_window(widget), nullptr);
+    cairo_t * cr = gdk_drawing_context_get_cairo_context(ctx);
     _gx_draw_inset(cr, x, y, width, height, rad, depth);
-    cairo_destroy(cr);
+    gdk_window_end_draw_frame(gtk_widget_get_window(widget), ctx);
 }
 void _gx_draw_glass (cairo_t *cr, gint x, gint y, gint width, gint height, gint rad) {
     cairo_pattern_t *pat = cairo_pattern_create_linear (x, y, x, y + 3);
@@ -57,9 +59,10 @@ void _gx_draw_glass (cairo_t *cr, gint x, gint y, gint width, gint height, gint 
     cairo_pattern_destroy (pat);
 }
 void gx_draw_glass (GtkWidget * widget, gint x, gint y, gint width, gint height, gint rad) {
-    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
+    GdkDrawingContext* ctx = gdk_window_begin_draw_frame(gtk_widget_get_window(widget), nullptr);
+    cairo_t * cr = gdk_drawing_context_get_cairo_context(ctx);
     _gx_draw_glass(cr, x, y, width, height, rad);
-    cairo_destroy(cr);
+    gdk_window_end_draw_frame(gtk_widget_get_window(widget), ctx);
 }
 
 void gx_get_bg_color (GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
