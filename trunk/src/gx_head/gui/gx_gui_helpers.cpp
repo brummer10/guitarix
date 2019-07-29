@@ -97,7 +97,7 @@ gint gx_nchoice_dialog_without_entry(
     GtkWidget * al = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
     gtk_container_add(GTK_CONTAINER(al), text_label);
     gtk_alignment_set_padding(GTK_ALIGNMENT(al), 10, 10, 10, 10);
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), al);
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), al);
     
     GtkWidget * ial = gtk_alignment_new(1.0, 0.5, 0.0, 0.0);
     gtk_container_add(GTK_CONTAINER(ial), image);
@@ -144,8 +144,8 @@ int gx_message_popup(const char* msg) {
     GtkWidget * al = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
     gtk_container_add(GTK_CONTAINER(al), label);
     gtk_alignment_set_padding(GTK_ALIGNMENT(al), 10, 10, 10, 10);
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->vbox), al);
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(about)->action_area),
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(about))), al);
+    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(about))),
                                       ok_button);
     g_signal_connect_swapped(ok_button, "clicked",
                               G_CALLBACK(gtk_widget_destroy), about);

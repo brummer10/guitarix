@@ -343,7 +343,7 @@ void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContex
 #if false  //gtk 2.22
     bool is_move = context->get_selected_action() == Gdk::ACTION_MOVE;
 #else
-    bool is_move = context->gobj()->action == GDK_ACTION_MOVE;
+    bool is_move = gdk_drag_context_get_selected_action(context->gobj()) == GDK_ACTION_MOVE;
 #endif
     bool success = false;
     std::vector<Glib::ustring> uris = data.get_uris();

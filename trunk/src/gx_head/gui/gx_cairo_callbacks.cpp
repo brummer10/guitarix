@@ -31,10 +31,12 @@ namespace gx_cairo
 {
 
 static void render (GtkWidget *wi, cairo_t* cr) {
-    double rect_width  = wi->allocation.width;
-	double rect_height = wi->allocation.height;
-    double x0      = wi->allocation.x;
-	double y0      = wi->allocation.y;
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(wi, &allocation);
+    double rect_width  = allocation.width;
+    double rect_height = allocation.height;
+    double x0      = allocation.x;
+    double y0      = allocation.y;
     
     cairo_set_source_rgba (cr, 1.0f, 1.0f, 1.0f, 0.0f);
     cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
@@ -50,9 +52,11 @@ static void render (GtkWidget *wi, cairo_t* cr) {
 
 void make_transparency(GtkWidget* wi) {
 
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(wi, &allocation);
     // get widget dimension
-    gint rect_width  = wi->allocation.width;
-	gint rect_height = wi->allocation.height;
+    gint rect_width  = allocation.width;
+    gint rect_height = allocation.height;
 
     // make Image to fake transparency
 	static GdkBitmap* ShapeBitmap = NULL;
@@ -76,7 +80,7 @@ void make_transparency(GtkWidget* wi) {
 gboolean splash_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
     cairo_t* cr = NULL;
-	cr = gdk_cairo_create (wi->window);
+    cr = gdk_cairo_create (gtk_widget_get_window(wi));
 	if (!cr) return FALSE;
 
     static bool ms = true;
@@ -93,17 +97,19 @@ gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer
 {
     cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
 	GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0      = wi->allocation.x+2;
-	double y0      = wi->allocation.y+2;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	double x0      = allocation.x+2;
+	double y0      = allocation.y+2;
+	double rect_width  = allocation.width-2;
+	double rect_height = allocation.height-2;
 
 	cairo_rectangle (cr, x0,y0,rect_width,rect_height+1);
 	cairo_set_source_rgb (cr, 0, 0, 0);
@@ -131,17 +137,19 @@ gboolean conv_widget_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_dat
 	cairo_pattern_t *pat;
 
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-    GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0      = wi->allocation.x+5;
-	double y0      = wi->allocation.y+5;
-	double rect_width  = wi->allocation.width-10;
-	double rect_height = wi->allocation.height-10;
+	double x0      = allocation.x+5;
+	double y0      = allocation.y+5;
+	double rect_width  = allocation.width-10;
+	double rect_height = allocation.height-10;
 	double radius = 36.;
 	double x1,y1;
 	x1=x0+rect_width;
@@ -192,17 +200,19 @@ gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-    GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+        GdkRegion *region;
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0      = wi->allocation.x;
-	double y0      = wi->allocation.y;
-	double rect_width  = wi->allocation.width;
-	double rect_height = wi->allocation.height;
+	double x0      = allocation.x;
+	double y0      = allocation.y;
+	double rect_width  = allocation.width;
+	double rect_height = allocation.height;
 
     cairo_rectangle (cr, x0,y0,rect_width,rect_height);
     cairo_set_source_rgb (cr, 0.22, 0.22, 0.22);
@@ -219,17 +229,19 @@ gboolean start_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data)
 {
 	cairo_t *cr;
 	/* create a cairo context */
-	cr = gdk_cairo_create(wi->window);
-    GdkRegion *region;
-	region = gdk_region_rectangle (&wi->allocation);
+	cr = gdk_cairo_create(gtk_widget_get_window(wi));
+	GtkAllocation allocation;
+	gtk_widget_get_allocation(wi, &allocation);
+	GdkRegion *region;
+	region = gdk_region_rectangle (&allocation);
 	gdk_region_intersect (region, ev->region);
 	gdk_cairo_region (cr, region);
 	cairo_clip (cr);
 
-	double x0      = wi->allocation.x+1;
-	double y0      = wi->allocation.y+1;
-	double rect_width  = wi->allocation.width-2;
-	double rect_height = wi->allocation.height-2;
+	double x0      = allocation.x+1;
+	double y0      = allocation.y+1;
+	double rect_width  = allocation.width-2;
+	double rect_height = allocation.height-2;
 
     cairo_rectangle (cr, x0-1,y0-1,rect_width+2,rect_height+2);
     cairo_set_source_rgb (cr, 0, 0, 0);
