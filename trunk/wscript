@@ -324,8 +324,8 @@ def configure(conf):
         opt.no_desktop_update = True
 
     if opt.standalone or opt.lv2_gui:
-        conf.check_cfg(package='gtk+-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
-        conf.check_cfg(package='gtkmm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
+        conf.check_cfg(package='gtk+-3.0', atleast_version='3.22', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
+        conf.check_cfg(package='gtkmm-3.0', atleast_version='3.22', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
         conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
 
     if opt.standalone or opt.ladspa or opt.new_ladspa:
