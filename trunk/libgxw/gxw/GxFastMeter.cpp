@@ -40,7 +40,7 @@ struct _GxFastMeterPrivate {
 	cairo_surface_t *surface, *overlay;
 	gint	      top_of_meter;
 	GdkRectangle  last_peak_rect, bar;
-	GtkRequisition* request;
+	GtkRequisition request;
 
 	gchar *var_id;
 	int hold_cnt;
@@ -66,9 +66,11 @@ static const int min_size = 1;
 static void gx_fast_meter_class_init(GxFastMeterClass*);
 static void gx_fast_meter_init(GxFastMeter*);
 
-static gboolean gx_fast_meter_expose_event(GtkWidget*, GdkEventExpose*);
+static gboolean gx_fast_meter_draw(GtkWidget*, cairo_t *);
 static void gx_fast_meter_size_allocate(GtkWidget *widget, GtkAllocation *allocation);
-static void gx_fast_meter_size_request(GtkWidget*, GtkRequisition*);
+static void gx_fast_meter_get_preferred_width(GtkWidget*, gint *min_width, gint *natural_width);
+static void gx_fast_meter_get_preferred_height(GtkWidget*, gint *min_height, gint *natural_height);
+static void gx_fast_meter_size_request(GtkWidget*, gint *width, gint *height);
 static void gx_fast_meter_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_fast_meter_get_property(
@@ -87,9 +89,10 @@ void gx_fast_meter_class_init(GxFastMeterClass* klass)
 	GtkWidgetClass* widget_class = (GtkWidgetClass*)klass;
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-	widget_class->size_request  = gx_fast_meter_size_request;
+	widget_class->get_preferred_width = gx_fast_meter_get_preferred_width;
+	widget_class->get_preferred_height = gx_fast_meter_get_preferred_height;
 	widget_class->size_allocate = gx_fast_meter_size_allocate;
-	widget_class->expose_event  = gx_fast_meter_expose_event;
+	widget_class->draw  = gx_fast_meter_draw;
 	widget_class->style_set = gx_fast_meter_style_set;
 	gobject_class->set_property = gx_fast_meter_set_property;
 	gobject_class->get_property = gx_fast_meter_get_property;
@@ -205,10 +208,9 @@ void gx_fast_meter_init(GxFastMeter* fm)
 	                      GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
     gtk_widget_set_has_window(GTK_WIDGET(fm), FALSE);
     GdkScreen *screen = gdk_screen_get_default();
-    GdkColormap *colormap = gdk_screen_get_rgba_colormap(screen);
-    if (colormap && gdk_screen_is_composited (screen))
-        gtk_widget_set_colormap(GTK_WIDGET(fm), colormap);
-
+    GdkVisual *visual = gdk_screen_get_rgba_visual(screen);
+    if (visual && gdk_screen_is_composited (screen))
+        gtk_widget_set_visual(GTK_WIDGET(fm), visual);
 }
 
 /* -------------- */
@@ -464,7 +466,33 @@ void gx_fast_meter_clear(GxFastMeter* fm)
 
 /* ------------------------------ static functions ------------------------- */
 
-static void gx_fast_meter_size_request (GtkWidget* wd, GtkRequisition* req)
+static void gx_fast_meter_get_preferred_width(GtkWidget* wd, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_fast_meter_size_request(wd, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_fast_meter_get_preferred_height(GtkWidget* wd, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_fast_meter_size_request(wd, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static void gx_fast_meter_size_request (GtkWidget* wd, gint *width, gint *height)
 {
     GxFastMeter * fm = GX_FAST_METER(wd);
     int lw, lh, lb, dim_, dim, tm, xs, ys;
@@ -479,18 +507,19 @@ static void gx_fast_meter_size_request (GtkWidget* wd, GtkRequisition* req)
     }
     if (!fm->priv->horiz) {
         tm = !fm->priv->type ? 2 * xs : int(1.5 * xs);
-        req->width  = lb + dim * (lw + lb) + tm;
-        req->height = lb + min_size * (lh + lb) + 2 * ys;
+        *width  = lb + dim * (lw + lb) + tm;
+        *height = lb + min_size * (lh + lb) + 2 * ys;
     } else {
         tm = !fm->priv->type ? 2 * ys : int(1.5 * ys);
-        req->width  = lb + min_size * (lh + lb) + 2 * xs;
-        req->height = lb + dim * (lw + lb) + tm;
+        *width  = lb + min_size * (lh + lb) + 2 * xs;
+        *height = lb + dim * (lw + lb) + tm;
     }
     if (!fm->priv->type) {
-        req->width  = lb + dim * (lw + lb) + xs;
-        req->height = lb + min_size * (lh + lb);
+        *width  = lb + dim * (lw + lb) + xs;
+        *height = lb + min_size * (lh + lb);
     }
-    fm->priv->request = req;
+    fm->priv->request.width = *width;
+    fm->priv->request.height = *height;
 }
 
 /* --------- vertical drawing queue ----------- */
@@ -537,12 +566,12 @@ void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
         }
 	}
 
-	GdkRegion* region = 0;
+	cairo_region_t* region = nullptr;
 	bool queue = false;
 
 	if (rect.height + rect.width != 0) {
 		/* ok, first region to draw ... */
-		region = gdk_region_rectangle (&rect);
+		region = cairo_region_create_rectangle (&rect);
 		queue = true;
 	}
 
@@ -552,24 +581,24 @@ void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
 
 	if (fm->priv->last_peak_rect.width * fm->priv->last_peak_rect.height != 0) {
 		if (!queue) {
-			region = gdk_region_new ();
+			region = cairo_region_create();
 			queue = true;
 		}
 
-		gdk_region_union_with_rect (region, &fm->priv->last_peak_rect);
+		cairo_region_union_rectangle (region, &fm->priv->last_peak_rect);
 	}
 	if (queue) {
 		gdk_window_invalidate_region (win, region, TRUE);
 	}
 	if (region) {
-		gdk_region_destroy(region);
+		cairo_region_destroy(region);
 		region = 0;
 	}
 }
 
 
 /* ------- expose event -------- */
-static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
+static gboolean gx_fast_meter_draw (GtkWidget* wd, cairo_t *cr)
 {
 	GxFastMeter* fm = GX_FAST_METER(wd);
     GdkRectangle b = fm->priv->bar;
@@ -594,12 +623,12 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
     if (top_of_meter)
         top_of_meter += (lh + lb);
     fm->priv->top_of_meter = top_of_meter;
-    
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(GTK_WIDGET(fm)));
-    
+
+    cairo_save(cr);
+
     cairo_rectangle(cr, x, y, width, height);
     cairo_clip(cr);
-    
+
     //cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
     //cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
     //cairo_paint(cr);
@@ -641,7 +670,7 @@ static gboolean gx_fast_meter_expose_event (GtkWidget* wd, GdkEventExpose* ev)
 		fm->priv->last_peak_rect.width  = 0;
 		fm->priv->last_peak_rect.height = 0;
 	}
-    cairo_destroy(cr);
+    cairo_restore(cr);
 	return FALSE;
 }
 

@@ -46,12 +46,12 @@ G_DEFINE_TYPE_WITH_CODE(GxSwitch, gx_switch, GTK_TYPE_TOGGLE_BUTTON,
 
 #define GX_SWITCH_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_SWITCH, GxSwitchPrivate))
 
-static void gx_switch_destroy(GtkObject *object);
+static void gx_switch_destroy(GtkWidget *object);
 static void gx_switch_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_switch_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static gboolean gx_switch_expose(GtkWidget *widget, GdkEventExpose *event);
+static gboolean gx_switch_draw(GtkWidget *widget, cairo_t* cr);
 static gboolean gx_switch_scroll_event(GtkWidget *widget, GdkEventScroll *event);
 static void gx_switch_style_set(GtkWidget *widget, GtkStyle *previous_style);
 
@@ -87,14 +87,13 @@ gx_control_parameter_interface_init(GxControlParameterIface *iface)
 static void gx_switch_class_init(GxSwitchClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
-	GtkObjectClass *object_class = (GtkObjectClass*) klass;
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
 	gobject_class->set_property = gx_switch_set_property;
 	gobject_class->get_property = gx_switch_get_property;
-	widget_class->expose_event = gx_switch_expose;
+	widget_class->draw = gx_switch_draw;
 	widget_class->scroll_event = gx_switch_scroll_event;
-	object_class->destroy = gx_switch_destroy;
+	widget_class->destroy = gx_switch_destroy;
 	widget_class->style_set = gx_switch_style_set;
 
 	g_object_class_install_property (
@@ -183,7 +182,7 @@ gtk_button_get_props (GtkButton *button,
 }
 
 static void button_paint(
-	GtkButton *button, GdkRectangle *area, GtkStateType state_type,
+	cairo_t *cr, GtkButton *button, GtkStateFlags state_flags,
 	GtkShadowType shadow_type, const gchar *main_detail,
 	const gchar *default_detail)
 {
@@ -207,22 +206,19 @@ static void button_paint(
 			NULL, &interior_focus);
 		gtk_widget_style_get (
 			widget, "focus-line-width", &focus_width,
-			"focus-padding", &focus_pad, NULL); 
+			"focus-padding", &focus_pad, NULL);
 
 		GtkAllocation allocation;
 		gtk_widget_get_allocation(widget, &allocation);
-		x = allocation.x + border_width;
-		y = allocation.y + border_width;
+		x = border_width;
+		y = border_width;
 		width = allocation.width - border_width * 2;
 		height = allocation.height - border_width * 2;
 
-		GtkStyle* style = gtk_widget_get_style(widget);
+		GtkStyleContext* sc = gtk_widget_get_style_context(widget);
 		if (gtk_widget_has_default (widget) &&
 		    gtk_button_get_relief(GTK_BUTTON (widget)) == GTK_RELIEF_NORMAL) {
-			gtk_paint_box (style, gtk_widget_get_window(widget),
-			               GTK_STATE_NORMAL, GTK_SHADOW_IN,
-			               area, widget, "buttondefault",
-			               x, y, width, height);
+			gtk_render_frame(sc, cr, x, y, width, height);
 			x += default_border.left;
 			y += default_border.top;
 			width -= default_border.left + default_border.right;
@@ -233,7 +229,7 @@ static void button_paint(
 			width -= default_outside_border.left + default_outside_border.right;
 			height -= default_outside_border.top + default_outside_border.bottom;
 		}
-       
+
 		if (!interior_focus && gtk_widget_has_focus (widget)) {
 			x += focus_width + focus_pad;
 			y += focus_width + focus_pad;
@@ -242,10 +238,7 @@ static void button_paint(
 		}
 
 		if (gtk_button_get_relief(button) != GTK_RELIEF_NONE) {
-			gtk_paint_box (style, gtk_widget_get_window(widget),
-			               state_type,
-			               shadow_type, area, widget, "button",
-			               x, y, width, height);
+			gtk_render_frame(sc, cr, x, y, width, height);
 		}
 		if (gtk_widget_has_focus (widget)) {
 			gint child_displacement_x;
@@ -258,10 +251,12 @@ static void button_paint(
 				"displace-focus", &displace_focus, NULL);
 
 			if (interior_focus) {
-				x += style->xthickness + focus_pad;
-				y += style->ythickness + focus_pad;
-				width -= 2 * (style->xthickness + focus_pad);
-				height -=  2 * (style->ythickness + focus_pad);
+				GtkBorder border;
+				gtk_style_context_get_border(sc, state_flags, &border);
+				x += border.left + border.right + focus_pad;
+				y += border.top + border.bottom + focus_pad;
+				width -= 2 * (border.left + border.right + focus_pad);
+				height -=  2 * (border.top + border.bottom + focus_pad);
 			} else {
 				x -= focus_width + focus_pad;
 				y -= focus_width + focus_pad;
@@ -269,46 +264,43 @@ static void button_paint(
 				height += 2 * (focus_width + focus_pad);
 			}
 
-			GtkStateType state = gtk_widget_get_state(widget);
-			if (state == GTK_STATE_ACTIVE && displace_focus) {
+			GtkStateFlags state = gtk_widget_get_state_flags(widget);
+			if (state == GTK_STATE_FLAG_ACTIVE && displace_focus) {
 				x += child_displacement_x;
 				y += child_displacement_y;
 			}
 
-			gtk_paint_focus(
-				style, gtk_widget_get_window(widget),
-				gtk_widget_get_state(widget),
-				area, widget, "button", x, y, width, height);
+			gtk_render_focus(sc, cr, x, y, width, height);
 		}
 	}
 }
 
-static gboolean gx_switch_expose(GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_switch_draw(GtkWidget *widget, cairo_t *cr)
 {
 	if (gtk_widget_is_drawable (widget)) {
 		GtkWidget *child = gtk_bin_get_child(GTK_BIN (widget));
 		GtkButton *button = GTK_BUTTON (widget);
-		GtkStateType state_type;
+		GtkStateFlags state_flags;
 		GtkShadowType shadow_type;
 
-		state_type = gtk_widget_get_state (widget);
-      
+		state_flags = gtk_widget_get_state_flags(widget);
+
 		if (gtk_toggle_button_get_inconsistent(GTK_TOGGLE_BUTTON (widget))) {
-			if (state_type == GTK_STATE_ACTIVE) {
-				state_type = GTK_STATE_NORMAL;
+			if (state_flags == GTK_STATE_FLAG_ACTIVE) {
+				state_flags = GTK_STATE_FLAG_NORMAL;
 			}
 			shadow_type = GTK_SHADOW_ETCHED_IN;
 		} else {
-			shadow_type = state_type == GTK_STATE_ACTIVE ? GTK_SHADOW_IN : GTK_SHADOW_OUT;
+			shadow_type = state_flags == GTK_STATE_FLAG_ACTIVE ? GTK_SHADOW_IN : GTK_SHADOW_OUT;
 		}
-		button_paint(button, &event->area, state_type, shadow_type,
+		button_paint(cr, button, state_flags, shadow_type,
 		             "togglebutton", "togglebuttondefault");
 
 		if (child) {
-			gtk_container_propagate_expose(GTK_CONTAINER(widget), child, event);
+			gtk_container_propagate_draw(GTK_CONTAINER(widget), child, cr);
 		}
 	}
-  
+
 	return FALSE;
 }
 
@@ -326,7 +318,7 @@ static void gx_switch_init(GxSwitch *swtch)
 
 /****************************************************************
  */
-static void gx_switch_destroy(GtkObject *object)
+static void gx_switch_destroy(GtkWidget *object)
 {
 	GxSwitch *swtch = GX_SWITCH(object);
 	if (swtch->priv->label) {
@@ -335,7 +327,7 @@ static void gx_switch_destroy(GtkObject *object)
 	}
 	g_free(swtch->priv->var_id);
 	swtch->priv->var_id = 0;
-	GTK_OBJECT_CLASS(gx_switch_parent_class)->destroy (object);
+	GTK_WIDGET_CLASS(gx_switch_parent_class)->destroy (object);
 }
 
 /****************************************************************
