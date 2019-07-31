@@ -37,8 +37,8 @@ static void gx_radio_button_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_radio_button_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void gx_radio_button_destroy (GtkObject *obj);
-static void draw_indicator(GtkCheckButton *check_button, GdkRectangle *rect);
+static void gx_radio_button_destroy (GtkWidget *obj);
+static void draw_indicator(GtkCheckButton *check_button, cairo_t *cr);
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxRadioButton, gx_radio_button, GTK_TYPE_RADIO_BUTTON);
 
@@ -47,10 +47,10 @@ G_DEFINE_TYPE_WITH_PRIVATE(GxRadioButton, gx_radio_button, GTK_TYPE_RADIO_BUTTON
 static void gx_radio_button_class_init(GxRadioButtonClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
-	GtkObjectClass *object_class = GTK_OBJECT_CLASS(klass);
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 	gobject_class->set_property = gx_radio_button_set_property;
 	gobject_class->get_property = gx_radio_button_get_property;
-	object_class->destroy = gx_radio_button_destroy;
+	widget_class->destroy = gx_radio_button_destroy;
 	((GtkCheckButtonClass*)klass)->draw_indicator = draw_indicator;
 	g_object_class_install_property(
 		gobject_class, PROP_BASE_NAME,
@@ -67,15 +67,15 @@ static void gx_radio_button_init(GxRadioButton *radio_button)
 	radio_button->priv->base_name = g_strdup("switch");
 }
 
-static void gx_radio_button_destroy (GtkObject *obj)
+static void gx_radio_button_destroy (GtkWidget *obj)
 {
 	GxRadioButton *radio_button = GX_RADIO_BUTTON(obj);
 	g_free(radio_button->priv->base_name);
 	radio_button->priv->base_name = 0;
-	GTK_OBJECT_CLASS(gx_radio_button_parent_class)->destroy(obj);
+	GTK_WIDGET_CLASS(gx_radio_button_parent_class)->destroy(obj);
 }
 
-static void draw_indicator(GtkCheckButton *check_button, GdkRectangle *rect)
+static void draw_indicator(GtkCheckButton *check_button, cairo_t *cr)
 {
 	GtkWidget *child;
 	gint x, y;
@@ -112,10 +112,8 @@ static void draw_indicator(GtkCheckButton *check_button, GdkRectangle *rect)
 	char *nm = g_strconcat(GX_RADIO_BUTTON(check_button)->priv->base_name, s, NULL);
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, nm, GtkIconSize(-1), NULL);
 	g_free(nm);
-	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	gdk_cairo_set_source_pixbuf (cr, pb, x, y);
 	cairo_paint (cr);
-	cairo_destroy (cr);
 	g_object_unref(pb);
 }
 
