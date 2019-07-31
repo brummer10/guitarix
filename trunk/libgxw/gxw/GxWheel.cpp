@@ -25,8 +25,10 @@ struct _GxWheelPrivate
 	int last_x;
 };
 
-static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event);
-static void gx_wheel_size_request (GtkWidget *widget, GtkRequisition *requisition);
+static gboolean gx_wheel_draw (GtkWidget *widget, cairo_t *cr);
+static void gx_wheel_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_wheel_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height);
+static void gx_wheel_size_request (GtkWidget *widget, gint *width, gint *height);
 static gboolean gx_wheel_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_wheel_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
 
@@ -36,8 +38,9 @@ static void gx_wheel_class_init(GxWheelClass *klass)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
-	widget_class->expose_event = gx_wheel_expose;
-	widget_class->size_request = gx_wheel_size_request;
+	widget_class->draw = gx_wheel_draw;
+	widget_class->get_preferred_width = gx_wheel_get_preferred_width;
+	widget_class->get_preferred_height = gx_wheel_get_preferred_height;
 	widget_class->button_press_event = gx_wheel_button_press;
 	widget_class->motion_notify_event = gx_wheel_pointer_motion;
 	widget_class->enter_notify_event = NULL;
@@ -70,7 +73,7 @@ static void get_image_dimensions (GtkWidget *widget, GdkPixbuf *pb,
 	}
 }
 
-static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_wheel_draw (GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_WHEEL(widget));
 	GxRegler *regler = GX_REGLER(widget);
@@ -79,7 +82,6 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 	gdouble wheelstate;
 	gtk_widget_style_get (widget, "framecount", &fcount, NULL);
 	
-	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
 	if (fcount > -1) {
 		
@@ -92,7 +94,7 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 		gdk_cairo_set_source_pixbuf (cr, wb, image_rect.x-(image_rect.width * findex), image_rect.y);
 		cairo_rectangle(cr, image_rect.x, image_rect.y,image_rect.width, image_rect.height);
 		cairo_fill(cr);
-		_gx_regler_display_value(regler, &value_rect);
+		_gx_regler_display_value(regler, cr, &value_rect);
 	} else {
 		
 		GdkPixbuf *ws = gtk_widget_render_icon(widget, "wheel_fringe", GtkIconSize(-1), NULL);
@@ -119,28 +121,54 @@ static gboolean gx_wheel_expose (GtkWidget *widget, GdkEventExpose *event)
 		cairo_rectangle(cr, image_rect.x+smoth_pointer+wheelstate*0.4, image_rect.y,
 				gdk_pixbuf_get_width(wp), image_rect.height);
 		cairo_fill(cr);
-		_gx_regler_display_value(regler, &value_rect);
+		_gx_regler_display_value(regler, cr, &value_rect);
 
 		g_object_unref(ws);
 		g_object_unref(wp);
 	}
-	cairo_destroy (cr);
+
 	g_object_unref(wb);
 	return TRUE;
 }
 
-static void gx_wheel_size_request (GtkWidget *widget, GtkRequisition *requisition)
+static void gx_wheel_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_wheel_size_request(widget, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_wheel_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_wheel_size_request(widget, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static void gx_wheel_size_request (GtkWidget *widget, gint *width, gint *height)
 {
 	g_assert(GX_IS_WHEEL(widget));
 	gint fcount;
 	GdkRectangle rect;
-	
+
     GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
-		
-    get_image_dimensions (widget, wb, &rect, &fcount); 
-    requisition->width = rect.width;
-    requisition->height = rect.height;
-	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
+
+	get_image_dimensions (widget, wb, &rect, &fcount);
+	*width = rect.width;
+	*height = rect.height;
+	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
 	g_object_unref(wb);
 }
 

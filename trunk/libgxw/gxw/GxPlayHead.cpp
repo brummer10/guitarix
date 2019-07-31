@@ -20,20 +20,22 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-static gboolean gx_play_head_expose (GtkWidget *widget, GdkEventExpose *event);
-static void gx_play_head_size_request (GtkWidget *widget, GtkRequisition *requisition);
+static gboolean gx_play_head_draw (GtkWidget *widget, cairo_t *cr);
+static void gx_play_head_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_play_head_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height);
+static void gx_play_head_size_request (GtkWidget *widget, gint *width, gint *height);
 static void gx_play_head_render_pixbuf (GtkWidget *widget);
 
 G_DEFINE_TYPE(GxPlayHead, gx_play_head, GX_TYPE_REGLER);
 
-#define get_stock_id(widget) (GX_PLAYHEAD_CLASS(GTK_OBJECT_GET_CLASS(widget))->stock_id)
+#define get_stock_id(widget) (GX_PLAYHEAD_CLASS(GTK_WIDGET_GET_CLASS(widget))->stock_id)
 
 static void gx_play_head_class_init(GxPlayHeadClass *klass)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
-	widget_class->expose_event = gx_play_head_expose;
-	widget_class->size_request = gx_play_head_size_request;
+	widget_class->draw = gx_play_head_draw;
+	widget_class->get_preferred_width = gx_play_head_get_preferred_width;
 	widget_class->button_press_event   = NULL;
     widget_class->button_release_event = NULL;
 	widget_class->motion_notify_event  = NULL;
@@ -47,16 +49,42 @@ static void gx_play_head_class_init(GxPlayHeadClass *klass)
 		                 0, 100, 20, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 }
 
-static void gx_play_head_size_request (GtkWidget *widget, GtkRequisition *requisition)
+static void gx_play_head_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_play_head_size_request(widget, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_play_head_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_play_head_size_request(widget, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static void gx_play_head_size_request (GtkWidget *widget, gint *width, gint *height)
 {
 	g_assert(GX_IS_PLAYHEAD(widget));
     GxPlayHead *phead   = GX_PLAYHEAD(widget);
-	requisition->width  = phead->width;
-	requisition->height = phead->height;
-	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
+	*width  = phead->width;
+	*height = phead->height;
+	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
 }
 
-static gboolean gx_play_head_expose(GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_play_head_draw(GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_PLAYHEAD(widget));
     GxPlayHead *phead = GX_PLAYHEAD(widget);
@@ -69,7 +97,6 @@ static gboolean gx_play_head_expose(GtkWidget *widget, GdkEventExpose *event)
 	//GdkRectangle  value_rect;
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), rect_width - (phead->height*2));
 	//_gx_regler_get_positions(GX_REGLER(widget), &phead->image_rect, &value_rect);
-	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
     // background
     phead->scaled_image = gdk_pixbuf_scale_simple(
 			phead->image, rect_width+(phead->height*60), phead->height, GDK_INTERP_NEAREST);
@@ -82,7 +109,6 @@ static gboolean gx_play_head_expose(GtkWidget *widget, GdkEventExpose *event)
     cairo_rectangle(cr, x + slstate, y, (phead->height*3), phead->height);
     cairo_fill(cr);
 	//_gx_regler_display_value(GX_REGLER(widget), &value_rect);
-	cairo_destroy (cr);
 	g_object_unref(phead->scaled_image);
 	return FALSE;
 }
@@ -91,7 +117,7 @@ static void gx_play_head_init(GxPlayHead *playhead)
 {
     GtkWidget *widget = GTK_WIDGET(playhead);
     gx_play_head_render_pixbuf(widget);
-    g_signal_connect ( GTK_OBJECT (widget), "style-set",
+    g_signal_connect (widget, "style-set",
                      G_CALLBACK (gx_play_head_render_pixbuf), NULL);
 }
 

@@ -20,8 +20,10 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-static gboolean gx_simple_value_display_expose (GtkWidget *widget, GdkEventExpose *event);
-static void gx_simple_value_display_size_request (GtkWidget *widget, GtkRequisition *requisition);
+static gboolean gx_simple_value_display_draw (GtkWidget *widget, cairo_t *cr);
+static void gx_simple_value_display_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_simple_value_display_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height);
+static void gx_simple_value_display_size_request (GtkWidget *widget, gint *width, gint *height);
 static gboolean gx_simple_value_display_button_press (GtkWidget *widget, GdkEventButton *event);
 
 G_DEFINE_TYPE(GxSimpleValueDisplay, gx_simple_value_display, GX_TYPE_REGLER);
@@ -29,22 +31,50 @@ G_DEFINE_TYPE(GxSimpleValueDisplay, gx_simple_value_display, GX_TYPE_REGLER);
 static void gx_simple_value_display_class_init(GxSimpleValueDisplayClass *klass)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
-	widget_class->expose_event = gx_simple_value_display_expose;
-	widget_class->size_request = gx_simple_value_display_size_request;
+	widget_class->draw = gx_simple_value_display_draw;
+	widget_class->get_preferred_width = gx_simple_value_display_get_preferred_width;
+	widget_class->get_preferred_height = gx_simple_value_display_get_preferred_height;
 	widget_class->button_press_event = gx_simple_value_display_button_press;
 }
 
-static void gx_simple_value_display_size_request(GtkWidget *widget, GtkRequisition *requisition)
+static void gx_simple_value_display_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_simple_value_display_size_request(widget, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_simple_value_display_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_simple_value_display_size_request(widget, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+
+static void gx_simple_value_display_size_request(GtkWidget *widget, gint *width, gint *height)
 {
 	g_assert(GX_IS_SIMPLE_VALUE_DISPLAY(widget));
-	requisition->width = 0;
-	requisition->height = 0;
-	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
+	*width = 0;
+	*height = 0;
+	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
 }
 
 #define FILL_ALLOCATION_WIDTH
 
-static gboolean gx_simple_value_display_expose(GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_simple_value_display_draw(GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_SIMPLE_VALUE_DISPLAY(widget));
 	GdkRectangle image_rect, value_rect;
@@ -57,7 +87,7 @@ static gboolean gx_simple_value_display_expose(GtkWidget *widget, GdkEventExpose
 	value_rect.x = allocation.x;
 	value_rect.width = allocation.width;
 #endif
-	_gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
+	_gx_regler_simple_display_value(GX_REGLER(widget), cr, &value_rect);
 	return FALSE;
 }
 

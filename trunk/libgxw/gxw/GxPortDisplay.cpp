@@ -20,10 +20,12 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-#define get_stock_id(widget) (GX_PORT_DISPLAY_CLASS(GTK_OBJECT_GET_CLASS(widget))->parent_class.stock_id)
+#define get_stock_id(widget) (GX_PORT_DISPLAY_CLASS(GTK_WIDGET_GET_CLASS(widget))->parent_class.stock_id)
 
-static gboolean gx_port_display_expose (GtkWidget *widget, GdkEventExpose *event);
-static void gx_port_display_size_request (GtkWidget *widget, GtkRequisition *requisition);
+static gboolean gx_port_display_draw (GtkWidget *widget, cairo_t *cr);
+static void gx_port_display_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_port_display_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height);
+static void gx_port_display_size_request (GtkWidget *widget, gint *width, gint *height);
 
 G_DEFINE_TYPE(GxPortDisplay, gx_port_display, GX_TYPE_VSLIDER);
 
@@ -31,8 +33,9 @@ static void gx_port_display_class_init(GxPortDisplayClass *klass)
 {
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
-	widget_class->expose_event = gx_port_display_expose;
-	widget_class->size_request = gx_port_display_size_request;
+	widget_class->draw = gx_port_display_draw;
+	widget_class->get_preferred_width = gx_port_display_get_preferred_width;
+	widget_class->get_preferred_height = gx_port_display_get_preferred_height;
 	widget_class->button_press_event = NULL;
 	widget_class->motion_notify_event = NULL;
 	widget_class->enter_notify_event = NULL;
@@ -45,30 +48,49 @@ static void gx_port_display_class_init(GxPortDisplayClass *klass)
 		                 0, 80, 0, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 }
 
-static void gx_port_display_size_request (GtkWidget *widget, GtkRequisition *requisition)
+static void gx_port_display_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_port_display_size_request(widget, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_port_display_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_port_display_size_request(widget, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static void gx_port_display_size_request (GtkWidget *widget, gint *width, gint *height)
 {
 	g_assert(GX_IS_PORT_DISPLAY(widget));
 	gint display_width;
 	gtk_widget_style_get(widget, "display-width", &display_width, NULL);
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	requisition->height = 2+gdk_pixbuf_get_height(pb);
-	requisition->width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
-	_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
+	*height = 2+gdk_pixbuf_get_height(pb);
+	*width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
+	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
 	g_object_unref(pb);
 }
 
-static void port_display_expose(GdkEventExpose *ev,
+static void port_display_expose(cairo_t *cr,
 	GtkWidget *widget, GdkRectangle *rect, gdouble sliderstate, GdkPixbuf *image)
 {
-	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
     GxPortDisplay *port_display = GX_PORT_DISPLAY(widget);
-    GtkAllocation allocation;
-    gtk_widget_get_allocation(widget, &allocation);
-    GdkRegion *region;
-	region = gdk_region_rectangle (&allocation);
-	gdk_region_intersect (region, ev->region);
-    gdk_cairo_region (cr, region);
-    cairo_clip (cr);
+
 	gdk_cairo_set_source_pixbuf(cr, image, rect->x - (rect->width-(gint)sliderstate), rect->y);
 	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
 	cairo_fill(cr);
@@ -88,13 +110,10 @@ static void port_display_expose(GdkEventExpose *ev,
       cairo_move_to(cr,rect->x+ low, rect->y+lw);
       cairo_line_to(cr,rect->width - high, rect->y+lw);
       cairo_stroke (cr);
-      
     }
-	cairo_destroy(cr);
-    gdk_region_destroy (region);
 }
 
-static gboolean gx_port_display_expose(GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_port_display_draw(GtkWidget *widget, cairo_t *cr)
 {
     if (GDK_IS_WINDOW (gtk_widget_get_window(widget))) {
 	  g_assert(GX_IS_PORT_DISPLAY(widget));
@@ -106,8 +125,8 @@ static gboolean gx_port_display_expose(GtkWidget *widget, GdkEventExpose *event)
 	  image_rect.width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
 	  gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.width-display_width);
 	  _gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	  port_display_expose(event, widget, &image_rect, sliderstate, pb);
-	  _gx_regler_simple_display_value(GX_REGLER(widget), &value_rect);
+	  port_display_expose(cr, widget, &image_rect, sliderstate, pb);
+	  _gx_regler_simple_display_value(GX_REGLER(widget), cr, &value_rect);
 	  g_object_unref(pb);
     }
 	return FALSE;

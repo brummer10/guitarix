@@ -69,7 +69,7 @@ static void gx_regler_init(GxRegler *regler);
 static void gx_control_parameter_interface_init (GxControlParameterIface *iface);
 static void gx_regler_finalize(GObject*);
 static void gx_regler_style_set (GtkWidget *widget, GtkStyle  *previous_style);
-static void gx_regler_destroy(GtkObject *object);
+static void gx_regler_destroy(GtkWidget *object);
 static void gx_regler_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_regler_get_property(
@@ -307,7 +307,6 @@ marshal_BOOLEAN__BOXED_BOXED (GClosure     *closure,
 static void gx_regler_class_init(GxReglerClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
-	GtkObjectClass *object_class = (GtkObjectClass*) klass;
 	GtkRangeClass *range_class = (GtkRangeClass*)klass;
 	GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 	GtkBindingSet  *binding_set;
@@ -316,8 +315,7 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	gobject_class->set_property = gx_regler_set_property;
 	gobject_class->get_property = gx_regler_get_property;
 
-	object_class->destroy = gx_regler_destroy;
-
+	widget_class->destroy = gx_regler_destroy;
 	widget_class->style_set = gx_regler_style_set;
 	widget_class->button_release_event = gx_regler_button_release;
 	widget_class->scroll_event = gx_regler_scroll;
@@ -443,121 +441,121 @@ static void gx_regler_class_init(GxReglerClass *klass)
 
 	binding_set = gtk_binding_set_by_class(klass);
 
-	add_slider_binding (binding_set, GDK_Left, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_Left, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_LEFT);
 
-	add_slider_binding (binding_set, GDK_Left, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_Left, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_LEFT);
 
-	add_slider_binding (binding_set, GDK_KP_Left, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_Left, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_LEFT);
 
-	add_slider_binding (binding_set, GDK_KP_Left, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_KP_Left, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_LEFT);
 
-	add_slider_binding (binding_set, GDK_Right, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_Right, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_RIGHT);
 
-	add_slider_binding (binding_set, GDK_Right, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_Right, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_RIGHT);
 
-	add_slider_binding (binding_set, GDK_KP_Right, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_Right, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_RIGHT);
 
-	add_slider_binding (binding_set, GDK_KP_Right, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_KP_Right, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_RIGHT);
 
-	add_slider_binding (binding_set, GDK_Up, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_Up, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_UP);
 
-	add_slider_binding (binding_set, GDK_Up, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_Up, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_UP);
 
-	add_slider_binding (binding_set, GDK_KP_Up, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_Up, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_UP);
 
-	add_slider_binding (binding_set, GDK_KP_Up, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_KP_Up, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_UP);
 
-	add_slider_binding (binding_set, GDK_Down, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_Down, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_DOWN);
 
-	add_slider_binding (binding_set, GDK_Down, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_Down, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_DOWN);
 
-	add_slider_binding (binding_set, GDK_KP_Down, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_Down, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_DOWN);
 
-	add_slider_binding (binding_set, GDK_KP_Down, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_KP_Down, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_DOWN);
 
-	add_slider_binding (binding_set, GDK_Page_Up, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_Page_Up, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_LEFT);
 
-	add_slider_binding (binding_set, GDK_KP_Page_Up, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_KP_Page_Up, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_LEFT);
 
-	add_slider_binding (binding_set, GDK_Page_Up, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_Page_Up, (GdkModifierType)0,
 	                    GTK_SCROLL_PAGE_UP);
 
-	add_slider_binding (binding_set, GDK_KP_Page_Up, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_Page_Up, (GdkModifierType)0,
 	                    GTK_SCROLL_PAGE_UP);
 
-	add_slider_binding (binding_set, GDK_Page_Down, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_Page_Down, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_RIGHT);
 
-	add_slider_binding (binding_set, GDK_KP_Page_Down, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_KP_Page_Down, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_RIGHT);
 
-	add_slider_binding (binding_set, GDK_Page_Down, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_Page_Down, (GdkModifierType)0,
 	                    GTK_SCROLL_PAGE_DOWN);
 
-	add_slider_binding (binding_set, GDK_KP_Page_Down, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_Page_Down, (GdkModifierType)0,
 	                    GTK_SCROLL_PAGE_DOWN);
 
 	/* Logical bindings (vs. visual bindings above) */
 
-	add_slider_binding (binding_set, GDK_plus, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_plus, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_FORWARD);
 
-	add_slider_binding (binding_set, GDK_minus, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_minus, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_BACKWARD);
 
-	add_slider_binding (binding_set, GDK_plus, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_plus, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_FORWARD);
 
-	add_slider_binding (binding_set, GDK_minus, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_minus, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_BACKWARD);
 
 
-	add_slider_binding (binding_set, GDK_KP_Add, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_Add, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_FORWARD);
 
-	add_slider_binding (binding_set, GDK_KP_Subtract, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_Subtract, (GdkModifierType)0,
 	                    GTK_SCROLL_STEP_BACKWARD);
 
-	add_slider_binding (binding_set, GDK_KP_Add, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_KP_Add, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_FORWARD);
 
-	add_slider_binding (binding_set, GDK_KP_Subtract, GDK_CONTROL_MASK,
+	add_slider_binding (binding_set, GDK_KEY_KP_Subtract, GDK_CONTROL_MASK,
 	                    GTK_SCROLL_PAGE_BACKWARD);
 
 
-	add_slider_binding (binding_set, GDK_Home, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_Home, (GdkModifierType)0,
 	                    GTK_SCROLL_START);
 
-	add_slider_binding (binding_set, GDK_KP_Home, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_Home, (GdkModifierType)0,
 	                    GTK_SCROLL_START);
 
-	add_slider_binding (binding_set, GDK_End, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_End, (GdkModifierType)0,
 	                    GTK_SCROLL_END);
 
-	add_slider_binding (binding_set, GDK_KP_End, (GdkModifierType)0,
+	add_slider_binding (binding_set, GDK_KEY_KP_End, (GdkModifierType)0,
 	                    GTK_SCROLL_END);
 }
 
 
-static void gx_regler_destroy(GtkObject *object)
+static void gx_regler_destroy(GtkWidget *object)
 {
 	GxRegler *regler = GX_REGLER(object);
 	if (regler->priv->label) {
@@ -567,7 +565,7 @@ static void gx_regler_destroy(GtkObject *object)
 	gx_regler_change_adjustment(regler, NULL);
 	g_signal_handlers_disconnect_by_func(
 		regler, (gpointer)gx_regler_adjustment_notified, NULL);
-	GTK_OBJECT_CLASS(gx_regler_parent_class)->destroy(object);
+	GTK_WIDGET_CLASS(gx_regler_parent_class)->destroy(object);
 }
 
 static void gx_regler_finalize(GObject *object)
@@ -846,8 +844,8 @@ void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
 	GtkWidget *widget = GTK_WIDGET(regler);
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(widget, &allocation);
-	gint x = allocation.x;
-	gint y = allocation.y;
+	gint x = 0;
+	gint y = 0;
 	gint width = image_rect->width;
 	gint height =  image_rect->height;
 	gboolean show_value;
@@ -983,7 +981,7 @@ static void get_value_border(GtkWidget *widget, GtkBorder *value_border)
     }
 }
 
-void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
+void _gx_regler_simple_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
 {
 	if (!regler->priv->show_value) {
 		return;
@@ -1003,12 +1001,12 @@ void _gx_regler_simple_display_value(GxRegler *regler, GdkRectangle *rect)
     pango_layout_set_text(l, txt, -1);
     g_free (txt);
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
-    gtk_paint_layout(gtk_widget_get_style(widget), gtk_widget_get_window(widget), gtk_widget_get_state(widget),
-                     FALSE, rect, widget, "label", rect->x+(rect->width - logical_rect.width)/2,
+    gtk_paint_layout(gtk_widget_get_style(widget), cr, gtk_widget_get_state(widget),
+                     FALSE, widget, "label", rect->x+(rect->width - logical_rect.width)/2,
                      rect->y, regler->priv->value_layout);
 }
 
-void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
+void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
 {
 	if (!regler->priv->show_value) {
 		return;
@@ -1019,7 +1017,6 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 	if (!show_value) {
 		return;
 	}
-	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	GtkBorder border;
 	get_value_border(widget, &border);
 	//gint inset = max(0, min(2, min(min(border.left-4, border.right-4), min(border.top-1, border.bottom-1))));
@@ -1032,9 +1029,9 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
     gint rad;
     gtk_widget_style_get(widget, "border-radius", &rad, NULL);
     
-    gx_draw_inset(widget, x0, y0, w, h, rad, 2);
-    gx_draw_rect(widget, "base", NULL, x0, y0, w, h, rad, 0);
-    gx_draw_glass(widget, x0, y0, w, h, rad);
+    gx_draw_inset(cr, x0, y0, w, h, rad, 2);
+    gx_draw_rect(cr, widget, "base", NULL, x0, y0, w, h, rad, 0);
+    gx_draw_glass(cr, x0, y0, w, h, rad);
 
 	gchar *txt;
 	ensure_digits(regler);
@@ -1049,11 +1046,9 @@ void _gx_regler_display_value(GxRegler *regler, GdkRectangle *rect)
 		(rect->width - logical_rect.width - (2*border_width + border.left + border.right));
     cairo_move_to(cr, x0-1+off, y0+3);
     pango_cairo_show_layout(cr, l);
-    
-	cairo_destroy(cr);
 }
 
-void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
+void _gx_regler_calc_size_request(GxRegler *regler, gint *out_width, gint *out_height)
 {
 	if (!regler->priv->show_value) {
 		return;
@@ -1088,16 +1083,16 @@ void _gx_regler_calc_size_request(GxRegler *regler, GtkRequisition *requisition)
 	switch (regler->priv->value_position) {
 	case GTK_POS_LEFT:
 	case GTK_POS_RIGHT:
-		requisition->width += width + value_spacing;
-		if (height > requisition->height) {
-			requisition->height = height;
+		*out_width += width + value_spacing;
+		if (height > *out_height) {
+			*out_height = height;
 		}
 		break;
 	case GTK_POS_TOP:
 	case GTK_POS_BOTTOM:
-		requisition->height += height + value_spacing;
-		if (width > requisition->width) {
-			requisition->width = width;
+		*out_height += height + value_spacing;
+		if (width > *out_width) {
+			*out_width = width;
 		}
 		break;
 	}
@@ -1167,7 +1162,7 @@ static gboolean dialog_key_press_event(
 static gboolean dialog_key_press_before(
 	GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
-	if (event->keyval == GDK_Escape) {
+	if (event->keyval == GDK_KEY_Escape) {
 		// spinbutton to current adjustment value
 		gtk_adjustment_value_changed(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(widget)));
 		gtk_widget_destroy(GTK_WIDGET(data));
@@ -1268,11 +1263,12 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 
 	gtk_widget_show(spinner);
 	gtk_widget_realize(GTK_WIDGET(dialog));
-	GtkRequisition rq;
-	gtk_widget_get_requisition(GTK_WIDGET(dialog), &rq);
+	gint rq_width, rq_height;
+	gtk_widget_get_preferred_width(GTK_WIDGET(dialog), nullptr, &rq_width);
+	gtk_widget_get_preferred_height(GTK_WIDGET(dialog), nullptr, &rq_height);
 	gint xorg, yorg;
 	gdk_window_get_origin(gtk_widget_get_window(GTK_WIDGET(regler)), &xorg, &yorg);
-	gtk_window_move(GTK_WINDOW(dialog), xorg+rect->x+(rect->width-rq.width)/2, yorg+rect->y+(rect->height-rq.height)/2);
+	gtk_window_move(GTK_WINDOW(dialog), xorg+rect->x+(rect->width-rq_width)/2, yorg+rect->y+(rect->height-rq_height)/2);
 	gtk_widget_show(dialog);
 	return FALSE;
 }

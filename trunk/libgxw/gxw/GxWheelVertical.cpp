@@ -25,8 +25,10 @@ struct _GxWheelVerticalPrivate
     int last_x;
 };
 
-static gboolean gx_wheel_vertical_expose (GtkWidget *widget, GdkEventExpose *event);
-static void gx_wheel_vertical_size_request (GtkWidget *widget, GtkRequisition *requisition);
+static gboolean gx_wheel_vertical_draw (GtkWidget *widget, cairo_t *cr);
+static void gx_wheel_vertical_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_wheel_vertical_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height);
+static void gx_wheel_vertical_size_request (GtkWidget *widget, gint *width, gint *height);
 static gboolean gx_wheel_vertical_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_wheel_vertical_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
 
@@ -36,8 +38,9 @@ static void gx_wheel_vertical_class_init(GxWheelVerticalClass *klass)
 {
     GtkWidgetClass *widget_class = (GtkWidgetClass*) klass;
 
-    widget_class->expose_event = gx_wheel_vertical_expose;
-    widget_class->size_request = gx_wheel_vertical_size_request;
+    widget_class->draw = gx_wheel_vertical_draw;
+    widget_class->get_preferred_width = gx_wheel_vertical_get_preferred_width;
+    widget_class->get_preferred_height = gx_wheel_vertical_get_preferred_height;
     widget_class->button_press_event = gx_wheel_vertical_button_press;
     widget_class->motion_notify_event = gx_wheel_vertical_pointer_motion;
     widget_class->enter_notify_event = NULL;
@@ -62,7 +65,7 @@ static void get_image_dimensions (GtkWidget *widget, GdkPixbuf *pb,
     rect->height = (gdk_pixbuf_get_height(pb) / *frame_count);
 }
 
-static gboolean gx_wheel_vertical_expose (GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_wheel_vertical_draw (GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_WHEEL_VERTICAL(widget));
 	GxRegler *regler = GX_REGLER(widget);
@@ -79,29 +82,54 @@ static gboolean gx_wheel_vertical_expose (GtkWidget *widget, GdkEventExpose *eve
 
 	fcount--; // zero based index
 	findex = (int)(fcount * wheel_verticalstate);
-	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	gdk_cairo_set_source_pixbuf (cr, wb, image_rect.x, image_rect.y - (image_rect.height * findex));
 	cairo_rectangle(cr, image_rect.x, image_rect.y, image_rect.width, image_rect.height);
 	cairo_fill(cr);
-	cairo_destroy(cr);
-	_gx_regler_display_value(regler, &value_rect);
+	_gx_regler_display_value(regler, cr, &value_rect);
 
 	g_object_unref(wb);
 	return TRUE;
 }
 
-static void gx_wheel_vertical_size_request (GtkWidget *widget, GtkRequisition *requisition)
+static void gx_wheel_vertical_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_wheel_vertical_size_request(widget, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_wheel_vertical_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_wheel_vertical_size_request(widget, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+
+static void gx_wheel_vertical_size_request (GtkWidget *widget, gint *width, gint *height)
 {
     g_assert(GX_IS_WHEEL_VERTICAL(widget));
     gint fcount;
     GdkRectangle rect;
-    
+
     GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_vertical_back", GtkIconSize(-1), NULL);
-        
-    get_image_dimensions (widget, wb, &rect, &fcount); 
-    requisition->width = rect.width;
-    requisition->height = rect.height;
-    _gx_regler_calc_size_request(GX_REGLER(widget), requisition);
+
+    get_image_dimensions (widget, wb, &rect, &fcount);
+    *width = rect.width;
+    *height = rect.height;
+    _gx_regler_calc_size_request(GX_REGLER(widget), width, height);
     g_object_unref(wb);
 }
 
