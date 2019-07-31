@@ -54,24 +54,26 @@ GType gx_tick_position_get_type(void)
 	return etype;
 }
 
-static void gx_meter_scale_destroy(GtkObject *object);
+static void gx_meter_scale_destroy(GtkWidget *object);
 static void meter_scale_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void meter_scale_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event);
-static void gx_meter_scale_size_request(GtkWidget* wd, GtkRequisition* req);
+static gboolean gx_meter_scale_draw(GtkWidget *widget, cairo_t *cr);
+static void gx_meter_scale_get_preferred_width(GtkWidget* wd, gint *min_width, gint *natural_width);
+static void gx_meter_scale_get_preferred_height(GtkWidget* wd, gint *min_height, gint *natural_height);
+static void gx_meter_scale_size_request(GtkWidget* wd, gint *width, gint *height);
 
 static void gx_meter_scale_class_init (GxMeterScaleClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
-	GtkObjectClass *object_class = (GtkObjectClass*) klass;
 	GtkWidgetClass *widget_class = (GtkWidgetClass*)klass;
 	gobject_class->set_property = meter_scale_set_property;
 	gobject_class->get_property = meter_scale_get_property;
-	object_class->destroy = gx_meter_scale_destroy;
-	widget_class->size_request = gx_meter_scale_size_request;
-	widget_class->expose_event = gx_meter_scale_expose;
+	widget_class->destroy = gx_meter_scale_destroy;
+	widget_class->get_preferred_width = gx_meter_scale_get_preferred_width;
+	widget_class->get_preferred_height = gx_meter_scale_get_preferred_height;
+	widget_class->draw = gx_meter_scale_draw;
 	// properties
 	g_object_class_install_property(
 		gobject_class, PROP_TICK_POS, g_param_spec_enum(
@@ -96,7 +98,33 @@ static void gx_meter_scale_class_init (GxMeterScaleClass *klass)
 		                 GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 }
 
-static void gx_meter_scale_size_request(GtkWidget* wd, GtkRequisition* req)
+static void gx_meter_scale_get_preferred_width(GtkWidget* wd, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_meter_scale_size_request(wd, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_meter_scale_get_preferred_height(GtkWidget* wd, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_meter_scale_size_request(wd, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static void gx_meter_scale_size_request(GtkWidget* wd, gint *width, gint *height)
 {
 	GxMeterScale *meter_scale = GX_METER_SCALE(wd);
 	GxMeterScalePrivate *priv = meter_scale->priv;
@@ -129,8 +157,8 @@ static void gx_meter_scale_size_request(GtkWidget* wd, GtkRequisition* req)
 		w += 2 * (tick_size + tick_space);
 		break;
 	}
-	req->width = w;
-	req->height = h;
+	*width = w;
+	*height = h;
 }
 
 static gint compare_marks(gpointer a, gpointer b)
@@ -175,24 +203,22 @@ static void gx_meter_scale_init(GxMeterScale *meter_scale)
 	meter_scale->priv->tick_pos = GX_TICK_RIGHT;
 }
 
-static void gx_meter_scale_destroy(GtkObject *object)
+static void gx_meter_scale_destroy(GtkWidget *object)
 {
 	GxMeterScale *meter_scale = GX_METER_SCALE(object);
 	gx_meter_scale_clear_marks(meter_scale);
-	GTK_OBJECT_CLASS(gx_meter_scale_parent_class)->destroy(object);
+	GTK_WIDGET_CLASS(gx_meter_scale_parent_class)->destroy(object);
 }
 
-static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_meter_scale_draw(GtkWidget *widget, cairo_t *cr)
 {
 	GxMeterScale *meter_scale = GX_METER_SCALE(widget);
 	GxMeterScalePrivate *priv = meter_scale->priv;
 	GSList *m;
-	cairo_t *cr;
 	gint tick_size, tick_space;
 	gtk_widget_style_get(widget, "tick-size", &tick_size, "tick-space", &tick_space, NULL);
 
 	/* create a cairo context */
-	cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	cairo_set_font_size (cr, 7.0);
 
 	GtkAllocation allocation;
@@ -279,7 +305,6 @@ static gboolean gx_meter_scale_expose(GtkWidget *widget, GdkEventExpose *event)
 	cairo_stroke (cr);
 
 	cairo_pattern_destroy (pat);
-	cairo_destroy(cr);
 
 	return FALSE;
 }
