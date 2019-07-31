@@ -17,7 +17,7 @@
  */
 
 #include "GxRackTuner.h"
-#include <gtk/gtkmarshal.h>
+
 #include <math.h>
 #include <string.h>
 
@@ -78,12 +78,14 @@ static guint signals[LAST_SIGNAL];
 
 static void gx_rack_tuner_class_init (GxRackTunerClass *klass);
 static void gx_rack_tuner_init(GxRackTuner *tuner);
-static void gx_rack_tuner_destroy(GtkObject *object);
+static void gx_rack_tuner_destroy(GtkWidget *object);
 static void gx_rack_tuner_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_rack_tuner_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void gx_rack_tuner_size_request(GtkWidget *widget, GtkRequisition *requisition);
+static void gx_rack_tuner_get_preferred_width(GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_rack_tuner_get_preferred_height(GtkWidget *widget, gint *min_height, gint *natural_height);
+static void gx_rack_tuner_size_request(GtkWidget *widget, gint *width, gint *height);
 static void gx_rack_tuner_remove_handler(GxRackTuner *tuner);
 
 static const int led_spacing = 7;
@@ -103,18 +105,18 @@ static void gx_rack_tuner_unmap(GtkWidget*);
 static void gx_rack_tuner_state_changed(GtkWidget*, GtkStateType);
 static gboolean gx_rack_tuner_freq_poll_handler(gpointer);
 static gboolean gx_rack_tuner_configure_event(GtkWidget*, GdkEventConfigure*);
-static gboolean gx_rack_tuner_expose_event(GtkWidget*, GdkEventExpose*);
+static gboolean gx_rack_tuner_draw(GtkWidget*, cairo_t*);
 
 static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	GtkObjectClass *object_class = GTK_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 	gobject_class->set_property = gx_rack_tuner_set_property;
 	gobject_class->get_property = gx_rack_tuner_get_property;
-	object_class->destroy = gx_rack_tuner_destroy;
-	widget_class->expose_event = gx_rack_tuner_expose_event;
-	widget_class->size_request = gx_rack_tuner_size_request;
+	widget_class->destroy = gx_rack_tuner_destroy;
+	widget_class->draw = gx_rack_tuner_draw;
+	widget_class->get_preferred_width = gx_rack_tuner_get_preferred_width;
+	widget_class->get_preferred_height = gx_rack_tuner_get_preferred_height;
 	widget_class->map = gx_rack_tuner_map;
 	widget_class->unmap = gx_rack_tuner_unmap;
 	widget_class->state_changed = gx_rack_tuner_state_changed;
@@ -170,7 +172,7 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 		             GSignalFlags(G_SIGNAL_RUN_LAST),
 		             G_STRUCT_OFFSET (GxRackTunerClass, frequency_poll),
 		             NULL, NULL,
-		             gtk_marshal_VOID__VOID,
+		             g_cclosure_marshal_VOID__VOID,
 		             G_TYPE_NONE, 0);
 	signals[POLL_STATUS_CHANGED] =
 		g_signal_new(I_("poll-status-changed"),
@@ -178,7 +180,7 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 		             GSignalFlags(G_SIGNAL_RUN_LAST),
 		             G_STRUCT_OFFSET (GxRackTunerClass, poll_status_changed),
 		             NULL, NULL,
-		             gtk_marshal_VOID__BOOLEAN,
+		             g_cclosure_marshal_VOID__BOOLEAN,
 		             G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
 }
 
@@ -223,10 +225,10 @@ static void gx_rack_tuner_init (GxRackTuner *tuner)
 	tuner->priv->padding = 0;
 }
 
-static void gx_rack_tuner_destroy(GtkObject *object)
+static void gx_rack_tuner_destroy(GtkWidget *object)
 {
 	gx_rack_tuner_remove_handler(GX_RACK_TUNER(object));
-	GTK_OBJECT_CLASS(gx_rack_tuner_parent_class)->destroy(object);
+	GTK_WIDGET_CLASS(gx_rack_tuner_parent_class)->destroy(object);
 }
 
 void gx_rack_tuner_set_freq(GxRackTuner *tuner, double freq)
@@ -469,11 +471,37 @@ static void gx_rack_tuner_get_property(GObject *object, guint prop_id,
 	}
 }
 
-static void gx_rack_tuner_size_request(GtkWidget *widget, GtkRequisition *requisition)
+static void gx_rack_tuner_get_preferred_width(GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_rack_tuner_size_request(widget, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_rack_tuner_get_preferred_height(GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_rack_tuner_size_request(widget, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static void gx_rack_tuner_size_request(GtkWidget *widget, gint *width, gint *height)
 {
 	double s = gx_tuner_get_scale(&GX_RACK_TUNER(widget)->parent);
-	requisition->width = ((min_led-1) * led_spacing + led_width + 2 * pad) * s;
-	requisition->height = 40 * s;
+	*width = ((min_led-1) * led_spacing + led_width + 2 * pad) * s;
+	*height = 40 * s;
 }
 
 static void gx_rack_tuner_pitch_to_note(GxRackTuner *tuner, double fnote, int *oc, int *note, double *scale)
@@ -832,17 +860,13 @@ static gboolean gx_rack_tuner_configure_event(GtkWidget *widget, GdkEventConfigu
 	return FALSE;
 }
 
-static gboolean gx_rack_tuner_expose_event(GtkWidget *widget, GdkEventExpose *ev)
+static gboolean gx_rack_tuner_draw(GtkWidget *widget, cairo_t *cr)
 {
 	GxRackTuner *tuner = GX_RACK_TUNER(widget);
-	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
-	gdk_cairo_region(cr,ev->region);
-	cairo_clip(cr);
 	cairo_set_source_surface(cr, gx_tuner_get_surface_tuner(&tuner->parent), 0, 0);
 	cairo_paint(cr);
 	if (gtk_widget_get_sensitive(widget) && gx_tuner_get_freq(&tuner->parent)) {
 		gx_rack_tuner_paint(tuner, cr, FALSE);
 	}
-	cairo_destroy(cr);
 	return FALSE;
 }
