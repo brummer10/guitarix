@@ -30,7 +30,7 @@ enum {
 	PROP_VAR_ID ,
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GxToggleImage, gx_toggle_image, GTK_TYPE_MISC)
+G_DEFINE_TYPE_WITH_PRIVATE(GxToggleImage, gx_toggle_image, GTK_TYPE_WIDGET)
 
 #define GX_TOGGLE_IMAGE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_TOGGLE_IMAGE, GxToggleImagePrivate))
 
@@ -38,23 +38,24 @@ static void gx_toggle_image_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_toggle_image_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void gx_toggle_image_destroy (GtkObject *obj);
-static void gx_toggle_image_size_request (
-	GtkWidget * widget, GtkRequisition * requisition);
-static gint gx_toggle_image_expose (
-	GtkWidget * widget, GdkEventExpose * event);
+static void gx_toggle_image_destroy (GtkWidget *obj);
+static void gx_toggle_image_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_toggle_image_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height);
+static void gx_toggle_image_size_request (GtkWidget *widget, gint *width, gint *height);
+static gint gx_toggle_image_draw (
+	GtkWidget * widget, cairo_t * cr);
 
 static void gx_toggle_image_class_init(GxToggleImageClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
-	GtkObjectClass *object_class = GTK_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = (GtkWidgetClass*)klass;
 
 	gobject_class->set_property = gx_toggle_image_set_property;
 	gobject_class->get_property = gx_toggle_image_get_property;
-	object_class->destroy = gx_toggle_image_destroy;
-	widget_class->size_request = gx_toggle_image_size_request;
-	widget_class->expose_event = gx_toggle_image_expose;
+	widget_class->destroy = gx_toggle_image_destroy;
+	widget_class->get_preferred_width = gx_toggle_image_get_preferred_width;
+	widget_class->get_preferred_height = gx_toggle_image_get_preferred_height;
+	widget_class->draw = gx_toggle_image_draw;
 
 	g_object_class_install_property(
 		gobject_class, PROP_BASE_NAME,
@@ -77,30 +78,57 @@ static void gx_toggle_image_init(GxToggleImage *toggle_image)
 	gtk_widget_set_has_window(GTK_WIDGET(toggle_image), FALSE);
 }
 
-static void gx_toggle_image_destroy (GtkObject *obj)
+static void gx_toggle_image_destroy (GtkWidget *obj)
 {
 	GxToggleImage *toggle_image = GX_TOGGLE_IMAGE(obj);
 	g_free(toggle_image->priv->base_name);
 	toggle_image->priv->base_name = 0;
-	GTK_OBJECT_CLASS(gx_toggle_image_parent_class)->destroy(obj);
+	GTK_WIDGET_CLASS(gx_toggle_image_parent_class)->destroy(obj);
 }
 
-static void gx_toggle_image_size_request (GtkWidget * widget, GtkRequisition * requisition)
+static void gx_toggle_image_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_toggle_image_size_request(widget, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_toggle_image_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_toggle_image_size_request(widget, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static void gx_toggle_image_size_request (GtkWidget *widget, gint *width, gint *height)
 {
 	GxToggleImage *toggle_image = GX_TOGGLE_IMAGE(widget);
 	char *s = g_strconcat(toggle_image->priv->base_name, "_on", NULL);
-	GdkPixbuf *img = gtk_widget_render_icon(widget, s, GtkIconSize(-1), NULL);
+	GdkPixbuf *img = gtk_widget_render_icon_pixbuf(widget, s, GtkIconSize(-1));
 	g_free(s);
 	if (GDK_IS_PIXBUF (img)) {
 		gint xpad, ypad;
-		gtk_misc_get_padding(GTK_MISC(widget), &xpad, &ypad);
-		requisition->width = gdk_pixbuf_get_width(img) + xpad * 2;
-		requisition->height = gdk_pixbuf_get_height(img) + ypad * 2;
+		xpad = gtk_widget_get_margin_start(widget) + gtk_widget_get_margin_end(widget);
+		ypad = gtk_widget_get_margin_top(widget) + gtk_widget_get_margin_bottom(widget);
+		*width = gdk_pixbuf_get_width(img) + xpad * 2;
+		*height = gdk_pixbuf_get_height(img) + ypad * 2;
 		g_object_unref(img);
 	}
 }
 
-static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_toggle_image_draw(GtkWidget *widget, cairo_t *cr)
 {
 	GxToggleImage *toggle_image = GX_TOGGLE_IMAGE(widget);
 	const char *s = "_off";
@@ -109,19 +137,17 @@ static gboolean gx_toggle_image_expose(GtkWidget *widget, GdkEventExpose *event)
 		s = "_on";
 	}
 	char *nm = g_strconcat(toggle_image->priv->base_name, s, NULL);
-	GdkPixbuf *img = gtk_widget_render_icon(widget, nm, GtkIconSize(-1), NULL);
+	GdkPixbuf *img = gtk_widget_render_icon_pixbuf(widget, nm, GtkIconSize(-1));
 	g_free(nm);
 	if (!img) {
 		return FALSE;
 	}
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(widget, &allocation);
-	int x = allocation.x + (allocation.width - gdk_pixbuf_get_width(img))/2;
-	int y = allocation.y + (allocation.height - gdk_pixbuf_get_height(img))/2;
-	cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
+	int x = (allocation.width - gdk_pixbuf_get_width(img)) / 2;
+	int y = (allocation.height - gdk_pixbuf_get_height(img)) / 2;
 	gdk_cairo_set_source_pixbuf (cr, img, x, y);
 	cairo_paint (cr);
-	cairo_destroy (cr);
 	g_object_unref(img);
 	return FALSE;
 }

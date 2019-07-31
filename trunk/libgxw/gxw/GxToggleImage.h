@@ -35,7 +35,7 @@ typedef struct _GxToggleImagePrivate GxToggleImagePrivate;
 typedef struct _GxToggleImageClass GxToggleImageClass;
 
 struct _GxToggleImage {
-	GtkMisc parent;
+	GtkWidget parent;
 	GxToggleImagePrivate* priv;
 };
 
