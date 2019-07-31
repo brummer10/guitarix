@@ -190,7 +190,7 @@ static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr)
     gint min_height;
     gtk_widget_get_allocation(widget, &allocation);
     gtk_widget_get_preferred_height(widget, &min_height, nullptr);
-    gx_draw_rect(widget, "bg", NULL, allocation.x,
+    gx_draw_rect(cr, widget, "bg", NULL, allocation.x,
         allocation.y + (allocation.height - min_height) / 2,
         allocation.width,
         min_height,
@@ -199,17 +199,17 @@ static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr)
 
     GtkStyle* style = gtk_widget_get_style(widget);
     if (style->ythickness >= 3)
-        gx_draw_inset(widget, text.x, text.y, text.width, text.height,
+        gx_draw_inset(cr, text.x, text.y, text.width, text.height,
             std::max(rad - std::max(style->ythickness, style->ythickness), 0), 1);
         
-    gx_draw_rect(widget, "base", NULL, text.x,
+    gx_draw_rect(cr, widget, "base", NULL, text.x,
         text.y,
         text.width,
         text.height,
         std::max(rad - std::max(style->ythickness, style->ythickness), 0),
         0);
     
-    gx_draw_glass(widget, text.x, text.y, text.width, text.height,
+    gx_draw_glass(cr, text.x, text.y, text.width, text.height,
         std::max(rad - std::max(style->ythickness, style->ythickness), 0));
     
     gdk_cairo_set_source_pixbuf(cr, selector->icon, arrow.x, arrow.y);
