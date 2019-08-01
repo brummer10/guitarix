@@ -18,11 +18,12 @@
 
 #include <gxw/GxPortDisplay.h>
 
-Gxw::PortDisplay::PortDisplay(Gtk::Adjustment& adjustment):
-	_CONSTRUCT("adjustment", adjustment.gobj())
-
 namespace Gxw
 {
+
+PortDisplay::PortDisplay(Gtk::Adjustment& adjustment):
+	_CONSTRUCT("adjustment", adjustment.gobj())
+{}
 
 void PortDisplay::set_state(int cutoff_low, int cutoff_high)
 {
