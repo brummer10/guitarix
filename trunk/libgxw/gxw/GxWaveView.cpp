@@ -51,9 +51,10 @@ enum {
 	PROP_TEXT_POS_RIGHT
 };
 
-static void gx_wave_view_destroy(GtkObject*);
-static gboolean gx_wave_view_expose(GtkWidget *widget, GdkEventExpose *event);
-static void gx_wave_view_size_request(GtkWidget *widget, GtkRequisition *requisition);
+static void gx_wave_view_destroy(GtkWidget*);
+static gboolean gx_wave_view_draw(GtkWidget *widget, cairo_t *cr);
+static void gx_wave_view_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_wave_view_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height);
 static void gx_wave_view_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_wave_view_get_property(
@@ -101,16 +102,15 @@ static void set_box_color(GtkWidget *wi, cairo_pattern_t *pat)
 static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
                                  int liveviewx, int liveviewy)
 {
-	
-    cairo_t *crp; 
-    GdkPixmap*  pix = gdk_pixmap_new(gtk_widget_get_window(widget),background_width,background_height,-1);
-	waveview->priv->liveview_image = gdk_pixbuf_new(
-		GDK_COLORSPACE_RGB,FALSE,8,background_width,background_height);
-	g_assert(waveview->priv->liveview_image != NULL);
-	
-    crp = gdk_cairo_create (pix);     
-	
-	cairo_pattern_t*pat =
+    cairo_t *crp;
+    cairo_surface_t*  pix = cairo_image_surface_create(CAIRO_FORMAT_A1, background_width, background_height);
+    waveview->priv->liveview_image = gdk_pixbuf_new(
+        GDK_COLORSPACE_RGB,FALSE,8,background_width,background_height);
+    g_assert(waveview->priv->liveview_image != NULL);
+
+    crp = cairo_create (pix);
+
+	cairo_pattern_t *pat =
 		cairo_pattern_create_radial (-130.4, -270.4, 1.6, -1.4,  -4.4, 300.0);
 
 	cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 1);
@@ -167,18 +167,16 @@ static void wave_view_background(GxWaveView *waveview,GtkWidget *widget ,
 
 	cairo_set_source_rgba (crp,1, 1, 1, 0.1);
 	cairo_stroke (crp);
-	
-	
-    cairo_destroy (crp); 
 
-	gdk_pixbuf_get_from_drawable(
-		waveview->priv->liveview_image,
-		GDK_DRAWABLE(pix), gdk_colormap_get_system(),
-		0, 0,0,0,background_width,background_height);
-	g_object_unref(pix);
+    cairo_destroy (crp);
+
+	g_object_unref(waveview->priv->liveview_image);
+	waveview->priv->liveview_image = gdk_pixbuf_get_from_surface(
+		pix, 0, 0, background_width, background_height);
+	cairo_surface_destroy(pix);
 }
 
-static void draw_text(GtkWidget *widget, GdkEventExpose *event, gchar *str,
+static void draw_text(GtkWidget *widget, cairo_t *cr, gchar *str,
                       int xorg, int yorg, GtkCornerType corner)
 {
 	if (!str || !*str) {
@@ -193,12 +191,12 @@ static void draw_text(GtkWidget *widget, GdkEventExpose *event, gchar *str,
 	} else {
 		yorg += 1;
 	}
-	gtk_paint_layout(gtk_widget_get_style(widget), gtk_widget_get_window(widget), gtk_widget_get_state(widget),
-		                 FALSE, NULL, widget, "label", xorg, yorg, layout);
+	gtk_paint_layout(gtk_widget_get_style(widget), cr, gtk_widget_get_state(widget),
+		                 FALSE, widget, "label", xorg, yorg, layout);
 	g_object_unref(layout);
 }
 
-static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_wave_view_draw (GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_WAVE_VIEW(widget));
 	GxWaveView *waveview = GX_WAVE_VIEW(widget);
@@ -207,14 +205,8 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	int liveviewx = (int)((allocation.width	 - liveview_x) * 0.5) + 10;
 	int liveviewy = (int)((allocation.height - liveview_y) * 0.5) + 15;
 
-	cairo_t*cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
-	GdkRegion *region;
-	region = gdk_region_rectangle (&allocation);
-	gdk_region_intersect (region, event->region);
-	gdk_cairo_region (cr, region);
-	cairo_clip (cr);
-	gx_draw_inset(widget,liveviewx-2, liveviewy-1, 284,82, 0, 4);
-    gx_draw_glass(widget,liveviewx, liveviewy-1, 280,82, 0);
+	gx_draw_inset(cr, liveviewx-2, liveviewy-1, 284,82, 0, 4);
+    gx_draw_glass(cr, liveviewx, liveviewy-1, 280,82, 0);
 
 	if (!waveview->priv->liveview_image) {
 		wave_view_background(waveview, widget, liveviewx, liveviewy);
@@ -224,13 +216,13 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	}
 
 	cairo_set_source_rgb(cr, 1, 1, 1);
-	draw_text(widget, event, waveview->priv->text_top_left, liveviewx + (int)(background_width * waveview->priv->text_pos_left / 100),
+	draw_text(widget, cr, waveview->priv->text_top_left, liveviewx + (int)(background_width * waveview->priv->text_pos_left / 100),
 	          liveviewy, GTK_CORNER_TOP_LEFT);
-	draw_text(widget, event, waveview->priv->text_top_right, liveviewx + (int)(background_width * waveview->priv->text_pos_right / 100),
+	draw_text(widget, cr, waveview->priv->text_top_right, liveviewx + (int)(background_width * waveview->priv->text_pos_right / 100),
 	          liveviewy, GTK_CORNER_TOP_RIGHT);
-	draw_text(widget, event, waveview->priv->text_bottom_left, liveviewx + (int)(background_width * waveview->priv->text_pos_left / 100),
+	draw_text(widget, cr, waveview->priv->text_bottom_left, liveviewx + (int)(background_width * waveview->priv->text_pos_left / 100),
 	          liveviewy, GTK_CORNER_BOTTOM_LEFT);
-	draw_text(widget, event, waveview->priv->text_bottom_right, liveviewx + (int)(background_width * waveview->priv->text_pos_right / 100),
+	draw_text(widget, cr, waveview->priv->text_bottom_right, liveviewx + (int)(background_width * waveview->priv->text_pos_right / 100),
 	          liveviewy, GTK_CORNER_BOTTOM_RIGHT);
 
 	cairo_move_to (cr, liveviewx+280, liveviewy+40);
@@ -290,30 +282,43 @@ static gboolean gx_wave_view_expose (GtkWidget *widget, GdkEventExpose *event)
 	cairo_set_line_width (cr, 3.0);
 	cairo_stroke (cr);
 	cairo_pattern_destroy (linpat);
-	cairo_destroy(cr);
-	gdk_region_destroy (region);
 
 	return FALSE;
 }
 
-static void gx_wave_view_size_request (GtkWidget *widget, GtkRequisition *requisition)
+static void gx_wave_view_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
 {
 	g_assert(GX_IS_WAVE_VIEW(widget));
-	requisition->width = liveview_x;
-	requisition->height = liveview_y;
+	if (min_width) {
+		*min_width = liveview_x;
+	}
+	if (natural_width) {
+		*natural_width = liveview_x;
+	}
+}
+
+static void gx_wave_view_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	g_assert(GX_IS_WAVE_VIEW(widget));
+	if (min_height) {
+		*min_height = liveview_y;
+	}
+	if (natural_height) {
+		*natural_height = liveview_y;
+	}
 }
 
 static void gx_wave_view_class_init (GxWaveViewClass *klass)
 {
-	GtkObjectClass *object_class = GTK_OBJECT_CLASS(klass);
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 
-	object_class->destroy = gx_wave_view_destroy;
 	gobject_class->set_property = gx_wave_view_set_property;
 	gobject_class->get_property = gx_wave_view_get_property;
-	widget_class->expose_event = gx_wave_view_expose;
-	widget_class->size_request = gx_wave_view_size_request;
+	widget_class->destroy = gx_wave_view_destroy;
+	widget_class->draw = gx_wave_view_draw;
+	widget_class->get_preferred_width = gx_wave_view_get_preferred_width;
+	widget_class->get_preferred_height = gx_wave_view_get_preferred_height;
 	g_object_class_install_property (gobject_class,
 	                                 PROP_TEXT_TOP_LEFT,
 	                                 g_param_spec_string ("text-top-left",
@@ -382,14 +387,14 @@ static void gx_wave_view_init(GxWaveView *waveview)
 	gtk_widget_set_size_request(GTK_WIDGET(waveview), liveview_x, liveview_y);
 }
 
-static void gx_wave_view_destroy (GtkObject *obj)
+static void gx_wave_view_destroy (GtkWidget *obj)
 {
 	GxWaveView *waveview = GX_WAVE_VIEW(obj);
 	if (waveview->priv->liveview_image) {
 		g_object_unref(waveview->priv->liveview_image);
 		waveview->priv->liveview_image = 0;
 	}
-	GTK_OBJECT_CLASS(gx_wave_view_parent_class)->destroy(obj);
+	GTK_WIDGET_CLASS(gx_wave_view_parent_class)->destroy(obj);
 }
 
 GtkWidget* gx_wave_view_new()
