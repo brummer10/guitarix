@@ -18,7 +18,7 @@
 
 #include "GxIREdit.h"
 #include "GxGradient.h"
-#include <gtk/gtkmarshal.h>
+
 #include <math.h>
 #include <assert.h>
 #include <string.h>
@@ -36,10 +36,44 @@
 #define abs(x) ((x) < 0 ? -(x) : (x))
 #endif
 
+/* Inspired by GLib */
+void gx_cclosure_marshal_VOID__INT_INT(GClosure *closure,
+									   GValue *return_value,
+									   guint n_param_values,
+									   const GValue *param_values,
+									   gpointer invocation_hint,
+									   gpointer marshal_data)
+{
+	typedef void (*GMarshalFunc_VOID__INT_INT)(gpointer data1,
+												gint arg_1,
+												gint arg_2,
+												gpointer data2);
+	GMarshalFunc_VOID__INT_INT callback;
+	GCClosure *cc = (GCClosure*)closure;
+	gpointer data1, data2;
+
+	g_return_if_fail(n_param_values == 3);
+
+	if (G_CCLOSURE_SWAP_DATA(closure)) {
+		data1 = closure->data;
+		data2 = g_value_peek_pointer(param_values + 0);
+    } else {
+		data1 = g_value_peek_pointer(param_values + 0);
+		data2 = closure->data;
+    }
+	callback = (GMarshalFunc_VOID__INT_INT)(marshal_data ? marshal_data : cc->callback);
+
+	callback(data1,
+			 g_value_get_int(param_values + 1),
+			 g_value_get_int(param_values + 2),
+			 data2);
+}
+
+
 G_DEFINE_TYPE(GxIREdit, gx_ir_edit, GTK_TYPE_DRAWING_AREA);
 
-static void gx_ir_edit_destroy(GtkObject*);
-static gboolean ir_edit_expose(GtkWidget*, GdkEventExpose*);
+static void gx_ir_edit_destroy(GtkWidget*);
+static gboolean ir_edit_event_draw(GtkWidget*, cairo_t*);
 static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event);
 static gboolean ir_edit_button_release(GtkWidget *widget, GdkEventButton *event);
 static gboolean ir_edit_motion_notify(GtkWidget *widget, GdkEventMotion *event);
@@ -94,17 +128,15 @@ static guint signals[LAST_SIGNAL];
 static void gx_ir_edit_class_init(GxIREditClass* klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	GtkObjectClass *object_class = GTK_OBJECT_CLASS(klass);
 	GtkWidgetClass* widget_class = (GtkWidgetClass*)klass;
 
 	/* class signal handler */
 	gobject_class->set_property = ir_edit_set_property;
 	gobject_class->get_property = ir_edit_get_property;
 
-	object_class->destroy = gx_ir_edit_destroy;
-
+	widget_class->destroy = gx_ir_edit_destroy;
 	widget_class->configure_event = ir_edit_configure;
-	widget_class->expose_event  = ir_edit_expose;
+	widget_class->draw = ir_edit_event_draw;
 	widget_class->motion_notify_event = ir_edit_motion_notify;
 	widget_class->button_press_event = ir_edit_button_press;
 	widget_class->button_release_event = ir_edit_button_release;
@@ -117,7 +149,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             GSignalFlags(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
 		             0,
 		             NULL, NULL,
-		             gtk_marshal_VOID__INT_INT,
+		             gx_cclosure_marshal_VOID__INT_INT,
 		             G_TYPE_NONE, 2,
 		             G_TYPE_INT, G_TYPE_INT);
 	signals[OFFSET_CHANGED] =
@@ -126,7 +158,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             GSignalFlags(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
 		             0,
 		             NULL, NULL,
-		             gtk_marshal_VOID__INT_INT,
+		             gx_cclosure_marshal_VOID__INT_INT,
 		             G_TYPE_NONE, 2,
 		             G_TYPE_INT, G_TYPE_INT);
 	signals[LENGTH_CHANGED] =
@@ -135,7 +167,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             GSignalFlags(G_SIGNAL_RUN_FIRST | G_SIGNAL_NO_RECURSE),
 		             0,
 		             NULL, NULL,
-		             gtk_marshal_VOID__INT_INT,
+		             gx_cclosure_marshal_VOID__INT_INT,
 		             G_TYPE_NONE, 2,
 		             G_TYPE_INT, G_TYPE_INT);
 	signals[SCALE_MAX_REACHED] =
@@ -144,7 +176,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             G_SIGNAL_RUN_LAST,
 		             0,
 		             NULL, NULL,
-		             gtk_marshal_VOID__BOOLEAN,
+		             g_cclosure_marshal_VOID__BOOLEAN,
 		             G_TYPE_NONE, 1,
 		             G_TYPE_BOOLEAN);
 	signals[SCALE_MIN_REACHED] =
@@ -153,7 +185,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		             G_SIGNAL_RUN_LAST,
 		             0,
 		             NULL, NULL,
-		             gtk_marshal_VOID__BOOLEAN,
+		             g_cclosure_marshal_VOID__BOOLEAN,
 		             G_TYPE_NONE, 1,
 		             G_TYPE_BOOLEAN);
 
@@ -525,7 +557,7 @@ static void gx_ir_edit_init(GxIREdit *ir_edit)
 	ir_edit->cursor[MODE_SHIFT] = gdk_cursor_new_for_display(disp, GDK_SB_H_DOUBLE_ARROW);
 }
 
-static void gx_ir_edit_destroy(GtkObject* object)
+static void gx_ir_edit_destroy(GtkWidget* object)
 {
 	GxIREdit *ir_edit = GX_IR_EDIT(object);
 	unsigned int i;
@@ -535,7 +567,7 @@ static void gx_ir_edit_destroy(GtkObject* object)
 			ir_edit->cursor[i] = NULL;
 		}
 	}
-	GTK_OBJECT_CLASS(gx_ir_edit_parent_class)->destroy(object);
+	GTK_WIDGET_CLASS(gx_ir_edit_parent_class)->destroy(object);
 }
 
 static void get_color(GxIREdit *ir_edit, GxRgba *clr, const char *name, GxRgba *dflt)
@@ -692,7 +724,7 @@ static void ir_edit_draw_accum(GxIREdit *ir_edit, cairo_t *c, int start, int end
 	cairo_stroke(c);
 }
 
-static void ir_edit_draw(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *event)
+static void ir_edit_draw(GxIREdit *ir_edit, cairo_t *c)
 {
 	if (!ir_edit->data) {
 		return;
@@ -721,7 +753,7 @@ static double text_width(cairo_t *c, const char *t)
 	return int(ceil(ext.width+ext.x_bearing));
 }
 
-static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *event)
+static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c)
 {
 	// vertical lines with labels
 	double shade_alpha;
@@ -804,7 +836,7 @@ static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose
 	cairo_restore(c);
 }
 
-static void ir_edit_horizontal_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *event)
+static void ir_edit_horizontal_ticks(GxIREdit *ir_edit, cairo_t *c)
 {
 	// horizontal lines with labels
 	cairo_rectangle(c,-ir_edit->x_off+ir_edit->x_border, -ir_edit->text_height/2.0,
@@ -861,7 +893,7 @@ static void ir_edit_horizontal_ticks(GxIREdit *ir_edit, cairo_t *c, GdkEventExpo
 	cairo_restore(c);
 }
 
-static void ir_edit_show_scroll_center(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *event)
+static void ir_edit_show_scroll_center(GxIREdit *ir_edit, cairo_t *c)
 {
 	if (!ir_edit->data) {
 		return;
@@ -892,7 +924,7 @@ static void ir_edit_show_scroll_center(GxIREdit *ir_edit, cairo_t *c, GdkEventEx
 
 static GxRgba gain_line_color = { 0.0, 1.0, 0.0, 0.8 };
 
-static void ir_edit_gainline(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *event)
+static void ir_edit_gainline(GxIREdit *ir_edit, cairo_t *c)
 {
 	GxRgba clr;
 	get_color(ir_edit, &clr, "gain-line-color", &gain_line_color);
@@ -937,7 +969,7 @@ static const cairo_paint_function draw_funcs[] = {
 	NULL,
 };
 
-static void ir_edit_paint_area(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *event, cairo_paint_function excl)
+static void ir_edit_paint_area(GxIREdit *ir_edit, cairo_t *c, cairo_paint_function excl)
 {
 	//cairo_set_source_rgb(c, 1.0, 1.0, 1.0);
 	set_color_from_style(c, ir_edit, COLOR_BG, 1.0);
@@ -946,7 +978,7 @@ static void ir_edit_paint_area(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *ev
 	cairo_translate(c, ir_edit->x_off, ir_edit->y_off);
 	for (const cairo_paint_function *f = draw_funcs; *f; f++) {
 		if (*f != excl)
-			(*f)(ir_edit, c, event);
+			(*f)(ir_edit, c);
 	}
 	if (!ir_edit->data) {
 		ir_edit_paint_no_data(ir_edit, c);
@@ -956,47 +988,47 @@ static void ir_edit_paint_area(GxIREdit *ir_edit, cairo_t *c, GdkEventExpose *ev
 static void ir_edit_lock_surface(GxIREdit *ir_edit, cairo_paint_function excl)
 {
 	if (ir_edit->surface) {
-		g_object_unref(ir_edit->surface);
+		cairo_surface_destroy(ir_edit->surface);
 	}
-	ir_edit->surface = gdk_pixmap_new(
-		gtk_widget_get_window(GTK_WIDGET(ir_edit)), ir_edit->width, ir_edit->height, -1);
-	cairo_t *c = gdk_cairo_create(ir_edit->surface);
-	ir_edit_paint_area(ir_edit, c, NULL, excl);
+	ir_edit->surface = cairo_image_surface_create(CAIRO_FORMAT_A1, ir_edit->width, ir_edit->height);
+	cairo_t *c = cairo_create(ir_edit->surface);
+	ir_edit_paint_area(ir_edit, c, excl);
 	cairo_destroy(c);
 	ir_edit->locked = excl;
 }
 
-static gboolean ir_edit_expose(GtkWidget *widget, GdkEventExpose *event)
+static gboolean ir_edit_event_draw(GtkWidget *widget, cairo_t *c)
 {
 	GxIREdit *ir_edit = GX_IR_EDIT(widget);
 	GdkWindow *window = gtk_widget_get_window(widget);
+	cairo_region_t *rgn = nullptr;
 	if (ir_edit->buffered) {
-		gdk_window_begin_paint_region(window, event->region);
+		rgn = cairo_region_create();
+		gdk_window_begin_paint_region(window, rgn);
 	}
-	cairo_t *c = gdk_cairo_create(window);
-	gdk_cairo_region(c, event->region);
-	cairo_clip(c);
+	cairo_save(c);
 	if (ir_edit->locked) {
 		gint width, height;
-		width = gdk_window_get_width(ir_edit->surface);
-		height = gdk_window_get_height(ir_edit->surface);
+		width = cairo_image_surface_get_width(ir_edit->surface);
+		height = cairo_image_surface_get_height(ir_edit->surface);
 		if (width !=  ir_edit->width && height != ir_edit->height) {
 			ir_edit_lock_surface(ir_edit, ir_edit->locked);
 		}
-		gdk_cairo_set_source_pixmap(c, ir_edit->surface, 0, 0);
+		cairo_set_source_surface(c, ir_edit->surface, 0, 0);
 		cairo_set_operator(c, CAIRO_OPERATOR_SOURCE);
 		cairo_paint(c);
 		cairo_set_operator(c, CAIRO_OPERATOR_OVER);
 		cairo_set_line_width(c, 1.0);
 		cairo_translate(c, ir_edit->x_off, ir_edit->y_off);
-		ir_edit->locked(ir_edit, c, event);
+		ir_edit->locked(ir_edit, c);
 	} else {
-		ir_edit_paint_area(ir_edit, c, event, NULL);
+		ir_edit_paint_area(ir_edit, c, NULL);
 	}
 	if (ir_edit->buffered) {
 		gdk_window_end_paint(window);
+		cairo_region_destroy(rgn);
 	}
-	cairo_destroy(c);
+	cairo_restore(c);
 	return FALSE;
 }
 
@@ -1098,17 +1130,17 @@ static void ir_edit_offset_changed(GxIREdit *ir_edit, int offset)
 		return;
 	}
 	int xo = ir_edit->x_off;
-	GdkRegion *r;
+	cairo_region_t *r;
 	if (df > 0) {
 		GdkRectangle rect = { xo, 0, sz, ir_edit->height };
-		r = gdk_region_rectangle(&rect);
+		r = cairo_region_create_rectangle(&rect);
 		gdk_window_move_region(window, r, df, 0);
 	} else {
 		GdkRectangle rect = { xo-df, 0, sz, ir_edit->height };
-		r = gdk_region_rectangle(&rect);
+		r = cairo_region_create_rectangle(&rect);
 		gdk_window_move_region(window, r, df, 0);
 	}
-	gdk_region_destroy(r);
+	cairo_region_destroy(r);
 	GdkRectangle rect1 = { xo-(int)(ir_edit->label_width/2),0,(int)ir_edit->label_width,ir_edit->y_off };
 	gdk_window_invalidate_rect(window, &rect1, FALSE);
 	GdkRectangle rect2 = { ir_edit->width-(int)(ir_edit->label_width/2),0,(int)ir_edit->label_width,ir_edit->y_off };
