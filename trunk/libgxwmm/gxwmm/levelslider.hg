@@ -27,7 +27,7 @@ namespace Gxw {
 class LevelSlider: public Gxw::VSlider {
 	_CLASS_GTKOBJECT(LevelSlider,GxLevelSlider,GX_LEVEL_SLIDER,Gxw::VSlider,GxVSlider)
 	public:
-	explicit LevelSlider(Gtk::Adjustment& adjustment);
+	explicit LevelSlider(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 	_CTOR_DEFAULT
 };
 

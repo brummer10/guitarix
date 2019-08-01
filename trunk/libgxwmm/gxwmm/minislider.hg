@@ -28,7 +28,7 @@ class MiniSlider: public Gxw::HSlider {
 	_CLASS_GTKOBJECT(MiniSlider,GxMiniSlider,GX_MINI_SLIDER,Gxw::HSlider,GxHSlider)
 	public:
 	_CTOR_DEFAULT
-	explicit MiniSlider(Gtk::Adjustment& adjustment);
+	explicit MiniSlider(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 };
 
 } // namespace Gxw

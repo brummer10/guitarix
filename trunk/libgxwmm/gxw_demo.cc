@@ -51,21 +51,21 @@ protected:
 	Gxw::Switch m_switch4;
 	Gxw::Switch m_switch5;
 	Gtk::HBox m_hbox_knobs;
-	Gtk::Adjustment m_adj_knobs;
+	Glib::RefPtr<Gtk::Adjustment> m_adj_knobs;
 	Gxw::SmallKnob m_smallknob;
 	Gxw::BigKnob m_bigknob;
 	Gxw::MidKnob m_midknob;
 	Gxw::SmallKnobR m_smallknob_r;
 
 	Gtk::HBox m_hbox_sliders;
-	Gtk::Adjustment m_adj_sliders;
+	Glib::RefPtr<Gtk::Adjustment> m_adj_sliders;
 	Gxw::EqSlider m_eqslider;
 	Gxw::HSlider m_h_slider;
 	Gxw::VSlider m_v_slider;
 	Gxw::MiniSlider m_mini_slider;
 
 	Gtk::HBox m_hbox_wheels;
-	Gtk::Adjustment m_adj_wheels;
+	Glib::RefPtr<Gtk::Adjustment> m_adj_wheels;
 	Gxw::Wheel m_wheel;
 	Gxw::WheelVertical m_v_wheel;
 	Gxw::Selector m_selector;
@@ -81,17 +81,17 @@ Demo::Demo():
 	m_switch3("minitoggle"),
 	m_switch4("led"),
 	m_switch5("button"),
-	m_adj_knobs(0, -1, 1, 0.01, 0.1),
+	m_adj_knobs(Gtk::Adjustment::create(0, -1, 1, 0.01, 0.1)),
 	m_smallknob(m_adj_knobs),
 	m_bigknob(m_adj_knobs),
 	m_midknob(m_adj_knobs),
 	m_smallknob_r(m_adj_knobs),
-	m_adj_sliders(0, -1, 1, 0.01, 0.1),
+	m_adj_sliders(Gtk::Adjustment::create(0, -1, 1, 0.01, 0.1)),
 	m_eqslider(m_adj_sliders),
 	m_h_slider(m_adj_sliders),
 	m_v_slider(m_adj_sliders),
 	m_mini_slider(m_adj_sliders),
-	m_adj_wheels(0, -1, 1, 0.01, 0.1),
+	m_adj_wheels(Gtk::Adjustment::create(0, -1, 1, 0.01, 0.1)),
 	m_wheel(m_adj_wheels),
 	m_v_wheel(m_adj_wheels)
 {

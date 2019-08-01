@@ -28,7 +28,7 @@ class BigKnob: public Gxw::Knob {
 	_CLASS_GTKOBJECT(BigKnob,GxBigKnob,GX_BIG_KNOB,Gxw::Knob,GxKnob)
 	public:
 	_CTOR_DEFAULT
-	explicit BigKnob(Gtk::Adjustment& adjustment);
+	explicit BigKnob(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 };
 
 } // namespace Gxw

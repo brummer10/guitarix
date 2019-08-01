@@ -21,8 +21,8 @@
 namespace Gxw
 {
 
-PortDisplay::PortDisplay(Gtk::Adjustment& adjustment):
-	_CONSTRUCT("adjustment", adjustment.gobj())
+PortDisplay::PortDisplay(const Glib::RefPtr<Gtk::Adjustment>& adjustment):
+	_CONSTRUCT("adjustment", adjustment->gobj())
 {}
 
 void PortDisplay::set_state(int cutoff_low, int cutoff_high)

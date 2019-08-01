@@ -28,7 +28,7 @@ class PlayHead: public Regler {
 	_CLASS_GTKOBJECT(PlayHead,GxPlayHead,GX_PLAY_HEAD,Regler,GxRegler)
 	public:
 	_CTOR_DEFAULT
-	explicit PlayHead(Gtk::Adjustment& adjustment);
+	explicit PlayHead(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 };
 
 } // namespace Gxw

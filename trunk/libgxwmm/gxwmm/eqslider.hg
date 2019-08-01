@@ -27,7 +27,7 @@ namespace Gxw {
 class EqSlider: public Gxw::VSlider {
 	_CLASS_GTKOBJECT(EqSlider,GxEqSlider,GX_EQ_SLIDER,Gxw::VSlider,GxVSlider)
 	public:
-	explicit EqSlider(Gtk::Adjustment& adjustment);
+	explicit EqSlider(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 	_CTOR_DEFAULT
 };
 

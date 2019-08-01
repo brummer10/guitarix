@@ -28,7 +28,7 @@ class ValueDisplay: public Gxw::Regler {
 	_CLASS_GTKOBJECT(ValueDisplay,GxValueDisplay,GX_VALUE_DISPLAY,Gxw::Regler,GxRegler)
 	public:
 	_CTOR_DEFAULT
-	explicit ValueDisplay(Gtk::Adjustment& adjustment);
+	explicit ValueDisplay(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 };
 
 } // namespace Gxw

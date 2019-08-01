@@ -18,6 +18,6 @@
 
 #include <gxw/GxWheelVertical.h>
 
-Gxw::WheelVertical::WheelVertical(Gtk::Adjustment& adjustment):
-	_CONSTRUCT("adjustment", adjustment.gobj())
+Gxw::WheelVertical::WheelVertical(const Glib::RefPtr<Gtk::Adjustment>& adjustment):
+	_CONSTRUCT("adjustment", adjustment->gobj())
 {}

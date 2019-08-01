@@ -28,7 +28,7 @@ class SmallKnobR: public Gxw::Knob {
 	_CLASS_GTKOBJECT(SmallKnobR,GxSmallKnobR,GX_SMALL_KNOB_R,Gxw::Knob,GxKnob)
 	public:
 	_CTOR_DEFAULT
-	explicit SmallKnobR(Gtk::Adjustment& adjustment);
+	explicit SmallKnobR(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 };
 
 } // namespace Gxw

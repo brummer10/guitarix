@@ -18,6 +18,6 @@
 
 #include <gxw/GxLevelSlider.h>
 
-Gxw::LevelSlider::LevelSlider(Gtk::Adjustment& adjustment):
-	_CONSTRUCT("adjustment", adjustment.gobj())
+Gxw::LevelSlider::LevelSlider(const Glib::RefPtr<Gtk::Adjustment>& adjustment):
+	_CONSTRUCT("adjustment", adjustment->gobj())
 {}

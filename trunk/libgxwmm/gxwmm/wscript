@@ -43,7 +43,7 @@ def configure(conf):
     env = conf.env
     if opt.generate_cpp_wrapper:
         conf.check_cfg(package='glibmm-2.4', variables='gmmprocdir', uselib_store='GLIBMM', mandatory=True)
-        conf.check_cfg(package='gtkmm-2.4', variables='gmmprocm4dir', uselib_store='GTK', mandatory=True)
+        conf.check_cfg(package='gtkmm-3.0', variables='gmmprocm4dir', uselib_store='GTK', mandatory=True)
         conf.check_cfg(package='atkmm-1.6', variables='gmmprocm4dir', uselib_store='ATK', mandatory=True)
         conf.check_cfg(package='pangomm-1.4', variables='gmmprocm4dir', uselib_store='PANGO', mandatory=True)
         conf.check_cfg(package='pygobject-2.0', variables='codegendir', uselib_store='PYGOBJECT', mandatory=True)

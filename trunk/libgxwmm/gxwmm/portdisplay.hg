@@ -28,7 +28,7 @@ class PortDisplay: public Gxw::VSlider {
 	_CLASS_GTKOBJECT(PortDisplay,GxPortDisplay,GX_PORT_DISPLAY,Gxw::VSlider,GxVSlider)
 	public:
 	void set_state(int cutoff_low, int cutoff_high);
-	explicit PortDisplay(Gtk::Adjustment& adjustment);
+	explicit PortDisplay(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 	_CTOR_DEFAULT
 };
 

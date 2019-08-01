@@ -28,7 +28,7 @@ class MidKnob: public Gxw::Knob {
 	_CLASS_GTKOBJECT(MidKnob,GxMidKnob,GX_MID_KNOB,Gxw::Knob,GxKnob)
 	public:
 	_CTOR_DEFAULT
-	explicit MidKnob(Gtk::Adjustment& adjustment);
+	explicit MidKnob(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 };
 
 } // namespace Gxw
