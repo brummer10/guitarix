@@ -11,6 +11,9 @@ struct GdkSpanFunc;
 #include <gxwmm/smallknob.h>
 #include <gxwmm/bigknob.h>
 #include <gxwmm/eqslider.h>
+#include <gxwmm/selector.h>
+#include <gxwmm/wheelvertical.h>
+#include <gxwmm/wheel.h>
 
 class Demo : public Gtk::Window
 {
@@ -31,6 +34,9 @@ protected:
 	Gxw::SmallKnob m_smallknob;
 	Gxw::BigKnob m_bigknob;
 	Gxw::EqSlider m_eqslider;
+	Gxw::Wheel m_wheel;
+	Gxw::WheelVertical m_v_wheel;
+	Gxw::Selector m_selector;
 };
 
 Demo::Demo():
@@ -44,7 +50,9 @@ Demo::Demo():
 	m_adj(0, -1, 1, 0.01, 0.1),
 	m_smallknob(m_adj),
 	m_bigknob(m_adj),
-	m_eqslider(m_adj)
+	m_eqslider(m_adj),
+	m_wheel(m_adj),
+	m_v_wheel(m_adj)
 {
 	m_hbox1.add(m_switch1);
 	m_hbox1.add(m_switch2);
@@ -58,7 +66,10 @@ Demo::Demo():
 	m_eqslider.set_show_value(true);
 	m_eqslider.set_value_position(Gtk::POS_RIGHT);
 	m_hbox2.add(m_eqslider);
+	m_hbox2.add(m_v_wheel);
 	m_vbox.add(m_hbox2);
+	m_vbox.add(m_wheel);
+	m_vbox.add(m_selector);
 	add(m_vbox);
 	set_border_width(10);
 	show_all();
