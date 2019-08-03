@@ -1,13 +1,10 @@
-#ifdef GDK_DISABLE_DEPRECATED
-// Some Gdkmm 2.4 header need this defined
-struct GdkSpanFunc;
-#endif
 #include <glibmm.h>
 #include <gtkmm/main.h>
 #include <gtkmm/window.h>
 #include <gtkmm/box.h>
 #include <gtkmm/treestore.h>
-#include <gtkmm/listviewtext.h>
+#include <gtkmm/stack.h>
+#include <gtkmm/stacksidebar.h>
 #include <gxwmm/init.h>
 #include <gxwmm/switch.h>
 #include <gxwmm/smallknob.h>
@@ -43,6 +40,10 @@ public:
 
 protected:
 	TextColumns m_selector_model;
+	Gtk::HBox m_root_box;
+	Gtk::StackSidebar m_stacksidebar;
+	Gtk::Stack m_stack;
+
 	Gtk::VBox m_vbox;
 	Gtk::HBox m_hbox1;
 	Gxw::Switch m_switch1;
@@ -50,6 +51,7 @@ protected:
 	Gxw::Switch m_switch3;
 	Gxw::Switch m_switch4;
 	Gxw::Switch m_switch5;
+
 	Gtk::HBox m_hbox_knobs;
 	Glib::RefPtr<Gtk::Adjustment> m_adj_knobs;
 	Gxw::SmallKnob m_smallknob;
@@ -68,12 +70,14 @@ protected:
 	Glib::RefPtr<Gtk::Adjustment> m_adj_wheels;
 	Gxw::Wheel m_wheel;
 	Gxw::WheelVertical m_v_wheel;
-	Gxw::Selector m_selector;
 
+	Gtk::VBox m_vbox2;
+	Gxw::Selector m_selector;
 	Gxw::PlayHead m_playhead;
 };
 
 Demo::Demo():
+	m_root_box(),
 	m_vbox(),
 	m_hbox1(),
 	m_switch1("switchit"),
@@ -95,6 +99,11 @@ Demo::Demo():
 	m_wheel(m_adj_wheels),
 	m_v_wheel(m_adj_wheels)
 {
+	m_root_box.add(m_stacksidebar);
+	m_stack.set_transition_type(Gtk::STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
+	m_stacksidebar.set_stack(m_stack);
+	m_root_box.add(m_stack);
+
 	m_hbox1.add(m_switch1);
 	m_hbox1.add(m_switch2);
 	m_hbox1.add(m_switch3);
@@ -122,18 +131,21 @@ Demo::Demo():
 	m_hbox_wheels.add(m_v_wheel);
 	m_vbox.add(m_hbox_wheels);
 	m_vbox.add(m_wheel);
-	m_vbox.add(*Gtk::manage(new Gtk::Label("Playhead")));
-	m_vbox.add(m_playhead);
+	m_stack.add(m_vbox, "switches", "Switches");
 
-	m_vbox.add(*Gtk::manage(new Gtk::Label("Selector")));
+	m_vbox2.add(*Gtk::manage(new Gtk::Label("Playhead")));
+	m_vbox2.add(m_playhead);
+	m_vbox2.add(*Gtk::manage(new Gtk::Label("Selector")));
 	auto store = Gtk::TreeStore::create(m_selector_model);
 	auto iter = store->append();
 	iter->set_value(m_selector_model.m_col_text, Glib::ustring("Foo"));
 	iter = store->append();
 	iter->set_value(m_selector_model.m_col_text, Glib::ustring("Bar"));
 	m_selector.set_model(store);
-	m_vbox.add(m_selector);
-	add(m_vbox);
+	m_vbox2.add(m_selector);
+	m_stack.add(m_vbox2, "selector", "Selector & Playhead");
+
+	add(m_root_box);
 	set_border_width(10);
 	show_all();
 }
