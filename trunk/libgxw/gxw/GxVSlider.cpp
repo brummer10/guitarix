@@ -96,10 +96,8 @@ static gboolean gx_vslider_draw(GtkWidget *widget, cairo_t *cr)
 {
     g_assert(GX_IS_VSLIDER(widget));
     GxVSlider *slider = GX_VSLIDER(widget);
-    GtkAllocation allocation;
-    gtk_widget_get_allocation(widget, &allocation);
-    int x = allocation.x;
-    int y = allocation.y;
+    int x = 0;
+    int y = 0;
     slider->image_rect.x = slider->image_rect.y = 0;
 	GdkRectangle  value_rect;
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->height - slider->slider_height);
@@ -141,7 +139,7 @@ static gboolean gx_vslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 
 static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 {
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	if (GDK_IS_PIXBUF(pb)) {
 		r->width = gdk_pixbuf_get_width(pb);
 		r->height = gdk_pixbuf_get_height(pb);
@@ -156,11 +154,6 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
     GxVSlider *slider = GX_VSLIDER(widget);
     GdkRectangle value_rect;
     slider->image_rect.x = slider->image_rect.y = 0;
-    _gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect);
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(widget, &allocation);
-	x += allocation.x;
-	y += allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &slider->image_rect, &value_rect, event)) {
@@ -251,7 +244,7 @@ static void gx_vslider_render_pixbuf (GtkWidget *widget)
 {
     GxVSlider *vslider = GX_VSLIDER(widget);
     gtk_widget_style_get(widget, "slider-width", &vslider->slider_height, NULL);
-    vslider->image        = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+    vslider->image = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
     if (GDK_IS_PIXBUF(vslider->image)) {
         vslider->width = gdk_pixbuf_get_width(vslider->image);
         vslider->height = gdk_pixbuf_get_height(vslider->image) - vslider->slider_height * 2;

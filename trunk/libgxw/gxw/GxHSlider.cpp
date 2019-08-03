@@ -97,10 +97,8 @@ static gboolean gx_hslider_draw(GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_HSLIDER(widget));
     GxHSlider *slider = GX_HSLIDER(widget);
-    GtkAllocation allocation;
-    gtk_widget_get_allocation(widget, &allocation);
-    int x = allocation.x;
-    int y = allocation.y;
+    int x = 0;
+    int y = 0;
     slider->image_rect.x = slider->image_rect.y = 0;
 	GdkRectangle  value_rect;
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->width - slider->slider_width);
@@ -144,12 +142,8 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
 {
     GxHSlider *slider = GX_HSLIDER(widget);
 	GdkRectangle value_rect;
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(widget, &allocation);
     slider->image_rect.x = slider->image_rect.y = 0;
     _gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect);
-	x += allocation.x;
-	y += allocation.y;
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &slider->image_rect, &value_rect, event)) {
 			return FALSE;
@@ -240,10 +234,11 @@ static void gx_hslider_render_pixbuf (GtkWidget *widget)
 {
     GxHSlider *hslider = GX_HSLIDER(widget);
     gtk_widget_style_get(widget, "slider-width", &hslider->slider_width, NULL);
-    hslider->image        = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-    hslider->width        = gdk_pixbuf_get_width(hslider->image) - hslider->slider_width * 2;
-    hslider->height       = gdk_pixbuf_get_height(hslider->image);
+    hslider->image = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
+    hslider->width = gdk_pixbuf_get_width(hslider->image) - hslider->slider_width * 2;
+    hslider->height = gdk_pixbuf_get_height(hslider->image);
     GdkRectangle rect;
+    rect.x = rect.y = 0;
     rect.width  = hslider->width;
     rect.height = hslider->height;
     hslider->image_rect = rect;
