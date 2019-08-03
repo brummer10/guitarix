@@ -323,10 +323,6 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
 	
 	g_object_unref(pb);
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(widget, &allocation);
-	x += allocation.x;
-	y += allocation.y;
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {

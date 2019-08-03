@@ -902,10 +902,8 @@ gboolean _gx_regler_check_display_popup(GxRegler *regler, GdkRectangle *image_re
 					GdkRectangle *value_rect, GdkEventButton *event)
 {
 	// check if value entry popup requested
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(GTK_WIDGET(regler), &allocation);
-	gdouble x = event->x + allocation.x;
-	gdouble y = event->y + allocation.y;
+	gdouble x = event->x;
+	gdouble y = event->y;
 	GdkRectangle *rect = NULL;
 	if (image_rect && _approx_in_rectangle(x, y, image_rect)) {
 		if (event->button == 3) {

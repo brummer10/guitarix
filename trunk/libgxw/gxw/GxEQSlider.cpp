@@ -126,6 +126,7 @@ static gboolean gx_eq_slider_draw(GtkWidget *widget, cairo_t *cr)
 static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 {
 	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	r->x = r->y = 0;
 	if (GDK_IS_PIXBUF(pb)) {
 		r->width = gdk_pixbuf_get_width(pb);
 		r->height = gdk_pixbuf_get_height(pb);
@@ -142,10 +143,7 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
 	get_width_height(widget, &image_rect);
 	image_rect.height = (image_rect.height + slider_height) / 2;
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(widget, &allocation);
-	x += allocation.x;
-	y += allocation.y;
+
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {
