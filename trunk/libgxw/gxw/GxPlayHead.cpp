@@ -78,7 +78,7 @@ static void gx_play_head_get_preferred_height (GtkWidget *widget, gint *min_heig
 static void gx_play_head_size_request (GtkWidget *widget, gint *width, gint *height)
 {
 	g_assert(GX_IS_PLAYHEAD(widget));
-    GxPlayHead *phead   = GX_PLAYHEAD(widget);
+	GxPlayHead *phead   = GX_PLAYHEAD(widget);
 	*width  = phead->width;
 	*height = phead->height;
 	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
@@ -90,8 +90,8 @@ static gboolean gx_play_head_draw(GtkWidget *widget, cairo_t *cr)
     GxPlayHead *phead = GX_PLAYHEAD(widget);
     GtkAllocation allocation;
     gtk_widget_get_allocation(widget, &allocation);
-    int x = allocation.x;
-    int y = allocation.y;
+    int x = 0;
+    int y = 0;
     int rect_width  = allocation.width;
     phead->image_rect.x = phead->image_rect.y = 0;
 	//GdkRectangle  value_rect;
