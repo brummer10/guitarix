@@ -1102,10 +1102,13 @@ void _gx_regler_calc_size_request(GxRegler *regler, gint *out_width, gint *out_h
  ** set value from key bindings
  */
 
-static void gx_regler_set_value (GtkWidget *widget, int dir_down)
+static void gx_regler_set_value (GtkWidget *widget, GdkScrollDirection dir_down)
 {
 	g_assert(GX_IS_REGLER(widget));
 
+	if (dir_down != GDK_SCROLL_DOWN && dir_down != GDK_SCROLL_UP) {
+		return;
+	}
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 	gdouble adj_value = gtk_adjustment_get_value(adj);
 	gdouble lower = gtk_adjustment_get_lower(adj);
@@ -1115,7 +1118,7 @@ static void gx_regler_set_value (GtkWidget *widget, int dir_down)
 	int oldstep = (int)(0.5f + (adj_value - lower) / step_increment);
 	int step;
 	int nsteps = (int)(0.5f + (upper - lower) / step_increment);
-	if (dir_down)
+	if (dir_down == GDK_SCROLL_DOWN)
 		step = oldstep - 1;
 	else
 		step = oldstep + 1;
@@ -1291,11 +1294,21 @@ static gboolean gx_regler_button_release (GtkWidget *widget, GdkEventButton *eve
 
 static gboolean gx_regler_scroll (GtkWidget *widget, GdkEventScroll *event)
 {
-	
 	usleep(5000);
-	
-	gx_regler_set_value(widget, event->direction);
-	
+
+	GdkScrollDirection direction;
+	gdouble delta_x, delta_y;
+	if (event->direction != GDK_SCROLL_SMOOTH) {
+		gx_regler_set_value(widget, event->direction);
+	} else if (gdk_event_get_scroll_direction((GdkEvent*)event, &direction)) {
+		gx_regler_set_value(widget, direction);
+	} else if (gdk_event_get_scroll_deltas((GdkEvent*)event, &delta_x, &delta_y)) {
+		GdkScrollDirection vdir = delta_y > 0.0 ? GDK_SCROLL_UP : GDK_SCROLL_DOWN;
+		if (abs(delta_y) > abs(delta_x)) {
+			gx_regler_set_value(widget, vdir);
+		}
+	}
+
 	return TRUE;
 }
 
