@@ -17,8 +17,14 @@
 #include <gxwmm/wheel.h>
 #include <gxwmm/hslider.h>
 #include <gxwmm/vslider.h>
+#include <gxwmm/portdisplay.h>
 #include <gxwmm/minislider.h>
 #include <gxwmm/playhead.h>
+#include <gxwmm/fastmeter.h>
+#include <gxwmm/tuner.h>
+#include <gxwmm/racktuner.h>
+#include <gxwmm/waveview.h>
+#include <gxwmm/iredit.h>
 
 class TextColumns : public Gtk::TreeModelColumnRecord
 {
@@ -65,6 +71,7 @@ protected:
 	Gxw::HSlider m_h_slider;
 	Gxw::VSlider m_v_slider;
 	Gxw::MiniSlider m_mini_slider;
+	Gxw::PortDisplay m_portdisplay;
 
 	Gtk::HBox m_hbox_wheels;
 	Glib::RefPtr<Gtk::Adjustment> m_adj_wheels;
@@ -74,6 +81,15 @@ protected:
 	Gtk::VBox m_vbox2;
 	Gxw::Selector m_selector;
 	Gxw::PlayHead m_playhead;
+
+	Gtk::VBox m_vbox3;
+	Gxw::FastMeter m_fastmeter;
+	Gxw::Tuner m_tuner;
+	Gxw::RackTuner m_racktuner;
+	Gxw::WaveView m_waveviewer;
+
+	Gtk::VBox m_vbox4;
+	Gxw::IREdit m_iredit;
 };
 
 Demo::Demo():
@@ -95,15 +111,18 @@ Demo::Demo():
 	m_h_slider(m_adj_sliders),
 	m_v_slider(m_adj_sliders),
 	m_mini_slider(m_adj_sliders),
+	m_portdisplay(m_adj_sliders),
 	m_adj_wheels(Gtk::Adjustment::create(0, -1, 1, 0.01, 0.1)),
 	m_wheel(m_adj_wheels),
 	m_v_wheel(m_adj_wheels)
 {
+	// Stack setup
 	m_root_box.add(m_stacksidebar);
 	m_stack.set_transition_type(Gtk::STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
 	m_stacksidebar.set_stack(m_stack);
 	m_root_box.add(m_stack);
 
+	// Switches & Knobs
 	m_hbox1.add(m_switch1);
 	m_hbox1.add(m_switch2);
 	m_hbox1.add(m_switch3);
@@ -124,6 +143,7 @@ Demo::Demo():
 	m_v_slider.set_value_position(Gtk::POS_RIGHT);
 	m_hbox_sliders.add(m_v_slider);
 	m_hbox_sliders.add(m_mini_slider);
+	m_hbox_sliders.add(m_portdisplay);
 	m_vbox.add(m_hbox_sliders);
 	m_vbox.add(m_h_slider);
 	m_vbox.add(*Gtk::manage(new Gtk::Label("Wheels")));
@@ -133,6 +153,8 @@ Demo::Demo():
 	m_vbox.add(m_wheel);
 	m_stack.add(m_vbox, "switches", "Switches");
 
+	// Selector & playhead
+	m_vbox2.set_valign(Gtk::ALIGN_START);
 	m_vbox2.add(*Gtk::manage(new Gtk::Label("Playhead")));
 	m_vbox2.add(m_playhead);
 	m_vbox2.add(*Gtk::manage(new Gtk::Label("Selector")));
@@ -144,6 +166,27 @@ Demo::Demo():
 	m_selector.set_model(store);
 	m_vbox2.add(m_selector);
 	m_stack.add(m_vbox2, "selector", "Selector & Playhead");
+
+	// Viewers
+	m_vbox3.set_valign(Gtk::ALIGN_START);
+	m_vbox3.add(*Gtk::manage(new Gtk::Label("Fast Meter")));
+	m_fastmeter.property_horiz() = true;
+	m_vbox3.add(m_fastmeter);
+	m_vbox3.add(*Gtk::manage(new Gtk::Label("Tuner")));
+	m_vbox3.add(m_tuner);
+	m_vbox3.add(*Gtk::manage(new Gtk::Label("Rack Tuner")));
+	m_vbox3.add(m_racktuner);
+	m_vbox3.add(*Gtk::manage(new Gtk::Label("Wave Viewer")));
+	m_waveviewer.set_text("Sample wave", Gtk::CORNER_TOP_LEFT);
+	m_waveviewer.set_text("Hz", Gtk::CORNER_BOTTOM_RIGHT);
+	m_vbox3.add(m_waveviewer);
+	m_stack.add(m_vbox3, "fastmeter", "Viewer");
+
+	// IR Edit
+	m_vbox4.set_valign(Gtk::ALIGN_START);
+	m_vbox4.add(*Gtk::manage(new Gtk::Label("IR Edit")));
+	m_vbox4.add(m_iredit);
+	m_stack.add(m_vbox4, "irdedit", "IR Edit");
 
 	add(m_root_box);
 	set_border_width(10);
