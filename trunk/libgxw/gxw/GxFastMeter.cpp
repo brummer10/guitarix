@@ -126,25 +126,25 @@ void gx_fast_meter_class_init(GxFastMeterClass* klass)
 		widget_class,
 		g_param_spec_boxed("clr-bottom",P_("bottom color"),
 		                   P_("indicator color gradient: value at the bottom"),
-		                   GDK_TYPE_COLOR,
+		                   GDK_TYPE_RGBA,
 		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("clr-middle",P_("middle color"),
 		                   P_("indicator color gradient: value in the middle"),
-		                   GDK_TYPE_COLOR,
+		                   GDK_TYPE_RGBA,
 		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("clr-top",P_("top color"),
 		                   P_("indicator color gradient: value near the top"),
-		                   GDK_TYPE_COLOR,
+		                   GDK_TYPE_RGBA,
 		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_boxed("over",P_("clip warn color"),
 		                   P_("indicator color for values > 0 dbFS"),
-		                   GDK_TYPE_COLOR,
+		                   GDK_TYPE_RGBA,
 		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		widget_class,
@@ -531,7 +531,7 @@ void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
 	GdkRectangle rect;
     GdkRectangle b = fm->priv->bar;
 	int lw, lh, lb;
-    gtk_widget_style_get(GTK_WIDGET(fm), "led-width", &lw, "led-height", &lh, "led-border", &lb, NULL);
+    gtk_widget_style_get(widget, "led-width", &lw, "led-height", &lh, "led-border", &lb, NULL);
     
     int hrz    = fm->priv->horiz;
     int tom    = fm->priv->top_of_meter;
@@ -673,12 +673,12 @@ static gboolean gx_fast_meter_draw (GtkWidget* wd, cairo_t *cr)
 
 #define grad_size 4
 
-GdkColor default_gradient_color[grad_size] = {
-	//   red     green   blue
-	{ 0, 0x0000, 0xffff, 0x0000 }, // clr-bottom
-	{ 0, 0xffff, 0xffff, 0x0000 }, // clr-middle
-	{ 0, 0xffff, 0xaa00, 0x0000 }, // clr-top
-	{ 0, 0xffff, 0x0000, 0x0000 }  // over
+GdkRGBA default_gradient_color[grad_size] = {
+	// red green  blue alpha
+	{ 0.0, 1.0,   0.0, 1.0 }, // clr-bottom
+	{ 1.0, 1.0,   0.0, 1.0 }, // clr-middle
+	{ 1.0, 0.664, 0.0, 1.0 }, // clr-top
+	{ 1.0, 0.0,   0.0, 1.0 }  // over
 };
 
 #define CVALUE(i,c,y,mx) (guint8)floor(((int)rgb[i]->c + (((int)rgb[i+1]->c - (int)rgb[i]->c) * (y)) / (float)(mx))/256)
@@ -790,13 +790,13 @@ static void request_vertical_meter(GtkWidget *widget)
     cairo_fill(cr);
     
     // gradient
-    GdkColor *rgb[4];
+    GdkRGBA *rgb[4];
     unsigned int i;
     float midpos;
     gtk_widget_style_get(widget, "clr-bottom", &rgb[0], "clr-middle", &rgb[1], "clr-top", &rgb[2], "over", &rgb[3], "mid-pos", &midpos, NULL);
 	for (i = 0; i < sizeof(rgb)/sizeof(rgb[0]); i++) {
 		if (!rgb[i]) {
-			rgb[i] = gdk_color_copy(&default_gradient_color[i]);
+			rgb[i] = gdk_rgba_copy(&default_gradient_color[i]);
 		}
 	}
     
@@ -807,10 +807,10 @@ static void request_vertical_meter(GtkWidget *widget)
         y_ + h_ - lb,
         hrz ? x_ + w_ - lb : x_ + lb,
         hrz ? y_ + h_ - lb : y_ + lb);
-    cairo_pattern_add_color_stop_rgb(pat, 0, rgb[0]->red / 65536., rgb[0]->green / 65536., rgb[0]->blue / 65536.);
-    cairo_pattern_add_color_stop_rgb(pat, midpos, rgb[1]->red / 65536., rgb[1]->green / 65536., rgb[1]->blue / 65536.);
-    cairo_pattern_add_color_stop_rgb(pat, lpos, rgb[2]->red / 65536., rgb[2]->green / 65536., rgb[2]->blue / 65536.);
-    cairo_pattern_add_color_stop_rgb(pat, lpos + 0.0001, rgb[3]->red / 65536., rgb[3]->green / 65536., rgb[3]->blue / 65536.);
+    cairo_pattern_add_color_stop_rgb(pat, 0, rgb[0]->red, rgb[0]->green, rgb[0]->blue);
+    cairo_pattern_add_color_stop_rgb(pat, midpos, rgb[1]->red, rgb[1]->green, rgb[1]->blue);
+    cairo_pattern_add_color_stop_rgb(pat, lpos, rgb[2]->red, rgb[2]->green, rgb[2]->blue);
+    cairo_pattern_add_color_stop_rgb(pat, lpos + 0.0001, rgb[3]->red, rgb[3]->green, rgb[3]->blue);
     
     cairo_rectangle(cr, x_ + lb, y_ + lb, w_ - 2*lb, h_ - 2*lb);
     cairo_set_source(cr, pat);
