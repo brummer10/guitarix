@@ -541,14 +541,11 @@ void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
     if (new_top) {
         new_top += (lh + lb);
     }
-    GtkAllocation allocation;
-    gtk_widget_get_allocation(widget, &allocation);
-    rect.x       = b.x + allocation.x;
+    rect.x       = b.x;
     rect.width   = hrz ? new_top : b.width;
     rect.height  = hrz ? b.width : new_top;
     rect.y       = hrz ? b.y : b.y + b.height - new_top;
-    rect.y += allocation.y;
-    
+
 	if (new_top >= tom) {
         if (hrz) {
             rect.x += tom;
@@ -613,10 +610,8 @@ static gboolean gx_fast_meter_draw (GtkWidget* wd, cairo_t *cr)
     int hrz    = fm->priv->horiz;
     int height = cairo_image_surface_get_height(fm->priv->surface);
     int width  = cairo_image_surface_get_width(fm->priv->surface);
-    GtkAllocation allocation;
-    gtk_widget_get_allocation(wd, &allocation);
-    int x = allocation.x;
-    int y = allocation.y;
+    int x = 0;
+    int y = 0;
     
     top_of_meter  = (gint) floor (float(hrz ? b.width : b.height) * fm->priv->current_level);
     top_of_meter -= top_of_meter % (lh + lb);
