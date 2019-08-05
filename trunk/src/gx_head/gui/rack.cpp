@@ -255,11 +255,11 @@ void convert_bgra_to_rgba (guint8 const* src, guint8* dst, int width, int height
 DragIcon::DragIcon(const PluginUI& plugin, Glib::RefPtr<Gdk::DragContext> context, gx_system::CmdlineOptions& options, int xoff)
     : window(), drag_icon_pixbuf() {
     Glib::RefPtr<Gdk::Screen> screen = context->get_source_window()->get_screen();
-    Glib::RefPtr<Gdk::Colormap> rgba = screen->get_rgba_colormap();
+    Glib::RefPtr<Gdk::Visual> rgba = screen->get_rgba_visual();
     if (screen->is_composited()) {
 	window = new Gtk::Window(Gtk::WINDOW_POPUP);
 	if (rgba) { // else will look ugly..
-	    window->set_colormap(rgba);
+	    gtk_widget_set_visual(GTK_WIDGET(window->gobj()), rgba->gobj());
 	}
     }
     create_drag_icon_pixbuf(plugin, rgba, options);
@@ -269,7 +269,7 @@ DragIcon::DragIcon(const PluginUI& plugin, Glib::RefPtr<Gdk::DragContext> contex
     int w2 = std::min(std::max(0, xoff), w-gradient_length/2) - 4;
     if (window) {
 	window->set_size_request(w, h);
-	window->signal_expose_event().connect(sigc::mem_fun(*this, &DragIcon::icon_expose_event));
+	window->signal_draw().connect(sigc::mem_fun(*this, &DragIcon::icon_draw));
 	//context->set_icon_widget(window, w2, h2);
 	gtk_drag_set_icon_widget(context->gobj(), GTK_WIDGET(window->gobj()), w2, h2);
     } else {
@@ -281,21 +281,17 @@ DragIcon::~DragIcon() {
     delete window;
 }
 
-bool DragIcon::icon_expose_event(GdkEventExpose *ev) {
-    Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(ev->window, true)->create_cairo_context();
-    gdk_cairo_region(cr->cobj(), ev->region);
-    cr->set_operator(Cairo::OPERATOR_SOURCE);
-    cr->clip();
+bool DragIcon::icon_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
     Gdk::Cairo::set_source_pixbuf(cr, drag_icon_pixbuf, 0, 0);
     cr->paint();
     return true;
 }
 
-void DragIcon::create_drag_icon_pixbuf(const PluginUI& plugin, Glib::RefPtr<Gdk::Colormap> rgba, gx_system::CmdlineOptions& options) {
+void DragIcon::create_drag_icon_pixbuf(const PluginUI& plugin, Glib::RefPtr<Gdk::Visual> rgba, gx_system::CmdlineOptions& options) {
     Gtk::OffscreenWindow w;
-    w.signal_expose_event().connect(sigc::bind(sigc::mem_fun(*this, &DragIcon::window_expose_event), sigc::ref(w)));
+    w.signal_draw().connect(sigc::bind(sigc::mem_fun(*this, &DragIcon::window_draw), sigc::ref(w)));
     if (rgba) {
-	w.set_colormap(rgba);
+        gtk_widget_set_visual(GTK_WIDGET(w.gobj()), rgba->gobj());
     }
     Gtk::Widget *r = RackBox::create_drag_widget(plugin, options);
     w.add(*r);
@@ -307,18 +303,17 @@ static void destroy_data(const guint8 *data) {
     delete[] data;
 }
 
-bool DragIcon::window_expose_event(GdkEventExpose *event, Gtk::OffscreenWindow& widget) {
-    Cairo::RefPtr<Cairo::Context> cr = widget.get_window()->create_cairo_context();
+bool DragIcon::window_draw(const Cairo::RefPtr<Cairo::Context> &cr, Gtk::OffscreenWindow& widget) {
     cr->set_operator(Cairo::OPERATOR_SOURCE);
     cr->set_source_rgba(0,0,0,0);
     cr->paint();
     Gtk::Widget *child = widget.get_child();
     if (child) {
-	widget.propagate_expose(*child, event);
+	widget.propagate_draw(*child, cr);
     }
     Cairo::RefPtr<Cairo::Surface> x_surf = cr->get_target();
-    int w = gdk_window_get_width(event->window);
-    int h = gdk_window_get_height(event->window);
+    int w = widget.get_window()->get_width();
+    int h = widget.get_window()->get_height();
     Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(w, 0, w-gradient_length, 0);
     grad->add_color_stop_rgba(0, 1, 1, 1, 1);
     grad->add_color_stop_rgba(1, 1, 1, 1, 0);
@@ -370,7 +365,7 @@ bool MiniRackBox::on_my_leave_out(GdkEventCrossing *focus) {
 bool MiniRackBox::on_my_enter_in(GdkEventCrossing *focus) {
     if (!mconbox.get_visible()) {
         Glib::RefPtr<Gdk::Window> window = this->get_window();
-        Gdk::Cursor cursor(Gdk::HAND1);
+        Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(Gdk::HAND1));
         window->set_cursor(cursor);
     }
     return true;
@@ -873,8 +868,8 @@ bool RackBox::on_my_leave_out(GdkEventCrossing *focus) {
 
 bool RackBox::on_my_enter_in(GdkEventCrossing *focus) {
     Glib::RefPtr<Gdk::Window> window = this->get_window();
-    Gdk::Cursor cursor(Gdk::HAND1);
-    window->set_cursor(cursor); 
+    Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(Gdk::HAND1));
+    window->set_cursor(cursor);
     return true;
 }
 
@@ -1054,7 +1049,9 @@ void RackBox::animate_remove() {
 	    set_size_request(-1,-1);
 	    show();
 	}
-	anim_height = size_request().height;
+	gint min_height, natural_height;
+	get_preferred_height(min_height, natural_height);
+	anim_height = min_height;
 	set_size_request(-1, anim_height);
 	set_visibility(false);
 	anim_step = anim_height / 5;
@@ -1097,7 +1094,9 @@ void RackBox::animate_insert() {
 	    anim_tag.disconnect();
 	    set_size_request(-1,-1);
 	}
-	target_height = size_request().height;
+	gint min_height, natural_height;
+	get_preferred_height(min_height, natural_height);
+	target_height = min_height;
 	set_size_request(-1,0);
 	set_visibility(false);
 	show();
@@ -1344,39 +1343,34 @@ void RackContainer::unit_order_changed(bool stereo) {
     }
 }
 
-bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
-    if (!is_drawable()) {
+bool RackContainer::drag_highlight_draw(const Cairo::RefPtr<Cairo::Context> &cr, int y0) {
+    if (!get_is_drawable()) {
 	return false;
     }
-    Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
     int x, y, width, height;
     if (!get_has_window()) {
         Gtk::Allocation a = get_allocation();
-        x      = a.get_x();
-        y      = a.get_y();
+        x      = 0;
+        y      = 0;
         width  = a.get_width();
         height = a.get_height();
     } else {
-        int depth;
-        get_window()->get_geometry(x, y, width, height, depth);
+        get_window()->get_geometry(x, y, width, height);
         x = 0;
         y = 0;
     }
-    GdkPixbuf * pb_ = gtk_widget_render_icon(GTK_WIDGET(this->gobj()), "insert", (GtkIconSize)-1, NULL);
+    Glib::RefPtr<Gdk::Pixbuf> pb_ = render_icon_pixbuf(Gtk::StockID("insert"), Gtk::IconSize(-1));
     if (pb_) {
-        cairo_t *cr_ = gdk_cairo_create(unwrap(get_window()));
-        gdk_cairo_set_source_pixbuf(cr_, pb_, x, y);
-        cairo_pattern_set_extend(cairo_get_source(cr_), CAIRO_EXTEND_REPEAT);
+        Gdk::Cairo::set_source_pixbuf(cr, pb_, x, y);
+        cr->get_source()->set_extend(Cairo::EXTEND_REPEAT);
         if (y0 < 0) {
-            cairo_set_line_width(cr_, 4.0);
-            cairo_rectangle(cr_, x, max(0, y), width, height);
-            cairo_stroke(cr_);
+            cr->set_line_width(4.0);
+            cr->rectangle(x, max(0, y), width, height);
+            cr->stroke();
         } else {
-            cairo_rectangle(cr_, x, max(y, y0 - 3), width, 2);
-            cairo_fill(cr_);
+            cr->rectangle(x, max(y, y0 - 3), width, 2);
+            cr->fill();
         }
-        cairo_destroy(cr_);
-        g_object_unref(pb_);
     }
     return false;
 }
@@ -1436,7 +1430,7 @@ bool RackContainer::check_targets(const std::vector<std::string>& tgts1, const s
 }
 
 bool RackContainer::on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
-    const std::vector<std::string>& tg = context->get_targets();
+    const std::vector<std::string>& tg = context->list_targets();
     if (!check_targets(tg, targets)) {
 	if (check_targets(tg, othertargets)) {
 	    if (!autoscroll_connection.connected()) {
@@ -1457,7 +1451,7 @@ bool RackContainer::on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context
     if (in_drag > -2) {
 	highlight_connection.disconnect();
     }
-    highlight_connection = signal_expose_event().connect(sigc::bind(sigc::mem_fun(*this, &RackContainer::drag_highlight_expose), ind), true);
+    highlight_connection = signal_draw().connect(sigc::bind(sigc::mem_fun(*this, &RackContainer::drag_highlight_draw), ind), true);
     queue_draw();
     in_drag = ind;
     if (!autoscroll_connection.connected()) {
@@ -1477,7 +1471,7 @@ static const int step_size = 20;
 
 bool RackContainer::scrollother_timeout() {
     Gtk::Viewport *p = dynamic_cast<Gtk::Viewport*>(get_ancestor(GTK_TYPE_VIEWPORT));
-    Gtk::Adjustment *a = p->get_vadjustment();
+    Glib::RefPtr<Gtk::Adjustment> a = p->get_vadjustment();
     double off = a->get_value();
     Gtk::Allocation alloc = get_allocation();
     int x, y;
@@ -1509,7 +1503,7 @@ bool RackContainer::scrollother_timeout() {
 
 bool RackContainer::scroll_timeout() {
     Gtk::Viewport *p = dynamic_cast<Gtk::Viewport*>(get_ancestor(GTK_TYPE_VIEWPORT));
-    Gtk::Adjustment *a = p->get_vadjustment();
+    Glib::RefPtr<Gtk::Adjustment> a = p->get_vadjustment();
     double off = a->get_value();
     Gtk::Allocation alloc = get_allocation();
     int x, y;

@@ -172,10 +172,10 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxvaluedisplay1", step_value);
     builder->find_widget("label8:rack_label_inverse", step_label);
     
-    Pango::FontDescription font = preset_label->get_style()->get_font();
+    Pango::FontDescription font = preset_label->get_style_context()->get_font();
     font.set_size(10*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
-    preset_label->modify_font(font);
+    preset_label->override_font(font);
 
     make_preset_button(preset_button);
 
@@ -527,7 +527,7 @@ void SEQWindow::remove_seq_block(Gtk::HBox * box, int r) {
 }
 
 void SEQWindow::scroll_playhead(float value) {
-    Gtk::Adjustment *a = vp->get_hadjustment();
+    Glib::RefPtr<Gtk::Adjustment> a = vp->get_hadjustment();
     static float old_state = 0.0;
     float u = a->get_upper();
     float l = a->get_lower();

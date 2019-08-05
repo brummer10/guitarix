@@ -384,21 +384,6 @@ GObject* GxBuilder::get_cobject(const Glib::ustring& name)
   return cobject;
 }
 
-Gtk::Object* GxBuilder::get_widget_checked(const Glib::ustring& name, GType type, bool take_ref) {
-    GObject *cobject = get_cobject(name);
-    if(!cobject) {
-	g_critical("gtkmm: GxBuilder: widget `%s' was not found in the GtkBuilder file, or the specified part of it.", 
-		   name.c_str());
-	return 0;
-    }
-    if(!g_type_is_a(G_OBJECT_TYPE(cobject), type)) {
-	g_critical("gtkmm: widget `%s' (in GtkBuilder file) is of type `%s' but `%s' was expected",
-		   name.c_str(), G_OBJECT_TYPE_NAME(cobject), g_type_name(type));
-	return 0;
-    }
-    return Glib::wrap (GTK_OBJECT(cobject), take_ref);
-}
-
 /*
  ** GxBuilder::fixup_controlparameters + helper classes
  */
@@ -466,8 +451,8 @@ static void make_switch_controller(gx_engine::GxMachineBase& machine, Glib::RefP
 struct uiAdjustmentLog: public uiElement {
     gx_engine::GxMachineBase& machine;
     const std::string id;
-    Gtk::Adjustment* fAdj;
-    uiAdjustmentLog(gx_engine::GxMachineBase& machine_, const std::string& id_, Gtk::Adjustment* adj) :
+    Glib::RefPtr<Gtk::Adjustment> fAdj;
+    uiAdjustmentLog(gx_engine::GxMachineBase& machine_, const std::string& id_, Glib::RefPtr<Gtk::Adjustment> adj) :
 	uiElement(), machine(machine_), id(id_), fAdj(adj) {
 	fAdj->set_value(log10(machine.get_parameter_value<float>(id)));
 	machine.signal_parameter_value<float>(id).connect(sigc::mem_fun(this, &uiAdjustmentLog::on_parameter_changed));
@@ -492,7 +477,7 @@ static void make_continuous_controller(gx_engine::GxMachineBase& machine, Glib::
 	    Glib::ustring::compose("Continuous Parameter variable %1: type not handled", p.id()));
 	return;
     }
-    Gtk::Adjustment *adj = r->get_adjustment();
+    Glib::RefPtr<Gtk::Adjustment> adj = r->get_adjustment();
     gx_engine::FloatParameter &fp = p.getFloat();
     if (fp.is_log_display()) {
 	double up = log10(fp.getUpperAsFloat());

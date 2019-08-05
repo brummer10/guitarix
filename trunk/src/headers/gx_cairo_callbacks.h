@@ -28,12 +28,12 @@
 namespace gx_cairo
 {
 // forwarddeclaration
-gboolean conv_widget_expose (GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean info_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean error_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean start_box_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean rectangle_skin_color_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
-gboolean splash_expose(GtkWidget *wi, GdkEventExpose *ev, gpointer user_data);
+gboolean conv_widget_draw (GtkWidget *wi, cairo_t *cr, gpointer user_data);
+gboolean info_box_draw(GtkWidget *wi, cairo_t *cr, gpointer user_data);
+gboolean error_box_draw(GtkWidget *wi, cairo_t *cr, gpointer user_data);
+gboolean start_box_draw(GtkWidget *wi, cairo_t *cr, gpointer user_data);
+gboolean rectangle_skin_color_draw(GtkWidget *wi, cairo_t *cr, gpointer user_data);
+gboolean splash_draw(GtkWidget *wi, cairo_t* cr, gpointer user_data);
 }
 #endif  // SRC_HEADERS_GX_CAIRO_CALLBACKS_H_
 

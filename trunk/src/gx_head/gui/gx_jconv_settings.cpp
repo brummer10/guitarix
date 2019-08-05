@@ -561,18 +561,18 @@ void IRWindow::on_open() {
     d.add_shortcut_folder_uri(Glib::filename_to_uri(GX_SOUND_BPA_DIR, hostname));
     d.add_shortcut_folder_uri(Glib::filename_to_uri(GX_SOUND_BPB_DIR, hostname));
     d.add_shortcut_folder_uri(Glib::filename_to_uri(string(getenv("HOME")) + string("/.config/guitarix/IR"), hostname));
-    Gtk::FileFilter wav;
-    wav.set_name("WAV Files");
-    wav.add_mime_type("audio/x-wav");
-    wav.add_mime_type("audio/x-aiff");
+    Glib::RefPtr<Gtk::FileFilter> wav;
+    wav->set_name("WAV Files");
+    wav->add_mime_type("audio/x-wav");
+    wav->add_mime_type("audio/x-aiff");
     d.add_filter(wav);
-    Gtk::FileFilter audio;
-    audio.set_name("Audio Files");
-    audio.add_mime_type("audio/*");
+    Glib::RefPtr<Gtk::FileFilter> audio;
+    audio->set_name("Audio Files");
+    audio->add_mime_type("audio/*");
     d.add_filter(audio);
-    Gtk::FileFilter all;
-    all.add_pattern("*");
-    all.set_name("All Files");
+    Glib::RefPtr<Gtk::FileFilter> all;
+    all->add_pattern("*");
+    all->set_name("All Files");
     d.add_filter(all);
     if (!filename.empty()) {
         d.set_uri(Glib::filename_to_uri (filename, hostname));

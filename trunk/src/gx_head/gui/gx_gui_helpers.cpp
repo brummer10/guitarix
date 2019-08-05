@@ -106,7 +106,6 @@ gint gx_nchoice_dialog_without_entry(
         gtk_dialog_add_button(GTK_DIALOG(dialog), label[i], resp[i]);
 
     // set default
-    gtk_dialog_set_has_separator(GTK_DIALOG(dialog), FALSE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
     gtk_window_set_title(GTK_WINDOW(dialog), window_title);
     gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);

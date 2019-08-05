@@ -111,8 +111,6 @@ private:
     static Glib::RefPtr<GxBuilder> create_from_string(const Glib::ustring& buffer, const Glib::ustring& object_id);
     static Glib::RefPtr<GxBuilder> create_from_string(const Glib::ustring& buffer, const Glib::StringArrayHandle& object_ids);
     GObject* get_cobject(const Glib::ustring& name);
-protected:
-    Gtk::Object* get_widget_checked(const Glib::ustring& name, GType type, bool take_ref);
 public:
     static inline Glib::RefPtr<GxBuilder> create() { return Glib::RefPtr<GxBuilder>(new GxBuilder()); }
 
@@ -132,8 +130,7 @@ public:
 
     template <class T_Widget> inline
     void find_widget(const Glib::ustring& name, T_Widget*& widget) {
-	widget = 0;
-	widget = dynamic_cast<T_Widget*>(this->get_widget_checked(name, T_Widget::get_base_type(), false));
+	widget = dynamic_cast<T_Widget*>(get_widget_checked(name, T_Widget::get_base_type()));
 	assert(widget);
     }
 
@@ -162,9 +159,8 @@ public:
 
     template <class T_Widget> inline
     void get_toplevel(const Glib::ustring& name, T_Widget*& widget) {
-	widget = 0;
 	GType type = T_Widget::get_base_type();
-	widget = dynamic_cast<T_Widget*>(this->get_widget_checked(name, type, !g_type_is_a(type, GTK_TYPE_WINDOW)));
+	widget = dynamic_cast<T_Widget*>(get_widget_checked(name, type));
 	assert(widget);
 	assert(!widget->get_parent());
     }

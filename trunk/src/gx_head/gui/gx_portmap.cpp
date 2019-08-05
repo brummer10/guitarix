@@ -345,8 +345,8 @@ void PortMapWindow::on_check_resize() {
     if (monitored_expander_child &&
         !monitored_expander_child->get_child_visible()) {
         monitored_expander_child = 0;
-        int x, y, width, height, depth;
-        window->get_window()->get_geometry(x, y, width, height, depth);
+        int x, y, width, height;
+        window->get_window()->get_geometry(x, y, width, height);
         window->resize(width, 1);
     }
 }
@@ -465,7 +465,7 @@ void PortMapWindow::load(int sect, jack_port_t *jack_port) {
 	Glib::RefPtr<Gtk::TreeStore> tree = ps.treestore;
         assert(tree);
 	tree->set_sort_func(0, sigc::mem_fun(*this, &PortMapWindow::sort_func));
-        tree->set_sort_column_id(0, Gtk::SORT_ASCENDING);
+        tree->set_sort_column(0, Gtk::SORT_ASCENDING);
         tree->clear();
         const char **ports;
         
@@ -605,12 +605,7 @@ PortMapWindow::PortMapWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_jack::GxJac
         snprintf(name, sizeof(name), "treeview%d", i+1);
 	Gtk::TreeView *view;
 	bld->find_widget(name, view);
-	Gtk::TreeViewColumn *col = view->get_column(0);
-	// get_first_cell_renderer is decprecated, but only available after gtkmm 2.20
-    // --> we can also use view->get_column_cell_renderer(0) instead 
-	//Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(col->get_first_cell());
-	Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(col->get_first_cell_renderer());
-    //Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(view->get_column_cell_renderer(0));
+	Gtk::CellRendererToggle *cell = dynamic_cast<Gtk::CellRendererToggle*>(view->get_column_cell_renderer(0));
 	portsection[i].treestore = Gtk::TreeStore::create(columns);
 	view->set_model(portsection[i].treestore);
         //snprintf(name, sizeof(name), "treestore%d", i+1);
@@ -657,7 +652,7 @@ void PortMapWindow::refresh() {
 	    Glib::RefPtr<Gtk::TreeStore> tree = ps.treestore;
 	    assert(tree);
 	    tree->set_sort_func(0, sigc::mem_fun(*this, &PortMapWindow::sort_func));
-	    tree->set_sort_column_id(0, Gtk::SORT_ASCENDING);
+	    tree->set_sort_column(0, Gtk::SORT_ASCENDING);
 	    tree->clear();
 	    update_summary(portsection[i]);
 	}

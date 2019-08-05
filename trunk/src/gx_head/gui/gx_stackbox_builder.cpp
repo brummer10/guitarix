@@ -290,10 +290,10 @@ void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWind
     Gtk::Button *button = new Gtk::Button();
     button->set_name("smallbutton");
     Gtk::Label *lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style()->get_font();
+    Pango::FontDescription font = lab->get_style_context()->get_font();
     font.set_size(7*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_NORMAL);
-    lab->modify_font(font);
+    lab->override_font(font);
     button->add(*manage(lab));
     //lab->set_name("rack_label_inverse");
     lab->set_padding(5,0);
@@ -317,10 +317,10 @@ void StackBoxBuilder::openSetLabelBox() {
     box->set_spacing(0);
     box->set_border_width(0);
     convolver_filename_label.set_name("rack_label");
-    Pango::FontDescription font = convolver_filename_label.get_style()->get_font();
+    Pango::FontDescription font = convolver_filename_label.get_style_context()->get_font();
     font.set_size(8*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
-    convolver_filename_label.modify_font(font);
+    convolver_filename_label.override_font(font);
     box->pack_start(convolver_filename_label, false, false, 0);
     box->show_all();
     gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter("jconv.convolver"));
@@ -338,10 +338,10 @@ void StackBoxBuilder::openSetMonoLabelBox() {
     box->set_spacing(0);
     box->set_border_width(0);
     convolver_mono_filename_label.set_name("rack_label");
-    Pango::FontDescription font = convolver_mono_filename_label.get_style()->get_font();
+    Pango::FontDescription font = convolver_mono_filename_label.get_style_context()->get_font();
     font.set_size(8*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
-    convolver_mono_filename_label.modify_font(font);
+    convolver_mono_filename_label.override_font(font);
     box->pack_start(convolver_mono_filename_label, true, false, 0);
     box->show_all();
     gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter("jconv_mono.convolver"));
@@ -358,10 +358,10 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
     button->set_can_default(false);
     button->set_can_focus(false);
     Gtk::Label *lab = new Gtk::Label(label);
-    //Pango::FontDescription font = lab->get_style()->get_font();
+    //Pango::FontDescription font = lab->get_style_context()->get_font();
     //font.set_size(10*Pango::SCALE);
     //font.set_weight(Pango::WEIGHT_NORMAL);
-    //lab->modify_font(font);
+    //lab->override_font(font);
     button->add(*manage(lab));
     //lab->set_name("rack_label_inverse");
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
@@ -376,10 +376,10 @@ void StackBoxBuilder::addSmallSeqButton(const char* label, gx_seq::SEQWindow *se
     Gtk::Button *button = new Gtk::Button();
     button->set_name("smallbutton");
     Gtk::Label *lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style()->get_font();
+    Pango::FontDescription font = lab->get_style_context()->get_font();
     font.set_size(7*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_NORMAL);
-    lab->modify_font(font);
+    lab->override_font(font);
     button->add(*manage(lab));
     //lab->set_name("rack_label_inverse");
     lab->set_padding(5,0);
@@ -394,10 +394,10 @@ void StackBoxBuilder::addSeqButton(const char* label, gx_seq::SEQWindow *seqw) {
     button->set_can_default(false);
     button->set_can_focus(false);
     Gtk::Label *lab = new Gtk::Label(label);
-    //Pango::FontDescription font = lab->get_style()->get_font();
+    //Pango::FontDescription font = lab->get_style_context()->get_font();
     //font.set_size(10*Pango::SCALE);
     //font.set_weight(Pango::WEIGHT_NORMAL);
-    //lab->modify_font(font);
+    //lab->override_font(font);
     button->add(*manage(lab));
     //lab->set_name("rack_label_inverse");
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
@@ -473,10 +473,10 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     boxv->set_spacing(0);
    // boxv->set_border_width(4);
     Gtk::Label *lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style()->get_font();
+    Pango::FontDescription font = lab->get_style_context()->get_font();
     font.set_size(6*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_NORMAL);
-    lab->modify_font(font);
+    lab->override_font(font);
     lab->set_name("beffekt_label");
     boxv->add(*manage(lab));
     boxv->add(*manage(box));
@@ -603,22 +603,22 @@ void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
 				d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
 				Glib::ustring loop_dir = machine.get_options().get_loop_dir();
 				d.add_shortcut_folder_uri(Glib::filename_to_uri(loop_dir, hostname));
-				Gtk::FileFilter wav;
-				wav.set_name("WAV Files");
-				wav.add_mime_type("audio/x-vorbis+ogg");
-				wav.add_mime_type("audio/x-wav");
-				wav.add_pattern("*.ogg");
-				wav.add_pattern("*.wav");
-				wav.add_pattern("*.WAV");
-				wav.add_pattern("*.Wav");
+				Glib::RefPtr<Gtk::FileFilter> wav = Gtk::FileFilter::create();
+				wav->set_name("WAV Files");
+				wav->add_mime_type("audio/x-vorbis+ogg");
+				wav->add_mime_type("audio/x-wav");
+				wav->add_pattern("*.ogg");
+				wav->add_pattern("*.wav");
+				wav->add_pattern("*.WAV");
+				wav->add_pattern("*.Wav");
 				d.add_filter(wav);
-				Gtk::FileFilter audio;
-				audio.set_name("Audio Files");
-				audio.add_mime_type("audio/*");
+				Glib::RefPtr<Gtk::FileFilter> audio = Gtk::FileFilter::create();
+				audio->set_name("Audio Files");
+				audio->add_mime_type("audio/*");
 				d.add_filter(audio);
-				Gtk::FileFilter all;
-				all.add_pattern("*");
-				all.set_name("All Files");
+				Glib::RefPtr<Gtk::FileFilter> all = Gtk::FileFilter::create();
+				all->add_pattern("*");
+				all->set_name("All Files");
 				d.add_filter(all);
 				if (!recent_filename.empty()) {
 					d.set_uri(Glib::filename_to_uri (recent_filename, hostname));
@@ -931,10 +931,10 @@ void StackBoxBuilder::openFlipLabelBox(const char* label) {
         hbox->m_label.set_angle(90);
         hbox->m_label.set_size_request(15, -1);
 
-        Pango::FontDescription font = hbox->m_label.get_style()->get_font();
+        Pango::FontDescription font = hbox->m_label.get_style_context()->get_font();
         font.set_size(8*Pango::SCALE);
         font.set_weight(Pango::WEIGHT_BOLD);
-        hbox->m_label.modify_font(font);
+        hbox->m_label.override_font(font);
 
         hbox->add(hbox->m_label);
         hbox->add(*manage(vbox));
@@ -1011,14 +1011,14 @@ void StackBoxBuilder::addMToggleButton(const std::string& id, const char* label_
     if (label.empty()) {
         label = p.l_name();
     }
-    Gdk::Color colorRed("#58b45e");
-    Gdk::Color colorOwn("#7f7f7f");
+    Gdk::RGBA colorRed("#58b45e");
+    Gdk::RGBA colorOwn("#7f7f7f");
     Gdk::Color colorwn("#000000");
     uiToggleButton* button = new uiToggleButton(machine, id);
     Gtk::Label* lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style()->get_font();
+    Pango::FontDescription font = lab->get_style_context()->get_font();
     font.set_weight(Pango::WEIGHT_BOLD);
-    lab->modify_font(font);
+    lab->override_font(font);
     button->add(*manage(lab));
     button->set_size_request(70, 20);
     Gtk::Box* box = new Gtk::HBox(homogene, 4);
@@ -1038,8 +1038,8 @@ void StackBoxBuilder::addMToggleButton(const std::string& id, const char* label_
     lab->show();
     box->show();
     fBox.container_add(manage(box));
-    button->modify_bg(Gtk::STATE_NORMAL, colorOwn);
-    button->modify_bg(Gtk::STATE_ACTIVE, colorRed);
+    button->override_background_color(colorOwn, Gtk::STATE_FLAG_NORMAL);
+    button->override_background_color(colorRed, Gtk::STATE_FLAG_ACTIVE);
     lab->set_name("rack_label");
     connect_midi_controller(button, id, machine);
 }
@@ -1071,21 +1071,22 @@ void StackBoxBuilder::addCheckButton(const std::string& id, const char* label_) 
     } else {
         label = machine.get_parameter(id).getBool().l_name();
     }
-    Gdk::Color colorRed("#000000");
-    Gdk::Color colorOwn("#4c5159");
+    Gdk::RGBA colorRed("#000000");
+    Gdk::RGBA colorOwn("#4c5159");
     Gdk::Color colorba("#c4c0c0");
     Gtk::Label *lab = new Gtk::Label(label);
     uiCheckButton *button = new uiCheckButton(machine, id);
     button->add(*manage(lab));
     fBox.add(manage(button), label);
-    button->modify_bg(Gtk::STATE_PRELIGHT, colorOwn);
-    button->modify_fg(Gtk::STATE_PRELIGHT, colorRed);
-    button->modify_text(Gtk::STATE_NORMAL, colorRed);
-    button->modify_base(Gtk::STATE_NORMAL, colorba);
-    Glib::RefPtr<Gtk::Style> style = lab->get_style();
-    style->get_font().set_size(8*Pango::SCALE);
-    style->get_font().set_weight(Pango::WEIGHT_NORMAL);
-    lab->modify_font(style->get_font());
+    button->override_background_color(colorOwn, Gtk::STATE_FLAG_PRELIGHT);
+    button->override_color(colorRed, Gtk::STATE_FLAG_PRELIGHT);
+    button->override_color(colorRed, Gtk::STATE_FLAG_NORMAL);
+//    button->modify_base(Gtk::STATE_NORMAL, colorba);
+    Glib::RefPtr<Gtk::StyleContext> style = lab->get_style_context();
+    Pango::FontDescription font = style->get_font();
+    font.set_size(8*Pango::SCALE);
+    font.set_weight(Pango::WEIGHT_NORMAL);
+    lab->override_font(font);
     connect_midi_controller(button, id, machine);
     lab->show();
 }
@@ -1185,10 +1186,11 @@ void StackBoxBuilder::openVerticalBox(const char* label) {
     if (!fBox.top_is_notebook() && label && label[0]) {
         box->m_label.set_text(label);
         box->m_label.set_name("rack_effect_label");
-	Glib::RefPtr<Gtk::Style> style = box->m_label.get_style();
-        style->get_font().set_size(8*Pango::SCALE);
-        style->get_font().set_weight(Pango::WEIGHT_BOLD);
-        box->m_label.modify_font(style->get_font());
+        Glib::RefPtr<Gtk::StyleContext> style = box->m_label.get_style_context();
+        Pango::FontDescription font = style->get_font();
+        font.set_size(8*Pango::SCALE);
+        font.set_weight(Pango::WEIGHT_BOLD);
+        box->m_label.override_font(font);
         box->pack_start(box->m_label, false, false, 0 );
         fBox.box_pack_start(manage(box), false);
         box->show();

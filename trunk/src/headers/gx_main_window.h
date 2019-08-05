@@ -82,8 +82,8 @@ private:
     gx_engine::GxMachineBase &machine;
     const GxActions& actions;
     bool use_composite;
-    Gtk::Adjustment *brightness_adj;
-    Gtk::Adjustment *background_adj;
+    Glib::RefPtr<Gtk::Adjustment> brightness_adj;
+    Glib::RefPtr<Gtk::Adjustment> background_adj;
     KeySwitcher keyswitch;
     sigc::connection midi_conn;
     Gtk::Window *window;
@@ -105,8 +105,8 @@ private:
     bool on_delete(GdkEventAny *ev);
     void on_brightness_changed();
     void on_background_changed();
-    bool transparent_expose(GdkEventExpose *event);
-    bool window_expose_event(GdkEventExpose* event);
+    bool transparent_draw(const Cairo::RefPtr<Cairo::Context> &cr);
+    bool window_draw(const Cairo::RefPtr<Cairo::Context> &cr);
     void on_realize();
     void on_engine_state_change(gx_engine::GxEngineState state);
     void on_selection_done(bool v);
@@ -238,9 +238,9 @@ private:
     Gtk::Window *window;
     Glib::RefPtr<Gdk::Pixbuf> drag_icon_pixbuf;
 private:
-    bool icon_expose_event(GdkEventExpose *ev);
-    void create_drag_icon_pixbuf(const PluginUI& plugin, Glib::RefPtr<Gdk::Colormap> rgba, gx_system::CmdlineOptions& options);
-    bool window_expose_event(GdkEventExpose *event, Gtk::OffscreenWindow& w);
+    bool icon_draw(const Cairo::RefPtr<Cairo::Context> &cr);
+    void create_drag_icon_pixbuf(const PluginUI& plugin, Glib::RefPtr<Gdk::Visual> rgba, gx_system::CmdlineOptions& options);
+    bool window_draw(const Cairo::RefPtr<Cairo::Context> &cr, Gtk::OffscreenWindow& w);
 public:
     DragIcon(const PluginUI& plugin, Glib::RefPtr<Gdk::DragContext> context, gx_system::CmdlineOptions& options, int xoff=0);
     ~DragIcon();
@@ -360,7 +360,7 @@ private:
     sigc::connection autoscroll_connection;
 private:
     using Gtk::VBox::add;
-    bool drag_highlight_expose(GdkEventExpose *event, int y0);
+    bool drag_highlight_draw(const Cairo::RefPtr<Cairo::Context>&, int y0);
     void find_index(int x, int y, int* len, int *ypos);
     void on_my_remove(Gtk::Widget*);
     bool check_targets(const std::vector<std::string>& tgts1, const std::vector<std::string>& tgts2);

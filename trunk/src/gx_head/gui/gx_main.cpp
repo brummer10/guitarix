@@ -267,11 +267,7 @@ void ErrorPopup::on_response(int) {
 void ErrorPopup::show_msg() {
     dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
     dialog->set_keep_above(true);
-    //Gtk::VBox *ma = dialog->get_message_area(); // not in Gtkmm 0.20
-    //FIXME: no comment :-)
-    Gtk::VBox *ma = dynamic_cast<Gtk::VBox*>(
-	*(++dynamic_cast<Gtk::HBox*>(
-	      *dialog->get_vbox()->get_children().begin())->get_children().begin()));
+    Gtk::Box *ma = dialog->get_message_area();
     // add an alignment parent to the label widget inside the message area
     // should better define our own dialog instead of hacking MessageDialog...
     Gtk::Alignment *align = new Gtk::Alignment();
@@ -279,10 +275,10 @@ void ErrorPopup::show_msg() {
     dynamic_cast<Gtk::Label*>(*ma->get_children().begin())->reparent(*align);
     ma->pack_start(*manage(align));
     align->set_padding(50,20,0,10);
-    Gtk::VBox *vbox = dynamic_cast<Gtk::VBox *>(dialog->get_child());
+    Gtk::Box *vbox = dialog->get_content_area();
     vbox->set_redraw_on_allocate(true);
-    g_signal_connect(GTK_WIDGET(vbox->gobj()), "expose-event",
-                     G_CALLBACK(gx_cairo::error_box_expose), NULL);
+    g_signal_connect(GTK_WIDGET(vbox->gobj()), "draw",
+                     G_CALLBACK(gx_cairo::error_box_draw), NULL);
    // vbox->signal_expose_event().connect(
 	//sigc::group(&gx_cairo::error_box_expose,GTK_WIDGET(vbox->gobj()),sigc::_1,(void*)0),false);
     dialog->set_title(_("GUITARIX ERROR"));
@@ -309,8 +305,8 @@ GxSplashBox::GxSplashBox()
     : Gtk::Window(Gtk::WINDOW_POPUP) {
     set_redraw_on_allocate(true);
     set_app_paintable();
-    g_signal_connect(GTK_WIDGET(gobj()), "expose-event",
-                     G_CALLBACK(gx_cairo::splash_expose), NULL);
+    g_signal_connect(GTK_WIDGET(gobj()), "draw",
+                     G_CALLBACK(gx_cairo::splash_draw), NULL);
     //signal_expose_event().connect(
     //    sigc::group(&gx_cairo::splash_expose, GTK_WIDGET(gobj()),
 	//	    sigc::_1, (void*)0), false);

@@ -299,11 +299,11 @@ public:
 };
 
 unsigned int TubeKeys::keysep[] = {
-    GDK_a, GDK_b, GDK_c, GDK_d, GDK_e, 0,
-    GDK_f, 0,
-    GDK_g, GDK_h, GDK_i, GDK_j, 0,
-    GDK_k, GDK_l, GDK_m, GDK_n, 0,
-    GDK_o, GDK_p, GDK_q, GDK_r
+    GDK_KEY_a, GDK_KEY_b, GDK_KEY_c, GDK_KEY_d, GDK_KEY_e, 0,
+    GDK_KEY_f, 0,
+    GDK_KEY_g, GDK_KEY_h, GDK_KEY_i, GDK_KEY_j, 0,
+    GDK_KEY_k, GDK_KEY_l, GDK_KEY_m, GDK_KEY_n, 0,
+    GDK_KEY_o, GDK_KEY_p, GDK_KEY_q, GDK_KEY_r
 };
 
 inline int TubeKeys::operator()() {
@@ -526,22 +526,26 @@ void MainWindow::maybe_shrink_horizontally(bool preset_no_rack) {
     if (state & (Gdk::WINDOW_STATE_MAXIMIZED | Gdk::WINDOW_STATE_FULLSCREEN)) {
 	return;
     }
-    Gtk::Requisition req;
-    window->size_request(req);
+    gint req_min_w, req_min_h;
+    gint req_w, req_h;
+    window->get_preferred_width(req_min_w, req_w);
+    window->get_preferred_height(req_min_h, req_h);
     int x, y;
     window->get_position(x, y);
     Gdk::Geometry geom;
-    geom.min_width = req.width;
-    geom.min_height = req.height;
+    geom.min_width = req_min_w;
+    geom.min_height = req_min_h;
     w->set_geometry_hints(geom, Gdk::HINT_MIN_SIZE);
     if (preset_no_rack) {
-	req.height += options.preset_window_height - preset_scrolledbox->size_request().height;
+	int min_height, natural_height;
+	preset_scrolledbox->get_preferred_height(min_height, natural_height);
+	req_h += options.preset_window_height - min_height;
     } else {
-	req.height = std::max(req.height, options.window_height);
+	req_h = std::max(req_h, options.window_height);
     }
-    w->move_resize(x, y, req.width, req.height);
+    w->move_resize(x, y, req_w, req_h);
     if (!state) {
-	freezer.freeze_until_width_update(window, req.width);
+	freezer.freeze_until_width_update(window, req_w);
     }
 }
 
@@ -725,8 +729,7 @@ void MainWindow::maybe_change_resizable() {
 }
 
 void MainWindow::set_vpaned_handle() {
-    int w, h;
-    main_vpaned->get_handle_window()->get_size(w, h);
+    int h = main_vpaned->get_handle_window()->get_height();
     int pos = main_vpaned->get_allocation().get_height() - options.preset_window_height - h;
     main_vpaned->set_position(pos);
 }
@@ -758,7 +761,9 @@ void MainWindow::on_show_rack() {
     if (pool_act) {
 	    actions.show_plugin_bar->set_active(true);
     }
-	options.window_height = max(options.window_height, window->size_request().height);
+	int min_height, natural_height;
+	window->get_preferred_height(min_height, natural_height);
+	options.window_height = max(options.window_height, min_height);
 	main_vpaned->set_position(oldpos);
 	w->show();
 	monoampcontainer->show();
@@ -774,10 +779,12 @@ void MainWindow::on_show_rack() {
 	}
 	Glib::RefPtr<Gdk::Window> win = window->get_window();
 	if (!win || win->get_state() == 0) {
-	    Gtk::Requisition req;
-	    window->size_request(req);
-	    req.height = max(req.height, options.window_height);
-	    freezer.freeze_and_size_request(window, req.width, req.height);
+	    int min_width, natural_width;
+	    int min_height, natural_height;
+	    window->get_preferred_width(min_width, natural_width);
+	    window->get_preferred_height(min_height, natural_height);
+	    min_height = max(min_height, options.window_height);
+	    freezer.freeze_and_size_request(window, min_width, min_height);
 	    if (win && actions.presets->get_active()) {
 		freezer.set_slot(sigc::mem_fun(this, &MainWindow::set_vpaned_handle));
 	    }
@@ -839,8 +846,8 @@ void MainWindow::on_rack_configuration() {
     actions.compress->set_sensitive(!v);
     actions.expand->set_sensitive(!v);
     actions.live_play->set_sensitive(!v);
-    Gtk::Requisition req;
-    monobox->size_request(req);
+    int min_width, natural_width;
+    monobox->get_preferred_width(min_width, natural_width);;
     stereorackcontainer.set_config_mode(v);
     monorackcontainer.set_config_mode(v);
     szg_rack_units->set_ignore_hidden(v);
@@ -853,20 +860,20 @@ void MainWindow::on_rack_configuration() {
     actions.show_rack->set_active(true);
 	effects_frame_paintbox->show();
 	upper_rackbox->hide();
-	Gtk::Requisition req2;
-	effects_frame_paintbox->size_request(req2);
-	int width = req.width;
+	int min_width2, natural_width2;
+	effects_frame_paintbox->get_preferred_width(min_width2, natural_width2);
+	int width = min_width;
 	if (!plugin_bar) {
 	    if (rackbox_stacked_vertical()) {
-		width -= req2.width;
+		width -= min_width2;
 	    } else {
-		if (req2.width & 1) {
-		    req2.width += 1;
+		if (min_width2 & 1) {
+		    min_width2 += 1;
 		}
-		width -= req2.width/2;
+		width -= min_width2 / 2;
 	    }
 	}
-	effects_frame_paintbox->set_size_request(req2.width, -1);
+	effects_frame_paintbox->set_size_request(min_width2, -1);
 	monobox->set_size_request(width,-1);
     } else {
 	if (!plugin_bar) {
@@ -1031,9 +1038,11 @@ void MainWindow::on_preset_action() {
     if (v && !actions.show_rack->get_active()) {
 	Glib::RefPtr<Gdk::Window> win = window->get_window();
 	if (!win || win->get_state() == 0) {
-	    Gtk::Requisition req;
-	    window->size_request(req);
-	    freezer.freeze_and_size_request(window, req.width, req.height+options.preset_window_height);
+	    int min_width, natural_width;
+	    int min_height, natural_height;
+	    window->get_preferred_width(min_width, natural_width);
+	    window->get_preferred_height(min_height, natural_height);
+	    freezer.freeze_and_size_request(window, min_width, min_height+options.preset_window_height);
 	}
     }
     preset_box_no_rack->set_visible(v);
@@ -1052,7 +1061,7 @@ bool MainWindow::on_my_leave_out(GdkEventCrossing *focus) {
 
 bool MainWindow::on_my_enter_in(GdkEventCrossing *focus) {
     Glib::RefPtr<Gdk::Window> wind = window->get_window();
-    Gdk::Cursor cursor(Gdk::HAND1);
+    Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(Gdk::HAND1));
     wind->set_cursor(cursor);
     return true;
 }
@@ -1111,7 +1120,7 @@ void MainWindow::on_ti_drag_end(const Glib::RefPtr<Gdk::DragContext>& context) {
 }
 
 void MainWindow::on_ti_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp, const char *effect_id) {
-    selection.set(*context->get_targets().begin(), effect_id);
+    selection.set(*context->list_targets().begin(), effect_id);
 }
 
 void MainWindow::hide_effect(const std::string& name) {
@@ -1240,19 +1249,19 @@ int MainWindow::gx_wait_latency_warn() {
 	  "MAY CAUSE UNPREDICTABLE EFFECTS \n"
 	  "TO OTHER RUNNING JACK APPLICATIONS. \n"
 	  "DO YOU WANT TO PROCEED ?"));
-    Gdk::Color colorGreen("#969292");
-    labelt1.modify_fg(Gtk::STATE_NORMAL, colorGreen);
-    Pango::FontDescription font = labelt1.get_style()->get_font();
+    Gdk::RGBA colorGreen("#969292");
+    labelt1.override_color(colorGreen, Gtk::STATE_FLAG_NORMAL);
+    Pango::FontDescription font = labelt1.get_style_context()->get_font();
     font.set_size(10*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
-    labelt1.modify_font(font);
+    labelt1.override_font(font);
 
-    Gdk::Color colorWhite("#ffffff");
-    labelt.modify_fg(Gtk::STATE_NORMAL, colorWhite);
-    font = labelt.get_style()->get_font();
+    Gdk::RGBA colorWhite("#ffffff");
+    labelt.override_color(colorWhite, Gtk::STATE_FLAG_NORMAL);
+    font = labelt.get_style_context()->get_font();
     font.set_size(14*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
-    labelt.modify_font(font);
+    labelt.override_font(font);
 
     warn_dialog.add_button(_("Yes"), kChangeLatency);
     warn_dialog.add_button(_("No"),  kKeepLatency);
@@ -1278,12 +1287,12 @@ int MainWindow::gx_wait_latency_warn() {
     box1.add(labelt2);
     warn_dialog.get_vbox()->add(box);
 
-    labelt2.modify_fg(Gtk::STATE_NORMAL, colorWhite);
+    labelt2.override_color(colorWhite, Gtk::STATE_FLAG_NORMAL);
 
-    font = labelt2.get_style()->get_font();
+    font = labelt2.get_style_context()->get_font();
     font.set_size(8*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_NORMAL);
-    labelt2.modify_font(font);
+    labelt2.override_font(font);
 
     box.show_all();
 
@@ -1851,9 +1860,9 @@ void MainWindow::make_icons(bool force) {
     Gtk::OffscreenWindow w;
     w.set_type_hint(Gdk::WINDOW_TYPE_HINT_DOCK); // circumvent canberra-gtk-module bug on AV Linux
     Glib::RefPtr<Gdk::Screen> screen = w.get_screen();
-    Glib::RefPtr<Gdk::Colormap> rgba = screen->get_rgba_colormap();
+    Glib::RefPtr<Gdk::Visual> rgba = screen->get_rgba_visual();
     if (rgba) {
-        w.set_colormap(rgba);
+        gtk_widget_set_visual(GTK_WIDGET(w.gobj()), rgba->gobj());
     }
     Gtk::VBox vb;
     w.add(vb);
@@ -1872,7 +1881,9 @@ void MainWindow::make_icons(bool force) {
     }
     //FIXME hack to set a minimum size
     l.begin()->second->show();
-    if (vb.size_request().width < 110) {
+    int min_width, natural_width;
+    vb.get_preferred_width(min_width, natural_width);
+    if (min_width < 110) {
 	vb.set_size_request(110, -1);
     }
     w.show_all();

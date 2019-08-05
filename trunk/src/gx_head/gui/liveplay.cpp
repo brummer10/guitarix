@@ -186,7 +186,7 @@ void Liveplay::set_display_state(TunerSwitcher::SwitcherState newstate) {
 bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *acceleratable,
 				       guint keyval, GdkModifierType modifier, Liveplay& self) {
     if (keyval == GDK_KEY_Left || keyval == GDK_KEY_Right) {
-	Gtk::Adjustment *a = self.brightness_slider->get_adjustment();
+	Glib::RefPtr<Gtk::Adjustment> a = self.brightness_slider->get_adjustment();
 	double val = a->get_value();
 	double step = a->get_step_increment();
 	if (keyval == GDK_KEY_Left) {
@@ -196,7 +196,7 @@ bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *accelerat
 	}
 	a->set_value(val);
     } else {
-	Gtk::Adjustment *a = self.background_slider->get_adjustment();
+	Glib::RefPtr<Gtk::Adjustment> a = self.background_slider->get_adjustment();
 	double val = a->get_value();
 	double step = a->get_step_increment();
 	if (keyval == GDK_KEY_Down) {
@@ -211,23 +211,20 @@ bool Liveplay::on_keyboard_arrows(GtkAccelGroup *accel_group, GObject *accelerat
 
 class MyPaintBox: public Gxw::PaintBox {
 private:
-    Gtk::Adjustment *background_adj;
-    MyPaintBox(BaseObjectType* cobject, Gtk::Adjustment *background_adj_)
+    Glib::RefPtr<Gtk::Adjustment> background_adj;
+    MyPaintBox(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Adjustment> &background_adj_)
 	: Gxw::PaintBox(cobject), background_adj(background_adj_) {}
 public:
-    static MyPaintBox *create_from_builder(BaseObjectType* cobject, Gtk::Adjustment *background_adj) {
+    static MyPaintBox *create_from_builder(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Adjustment>& background_adj) {
 	return new MyPaintBox(cobject, background_adj); }
-    virtual bool on_expose_event(GdkEventExpose *event);
+    virtual bool on_draw(const Cairo::RefPtr<Cairo::Context> &cr);
 };
 
-bool MyPaintBox::on_expose_event(GdkEventExpose *event) {
-    call_paint_func(event);
-    Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
-    gdk_cairo_region(cr->cobj(), event->region);
-    cr->clip();
+bool MyPaintBox::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
+    call_paint_func(cr->cobj());
     cr->set_source_rgba(0.0, 0.0, 0.0, 1-background_adj->get_value());
     cr->paint();
-    foreach(sigc::bind(sigc::mem_fun(this, &MyPaintBox::propagate_expose), event));
+    foreach(sigc::bind(sigc::mem_fun(this, &MyPaintBox::propagate_draw), cr));
     return true;
 }
 
@@ -295,16 +292,16 @@ Liveplay::Liveplay(
     if (use_composite) {
 	brightness_adj->signal_value_changed().connect(sigc::mem_fun(this, &Liveplay::on_brightness_changed));
 	liveplay_canvas->signal_realize().connect(sigc::mem_fun(this, &Liveplay::on_realize));
-	window->signal_expose_event().connect(
-	    sigc::mem_fun(this, &Liveplay::window_expose_event), true);
+	window->signal_draw().connect(
+	    sigc::mem_fun(this, &Liveplay::window_draw), true);
     } else {
 	brightness_box->hide();
     }
     background_adj->signal_value_changed().connect(
 	sigc::mem_fun(this, &Liveplay::on_background_changed));
     Glib::RefPtr<Gdk::Screen> screen = liveplay_canvas->get_screen();
-    Glib::RefPtr<Gdk::Colormap> rgba = screen->get_rgba_colormap();
-    liveplay_canvas->set_colormap(rgba);
+    Glib::RefPtr<Gdk::Visual> rgba = screen->get_rgba_visual();
+    gtk_widget_set_visual(liveplay_canvas->gobj(), rgba->gobj());
     liveplay_canvas->set_app_paintable(true);
     window->signal_delete_event().connect(
 	sigc::mem_fun(this, &Liveplay::on_delete));
@@ -391,7 +388,7 @@ bool Liveplay::pointer_motion(GdkEventMotion* event) {
 	sigc::bind_return(
 	    sigc::bind(
 		sigc::mem_fun1(window->get_window().operator->(), &Gdk::Window::set_cursor),
-		Gdk::Cursor(Gdk::BLANK_CURSOR)),
+		Gdk::Cursor::create(Gdk::BLANK_CURSOR)),
 	    false),
 	5);
     return false;
@@ -440,18 +437,11 @@ void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
     actions.livetuner->toggled();
 }
 
-bool Liveplay::window_expose_event(GdkEventExpose *event) {
-    Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
-    Gtk::Allocation a = liveplay_canvas->get_allocation();
-    Gdk::Region region(a);
-    region.intersect(Glib::wrap(event->region, true));
-    Gdk::Cairo::add_region_to_path(cr, region);
-    cr->clip();
+bool Liveplay::window_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
     cr->set_operator(Cairo::OPERATOR_SOURCE);
     cr->set_source_rgb(0,0,0);
     cr->paint();
-    //gdk_cairo_set_source_window(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y()); gtk 2.24
-    gdk_cairo_set_source_pixmap(cr->cobj(), liveplay_canvas->get_window()->gobj(), a.get_x(), a.get_y());
+    gdk_cairo_set_source_window(cr->cobj(), liveplay_canvas->get_window()->gobj(), 0, 0);
     cr->paint_with_alpha(pow(brightness_adj->get_value(),2.2));
     return false;
 }
@@ -517,7 +507,12 @@ void Liveplay::add_midi_elements() {
     int top = 0;
     int top_max = 4;
     int left_max = 3;
-    Gtk::Table::TableList& tl = midictrl_table->children();
+    auto tl = midictrl_table->get_children();
+    for (auto iter = tl.begin(); iter != tl.end(); iter++) {
+        if (*iter) {
+            midictrl_table->remove(**iter);
+        }
+    }
     tl.erase(tl.begin(), tl.end());
     for (int i = 0; i < machine.midi_size(); i++) {
         gx_engine::midi_controller_list& cl = machine.midi_get(i);

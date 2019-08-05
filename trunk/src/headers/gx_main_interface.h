@@ -54,6 +54,7 @@
 #include <gtkmm/checkmenuitem.h>
 #include <gtkmm/radiomenuitem.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/widgetpath.h>
 
 #include <iostream>
 #include <map>
@@ -222,9 +223,9 @@ UiSelectorWithCaption<T>::~UiSelectorWithCaption() {
 struct uiAdjustment: public uiElement {
     gx_engine::GxMachineBase& machine;
     const std::string id;
-    Gtk::Adjustment* fAdj;
+    Glib::RefPtr<Gtk::Adjustment> fAdj;
     bool blocked;
-    uiAdjustment(gx_engine::GxMachineBase& machine_, const std::string& id_, Gtk::Adjustment* adj)
+    uiAdjustment(gx_engine::GxMachineBase& machine_, const std::string& id_, const Glib::RefPtr<Gtk::Adjustment>& adj)
 	: uiElement(), machine(machine_), id(id_), fAdj(adj), blocked(false) {
 	fAdj->set_value(machine.get_parameter_value<float>(id));
 	machine.signal_parameter_value<float>(id).connect(sigc::mem_fun(this, &uiAdjustment::on_parameter_changed));
@@ -261,10 +262,9 @@ std::string fformat(float value, float step);
 // debug_check
 inline void check_id(Gtk::Widget *w, const std::string& id, gx_engine::GxMachineBase& machine) {
     if (!machine.parameter_hasId(id)) {
-	Glib::ustring pt, ptr;
-	w->path(pt, ptr);
+        Gtk::WidgetPath pt = w->get_path();
         cerr << "id '" << id << "' not found in definition of widget: "
-             << pt << endl;
+             << pt.to_string() << endl;
         assert(false);
     }
     //gx_engine::parameter_map[zone].setUsed();

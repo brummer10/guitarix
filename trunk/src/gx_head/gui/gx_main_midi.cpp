@@ -161,7 +161,7 @@ MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Gli
     gx_engine::BoolParameter& p = machine.get_parameter("system.midi_in_preset").getBool();
     gtk_toggle_button_set_active(togglebutton, p.get_value());
     machine.signal_parameter_value<bool>("system.midi_in_preset").connect(sigc::mem_fun(*this, &MidiControllerTable::set));
-    g_signal_connect(GTK_OBJECT(togglebutton), "toggled",
+    g_signal_connect(G_OBJECT(togglebutton), "toggled",
                      G_CALLBACK(toggleButtonSetSwitch), (gpointer)&p);
     //g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
                      //G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
