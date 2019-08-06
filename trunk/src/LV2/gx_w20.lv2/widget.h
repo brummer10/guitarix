@@ -54,7 +54,7 @@ private:
   void make_image(Gtk::Box *box,Glib::ustring label, bool start );
 
   void make_label(Gtk::Box *box,Glib::ustring label, bool start  ) ;
-  bool _expose_event(GdkEventExpose *event);
+  bool _draw(const Cairo::RefPtr<Cairo::Context> &cr);
 
   void set_value(uint32_t port_index,
                  uint32_t format,

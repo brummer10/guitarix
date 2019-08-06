@@ -162,7 +162,7 @@ plug_name(plugname)
 	//Change font little bit
 	Pango::FontDescription fdsc("Arial");
 	fdsc.set_size(8000);
-	m_label[i].modify_font(fdsc);
+	m_label[i].override_font(fdsc);
 	m_vbox[i].add(m_label[i]);
     m_vbox[i].add(m_hbox[i]);
     m_hbox[24].pack_start(m_vbox[i],Gtk::PACK_SHRINK);

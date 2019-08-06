@@ -38,7 +38,7 @@ private:
                            float min, float max,
                            float digits, float value,
                            Glib::ustring plug_name);
-  bool _expose_event(GdkEventExpose *event);
+  bool _draw(const Cairo::RefPtr<Cairo::Context> &cr);
   void set_value(uint32_t port_index,
                  uint32_t format,
                  const void * buffer);

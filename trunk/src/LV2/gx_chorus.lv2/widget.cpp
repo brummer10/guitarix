@@ -66,10 +66,10 @@ logo("Stereo Chorus")
   m_paintbox.property_paint_func() = "gx_rack_unit_expose";
   add(m_paintbox);
   // modify logo layout
-  Pango::FontDescription font_desc = logo.get_style()->get_font();
+  Pango::FontDescription font_desc = logo.get_style_context()->get_font();
   font_desc.set_size(int(14*Pango::SCALE));
   font_desc.set_weight(Pango::WEIGHT_BOLD);
-  logo.modify_font(font_desc);
+  logo.override_font(font_desc);
   // box for the controllers
   m_hbox_.set_spacing(64);
   m_hbox_.set_border_width(5);
@@ -96,8 +96,8 @@ logo("Stereo Chorus")
   m_hbox_.pack_start(m_vbox1,Gtk::PACK_EXPAND_PADDING);
   
   // connect expose handler as resize handler
-  m_paintbox.signal_expose_event().connect(
-    sigc::mem_fun(this, &Widget::_expose_event), true);
+  m_paintbox.signal_draw().connect(
+    sigc::mem_fun(this, &Widget::_draw), true);
 
   set_app_paintable(true);
   show_all();
@@ -110,10 +110,10 @@ Widget::~Widget()
 
 // set borderwith for paintbox when widget resize
 // to hold controllers in place
-bool Widget::_expose_event(GdkEventExpose *event)
+bool Widget::_draw(const Cairo::RefPtr<Cairo::Context> &)
 {
-  int x, y, width, height, depth;
-  m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
+  int x, y, width, height;
+  m_paintbox.get_window()->get_geometry(x, y, width, height);
   //double_t height = m_paintbox.get_window()->get_height();
   m_paintbox.set_border_width(height/10);
   return false;

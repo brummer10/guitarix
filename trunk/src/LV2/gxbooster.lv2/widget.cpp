@@ -56,8 +56,8 @@ Widget::Widget(Glib::ustring plug_name)
   
 
   // connect expose handler as resize handler
-  m_paintbox.signal_expose_event().connect(
-    sigc::mem_fun(this, &Widget::_expose_event), true);
+  m_paintbox.signal_draw().connect(
+    sigc::mem_fun(this, &Widget::_draw), true);
 
   set_app_paintable(true);
   show_all();
@@ -96,10 +96,10 @@ void Widget::make_controller_box(Gtk::VBox *box,
 }
 // set borderwith for paintbox when widget resize
 // to hold controllers in place
-bool Widget::_expose_event(GdkEventExpose *event)
+bool Widget::_draw(const Cairo::RefPtr<Cairo::Context> &)
 {
-  int x, y, width, height, depth;
-  m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
+  int x, y, width, height;
+  m_paintbox.get_window()->get_geometry(x, y, width, height);
   //double_t height = m_paintbox.get_window()->get_height();
   m_paintbox.set_border_width(height/20);
   return false;

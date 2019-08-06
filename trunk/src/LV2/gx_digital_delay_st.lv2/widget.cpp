@@ -106,10 +106,10 @@ logo("Digital Stereo Delay")
   m_vbox[10].set_border_width(7);
   m_paintbox.pack_start(m_vbox[9]);
   // modify logo layout
-  Pango::FontDescription font_desc = logo.get_style()->get_font();
+  Pango::FontDescription font_desc = logo.get_style_context()->get_font();
   font_desc.set_size(int(14*Pango::SCALE));
   font_desc.set_weight(Pango::WEIGHT_BOLD);
-  logo.modify_font(font_desc);
+  logo.override_font(font_desc);
   m_hbox1_.set_spacing(64);
   logo.set_name("amplabel");
   m_vbox[9].pack_start(m_hbox1_, Gtk::PACK_SHRINK);
@@ -130,8 +130,8 @@ logo("Digital Stereo Delay")
   m_hbox.pack_start(m_vbox[8], Gtk::PACK_EXPAND_PADDING);
 
   // connect expose handler as resize handler
-  // m_paintbox.signal_expose_event().connect(
-  //    sigc::mem_fun(this, &Widget::_expose_event), true);
+  // m_paintbox.signal_draw().connect(
+  //    sigc::mem_fun(this, &Widget::_draw), true);
 
   set_app_paintable(true);
   show_all();
@@ -144,10 +144,10 @@ Widget::~Widget()
 
 // set borderwith for paintbox when widget resize
 // to hold controllers in place
-bool Widget::_expose_event(GdkEventExpose *event)
+bool Widget::_draw(const Cairo::RefPtr<Cairo::Context> &cr)
 {
-  int x, y, width, height, depth;
-  m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
+  int x, y, width, height;
+  m_paintbox.get_window()->get_geometry(x, y, width, height);
   //double_t height = m_paintbox.get_window()->get_height();
   m_paintbox.set_border_width(height/10);
   return false;

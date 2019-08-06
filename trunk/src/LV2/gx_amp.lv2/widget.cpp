@@ -169,8 +169,8 @@ m_paintbox(Gtk::ORIENTATION_HORIZONTAL)
   m_hbox_.pack_start(m_vboxtonestack);
 
   // connect expose handler as resize handler
- //  m_paintbox.signal_expose_event().connect(
-  //   sigc::mem_fun(this, &Widget::_expose_event), true);
+ //  m_paintbox.signal_draw().connect(
+  //   sigc::mem_fun(this, &Widget::_draw), true);
 
   show_all();
 }
@@ -182,10 +182,10 @@ Widget::~Widget()
 
 // set borderwith for paintbox when widget resize
 // to hold controllers in place
-bool Widget::_expose_event(GdkEventExpose *event)
+bool Widget::_draw(const Cairo::RefPtr<Cairo::Context> &)
 {
-  int x, y, width, height, depth;
-  m_paintbox.get_window()->get_geometry(x, y, width, height, depth);
+  int x, y, width, height;
+  m_paintbox.get_window()->get_geometry(x, y, width, height);
   //double_t height = m_paintbox.get_window()->get_height();
   m_paintbox.set_border_width(height/10);
   return false;
