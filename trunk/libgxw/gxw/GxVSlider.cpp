@@ -53,7 +53,7 @@ static void gx_vslider_class_init(GxVSliderClass *klass)
                  widget_class,
                  g_param_spec_int("slider-width",P_("size of slider"),
                                   P_("Height of movable part of vslider"),
-                                  0, 100, 20, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+                                  0, 100, 37, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 }
 
 static void gx_vslider_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
@@ -103,15 +103,15 @@ static gboolean gx_vslider_draw(GtkWidget *widget, cairo_t *cr)
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->height - slider->slider_height);
 	_gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect);
     if (gtk_widget_has_focus(widget)) {
-        gtk_paint_focus(gtk_widget_get_style(widget), cr, GTK_STATE_NORMAL, widget, NULL,
-                        x, y, slider->width, slider->height);
+        gtk_render_focus(gtk_widget_get_style_context(widget), cr,
+                         x, y, slider->width, slider->height);
     }
     // background
     gdk_cairo_set_source_pixbuf (cr, slider->image, x, y);
     cairo_rectangle(cr, x, y, slider->width, slider->height);
 	cairo_fill(cr);
     //slider
-    int sy = gtk_widget_get_state(widget) ? slider->slider_height : 0;
+    int sy = (gtk_widget_get_state_flags(widget) & GTK_STATE_FLAG_PRELIGHT) ? slider->slider_height : 0;
     gdk_cairo_set_source_pixbuf (cr, slider->image, x, y - slider->height + ((slider->height - slider->slider_height) - slstate) - sy);
     cairo_rectangle(cr, x, y + ((slider->height - slider->slider_height) - slstate), slider->width, slider->slider_height);
     cairo_fill(cr);
@@ -121,8 +121,9 @@ static gboolean gx_vslider_draw(GtkWidget *widget, cairo_t *cr)
 
 static gboolean gx_vslider_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
-    if (gtk_widget_get_state(widget) == GTK_STATE_NORMAL)
-        gtk_widget_set_state(widget, GTK_STATE_PRELIGHT);
+    GtkStateFlags flags = gtk_widget_get_state_flags(widget);
+    if (!(flags & GTK_STATE_FLAG_PRELIGHT))
+        gtk_widget_set_state_flags(widget, GTK_STATE_FLAG_PRELIGHT, FALSE);
     GX_VSLIDER(widget)->hover = 1;
     gx_vslider_set_pointer(widget, NULL);
 	return TRUE;
@@ -130,8 +131,10 @@ static gboolean gx_vslider_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 
 static gboolean gx_vslider_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
-    if (gtk_widget_get_state(widget) == GTK_STATE_PRELIGHT)
-        gtk_widget_set_state(widget, GTK_STATE_NORMAL);
+    GtkStateFlags flags = gtk_widget_get_state_flags(widget);
+    if (flags & GTK_STATE_FLAG_PRELIGHT) {
+        gtk_widget_set_state_flags(widget, GtkStateFlags(flags & ~GTK_STATE_FLAG_PRELIGHT), FALSE);
+    }
     GX_VSLIDER(widget)->hover = 0;
     gx_vslider_set_pointer(widget, NULL);
 	return TRUE;
@@ -191,7 +194,7 @@ static gboolean gx_vslider_button_press (GtkWidget *widget, GdkEventButton *even
 	gtk_widget_grab_focus(widget);
 	if (slider_set_from_pointer(widget, event->state, event->x, event->y, FALSE, event->button, event)) {
 		gtk_grab_add(widget);
-        gtk_widget_set_state(widget, GTK_STATE_ACTIVE);
+        gtk_widget_set_state_flags(widget, GTK_STATE_FLAG_ACTIVE, FALSE);
         gx_vslider_set_pointer(widget, NULL);
 	}
 	return FALSE;
@@ -204,8 +207,13 @@ static gboolean gx_vslider_button_release (GtkWidget *widget, GdkEventButton *ev
 		return FALSE;
 	}
     gtk_grab_remove(widget);
-    gtk_widget_set_state(widget, GX_VSLIDER(widget)->hover ? GTK_STATE_PRELIGHT : GTK_STATE_NORMAL);
-        return TRUE;
+    if (GX_VSLIDER(widget)->hover) {
+        gtk_widget_set_state_flags(widget, GTK_STATE_FLAG_PRELIGHT, FALSE);
+    } else {
+        GtkStateFlags flags = gtk_widget_get_state_flags(widget);
+        gtk_widget_set_state_flags(widget, GtkStateFlags(flags & ~GTK_STATE_FLAG_PRELIGHT), FALSE);
+    }
+    return TRUE;
 }
 
 static gboolean gx_vslider_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
@@ -233,7 +241,7 @@ static void gx_vslider_set_pointer (GtkWidget *widget, GdkEventMotion *event)
     GdkCursor *cur = gdk_cursor_new(GDK_HAND2);
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->height - slider->slider_height);
     slstate = ((slider->height - slider->slider_height) - slstate);
-    if (gtk_widget_get_state(widget) == GTK_STATE_ACTIVE
+    if (gtk_widget_get_state_flags(widget) & GTK_STATE_FLAG_ACTIVE
     or (event and event->y > slstate and event->y < slstate + slider->slider_height))
         gdk_window_set_cursor(GDK_WINDOW(gtk_widget_get_window(widget)), cur);
     else

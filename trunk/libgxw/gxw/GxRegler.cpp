@@ -942,20 +942,16 @@ static gchar* _gx_regler_format_value(GxRegler *regler, gdouble value)
 }
 
 
-inline double cairo_clr(guint16 clr)
-{
-	return clr / 65535.0;
-}
-
 // set cairo color related to the used skin
 static void set_value_color(GtkWidget *wi, cairo_t *cr)
 {
 	GxGradient *grad;
 	gtk_widget_style_get(wi, "value-color", &grad, NULL);
 	if (!grad) {
-		GdkColor *p2 = &gtk_widget_get_style(wi)->fg[GTK_STATE_NORMAL];
-		cairo_set_source_rgba(cr,cairo_clr(p2->red),
-			cairo_clr(p2->green), cairo_clr(p2->blue), 0.8);
+		GdkRGBA p2;
+		GtkStyleContext *sc = gtk_widget_get_style_context(wi);
+		gtk_style_context_get_color(sc, GTK_STATE_FLAG_NORMAL, &p2);
+		cairo_set_source_rgba(cr, p2.red, p2.green, p2.blue, 0.8);
 		return;
 	}
 	GxGradientElement *el = (GxGradientElement*)grad->colors->data;
@@ -999,9 +995,9 @@ void _gx_regler_simple_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle
     pango_layout_set_text(l, txt, -1);
     g_free (txt);
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
-    gtk_paint_layout(gtk_widget_get_style(widget), cr, gtk_widget_get_state(widget),
-                     FALSE, widget, "label", rect->x+(rect->width - logical_rect.width)/2,
-                     rect->y, regler->priv->value_layout);
+    gtk_render_layout(gtk_widget_get_style_context(widget), cr,
+                      rect->x + (rect->width - logical_rect.width) / 2,
+                      rect->y, regler->priv->value_layout);
 }
 
 void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
