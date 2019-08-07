@@ -1021,10 +1021,11 @@ void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
 	double h  = rect->height;// - 2 * frm;
 	gint border_width = 2;
     gint rad;
+    GtkStyleContext *sc = gtk_widget_get_style_context(widget);
     gtk_widget_style_get(widget, "border-radius", &rad, NULL);
-    
+
     gx_draw_inset(cr, x0, y0, w, h, rad, 2);
-    gx_draw_rect(cr, widget, "base", NULL, x0, y0, w, h, rad, 0);
+    gtk_render_background(sc, cr, x0, y0, w, h);
     gx_draw_glass(cr, x0, y0, w, h, rad);
 
 	gchar *txt;
@@ -1181,7 +1182,8 @@ static gboolean map_check(
 	GtkWidget *dialog = GTK_WIDGET(widget);
 	GdkWindow *window = gtk_widget_get_window(dialog);
 	int rc;
-	GdkCursor *c = gdk_cursor_new(GDK_RIGHT_PTR);
+	GdkDisplay *disp = gdk_display_get_default();
+	GdkCursor *c = gdk_cursor_new_for_display(disp, GDK_RIGHT_PTR);
 	rc = gdk_pointer_grab(window, TRUE,
 	                      (GdkEventMask)(GDK_BUTTON_PRESS_MASK|
 	                                     GDK_BUTTON_MOTION_MASK),

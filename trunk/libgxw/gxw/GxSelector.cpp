@@ -139,21 +139,25 @@ static void gx_selector_get_positions(
 	gint min_height;
 	gtk_widget_get_allocation(widget, &allocation);
 	gtk_widget_get_preferred_height(widget, &min_height, nullptr);
-	GtkStyle *style = gtk_widget_get_style(widget);
+
+	GtkStyleContext *sc = gtk_widget_get_style_context(widget);
+	GtkBorder padding;
+	gtk_style_context_get_padding(sc, gtk_widget_get_state_flags(widget), &padding);
+
 	int width = allocation.width; // fill allocated width
 	int height = min_height;
-	int x = style->xthickness;
-	int y = style->ythickness + (allocation.height - height) / 2;
-	arrow->x = x + width - 2 * style->xthickness - iwidth;
-	arrow->y = y + selector_border.bottom - style->ythickness +
+	int x = padding.left;
+	int y = padding.top + (allocation.height - height) / 2;
+	arrow->x = x + width - 2 * padding.left - iwidth;
+	arrow->y = y + selector_border.bottom - padding.top +
 		(height - selector_border.bottom - selector_border.top - iheight) / 2;
 	arrow->width = iwidth;
 	arrow->height = iheight;
 	if (text) {
 		text->x = x;
 		text->y = y;
-		text->width = width - 3 * style->xthickness - iwidth;
-		text->height = height - 2 * style->ythickness;
+		text->width = width - (2 * padding.left + padding.right) - iwidth;
+		text->height = height - padding.top + padding.bottom;
 		*off_x = selector_border.left;
 		*off_y = selector_border.bottom;
 	}
@@ -162,7 +166,7 @@ static void gx_selector_get_positions(
 static void gx_selector_create_icon(GxSelector *selector) {
     if (selector->icon)
         return;
-    selector->icon = gtk_widget_render_icon(GTK_WIDGET(selector), "selector_icon", (GtkIconSize)-1, NULL);
+    selector->icon = gtk_widget_render_icon_pixbuf(GTK_WIDGET(selector), "selector_icon", (GtkIconSize)-1L);
     selector->icon_width = gdk_pixbuf_get_width(selector->icon);
     selector->icon_height = gdk_pixbuf_get_height(selector->icon);
 }
@@ -188,31 +192,26 @@ static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr)
     if (!bevel)
         bevel = 0;
 
+    GtkStyleContext *sc = gtk_widget_get_style_context(widget);
     GtkAllocation allocation;
     gint natural_height;
     gtk_widget_get_allocation(widget, &allocation);
     gtk_widget_get_preferred_height(widget, nullptr, &natural_height);
-    gx_draw_rect(cr, widget, "bg", NULL, 0,
-        (allocation.height - natural_height) / 2,
-        allocation.width,
-        natural_height,
-        rad,
-        bevel);
+    gtk_render_background(sc, cr,  0,
+                          (allocation.height - natural_height) / 2,
+                          allocation.width,
+                          natural_height);
 
-    GtkStyle* style = gtk_widget_get_style(widget);
-    if (style->ythickness >= 3)
+//    gtk_render_background(sc, cr, text.x, text.y, text.width, text.height);
+
+    GtkBorder padding;
+    gtk_style_context_get_padding(sc, gtk_widget_get_state_flags(widget), &padding);
+    if (padding.top >= 3)
         gx_draw_inset(cr, text.x, text.y, text.width, text.height,
-            std::max(rad - std::max(style->ythickness, style->ythickness), 0), 1);
-
-    gx_draw_rect(cr, widget, "base", NULL, text.x,
-        text.y,
-        text.width,
-        text.height,
-        std::max(rad - std::max(style->ythickness, style->ythickness), 0),
-        0);
+					  std::max(rad - std::max(padding.top, padding.left), 0), 1);
 
     gx_draw_glass(cr, text.x, text.y, text.width, text.height,
-        std::max(rad - std::max(style->ythickness, style->ythickness), 0));
+        std::max(rad - std::max(padding.top, padding.left), 0));
 
     gdk_cairo_set_source_pixbuf(cr, selector->icon, arrow.x, arrow.y);
     cairo_rectangle(cr, arrow.x, arrow.y, arrow.width, arrow.height);
@@ -229,9 +228,7 @@ static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr)
 		pango_layout_get_pixel_extents(layout, NULL, &logical);
 		x = text.x + (text.width - logical.width) / 2;
 		y = text.y + off_y + (priv->textsize.height - logical.height)/ 2;
-		gtk_paint_layout(style, cr,
-		                 gtk_widget_get_state(widget),
-		                 FALSE, widget, "label", x, y, layout);
+		gtk_render_layout(sc, cr, x, y, layout);
 		g_free(s);
 	}
 	g_object_unref(layout);

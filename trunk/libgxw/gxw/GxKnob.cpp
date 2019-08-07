@@ -165,13 +165,13 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
                                  "ring_width", &ring_width, "ring_led_size", &ring_led_size,
                                  "x_center", &x_center, "y_center", &y_center, NULL);
 	
+    GtkStyleContext *style = gtk_widget_get_style_context(widget);
     // foreground and background color
-    float r, g, b;
-    gx_get_fg_color(widget, NULL, &r, &g, &b);
-    float r_, g_, b_;
-    GtkStateType state = GTK_STATE_INSENSITIVE;
-    gx_get_fg_color(widget, &state, &r_, &g_, &b_);
-    
+    GdkRGBA color;
+    gtk_style_context_get_color(style, gtk_widget_get_state_flags(widget), &color);
+    GdkRGBA color_;
+    gtk_style_context_get_color(style, GTK_STATE_FLAG_INSENSITIVE, &color_);
+
     // auto values in style?
     gint minrad = min(image_rect->width, image_rect->height) / 2;
     if(x_center < 0)
@@ -200,7 +200,7 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
     
     // draw background
     if (scale_zero < 320 * (M_PI/180)) {
-        cairo_set_source_rgb(cr, r_, g_, b_);
+        gdk_cairo_set_source_rgba(cr, &color_);
         cairo_set_line_width(cr, ring_width);
         cairo_arc (cr, x_center + x0, y_center + y0, ring_radius,
             add_angle + scale_zero, add_angle + 320 * (M_PI/180));
@@ -209,7 +209,7 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
     
     // draw foreground
     if (scale_zero < angle) {
-        cairo_set_source_rgb(cr, r, g, b);
+        gdk_cairo_set_source_rgba(cr, &color);
         cairo_arc (cr, x_center + x0, y_center + y0, ring_radius,
             add_angle + scale_zero, add_angle + angle);
 
@@ -234,7 +234,7 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
     cairo_set_dash(cr, NULL, 0, 0);
     
     // draw indicator
-    cairo_set_source_rgb(cr,  r, g, b);
+    gdk_cairo_set_source_rgba(cr, &color);
     cairo_set_line_width(cr, ind_width);
     cairo_move_to(cr, x0 + x1 + x_center, y0 + y1 + y_center);
     cairo_line_to(cr, x0 + x2 + x_center, y0 + y2 + y_center);
@@ -270,8 +270,8 @@ void _gx_knob_expose(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_rect, g
 	}
 	else {
 		if (gtk_widget_has_focus(widget)) {
-			gtk_paint_focus(gtk_widget_get_style(widget), cr, GTK_STATE_NORMAL, widget, NULL,
-					image_rect->x, image_rect->y, image_rect->width, image_rect->height);
+			gtk_render_focus(gtk_widget_get_style_context(widget), cr,
+							 image_rect->x, image_rect->y, image_rect->width, image_rect->height);
 		}
 		cairo_surface_t *surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 
                                image_rect->width, image_rect->height);
@@ -317,7 +317,7 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	GdkRectangle image_rect, value_rect;
 	
 	GxKnob *knob = GX_KNOB(widget);
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, icon, GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, icon, GtkIconSize(-1));
 	GxKnobPrivate *priv = knob->priv;
 	
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
@@ -403,7 +403,7 @@ static gboolean gx_knob_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 		return TRUE;
 	}
 	GdkRectangle image_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
 	g_object_unref(pb);
 	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
@@ -426,7 +426,7 @@ static gboolean gx_knob_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 		return TRUE;
 	}
 	GdkRectangle image_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	gint fcount;
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
 	g_object_unref(pb);
@@ -472,7 +472,7 @@ static void gx_knob_get_preferred_height(GtkWidget *widget, gint *min_height, gi
 static void gx_knob_size_request (GtkWidget *widget, gint *width, gint *height)
 {
 	g_assert(GX_IS_KNOB(widget));
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	if (GDK_IS_PIXBUF (pb)) {
 		gint fcount;
 		GdkRectangle rect;
