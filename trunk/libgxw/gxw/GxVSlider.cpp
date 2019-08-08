@@ -133,7 +133,7 @@ static gboolean gx_vslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 {
     GtkStateFlags flags = gtk_widget_get_state_flags(widget);
     if (flags & GTK_STATE_FLAG_PRELIGHT) {
-        gtk_widget_set_state_flags(widget, GtkStateFlags(flags & ~GTK_STATE_FLAG_PRELIGHT), FALSE);
+        gtk_widget_unset_state_flags(widget, GTK_STATE_FLAG_PRELIGHT);
     }
     GX_VSLIDER(widget)->hover = 0;
     gx_vslider_set_pointer(widget, NULL);
@@ -210,8 +210,7 @@ static gboolean gx_vslider_button_release (GtkWidget *widget, GdkEventButton *ev
     if (GX_VSLIDER(widget)->hover) {
         gtk_widget_set_state_flags(widget, GTK_STATE_FLAG_PRELIGHT, FALSE);
     } else {
-        GtkStateFlags flags = gtk_widget_get_state_flags(widget);
-        gtk_widget_set_state_flags(widget, GtkStateFlags(flags & ~GTK_STATE_FLAG_PRELIGHT), FALSE);
+        gtk_widget_unset_state_flags(widget, GTK_STATE_FLAG_PRELIGHT);
     }
     return TRUE;
 }
