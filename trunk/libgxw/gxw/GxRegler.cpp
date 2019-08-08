@@ -1126,15 +1126,6 @@ static void gx_regler_set_value (GtkWidget *widget, GdkScrollDirection dir_down)
  ** mouse button pressed set value
  */
 
-static gboolean dialog_button_press_event(
-	GtkWidget *widget, GdkEventButton *event, gpointer data)
-{
-	if (event->type == GDK_BUTTON_PRESS || event->type == GDK_2BUTTON_PRESS) {
-		gtk_widget_destroy(GTK_WIDGET(data));
-	}
-	return TRUE;
-}
-
 static gboolean spinner_button_press_event(
 	GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
@@ -1169,41 +1160,6 @@ static gboolean dialog_key_press_before(
 	return FALSE;
 }
 
-static gboolean dialog_grab_broken(
-	GtkWidget *widget, GdkEvent *event, gpointer data)
-{
-	gtk_widget_destroy(GTK_WIDGET(data));
-	return FALSE;
-}
-
-static gboolean map_check(
-	GtkWidget *widget, GdkEvent *event, gpointer data)
-{
-	GtkWidget *dialog = GTK_WIDGET(widget);
-	GdkWindow *window = gtk_widget_get_window(dialog);
-	int rc;
-	GdkDisplay *disp = gdk_display_get_default();
-	GdkCursor *c = gdk_cursor_new_for_display(disp, GDK_RIGHT_PTR);
-	rc = gdk_pointer_grab(window, TRUE,
-	                      (GdkEventMask)(GDK_BUTTON_PRESS_MASK|
-	                                     GDK_BUTTON_MOTION_MASK),
-	                      NULL, c, GDK_CURRENT_TIME);
-	gdk_cursor_unref(c);
-	if (rc != GDK_GRAB_SUCCESS) {
-		gtk_widget_destroy(dialog);
-		return TRUE;
-	}
-	rc = gdk_keyboard_grab(window, TRUE, GDK_CURRENT_TIME);
-	if (rc != GDK_GRAB_SUCCESS) {
-		gdk_display_pointer_ungrab(gdk_window_get_display(window),
-		                           GDK_CURRENT_TIME);
-		gtk_widget_destroy(dialog);
-		return TRUE;
-	}
-	gtk_grab_add(dialog);
-	return FALSE;
-}
-
 static void gx_regler_relay_value(GtkAdjustment *src, GtkAdjustment *dst) {
 	gtk_adjustment_set_value(dst, gtk_adjustment_get_value(src));
 }
@@ -1230,8 +1186,8 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 	}
 	g_assert(GX_IS_REGLER(regler));
 	GtkAdjustment *dst_adj = gtk_range_get_adjustment(GTK_RANGE(regler));
-	GtkWidget *dialog = gtk_window_new(GTK_WINDOW_POPUP);
-	gtk_widget_add_events(dialog, GDK_BUTTON_PRESS_MASK|GDK_BUTTON_MOTION_MASK);
+	GtkWidget *popover = gtk_popover_new(GTK_WIDGET(regler));
+	gtk_widget_add_events(popover, GDK_BUTTON_PRESS_MASK|GDK_BUTTON_MOTION_MASK);
 	ensure_digits(regler);
 	GtkAdjustment *src_adj = GTK_ADJUSTMENT(
 		gtk_adjustment_new(
@@ -1249,26 +1205,19 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 	g_signal_connect(spinner, "output", G_CALLBACK(gx_regler_spinner_output), regler);
 	g_signal_connect(spinner, "input", G_CALLBACK(gx_regler_spinner_input), regler);
 	g_signal_connect(src_adj, "value-changed", G_CALLBACK(gx_regler_relay_value), dst_adj);
-	gtk_container_add(GTK_CONTAINER(dialog), spinner);
+	gtk_container_add(GTK_CONTAINER(popover), spinner);
 
 	g_signal_connect(spinner, "button-press-event", G_CALLBACK(spinner_button_press_event), NULL);
-	g_signal_connect(dialog, "button-press-event", G_CALLBACK(dialog_button_press_event), dialog);
-	g_signal_connect(spinner, "key-press-event", G_CALLBACK(dialog_key_press_before), dialog);
-	g_signal_connect_after(spinner, "key-press-event", G_CALLBACK(dialog_key_press_event), dialog);
+	g_signal_connect(spinner, "key-press-event", G_CALLBACK(dialog_key_press_before), popover);
+	g_signal_connect_after(spinner, "key-press-event", G_CALLBACK(dialog_key_press_event), popover);
 	g_signal_connect_object(spinner, "activate", G_CALLBACK(gtk_widget_destroy),
-				dialog, (GConnectFlags)(G_CONNECT_AFTER|G_CONNECT_SWAPPED));
-	g_signal_connect(dialog, "grab-broken-event", G_CALLBACK(dialog_grab_broken), dialog);
-	g_signal_connect(dialog, "map-event", G_CALLBACK(map_check), GTK_WIDGET(regler));
+				popover, (GConnectFlags)(G_CONNECT_AFTER|G_CONNECT_SWAPPED));
 
 	gtk_widget_show(spinner);
-	gtk_widget_realize(GTK_WIDGET(dialog));
-	gint rq_width, rq_height;
-	gtk_widget_get_preferred_width(GTK_WIDGET(dialog), nullptr, &rq_width);
-	gtk_widget_get_preferred_height(GTK_WIDGET(dialog), nullptr, &rq_height);
-	gint xorg, yorg;
-	gdk_window_get_origin(gtk_widget_get_window(GTK_WIDGET(regler)), &xorg, &yorg);
-	gtk_window_move(GTK_WINDOW(dialog), xorg+rect->x+(rect->width-rq_width)/2, yorg+rect->y+(rect->height-rq_height)/2);
-	gtk_widget_show(dialog);
+	gtk_widget_realize(popover);
+	gtk_popover_set_pointing_to(GTK_POPOVER(popover), rect);
+
+	gtk_widget_show(popover);
 	return FALSE;
 }
 

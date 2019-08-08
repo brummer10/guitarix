@@ -328,21 +328,6 @@ static void gx_selector_size_request(GtkWidget *widget, gint *out_width, gint *o
 	*out_height = priv->req_height;
 }
 
-static void posfunc(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer user_data)
-{
-	GtkWidget *w = GTK_WIDGET(user_data);
-	GdkWindow *win = gtk_widget_get_window(w);
-	int i = get_selector_state(GX_SELECTOR(w));
-	gint n = g_list_length(gtk_container_get_children(GTK_CONTAINER(menu)));
-	gint min_height;
-	gtk_widget_get_preferred_height(GTK_WIDGET(menu), nullptr, &min_height);
-	gdk_window_get_origin(win, x, y);
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(w, &allocation);
-	*y -= (min_height * i) / n;
-	*push_in = TRUE;
-}
-
 static void selection_done(GtkMenu *menu, gpointer data)
 {
 	GxSelector *selector = GX_SELECTOR(data);
@@ -395,7 +380,8 @@ static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, Gd
 		priv->menu = m;
 	}
 	gtk_menu_set_active(m, get_selector_state(selector));
-	gtk_menu_popup(m, NULL, NULL, posfunc, regler, event->button, event->time);
+	gtk_menu_popup_at_widget(m, GTK_WIDGET(regler), GDK_GRAVITY_SOUTH, GDK_GRAVITY_NORTH,
+							 (GdkEvent*)event);
 	return TRUE;
 }
 
