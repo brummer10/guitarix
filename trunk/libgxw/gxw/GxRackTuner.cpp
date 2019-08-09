@@ -124,6 +124,8 @@ static void gx_rack_tuner_class_init(GxRackTunerClass *klass)
 	klass->frequency_poll = 0;
 	klass->poll_status_changed = 0;
 
+        gtk_widget_class_set_css_name(widget_class, "gx-rack-tuner");
+
 	// properties
 	g_object_class_install_property(
 		gobject_class, PROP_FREQ, g_param_spec_double (

@@ -97,6 +97,8 @@ void gx_fast_meter_class_init(GxFastMeterClass* klass)
 	gobject_class->set_property = gx_fast_meter_set_property;
 	gobject_class->get_property = gx_fast_meter_get_property;
 
+	gtk_widget_class_set_css_name(widget_class, "gx-fast-meter");
+
 	g_object_class_install_property (
 		gobject_class, PROP_VAR_ID, g_param_spec_string(
 			"var-id", P_("Variable"),

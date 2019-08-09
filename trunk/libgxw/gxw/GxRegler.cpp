@@ -325,7 +325,9 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	range_class->move_slider = gx_regler_move_slider;
 
 	klass->value_entry = gx_regler_value_entry;
-	
+
+	gtk_widget_class_set_css_name(widget_class, "gx-regler");
+
 	signals[VALUE_ENTRY] =
 		g_signal_new (I_("value-entry"),
 		              G_OBJECT_CLASS_TYPE (klass),

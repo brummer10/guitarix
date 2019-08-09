@@ -319,6 +319,9 @@ static void gx_wave_view_class_init (GxWaveViewClass *klass)
 	widget_class->draw = gx_wave_view_draw;
 	widget_class->get_preferred_width = gx_wave_view_get_preferred_width;
 	widget_class->get_preferred_height = gx_wave_view_get_preferred_height;
+
+	gtk_widget_class_set_css_name(widget_class, "gx-wave-view");
+
 	g_object_class_install_property (gobject_class,
 	                                 PROP_TEXT_TOP_LEFT,
 	                                 g_param_spec_string ("text-top-left",

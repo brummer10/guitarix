@@ -142,6 +142,8 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 	widget_class->button_release_event = ir_edit_button_release;
 	widget_class->scroll_event = ir_edit_scroll;
 
+	gtk_widget_class_set_css_name(widget_class, "gx-ir-edit");
+
 	/* new signals */
 	signals[DELAY_CHANGED] =
 		g_signal_new(I_("delay-changed"),

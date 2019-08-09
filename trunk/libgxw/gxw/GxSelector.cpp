@@ -77,6 +77,9 @@ static void gx_selector_class_init(GxSelectorClass *klass)
 	widget_class->style_set = gx_selector_style_set;
 	widget_class->button_press_event = gx_selector_button_press;
 	regler_class->value_entry = gx_selector_value_entry;
+
+	gtk_widget_class_set_css_name(widget_class, "gx-selector");
+
 	g_object_class_install_property(
 		gobject_class, PROP_MODEL,
 		g_param_spec_object(

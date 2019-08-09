@@ -71,10 +71,14 @@ G_DEFINE_TYPE_WITH_PRIVATE(GxTuner, gx_tuner, GTK_TYPE_DRAWING_AREA);
 static void gx_tuner_class_init(GxTunerClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	GTK_WIDGET_CLASS(klass)->draw = gx_tuner_draw;
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+	widget_class->draw = gx_tuner_draw;
 	gobject_class->finalize = gx_tuner_finalize;
 	gobject_class->set_property = gx_tuner_set_property;
 	gobject_class->get_property = gx_tuner_get_property;
+
+	gtk_widget_class_set_css_name(widget_class, "gx-tuner");
+
 	g_object_class_install_property(
 		gobject_class, PROP_FREQ, g_param_spec_double (
 			"freq", P_("Frequency"),

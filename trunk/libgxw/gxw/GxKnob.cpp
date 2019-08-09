@@ -63,6 +63,8 @@ static void gx_knob_class_init(GxKnobClass *klass)
 	widget_class->get_preferred_height = gx_knob_get_preferred_height;
 	widget_class->button_press_event = gx_knob_button_press;
 
+	gtk_widget_class_set_css_name(widget_class, "gx-knob");
+
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_int("arc-inset",P_("inset of arch"),

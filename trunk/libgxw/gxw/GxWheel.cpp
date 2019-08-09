@@ -45,7 +45,9 @@ static void gx_wheel_class_init(GxWheelClass *klass)
 	widget_class->motion_notify_event = gx_wheel_pointer_motion;
 	widget_class->enter_notify_event = NULL;
 	widget_class->leave_notify_event = NULL;
-	
+
+	gtk_widget_class_set_css_name(widget_class, "gx-wheel");
+
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_int("framecount",

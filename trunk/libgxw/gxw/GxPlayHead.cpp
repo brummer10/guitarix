@@ -37,11 +37,14 @@ static void gx_play_head_class_init(GxPlayHeadClass *klass)
 	widget_class->draw = gx_play_head_draw;
 	widget_class->get_preferred_width = gx_play_head_get_preferred_width;
 	widget_class->button_press_event   = NULL;
-    widget_class->button_release_event = NULL;
+	widget_class->button_release_event = NULL;
 	widget_class->motion_notify_event  = NULL;
 	widget_class->enter_notify_event   = NULL;
 	widget_class->leave_notify_event   = NULL;
 	klass->stock_id = "playhead";
+
+	gtk_widget_class_set_css_name(widget_class, "gx-play-head");
+
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_int("phead-width",P_("size of phead"),
