@@ -5,6 +5,7 @@
 #include <gtkmm/treestore.h>
 #include <gtkmm/stack.h>
 #include <gtkmm/stacksidebar.h>
+#include <gtkmm/comboboxtext.h>
 #include <gxwmm/init.h>
 #include <gxwmm/switch.h>
 #include <gxwmm/smallknob.h>
@@ -25,6 +26,37 @@
 #include <gxwmm/racktuner.h>
 #include <gxwmm/waveview.h>
 #include <gxwmm/iredit.h>
+#include <gxwmm/radiobutton.h>
+#include <gxwmm/paintbox.h>
+
+
+// The paint functions as found in GxPaintBox
+static const char* s_paint_funcs[] = {
+	"rectangle_skin_color_expose",
+	"rack_unit_expose",
+	"rack_unit_shrink_expose",
+	"rack_amp_expose",
+	"zac_expose",
+	"gxhead_expose",
+	"RackBox_expose",
+	"gxrack_expose",
+	"compressor_expose",
+	"simple_level_meter_expose",
+	"level_meter_expose",
+	"amp_skin_expose",
+	"gx_rack_unit_expose",
+	"gx_rack_unit_shrink_expose",
+	"gx_rack_amp_expose",
+	"gx_lv2_unit_expose",
+	"draw_skin",
+	"rack_expose",
+	"box_uni_1_expose",
+	"box_uni_2_expose",
+	"box_skin_expose",
+	"live_box_expose",
+	"logo_expose",
+	nullptr
+};
 
 class TextColumns : public Gtk::TreeModelColumnRecord
 {
@@ -80,6 +112,9 @@ protected:
 
 	Gtk::VBox m_vbox2;
 	Gxw::Selector m_selector;
+	Gtk::RadioButtonGroup m_group;
+	Gxw::RadioButton m_radiobutton1;
+	Gxw::RadioButton m_radiobutton2;
 	Gxw::PlayHead m_playhead;
 
 	Gtk::VBox m_vbox3;
@@ -90,6 +125,14 @@ protected:
 
 	Gtk::VBox m_vbox4;
 	Gxw::IREdit m_iredit;
+
+	Gtk::VBox m_rack;
+	Gxw::PaintBox m_rack_unit;
+	Gxw::PaintBox m_rack_amp;
+	Gxw::PaintBox m_gxhead;
+
+	Gtk::ComboBoxText m_unit_selector;
+	Gxw::PaintBox m_custom_unit;
 };
 
 Demo::Demo():
@@ -149,14 +192,23 @@ Demo::Demo():
 	m_vbox.add(*Gtk::manage(new Gtk::Label("Wheels")));
 	m_v_wheel.set_value_position(Gtk::POS_RIGHT);
 	m_hbox_wheels.add(m_v_wheel);
+	m_hbox_wheels.add(m_wheel);
 	m_vbox.add(m_hbox_wheels);
-	m_vbox.add(m_wheel);
 	m_stack.add(m_vbox, "switches", "Switches");
 
 	// Selector & playhead
 	m_vbox2.set_valign(Gtk::ALIGN_START);
 	m_vbox2.add(*Gtk::manage(new Gtk::Label("Playhead")));
 	m_vbox2.add(m_playhead);
+	m_vbox2.add(*Gtk::manage(new Gtk::Label("Radio Buttons")));
+	m_radiobutton1.set_label("Test");
+	m_radiobutton1.set_group(m_group);
+	m_radiobutton1.property_base_name() = "led";
+	m_radiobutton2.set_label("Test 2");
+	m_radiobutton2.set_group(m_group);
+	m_radiobutton2.property_base_name() = "minitoggle";
+	m_vbox2.add(m_radiobutton1);
+	m_vbox2.add(m_radiobutton2);
 	m_vbox2.add(*Gtk::manage(new Gtk::Label("Selector")));
 	auto store = Gtk::TreeStore::create(m_selector_model);
 	auto iter = store->append();
@@ -187,6 +239,27 @@ Demo::Demo():
 	m_vbox4.add(*Gtk::manage(new Gtk::Label("IR Edit")));
 	m_vbox4.add(m_iredit);
 	m_stack.add(m_vbox4, "irdedit", "IR Edit");
+
+	// Rack
+	m_rack_unit.property_paint_func() = "rack_unit_expose";
+	m_rack.add(m_rack_unit);
+	m_rack_amp.property_paint_func() = "rack_amp_expose";
+	m_rack.add(m_rack_amp);
+	m_gxhead.property_paint_func() = "gxhead_expose";
+	m_rack.add(m_gxhead);
+	const char** p = s_paint_funcs;
+	while (*p) {
+		m_unit_selector.append(Glib::ustring(*p));
+		p++;
+	}
+	m_unit_selector.signal_changed().connect(
+		[this]() {
+			this->m_custom_unit.property_paint_func() = this->m_unit_selector.get_active_text();
+		});
+	m_rack.pack_start(m_unit_selector, false, true);
+	m_rack.add(m_custom_unit);
+
+	m_stack.add(m_rack, "rack", "Rack");
 
 	add(m_root_box);
 	set_border_width(10);
