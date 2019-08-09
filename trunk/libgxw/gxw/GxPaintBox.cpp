@@ -76,6 +76,9 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
     klass->widget_id3 = "gxplate3";
     klass->amp_id = "gxhead";
     klass->logo_id = "logo";
+
+	gtk_widget_class_set_css_name(widget_class, "gx-paint-box");
+
 	g_object_class_install_property(
 		gobject_class, PROP_PAINT_FUNC,
 		g_param_spec_string("paint-func",
@@ -230,6 +233,7 @@ static void set_paint_func(GxPaintBox *paint_box, const gchar *paint_func)
 	paint_box->priv->paint_func = spf;
 	set_expose_func(paint_box, spf);
 	g_object_notify(G_OBJECT(paint_box), "paint-func");
+	gtk_widget_queue_draw(GTK_WIDGET(paint_box));
 }
 
 static void gx_paint_box_style_set(GtkWidget *widget, GtkStyle  *previous_style)
@@ -417,8 +421,8 @@ static void draw_skin (GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 
-	double x0 = allocation.x;
-	double y0 = allocation.y;
+	double x0 = 0;
+	double y0 = 0;
 	double w  = allocation.width;
 	double h  = allocation.height;
     double h_ = h - 4;
@@ -484,8 +488,8 @@ static void draw_tiled (GtkWidget *wi, cairo_t *cr, const gchar * id )
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 
-	double x0 = allocation.x;
-	double y0 = allocation.y;
+	double x0 = 0;
+	double y0 = 0;
 	double w  = allocation.width;
 	double h  = allocation.height;
 
@@ -504,8 +508,8 @@ static void draw_handles (GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 
-	double x0 = allocation.x;
-	double y0 = allocation.y;
+	double x0 = 0;
+	double y0 = 0;
 	double w  = allocation.width;
 	double h  = allocation.height - 4;
     
@@ -544,8 +548,8 @@ static void draw_screws (GtkWidget *wi, cairo_t *cr)
 {
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
-	double x0 = allocation.x;
-	double y0 = allocation.y;
+	double x0 = 0;
+	double y0 = 0;
 	double w  = allocation.width;
 	double h  = allocation.height - 3;
 
@@ -576,8 +580,8 @@ static void draw_watermark(GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 
-	double x0 = allocation.x;
-	double y0 = allocation.y;
+	double x0 = 0;
+	double y0 = 0;
 	double w  = allocation.width;
 	double h  = allocation.height;
     
@@ -644,8 +648,8 @@ static void rectangle_skin_color_expose(GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 
-	double x0      = allocation.x+1;
-	double y0      = allocation.y+1;
+	double x0      = 1;
+	double y0      = 1;
 	double rect_width  = allocation.width-2;
 	double rect_height = allocation.height-2;
     
@@ -776,8 +780,8 @@ static void rack_handle_expose(GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 
-	double x0      = allocation.x+1;
-	double y0      = allocation.y+1;
+	double x0      = 1;
+	double y0      = 1;
 	double rect_width  = allocation.width-2;
 	double rect_height = allocation.height-2;
     
@@ -852,8 +856,8 @@ static void rack_unit_expose(GtkWidget *wi, cairo_t *cr)
 
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
-	double x0      = allocation.x+1;
-	double y0      = allocation.y+1;
+	double x0      = 1;
+	double y0      = 1;
 	double rect_width  = allocation.width-2;
 	double rect_height = allocation.height-2;
 
@@ -883,8 +887,8 @@ static void logo_expose(GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 	GxPaintBox *paintbox = GX_PAINT_BOX(wi);
-	gint x0	     = allocation.x;
-	gint y0	     = allocation.y;
+	gint x0	     = 0;
+	gint y0	     = 0;
 	gint w	    = allocation.width;
 	gint h	    = allocation.height;
 	static double x1 ;
@@ -917,8 +921,8 @@ static void rack_amp_expose(GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 
-	double x0      = allocation.x+1;
-	double y0      = allocation.y+1;
+	double x0      = 1;
+	double y0      = 1;
 	double rect_width  = allocation.width-2;
 	double rect_height = allocation.height-2;
     
@@ -984,8 +988,8 @@ static void zac_expose(GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 
-	double x0      = allocation.x+1;
-	double y0      = allocation.y+1;
+	double x0      = 1;
+	double y0      = 1;
 	double rect_width  = allocation.width-2;
 	double rect_height = allocation.height-3;
 
@@ -1013,8 +1017,8 @@ static void RackBox_expose(GtkWidget *wi, cairo_t *cr)
 	gtk_widget_get_allocation(wi, &allocation);
 	const gchar * title = gtk_widget_get_name(GTK_WIDGET(wi));
 
-	double x0      = allocation.x;
-	double y0      = allocation.y;
+	double x0      = 0;
+	double y0      = 0;
 	double rect_width  = allocation.width;
 	double rect_height = allocation.height;
 	double x,y;
@@ -1098,8 +1102,8 @@ static void compressor_expose(GtkWidget *wi, cairo_t *cr)
 	gtk_widget_get_allocation(wi, &allocation);
 	const gchar * title = gtk_widget_get_name(GTK_WIDGET(wi));
 
-	double x0      = allocation.x;
-	double y0      = allocation.y;
+	double x0      = 0;
+	double y0      = 0;
 	double rect_width  = allocation.width;
 	double rect_height = allocation.height;
 	double x,y;
@@ -1189,8 +1193,8 @@ static void line_expose(GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
 
-	gint x0      = allocation.x+3;
-	gint y0      = allocation.y+3;
+	gint x0      = 3;
+	gint y0      = 3;
 	gint rect_width  = allocation.width-6;
 	gint rect_height = allocation.height-6;
 
@@ -1226,8 +1230,8 @@ static void gxhead_expose(GtkWidget *wi, cairo_t *cr)
 	
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
-	gint x0      = allocation.x+1;
-	gint y0      = allocation.y+1;
+	gint x0      = 1;
+	gint y0      = 1;
 	gint rect_width  = allocation.width-2;
 	gint rect_height = allocation.height-3;
 
@@ -1365,8 +1369,8 @@ static void gxrack_expose(GtkWidget *wi, cairo_t *cr)
 	}
 	GxPaintBox *paintbox = GX_PAINT_BOX(wi);
 
-	gint x0      = allocation.x+1;
-	gint y0      = allocation.y+1;
+	gint x0      = 1;
+	gint y0      = 1;
 
 	static double ne_w = 0.;
 	if (ne_w != rect_width*rect_height || !(GDK_IS_PIXBUF (paintbox->priv->gxr_image))) {
@@ -1485,8 +1489,8 @@ static void amp_skin_expose(GtkWidget *wi, cairo_t *cr)
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(wi, &allocation);
     GxPaintBox *paintbox = GX_PAINT_BOX(wi);
-	gint x0      = allocation.x;
-	gint y0      = allocation.y;
+	gint x0      = 0;
+	gint y0      = 0;
 	gint w      = allocation.width;
 	gint h      = allocation.height;
     static int spf, opf, rel = 0;
@@ -1519,8 +1523,8 @@ static void level_meter_expose(GtkWidget *wi, cairo_t *cr)
 	gtk_widget_get_allocation(wi, &allocation);
 	cairo_set_font_size (cr, 7.0);
 
-	double x0      = allocation.x+1;
-	double y0      = allocation.y+2;
+	double x0      = 1;
+	double y0      = 2;
 	double rect_width  = allocation.width-2;
 	double rect_height = allocation.height-4;
 
@@ -1581,8 +1585,8 @@ static void simple_level_meter_expose(GtkWidget *wi, cairo_t *cr)
 	gtk_widget_get_allocation(wi, &allocation);
 	cairo_set_font_size (cr, 7.0);
 
-	double x0      = allocation.x+1;
-	double y0      = allocation.y+2;
+	double x0      = 1;
+	double y0      = 2;
 	double rect_width  = allocation.width-2;
 	double rect_height = allocation.height-4;
 
