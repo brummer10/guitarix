@@ -76,7 +76,7 @@ static gboolean gx_wheel_vertical_draw (GtkWidget *widget, cairo_t *cr)
 	gdouble wheel_verticalstate;
 	gtk_widget_style_get (widget, "framecount", &fcount, NULL);
 
-	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_vertical_back", GtkIconSize(-1), NULL);
+	GdkPixbuf *wb = gtk_widget_render_icon_pixbuf(widget, "wheel_vertical_back", GtkIconSize(-1));
 
 	wheel_verticalstate = _gx_regler_get_step_pos(regler, 1);
 	get_image_dimensions (widget, wb, &image_rect, &fcount);
@@ -126,7 +126,7 @@ static void gx_wheel_vertical_size_request (GtkWidget *widget, gint *width, gint
     gint fcount;
     GdkRectangle rect;
 
-    GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_vertical_back", GtkIconSize(-1), NULL);
+    GdkPixbuf *wb = gtk_widget_render_icon_pixbuf(widget, "wheel_vertical_back", GtkIconSize(-1));
 
     get_image_dimensions (widget, wb, &rect, &fcount);
     *width = rect.width;
@@ -138,7 +138,7 @@ static void gx_wheel_vertical_size_request (GtkWidget *widget, gint *width, gint
 static gboolean wheel_vertical_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, int state, int button, GdkEventButton *event)
 {
     GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-    GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_vertical_back", GtkIconSize(-1), NULL);
+    GdkPixbuf *wb = gtk_widget_render_icon_pixbuf(widget, "wheel_vertical_back", GtkIconSize(-1));
     GdkRectangle image_rect, value_rect;
     GxWheelVertical *wheel_vertical = GX_WHEEL_VERTICAL(widget);
     GxWheelVerticalPrivate *priv = wheel_vertical->priv;

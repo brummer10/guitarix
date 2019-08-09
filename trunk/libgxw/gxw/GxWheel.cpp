@@ -84,7 +84,7 @@ static gboolean gx_wheel_draw (GtkWidget *widget, cairo_t *cr)
 	gdouble wheelstate;
 	gtk_widget_style_get (widget, "framecount", &fcount, NULL);
 	
-	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
+	GdkPixbuf *wb = gtk_widget_render_icon_pixbuf(widget, "wheel_back", GtkIconSize(-1));
 	if (fcount > -1) {
 		
 		wheelstate = _gx_regler_get_step_pos(regler, 1);
@@ -99,8 +99,8 @@ static gboolean gx_wheel_draw (GtkWidget *widget, cairo_t *cr)
 		_gx_regler_display_value(regler, cr, &value_rect);
 	} else {
 		
-		GdkPixbuf *ws = gtk_widget_render_icon(widget, "wheel_fringe", GtkIconSize(-1), NULL);
-		GdkPixbuf *wp = gtk_widget_render_icon(widget, "wheel_pointer", GtkIconSize(-1), NULL);
+		GdkPixbuf *ws = gtk_widget_render_icon_pixbuf(widget, "wheel_fringe", GtkIconSize(-1));
+		GdkPixbuf *wp = gtk_widget_render_icon_pixbuf(widget, "wheel_pointer", GtkIconSize(-1));
 
 		image_rect.width = gdk_pixbuf_get_width(wb);
 		image_rect.height = gdk_pixbuf_get_height(wb);
@@ -165,7 +165,7 @@ static void gx_wheel_size_request (GtkWidget *widget, gint *width, gint *height)
 	gint fcount;
 	GdkRectangle rect;
 
-    GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
+    GdkPixbuf *wb = gtk_widget_render_icon_pixbuf(widget, "wheel_back", GtkIconSize(-1));
 
 	get_image_dimensions (widget, wb, &rect, &fcount);
 	*width = rect.width;
@@ -177,7 +177,7 @@ static void gx_wheel_size_request (GtkWidget *widget, gint *width, gint *height)
 static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, int state, int button, GdkEventButton *event)
 {
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
-	GdkPixbuf *wb = gtk_widget_render_icon(widget, "wheel_back", GtkIconSize(-1), NULL);
+	GdkPixbuf *wb = gtk_widget_render_icon_pixbuf(widget, "wheel_back", GtkIconSize(-1));
 	GdkRectangle image_rect, value_rect;
 	GxWheel *wheel = GX_WHEEL(widget);
 	GxWheelPrivate *priv = wheel->priv;

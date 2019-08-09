@@ -82,7 +82,7 @@ static void gx_level_slider_size_request (GtkWidget *widget, gint *width, gint *
 	g_assert(GX_IS_LEVEL_SLIDER(widget));
 	gint slider_height;
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	*width = gdk_pixbuf_get_width(pb);
 	*height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
 	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
@@ -104,7 +104,7 @@ static gboolean gx_level_slider_draw(GtkWidget *widget, cairo_t *cr)
 	g_assert(GX_IS_LEVEL_SLIDER(widget));
 	gint slider_height;
 	GdkRectangle image_rect, value_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	gtk_widget_style_get(widget, "slider-width", &slider_height, NULL);
 	image_rect.width = gdk_pixbuf_get_width(pb);
 	image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
@@ -145,7 +145,7 @@ static double log_meter_inv(double def)
 
 static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 {
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	r->width = gdk_pixbuf_get_width(pb);
 	r->height = gdk_pixbuf_get_height(pb);
 	g_object_unref(pb);

@@ -440,8 +440,8 @@ static void draw_skin (GtkWidget *wi, cairo_t *cr)
     }
     
     // draw main color
-    GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb),
-        inverse ? "background2" : "background1", (GtkIconSize)-1, NULL);
+    GdkPixbuf * bg = gtk_widget_render_icon_pixbuf(GTK_WIDGET(pb),
+        inverse ? "background2" : "background1", (GtkIconSize)-1);
 	gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
 	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
     
@@ -450,8 +450,8 @@ static void draw_skin (GtkWidget *wi, cairo_t *cr)
     
     // draw alternate color
     if (top > 0 or bottom > 0 or left > 0 or right > 0) {
-        bg = gtk_widget_render_icon(GTK_WIDGET(pb),
-            inverse ? "background1" : "background2", (GtkIconSize)-1, NULL);
+        bg = gtk_widget_render_icon_pixbuf(GTK_WIDGET(pb),
+            inverse ? "background1" : "background2", (GtkIconSize)-1);
         gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
         cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
         cairo_rectangle(cr, x0 + int(w * left),
@@ -489,7 +489,7 @@ static void draw_tiled (GtkWidget *wi, cairo_t *cr, const gchar * id )
 	double w  = allocation.width;
 	double h  = allocation.height;
 
-    GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb), id, (GtkIconSize)-1, NULL);
+    GdkPixbuf * bg = gtk_widget_render_icon_pixbuf(GTK_WIDGET(pb), id, (GtkIconSize)-1);
 	gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
 	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
     cairo_rectangle(cr, x0, y0, w, h);
@@ -510,7 +510,7 @@ static void draw_handles (GtkWidget *wi, cairo_t *cr)
 	double h  = allocation.height - 4;
     
     // left
-    GdkPixbuf * bg = gtk_widget_render_icon(GTK_WIDGET(pb), "handle_left", (GtkIconSize)-1, NULL);
+    GdkPixbuf * bg = gtk_widget_render_icon_pixbuf(GTK_WIDGET(pb), "handle_left", (GtkIconSize)-1);
     gint wl = gdk_pixbuf_get_width(bg);
 	gdk_cairo_set_source_pixbuf(cr, bg, x0, y0);
 	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
@@ -524,7 +524,7 @@ static void draw_handles (GtkWidget *wi, cairo_t *cr)
     cairo_fill(cr);
     
     // right
-    bg = gtk_widget_render_icon(GTK_WIDGET(pb), "handle_right", (GtkIconSize)-1, NULL);
+    bg = gtk_widget_render_icon_pixbuf(GTK_WIDGET(pb), "handle_right", (GtkIconSize)-1);
     wl = gdk_pixbuf_get_width(bg);
 	gdk_cairo_set_source_pixbuf(cr, bg, x0 + w - wl, y0);
 	cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
@@ -549,7 +549,7 @@ static void draw_screws (GtkWidget *wi, cairo_t *cr)
 	double w  = allocation.width;
 	double h  = allocation.height - 3;
 
-	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
+	GdkPixbuf  *stock_image = gtk_widget_render_icon_pixbuf(wi,"screw",(GtkIconSize)-1);
 	double x1 = gdk_pixbuf_get_height(stock_image);
 	double y1 = gdk_pixbuf_get_width(stock_image);
 	if (h > 2 * y1) {
@@ -581,7 +581,7 @@ static void draw_watermark(GtkWidget *wi, cairo_t *cr)
 	double w  = allocation.width;
 	double h  = allocation.height;
     
-    GdkPixbuf * wm  = gtk_widget_render_icon(wi, "watermark", (GtkIconSize)-1, NULL);
+    GdkPixbuf * wm  = gtk_widget_render_icon_pixbuf(wi, "watermark", (GtkIconSize)-1);
     gint wwm = gdk_pixbuf_get_width(wm);
     gint hwm = gdk_pixbuf_get_height(wm);
     GdkPixbuf * wm_ = gdk_pixbuf_scale_simple(wm, int(wwm * 0.89), int(hwm * 0.9), GDK_INTERP_BILINEAR);
@@ -682,7 +682,7 @@ static void rectangle_skin_color_expose(GtkWidget *wi, cairo_t *cr)
 	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 	
 	GdkPixbuf * stock_image =
-		gtk_widget_render_icon(wi,get_widget_id(wi),(GtkIconSize)-1,NULL);
+		gtk_widget_render_icon_pixbuf(wi,get_widget_id(wi),(GtkIconSize)-1);
 
 	guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
 	gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
@@ -758,8 +758,8 @@ static void live_box_expose (GtkWidget *wi, cairo_t *cr) {
 		while (G_IS_OBJECT(paintbox->priv->gxr_image)) {
 			g_object_unref(paintbox->priv->gxr_image);
 		}
-		GdkPixbuf  *stock_image = gtk_widget_render_icon(
-			wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
+		GdkPixbuf  *stock_image = gtk_widget_render_icon_pixbuf(
+			wi,get_amp_id(wi),(GtkIconSize)-1);
 		paintbox->priv->gxr_image = gdk_pixbuf_scale_simple(
 			stock_image, allocation.width, allocation.height, GDK_INTERP_NEAREST);
 		g_object_unref(stock_image);
@@ -857,7 +857,7 @@ static void rack_unit_expose(GtkWidget *wi, cairo_t *cr)
 	double rect_width  = allocation.width-2;
 	double rect_height = allocation.height-2;
 
-	GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
+	GdkPixbuf  *stock_image = gtk_widget_render_icon_pixbuf(wi,"screw",(GtkIconSize)-1);
 	double x1 = gdk_pixbuf_get_height(stock_image);
 	double y1 = gdk_pixbuf_get_width(stock_image);
 	gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + 3, y0 + 5);
@@ -902,8 +902,8 @@ static void logo_expose(GtkWidget *wi, cairo_t *cr)
 			g_object_unref(paintbox->priv->logo_image);
 		}
 		paintbox->priv->logo_image = NULL;
-		paintbox->priv->logo_image = gtk_widget_render_icon(
-			wi,get_logo_id(wi),(GtkIconSize)-1,NULL);
+		paintbox->priv->logo_image = gtk_widget_render_icon_pixbuf(
+			wi,get_logo_id(wi),(GtkIconSize)-1);
 		x1 = gdk_pixbuf_get_width(paintbox->priv->logo_image);
 		align_right = x0+w-x1;
 	}
@@ -1023,9 +1023,9 @@ static void RackBox_expose(GtkWidget *wi, cairo_t *cr)
 	if(strcmp(title,"oscilloscope")==0) return;
 	GdkPixbuf * stock_image;
 	if (spf == 6) {
-	    stock_image =gtk_widget_render_icon(wi,get_widget_id2(wi),(GtkIconSize)-1,NULL);
+	    stock_image =gtk_widget_render_icon_pixbuf(wi,get_widget_id2(wi),(GtkIconSize)-1);
 	} else {
-	    stock_image =gtk_widget_render_icon(wi,get_widget_id3(wi),(GtkIconSize)-1,NULL);
+	    stock_image =gtk_widget_render_icon_pixbuf(wi,get_widget_id3(wi),(GtkIconSize)-1);
 	}
 	guchar *pb_pixel = gdk_pixbuf_get_pixels (stock_image);
 	gint pixbuf_rowstride = gdk_pixbuf_get_rowstride (stock_image);
@@ -1241,14 +1241,14 @@ static void gxhead_expose(GtkWidget *wi, cairo_t *cr)
         rack_amp_expose(wi, cr);
         line_expose(wi, cr);
         if ( spf <10) {
-        paintbox->priv->gxh_image = gtk_widget_render_icon(wi,"guitarix",(GtkIconSize)-1,NULL);
+        paintbox->priv->gxh_image = gtk_widget_render_icon_pixbuf(wi,"guitarix",(GtkIconSize)-1);
         gdk_cairo_set_source_pixbuf(cr, paintbox->priv->gxh_image, x0 + 38, y0 + 20);
         cairo_rectangle(cr, x0 + 38, y0 + 20, 131, 26);
         cairo_fill(cr);
         g_object_unref(paintbox->priv->gxh_image);
         paintbox->priv->gxh_image = NULL;
         }
-        GdkPixbuf  *stock_image = gtk_widget_render_icon(wi,"screw",(GtkIconSize)-1,NULL);
+        GdkPixbuf  *stock_image = gtk_widget_render_icon_pixbuf(wi,"screw",(GtkIconSize)-1);
         double x1 = gdk_pixbuf_get_height(stock_image);
         double y1 = gdk_pixbuf_get_width(stock_image);
         gdk_cairo_set_source_pixbuf(cr, stock_image, x0 + 5, y0 + 5);
@@ -1272,7 +1272,7 @@ static void gxhead_expose(GtkWidget *wi, cairo_t *cr)
             paintbox->priv->gxh_image = NULL;
 		}
 		GdkPixbuf  *stock_image, *frame;
-		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
+		stock_image = gtk_widget_render_icon_pixbuf(wi,get_stock_id(wi),(GtkIconSize)-1);
 		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
 		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
 		
@@ -1375,7 +1375,7 @@ static void gxrack_expose(GtkWidget *wi, cairo_t *cr)
 			g_object_unref(paintbox->priv->gxr_image);
 		}
 		GdkPixbuf  *stock_image, *frame;
-		stock_image = gtk_widget_render_icon(wi,get_stock_id(wi),(GtkIconSize)-1,NULL);
+		stock_image = gtk_widget_render_icon_pixbuf(wi,get_stock_id(wi),(GtkIconSize)-1);
 		double scalew = rect_width/double(gdk_pixbuf_get_width(stock_image)-48);
 		double scaleh = rect_height/double(gdk_pixbuf_get_height(stock_image)-48);
 		
@@ -1500,8 +1500,8 @@ static void amp_skin_expose(GtkWidget *wi, cairo_t *cr)
         while (G_IS_OBJECT(paintbox->priv->gxr_image)) {
 			g_object_unref(paintbox->priv->gxr_image);
 		}
-        GdkPixbuf  *stock_image = gtk_widget_render_icon(
-            wi,get_amp_id(wi),(GtkIconSize)-1,NULL);
+        GdkPixbuf  *stock_image = gtk_widget_render_icon_pixbuf(
+            wi,get_amp_id(wi),(GtkIconSize)-1);
         paintbox->priv->gxr_image = gdk_pixbuf_scale_simple(
 			stock_image, allocation.width, allocation.height , GDK_INTERP_NEAREST);
         g_object_unref(stock_image);

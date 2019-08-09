@@ -79,7 +79,7 @@ static void gx_port_display_size_request (GtkWidget *widget, gint *width, gint *
 	g_assert(GX_IS_PORT_DISPLAY(widget));
 	gint display_width;
 	gtk_widget_style_get(widget, "display-width", &display_width, NULL);
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	*height = 2+gdk_pixbuf_get_height(pb);
 	*width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
 	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
@@ -119,7 +119,7 @@ static gboolean gx_port_display_draw(GtkWidget *widget, cairo_t *cr)
 	  g_assert(GX_IS_PORT_DISPLAY(widget));
 	  gint display_width;
 	  GdkRectangle image_rect, value_rect;
-	  GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	  GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	  gtk_widget_style_get(widget, "display-width", &display_width, NULL);
 	  image_rect.height = gdk_pixbuf_get_height(pb);
 	  image_rect.width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
@@ -134,7 +134,7 @@ static gboolean gx_port_display_draw(GtkWidget *widget, cairo_t *cr)
 
 static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 {
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
 	r->width = gdk_pixbuf_get_width(pb);
 	r->height = gdk_pixbuf_get_height(pb);
 	g_object_unref(pb);
