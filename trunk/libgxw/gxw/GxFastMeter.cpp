@@ -701,7 +701,8 @@ static void request_vertical_meter(GtkWidget *widget)
     bool hrz = fm->priv->horiz;
     
     int xs, ys;
-    
+
+    GtkStyleContext *sc = gtk_widget_get_style_context(widget);
     GtkStyle* style = gtk_widget_get_style(widget);
     if (hrz) {
         xs = style->xthickness;
@@ -758,15 +759,8 @@ static void request_vertical_meter(GtkWidget *widget)
             break;
     }
     //printf("width %d | height %d | w_ %d | h_ %d | x_ %d | y_ %d | rad %d | bevel %.2f\n", width, height, w_, h_, x_, y_, rad, bevel);
-    
-    // overall background
-    float r, g, b;
-    gx_get_color(widget, "bg", NULL, &r, &g, &b);
-    //if (type) {
-    gx_create_rectangle(cr, x_, y_, w_, h_, rad);
-	cairo_set_source_rgb(cr, r, g, b);
-	cairo_fill(cr);
-    
+
+    gtk_render_background(sc, cr, x_, y_, w_, h_);
     if (bevel)
         gx_bevel(cr, x_, y_, w_, h_, rad, bevel);
     //}
@@ -786,11 +780,8 @@ static void request_vertical_meter(GtkWidget *widget)
     } else {
         h_ -= (h_ - lb) % (lh + lb);
     }
-    gx_get_color(widget, "base", NULL, &r, &g, &b);
-    gx_create_rectangle(cr, x_, y_, w_, h_, 0);
-    cairo_set_source_rgb(cr, r, g, b);
-    cairo_fill(cr);
-    
+
+    GtkStyleContext *entry_context = gx_get_entry_style_context();
     // gradient
     GdkRGBA *rgb[4];
     unsigned int i;
@@ -822,27 +813,24 @@ static void request_vertical_meter(GtkWidget *widget)
     fm->priv->bar.y      = y_ + lb;
     fm->priv->bar.width  = w_ - 2*lb;
     fm->priv->bar.height = h_ - 2*lb;
-    
+
     // led borders
-    cairo_set_source_rgb(cr, r, g, b);
     int max = hrz ? w_ : h_;
     for (int j = 0; j < max; j += lh + lb) {
-        cairo_rectangle(cr,
+        gtk_render_background(entry_context, cr,
             x_ + (hrz ? j : 0),
             y_ + (hrz ? 0 : j),
             hrz ? lb : w_,
             hrz ? h_ : lb);
-        cairo_fill(cr);
     }
     for (int j = 1; j < dim; j++) {
-        cairo_rectangle(cr,
+        gtk_render_background(entry_context, cr,
             x_ + (hrz ? 0 : j * (lb + lw)),
             y_ + (hrz ? j * (lb + lw) : 0),
             hrz ? w_ : lb,
             hrz ? lb : h_);
-        cairo_fill(cr);
     }
-    
+
     // inset
     if (hrz)
         gx_draw_inset(cr, x_, y_, w_, h_, rad, 1);
@@ -853,11 +841,10 @@ static void request_vertical_meter(GtkWidget *widget)
     co = cairo_create(fm->priv->overlay);
     cairo_set_source_surface(co, fm->priv->surface, 0, 0);
     cairo_paint(co);
-    
-    cairo_rectangle(cr, x_, y_, w_, h_);
-    cairo_set_source_rgba(cr, r, g, b, 0.8);
-    cairo_fill(cr);
-    
+
+    gtk_render_background(entry_context, cr, x_, y_, w_, h_);
+
+    g_object_unref(entry_context);
     cairo_destroy(cr);
     cairo_destroy(co);
     cairo_pattern_destroy(pat);

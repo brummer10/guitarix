@@ -1595,8 +1595,8 @@ static void simple_level_meter_expose(GtkWidget *wi, cairo_t *cr)
 
 	int rad = 6;
 	gx_draw_inset(cr, x0, y0, rect_width,rect_height, rad, 1);
-    gx_draw_rect(cr, wi, "base", NULL, x0, y0, rect_width,rect_height, rad, 0);
-    gx_draw_glass(cr, x0, y0, rect_width,rect_height, rad);
+
+	gx_draw_glass(cr, x0, y0, rect_width,rect_height, rad);
 
 	cairo_pattern_t*pat = cairo_pattern_create_linear (x0, 0, x0+rect_width, 0);
 	cairo_pattern_add_color_stop_rgba (pat, 0.3, 0.01, 0.01, 0.02, 0.3);

@@ -17,19 +17,21 @@
  */
 
 #include "drawingutils.h"
-#include <cstring> 
-#include <algorithm> 
+#include <cstring>
+#include <algorithm>
 
-void gx_draw_rect (cairo_t *cr, GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, float bevel) {
-    float r, g, b;
-    gx_get_color(widget, type, state, &r, &g, &b);
-    gx_create_rectangle(cr, x, y, width, height, rad);
-	cairo_set_source_rgb(cr, r, g, b);
-	cairo_fill(cr);
+GtkStyleContext *gx_get_entry_style_context()
+{
+    GtkWidgetPath *path = gtk_widget_path_new();
+    gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
+    gtk_widget_path_append_type (path, GTK_TYPE_ENTRY);
+    GtkStyleContext *entry_context = gtk_style_context_new();
+    gtk_style_context_set_path(entry_context, path);
+    gtk_widget_path_unref(path);
 
-    if (bevel)
-        gx_bevel(cr, x, y, width, height, rad, bevel);
+    return entry_context;
 }
+
 void gx_draw_inset (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad, gint depth) {
     cairo_pattern_t *pat = cairo_pattern_create_linear (x, y, x, y + height);
     cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.0, 0.0, 0.0, 0.33);
@@ -47,42 +49,6 @@ void gx_draw_glass (cairo_t *cr, gint x, gint y, gint width, gint height, gint r
     gx_create_rectangle(cr, x, y, width, height, rad);
 	cairo_fill(cr);
     cairo_pattern_destroy (pat);
-}
-
-void gx_get_bg_color (GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
-    gx_get_color(widget, "bg", state, r, g, b);
-}
-void gx_get_fg_color (GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
-    gx_get_color(widget, "fg", state, r, g, b);
-}
-void gx_get_base_color (GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
-    gx_get_color(widget, "base", state, r, g, b);
-}
-void gx_get_text_color (GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
-    gx_get_color(widget, "text", state, r, g, b);
-}
-void gx_get_color (GtkWidget * widget, const gchar * type, GtkStateType * state, float * r, float * g, float * b) {
-    GdkColor color;
-    GtkStyle * style = gtk_widget_get_style (widget);
-    if (style != NULL) {
-        GtkStateType s;
-        if (state)
-            s = *state;
-        else
-            s = gtk_widget_get_state(widget);
-        color = style->bg[s];
-        if (!strcmp(type, "bg"))
-            color = style->bg[s];
-        if (!strcmp(type, "fg"))
-            color = style->fg[s];
-        if (!strcmp(type, "base"))
-            color = style->base[s];
-        if (!strcmp(type, "text"))
-            color = style->text[s];
-        *r = float(color.red)   / 65535;
-        *g = float(color.green) / 65535;
-        *b = float(color.blue)  / 65535;
-    }
 }
 
 void gx_create_rectangle (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad) {

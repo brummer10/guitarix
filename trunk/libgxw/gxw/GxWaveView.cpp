@@ -191,8 +191,7 @@ static void draw_text(GtkWidget *widget, cairo_t *cr, gchar *str,
 	} else {
 		yorg += 1;
 	}
-	gtk_paint_layout(gtk_widget_get_style(widget), cr, gtk_widget_get_state(widget),
-		                 FALSE, widget, "label", xorg, yorg, layout);
+	gtk_render_layout(gtk_widget_get_style_context(widget), cr, xorg, yorg, layout);
 	g_object_unref(layout);
 }
 
