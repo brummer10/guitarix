@@ -241,16 +241,16 @@ static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr)
 static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-    gtk_widget_set_state(widget, GTK_STATE_NORMAL);
-    gtk_widget_queue_draw(widget);
+	gtk_widget_unset_state_flags(widget, GTK_STATE_FLAG_PRELIGHT);
+	gtk_widget_queue_draw(widget);
 	return TRUE;
 }
 
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-    gtk_widget_set_state(widget, GTK_STATE_PRELIGHT);
-    gtk_widget_queue_draw(widget);
+	gtk_widget_set_state_flags(widget, GTK_STATE_FLAG_PRELIGHT, FALSE);
+	gtk_widget_queue_draw(widget);
 	return TRUE;
 }
 
@@ -319,11 +319,14 @@ static void gx_selector_size_request(GtkWidget *widget, gint *out_width, gint *o
 		priv->textsize.width = width;
 		priv->textsize.height = height;
         height = std::max(height, selector->icon_height);
-		GtkStyle* style = gtk_widget_get_style(widget);
+
+		GtkStyleContext *style = gtk_widget_get_style_context(widget);
+		GtkBorder wborder;
+		gtk_style_context_get_border(style, gtk_widget_get_state_flags(widget), &wborder);
 		priv->req_width = width + selector->icon_width +
-			selector_border.left + selector_border.right + 3 * style->xthickness;
+			selector_border.left + selector_border.right + 2 * wborder.left + wborder.right;
 		priv->req_height = height + selector_border.top + selector_border.bottom +
-			2 * style->ythickness;
+			wborder.left + wborder.right;
 		priv->req_ok = TRUE;
 		g_object_unref(l);
 	}
@@ -412,14 +415,15 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		set_value_from_selector_state(GX_SELECTOR(widget), i);
 		break;
 	case 3: // right button show num entry
-		GtkRequisition requisition;
-		gtk_widget_get_requisition(widget, &requisition);
-		rect.width = requisition.width;
-		rect.height = requisition.height;
+		gint width, height;
+		gtk_widget_get_preferred_width(widget, nullptr, &width);
+		gtk_widget_get_preferred_height(widget, nullptr, &height);
+		rect.width = width;
+		rect.height = height;
 		GtkAllocation allocation;
 		gtk_widget_get_allocation(widget, &allocation);
-		rect.x = (allocation.width - requisition.width) / 2;
-		rect.y = (allocation.height - requisition.height) / 2;
+		rect.x = (allocation.width - width) / 2;
+		rect.y = (allocation.height - height) / 2;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &rect, event, &ret);
 		return ret;
 		break;
