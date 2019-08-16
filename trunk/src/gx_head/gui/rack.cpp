@@ -800,7 +800,7 @@ PluginPresetPopup::PluginPresetPopup(const PluginDef *pdef_, gx_engine::GxMachin
 	    sigc::mem_fun(this, &PluginPresetPopup::remove_plugin_preset));
     }
     show_all();
-    popup(1, gtk_get_current_event_time());
+    popup_at_pointer(nullptr);
 }
 
 
@@ -1188,9 +1188,9 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
 	t = "rack_shrink";
 	b->set_tooltip_text(_("shrink effect unit"));
     }
-    GtkWidget *l = gtk_image_new_from_stock(t, (GtkIconSize)-1);
+    Gtk::Image *l = new Gtk::Image(t, Gtk::ICON_SIZE_BUTTON);
     b->set_focus_on_click(false);
-    b->add(*manage(Glib::wrap(l)));
+    b->add(*manage(l));
     b->set_name("effect_on_off");
     if (expand) {
 	b->signal_clicked().connect(
@@ -1205,8 +1205,8 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
 Gtk::Button *RackBox::make_preset_button() {
     Gtk::Button *p = new Gtk::Button();
     //p->set_relief(Gtk::RELIEF_NONE);
-    GtkWidget *l = gtk_image_new_from_stock("rack_preset", (GtkIconSize)-1);
-    p->add(*manage(Glib::wrap(l)));
+    Gtk::Image *l = new Gtk::Image("rack_preset", Gtk::ICON_SIZE_BUTTON);
+    p->add(*manage(l));
     p->set_can_default(false);
     p->set_can_focus(false);
 	p->set_tooltip_text(_("manage effect unit presets"));
