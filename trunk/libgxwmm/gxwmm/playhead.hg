@@ -24,8 +24,8 @@ _PINCLUDE(gxwmm/private/regler_p.h)
 
 namespace Gxw {
 
-class PlayHead: public Gxw::Regler {
-	_CLASS_GTKOBJECT(HSlider,GxPlayHead,GX_HSLIDER,Gxw::Regler,GxRegler)
+class PlayHead: public Regler {
+	_CLASS_GTKOBJECT(PlayHead,GxPlayHead,GX_PLAY_HEAD,Regler,GxRegler)
 	public:
 	_CTOR_DEFAULT
 	explicit PlayHead(Gtk::Adjustment& adjustment);

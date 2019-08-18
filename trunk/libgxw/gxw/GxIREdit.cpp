@@ -978,7 +978,8 @@ static gboolean ir_edit_expose(GtkWidget *widget, GdkEventExpose *event)
 	cairo_clip(c);
 	if (ir_edit->locked) {
 		gint width, height;
-		gdk_drawable_get_size(ir_edit->surface, &width, &height);
+		width = gdk_window_get_width(ir_edit->surface);
+		height = gdk_window_get_height(ir_edit->surface);
 		if (width !=  ir_edit->width && height != ir_edit->height) {
 			ir_edit_lock_surface(ir_edit, ir_edit->locked);
 		}

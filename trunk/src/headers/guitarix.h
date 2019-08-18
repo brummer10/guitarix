@@ -64,6 +64,10 @@
 #define GDK_KEY_Z GDK_Z
 #endif
 
+#ifdef GDK_DISABLE_DEPRECATED
+// Some Gdkmm 2.4 header need this defined
+struct GdkSpanFunc;
+#endif
 #include <gtkmm.h>
 #include <curl/curl.h>
 

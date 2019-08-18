@@ -1,3 +1,7 @@
+#ifdef GDK_DISABLE_DEPRECATED
+// Some Gdkmm 2.4 header need this defined
+struct GdkSpanFunc;
+#endif
 #include <glibmm.h>
 #include <gtkmm/main.h>
 #include <gtkmm/window.h>

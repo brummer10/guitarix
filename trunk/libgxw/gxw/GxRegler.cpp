@@ -1201,7 +1201,7 @@ static gboolean map_check(
 	}
 	rc = gdk_keyboard_grab(window, TRUE, GDK_CURRENT_TIME);
 	if (rc != GDK_GRAB_SUCCESS) {
-		gdk_display_pointer_ungrab(gdk_drawable_get_display(window),
+		gdk_display_pointer_ungrab(gdk_window_get_display(window),
 		                           GDK_CURRENT_TIME);
 		gtk_widget_destroy(dialog);
 		return TRUE;
