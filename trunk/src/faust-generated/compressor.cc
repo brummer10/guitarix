@@ -109,7 +109,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow4 = double(fEntry2);
 	double fSlow5 = (1.0 / (fSlow1 + 0.001));
 	for (int i = 0; (i < count); i = (i + 1)) {
-		int iTemp0 = (iRec1[1] < 4096);
+		int iTemp0 = (iRec1[1] < 2048);
 		double fTemp1 = double(input0[i]);
 		fRec4[0] = ((fConst2 * fRec4[1]) + (fConst3 * std::fabs((fTemp1 + 9.9999999999999995e-21))));
 		double fTemp2 = ((fSlow2 * double((fRec3[1] < fRec4[0]))) + (fSlow3 * double((fRec3[1] >= fRec4[0]))));
@@ -120,7 +120,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp6 = std::max<double>(fConst1, std::fabs(fTemp5));
 		fRec0[0] = (iTemp0?(fTemp6 + fRec0[1]):fTemp6);
 		iRec1[0] = (iTemp0?(iRec1[1] + 1):1);
-		fRec2[0] = (iTemp0?fRec2[1]:(0.000244140625 * fRec0[1]));
+		fRec2[0] = (iTemp0?fRec2[1]:(0.00048828125 * fRec0[1]));
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
 		output0[i] = FAUSTFLOAT((std::pow(10.0, (0.050000000000000003 * fTemp5)) * fTemp1));
 		fRec4[1] = fRec4[0];

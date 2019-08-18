@@ -2296,7 +2296,7 @@ def main():
         faust_opt.append('-vec')
     if options.add:
         faust_opt.append(options.add);
-    print (faust_opt)
+    #print (faust_opt)
     faust = Popen("faust %s %s" % (" ".join(faust_opt), fname), shell=True, stdout=PIPE)
     try:
         parser = Parser(faust.stdout,

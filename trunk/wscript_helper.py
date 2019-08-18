@@ -1,6 +1,7 @@
-def add_zita_convolver(bld, uselib, sources, incl, base=".."):
+def add_zita_convolver(bld, uselib, lib, sources, incl, base=".."):
     if bld.env['ZITA_CONVOLVER']:
         uselib.append('ZITA_CONVOLVER')
+        lib.append('fftw3f_threads')
     elif bld.env['CONVOLVER_FFMPEG']:
         sources.append(base+'/zita-convolver-ffmpeg/zita-convolver.cc')
         incl.append(base+'/zita-convolver-ffmpeg');
@@ -8,6 +9,7 @@ def add_zita_convolver(bld, uselib, sources, incl, base=".."):
     else:
         sources.append(base+'/zita-convolver/zita-convolver.cc')
         incl.append(base+'/zita-convolver');
+        lib.append('fftw3f_threads')
 
 def add_zita_resampler(bld, uselib, sources, incl, base=".."):
     if bld.env['ZITA_RESAMPLER']:

@@ -332,6 +332,7 @@ bool MidiController::set_midi(int n, int last_value, bool update) {
         //fprintf(stderr,"%f \n",(127.*log10f(double(n+1.)))/2.1072);
         //fprintf(stderr,"%f \n",double(n * double(double(n+1.)/128)));
         ret = param->midi_set(n, 127, _lower, _upper);
+        param->trigger_changed();
     }
     //param->trigger_changed();
     return ret;

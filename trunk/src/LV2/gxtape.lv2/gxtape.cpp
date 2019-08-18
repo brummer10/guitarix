@@ -65,7 +65,7 @@ Gxtape::~Gxtape()
   // just to be sure the plug have given free the allocated mem
  
  // it didn't hurd if the mem is already given free by clean_up()
-  //tape->activate_plugin(false, tape);
+  tape->activate_plugin(false, tape);
   // delete DSP class
   tape->delete_instance(tape);
 };
@@ -104,7 +104,7 @@ void Gxtape::connect_mono(uint32_t port,void* data)
 void Gxtape::activate_f()
 {
   // allocate the internal DSP mem
-//  tape->activate_plugin(true, tape);
+  tape->activate_plugin(true, tape);
 }
 
 void Gxtape::clean_up()
@@ -113,7 +113,7 @@ void Gxtape::clean_up()
   wn->delete_instance(wn);;
 #endif
   // delete the internal DSP mem
- // tape->activate_plugin(false, tape);
+  tape->activate_plugin(false, tape);
 }
 
 void Gxtape::run_dsp_mono(uint32_t n_samples)
@@ -170,7 +170,7 @@ static void
 activate(LV2_Handle instance)
 {
   // allocate needed mem
- // static_cast<Gxtape*>(instance)->activate_f();
+  static_cast<Gxtape*>(instance)->activate_f();
 }
 
 static void

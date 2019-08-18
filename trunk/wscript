@@ -545,6 +545,7 @@ def check_zita_convolver(opt, conf):
     elif opt.convolver_ffmpeg:
         conf.env['ZITA_CONVOLVER'] = False
         conf.env['CONVOLVER_FFMPEG'] = True
+        conf.define ('CONVOLVER_FFMPEG', 1)
         conf.define ('ZITA_CONVOLVER_VERSION', 3)
     else:
         try:
@@ -698,7 +699,7 @@ def configure(conf):
     conf.check_cfg(package='gthread-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='glibmm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
     conf.check(header_name='fftw3.h', mandatory=1)
-    conf.check_cfg(package='fftw3f', atleast_version='3.1.2', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
+    conf.check_cfg(package='fftw3f', atleast_version='3.3.8', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
 
     if (opt.standalone):
         conf.env['STANDALONE'] = True

@@ -6,7 +6,14 @@ import argparse,sys
 import re
 sys.path.append(".")
 
-parser = argparse.ArgumentParser(description='Build script for guitarix plugins.')
+class ArgParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help()
+        sys.exit(0)
+
+parser = ArgParser(description='Build script to generate guitarix or LV2 plugins from schematic files.', usage='')
+#parser = argparse.ArgumentParser(description='Build script for guitarix plugins.')
 parser.add_argument('-i','--input', metavar='*.sch', nargs='+', help='Input schematic file(s) name [ONE REQUIRED]',required=True)
 parser.add_argument('-n','--name',help='Name for plugin [OPTIONAL]', required=False)
 parser.add_argument('-s','--shortname',help='Shortname for plugin [OPTIONAL]', required=False)
@@ -29,6 +36,7 @@ parser.add_argument('-f','--freqsplit', help='use frequency splitter [OPTIONAL]'
 parser.add_argument('-v','--vectorize', help='generate vectorized loop [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-V','--vector_size', metavar='N', type=int, help='use vector size N [OPTIONAL]', required=False)
 parser.add_argument('-r','--reduce_gain', metavar='N=value', nargs='+', help='reduce gain output from the circuit N by value [OPTIONAL]', required=False)
+
 
 args = parser.parse_args()
 
@@ -325,6 +333,10 @@ class DKbuilder(object):
         for sch in args.input:
             dsp_counter +=1
             print ("\nInput file %s: %s" % (dsp_counter, args.input[dsp_counter-1]))
+           # fileName, fileExtension = os.path.splitext(args.input[dsp_counter-1])
+           # if fileExtension == ".dsp":
+           #     read_dsp_file(args.input[dsp_counter-1])
+           #     continue
 
             schema = args.input[dsp_counter-1]
             workfile="gschem-schematics/"+schema

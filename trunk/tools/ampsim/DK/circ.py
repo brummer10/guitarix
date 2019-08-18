@@ -11,6 +11,7 @@ from numpy.fft import fftfreq
 
 Tubes = {
     "12ax7" : dict(mu = 100.0, Ex = 1.4, Kp = 600.0, Kvb = 300.0, Kg1 = 1060.0, Gco = -0.2, Gcf = 1e-5),
+    "12ax7a": dict(mu = 100.3, Ex = 1.5, Kp = 1795.7, Kvb = 524.4, Kg1 = 1651.8, Gco = -0.2, Gcf = 1e-5),
     "12au7" : dict(mu = 21.5, Ex = 1.3, Kp = 84.0, Kvb = 300.0, Kg1 = 1180.0, Gco = 0, Gcf = 12e-5),
     "12au7a": dict(mu = 19.41, Ex = 1.226, Kp = 104.87, Kvb = 300.0, Kg1 = 1233.8, Gco = 0, Gcf = 9e-5),
     "12at7" : dict(mu = 60.0, Ex = 1.35, Kp = 300.0, Kvb = 300.0, Kg1 = 460.0, Gco = -0.5, Gcf = 12e-5),

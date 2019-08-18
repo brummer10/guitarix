@@ -290,6 +290,7 @@ public:
   ~GxPluginMono();
 };
 
+
   // constructor
 GxPluginMono::GxPluginMono() :
   output(NULL),
