@@ -135,6 +135,7 @@ void Gxbooster::activate_f()
 
 void Gxbooster::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   // run dsp
   bb.run_static(n_samples, input, output, &bb);
   hb.run_static(n_samples, output, output, &hb);

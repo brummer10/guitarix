@@ -128,6 +128,7 @@ void Gx_compressor::clean_up()
 
 void Gx_compressor::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   compressor_st->mono_audio(static_cast<int>(n_samples), input,
                         output, compressor_st);
 }

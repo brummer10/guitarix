@@ -126,6 +126,7 @@ void Gx_fumaster_::deactivate_f()
 
 void Gx_fumaster_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   fumaster->mono_audio(static_cast<int>(n_samples), input, output, fumaster);
 }
 

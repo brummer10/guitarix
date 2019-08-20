@@ -289,6 +289,7 @@ void Gx_detune_::activate(LV2_Handle instance)
 
 void Gx_detune_::run(LV2_Handle instance, uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   // run dsp
   static_cast<Gx_detune_*>(instance)->run_dsp_(n_samples);
 }

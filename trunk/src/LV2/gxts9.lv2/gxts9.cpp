@@ -108,6 +108,7 @@ void Gxts9::activate_f()
 
 void Gxts9::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   // run dsp
   ts9.run_static(n_samples, input, output, &ts9);
 }

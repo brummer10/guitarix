@@ -134,6 +134,7 @@ void Gx_reverb_stereo::deactivate_f()
 
 void Gx_reverb_stereo::run_dsp_stereo(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   reverb_st->stereo_audio(static_cast<int>(n_samples), input, input1,
                         output, output1, reverb_st);
 }

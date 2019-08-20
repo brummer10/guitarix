@@ -124,6 +124,7 @@ void Gx_mbecho_::deactivate_f()
 
 void Gx_mbecho_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   mbecho->mono_audio(static_cast<int>(n_samples), input, output, mbecho);
 }
 

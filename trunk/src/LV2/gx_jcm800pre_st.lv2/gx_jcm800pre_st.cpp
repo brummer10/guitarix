@@ -195,6 +195,7 @@ void Gx_jcm800pre_::deactivate_f()
 
 void Gx_jcm800pre_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   downtomono->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1,  downtomono);
   if(n_samples == bufsize) {
     jcm800pre->mono_audio(static_cast<int>(n_samples), output, output, jcm800pre);

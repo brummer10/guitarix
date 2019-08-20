@@ -126,6 +126,7 @@ void Gx_cstb_::deactivate_f()
 
 void Gx_cstb_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   cstb->mono_audio(static_cast<int>(n_samples), input, output, cstb);
 }
 

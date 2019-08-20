@@ -134,6 +134,7 @@ void Gx_shimmizita_::deactivate_f()
 
 void Gx_shimmizita_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   shimmizita->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1, shimmizita);
 }
 

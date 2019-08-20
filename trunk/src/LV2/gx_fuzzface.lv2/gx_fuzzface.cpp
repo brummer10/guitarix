@@ -127,6 +127,7 @@ void Gx_fuzzface_::deactivate_f()
 
 void Gx_fuzzface_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   fuzzface->mono_audio(static_cast<int>(n_samples), input, output, fuzzface);
 }
 

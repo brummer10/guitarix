@@ -127,6 +127,7 @@ void Gx_bossds1_::deactivate_f()
 
 void Gx_bossds1_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   bossds1->mono_audio(static_cast<int>(n_samples), input, output, bossds1);
 }
 

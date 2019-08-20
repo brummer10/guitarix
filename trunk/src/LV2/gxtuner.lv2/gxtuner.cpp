@@ -438,6 +438,7 @@ void Gxtuner::deactivate_f()
 
 void Gxtuner::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   static uint32_t sample_set = sample_period/n_samples;
   if (fabs(bpm - *(bpm_))>0.1)
   {

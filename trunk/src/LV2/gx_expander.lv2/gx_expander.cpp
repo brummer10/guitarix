@@ -128,6 +128,7 @@ void Gx_expander::clean_up()
 
 void Gx_expander::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   expander_st->mono_audio(static_cast<int>(n_samples), input,
                         output, expander_st);
 }

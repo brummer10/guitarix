@@ -126,6 +126,7 @@ void Gx_susta_::deactivate_f()
 
 void Gx_susta_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   susta->mono_audio(static_cast<int>(n_samples), input, output, susta);
 }
 

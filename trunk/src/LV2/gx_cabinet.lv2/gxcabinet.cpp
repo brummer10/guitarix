@@ -333,6 +333,7 @@ void GxCabinet::connect_mono(uint32_t port,void* data)
 
 void GxCabinet::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp

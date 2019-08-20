@@ -134,6 +134,7 @@ void Gx_digital_delay_st_::deactivate_f()
 
 void Gx_digital_delay_st_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   digital_delay_st->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1, digital_delay_st);
 }
 

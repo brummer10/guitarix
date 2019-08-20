@@ -128,6 +128,7 @@ void Gx_tremolo::clean_up()
 
 void Gx_tremolo::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   tremolo_st->mono_audio(static_cast<int>(n_samples), input,
                         output, tremolo_st);
 }

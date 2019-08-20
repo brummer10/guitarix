@@ -121,6 +121,7 @@ void Gx_zita_rev1_stereo::clean_up()
 
 void Gx_zita_rev1_stereo::run_dsp_stereo(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   zita_rev1_st->stereo_audio(static_cast<int>(n_samples), input, input1,
                         output, output1, zita_rev1_st);
 }

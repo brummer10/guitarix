@@ -126,6 +126,7 @@ void Gx_gcb_95_::deactivate_f()
 
 void Gx_gcb_95_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   gcb_95->mono_audio(static_cast<int>(n_samples), input, output, gcb_95);
 }
 

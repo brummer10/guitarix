@@ -126,6 +126,7 @@ void Gx_mbreverb_::deactivate_f()
 
 void Gx_mbreverb_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   mbreverb->mono_audio(static_cast<int>(n_samples), input, output, mbreverb);
 }
 

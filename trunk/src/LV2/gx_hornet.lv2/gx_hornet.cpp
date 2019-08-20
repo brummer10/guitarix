@@ -126,6 +126,7 @@ void Gx_hornet_::deactivate_f()
 
 void Gx_hornet_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   hornet->mono_audio(static_cast<int>(n_samples), input, output, hornet);
 }
 

@@ -126,6 +126,7 @@ void Gx_oc_2_::deactivate_f()
 
 void Gx_oc_2_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   oc_2->mono_audio(static_cast<int>(n_samples), input, output, oc_2);
 }
 

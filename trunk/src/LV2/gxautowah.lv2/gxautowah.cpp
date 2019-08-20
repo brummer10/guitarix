@@ -156,6 +156,7 @@ void Gxautowah::activate_f()
 
 void Gxautowah::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   // run dsp
   (&wah->*_wah)(n_samples, input, output);
 }

@@ -128,6 +128,7 @@ void Gx_phaser::clean_up()
 
 void Gx_phaser::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   phaser_st->mono_audio(static_cast<int>(n_samples), input,
                         output, phaser_st);
 }

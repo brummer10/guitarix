@@ -129,6 +129,7 @@ void Gx_livelooper_::deactivate_f()
 
 void Gx_livelooper_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   livelooper->mono_audio(static_cast<int>(n_samples), input, output, livelooper);
 }
 

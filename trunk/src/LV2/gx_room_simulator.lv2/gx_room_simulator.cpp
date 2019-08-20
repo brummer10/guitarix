@@ -126,6 +126,7 @@ void Gx_room_simulator_::deactivate_f()
 
 void Gx_room_simulator_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   room_simulator->mono_audio(static_cast<int>(n_samples), input, output, room_simulator);
 }
 

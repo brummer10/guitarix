@@ -149,6 +149,7 @@ void Gx_digital_delay_::deactivate_f()
 
 void Gx_digital_delay_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   bpm_sync_ = *(bpm_sync);
   if (bpm_sync_) {
     if (*(bpm_set) != bpm) *(bpm_set) = bpm;

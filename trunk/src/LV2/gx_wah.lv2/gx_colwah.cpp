@@ -153,6 +153,7 @@ void Gx_colwah_::deactivate_f()
 
 void Gx_colwah_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   wah_model_ = min(wah_max, static_cast<uint32_t>(*(wahh_model)));
   wah[wah_model_]->mono_audio(static_cast<int>(n_samples), input, output, wah[wah_model_]);
 }

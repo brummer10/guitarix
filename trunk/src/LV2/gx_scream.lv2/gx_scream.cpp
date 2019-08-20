@@ -126,6 +126,7 @@ void Gx_scream_::deactivate_f()
 
 void Gx_scream_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   scream->mono_audio(static_cast<int>(n_samples), input, output, scream);
 }
 

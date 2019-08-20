@@ -132,6 +132,7 @@ void Gxechocat::deactivate_f()
 
 void Gxechocat::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
 #ifndef __SSE__
   wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
 #endif

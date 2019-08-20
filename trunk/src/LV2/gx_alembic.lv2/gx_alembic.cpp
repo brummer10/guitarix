@@ -136,6 +136,7 @@ void Gx_alembic::deactivate_f()
 
 void Gx_alembic::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
 #ifndef __SSE__
   wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
 #endif

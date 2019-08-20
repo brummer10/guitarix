@@ -124,6 +124,7 @@ void Gx_mbdelay_::deactivate_f()
 
 void Gx_mbdelay_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   mbdelay->mono_audio(static_cast<int>(n_samples), input, output, mbdelay);
 }
 

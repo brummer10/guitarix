@@ -542,6 +542,7 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp

@@ -21,7 +21,7 @@ def build(bld):
     if not bld.env['ZITA_CONVOLVER']:
         if not bld.env['CONVOLVER_FFMPEG']:
             uselib.append('FFTW3')
-    wscript_helper.add_zita_convolver(bld, uselib, lib, src, incl, base="../..")
+    wscript_helper.add_zita_convolver(bld, uselib, src, incl, base="../..")
     wscript_helper.add_zita_resampler(bld, uselib, src, incl, base="../..")
     cxxflag =[]
     ldscript = bld.path.find_resource('gx_cabinet.lds')

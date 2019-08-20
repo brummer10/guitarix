@@ -104,11 +104,7 @@ protected:
                        unsigned int& size, unsigned int& bufsize);
     unsigned int buffersize;
     unsigned int samplerate;
-    GxConvolverBase(): ready(false), sync(false), buffersize(), samplerate() {
-#ifndef CONVOLVER_FFMPEG
-      fftwf_make_planner_thread_safe ();
-#endif
-    }
+    GxConvolverBase(): ready(false), sync(false), buffersize(), samplerate() {}
     ~GxConvolverBase();
 public:
     inline void set_buffersize(unsigned int sz) { buffersize = sz; }

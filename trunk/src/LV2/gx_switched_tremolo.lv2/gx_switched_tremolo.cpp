@@ -126,6 +126,7 @@ void Gx_switched_tremolo_::deactivate_f()
 
 void Gx_switched_tremolo_::run_dsp_(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   switched_tremolo->mono_audio(static_cast<int>(n_samples), input, output, switched_tremolo);
 }
 

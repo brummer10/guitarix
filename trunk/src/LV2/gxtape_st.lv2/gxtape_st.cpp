@@ -128,6 +128,7 @@ void Gxtape_st::clean_up()
 
 void Gxtape_st::run_dsp_stereo(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
 #ifndef __SSE__
   wn->stereo_audio(static_cast<int>(n_samples), input0,
                          input1, output0,output1,  wn);;
