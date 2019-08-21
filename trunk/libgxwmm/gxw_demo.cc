@@ -6,6 +6,8 @@
 #include <gtkmm/stack.h>
 #include <gtkmm/stacksidebar.h>
 #include <gtkmm/comboboxtext.h>
+#include <gtkmm/switch.h>
+#include <gtkmm/settings.h>
 #include <gxwmm/init.h>
 #include <gxwmm/switch.h>
 #include <gxwmm/smallknob.h>
@@ -63,7 +65,7 @@ class TextColumns : public Gtk::TreeModelColumnRecord
 public:
 
 	TextColumns()
-    {
+	{
 		add(m_col_text);
 	}
 
@@ -160,7 +162,26 @@ Demo::Demo():
 	m_v_wheel(m_adj_wheels)
 {
 	// Stack setup
-	m_root_box.add(m_stacksidebar);
+	Gtk::Box *vbox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
+	vbox->pack_start(m_stacksidebar, true, true);
+	Gtk::Box *hbox = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL);
+	Gtk::Label *label = new Gtk::Label("Dark UI");
+	label->set_xalign(0.0);
+	hbox->pack_start(*manage(label), true, true);
+	Gtk::Switch *dark = new Gtk::Switch();
+	auto settings = Gtk::Settings::get_default();
+	dark->set_state(settings->property_gtk_application_prefer_dark_theme().get_value());
+	settings->property_gtk_application_prefer_dark_theme().signal_changed().connect(
+		[dark, settings] () {
+			dark->set_state(settings->property_gtk_application_prefer_dark_theme().get_value());
+		});
+	dark->property_active().signal_changed().connect(
+		[dark, settings] () {
+			settings->property_gtk_application_prefer_dark_theme() = dark->get_state();
+		});
+	hbox->pack_start(*manage(dark), false, true);
+	vbox->pack_start(*manage(hbox), false, true, 4);
+	m_root_box.add(*manage(vbox));
 	m_stack.set_transition_type(Gtk::STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
 	m_stacksidebar.set_stack(m_stack);
 	m_root_box.add(m_stack);
