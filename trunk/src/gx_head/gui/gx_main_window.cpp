@@ -1061,7 +1061,8 @@ bool MainWindow::on_my_leave_out(GdkEventCrossing *focus) {
 
 bool MainWindow::on_my_enter_in(GdkEventCrossing *focus) {
     Glib::RefPtr<Gdk::Window> wind = window->get_window();
-    Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(Gdk::HAND1));
+    Glib::RefPtr<Gdk::Display> disp = window->get_display();
+    Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(disp, Gdk::HAND1));
     wind->set_cursor(cursor);
     return true;
 }

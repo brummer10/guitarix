@@ -365,7 +365,8 @@ bool MiniRackBox::on_my_leave_out(GdkEventCrossing *focus) {
 bool MiniRackBox::on_my_enter_in(GdkEventCrossing *focus) {
     if (!mconbox.get_visible()) {
         Glib::RefPtr<Gdk::Window> window = this->get_window();
-        Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(Gdk::HAND1));
+        Glib::RefPtr<Gdk::Display> disp = this->get_display();
+        Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(disp, Gdk::HAND1));
         window->set_cursor(cursor);
     }
     return true;
@@ -868,7 +869,8 @@ bool RackBox::on_my_leave_out(GdkEventCrossing *focus) {
 
 bool RackBox::on_my_enter_in(GdkEventCrossing *focus) {
     Glib::RefPtr<Gdk::Window> window = this->get_window();
-    Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(Gdk::HAND1));
+    Glib::RefPtr<Gdk::Display> disp = this->get_display();
+    Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(disp, Gdk::HAND1));
     window->set_cursor(cursor);
     return true;
 }

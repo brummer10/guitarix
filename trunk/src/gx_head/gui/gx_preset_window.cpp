@@ -851,7 +851,8 @@ void PresetWindow::show_online_preset() {
     static bool load = false;
     Glib::RefPtr<Gdk::Window> window = preset_scrolledbox->get_toplevel()->get_window();
     if (load_new || ! dest->query_exists()) {
-        Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(Gdk::WATCH));
+        Glib::RefPtr<Gdk::Display> disp = preset_scrolledbox->get_toplevel()->get_display();
+        Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(disp, Gdk::WATCH));
         window->set_cursor(cursor);
         if (dest->query_exists()) {
             Gtk::MessageDialog *d = new Gtk::MessageDialog(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),

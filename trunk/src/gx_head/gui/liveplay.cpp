@@ -384,11 +384,12 @@ bool Liveplay::pointer_motion(GdkEventMotion* event) {
     } else {
 	window->get_window()->set_cursor();
     }
+    Glib::RefPtr<Gdk::Display> disp = window->get_display();
     mouse_hide_conn = Glib::signal_timeout().connect_seconds(
 	sigc::bind_return(
 	    sigc::bind(
 		sigc::mem_fun1(window->get_window().operator->(), &Gdk::Window::set_cursor),
-		Gdk::Cursor::create(Gdk::BLANK_CURSOR)),
+		Gdk::Cursor::create(disp, Gdk::BLANK_CURSOR)),
 	    false),
 	5);
     return false;
