@@ -229,7 +229,8 @@ static void gx_hslider_init(GxHSlider *hslider)
 static void gx_hslider_set_pointer (GtkWidget *widget, GdkEventMotion *event)
 {
     GxHSlider *slider = GX_HSLIDER(widget);
-    GdkCursor *cur = gdk_cursor_new(GDK_HAND2);
+    GdkDisplay *disp = gtk_widget_get_display(widget);
+    GdkCursor *cur = gdk_cursor_new_for_display(disp, GDK_HAND2);
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->width - slider->slider_width);
     if (gtk_widget_get_state_flags(widget) & GTK_STATE_FLAG_ACTIVE
     or (event and event->x > slstate and event->x < slstate + slider->slider_width))
