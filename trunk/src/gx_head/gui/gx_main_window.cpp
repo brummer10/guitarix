@@ -1899,14 +1899,13 @@ void MainWindow::make_icons(bool force) {
 	w.hide();
         i->second->hide();
     }
-    
+
     // Amp padding
-    hanl = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_left", (GtkIconSize)-1, NULL);
-    hanr = gtk_widget_render_icon(GTK_WIDGET(window->gobj()), "handle_right", (GtkIconSize)-1, NULL);
-    gint wl = gdk_pixbuf_get_width(hanl);
-    gint wr = gdk_pixbuf_get_width(hanr);
-    g_object_unref(hanl);
-    g_object_unref(hanr);
+    auto theme = Gtk::IconTheme::get_default();
+    auto hanl = theme->load_icon("handle_left", -1, Gtk::ICON_LOOKUP_GENERIC_FALLBACK);
+    auto hanr = theme->load_icon("handle_right", -1, Gtk::ICON_LOOKUP_GENERIC_FALLBACK);
+    gint wl = hanl->get_width();
+    gint wr = hanr->get_width();
     bld->find_widget("amp_padding", vbam);
     vbam->set_padding(0, 4, wl, wr);
     bld->find_widget("tuner_padding", vbam);

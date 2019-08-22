@@ -142,7 +142,9 @@ static gboolean gx_vslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 
 static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 {
-	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
+	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 get_stock_id(widget), -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	if (GDK_IS_PIXBUF(pb)) {
 		r->width = gdk_pixbuf_get_width(pb);
 		r->height = gdk_pixbuf_get_height(pb);
@@ -252,7 +254,9 @@ static void gx_vslider_render_pixbuf (GtkWidget *widget)
 {
     GxVSlider *vslider = GX_VSLIDER(widget);
     gtk_widget_style_get(widget, "slider-width", &vslider->slider_height, NULL);
-    vslider->image = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
+    vslider->image = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+                                              get_stock_id(widget), -1,
+                                              GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
     if (GDK_IS_PIXBUF(vslider->image)) {
         vslider->width = gdk_pixbuf_get_width(vslider->image);
         vslider->height = gdk_pixbuf_get_height(vslider->image) - vslider->slider_height * 2;

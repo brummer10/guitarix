@@ -695,8 +695,6 @@ private:
     Gtk::RadioButton *channel3_button;
     Gtk::Container *channel3_box;
     Gtk::Alignment *vbam;
-    GdkPixbuf *hanl;
-    GdkPixbuf *hanr;
 
 private:
     bool on_my_leave_out(GdkEventCrossing *focus);

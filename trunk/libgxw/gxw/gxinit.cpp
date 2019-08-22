@@ -20,100 +20,12 @@
 
 #include "gximages.cc"
 
-typedef struct {
-	const char *icon_name;
-
-} image_entry;
-
-static image_entry image_data[] = {
-	{ "button_off" },
-	{ "button_on" },
-	{ "eqslider" },
-	{ "levelslider" },
-	{ "bigknob" },
-	{ "midknob" },
-	{ "led_off" },
-	{ "led_on" },
-	{ "minislider" },
-	{ "minitoggle_off" },
-	{ "minitoggle_on" },
-	{ "hslider" },
-	{ "smallknob" },
-	{ "smallknobr" },
-	{ "switchit_off" },
-	{ "switchit_on" },
-	{ "switch_off" },
-	{ "switch_on" },
-	{ "switch_mid_off" },
-	{ "switch_mid_on" },
-	{ "switch_min_off" },
-	{ "switch_min_on" },
-	{ "pbutton_on" },
-	{ "pbutton_off" },
-	{ "rbutton_on" },
-	{ "rbutton_off" },
-	{ "prbutton_on" },
-	{ "prbutton_off" },
-	{ "fbutton_on" },
-	{ "fbutton_off" },
-    { "frbutton_on" },
-	{ "frbutton_off" },
-    { "cycle_on" },
-	{ "cycle_off" },
-    { "pcycle_on" },
-	{ "pcycle_off" },
-    { "plus_on" },
-	{ "plus_off" },
-    { "sync_on" },
-	{ "sync_off" },
-    { "resetbutton_on" },
-	{ "resetbutton_off" },
-    { "follow_on" },
-	{ "follow_off" },
-    { "overdub_on" },
-	{ "overdub_off" },
-	{ "vslider" },
-	{ "wheel_back" },
-    { "wheel_vertical_back" },
-	{ "wheel_fringe" },
-	{ "wheel_pointer" },
-	{ "gxhead" },
-    { "gxplate" },
-    { "gxplate2" },
-    { "gxplate3" },
-    { "portdisplay" },
-	{ "guitarix" },
-    { "screw" },
-    { "logo" },
-    { "bypass_on" },
-	{ "bypass_off" },
-
-    { "background1" },
-    { "background2" },
-    { "handle_left" },
-    { "handle_right" },
-    { "selector_icon" },
-    { "insert" },
-    { "watermark" },
-    { "playhead" },
-	{ NULL },
-};
-
 void gxw_init()
 {
-#if !GLIB_CHECK_VERSION(2, 36, 0) 
+#if !GLIB_CHECK_VERSION(2, 36, 0)
 	g_type_init();
 #endif
-    gchar *path =NULL;
-
-	GtkIconFactory *factory = gtk_icon_factory_new();
-	for (image_entry *p = image_data; p->icon_name; p++) {
-		path = g_strdup_printf ("/icons/%s.png", p->icon_name);
-		gtk_icon_factory_add(
-			factory, p->icon_name,
-			gtk_icon_set_new_from_pixbuf(
-				gdk_pixbuf_new_from_resource(
-					path, NULL)));
-	}
-	gtk_icon_factory_add_default(factory);
+	GtkIconTheme *theme = gtk_icon_theme_get_default();
+	g_assert(theme);
+	gtk_icon_theme_add_resource_path(theme, "/icons");
 }

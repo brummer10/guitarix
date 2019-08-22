@@ -319,7 +319,9 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	GdkRectangle image_rect, value_rect;
 	
 	GxKnob *knob = GX_KNOB(widget);
-	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, icon, GtkIconSize(-1));
+	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 icon, -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	GxKnobPrivate *priv = knob->priv;
 	
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
@@ -405,7 +407,9 @@ static gboolean gx_knob_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 		return TRUE;
 	}
 	GdkRectangle image_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
+	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 get_stock_id(widget), -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
 	g_object_unref(pb);
 	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
@@ -428,7 +432,9 @@ static gboolean gx_knob_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 		return TRUE;
 	}
 	GdkRectangle image_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
+	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 get_stock_id(widget), -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	gint fcount;
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
 	g_object_unref(pb);
@@ -474,7 +480,9 @@ static void gx_knob_get_preferred_height(GtkWidget *widget, gint *min_height, gi
 static void gx_knob_size_request (GtkWidget *widget, gint *width, gint *height)
 {
 	g_assert(GX_IS_KNOB(widget));
-	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
+	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 get_stock_id(widget), -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	if (GDK_IS_PIXBUF (pb)) {
 		gint fcount;
 		GdkRectangle rect;
@@ -490,7 +498,9 @@ static gboolean gx_knob_draw(GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_KNOB(widget));
 	GdkRectangle image_rect, value_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
+	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 get_stock_id(widget), -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	if (GDK_IS_PIXBUF (pb)) {
 		gint fcount;
 		get_image_dimensions (widget, pb, &image_rect, &fcount);

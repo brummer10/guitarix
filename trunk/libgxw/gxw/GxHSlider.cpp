@@ -243,7 +243,9 @@ static void gx_hslider_render_pixbuf (GtkWidget *widget)
 {
     GxHSlider *hslider = GX_HSLIDER(widget);
     gtk_widget_style_get(widget, "slider-width", &hslider->slider_width, NULL);
-    hslider->image = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
+    hslider->image = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+                                              get_stock_id(widget), -1,
+                                              GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
     hslider->width = gdk_pixbuf_get_width(hslider->image) - hslider->slider_width * 2;
     hslider->height = gdk_pixbuf_get_height(hslider->image);
     GdkRectangle rect;

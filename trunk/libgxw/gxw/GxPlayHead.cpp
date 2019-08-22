@@ -129,7 +129,9 @@ static void gx_play_head_render_pixbuf (GtkWidget *widget)
 {
     GxPlayHead *playhead = GX_PLAYHEAD(widget);
     gtk_widget_style_get(widget, "phead-width", &playhead->phead_width, NULL);
-    playhead->image        = gtk_widget_render_icon_pixbuf(widget, get_stock_id(widget), GtkIconSize(-1));
+    playhead->image = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											   get_stock_id(widget), -1,
+											   GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
     playhead->height       = gdk_pixbuf_get_height(playhead->image);
     playhead->width        = gdk_pixbuf_get_width(playhead->image) - playhead->height*2;
     GdkRectangle rect;

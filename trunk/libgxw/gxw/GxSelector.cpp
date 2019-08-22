@@ -169,7 +169,9 @@ static void gx_selector_get_positions(
 static void gx_selector_create_icon(GxSelector *selector) {
     if (selector->icon)
         return;
-    selector->icon = gtk_widget_render_icon_pixbuf(GTK_WIDGET(selector), "selector_icon", (GtkIconSize)-1L);
+    selector->icon = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 "selector_icon", -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
     selector->icon_width = gdk_pixbuf_get_width(selector->icon);
     selector->icon_height = gdk_pixbuf_get_height(selector->icon);
 }

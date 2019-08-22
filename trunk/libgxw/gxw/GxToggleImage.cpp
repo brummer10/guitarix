@@ -116,7 +116,8 @@ static void gx_toggle_image_size_request (GtkWidget *widget, gint *width, gint *
 {
 	GxToggleImage *toggle_image = GX_TOGGLE_IMAGE(widget);
 	char *s = g_strconcat(toggle_image->priv->base_name, "_on", NULL);
-	GdkPixbuf *img = gtk_widget_render_icon_pixbuf(widget, s, GtkIconSize(-1));
+	GdkPixbuf *img = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(), s, -1,
+											  GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	g_free(s);
 	if (GDK_IS_PIXBUF (img)) {
 		gint xpad, ypad;
@@ -137,7 +138,8 @@ static gboolean gx_toggle_image_draw(GtkWidget *widget, cairo_t *cr)
 		s = "_on";
 	}
 	char *nm = g_strconcat(toggle_image->priv->base_name, s, NULL);
-	GdkPixbuf *img = gtk_widget_render_icon_pixbuf(widget, nm, GtkIconSize(-1));
+	GdkPixbuf *img = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(), nm, -1,
+											  GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	g_free(nm);
 	if (!img) {
 		return FALSE;

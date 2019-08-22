@@ -452,12 +452,12 @@ static void exception_handler() {
 
 static void mainGtk(int argc, char *argv[]) {
     Glib::init();
-    Gxw::init();
 
     PosixSignals posixsig(true); // catch unix signals in special thread
     Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
     gx_system::CmdlineOptions options;
     Gtk::Main main(argc, argv, options);
+    Gxw::init();
     options.process(argc, argv);
     GxSplashBox * Splash = NULL;
 #ifdef NDEBUG
@@ -509,12 +509,12 @@ static void mainGtk(int argc, char *argv[]) {
 
 static void mainFront(int argc, char *argv[]) {
     Glib::init();
-    Gxw::init();
 
     PosixSignals posixsig(true); // catch unix signals in special thread
     Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
     gx_system::CmdlineOptions options;
     Gtk::Main main(argc, argv, options);
+    Gxw::init();
     options.process(argc, argv);
     GxSplashBox * Splash = NULL;
 #ifdef NDEBUG

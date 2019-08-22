@@ -289,8 +289,8 @@ Demo::Demo():
 
 int main (int argc, char *argv[])
 {
-	Gxw::init();
 	Gtk::Main kit(argc, argv);
+	Gxw::init();
 
 	Demo demo;
 	Gtk::Main::run(demo);
