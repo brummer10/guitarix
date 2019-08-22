@@ -36,6 +36,7 @@ static void gx_play_head_class_init(GxPlayHeadClass *klass)
 
 	widget_class->draw = gx_play_head_draw;
 	widget_class->get_preferred_width = gx_play_head_get_preferred_width;
+	widget_class->get_preferred_height = gx_play_head_get_preferred_height;
 	widget_class->button_press_event   = NULL;
 	widget_class->button_release_event = NULL;
 	widget_class->motion_notify_event  = NULL;
