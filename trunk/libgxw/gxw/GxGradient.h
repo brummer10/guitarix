@@ -25,24 +25,15 @@ G_BEGIN_DECLS
 
 typedef struct _GxGradientElement GxGradientElement;
 typedef struct _GxGradient GxGradient;
-typedef struct _GxRgba GxRgba;
 
 struct _GxGradientElement {
-	float offset, red, green, blue, alpha;
+	gdouble offset, red, green, blue, alpha;
 };
 
 struct _GxGradient {
 	GSList *colors;
 };
 
-struct _GxRgba {
-	float red, green, blue, alpha;
-};
-
-#define GX_TYPE_RGBA (gx_rgba_get_type())
-GType gx_rgba_get_type(void) G_GNUC_CONST;
-void gx_rgba_free(GxRgba *rgba);
-GxRgba *gx_rgba_copy(const GxRgba *rgba);
 gboolean gx_parse_rgba(const GParamSpec *pspec, const GString *rc_string,
                        GValue *property_value);
 

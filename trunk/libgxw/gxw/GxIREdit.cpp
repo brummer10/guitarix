@@ -268,7 +268,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		g_param_spec_boxed ("no-data-color",
 		                    P_("No data color"),
 		                    P_("Color of graph background when no data is available"),
-		                    GX_TYPE_RGBA,
+		                    GDK_TYPE_RGBA,
 		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_rgba);
 	gtk_widget_class_install_style_property_parser(
@@ -276,7 +276,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		g_param_spec_boxed ("sample-graph-color",
 		                    P_("Sample graph color"),
 		                    P_("Color of graph with sampled values"),
-		                    GX_TYPE_RGBA,
+		                    GDK_TYPE_RGBA,
 		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_rgba);
 	gtk_widget_class_install_style_property_parser(
@@ -284,7 +284,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		g_param_spec_boxed ("sample-graph-color-out",
 		                    P_("Sample graph color outside"),
 		                    P_("Color of graph outside of cut region"),
-		                    GX_TYPE_RGBA,
+		                    GDK_TYPE_RGBA,
 		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_rgba);
 	gtk_widget_class_install_style_property_parser(
@@ -292,7 +292,7 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		g_param_spec_boxed ("gain-line-color",
 		                    P_("Gain line color"),
 		                    P_("Color of gain line"),
-		                    GX_TYPE_RGBA,
+		                    GDK_TYPE_RGBA,
 		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
 		gx_parse_rgba);
 	gtk_widget_class_install_style_property(
@@ -572,21 +572,21 @@ static void gx_ir_edit_destroy(GtkWidget* object)
 	GTK_WIDGET_CLASS(gx_ir_edit_parent_class)->destroy(object);
 }
 
-static void get_color(GxIREdit *ir_edit, GxRgba *clr, const char *name, GxRgba *dflt)
+static void get_color(GxIREdit *ir_edit, GdkRGBA *clr, const char *name, GdkRGBA *dflt)
 {
-	GxRgba *tmp;
+	GdkRGBA *tmp;
 	gtk_widget_style_get(GTK_WIDGET(ir_edit), name, &tmp, NULL);
 	if (tmp) {
 		*clr = *tmp;
-		gx_rgba_free(tmp);
+		gdk_rgba_free(tmp);
 	} else {
 		*clr = *dflt;
 	}
 }
 
-static GxRgba sample_graph_color = { 1.0, 0.0, 0.0, 1.0 };
-static GxRgba sample_graph_color_out = { 0.0, 0.0, 0.0, 0.3 };
-static GxRgba no_data_color = { 1.0, 1.0, 1.0, 0.6 };
+static GdkRGBA sample_graph_color = { 1.0, 0.0, 0.0, 1.0 };
+static GdkRGBA sample_graph_color_out = { 0.0, 0.0, 0.0, 0.3 };
+static GdkRGBA no_data_color = { 1.0, 1.0, 1.0, 0.6 };
 
 #define COLOR_BG 0
 #define COLOR_FG 1
@@ -610,7 +610,7 @@ static void set_color_from_style(cairo_t *c, GxIREdit *ir_edit, gint type, doubl
 
 static void ir_edit_paint_no_data(GxIREdit *ir_edit, cairo_t *c)
 {
-	GxRgba clr;
+	GdkRGBA clr;
 	cairo_save(c);
 	get_color(ir_edit, &clr, "no-data-color", &no_data_color);
 	cairo_set_source_rgba(c, clr.red, clr.green, clr.blue, clr.alpha);
@@ -630,7 +630,7 @@ static void ir_edit_paint_no_data(GxIREdit *ir_edit, cairo_t *c)
 
 static void ir_edit_draw_direct(GxIREdit *ir_edit, cairo_t *c, int start, int end)
 {
-	GxRgba clr, clr_out;
+	GdkRGBA clr, clr_out;
 	get_color(ir_edit, &clr, "sample-graph-color", &sample_graph_color);
 	get_color(ir_edit, &clr_out, "sample-graph-color-out", &sample_graph_color_out);
 	start = int(round(start * ir_edit->scale)) - 1;
@@ -679,7 +679,7 @@ static void ir_edit_draw_direct(GxIREdit *ir_edit, cairo_t *c, int start, int en
 
 static void ir_edit_draw_accum(GxIREdit *ir_edit, cairo_t *c, int start, int end)
 {
-	GxRgba clr, clr_out;
+	GdkRGBA clr, clr_out;
 	get_color(ir_edit, &clr, "sample-graph-color", &sample_graph_color);
 	get_color(ir_edit, &clr_out, "sample-graph-color-out", &sample_graph_color_out);
 	cairo_set_source_rgba(c, clr.red, clr.green, clr.blue, clr.alpha);
@@ -924,11 +924,11 @@ static void ir_edit_show_scroll_center(GxIREdit *ir_edit, cairo_t *c)
 	cairo_stroke(c);
 }
 
-static GxRgba gain_line_color = { 0.0, 1.0, 0.0, 0.8 };
+static GdkRGBA gain_line_color = { 0.0, 1.0, 0.0, 0.8 };
 
 static void ir_edit_gainline(GxIREdit *ir_edit, cairo_t *c)
 {
-	GxRgba clr;
+	GdkRGBA clr;
 	get_color(ir_edit, &clr, "gain-line-color", &gain_line_color);
 	double j, g;
 	int n;

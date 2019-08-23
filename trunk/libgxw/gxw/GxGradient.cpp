@@ -19,37 +19,6 @@
 #include "GxGradient.h"
 #include <gtk/gtk.h>
 
-void gx_rgba_free(GxRgba *rgba)
-{
-  g_return_if_fail (rgba != NULL);
-
-  g_slice_free(GxRgba, rgba);
-}
-
-GxRgba *gx_rgba_copy(const GxRgba *rgba)
-{
-  GxRgba *new_rgba;
-  
-  g_return_val_if_fail(rgba != NULL, NULL);
-
-  new_rgba = g_slice_new(GxRgba);
-  *new_rgba = *rgba;
-  return new_rgba;
-}
-
-GType gx_rgba_get_type(void)
-{
-	static GType our_type = 0;
-  
-	if (our_type == 0) {
-		our_type = g_boxed_type_register_static(
-			g_intern_static_string("GxRgba"),
-			(GBoxedCopyFunc)gx_rgba_copy,
-			(GBoxedFreeFunc)gx_rgba_free);
-	}
-	return our_type;
-}
-
 /*
  ** Gtk seems to have a bug with rc parsing and locales:
  ** value strings are parsed and reassembled, with floats
@@ -64,7 +33,7 @@ GType gx_rgba_get_type(void)
 #define COLOR_SCALING (65536)
 
 static gboolean get_braced_number(
-	GScanner *scanner, gboolean  first, gboolean  last, gfloat *value)
+	GScanner *scanner, gboolean  first, gboolean  last, gdouble *value)
 {
 	if (first) {
 		g_scanner_get_next_token(scanner);
@@ -76,7 +45,7 @@ static gboolean get_braced_number(
 	if (scanner->token != G_TOKEN_INT) {
 		return FALSE;
 	}
-	*value = (float)scanner->value.v_int/COLOR_SCALING;
+	*value = (gdouble)scanner->value.v_int/COLOR_SCALING;
 	g_scanner_get_next_token(scanner);
 	if (last) {
 		if (scanner->token != '}') {
@@ -94,7 +63,7 @@ gboolean gx_parse_rgba(const GParamSpec *pspec,
                            const GString *rc_string,
                            GValue *property_value)
 {
-	GxRgba rgba;
+	GdkRGBA rgba;
 	GScanner *scanner;
 	gboolean success = FALSE;
 
