@@ -1155,7 +1155,8 @@ static gboolean dialog_key_press_before(
 {
 	if (event->keyval == GDK_KEY_Escape) {
 		// spinbutton to current adjustment value
-		gtk_adjustment_value_changed(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(widget)));
+		g_signal_emit_by_name(gtk_spin_button_get_adjustment(GTK_SPIN_BUTTON(widget)),
+							  "value-changed");
 		gtk_widget_destroy(GTK_WIDGET(data));
 		return TRUE;
 	}
