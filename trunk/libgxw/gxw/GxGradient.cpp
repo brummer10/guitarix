@@ -32,6 +32,49 @@
  */
 #define COLOR_SCALING (65536)
 
+/* copied from gtk, it's deprecated but we use the scanner */
+static const GScannerConfig gtk_rc_scanner_config =
+{
+	(
+		const_cast<gchar*>(" \t\r\n")
+	)			/* cset_skip_characters */,
+	(
+		const_cast<gchar*>("_"
+						   G_CSET_a_2_z
+						   G_CSET_A_2_Z)
+	)			/* cset_identifier_first */,
+	(
+		const_cast<gchar*>(G_CSET_DIGITS
+						   "-_"
+						   G_CSET_a_2_z
+						   G_CSET_A_2_Z)
+	)			/* cset_identifier_nth */,
+	( const_cast<gchar*>("#\n") )		/* cpair_comment_single */,
+
+	TRUE			/* case_sensitive */,
+
+	TRUE			/* skip_comment_multi */,
+	TRUE			/* skip_comment_single */,
+	TRUE			/* scan_comment_multi */,
+	TRUE			/* scan_identifier */,
+	FALSE			/* scan_identifier_1char */,
+	FALSE			/* scan_identifier_NULL */,
+	TRUE			/* scan_symbols */,
+	TRUE			/* scan_binary */,
+	TRUE			/* scan_octal */,
+	TRUE			/* scan_float */,
+	TRUE			/* scan_hex */,
+	TRUE			/* scan_hex_dollar */,
+	TRUE			/* scan_string_sq */,
+	TRUE			/* scan_string_dq */,
+	TRUE			/* numbers_2_int */,
+	FALSE			/* int_2_float */,
+	FALSE			/* identifier_2_string */,
+	TRUE			/* char_2_token */,
+	TRUE			/* symbol_2_token */,
+	FALSE			/* scope_0_fallback */,
+};
+
 static gboolean get_braced_number(
 	GScanner *scanner, gboolean  first, gboolean  last, gdouble *value)
 {
@@ -70,7 +113,7 @@ gboolean gx_parse_rgba(const GParamSpec *pspec,
 	g_return_val_if_fail(G_IS_PARAM_SPEC (pspec), FALSE);
 	g_return_val_if_fail(G_VALUE_HOLDS_BOXED(property_value), FALSE);
 
-	scanner = gtk_rc_scanner_new();
+	scanner = g_scanner_new(&gtk_rc_scanner_config);
 	g_scanner_input_text(scanner, rc_string->str, rc_string->len);
 
 	if (get_braced_number(scanner, TRUE, FALSE, &rgba.red) &&
@@ -149,7 +192,7 @@ gboolean gx_parse_gradient(const GParamSpec *pspec,
 
 	g_return_val_if_fail(G_IS_PARAM_SPEC (pspec), FALSE);
 	g_return_val_if_fail(G_VALUE_HOLDS_BOXED(property_value), FALSE);
-	scanner = gtk_rc_scanner_new();
+	scanner = g_scanner_new(&gtk_rc_scanner_config);
 	g_scanner_input_text(scanner, rc_string->str, rc_string->len);
 
 	g_scanner_get_next_token (scanner);
