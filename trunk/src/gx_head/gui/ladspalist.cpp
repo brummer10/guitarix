@@ -101,12 +101,12 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("plugin_quirks", plugin_quirks);
     bld->find_widget("master_slider_idx", master_slider_idx);
     bld->find_widget("master_slider_name", master_slider_name);
-    bld->find_widget("cellrenderer_master", cellrenderer_master);
-    bld->find_widget("cellrenderer_newrow", cellrenderer_newrow);
-    bld->find_widget("cellrenderer_caption", cellrenderer_caption);
-    bld->find_widget("cellrenderer_active", cellrenderer_active);
-    bld->find_widget("cellrenderer_category", cellrenderer_category);
-    bld->find_widget("cellrenderer_quirks", cellrenderer_quirks);
+    cellrenderer_master = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_master"));
+    cellrenderer_newrow = Glib::RefPtr<Gtk::CellRendererToggle>::cast_dynamic(bld->get_object("cellrenderer_newrow"));
+    cellrenderer_caption = Glib::RefPtr<Gtk::CellRendererToggle>::cast_dynamic(bld->get_object("cellrenderer_caption"));
+    cellrenderer_active = Glib::RefPtr<Gtk::CellRendererToggle>::cast_dynamic(bld->get_object("cellrenderer_active"));
+    cellrenderer_category = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_category"));
+    cellrenderer_quirks = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_quirks"));
 
     set_title();
     treeview1->set_name("PresetView");
@@ -139,12 +139,10 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     show_details->signal_clicked().connect(sigc::mem_fun(this, &PluginDisplay::on_show_details));
     treeview3->get_selection()->set_mode(Gtk::SELECTION_BROWSE);
     treeview3->set_model(enum_liststore);
-    Gtk::CellRendererText *r;
-    bld->find_widget("cellrenderer_label", r);
+    auto r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_label"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_label_edited));
-    Gtk::TreeViewColumn *c;
-    bld->find_widget("treeviewcolumn_label", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_label));
+    auto c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_label"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_label));
     
     bld->find_widget("dry_wet_button", dry_wet_button);
     dry_wet_button->signal_clicked().connect(sigc::mem_fun(this, &PluginDisplay::on_add_dry_wet_controller));
@@ -163,57 +161,56 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     CellRendererComboDerived *rd;
     bld->find_widget_derived("cellrenderer_type", rd, sigc::ptr_fun(CellRendererComboDerived::create_from_builder));
     rd->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_type_edited));
-    bld->find_widget("treeviewcolumn_type", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_type"));
     c->set_cell_data_func(*rd, sigc::mem_fun(this, &PluginDisplay::display_type));
 
     bld->find_widget_derived("cellrenderer_step", rd, sigc::ptr_fun(CellRendererComboDerived::create_from_builder));
     rd->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_step_edited));
-    bld->find_widget("treeviewcolumn_step", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_step"));
     c->set_cell_data_func(*rd, sigc::mem_fun(this, &PluginDisplay::display_step));
 
     cellrenderer_newrow->signal_toggled().connect(sigc::mem_fun(this, &PluginDisplay::on_newrow_toggled));
     Gtk::Label *label = new Gtk::Label("N");
     label->set_tooltip_text(_("start a new row of controls in the rackbox unit"));
     label->show();
-    bld->find_widget("treeviewcolumn_newrow", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_newrow"));
     c->set_widget(*manage(label));
-    c->set_cell_data_func(*cellrenderer_newrow, sigc::mem_fun(this, &PluginDisplay::display_newrow));
+    c->set_cell_data_func(*cellrenderer_newrow.get(), sigc::mem_fun(this, &PluginDisplay::display_newrow));
     cellrenderer_caption->signal_toggled().connect(sigc::mem_fun(this, &PluginDisplay::on_caption_toggled));
     label = new Gtk::Label("C");
     label->set_tooltip_text(_("display the name as caption above the control"));
     label->show();
-    bld->find_widget("treeviewcolumn_caption", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_caption"));
     c->set_widget(*manage(label));
-    c->set_cell_data_func(*cellrenderer_caption, sigc::mem_fun(this, &PluginDisplay::display_caption));
+    c->set_cell_data_func(*cellrenderer_caption.get(), sigc::mem_fun(this, &PluginDisplay::display_caption));
 
-    bld->find_widget("cellrenderer_name", r);
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_name"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_name_edited));
-    bld->find_widget("treeviewcolumn_name", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_name));
-    bld->find_widget("cellrenderer_dflt", r);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_name"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_name));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_dflt"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_dflt_edited));
-    bld->find_widget("treeviewcolumn_dflt", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_default));
-    bld->find_widget("cellrenderer_low", r);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_dflt"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_default));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_low"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_low_edited));
-    bld->find_widget("treeviewcolumn_low", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_lower));
-    bld->find_widget("cellrenderer_up", r);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_low"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_lower));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_up"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_up_edited));
-    bld->find_widget("treeviewcolumn_up", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_upper));
-    bld->find_widget("cellrenderer_idx", r);
-    bld->find_widget("treeviewcolumn_idx", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_idx));
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_up"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_upper));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_idx"));
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_idx"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_idx));
 
-    bld->find_widget("treeviewcolumn_SR", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_SR"));
     label = new Gtk::Label("SR");
     label->set_tooltip_text(_("marked rows: range depends on samplerate; using 44100 as fixed value"));
     label->show();
     c->set_widget(*manage(label));
-    Gtk::CellRendererToggle *t;
-    bld->find_widget("cellrenderer_SR", t);
-    c->set_cell_data_func(*t, sigc::mem_fun(this, &PluginDisplay::display_SR));
+    auto t = Glib::RefPtr<Gtk::CellRendererToggle>::cast_dynamic(bld->get_object("cellrenderer_SR"));
+    c->set_cell_data_func(*t.get(), sigc::mem_fun(this, &PluginDisplay::display_SR));
 
     Gtk::TreeModelColumnRecord recdef;
     Gtk::TreeModelColumn<Glib::ustring> strcol;
@@ -248,17 +245,17 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     sel->signal_changed().connect(sigc::mem_fun(this, &PluginDisplay::selection_changed));
     treeview1->set_model(plugin_liststore);
     cellrenderer_active->signal_toggled().connect(sigc::mem_fun(this, &PluginDisplay::on_active_toggled));
-    bld->find_widget("cellrenderer_ladspa", r);
-    bld->find_widget("treeviewcolumn_ladspa", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_ladspa));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_ladspa"));
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_ladspa"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_ladspa));
 
     Gtk::ComboBox *cb;
     bld->find_widget("plugin_category", cb);
-    cb->set_cell_data_func(*cellrenderer_category, sigc::mem_fun(this, &PluginDisplay::display_category));
+    cb->set_cell_data_func(*cellrenderer_category.get(), sigc::mem_fun(this, &PluginDisplay::display_category));
     bld->find_widget("plugin_quirks", cb);
-    cb->set_cell_data_func(*cellrenderer_quirks, sigc::mem_fun(this, &PluginDisplay::display_quirks));
+    cb->set_cell_data_func(*cellrenderer_quirks.get(), sigc::mem_fun(this, &PluginDisplay::display_quirks));
 
-    master_slider_idx->set_cell_data_func(*cellrenderer_master, sigc::mem_fun(this, &PluginDisplay::display_master_idx));
+    master_slider_idx->set_cell_data_func(*cellrenderer_master.get(), sigc::mem_fun(this, &PluginDisplay::display_master_idx));
     master_slider_idx->signal_changed().connect(sigc::mem_fun(this, &PluginDisplay::set_master_text));
 
     selected_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), selected_only));

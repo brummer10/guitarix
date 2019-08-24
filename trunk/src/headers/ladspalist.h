@@ -132,12 +132,12 @@ private:
     Gtk::ComboBox *plugin_quirks;
     Gtk::ComboBox *master_slider_idx;
     Gtk::Entry *master_slider_name;
-    Gtk::CellRendererText *cellrenderer_master;
-    Gtk::CellRendererToggle *cellrenderer_newrow;
-    Gtk::CellRendererToggle *cellrenderer_caption;
-    Gtk::CellRendererToggle *cellrenderer_active;
-    Gtk::CellRendererText *cellrenderer_category;
-    Gtk::CellRendererText *cellrenderer_quirks;
+    Glib::RefPtr<Gtk::CellRendererText> cellrenderer_master;
+    Glib::RefPtr<Gtk::CellRendererToggle> cellrenderer_newrow;
+    Glib::RefPtr<Gtk::CellRendererToggle> cellrenderer_caption;
+    Glib::RefPtr<Gtk::CellRendererToggle> cellrenderer_active;
+    Glib::RefPtr<Gtk::CellRendererText> cellrenderer_category;
+    Glib::RefPtr<Gtk::CellRendererText> cellrenderer_quirks;
 private:
     void set_title();
     void on_save();
