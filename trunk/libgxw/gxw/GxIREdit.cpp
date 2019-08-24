@@ -548,7 +548,6 @@ static void gx_ir_edit_init(GxIREdit *ir_edit)
 	ir_edit->buffered = TRUE;
 	ir_edit_reset(ir_edit);
 	ir_edit_configure_axes(ir_edit);
-	gtk_widget_set_double_buffered(GTK_WIDGET(ir_edit), FALSE);
 	gtk_widget_add_events(GTK_WIDGET(ir_edit), GDK_POINTER_MOTION_MASK|GDK_POINTER_MOTION_HINT_MASK|GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
 	GdkDisplay *disp = gtk_widget_get_display(GTK_WIDGET(ir_edit));
 	ir_edit->cursor[MODE_NONE] = NULL;
@@ -1456,13 +1455,17 @@ static gboolean ir_edit_configure(GtkWidget *widget, GdkEventConfigure *event)
 	ir_edit->width = event->width;
 	ir_edit->height = event->height;
 	if (!ir_edit->text_width) {
-		cairo_t *c = gdk_cairo_create(gtk_widget_get_window(widget));
+		cairo_region_t *rgn = cairo_region_create();
+		GdkDrawingContext *context = gdk_window_begin_draw_frame(gtk_widget_get_window(widget),
+                                                                 rgn);
+		cairo_t *c = gdk_drawing_context_get_cairo_context(context);
 		cairo_text_extents_t ext;
 		cairo_text_extents(c, "-100", &ext);
-		cairo_destroy(c);
 		ir_edit->text_height = int(ceil(ext.height));
 		ir_edit->text_width = int(ceil(ext.width));
 		ir_edit->label_width = 2 * ir_edit->text_width;
+		gdk_window_end_draw_frame(gtk_widget_get_window(widget), context);
+		cairo_region_destroy(rgn);
 	}
 	ir_edit_reconfigure(ir_edit);
 	return TRUE;
