@@ -401,26 +401,14 @@ static gboolean gx_knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
 
 static gboolean gx_knob_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
-	gint fcount;
 	g_assert(GX_IS_KNOB(widget));
 	if (gtk_widget_has_grab(widget) || gtk_widget_has_focus(widget)== TRUE) {
 		return TRUE;
 	}
-	GdkRectangle image_rect;
-	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
-											 get_stock_id(widget), -1,
-											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
-	get_image_dimensions (widget, pb, &image_rect, &fcount);
-	g_object_unref(pb);
-	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
+	gint fcount;
+	gtk_widget_style_get(widget, "framecount", &fcount, NULL);
 	if (fcount == -1) {
-		cairo_region_t *rgn = cairo_region_create();
-		GdkDrawingContext *ctx = gdk_window_begin_draw_frame(gtk_widget_get_window(widget), rgn);
-		cairo_t *cr = gdk_drawing_context_get_cairo_context(ctx);
-		_gx_knob_expose(widget, cr, &image_rect, knobstate, pb, fcount, TRUE);
-		gdk_window_end_draw_frame(gtk_widget_get_window(widget), ctx);
-		cairo_region_destroy(rgn);
+		gtk_widget_queue_draw(widget);
 	}
 	return TRUE;
 }
@@ -431,22 +419,10 @@ static gboolean gx_knob_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 	if (gtk_widget_has_grab(widget) || gtk_widget_has_focus(widget)== TRUE) {
 		return TRUE;
 	}
-	GdkRectangle image_rect;
-	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
-											 get_stock_id(widget), -1,
-											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	gint fcount;
-	get_image_dimensions (widget, pb, &image_rect, &fcount);
-	g_object_unref(pb);
-	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
+	gtk_widget_style_get(widget, "framecount", &fcount, NULL);
 	if (fcount == -1) {
-		cairo_region_t *rgn = cairo_region_create();
-		GdkDrawingContext *ctx = gdk_window_begin_draw_frame(gtk_widget_get_window(widget), rgn);
-		cairo_t *cr = gdk_drawing_context_get_cairo_context(ctx);
-		_gx_knob_expose(widget, cr, &image_rect, knobstate, pb, fcount, FALSE);
-		gdk_window_end_draw_frame(gtk_widget_get_window(widget), ctx);
-		cairo_region_destroy(rgn);
+		gtk_widget_queue_draw(widget);
 	}
 	return TRUE;
 }
