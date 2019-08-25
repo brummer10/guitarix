@@ -258,7 +258,21 @@ Demo::Demo():
 	// IR Edit
 	m_vbox4.set_valign(Gtk::ALIGN_START);
 	m_vbox4.add(*Gtk::manage(new Gtk::Label("IR Edit")));
-	m_vbox4.add(m_iredit);
+	m_iredit.set_ir_data(0, 0, 0, 0);
+	m_iredit.property_no_data_text() = "No data";
+	m_iredit.property_height_request() = 100;
+	m_iredit.set_channel(1);
+	m_vbox4.pack_start(m_iredit, true, true);
+	Gtk::Button *btn = new Gtk::Button("Load");
+	btn->signal_clicked().connect(
+		[this] () {
+			float buffer[100];
+			for (int i = 0; i < 100; i++) {
+				buffer[i] = - (float)i;
+			}
+			this->m_iredit.set_state(buffer, 1, 100, 10, 0, 100, 0, m_iredit.get_gain());
+		});
+	m_vbox4.add(*manage(btn));
 	m_stack.add(m_vbox4, "irdedit", "IR Edit");
 
 	// Rack
