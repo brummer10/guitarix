@@ -252,6 +252,14 @@ Demo::Demo():
 	m_vbox3.add(*Gtk::manage(new Gtk::Label("Wave Viewer")));
 	m_waveviewer.set_text("Sample wave", Gtk::CORNER_TOP_LEFT);
 	m_waveviewer.set_text("Hz", Gtk::CORNER_BOTTOM_RIGHT);
+	m_waveviewer.property_text_pos_left() = 1.5;
+	m_waveviewer.property_text_pos_right() = 77;
+	m_waveviewer.set_multiplicator(20., 60.);
+	static float frame[100];
+	for (int i = 0; i < 100; i++) {
+		frame[i] = sin((float)i);
+	}
+	m_waveviewer.set_frame(frame, 100);
 	m_vbox3.add(m_waveviewer);
 	m_stack.add(m_vbox3, "fastmeter", "Viewer");
 
