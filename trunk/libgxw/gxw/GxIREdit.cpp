@@ -545,7 +545,6 @@ static void gx_ir_edit_init(GxIREdit *ir_edit)
 	ir_edit->min_scale = 0.02;
 	ir_edit->no_data_text = g_strdup("");
 	ir_edit->button = -1;
-	ir_edit->buffered = TRUE;
 	ir_edit_reset(ir_edit);
 	ir_edit_configure_axes(ir_edit);
 	gtk_widget_add_events(GTK_WIDGET(ir_edit), GDK_POINTER_MOTION_MASK|GDK_POINTER_MOTION_HINT_MASK|GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
@@ -1001,12 +1000,6 @@ static void ir_edit_lock_surface(GxIREdit *ir_edit, cairo_paint_function excl)
 static gboolean ir_edit_event_draw(GtkWidget *widget, cairo_t *c)
 {
 	GxIREdit *ir_edit = GX_IR_EDIT(widget);
-	GdkWindow *window = gtk_widget_get_window(widget);
-	cairo_region_t *rgn = nullptr;
-	if (ir_edit->buffered) {
-		rgn = cairo_region_create();
-		gdk_window_begin_paint_region(window, rgn);
-	}
 	cairo_save(c);
 	if (ir_edit->locked) {
 		gint width, height;
@@ -1024,10 +1017,6 @@ static gboolean ir_edit_event_draw(GtkWidget *widget, cairo_t *c)
 		ir_edit->locked(ir_edit, c);
 	} else {
 		ir_edit_paint_area(ir_edit, c, NULL);
-	}
-	if (ir_edit->buffered) {
-		gdk_window_end_paint(window);
-		cairo_region_destroy(rgn);
 	}
 	cairo_restore(c);
 	return FALSE;
@@ -1297,7 +1286,6 @@ static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event)
 			} else {
 				ir_edit->mode = MODE_BODY;
 				ir_edit->mode_arg = (int)(event->x + ir_edit->current_offset);
-				ir_edit->buffered = FALSE;
 			}
 		} else if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
 			if (event->state & GDK_CONTROL_MASK) {
@@ -1346,7 +1334,6 @@ static gboolean ir_edit_button_release(GtkWidget *widget, GdkEventButton *event)
 		ir_edit->button = -1;
 		ir_edit_unlock_surface(ir_edit);
 		ir_edit->mode = MODE_NONE;
-		ir_edit->buffered = TRUE;
 	}
 	return TRUE;
 }

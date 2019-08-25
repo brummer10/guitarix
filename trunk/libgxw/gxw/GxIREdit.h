@@ -87,7 +87,6 @@ struct _GxIREdit {
 	float *bdata;
 	gint bdata_len;
 	cairo_paint_function locked;
-	gboolean buffered;
 	// output parameters
 	gint cutoff_low;
 	gint cutoff_high;
