@@ -564,7 +564,7 @@ static void gx_ir_edit_destroy(GtkWidget* object)
 	unsigned int i;
 	for (i = 0; i < sizeof(ir_edit->cursor)/sizeof(ir_edit->cursor[0]); i++) {
 		if (ir_edit->cursor[i]) {
-			gdk_cursor_unref(ir_edit->cursor[i]);
+			g_object_unref(ir_edit->cursor[i]);
 			ir_edit->cursor[i] = NULL;
 		}
 	}
