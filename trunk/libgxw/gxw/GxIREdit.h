@@ -34,7 +34,7 @@ G_BEGIN_DECLS
 typedef struct _GxIREdit GxIREdit;
 typedef struct _GxIREditClass GxIREditClass;
 
-typedef void (*cairo_paint_function)(GxIREdit*,cairo_t*);
+typedef void (*cairo_paint_function)(GxIREdit*,cairo_t*,GtkStyleContext*);
 
 struct _GxIREdit {
 	GtkDrawingArea parent;
