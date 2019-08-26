@@ -40,7 +40,6 @@ struct _GxFastMeterPrivate {
 	cairo_surface_t *surface, *overlay;
 	gint	      top_of_meter;
 	GdkRectangle  last_peak_rect, bar;
-	GtkRequisition request;
 
 	gchar *var_id;
 	int hold_cnt;
@@ -75,8 +74,8 @@ static void gx_fast_meter_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_fast_meter_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static void queue_vertical_redraw(GxFastMeter*, GdkWindow*);
-static void request_vertical_meter(GtkWidget *widget);
+static void queue_redraw(GxFastMeter*);
+static void request_meter(GtkWidget *widget);
 static void gx_fast_meter_style_set (GtkWidget *widget, GtkStyle  *previous_style);
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxFastMeter, gx_fast_meter, GTK_TYPE_DRAWING_AREA);
@@ -240,7 +239,7 @@ void gx_fast_meter_set_hold_count(GxFastMeter* fm, int val)
 static void gx_fast_meter_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
 	GTK_WIDGET_CLASS(gx_fast_meter_parent_class)->size_allocate(widget, allocation);
-	request_vertical_meter(widget);
+	request_meter(widget);
 }
 
 static void gx_fast_meter_set_var_id(GxFastMeter *fm, const gchar *str)
@@ -313,7 +312,7 @@ static void gx_fast_meter_get_property(GObject *object, guint prop_id,
 
 static void gx_fast_meter_style_set(GtkWidget *widget, GtkStyle  *previous_style)
 {
-	request_vertical_meter(widget);
+	request_meter(widget);
 }
 
 /* ------- setting meter level ----------- */
@@ -339,10 +338,7 @@ void gx_fast_meter_set(GxFastMeter* fm, gdouble lvl)
 	    (fm->priv->hold_state == 0 || fm->priv->current_peak  == old_peak)) {
 		return;
 	}
-	GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
-	if (window) {
-		queue_vertical_redraw(fm, window);
-	}
+	queue_redraw(fm);
 }
 
 
@@ -423,10 +419,7 @@ void gx_fast_meter_set_by_power(GxFastMeter* fm, gdouble lvl)
 	    (fm->priv->hold_state == 0 || fm->priv->current_peak  == old_peak)) {
 		return;
 	}
-	GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
-	if (window) {
-		queue_vertical_redraw(fm, window);
-	}
+	queue_redraw(fm);
 }
 
 /* ------- setting compressor meter level ----------- */
@@ -452,10 +445,7 @@ void gx_fast_meter_set_c_level(GxFastMeter* fm, gdouble lvl)
 	    (fm->priv->hold_state == 0 || fm->priv->current_peak  == old_peak)) {
 		return;
 	}
-	GdkWindow* window = gtk_widget_get_window(GTK_WIDGET(fm));
-	if (window) {
-		queue_vertical_redraw(fm, window);
-	}
+	queue_redraw(fm);
 }
 /* ------------- clear fast meter object ------------ */
 void gx_fast_meter_clear(GxFastMeter* fm)
@@ -497,35 +487,36 @@ static void gx_fast_meter_get_preferred_height(GtkWidget* wd, gint *min_height, 
 static void gx_fast_meter_size_request (GtkWidget* wd, gint *width, gint *height)
 {
     GxFastMeter * fm = GX_FAST_METER(wd);
+    GtkStyleContext *sc = gtk_widget_get_style_context(wd);
     int lw, lh, lb, dim_, dim, tm, xs, ys;
     gtk_widget_style_get(wd, "led-width", &lw, "led-height", &lh, "led-border", &lb, "dimen", &dim_, NULL);
     dim = fm->priv->dimen ? fm->priv->dimen : dim_;
+    GtkBorder margin;
+    gtk_style_context_get_margin(sc, gtk_widget_get_state_flags(wd), &margin);
     if (fm->priv->horiz) {
-        xs = gtk_widget_get_style(wd)->xthickness;
-        ys = gtk_widget_get_style(wd)->ythickness;
+        xs = margin.left + margin.right;
+        ys = margin.top + margin.bottom;
     } else {
-        xs = gtk_widget_get_style(wd)->ythickness;
-        ys = gtk_widget_get_style(wd)->xthickness;
+        xs = margin.top + margin.bottom;
+        ys = margin.left + margin.right;
     }
     if (!fm->priv->horiz) {
-        tm = !fm->priv->type ? 2 * xs : int(1.5 * xs);
+        tm = !fm->priv->type ? xs : int(.75 * xs);
         *width  = lb + dim * (lw + lb) + tm;
-        *height = lb + min_size * (lh + lb) + 2 * ys;
+        *height = lb + min_size * (lh + lb) + ys;
     } else {
-        tm = !fm->priv->type ? 2 * ys : int(1.5 * ys);
-        *width  = lb + min_size * (lh + lb) + 2 * xs;
+        tm = !fm->priv->type ? ys : int(.75 * ys);
+        *width  = lb + min_size * (lh + lb) + xs;
         *height = lb + dim * (lw + lb) + tm;
     }
     if (!fm->priv->type) {
-        *width  = lb + dim * (lw + lb) + xs;
+        *width  = lb + dim * (lw + lb) + xs / 2;
         *height = lb + min_size * (lh + lb);
     }
-    fm->priv->request.width = *width;
-    fm->priv->request.height = *height;
 }
 
-/* --------- vertical drawing queue ----------- */
-void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
+/* --------- drawing queue ----------- */
+void queue_redraw (GxFastMeter* fm)
 {
     if (!fm->priv->surface)
 		return;
@@ -587,7 +578,7 @@ void queue_vertical_redraw (GxFastMeter* fm, GdkWindow* win)
 		cairo_region_union_rectangle (region, &fm->priv->last_peak_rect);
 	}
 	if (queue) {
-		gdk_window_invalidate_region (win, region, TRUE);
+		gtk_widget_queue_draw_region (widget, region);
 	}
 	if (region) {
 		cairo_region_destroy(region);
@@ -614,7 +605,7 @@ static gboolean gx_fast_meter_draw (GtkWidget* wd, cairo_t *cr)
     int width  = cairo_image_surface_get_width(fm->priv->surface);
     int x = 0;
     int y = 0;
-    
+
     top_of_meter  = (gint) floor (float(hrz ? b.width : b.height) * fm->priv->current_level);
     top_of_meter -= top_of_meter % (lh + lb);
     if (top_of_meter)
@@ -623,13 +614,10 @@ static gboolean gx_fast_meter_draw (GtkWidget* wd, cairo_t *cr)
 
     cairo_save(cr);
 
-    cairo_rectangle(cr, x, y, width, height);
-    cairo_clip(cr);
-
     //cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
     //cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
     //cairo_paint(cr);
-    
+
     cairo_set_source_surface(cr, fm->priv->surface, x, y);
 	cairo_rectangle(cr, x, y, width, height);
 	cairo_fill(cr);
@@ -685,8 +673,8 @@ GdkRGBA default_gradient_color[grad_size] = {
 
 #define CVALUE(i,c,y,mx) (guint8)floor(((int)rgb[i]->c + (((int)rgb[i+1]->c - (int)rgb[i]->c) * (y)) / (float)(mx))/256)
 
-/* ----- create pixbuf for vertical meter ------ */
-static void request_vertical_meter(GtkWidget *widget)
+/* ----- create pixbuf for meter ------ */
+static void request_meter(GtkWidget *widget)
 {
 	GxFastMeter* fm = GX_FAST_METER(widget);
 	if (fm->priv->surface) {
@@ -703,13 +691,14 @@ static void request_vertical_meter(GtkWidget *widget)
     int xs, ys;
 
     GtkStyleContext *sc = gtk_widget_get_style_context(widget);
-    GtkStyle* style = gtk_widget_get_style(widget);
+    GtkBorder margin;
+    gtk_style_context_get_margin(sc, gtk_widget_get_state_flags(widget), &margin);
     if (hrz) {
-        xs = style->xthickness;
-        ys = style->ythickness;
+        xs = margin.left + margin.right;
+        ys = margin.top + margin.bottom;
     } else {
-        xs = style->ythickness;
-        ys = style->xthickness;
+        xs = margin.top + margin.bottom;
+        ys = margin.left + margin.right;
     }
     //printf("tw %d th %d tb %d dim %d type %d\n", lw, lh, lb, dim, type);
     
@@ -717,23 +706,24 @@ static void request_vertical_meter(GtkWidget *widget)
     GtkAllocation allocation;
     gtk_widget_get_allocation(widget, &allocation);
     if (!hrz) {
-        tm = !fm->priv->type ? 2 * xs : int(1.5 * xs);
+        tm = !fm->priv->type ? xs : int(.75 * xs);
         width  = min(allocation.width, lb + dim * (lw + lb) + tm);
-        height = max(allocation.height, lb + min_size * (lh + lb) + 2 * ys);
+        height = max(allocation.height, lb + min_size * (lh + lb) + ys);
     } else {
-        tm = !fm->priv->type ? 2 * ys : int(1.5 * ys);
-        width  = max(allocation.width, lb + min_size * (lh + lb) + 2 * xs);
+        tm = !fm->priv->type ? ys : int(.75 * ys);
+        width  = max(allocation.width, lb + min_size * (lh + lb) + xs);
         height = min(allocation.height, lb + dim * (lw + lb) + tm);
     }
-    
+
     cairo_t *cr;
     fm->priv->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
     fm->priv->overlay = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-    cr = cairo_create(fm->priv->surface);
-	if (!fm->priv->surface) {
+	if (cairo_surface_status(fm->priv->surface) != CAIRO_STATUS_SUCCESS) {
+		fm->priv->surface = nullptr;
 		return;
 	}
-    
+    cr = cairo_create(fm->priv->surface);
+
     int w_ = width;
     int h_ = height;
     int x_ = 0;
@@ -763,17 +753,17 @@ static void request_vertical_meter(GtkWidget *widget)
     gtk_render_background(sc, cr, x_, y_, w_, h_);
     if (bevel)
         gx_bevel(cr, x_, y_, w_, h_, rad, bevel);
-    //}
+
     // inner background
-    w_ = hrz ? width - 2 * xs : lb + dim * (lw + lb);
-    h_ = hrz ? lb + dim * (lw + lb) : height - 2 * ys;
+    w_ = hrz ? width - xs : lb + dim * (lw + lb);
+    h_ = hrz ? lb + dim * (lw + lb) : height - ys;
     x_ = xs;
     y_ = ys;
     if (type == 2) {
         if (hrz)
-            y_ -= int(0.5 * ys);
+            y_ -= int(0.25 * ys);
         else
-            x_ -= int(0.5 * xs);
+            x_ -= int(0.25 * xs);
     }
     if (hrz) {
         w_ -= (w_ - lb) % (lh + lb);
@@ -842,7 +832,9 @@ static void request_vertical_meter(GtkWidget *widget)
     cairo_set_source_surface(co, fm->priv->surface, 0, 0);
     cairo_paint(co);
 
-    gtk_render_background(entry_context, cr, x_, y_, w_, h_);
+    cairo_rectangle(cr, x_, y_, w_, h_);
+    cairo_set_source_rgba(cr, 0., 0., 0., 0.8);
+    cairo_fill(cr);
 
     g_object_unref(entry_context);
     cairo_destroy(cr);
