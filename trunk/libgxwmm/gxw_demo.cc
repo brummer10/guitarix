@@ -121,6 +121,7 @@ protected:
 
 	Gtk::VBox m_vbox3;
 	Gxw::FastMeter m_fastmeter;
+	float m_meter_value;
 	Gxw::Tuner m_tuner;
 	Gxw::RackTuner m_racktuner;
 	Gxw::WaveView m_waveviewer;
@@ -159,7 +160,8 @@ Demo::Demo():
 	m_portdisplay(m_adj_sliders),
 	m_adj_wheels(Gtk::Adjustment::create(0, -1, 1, 0.01, 0.1)),
 	m_wheel(m_adj_wheels),
-	m_v_wheel(m_adj_wheels)
+	m_v_wheel(m_adj_wheels),
+	m_meter_value(0.5)
 {
 	// Stack setup
 	Gtk::Box *vbox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
@@ -244,7 +246,16 @@ Demo::Demo():
 	m_vbox3.set_valign(Gtk::ALIGN_START);
 	m_vbox3.add(*Gtk::manage(new Gtk::Label("Fast Meter")));
 	m_fastmeter.property_horiz() = true;
+	m_fastmeter.set_hold_count(3);
+	m_fastmeter.set(m_meter_value);
 	m_vbox3.add(m_fastmeter);
+	Glib::signal_timeout().connect(
+		[this] () {
+			float delta = 0.25 - ((float)random() / (2 * (float)RAND_MAX));
+			this->m_meter_value = std::max(0.0f, std::min(this->m_meter_value + delta, 1.0f));
+			this->m_fastmeter.set(this->m_meter_value);
+			return true;
+		}, 500);
 	m_vbox3.add(*Gtk::manage(new Gtk::Label("Tuner")));
 	m_vbox3.add(m_tuner);
 	m_vbox3.add(*Gtk::manage(new Gtk::Label("Rack Tuner")));
