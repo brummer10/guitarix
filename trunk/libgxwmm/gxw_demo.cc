@@ -118,6 +118,7 @@ protected:
 	Gxw::RadioButton m_radiobutton1;
 	Gxw::RadioButton m_radiobutton2;
 	Gxw::PlayHead m_playhead;
+	float m_playhead_value;
 
 	Gtk::VBox m_vbox3;
 	Gxw::FastMeter m_fastmeter;
@@ -161,6 +162,7 @@ Demo::Demo():
 	m_adj_wheels(Gtk::Adjustment::create(0, -1, 1, 0.01, 0.1)),
 	m_wheel(m_adj_wheels),
 	m_v_wheel(m_adj_wheels),
+	m_playhead_value(0.0),
 	m_meter_value(0.5)
 {
 	// Stack setup
@@ -222,7 +224,17 @@ Demo::Demo():
 	// Selector & playhead
 	m_vbox2.set_valign(Gtk::ALIGN_START);
 	m_vbox2.add(*Gtk::manage(new Gtk::Label("Playhead")));
+	auto adj = m_playhead.get_adjustment();
+	adj->set_upper(1.0);
+	Glib::signal_timeout().connect(
+		[this] () {
+			float delta = 0.25 - ((float)random() / (2 * (float)RAND_MAX));
+			this->m_playhead_value = std::max(0.0f, std::min(this->m_playhead_value + delta, 1.0f));
+			this->m_playhead.cp_set_value(this->m_playhead_value);
+			return true;
+		}, 500);
 	m_vbox2.add(m_playhead);
+
 	m_vbox2.add(*Gtk::manage(new Gtk::Label("Radio Buttons")));
 	m_radiobutton1.set_label("Test");
 	m_radiobutton1.set_group(m_group);
