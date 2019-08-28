@@ -348,10 +348,14 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_, gx
     use_toggle = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "use_toggle"));
     toggle_behaviours = GTK_WIDGET(gtk_builder_get_object(builder, "toggle_behaviours"));
     GtkWidget *zn = GTK_WIDGET(gtk_builder_get_object(builder, "zone_name"));
-    GtkStyle *style = gtk_widget_get_style(zn);
-    pango_font_description_set_size(style->font_desc, 12*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-    gtk_widget_modify_font(zn, style->font_desc);
+    GtkStyleContext *style = gtk_widget_get_style_context(zn);
+    PangoFontDescription* font_desc;
+    gtk_style_context_get(style, GTK_STATE_FLAG_NORMAL, "font", &font_desc, nullptr);
+    font_desc = pango_font_description_copy(font_desc);
+    pango_font_description_set_size(font_desc, 12*PANGO_SCALE);
+    pango_font_description_set_weight(font_desc, PANGO_WEIGHT_BOLD);
+    gtk_widget_override_font(zn, font_desc);
+    pango_font_description_free(font_desc);
     gtk_label_set_text(GTK_LABEL(zn), (param.l_group() + ": " + param.l_name()).c_str());
     gtk_widget_set_tooltip_text(zn, (_("Parameter ID: ")+param.id()).c_str());
     zn = GTK_WIDGET(gtk_builder_get_object(builder, "desc_box"));
