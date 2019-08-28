@@ -1013,7 +1013,7 @@ void StackBoxBuilder::addMToggleButton(const std::string& id, const char* label_
     }
     Gdk::RGBA colorRed("#58b45e");
     Gdk::RGBA colorOwn("#7f7f7f");
-    Gdk::Color colorwn("#000000");
+    Gdk::RGBA colorwn("#000000");
     uiToggleButton* button = new uiToggleButton(machine, id);
     Gtk::Label* lab = new Gtk::Label(label);
     Pango::FontDescription font = lab->get_style_context()->get_font();
@@ -1073,7 +1073,7 @@ void StackBoxBuilder::addCheckButton(const std::string& id, const char* label_) 
     }
     Gdk::RGBA colorRed("#000000");
     Gdk::RGBA colorOwn("#4c5159");
-    Gdk::Color colorba("#c4c0c0");
+    Gdk::RGBA colorba("#c4c0c0");
     Gtk::Label *lab = new Gtk::Label(label);
     uiCheckButton *button = new uiCheckButton(machine, id);
     button->add(*manage(lab));
