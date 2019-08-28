@@ -60,6 +60,16 @@ static const char* s_paint_funcs[] = {
 	nullptr
 };
 
+// Frequencies for the tuner.
+static double s_freq[] = {
+	82.41,   // E2 E
+	110.00,  // A2 A
+	146.83,  // D3 D
+	196.00,  // G3 G
+	246.94,  // B3 B
+	329.63   // E4 e
+};
+
 class TextColumns : public Gtk::TreeModelColumnRecord
 {
 public:
@@ -125,6 +135,7 @@ protected:
 	float m_meter_value;
 	Gxw::Tuner m_tuner;
 	Gxw::RackTuner m_racktuner;
+	int m_freq_index;
 	Gxw::WaveView m_waveviewer;
 
 	Gtk::VBox m_vbox4;
@@ -163,7 +174,8 @@ Demo::Demo():
 	m_wheel(m_adj_wheels),
 	m_v_wheel(m_adj_wheels),
 	m_playhead_value(0.0),
-	m_meter_value(0.5)
+	m_meter_value(0.5),
+	m_freq_index(0)
 {
 	// Stack setup
 	Gtk::Box *vbox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
@@ -272,6 +284,18 @@ Demo::Demo():
 	m_vbox3.add(m_tuner);
 	m_vbox3.add(*Gtk::manage(new Gtk::Label("Rack Tuner")));
 	m_vbox3.add(m_racktuner);
+	Glib::signal_timeout().connect(
+		[this] () {
+			this->m_freq_index++;
+			if (this->m_freq_index >= 6) {
+				this->m_freq_index = 0;
+			}
+			double error = 1 + (0.25 - ((float)random() / (2 * (float)RAND_MAX))) / 100.;
+			this->m_tuner.set_freq(s_freq[this->m_freq_index] * error);
+			this->m_racktuner.set_freq(s_freq[this->m_freq_index] * error);
+			return true;
+		}, 500);
+
 	m_vbox3.add(*Gtk::manage(new Gtk::Label("Wave Viewer")));
 	m_waveviewer.set_text("Sample wave", Gtk::CORNER_TOP_LEFT);
 	m_waveviewer.set_text("Hz", Gtk::CORNER_BOTTOM_RIGHT);
