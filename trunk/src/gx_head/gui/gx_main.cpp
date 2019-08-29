@@ -601,6 +601,12 @@ static bool is_frontend(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
+	// This is a hack. If we start qjackctl, we want to make sure it scale
+	// automatically for HiDPI displays.
+	// Note: we don't change then environment if it is already set to *any* value.
+	if (!getenv("QT_AUTO_SCREEN_SCALE_FACTOR")) {
+		setenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1", 0);
+	}
 #ifdef DISABLE_NLS
 // break
 #elif defined(IS_MACOSX)
