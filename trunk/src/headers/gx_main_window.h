@@ -98,7 +98,7 @@ private:
     Gtk::Box *brightness_box;
     Gxw::HSlider *background_slider;
     Gtk::ToggleButton *liveplay_exit;
-    Gtk::Table *midictrl_table;
+    Gtk::Grid *midictrl_table;
     Gxw::RackTuner *tuner;
 private:
     void add_midi_elements();
@@ -637,18 +637,18 @@ private:
 
     // Widget pointers
     Gxw::PaintBox *tunerbox;
-    Gtk::VBox *tuner_box_no_rack;
+    Gtk::Box *tuner_box_no_rack;
     Gtk::ScrolledWindow *vrack_scrolledbox;
-    Gtk::HBox *stereorackcontainerH;
-    Gtk::HBox *stereorackcontainerV;
+    Gtk::Box *stereorackcontainerH;
+    Gtk::Box *stereorackcontainerV;
     Gxw::PaintBox *rackcontainer;
     Gtk::ScrolledWindow *stereorackbox;
-    Gtk::VBox *monocontainer;
+    Gtk::Box *monocontainer;
     Gxw::PaintBox *monoampcontainer;
-    Gtk::VPaned *main_vpaned;
-    Gtk::HBox *amp_toplevel_box;
-    Gtk::VBox *monobox;
-    Gtk::VBox *upper_rackbox;
+    Gtk::Paned *main_vpaned;
+    Gtk::Box *amp_toplevel_box;
+    Gtk::Box *monobox;
+    Gtk::Box *upper_rackbox;
     Gtk::ScrolledWindow *preset_scrolledbox;
     Gtk::Box *preset_box_no_rack;
     Gxw::PaintBox *effects_frame_paintbox;
@@ -657,7 +657,7 @@ private:
     Gtk::Image *jackd_image;
     Gtk::Image *logstate_image;
     Gtk::Window *window;
-    Gtk::HBox *menubox;
+    Gtk::Box *menubox;
     Gtk::ToggleButton *show_rack_button;
     Gtk::ToggleButton *rack_order_h_button;
     Gtk::ToggleButton *config_mode_button;

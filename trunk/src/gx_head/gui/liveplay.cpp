@@ -530,7 +530,7 @@ void Liveplay::add_midi_elements() {
 	}
 	midictrl_table->attach(
 	    *manage(new MidiControllerDisplay(machine, i, cl, v)),
-	    left, left+1, top, top+1, Gtk::AttachOptions(0));
+	    left, top);
 	top += 1;
 	if (top >= top_max) {
 	    top = 0;

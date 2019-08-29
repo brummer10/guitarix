@@ -116,7 +116,7 @@ private:
     Glib::RefPtr<Gtk::TreeViewColumn> bank_column_delete;
     Glib::RefPtr<Gtk::TreeViewColumn> preset_column_edit;
     Glib::RefPtr<Gtk::TreeViewColumn> preset_column_delete;
-    Gtk::VPaned *main_vpaned;
+    Gtk::Paned *main_vpaned;
     Gtk::ScrolledWindow *preset_scrolledbox;
     GtkSizeGroup *left_column;
 private:
