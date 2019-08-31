@@ -241,7 +241,7 @@ void SEQWindow::init_connect() {
     }
 }
 
-void SEQWindow::init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box) {
+void SEQWindow::init_sequences(gx_engine::SeqParameter *p, Gtk::Box* _box) {
     Glib::ListHandle<Gtk::Widget*> List = _box->get_children();
     for (Glib::ListHandle<Gtk::Widget*>::iterator itt = List.begin();itt != List.end(); ++itt) {
         dynamic_cast<Gtk::ToggleButton*>((*itt))->signal_clicked().connect(
@@ -351,7 +351,7 @@ void SEQWindow::connect_midi() {
     delete w;
 }
 
-void SEQWindow::make_preset_button(Gtk::HBox * box) {
+void SEQWindow::make_preset_button(Gtk::Box * box) {
     Gtk::Button *p = new Gtk::Button();
     Gtk::Image *l = new Gtk::Image("rack_preset", Gtk::ICON_SIZE_BUTTON);
     p->add(*Gtk::manage(l));
@@ -503,7 +503,7 @@ void SEQWindow::on_sec_tact_changed() {
     );
 }
 
-void SEQWindow::append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, int r, int r_save) {
+void SEQWindow::append_seq_block(Gtk::Box * box, gx_engine::SeqParameter *p, int r, int r_save) {
     Gtk::ToggleButton * ab;
     for(int j = r_save; j<r; ++j) {
         ab = new Gtk::ToggleButton();
@@ -514,7 +514,7 @@ void SEQWindow::append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, in
     }
 }
 
-void SEQWindow::remove_seq_block(Gtk::HBox * box, int r) {
+void SEQWindow::remove_seq_block(Gtk::Box * box, int r) {
     Glib::ListHandle<Gtk::Widget*> boxList = box->get_children();
     int i = 0;
     for (Glib::ListHandle<Gtk::Widget*>::iterator itt = boxList.begin();itt != boxList.end(); ++itt) {
@@ -567,11 +567,11 @@ bool SEQWindow::on_key_press_event(GdkEventKey *event) {
     return true;
 }
 
-void SEQWindow::on_seq_button_clicked(Gtk::HBox *box, gx_engine::SeqParameter *p) {
+void SEQWindow::on_seq_button_clicked(Gtk::Box *box, gx_engine::SeqParameter *p) {
     Glib::signal_timeout().connect_once(sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked_set),p),box),2);
 }
 
-void SEQWindow::on_seq_button_clicked_set(Gtk::HBox *box, gx_engine::SeqParameter *p) {
+void SEQWindow::on_seq_button_clicked_set(Gtk::Box *box, gx_engine::SeqParameter *p) {
     std::vector<int> sequence;
     gx_engine::GxSeqSettings seqc;
     Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
@@ -598,7 +598,7 @@ void SEQWindow::check_preset_label() {
     preset_label->set_label(pset);
 }
 
-void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box) {
+void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::Box *box) {
 
     Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
     Glib::ListHandle<Gtk::Widget*>::iterator itt = seqList.begin();

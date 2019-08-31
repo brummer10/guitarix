@@ -29,7 +29,7 @@ namespace gx_seq {
 class Drums {
  public:
     gx_engine::SeqParameter *p;
-    Gtk::HBox* box;
+    Gtk::Box* box;
     Drums(gx_engine::SeqParameter *pa)
     : p(pa) {}
     ~Drums() {}
@@ -97,7 +97,7 @@ class SEQWindow: public sigc::trackable {
     Gtk::Window* gtk_window;
     Gtk::Viewport *vp;
     Gtk::Label *preset_label;
-    Gtk::HBox *preset_button;
+    Gtk::Box *preset_button;
     Gxw::Switch *add_button;
     Gxw::Regler *seq_pos;
     Gxw::Regler *seq_count;
@@ -118,17 +118,17 @@ class SEQWindow: public sigc::trackable {
     bool get_sequencer_pos(Gxw::Regler * regler, const std::string id);
     bool on_key_press_event(GdkEventKey *event);
     void check_preset_label();
-    void seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box);
+    void seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::Box *box);
     void make_state(gx_engine::GxSeqSettings& seqc, std::vector<int> seq);
-    void on_seq_button_clicked(Gtk::HBox *box, gx_engine::SeqParameter *p);
-    void on_seq_button_clicked_set(Gtk::HBox *box, gx_engine::SeqParameter *p);
+    void on_seq_button_clicked(Gtk::Box *box, gx_engine::SeqParameter *p);
+    void on_seq_button_clicked_set(Gtk::Box *box, gx_engine::SeqParameter *p);
     void on_sec_length_changed(bool update);
     void on_sec_tact_changed();
-    void append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, int r, int r_save);
-    void remove_seq_block(Gtk::HBox * box, int r);
+    void append_seq_block(Gtk::Box * box, gx_engine::SeqParameter *p, int r, int r_save);
+    void remove_seq_block(Gtk::Box * box, int r);
     void reset_control(Glib::ustring id, float value);
     int append_sequence(const gx_engine::GxSeqSettings* seqc, gx_engine::SeqParameter *p, std::vector<int> *sequence);
-    void make_preset_button(Gtk::HBox *box);
+    void make_preset_button(Gtk::Box *box);
     void scroll_playhead(float value);
     void append_plugin_preset(Glib::ustring name);
     void append_plugin_preset_set(Glib::ustring name);
@@ -143,7 +143,7 @@ class SEQWindow: public sigc::trackable {
     void on_sync_stepper();
     void on_reset_stepper();
     void init_connect();
-    void init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box);
+    void init_sequences(gx_engine::SeqParameter *p, Gtk::Box* _box);
     SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::SeqParameter *tomp_,
          gx_engine::SeqParameter *tomp1_, gx_engine::SeqParameter *tomp2_,
          gx_engine::SeqParameter *kickp_, gx_engine::SeqParameter *snarep_,
