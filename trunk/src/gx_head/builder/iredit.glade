@@ -1,8 +1,145 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-requires gxwidgets 0.0 -->
-  <!-- interface-naming-policy toplevel-contextual -->
+  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gxwidgets" version="0.0"/>
+  <object class="GtkWindow" id="HelpIR">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GxPaintBox" id="gxpaintbox2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="border_width">20</property>
+        <property name="paint_func">box_uni_2_expose</property>
+        <child>
+          <object class="GtkBox" id="vbox10">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">8</property>
+            <child>
+              <object class="GtkLabel" id="label22">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">&lt;b&gt;&lt;big&gt;Using the mouse in the graph window&lt;/big&gt;&lt;/b&gt;
+
+&lt;b&gt;set delay / offset:&lt;/b&gt; drag top scale
+&lt;b&gt;cut left:&lt;/b&gt;   ctrl + left mouse button
+&lt;b&gt;cut right:&lt;/b&gt; ctrl + right mouse button
+
+gain line (initially just a green line at the top + corner areas):
+&lt;b&gt;move point:&lt;/b&gt; drag with mouse
+&lt;b&gt;add point:&lt;/b&gt; click on green line
+&lt;b&gt;delete point:&lt;/b&gt; click with right mouse button
+
+&lt;b&gt;zoom in / out:&lt;/b&gt; use scroll wheel
+&lt;b&gt;move left / right:&lt;/b&gt; drag graph area
+
+&lt;b&gt;move mark / zoom center:&lt;/b&gt; drag triangle in the bottom area
+&lt;b&gt;switch between 2 predefined scales:&lt;/b&gt; click right mouse button
+
+&lt;big&gt;click on the displays in the settings frame
+to change values with the keyboard&lt;/big&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButtonBox" id="hbuttonbox2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkButton" id="close_irhelp">
+                    <property name="label">Close</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment10">
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment3">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment4">
+    <property name="lower">-20</property>
+    <property name="upper">20</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment5">
+    <property name="upper">100</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment6">
+    <property name="upper">100</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment7">
+    <property name="upper">100</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment8">
+    <property name="upper">100</property>
+    <property name="value">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment9">
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
   <object class="GtkWindow" id="DisplayIR">
     <property name="can_focus">False</property>
     <property name="border_width">12</property>
@@ -10,17 +147,22 @@
     <property name="type_hint">dialog</property>
     <signal name="destroy" handler="on_DisplayIR_destroy" swapped="no"/>
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkBox" id="vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">12</property>
         <child>
-          <object class="GtkVBox" id="vbox2">
+          <object class="GtkBox" id="vbox2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
             <property name="spacing">12</property>
             <child>
-              <object class="GtkHBox" id="hbox2">
+              <object class="GtkBox" id="hbox2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -42,11 +184,11 @@
 &lt;span font_desc="Sans 12" foreground="#991A1A"&gt;Please open an impulse
 response file with the
 &lt;b&gt;File:&lt;/b&gt; button&lt;/span&gt;</property>
-                        <signal name="scale-min-reached" handler="on_min_scale_reached" swapped="no"/>
-                        <signal name="offset-changed" handler="on_offset_changed" swapped="no"/>
-                        <signal name="length-changed" handler="on_length_changed" swapped="no"/>
                         <signal name="delay-changed" handler="on_delay_changed" swapped="no"/>
+                        <signal name="length-changed" handler="on_length_changed" swapped="no"/>
+                        <signal name="offset-changed" handler="on_offset_changed" swapped="no"/>
                         <signal name="scale-max-reached" handler="on_max_scale_reached" swapped="no"/>
+                        <signal name="scale-min-reached" handler="on_min_scale_reached" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -57,9 +199,10 @@ response file with the
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox3">
+                  <object class="GtkBox" id="vbox3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkFrame" id="channelbox">
@@ -73,16 +216,17 @@ response file with the
                             <property name="can_focus">False</property>
                             <property name="left_padding">12</property>
                             <child>
-                              <object class="GtkVBox" id="vbox4">
+                              <object class="GtkBox" id="vbox4">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GxRadioButton" id="left">
                                     <property name="label" translatable="yes">left</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="base_name">switch_min</property>
@@ -97,10 +241,10 @@ response file with the
                                 <child>
                                   <object class="GxRadioButton" id="right">
                                     <property name="label" translatable="yes">right</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">left</property>
                                     <property name="base_name">switch_min</property>
@@ -115,10 +259,10 @@ response file with the
                                 <child>
                                   <object class="GxRadioButton" id="sum">
                                     <property name="label" translatable="yes">sum</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">left</property>
                                     <property name="base_name">switch_min</property>
@@ -161,16 +305,17 @@ response file with the
                             <property name="can_focus">False</property>
                             <property name="left_padding">12</property>
                             <child>
-                              <object class="GtkVBox" id="vbox5">
+                              <object class="GtkBox" id="vbox5">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GxRadioButton" id="linear">
                                     <property name="label" translatable="yes">linear</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="base_name">switch_min</property>
@@ -185,10 +330,10 @@ response file with the
                                 <child>
                                   <object class="GxRadioButton" id="log">
                                     <property name="label" translatable="yes">log.</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">linear</property>
                                     <property name="base_name">switch_min</property>
@@ -225,19 +370,16 @@ response file with the
                         <property name="xalign">1</property>
                         <property name="left_padding">2</property>
                         <child>
-                          <object class="GtkTable" id="table2">
+                          <object class="GtkGrid" id="table2">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">2</property>
-                            <property name="n_columns">2</property>
-                            <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
+                            <property name="column_spacing">2</property>
                             <child>
                               <object class="GtkButton" id="decr">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_decr" swapped="no"/>
                                 <child>
                                   <object class="GtkImage" id="image3">
@@ -249,7 +391,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
+                                <property name="top_attach">0</property>
                               </packing>
                             </child>
                             <child>
@@ -257,7 +399,6 @@ response file with the
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_incr" swapped="no"/>
                                 <child>
                                   <object class="GtkImage" id="image4">
@@ -267,13 +408,16 @@ response file with the
                                   </object>
                                 </child>
                               </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
+                              </packing>
                             </child>
                             <child>
                               <object class="GtkButton" id="home">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_home" swapped="no"/>
                                 <child>
                                   <object class="GtkImage" id="image2">
@@ -284,8 +428,8 @@ response file with the
                                 </child>
                               </object>
                               <packing>
+                                <property name="left_attach">0</property>
                                 <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
                               </packing>
                             </child>
                             <child>
@@ -293,7 +437,6 @@ response file with the
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_jump_zoom_mark" swapped="no"/>
                                 <child>
                                   <object class="GtkImage" id="image5">
@@ -305,9 +448,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
                                 <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
                               </packing>
                             </child>
                           </object>
@@ -334,7 +475,7 @@ response file with the
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="hbox1">
+              <object class="GtkBox" id="hbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="spacing">10</property>
@@ -344,57 +485,53 @@ response file with the
                     <property name="can_focus">False</property>
                     <property name="label_xalign">0</property>
                     <child>
-                      <object class="GtkVBox" id="vbox12">
+                      <object class="GtkBox" id="vbox12">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="border_width">8</property>
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">10</property>
                         <child>
-                          <object class="GtkTable" id="table1">
+                          <object class="GtkGrid" id="table1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">5</property>
-                            <property name="n_columns">3</property>
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
                             <property name="column_spacing">5</property>
                             <child>
                               <object class="GtkLabel" id="label9">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Delay</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
+                                <property name="left_attach">0</property>
                                 <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label10">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Offset</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
+                                <property name="left_attach">0</property>
                                 <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label11">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Length</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
+                                <property name="left_attach">0</property>
                                 <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -408,9 +545,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
                                 <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
                               </packing>
                             </child>
                             <child>
@@ -424,9 +559,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
                                 <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
                               </packing>
                             </child>
                             <child>
@@ -440,9 +573,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
                                 <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
                               </packing>
                             </child>
                             <child>
@@ -451,16 +582,13 @@ response file with the
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="use_underline">True</property>
                                 <signal name="clicked" handler="on_apply_button_clicked" swapped="no"/>
                               </object>
                               <packing>
-                                <property name="right_attach">3</property>
+                                <property name="left_attach">0</property>
                                 <property name="top_attach">4</property>
-                                <property name="bottom_attach">5</property>
-                                <property name="y_options"/>
-                                <property name="y_padding">8</property>
+                                <property name="width">3</property>
                               </packing>
                             </child>
                             <child>
@@ -474,9 +602,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
                                 <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
                               </packing>
                             </child>
                             <child>
@@ -490,9 +616,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
                                 <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
                               </packing>
                             </child>
                             <child>
@@ -506,24 +630,20 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
                                 <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label15">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">1</property>
                                 <property name="label" translatable="yes">&lt;small&gt;Samples&lt;/small&gt;</property>
                                 <property name="use_markup">True</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
+                                <property name="top_attach">0</property>
                               </packing>
                             </child>
                             <child>
@@ -535,7 +655,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
+                                <property name="top_attach">0</property>
                               </packing>
                             </child>
                             <child>
@@ -554,7 +674,6 @@ response file with the
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                             <property name="use_underline">True</property>
                           </object>
                           <packing>
@@ -593,13 +712,11 @@ response file with the
                         <property name="xscale">0</property>
                         <property name="yscale">0</property>
                         <child>
-                          <object class="GtkTable" id="table3">
+                          <object class="GtkGrid" id="table3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">3</property>
-                            <property name="n_columns">3</property>
-                            <property name="column_spacing">20</property>
                             <property name="row_spacing">8</property>
+                            <property name="column_spacing">20</property>
                             <child>
                               <object class="GxSmallKnobR" id="gxsmallknob1">
                                 <property name="visible">True</property>
@@ -610,8 +727,8 @@ response file with the
                                 <property name="label_ref">label13</property>
                               </object>
                               <packing>
+                                <property name="left_attach">0</property>
                                 <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
                               </packing>
                             </child>
                             <child>
@@ -626,9 +743,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
                                 <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
                               </packing>
                             </child>
                             <child>
@@ -638,8 +753,8 @@ response file with the
                                 <property name="label" translatable="yes">gain</property>
                               </object>
                               <packing>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
                               </packing>
                             </child>
                             <child>
@@ -650,9 +765,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
+                                <property name="top_attach">0</property>
                               </packing>
                             </child>
                             <child>
@@ -666,11 +779,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
                                 <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -681,9 +790,7 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
+                                <property name="top_attach">0</property>
                               </packing>
                             </child>
                             <child>
@@ -693,7 +800,6 @@ response file with the
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="var_id">jconv.on_off</property>
                                 <child>
                                   <object class="GxToggleImage" id="gxtoggleimage1">
@@ -705,19 +811,16 @@ response file with the
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
                                 <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                                <property name="x_options"/>
-                                <property name="y_options"/>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkVBox" id="vbox11">
+                              <object class="GtkBox" id="vbox11">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="orientation">vertical</property>
                                 <child>
-                                  <object class="GtkHBox" id="hbox9">
+                                  <object class="GtkBox" id="hbox9">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="spacing">8</property>
@@ -725,10 +828,10 @@ response file with the
                                       <object class="GtkLabel" id="label17">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">1</property>
-                                        <property name="yalign">1</property>
                                         <property name="label" translatable="yes">&lt;small&gt;&lt;small&gt;dry&lt;/small&gt;&lt;/small&gt;</property>
                                         <property name="use_markup">True</property>
+                                        <property name="xalign">1</property>
+                                        <property name="yalign">1</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -753,10 +856,10 @@ response file with the
                                       <object class="GtkLabel" id="label18">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0</property>
-                                        <property name="yalign">1</property>
                                         <property name="label" translatable="yes">&lt;small&gt;&lt;small&gt;wet&lt;/small&gt;&lt;/small&gt;</property>
                                         <property name="use_markup">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="yalign">1</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -787,10 +890,9 @@ response file with the
                                 </child>
                               </object>
                               <packing>
-                                <property name="right_attach">2</property>
+                                <property name="left_attach">0</property>
                                 <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                                <property name="x_options"/>
+                                <property name="width">2</property>
                               </packing>
                             </child>
                           </object>
@@ -820,17 +922,18 @@ response file with the
                     <property name="yscale">0.20000000298023224</property>
                     <property name="right_padding">8</property>
                     <child>
-                      <object class="GtkVBox" id="vbox13">
+                      <object class="GtkBox" id="vbox13">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
                         <property name="spacing">6</property>
                         <child>
                           <object class="GtkButton" id="reset_button">
                             <property name="label" translatable="yes">Reset</property>
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                             <signal name="clicked" handler="on_reset_clicked" swapped="no"/>
                           </object>
                           <packing>
@@ -842,10 +945,10 @@ response file with the
                         <child>
                           <object class="GtkButton" id="preset_button">
                             <property name="label" translatable="yes">Presets</property>
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <property name="use_action_appearance">False</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -883,17 +986,18 @@ response file with the
                     <property name="left_padding">6</property>
                     <property name="right_padding">4</property>
                     <child>
-                      <object class="GtkVBox" id="vbox6">
+                      <object class="GtkBox" id="vbox6">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
                         <property name="spacing">6</property>
                         <child>
-                          <object class="GtkHBox" id="hbox4">
+                          <object class="GtkBox" id="hbox4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="spacing">10</property>
                             <child>
-                              <object class="GtkHBox" id="hbox5">
+                              <object class="GtkBox" id="hbox5">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="spacing">2</property>
@@ -901,9 +1005,9 @@ response file with the
                                   <object class="GtkLabel" id="label2">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">&lt;b&gt;Samplerate:&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -915,9 +1019,9 @@ response file with the
                                   <object class="GtkLabel" id="samplerate">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">label</property>
                                     <property name="width_chars">7</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -933,7 +1037,7 @@ response file with the
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="hbox11">
+                              <object class="GtkBox" id="hbox11">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
@@ -953,8 +1057,8 @@ response file with the
                                   <object class="GtkLabel" id="channels">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">label</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -970,7 +1074,7 @@ response file with the
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="hbox6">
+                              <object class="GtkBox" id="hbox6">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="spacing">2</property>
@@ -978,9 +1082,9 @@ response file with the
                                   <object class="GtkLabel" id="label5">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">&lt;b&gt;Length:&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -992,9 +1096,9 @@ response file with the
                                   <object class="GtkLabel" id="length">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">label</property>
                                     <property name="width_chars">7</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1010,7 +1114,7 @@ response file with the
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="hbox7">
+                              <object class="GtkBox" id="hbox7">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="spacing">2</property>
@@ -1018,9 +1122,9 @@ response file with the
                                   <object class="GtkLabel" id="label6">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">&lt;b&gt;Format:&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1032,9 +1136,9 @@ response file with the
                                   <object class="GtkLabel" id="format">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">label</property>
                                     <property name="width_chars">10</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -1057,7 +1161,7 @@ response file with the
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="file_selector_box">
+                          <object class="GtkBox" id="file_selector_box">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="spacing">4</property>
@@ -1066,10 +1170,9 @@ response file with the
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_open" swapped="no"/>
                                 <child>
-                                  <object class="GtkHBox" id="hbox10">
+                                  <object class="GtkBox" id="hbox10">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="spacing">2</property>
@@ -1124,11 +1227,10 @@ response file with the
                               <object class="GtkLabel" id="filename">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
-                                <property name="ypad">4</property>
                                 <property name="label" translatable="yes">no file selected</property>
                                 <property name="selectable">True</property>
                                 <property name="ellipsize">start</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1209,19 +1311,17 @@ response file with the
           </packing>
         </child>
         <child>
-          <object class="GtkHButtonBox" id="hbuttonbox1">
+          <object class="GtkButtonBox" id="hbuttonbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="spacing">20</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="help_button">
-                <property name="label">gtk-help</property>
+                <property name="label">Help</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_stock">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1232,12 +1332,10 @@ response file with the
             </child>
             <child>
               <object class="GtkButton" id="cancel_button">
-                <property name="label">gtk-cancel</property>
+                <property name="label">Cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_stock">True</property>
                 <signal name="clicked" handler="on_cancel_button_clicked" swapped="no"/>
               </object>
               <packing>
@@ -1248,14 +1346,12 @@ response file with the
             </child>
             <child>
               <object class="GtkButton" id="ok_button">
-                <property name="label">gtk-ok</property>
+                <property name="label">OK</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_stock">True</property>
                 <signal name="clicked" handler="on_ok_button_clicked" swapped="no"/>
               </object>
               <packing>
@@ -1274,141 +1370,6 @@ response file with the
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkWindow" id="HelpIR">
-    <property name="can_focus">False</property>
-    <property name="type_hint">dialog</property>
-    <child>
-      <object class="GxPaintBox" id="gxpaintbox2">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="border_width">20</property>
-        <property name="paint_func">box_uni_2_expose</property>
-        <child>
-          <object class="GtkVBox" id="vbox10">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="spacing">8</property>
-            <child>
-              <object class="GtkLabel" id="label22">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;&lt;big&gt;Using the mouse in the graph window&lt;/big&gt;&lt;/b&gt;
-
-&lt;b&gt;set delay / offset:&lt;/b&gt; drag top scale
-&lt;b&gt;cut left:&lt;/b&gt;   ctrl + left mouse button
-&lt;b&gt;cut right:&lt;/b&gt; ctrl + right mouse button
-
-gain line (initially just a green line at the top + corner areas):
-&lt;b&gt;move point:&lt;/b&gt; drag with mouse
-&lt;b&gt;add point:&lt;/b&gt; click on green line
-&lt;b&gt;delete point:&lt;/b&gt; click with right mouse button
-
-&lt;b&gt;zoom in / out:&lt;/b&gt; use scroll wheel
-&lt;b&gt;move left / right:&lt;/b&gt; drag graph area
-
-&lt;b&gt;move mark / zoom center:&lt;/b&gt; drag triangle in the bottom area
-&lt;b&gt;switch between 2 predefined scales:&lt;/b&gt; click right mouse button
-
-&lt;big&gt;click on the displays in the settings frame
-to change values with the keyboard&lt;/big&gt;</property>
-                <property name="use_markup">True</property>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkHButtonBox" id="hbuttonbox2">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkButton" id="close_irhelp">
-                    <property name="label">gtk-close</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="use_stock">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </object>
-  <object class="GtkAdjustment" id="adjustment1">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment10">
-    <property name="lower">-10</property>
-    <property name="upper">10</property>
-    <property name="step_increment">0.10000000000000001</property>
-    <property name="page_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment2">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment3">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment4">
-    <property name="lower">-20</property>
-    <property name="upper">20</property>
-    <property name="step_increment">0.10000000000000001</property>
-    <property name="page_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment5">
-    <property name="upper">100</property>
-    <property name="step_increment">0.10000000000000001</property>
-    <property name="page_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment6">
-    <property name="upper">100</property>
-    <property name="step_increment">0.10000000000000001</property>
-    <property name="page_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment7">
-    <property name="upper">100</property>
-    <property name="step_increment">0.10000000000000001</property>
-    <property name="page_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment8">
-    <property name="upper">100</property>
-    <property name="value">100</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment9">
-    <property name="lower">-10</property>
-    <property name="upper">10</property>
-    <property name="step_increment">0.10000000000000001</property>
-    <property name="page_increment">1</property>
   </object>
   <object class="GtkListStore" id="liststore1">
     <columns>
@@ -1431,7 +1392,6 @@ to change values with the keyboard&lt;/big&gt;</property>
     <property name="visible">True</property>
     <property name="can_focus">True</property>
     <property name="receives_default">False</property>
-    <property name="use_action_appearance">False</property>
     <property name="active">True</property>
     <property name="draw_indicator">True</property>
   </object>
