@@ -225,28 +225,30 @@ int Dsp::register_params_static(const ParamReg& reg)
 
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<!-- Generated with glade 3.22.1 -->\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
-  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
-  <!-- interface-naming-policy project-wide -->\n\
+  <requires lib=\"gtk+\" version=\"3.20\"/>\n\
+  <requires lib=\"gxwidgets\" version=\"0.0\"/>\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
     <child>\n\
-      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+      <placeholder/>\n\
+    </child>\n\
+    <child>\n\
+      <object class=\"GtkBox\" id=\"vbox1\">\n\
         <property name=\"visible\">True</property>\n\
         <property name=\"can_focus\">False</property>\n\
+        <property name=\"orientation\">vertical</property>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+          <object class=\"GtkBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <child>\n\
-              <object class=\"GtkTable\" id=\"table1\">\n\
+              <object class=\"GtkGrid\" id=\"table1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"n_rows\">5</property>\n\
-                <property name=\"n_columns\">4</property>\n\
-                <property name=\"column_spacing\">14</property>\n\
                 <property name=\"row_spacing\">3</property>\n\
+                <property name=\"column_spacing\">14</property>\n\
                 <child>\n\
                   <object class=\"GxSmallKnob\" id=\"gxsmallknob1\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -256,8 +258,8 @@ const char *Dsp::glade_def = "\
                     <property name=\"label_ref\">label1:rack_label_inverse</property>\n\
                   </object>\n\
                   <packing>\n\
+                    <property name=\"left_attach\">0</property>\n\
                     <property name=\"top_attach\">3</property>\n\
-                    <property name=\"bottom_attach\">4</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -270,9 +272,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">1</property>\n\
-                    <property name=\"right_attach\">2</property>\n\
                     <property name=\"top_attach\">3</property>\n\
-                    <property name=\"bottom_attach\">4</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -285,9 +285,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">2</property>\n\
-                    <property name=\"right_attach\">3</property>\n\
                     <property name=\"top_attach\">3</property>\n\
-                    <property name=\"bottom_attach\">4</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -300,9 +298,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">3</property>\n\
-                    <property name=\"right_attach\">4</property>\n\
                     <property name=\"top_attach\">3</property>\n\
-                    <property name=\"bottom_attach\">4</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -314,9 +310,8 @@ const char *Dsp::glade_def = "\
                     <property name=\"label_ref\">label5:rack_label</property>\n\
                   </object>\n\
                   <packing>\n\
+                    <property name=\"left_attach\">0</property>\n\
                     <property name=\"top_attach\">2</property>\n\
-                    <property name=\"bottom_attach\">3</property>\n\
-                    <property name=\"x_options\">GTK_EXPAND</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -329,10 +324,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">1</property>\n\
-                    <property name=\"right_attach\">2</property>\n\
                     <property name=\"top_attach\">2</property>\n\
-                    <property name=\"bottom_attach\">3</property>\n\
-                    <property name=\"x_options\">GTK_EXPAND</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -345,10 +337,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">2</property>\n\
-                    <property name=\"right_attach\">3</property>\n\
                     <property name=\"top_attach\">2</property>\n\
-                    <property name=\"bottom_attach\">3</property>\n\
-                    <property name=\"x_options\">GTK_EXPAND</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -361,10 +350,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">3</property>\n\
-                    <property name=\"right_attach\">4</property>\n\
                     <property name=\"top_attach\">2</property>\n\
-                    <property name=\"bottom_attach\">3</property>\n\
-                    <property name=\"x_options\">GTK_EXPAND</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -375,8 +361,8 @@ const char *Dsp::glade_def = "\
                     <property name=\"var_id\">eq.peak1</property>\n\
                   </object>\n\
                   <packing>\n\
-                    <property name=\"x_options\">GTK_EXPAND</property>\n\
-                    <property name=\"y_options\">GTK_EXPAND</property>\n\
+                    <property name=\"left_attach\">0</property>\n\
+                    <property name=\"top_attach\">0</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -388,9 +374,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">1</property>\n\
-                    <property name=\"right_attach\">2</property>\n\
-                    <property name=\"x_options\">GTK_EXPAND</property>\n\
-                    <property name=\"y_options\">GTK_EXPAND</property>\n\
+                    <property name=\"top_attach\">0</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -402,9 +386,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">2</property>\n\
-                    <property name=\"right_attach\">3</property>\n\
-                    <property name=\"x_options\">GTK_EXPAND</property>\n\
-                    <property name=\"y_options\">GTK_EXPAND</property>\n\
+                    <property name=\"top_attach\">0</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -416,9 +398,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">3</property>\n\
-                    <property name=\"right_attach\">4</property>\n\
-                    <property name=\"x_options\">GTK_EXPAND</property>\n\
-                    <property name=\"y_options\">GTK_EXPAND</property>\n\
+                    <property name=\"top_attach\">0</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -428,8 +408,8 @@ const char *Dsp::glade_def = "\
                     <property name=\"label\" translatable=\"yes\">label</property>\n\
                   </object>\n\
                   <packing>\n\
+                    <property name=\"left_attach\">0</property>\n\
                     <property name=\"top_attach\">4</property>\n\
-                    <property name=\"bottom_attach\">5</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -440,9 +420,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">1</property>\n\
-                    <property name=\"right_attach\">2</property>\n\
                     <property name=\"top_attach\">4</property>\n\
-                    <property name=\"bottom_attach\">5</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -453,9 +431,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">2</property>\n\
-                    <property name=\"right_attach\">3</property>\n\
                     <property name=\"top_attach\">4</property>\n\
-                    <property name=\"bottom_attach\">5</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -466,9 +442,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">3</property>\n\
-                    <property name=\"right_attach\">4</property>\n\
                     <property name=\"top_attach\">4</property>\n\
-                    <property name=\"bottom_attach\">5</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -478,8 +452,8 @@ const char *Dsp::glade_def = "\
                     <property name=\"label\" translatable=\"yes\">label</property>\n\
                   </object>\n\
                   <packing>\n\
+                    <property name=\"left_attach\">0</property>\n\
                     <property name=\"top_attach\">1</property>\n\
-                    <property name=\"bottom_attach\">2</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -490,9 +464,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">1</property>\n\
-                    <property name=\"right_attach\">2</property>\n\
                     <property name=\"top_attach\">1</property>\n\
-                    <property name=\"bottom_attach\">2</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -503,9 +475,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">2</property>\n\
-                    <property name=\"right_attach\">3</property>\n\
                     <property name=\"top_attach\">1</property>\n\
-                    <property name=\"bottom_attach\">2</property>\n\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
@@ -516,9 +486,7 @@ const char *Dsp::glade_def = "\
                   </object>\n\
                   <packing>\n\
                     <property name=\"left_attach\">3</property>\n\
-                    <property name=\"right_attach\">4</property>\n\
                     <property name=\"top_attach\">1</property>\n\
-                    <property name=\"bottom_attach\">2</property>\n\
                   </packing>\n\
                 </child>\n\
               </object>\n\
@@ -536,7 +504,7 @@ const char *Dsp::glade_def = "\
           </packing>\n\
         </child>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"minibox\">\n\
+          <object class=\"GtkBox\" id=\"minibox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
