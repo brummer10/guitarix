@@ -636,24 +636,29 @@ int Dsp::register_params_static(const ParamReg& reg)
 
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<!-- Generated with glade 3.22.1 -->\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
-  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
-  <!-- interface-naming-policy project-wide -->\n\
+  <requires lib=\"gtk+\" version=\"3.20\"/>\n\
+  <requires lib=\"gxwidgets\" version=\"0.0\"/>\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
     <child>\n\
-      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+      <placeholder/>\n\
+    </child>\n\
+    <child>\n\
+      <object class=\"GtkBox\" id=\"vbox1\">\n\
         <property name=\"visible\">True</property>\n\
         <property name=\"can_focus\">False</property>\n\
+        <property name=\"orientation\">vertical</property>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+          <object class=\"GtkBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <child>\n\
-              <object class=\"GtkVBox\" id=\"vbox2\">\n\
+              <object class=\"GtkBox\" id=\"vbox2\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
+                <property name=\"orientation\">vertical</property>\n\
                 <child>\n\
                   <object class=\"GtkLabel\" id=\"label1\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -710,18 +715,20 @@ const char *Dsp::glade_def = "\
               </packing>\n\
             </child>\n\
             <child>\n\
-              <object class=\"GtkVBox\" id=\"vbox8\">\n\
+              <object class=\"GtkBox\" id=\"vbox8\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
+                <property name=\"orientation\">vertical</property>\n\
                 <property name=\"spacing\">10</property>\n\
                 <child>\n\
-                  <object class=\"GtkHBox\" id=\"hbox1\">\n\
+                  <object class=\"GtkBox\" id=\"hbox1\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
                     <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                      <object class=\"GtkBox\" id=\"vbox3\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
+                        <property name=\"orientation\">vertical</property>\n\
                         <child>\n\
                           <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -756,9 +763,10 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox4\">\n\
+                      <object class=\"GtkBox\" id=\"vbox4\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
+                        <property name=\"orientation\">vertical</property>\n\
                         <child>\n\
                           <object class=\"GtkLabel\" id=\"label3:rack_label\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -793,9 +801,10 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox5\">\n\
+                      <object class=\"GtkBox\" id=\"vbox5\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
+                        <property name=\"orientation\">vertical</property>\n\
                         <child>\n\
                           <object class=\"GtkLabel\" id=\"label4:rack_label\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -830,9 +839,10 @@ const char *Dsp::glade_def = "\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
-                      <object class=\"GtkVBox\" id=\"vbox6\">\n\
+                      <object class=\"GtkBox\" id=\"vbox6\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
+                        <property name=\"orientation\">vertical</property>\n\
                         <child>\n\
                           <object class=\"GtkLabel\" id=\"label5:rack_label\">\n\
                             <property name=\"visible\">True</property>\n\
@@ -874,50 +884,47 @@ const char *Dsp::glade_def = "\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GtkTable\" id=\"table1\">\n\
+                  <object class=\"GtkGrid\" id=\"table1\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
-                    <property name=\"n_rows\">2</property>\n\
-                    <property name=\"n_columns\">4</property>\n\
-                    <property name=\"column_spacing\">6</property>\n\
                     <property name=\"row_spacing\">3</property>\n\
+                    <property name=\"column_spacing\">6</property>\n\
                     <child>\n\
                       <object class=\"GxSelector\" id=\"gxselector2\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">True</property>\n\
                         <property name=\"receives_default\">True</property>\n\
+                        <property name=\"hexpand\">True</property>\n\
                         <property name=\"var_id\">didest.mode</property>\n\
                         <property name=\"label_ref\">label21:rack_label_inverse</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"left_attach\">1</property>\n\
-                        <property name=\"right_attach\">2</property>\n\
                         <property name=\"top_attach\">1</property>\n\
-                        <property name=\"bottom_attach\">2</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label11:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"xalign\">1</property>\n\
                         <property name=\"label\" translatable=\"yes\">label</property>\n\
+                        <property name=\"xalign\">1</property>\n\
                       </object>\n\
                       <packing>\n\
-                        <property name=\"x_options\">GTK_FILL</property>\n\
+                        <property name=\"left_attach\">0</property>\n\
+                        <property name=\"top_attach\">0</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label21:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"xalign\">1</property>\n\
                         <property name=\"label\" translatable=\"yes\">label</property>\n\
+                        <property name=\"xalign\">1</property>\n\
                       </object>\n\
                       <packing>\n\
+                        <property name=\"left_attach\">0</property>\n\
                         <property name=\"top_attach\">1</property>\n\
-                        <property name=\"bottom_attach\">2</property>\n\
-                        <property name=\"x_options\">GTK_FILL</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
@@ -925,28 +932,26 @@ const char *Dsp::glade_def = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">True</property>\n\
                         <property name=\"receives_default\">True</property>\n\
+                        <property name=\"hexpand\">True</property>\n\
                         <property name=\"var_id\">didest.notes</property>\n\
                         <property name=\"label_ref\">label11:rack_label_inverse</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"left_attach\">1</property>\n\
-                        <property name=\"right_attach\">4</property>\n\
-                        <property name=\"x_options\">GTK_FILL</property>\n\
+                        <property name=\"top_attach\">0</property>\n\
+                        <property name=\"width\">3</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label31:rack_label_inverse\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
-                        <property name=\"xalign\">1</property>\n\
                         <property name=\"label\" translatable=\"yes\">label</property>\n\
+                        <property name=\"xalign\">1</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"left_attach\">2</property>\n\
-                        <property name=\"right_attach\">3</property>\n\
                         <property name=\"top_attach\">1</property>\n\
-                        <property name=\"bottom_attach\">2</property>\n\
-                        <property name=\"x_options\">GTK_FILL</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
@@ -954,7 +959,6 @@ const char *Dsp::glade_def = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">True</property>\n\
                         <property name=\"receives_default\">True</property>\n\
-                        <property name=\"use_action_appearance\">False</property>\n\
                         <property name=\"use_stock\">True</property>\n\
                         <property name=\"var_id\">didest.Freeze</property>\n\
                         <property name=\"label_ref\">label31:rack_label_inverse</property>\n\
@@ -962,9 +966,7 @@ const char *Dsp::glade_def = "\
                       </object>\n\
                       <packing>\n\
                         <property name=\"left_attach\">3</property>\n\
-                        <property name=\"right_attach\">4</property>\n\
                         <property name=\"top_attach\">1</property>\n\
-                        <property name=\"bottom_attach\">2</property>\n\
                       </packing>\n\
                     </child>\n\
                   </object>\n\
@@ -982,9 +984,10 @@ const char *Dsp::glade_def = "\
               </packing>\n\
             </child>\n\
             <child>\n\
-              <object class=\"GtkVBox\" id=\"vbox7\">\n\
+              <object class=\"GtkBox\" id=\"vbox7\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
+                <property name=\"orientation\">vertical</property>\n\
                 <child>\n\
                   <object class=\"GtkLabel\" id=\"label6:rack_label1\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -1048,7 +1051,7 @@ const char *Dsp::glade_def = "\
           </packing>\n\
         </child>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"minibox\">\n\
+          <object class=\"GtkBox\" id=\"minibox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
@@ -1074,8 +1077,8 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"xalign\">0</property>\n\
                 <property name=\"label\" translatable=\"yes\">Amount</property>\n\
+                <property name=\"xalign\">0</property>\n\
               </object>\n\
               <packing>\n\
                 <property name=\"expand\">False</property>\n\
