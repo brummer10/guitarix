@@ -9,8 +9,8 @@ private:
 	int fSamplingFreq;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT fVslider1;
-	double fRec9[2];
 	FAUSTFLOAT fVslider2;
+	double fRec9[2];
 	int IOTA;
 	double fVec0[2048];
 	double fRec8[2];
@@ -131,9 +131,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fVslider0 = FAUSTFLOAT(0.5);
+	fVslider0 = FAUSTFLOAT(50.0);
 	fVslider1 = FAUSTFLOAT(0.5);
-	fVslider2 = FAUSTFLOAT(50.0);
+	fVslider2 = FAUSTFLOAT(0.5);
 			IOTA = 0;
 	clear_state_f();
 }
@@ -145,39 +145,39 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = ((0.28000000000000003 * double(fVslider0)) + 0.69999999999999996);
-	double fSlow1 = double(fVslider1);
-	double fSlow2 = (1.0 - fSlow1);
+	double fSlow0 = double(fVslider0);
+	double fSlow1 = (0.00014999999999999999 * fSlow0);
+	double fSlow2 = ((0.28000000000000003 * double(fVslider1)) + 0.69999999999999996);
 	double fSlow3 = double(fVslider2);
-	double fSlow4 = (0.00014999999999999999 * fSlow3);
-	double fSlow5 = (1.0 - (0.01 * fSlow3));
-	double fSlow6 = (fSlow5 + (((0.01 * fSlow5) + 0.00014999999999999999) * fSlow3));
+	double fSlow4 = (1.0 - fSlow3);
+	double fSlow5 = (1.0 - (0.01 * fSlow0));
+	double fSlow6 = (fSlow5 + (((0.01 * fSlow5) + 0.00014999999999999999) * fSlow0));
 	for (int i = 0; (i < count); i = (i + 1)) {
-		fRec9[0] = ((fSlow1 * fRec9[1]) + (fSlow2 * fRec8[1]));
 		double fTemp0 = double(input0[i]);
-		double fTemp1 = (fSlow4 * fTemp0);
-		fVec0[(IOTA & 2047)] = ((fSlow0 * fRec9[0]) + fTemp1);
+		double fTemp1 = (fSlow1 * fTemp0);
+		fRec9[0] = ((fSlow3 * fRec9[1]) + (fSlow4 * fRec8[1]));
+		fVec0[(IOTA & 2047)] = (fTemp1 + (fSlow2 * fRec9[0]));
 		fRec8[0] = fVec0[((IOTA - 1139) & 2047)];
-		fRec11[0] = ((fSlow1 * fRec11[1]) + (fSlow2 * fRec10[1]));
-		fVec1[(IOTA & 2047)] = (fTemp1 + (fSlow0 * fRec11[0]));
+		fRec11[0] = ((fSlow3 * fRec11[1]) + (fSlow4 * fRec10[1]));
+		fVec1[(IOTA & 2047)] = (fTemp1 + (fSlow2 * fRec11[0]));
 		fRec10[0] = fVec1[((IOTA - 1211) & 2047)];
-		fRec13[0] = ((fSlow1 * fRec13[1]) + (fSlow2 * fRec12[1]));
-		fVec2[(IOTA & 2047)] = (fTemp1 + (fSlow0 * fRec13[0]));
+		fRec13[0] = ((fSlow3 * fRec13[1]) + (fSlow4 * fRec12[1]));
+		fVec2[(IOTA & 2047)] = (fTemp1 + (fSlow2 * fRec13[0]));
 		fRec12[0] = fVec2[((IOTA - 1300) & 2047)];
-		fRec15[0] = ((fSlow1 * fRec15[1]) + (fSlow2 * fRec14[1]));
-		fVec3[(IOTA & 2047)] = (fTemp1 + (fSlow0 * fRec15[0]));
+		fRec15[0] = ((fSlow3 * fRec15[1]) + (fSlow4 * fRec14[1]));
+		fVec3[(IOTA & 2047)] = (fTemp1 + (fSlow2 * fRec15[0]));
 		fRec14[0] = fVec3[((IOTA - 1379) & 2047)];
-		fRec17[0] = ((fSlow1 * fRec17[1]) + (fSlow2 * fRec16[1]));
-		fVec4[(IOTA & 2047)] = (fTemp1 + (fSlow0 * fRec17[0]));
+		fRec17[0] = ((fSlow3 * fRec17[1]) + (fSlow4 * fRec16[1]));
+		fVec4[(IOTA & 2047)] = (fTemp1 + (fSlow2 * fRec17[0]));
 		fRec16[0] = fVec4[((IOTA - 1445) & 2047)];
-		fRec19[0] = ((fSlow1 * fRec19[1]) + (fSlow2 * fRec18[1]));
-		fVec5[(IOTA & 2047)] = (fTemp1 + (fSlow0 * fRec19[0]));
+		fRec19[0] = ((fSlow3 * fRec19[1]) + (fSlow4 * fRec18[1]));
+		fVec5[(IOTA & 2047)] = (fTemp1 + (fSlow2 * fRec19[0]));
 		fRec18[0] = fVec5[((IOTA - 1514) & 2047)];
-		fRec21[0] = ((fSlow1 * fRec21[1]) + (fSlow2 * fRec20[1]));
-		fVec6[(IOTA & 2047)] = (fTemp1 + (fSlow0 * fRec21[0]));
+		fRec21[0] = ((fSlow3 * fRec21[1]) + (fSlow4 * fRec20[1]));
+		fVec6[(IOTA & 2047)] = (fTemp1 + (fSlow2 * fRec21[0]));
 		fRec20[0] = fVec6[((IOTA - 1580) & 2047)];
-		fRec23[0] = ((fSlow1 * fRec23[1]) + (fSlow2 * fRec22[1]));
-		fVec7[(IOTA & 2047)] = (fTemp1 + (fSlow0 * fRec23[0]));
+		fRec23[0] = ((fSlow3 * fRec23[1]) + (fSlow4 * fRec22[1]));
+		fVec7[(IOTA & 2047)] = (fTemp1 + (fSlow2 * fRec23[0]));
 		fRec22[0] = fVec7[((IOTA - 1640) & 2047)];
 		double fTemp2 = (((((((fRec8[0] + fRec10[0]) + fRec12[0]) + fRec14[0]) + fRec16[0]) + fRec18[0]) + fRec20[0]) + fRec22[0]);
 		fVec8[(IOTA & 1023)] = (fTemp2 + (0.5 * fRec6[1]));
@@ -224,9 +224,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("freeverb.RoomSize",N_("Room Size"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.025000000000000001);
-	reg.registerVar("freeverb.damp",N_("HF Damp"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.025000000000000001);
-	reg.registerVar("freeverb.wet_dry",N_("Wet/Dry"),"S","",&fVslider2, 50.0, 0.0, 100.0, 1.0);
+	reg.registerVar("freeverb.RoomSize",N_("Room Size"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.025000000000000001);
+	reg.registerVar("freeverb.damp",N_("HF Damp"),"S","",&fVslider2, 0.5, 0.0, 1.0, 0.025000000000000001);
+	reg.registerVar("freeverb.wet_dry",N_("Wet/Dry"),"S","",&fVslider0, 50.0, 0.0, 100.0, 1.0);
 	return 0;
 }
 
@@ -237,30 +237,35 @@ int Dsp::register_params_static(const ParamReg& reg)
 
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<!-- Generated with glade 3.22.1 -->\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
-  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
-  <!-- interface-naming-policy project-wide -->\n\
+  <requires lib=\"gtk+\" version=\"3.20\"/>\n\
+  <requires lib=\"gxwidgets\" version=\"0.0\"/>\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
     <child>\n\
-      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+      <placeholder/>\n\
+    </child>\n\
+    <child>\n\
+      <object class=\"GtkBox\" id=\"vbox1\">\n\
         <property name=\"visible\">True</property>\n\
         <property name=\"can_focus\">False</property>\n\
+        <property name=\"orientation\">vertical</property>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+          <object class=\"GtkBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
             <child>\n\
-              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+              <object class=\"GtkBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
                 <property name=\"spacing\">10</property>\n\
                 <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                  <object class=\"GtkBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -295,9 +300,10 @@ const char *Dsp::glade_def = "\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                  <object class=\"GtkBox\" id=\"vbox3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -332,9 +338,10 @@ const char *Dsp::glade_def = "\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox4\">\n\
+                  <object class=\"GtkBox\" id=\"vbox4\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label3:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -384,7 +391,7 @@ const char *Dsp::glade_def = "\
           </packing>\n\
         </child>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"minibox\">\n\
+          <object class=\"GtkBox\" id=\"minibox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
@@ -410,8 +417,8 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"xalign\">0</property>\n\
                 <property name=\"label\" translatable=\"yes\">Room Size</property>\n\
+                <property name=\"xalign\">0</property>\n\
               </object>\n\
               <packing>\n\
                 <property name=\"expand\">False</property>\n\
