@@ -145,6 +145,8 @@ def build(bld):
         './builder/pluginpreset_connectwindow.glade',
         './builder/selectinstance.glade',
         './builder/Sequencer.glade',
+        './builder/vumeter_ui.glade',
+        './builder/vumeter_st_ui.glade',
         './builder/menudef.xml',
         './builder/accels_rc',
         './builder/gx_plugins.png',

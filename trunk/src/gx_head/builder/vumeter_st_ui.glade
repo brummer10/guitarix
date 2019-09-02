@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.20"/>
-  <!-- interface-requires gxwidgets 0.0 -->
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gxwidgets" version="0.0"/>
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkBox" id="vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkHBox" id="rackbox">
+          <object class="GtkBox" id="rackbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="spacing">4</property>
             <child>
-              <object class="GtkHBox" id="hbox1">
+              <object class="GtkBox" id="hbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="spacing">10</property>
@@ -25,20 +29,21 @@
                     <property name="can_focus">False</property>
                     <property name="yscale">0</property>
                     <child>
-                      <object class="GtkHBox" id="hbox3">
+                      <object class="GtkBox" id="hbox3">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="spacing">8</property>
                         <child>
-                          <object class="GtkVBox" id="vbox3">
+                          <object class="GtkBox" id="vbox3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="orientation">vertical</property>
                             <property name="spacing">2</property>
                             <child>
                               <placeholder/>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="hbox11">
+                              <object class="GtkBox" id="hbox11">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="spacing">1</property>
@@ -49,14 +54,56 @@
                                     <property name="top_padding">1</property>
                                     <property name="bottom_padding">1</property>
                                     <child>
-                                      <object class="GxFastMeter" id="gxfastmeter1:meterframe">
-                                        <property name="width_request">200</property>
+                                      <object class="GtkBox" id="vbox4">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="hold">120</property>
-                                        <property name="dimen">3</property>
-                                        <property name="horiz">True</property>
-                                        <property name="var_id">vu.v1</property>
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                          <object class="GtkEventBox" id="eventbox2">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="above_child">True</property>
+                                            <child>
+                                              <object class="GxFastMeter" id="gxfastmeter1:meterframe">
+                                                <property name="width_request">200</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="hold">120</property>
+                                                <property name="horiz">True</property>
+                                                <property name="type">1</property>
+                                                <property name="var_id">vu_st.v1</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkEventBox" id="eventbox3">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="above_child">True</property>
+                                            <child>
+                                              <object class="GxFastMeter" id="gxfastmeter2:meterframe">
+                                                <property name="width_request">200</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="hold">120</property>
+                                                <property name="horiz">True</property>
+                                                <property name="type">2</property>
+                                                <property name="var_id">vu_st.v2</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
                                       </object>
                                     </child>
                                   </object>
@@ -67,12 +114,12 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GxSwitch" id="gxfswitch3">
+                                  <object class="GxSwitch" id="gxfswitch1">
                                     <property name="width_request">30</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="var_id">vu.v2</property>
+                                    <property name="var_id">vu_st.v3</property>
                                     <property name="base_name">switch_mid</property>
                                   </object>
                                   <packing>
@@ -108,9 +155,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox2">
+                  <object class="GtkBox" id="vbox2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel" id="label1:rack_label">
                         <property name="visible">True</property>
@@ -128,7 +176,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="var_id">vu.gain</property>
+                        <property name="var_id">vu_st.gain</property>
                         <property name="label_ref">label1:rack_label</property>
                       </object>
                       <packing>
@@ -160,7 +208,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="minibox">
+          <object class="GtkBox" id="minibox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="spacing">10</property>
@@ -168,44 +216,81 @@
               <placeholder/>
             </child>
             <child>
-              <object class="GtkAlignment" id="alignment3">
+              <object class="GtkBox" id="vbox5">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="yscale">0</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">2</property>
                 <child>
-                  <object class="GtkHBox" id="hbox2">
+                  <placeholder/>
+                </child>
+                <child>
+                  <object class="GtkBox" id="hbox2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="spacing">8</property>
+                    <property name="spacing">1</property>
                     <child>
-                      <object class="GtkVBox" id="vbox4">
+                      <object class="GtkAlignment" id="alignment3">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">2</property>
+                        <property name="top_padding">1</property>
+                        <property name="bottom_padding">1</property>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <object class="GtkHBox" id="hbox4">
+                          <object class="GtkBox" id="hbox4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="spacing">1</property>
                             <child>
-                              <object class="GtkAlignment" id="alignment4">
+                              <object class="GtkBox" id="vbox6">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="top_padding">1</property>
-                                <property name="bottom_padding">1</property>
+                                <property name="orientation">vertical</property>
                                 <child>
-                                  <object class="GxFastMeter" id="gxfastmeter2:meterframe">
-                                    <property name="width_request">200</property>
+                                  <object class="GtkEventBox" id="eventbox1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="hold">120</property>
-                                    <property name="dimen">3</property>
-                                    <property name="horiz">True</property>
-                                    <property name="var_id">vu.v1</property>
+                                    <property name="above_child">True</property>
+                                    <child>
+                                      <object class="GxFastMeter" id="gxfastmeter3:meterframe">
+                                        <property name="width_request">200</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="hold">120</property>
+                                        <property name="dimen">0</property>
+                                        <property name="horiz">True</property>
+                                        <property name="type">1</property>
+                                        <property name="var_id">vu_st.v1</property>
+                                      </object>
+                                    </child>
                                   </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEventBox" id="eventbox4">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="above_child">True</property>
+                                    <child>
+                                      <object class="GxFastMeter" id="gxfastmeter4:meterframe">
+                                        <property name="width_request">200</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="hold">120</property>
+                                        <property name="dimen">0</property>
+                                        <property name="horiz">True</property>
+                                        <property name="type">2</property>
+                                        <property name="var_id">vu_st.v2</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
                                 </child>
                               </object>
                               <packing>
@@ -215,12 +300,12 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GxSwitch" id="gxfswitch1">
+                              <object class="GxSwitch" id="gxfswitch2">
                                 <property name="width_request">30</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="var_id">vu.v2</property>
+                                <property name="var_id">vu_st.v3</property>
                                 <property name="base_name">switch_mid</property>
                               </object>
                               <packing>
@@ -230,25 +315,28 @@
                               </packing>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                   </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
