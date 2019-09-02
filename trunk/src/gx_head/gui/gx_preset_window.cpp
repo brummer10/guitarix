@@ -43,7 +43,8 @@ bool PresetStore::row_draggable_vfunc(const TreeModel::Path& path) const {
 
 
 PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine_,
-			   const gx_system::CmdlineOptions& options_, GxActions& actions_, GtkSizeGroup *lc)
+			   const gx_system::CmdlineOptions& options_, GxActions& actions_,
+			   const Glib::RefPtr<Gtk::SizeGroup>& lc)
     : sigc::trackable(),
       machine(machine_),
       actions(actions_),
@@ -165,11 +166,11 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
 	sigc::mem_fun(*this, &PresetWindow::on_selection_changed));
     
     left_column = lc;
-    gtk_size_group_add_widget(lc, GTK_WIDGET(close_preset->gobj()));
-    gtk_size_group_add_widget(lc, GTK_WIDGET(save_preset->gobj()));
-    gtk_size_group_add_widget(lc, GTK_WIDGET(new_preset_bank->gobj()));
-    gtk_size_group_add_widget(lc, GTK_WIDGET(organize_presets->gobj()));
-    gtk_size_group_add_widget(lc, GTK_WIDGET(online_preset->gobj()));
+    lc->add_widget(*close_preset);
+    lc->add_widget(*save_preset);
+    lc->add_widget(*new_preset_bank);
+    lc->add_widget(*organize_presets);
+    lc->add_widget(*online_preset);
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
 }

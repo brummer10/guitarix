@@ -2936,13 +2936,13 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     clear_box(*preset_box_no_rack);
     
     // create left column for equal width
-    left_column = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
+    left_column = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
     Gtk::ScrolledWindow *swe;
     bld->find_widget("scrolledwindow_effects", swe);
-    gtk_size_group_add_widget(left_column, GTK_WIDGET(swe->gobj()));
+    left_column->add_widget(*swe);
     Gtk::Button *pb;
     bld->find_widget("presets:barbutton", pb);
-    gtk_size_group_add_widget(left_column, GTK_WIDGET(pb->gobj()));
+    left_column->add_widget(*pb);
     
     // preset window also creates some actions
     preset_window = new PresetWindow(bld, machine, options, actions, left_column);

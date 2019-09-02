@@ -118,7 +118,7 @@ private:
     Glib::RefPtr<Gtk::TreeViewColumn> preset_column_delete;
     Gtk::Paned *main_vpaned;
     Gtk::ScrolledWindow *preset_scrolledbox;
-    GtkSizeGroup *left_column;
+    Glib::RefPtr<Gtk::SizeGroup> left_column;
 private:
     void load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld);
     void target_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
@@ -181,7 +181,8 @@ private:
     void on_selection_changed();
 public:
     PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine,
-		 const gx_system::CmdlineOptions& options, GxActions& actions, GtkSizeGroup *lc);
+		 const gx_system::CmdlineOptions& options, GxActions& actions,
+		 const Glib::RefPtr<Gtk::SizeGroup>& lc);
     ~PresetWindow();
     void on_preset_select(bool v, bool animated, int preset_window_height);
 };
