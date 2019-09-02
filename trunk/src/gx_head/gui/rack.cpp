@@ -1416,7 +1416,9 @@ void RackContainer::find_index(int x, int y, int* len, int *ypos) {
 }
 
 void RackContainer::on_my_remove(Gtk::Widget *ch) {
-    decrement();
+    if (ch->get_visible()) {
+        decrement();
+    }
     renumber();
 }
 
