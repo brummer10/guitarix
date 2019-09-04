@@ -27,12 +27,6 @@ def options(opt):
                     dest='cxxflags',
                     help='C++ base compiler flags [Default: %default]')
 
-    comp.add_option('--disable-cxx11',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='deselect C++ compiler flag -std=c++11 [Default: False]')
-
     comp.add_option('--ldflags',
                     type='string',
                     default='',
