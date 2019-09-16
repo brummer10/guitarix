@@ -218,14 +218,13 @@ static gboolean gx_meter_scale_draw(GtkWidget *widget, cairo_t *cr)
 	gint tick_size, tick_space;
 	gtk_widget_style_get(widget, "tick-size", &tick_size, "tick-space", &tick_space, NULL);
 
-	/* create a cairo context */
 	cairo_set_font_size (cr, 7.0);
 
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(widget, &allocation);
 
-	double x0      = allocation.x;
-	double y0      = allocation.y;
+	double x0      = 0;
+	double y0      = 0;
 	double rect_width  = allocation.width;
 	double rect_height = allocation.height;
 

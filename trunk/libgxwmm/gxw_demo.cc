@@ -24,6 +24,7 @@
 #include <gxwmm/minislider.h>
 #include <gxwmm/playhead.h>
 #include <gxwmm/fastmeter.h>
+#include <gxwmm/meterscale.h>
 #include <gxwmm/tuner.h>
 #include <gxwmm/racktuner.h>
 #include <gxwmm/waveview.h>
@@ -133,6 +134,7 @@ protected:
 	Gtk::VBox m_vbox3;
 	Gxw::FastMeter m_fastmeter;
 	float m_meter_value;
+	Gxw::MeterScale m_meterscale;
 	Gxw::Tuner m_tuner;
 	Gxw::RackTuner m_racktuner;
 	int m_freq_index;
@@ -280,6 +282,11 @@ Demo::Demo():
 			this->m_fastmeter.set(this->m_meter_value);
 			return true;
 		}, 500);
+
+	m_vbox3.add(*Gtk::manage(new Gtk::Label("Meter Scale")));
+	m_meterscale.add_mark(0.25, "ONE");
+	m_meterscale.add_mark(0.5, "TWO");
+	m_vbox3.add(m_meterscale);
 	m_vbox3.add(*Gtk::manage(new Gtk::Label("Tuner")));
 	m_vbox3.add(m_tuner);
 	m_vbox3.add(*Gtk::manage(new Gtk::Label("Rack Tuner")));
