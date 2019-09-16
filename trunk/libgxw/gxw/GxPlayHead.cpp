@@ -121,7 +121,7 @@ static void gx_play_head_init(GxPlayHead *playhead)
 {
     GtkWidget *widget = GTK_WIDGET(playhead);
     gx_play_head_render_pixbuf(widget);
-    g_signal_connect (widget, "style-set",
+    g_signal_connect (widget, "style-updated",
                      G_CALLBACK (gx_play_head_render_pixbuf), NULL);
 }
 

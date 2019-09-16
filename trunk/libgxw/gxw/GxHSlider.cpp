@@ -222,7 +222,7 @@ static void gx_hslider_init(GxHSlider *hslider)
     GtkWidget *widget = GTK_WIDGET(hslider);
     hslider->hover        = 0;
     gx_hslider_render_pixbuf(widget);
-    g_signal_connect ( widget, "style-set",
+    g_signal_connect ( widget, "style-updated",
                      G_CALLBACK (gx_hslider_render_pixbuf), NULL);
 }
 

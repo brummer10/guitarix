@@ -233,7 +233,7 @@ static void gx_vslider_init(GxVSlider *vslider)
     GtkWidget *widget = GTK_WIDGET(vslider);
     vslider->hover        = 0;
     gx_vslider_render_pixbuf(widget);
-    g_signal_connect ( widget, "style-set",
+    g_signal_connect ( widget, "style-updated",
                      G_CALLBACK (gx_vslider_render_pixbuf), NULL);
 }
 static void gx_vslider_set_pointer (GtkWidget *widget, GdkEventMotion *event)
