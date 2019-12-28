@@ -2,10 +2,11 @@
 # encoding: utf-8
 
 import sys, wscript_helper
-import Task, Utils, Options, Logs, os, shutil
-from TaskGen import extension
+from waflib import Task, Utils, Options, Logs
+from waflib.TaskGen import extension
+import os, shutil
 
-def set_options(opt):
+def options(opt):
     guitarix_prog = opt.add_option_group("Guitarix Program Options")
     guitarix_prog.add_option(
         '--no-avahi', action='store_const', default=False, const=True,
@@ -47,7 +48,7 @@ def gperf2cc(task):
         shutil.copy2(os.path.join(srcdir, basename+"-generated.h"), out_h)
         return 0
 
-Task.task_type_from_func(
+Task.task_factory(
     'gperf',
     gperf2cc,
     color='BLUE',

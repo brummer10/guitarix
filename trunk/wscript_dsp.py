@@ -4,7 +4,8 @@ support for generating .cc files from faust .dsp files with dsp2cc
 for examples look at src/faust/wscript
 """
 
-import Task, TaskGen, Logs, Utils, os, re, shutil
+from waflib import Task, TaskGen, Logs, Utils
+import os, re, shutil
 
 # task function for task "dsp"
 def dsp2cc(task):
@@ -75,7 +76,7 @@ def scan_dsp(task):
     return dsp_scanner.scan(task)
 
 # definition of task "dsp"
-Task.task_type_from_func(
+Task.task_factory(
     name    = 'dsp',
     func    = dsp2cc,
     color   = 'BLUE',

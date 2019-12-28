@@ -1,9 +1,10 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
-import Logs, Utils, Configure, Options, os.path, shutil
+from waflib import Logs, Utils, Configure, Options
+import os.path, shutil
 
-def set_options(opt):
+def options(opt):
     pass
 
 def configure(conf):

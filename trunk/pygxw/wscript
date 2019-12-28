@@ -1,10 +1,10 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
-import Logs, Utils, Options
+from waflib import Logs, Utils, Options
 
-def set_options(opt):
-    grp = opt.get_option_group("--shared-lib")
+def options(opt):
+    grp = opt.get_option_group("Guitarix Widget Library")
     grp.add_option('--python-wrapper',
                    action='store_const',
                    default=False,

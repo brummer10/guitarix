@@ -2,20 +2,17 @@
 # encoding: utf-8
 
 import sys, os, re, shutil
-import Build, Utils, Options, Logs, Configure, Scripting
-from Constants import HEXVERSION
-from Configure import ConfigurationError
-from TaskGen import feature
+from waflib import Build, Utils, Options, Logs, Configure, Scripting
+from waflib.Context import HEXVERSION
+from waflib.Errors import ConfigurationError
+from waflib.TaskGen import feature
 import wscript_dsp
 
 # Waf version check, for global waf installs
 
-try:
-    from Constants import WAFVERSION
-except:
-    WAFVERSION='1.0.0'
-if WAFVERSION[:3] != '1.5':
-    print('Incompatible Waf, use 1.5')
+from waflib.Context import WAFVERSION
+if WAFVERSION[:3] != '2.0':
+    print('Incompatible Waf, use 2.0')
     sys.exit (1)
 
 # these variables are mandatory ('/' are converted automatically)
@@ -36,7 +33,7 @@ g_maxlen = 40 # maximum width of message for 2-column display
 # options defined for waf configure
 ################################################################
 
-def set_options(opt):
+def options(opt):
 
     def add_enable_option (option, desc, group=None, disable=False):
         if group == None:
@@ -47,8 +44,8 @@ def set_options(opt):
         group.add_option ('--disable-' + option, action='store_true',
             default=disable, help='Disable ' + desc, dest='disable_' + option_)
 
-    opt.tool_options('gcov')
-    opt.tool_options ('intltool')
+    #opt.load('gcov') ##FIXME
+    opt.load ('intltool')
 
     opt.add_option('--no-standalone',
                     action='store_false',
@@ -59,8 +56,8 @@ def set_options(opt):
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
 
-    opt.tool_options('compiler_cxx')
-    comp = opt.get_option_group("--check-cxx-compiler")
+    opt.load('compiler_cxx')
+    comp = opt.get_option_group("Configuration options")
 
     comp.add_option('--debug',
                     action='store_const',
@@ -258,7 +255,7 @@ def set_options(opt):
     opt.recurse('pygxw')
     opt.recurse('glade-gxw')
 
-    opt.tool_options('compiler_cc') # for pygxw and glade-gxw
+    opt.load('compiler_c') # for pygxw and glade-gxw
 
     opt.add_option('--dist-tree',
                    type='string',
@@ -266,7 +263,7 @@ def set_options(opt):
                    help=("option for 'dist' command: git tree-ish to build"
                          " the archive from [Default: %s]" % 'V%s' % VERSION))
 
-    opt.sub_options('src/gx_head');
+    opt.recurse('src/gx_head')
 
 
 ################################################################
@@ -432,12 +429,12 @@ def sub_file(src_fname, dst_fname, lst):
     f.close()
 
 def check_roboto_font(conf):
-    if Utils.exec_command("fc-list | grep RobotoCondensed >/dev/null") != 0:
+    if conf.exec_command("fc-list | grep -q RobotoCondensed") != 0:
         conf.font_msg = "\nRobotoCondensed font not found: please install the fonts-roboto package from your distribution (recommended)\nor use --install-roboto-font to install the included roboto font."
-        conf.check_message('font RobotoCondensed','',0)
+        conf.msg('Checking for font RobotoCondensed','',0)
         conf.env['FONTMSG'] = True
     else:
-        conf.check_message('font RobotoCondensed','',1)
+        conf.msg('Checking for font RobotoCondensed','',1)
 
 def check_faust(conf):
     if Options.options.no_faust:
@@ -447,7 +444,8 @@ def check_faust(conf):
     if not conf.env['FAUST']:
         return
     try:
-        s = Utils.cmd_output('%s --version' % conf.env['FAUST'])
+        s = conf.cmd_and_log(conf.env['FAUST']+['--version'])
+        #s = Utils.cmd_output('%s --version' % conf.env['FAUST'])
     except ValueError:
         Logs.warn('count not execute faust')
         return
@@ -458,7 +456,7 @@ def check_faust(conf):
     conf.env["FAUST_VERSION"] = vers
     if vers not in good_faust_versions and not Options.options.faust:
         conf.env['FAUST'] = None
-        conf.check_message_custom('faust','version',"can't use %s (check ./waf --help)" % vers,color='YELLOW')
+        conf.msg(msg='Checking for faust version',result="can't use %s (check ./waf --help)" % vers,color='YELLOW')
     else:
         conf.check_message('faust','version',1,vers)
     conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
@@ -645,7 +643,7 @@ def configure(conf):
 
     if 'LINGUAS' in os.environ: conf.env['LINGUAS'] = os.environ['LINGUAS']
 
-    platform = Utils.detect_platform()
+    platform = Utils.unversioned_sys_platform()
     conf.env['IS_MACOSX'] = platform == 'darwin'
     conf.env['IS_LINUX'] = platform == 'linux' or platform == 'posix'
     conf.env['IS_SUN'] = platform == 'sunos'
@@ -668,7 +666,7 @@ def configure(conf):
                 sys.exit (1)
 
     if option_enabled ('nls'):
-        conf.check_tool ('intltool')
+        conf.load('intltool')
         if conf.env['INTLTOOL'] and conf.env['POCOM']:
             nls = 'yes'
         else:
@@ -684,11 +682,11 @@ def configure(conf):
 
     conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
     # compiler
-    conf.check_tool('compiler_cxx')
-    if opt.with_gcov:
-        conf.check_tool('gcov')
+    conf.load('compiler_cxx')
+    #if opt.with_gcov: ##FIXME
+    #    conf.load('gcov')
     if opt.python_wrapper or opt.glade_support:
-        conf.check_tool('compiler_cc')
+        conf.load('compiler_c')
     conf.env['shlib_LINKFLAGS'].append("-fPIC") # error in waf 1.5.18?
     # linker flags
     conf.env.append_value('LDFLAGS', opt.ldflags.split())
@@ -765,6 +763,7 @@ def configure(conf):
     conf.define('GX_STYLE_DIR', os.path.join(gxsharedir,'skins'))
     conf.define('GX_FACTORY_DIR', os.path.join(gxsharedir,'factorysettings'))
     conf.define('GX_SOUND_DIR', os.path.join(gxsharedir,'sounds'))
+    print('##', gxsharedir, conf.env['GX_SOUND_DIR'])
     conf.define('GX_SOUND_BPB_DIR', os.path.join(conf.env['GX_SOUND_DIR'],'bands'))
     conf.define('GX_SOUND_BPA_DIR', os.path.join(conf.env['GX_SOUND_DIR'],'amps'))
     conf.define('GX_BUILDER_DIR', os.path.join(gxsharedir,'builder'))
@@ -844,7 +843,7 @@ def configure(conf):
 
     # pygobject is used by both python and c++ wrapper
     if opt.python_wrapper or opt.generate_cpp_wrapper:
-        conf.check_tool('python')
+        conf.load('python')
         conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
         conf.cfg_get_variable(package='pygobject-2.0', variable='codegendir')
 
