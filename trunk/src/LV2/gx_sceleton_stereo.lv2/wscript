@@ -19,8 +19,7 @@ def build(bld):
     cxxflag =[]
     if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag = [ "-msse2", "-mfpmath=sse"]
-    lv2_effects = bld(
-        features='cxx cshlib ',
+    lv2_effects = bld.shlib(
         includes = incl,
         lib = lib,
         uselib = uselib,

@@ -6,6 +6,8 @@
 trunk/build/
 trunk/po/LINGUAS
 trunk/.lock-wscript
+trunk/.waf-2*
+trunk/.waf3-2*
 trunk/TAGS
 trunk/webui/build
 trunk/webui/deploy

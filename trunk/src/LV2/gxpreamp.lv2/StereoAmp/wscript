@@ -44,8 +44,8 @@ def build(bld):
         lib3.append('dl')
     if bld.env["GX_LIB_SHARED"]:
         lib3 += ['gxwmm','gxw']
-        libpath3 += [bld.path.find_dir("../../../../libgxw/gxw").bldpath(bld.env),
-                    bld.path.find_dir("../../../../libgxwmm/gxwmm").bldpath(bld.env)]
+        libpath3 += [bld.path.find_dir("../../../../libgxw/gxw").bldpath(),
+                    bld.path.find_dir("../../../../libgxwmm/gxwmm").bldpath()]
     else:
         uselib_local3 += ['gxwmm','gxw']
     

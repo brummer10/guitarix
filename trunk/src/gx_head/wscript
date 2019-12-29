@@ -22,26 +22,27 @@ def configure(conf):
         conf.check_cfg(package='avahi-gobject', args='--cflags --libs', uselib_store='AVAHI_GOBJECT', mandatory=1)
         conf.check_cfg(package='avahi-glib', args='--cflags --libs', uselib_store='AVAHI_GLIB', mandatory=1)
         conf.check_cfg(package='avahi-client', args='--cflags --libs', uselib_store='AVAHI_CLIENT', mandatory=1)
+        conf.env["HAVE_AVAHI"] = 1
         conf.define("HAVE_AVAHI", 1)
     if not Options.options.no_bluez:
         conf.check_cfg(package='bluez', args='--cflags --libs', uselib_store='BLUEZ', mandatory=0)
 
 def gperf2cc(task):
-    out_c = task.outputs[0].bldpath(task.env)
-    out_h = task.outputs[1].bldpath(task.env)
+    out_c = task.outputs[0]
+    out_h = task.outputs[1]
     basename = os.path.splitext(
-        os.path.basename(task.inputs[0].srcpath(task.env)))[0]
-    srcdir = task.inputs[0].parent.srcpath(task.env)
+        os.path.basename(task.inputs[0].srcpath()))[0]
+    srcdir = task.inputs[0].parent.srcpath()
     if task.env["HAVE_GPERF"]:
-        cmd = [task.proc,
-               task.inputs[0].srcpath(task.env),
-               out_c,
-               out_h,
+        cmd = [task.proc.abspath(), # bldpath() triggers bug in Waf 2.0.19 when logging active
+               task.inputs[0].bldpath(),
+               out_c.bldpath(),
+               out_h.bldpath(),
                ]
         Logs.debug("runner: system command -> %s" % cmd)
-        ret = Utils.exec_command(cmd, shell=False)
-        shutil.copy2(out_c, os.path.join(srcdir, basename+"-generated.cc"))
-        shutil.copy2(out_h, os.path.join(srcdir, basename+"-generated.h"))
+        ret = task.exec_command(cmd, shell=False)
+        shutil.copy2(out_c.srcpath(), os.path.join(srcdir, basename+"-generated.cc"))
+        shutil.copy2(out_h.srcpath(), os.path.join(srcdir, basename+"-generated.h"))
         return ret
     else:
         shutil.copy2(os.path.join(srcdir, basename+"-generated.cc"), out_c)
@@ -52,7 +53,7 @@ Task.task_factory(
     'gperf',
     gperf2cc,
     color='BLUE',
-    before='cc cxx',
+    before='cxx',
     )
 
 @extension('.gperf_tmpl')
@@ -60,8 +61,9 @@ def process_gperf_tmpl(self, node):
     cc_node = node.change_ext('.cc')
     h_node = node.change_ext('.h')
     task = self.create_task('gperf', [node], [cc_node, h_node])
-    task.proc = "../tools/make_jsonrpc_methods"
-    self.bld.add_manual_dependency(node,self.bld.bldnode.find_resource(task.proc))
+    p = "tools/make_jsonrpc_methods"
+    task.proc = self.bld.srcnode.find_resource(p)
+    self.bld.add_manual_dependency(node, task.proc)
 
 def build(bld):
     sources_engine = [
@@ -172,14 +174,18 @@ def build(bld):
     uselib_local = []
     wscript_helper.add_zita_convolver(bld, uselib, sources, incl)
     wscript_helper.add_zita_resampler(bld, uselib, sources, incl)
+    #sources.append('../../src/zita-convolver/zita-convolver.o')
+    #sources.append('../../src/zita-resampler-1.1.0/resampler.o')
+    #sources.append('../../src/zita-resampler-1.1.0/resampler-table.o')
     if bld.env["HAVE_PLUGINLIB"]:
         uselib_local += ["plugins"]
-    if bld.env["GX_LIB_SHARED"]:
-        lib += ['gxwmm','gxw']
-        libpath += [bld.path.find_dir("../../libgxw/gxw").bldpath(bld.env),
-                    bld.path.find_dir("../../libgxwmm/gxwmm").bldpath(bld.env)]
-    else:
-        uselib_local += ['gxwmm','gxw']
+    #if bld.env["GX_LIB_SHARED"]:
+    #    lib += ['gxwmm','gxw']
+    #    libpath += [bld.path.find_dir("../../libgxw/gxw").bldpath(),
+    #                bld.path.find_dir("../../libgxwmm/gxwmm").bldpath()]
+    #else:
+    #    uselib_local += ['gxwmm','gxw']
+    uselib_local += ['gxwmm','gxw']
     ldscript = bld.path.find_resource('guitarix.lds')
     mapfile = bld.path.find_or_declare("guitarix.map")
     task = bld(features = 'cxx cprogram',
@@ -187,13 +193,14 @@ def build(bld):
         obj_ext  = '.o',
         source = sources,
         lib = lib,
-        uselib = uselib,
-        uselib_local = uselib_local,
+        #uselib = uselib,
+        #uselib_local = uselib_local,
+        use = uselib+uselib_local,
         libpath = libpath,
         target = bld.env['BIN_NAME'],
         chmod = 0o755,
         install_path = bld.env['BINDIR'],
-        ldflags = ['-Wl,%s,-Map,%s' % (ldscript.srcpath(),mapfile.bldpath(bld.env))],
+        ldflags = ['-Wl,%s,-Map,%s' % (ldscript.bldpath(),mapfile.bldpath())],
         )
     bld.add_manual_dependency(bld.path.find_or_declare(task.target), ldscript)
     bld.install_files(bld.env['GX_BUILDER_DIR'], builder_files, chmod=0o644)

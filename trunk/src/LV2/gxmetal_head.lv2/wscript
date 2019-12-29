@@ -10,8 +10,6 @@ def build(bld):
     bundle = 'gxmetal_head.lv2'
 
     src = ['gxmetal_head.cpp',
-           '../DSP/gx_resampler.cc',
-           '../DSP/gx_convolver.cc'
            ]
     incl = ['../faust','./', '../DSP', '../DSP/tube_tables']
     lib = []
@@ -28,8 +26,7 @@ def build(bld):
     cxxflag =[]
     if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag = [ "-msse2", "-mfpmath=sse"]
-    lv2_effects = bld(
-        features='cxx cshlib ',
+    lv2_effects = bld.shlib(
         includes = incl,
         lib = lib,
         uselib = uselib,
@@ -44,26 +41,17 @@ def build(bld):
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
 
     if bld.env['LV2GUI']:
-        uselib_local5 = []
         libpath5 = []
         lib5 = []
         incl5 = ['../../../libgxwmm','../../../libgxw','../']
         if sys.platform.startswith("linux"):
             lib5.append('dl')
-        if bld.env["GX_LIB_SHARED"]:
-            lib5 += ['gxwmm','gxw']
-            libpath5 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
-                        bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
-        else:
-            uselib_local5 += ['gxwmm','gxw']
 
-        lv2_effetcs_gui = bld(
-            features='cxx cshlib ',
+        lv2_effetcs_gui = bld.shlib(
             includes = incl5,
             lib = lib5,
-            uselib = 'LV2CORE GTKMM',
             libpath = libpath5,
-            uselib_local = uselib_local5,
+            use = ['gxwmm','gxw','LV2CORE','GTKMM'],
             linkflags = '-Wl,-z,nodelete',
             defines  = ["LV2_GUI"],
             target   = 'gxmetal_head_gui',

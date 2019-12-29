@@ -103,7 +103,7 @@ def build(bld):
     lib_csources = [v if isinstance(v, str) else v[0] for v in lib_csource_defs]
     lib_dict = dict([v for v in lib_csource_defs if not isinstance(v, str)])
     def run(task):
-        l = []
+        l = ['#include "gx_plugin.h"\n\nnamespace pluginlib {\n']
         for fname in lib_sources+lib_csources:
             name = os.path.splitext(fname)[0]
             if fname in lib_dict:
@@ -111,11 +111,8 @@ def build(bld):
                     l.append("namespace %s { PluginDef *%s(); }\n" % (name, pname))
             else:
                 l.append("namespace %s { PluginDef *plugin(); }\n" % name)
-        f = open(task.outputs[0].bldpath(task.env),"w")
-        f.write('#include "gx_plugin.h"\n\nnamespace pluginlib {\n')
-        f.write("".join(l))
-        f.write("}\n")
-        f.close()
+        l.append("}\n")
+        task.outputs[0].write("".join(l))
     bld(name = "pluginlib.h",
         source = "wscript",
         rule = run,

@@ -9,15 +9,16 @@ def configure(conf):
 def create_ladspa_plugin(bld, source, target, defstr, uselib = None):
     ladspa_define = target + "=" + defstr
 
-    ladspa_plugin = bld.new_task_gen('cxx', 'shlib')
-    ladspa_plugin.env['shlib_PATTERN'] = '%s.so'
-    ladspa_plugin.defines  = ladspa_define
-    ladspa_plugin.name     = target
-    ladspa_plugin.target   = defstr
-    ladspa_plugin.source   = source
+    ladspa_plugin = bld.shlib(
+        defines  = ladspa_define,
+        name     = target,
+        target   = defstr,
+        source   = source,
+        install_path = '${LADSPADIR}',
+        chmod    = 0o755,
+        )
     ladspa_plugin.env.append_value("CXXFLAGS", ['-fPIC', '-shared'])
-    ladspa_plugin.install_path = '${LADSPADIR}'
-    ladspa_plugin.chmod = 0o755
+    ladspa_plugin.env['shlib_PATTERN'] = '%s.so'
     return ladspa_plugin
 
 

@@ -137,6 +137,8 @@ def configure(conf):
 def build(bld):
     # faust folder keep out of dirlist
     bld.add_subdirs('faust')
+    bld.objects(source='DSP/gx_convolver.cc', includes='DSP', cxxflags='-fPIC', target='GX_CONVOLVER')
+    bld.objects(source='DSP/gx_resampler.cc', cxxflags='-fPIC', target='GX_RESAMPLER')
     bld.add_subdirs(dirlist())
 
     if bld.env['LV2GUI']:

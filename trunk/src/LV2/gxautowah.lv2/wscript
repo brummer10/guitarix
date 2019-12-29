@@ -19,8 +19,7 @@ def build(bld):
     cxxflag =[]
     if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag = [ "-msse2", "-mfpmath=sse"]
-    lv2_effects = bld(
-        features='cxx cshlib ',
+    lv2_effects = bld.shlib(
         includes = incl,
         lib = lib,
         uselib = uselib,
@@ -35,26 +34,17 @@ def build(bld):
     lv2_effects.env['shlib_PATTERN'] = '%s.so'
 
     if bld.env['LV2GUI']:
-        uselib_local6 = []
         libpath6 = []
         lib6 = []
         incl6 = ['../../../libgxwmm','../../../libgxw','../']
         if sys.platform.startswith("linux"):
             lib6.append('dl')
-        if bld.env["GX_LIB_SHARED"]:
-            lib6 += ['gxwmm','gxw']
-            libpath6 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
-                        bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
-        else:
-            uselib_local6 += ['gxwmm','gxw']
 
-        lv2_effetcs_gui = bld(
-            features='cxx cshlib ',
+        lv2_effetcs_gui = bld.shlib(
             includes = incl6,
             lib = lib6,
-            uselib = 'LV2CORE GTKMM',
             libpath = libpath6,
-            uselib_local = uselib_local6,
+            use = ['gxwmm','gxw','LV2CORE', 'GTKMM'],
             linkflags = '-Wl,-z,nodelete',
             defines  = ["LV2_GUI"],
             target   = 'gxautowah_gui',

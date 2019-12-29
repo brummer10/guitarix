@@ -37,26 +37,18 @@ def build(bld):
     lv2_plugin.env['shlib_PATTERN'] = '%s.so'
 
     if bld.env['LV2GUI']:
-        uselib_local1 = []
         libpath1 = []
         lib1 = []
         incl = ['../../../libgxwmm','../../../libgxw']
         if sys.platform.startswith("linux"):
             lib1.append('dl')
-        if bld.env["GX_LIB_SHARED"]:
-            lib1 += ['gxwmm','gxw']
-            libpath1 += [bld.path.find_dir("../../../libgxw/gxw").bldpath(bld.env),
-                        bld.path.find_dir("../../../libgxwmm/gxwmm").bldpath(bld.env)]
-        else:
-            uselib_local1 += ['gxwmm','gxw']
 
         lv2_plugin_gui = bld(
             features='cxx cshlib ',
             includes = incl,
             lib = lib1,
-            uselib = 'LV2CORE GTKMM',
             libpath = libpath1,
-            uselib_local = uselib_local1,
+            use = ['gxwmm','gxw','LV2CORE','GTKMM'],
             linkflags = '-Wl,-z,nodelete',
             defines  = ["LV2_GUI"],
             target   = 'gxpreamp_gui',

@@ -2,15 +2,18 @@
 # encoding: utf-8
 
 import sys, os, re, shutil
-from waflib import Build, Utils, Options, Logs, Configure, Scripting
-from waflib.Context import HEXVERSION
-from waflib.Errors import ConfigurationError
-from waflib.TaskGen import feature
+import Build, Utils, Options, Logs, Configure, Scripting
+from Constants import HEXVERSION
+from Configure import ConfigurationError
+from TaskGen import taskgen_method, feature, before_method, after_method
 import wscript_dsp
 
 # Waf version check, for global waf installs
 
-from waflib.Context import WAFVERSION
+try:
+    from Constants import WAFVERSION
+except:
+    WAFVERSION='1.0.0'
 if WAFVERSION[:3] != '2.0':
     print('Incompatible Waf, use 2.0')
     sys.exit (1)
@@ -44,8 +47,8 @@ def options(opt):
         group.add_option ('--disable-' + option, action='store_true',
             default=disable, help='Disable ' + desc, dest='disable_' + option_)
 
-    #opt.load('gcov') ##FIXME
-    opt.load ('intltool')
+    #opt.tool_options('gcov') ##FIXME
+    opt.tool_options ('intltool')
 
     opt.add_option('--no-standalone',
                     action='store_false',
@@ -56,7 +59,7 @@ def options(opt):
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
 
-    opt.load('compiler_cxx')
+    opt.tool_options('compiler_cxx')
     comp = opt.get_option_group("Configuration options")
 
     comp.add_option('--debug',
@@ -255,7 +258,7 @@ def options(opt):
     opt.recurse('pygxw')
     opt.recurse('glade-gxw')
 
-    opt.load('compiler_c') # for pygxw and glade-gxw
+    opt.tool_options('compiler_c') # for pygxw and glade-gxw
 
     opt.add_option('--dist-tree',
                    type='string',
@@ -289,7 +292,7 @@ def display_msg(msg, status = None, color = None):
     g_maxlen = max(g_maxlen, len(msg))
     if status:
         print_msg("%s :" % msg.ljust(g_maxlen),False)
-        Utils.pprint(color, status)
+        Logs.pprint(color, status)
     else:
         print_msg("%s" % msg.ljust(g_maxlen))
 
@@ -429,12 +432,13 @@ def sub_file(src_fname, dst_fname, lst):
     f.close()
 
 def check_roboto_font(conf):
+    conf.start_msg('Checking for font RobotoCondensed')
     if conf.exec_command("fc-list | grep -q RobotoCondensed") != 0:
         conf.font_msg = "\nRobotoCondensed font not found: please install the fonts-roboto package from your distribution (recommended)\nor use --install-roboto-font to install the included roboto font."
-        conf.msg('Checking for font RobotoCondensed','',0)
+        conf.end_msg(False)
         conf.env['FONTMSG'] = True
     else:
-        conf.msg('Checking for font RobotoCondensed','',1)
+        conf.end_msg(True)
 
 def check_faust(conf):
     if Options.options.no_faust:
@@ -444,21 +448,20 @@ def check_faust(conf):
     if not conf.env['FAUST']:
         return
     try:
-        s = conf.cmd_and_log(conf.env['FAUST']+['--version'])
-        #s = Utils.cmd_output('%s --version' % conf.env['FAUST'])
+        s = Utils.cmd_output(conf.env['FAUST']+['--version'], )
     except ValueError:
-        Logs.warn('count not execute faust')
+        Logs.warn('could not execute faust')
         return
-    m = re.match(r".*Version\s*(.*)", s)
+    m = re.match(br".*Version\s*(.*)", s)
     if not m:
         Logs.warn('could not determine faust version')
-    vers = m.group(1)
+    vers = m.group(1).decode()
     conf.env["FAUST_VERSION"] = vers
     if vers not in good_faust_versions and not Options.options.faust:
         conf.env['FAUST'] = None
         conf.msg(msg='Checking for faust version',result="can't use %s (check ./waf --help)" % vers,color='YELLOW')
     else:
-        conf.check_message('faust','version',1,vers)
+        conf.msg('Checking for faust version','ok ({})'.format(vers))
     conf.env['FAUST_DOUBLE'] = not Options.options.faust_float
     conf.env['FAUST_VECTORIZE'] = Options.options.faust_vectorize
     conf.env['FAUST_VECTORIZE_FLOAT'] = Options.options.faust_vectorize_float
@@ -564,6 +567,7 @@ def check_zita_convolver(opt, conf):
                 mandatory=True,
                 define_name="ZITA_CONVOLVER")
             conf.define ('ZITA_CONVOLVER_VERSION', 3)
+            conf.env['ZITA_CONVOLVER'] = True
         except ConfigurationError:
             expected_zita_convolver_version = 4
             code="""
@@ -582,6 +586,7 @@ def check_zita_convolver(opt, conf):
                 mandatory=True,
                 define_name="ZITA_CONVOLVER")
             conf.define ('ZITA_CONVOLVER_VERSION', 4)
+            conf.env['ZITA_CONVOLVER'] = True
             
 
 def check_zita_resampler(opt, conf):
@@ -605,29 +610,41 @@ def check_zita_resampler(opt, conf):
             errmsg="Zita-resampler version %d not found" % expected_zita_resampler_version,
             mandatory=True,
             define_name="ZITA_RESAMPLER")
+        conf.env['ZITA_RESAMPLER'] = True
 
-# Taken from Geany's wscript, modified to support LINGUAS variable
+@feature('intltool_po')
+@before_method('apply_intltool_po')
 def write_linguas_file (self):
+    # Bug in Waf 2.0.19: apply_intltool_po (Waf Tools/intltool.py) tries to
+    # remove process_source from task list (which seems to be superfluous),
+    # but due to a bug in the meth list handling (which surfaces with python3),
+    # the next task method will be skipped. Fix: replace the entry
+    # 'process source' ẃith 'dummy'
+    @taskgen_method
+    def dummy(self):
+        pass
+    try:
+        self.meths[self.meths.index('process_source')] = 'dummy'
+    except ValueError:
+        pass
     linguas = ''
-    # Depending on Waf version, getcwd() is different
-    if os.path.exists ('./po'):
-        podir = './po'
-    else:
-        podir = '../po'
-    if 'LINGUAS' in Build.bld.env:
-        files = Build.bld.env['LINGUAS']
+    if 'LINGUAS' in self.bld.env:
+        files = self.bld.env['LINGUAS']
         for f in files.split (' '):
-            if os.path.exists (podir + '/' + f + '.po'):
-                linguas += f + ' '
+            if os.path.exists (os.path.join(self.podir, f+'.po')):
+                linguas += f + ' \n'
     else:
-        files = os.listdir (podir)
+        files = os.listdir(self.podir)
         for f in files:
             if f.endswith ('.po'):
                 linguas += '%s \n' % f[:-3]
-    f = open (podir + '/LINGUAS', 'w')
-    f.write ('# This file is autogenerated. Do not edit.\n%s' % linguas)
-    f.close ()
-write_linguas_file = feature ('intltool_po')(write_linguas_file)
+    with open(os.path.join(self.podir, 'LINGUAS'), 'w') as f:
+        f.write ('# This file is autogenerated. Do not edit.\n%s' % linguas)
+
+@feature('intltool_po')
+@after_method('apply_intltool_po')
+def get_localedir(self):
+    self.bld.define('LOCALEDIR', self.env.LOCALEDIR)
 
 
 ################################################################
@@ -666,8 +683,8 @@ def configure(conf):
                 sys.exit (1)
 
     if option_enabled ('nls'):
-        conf.load('intltool')
-        if conf.env['INTLTOOL'] and conf.env['POCOM']:
+        conf.check_tool ('intltool')
+        if conf.env['INTLTOOL'] and conf.env['MSGFMT']:
             nls = 'yes'
         else:
             option_checkfatal ('nls', 'localization')
@@ -680,13 +697,15 @@ def configure(conf):
         sub_file('guitarix.desktop.in', 'guitarix.desktop._in', (('^_', '%s' % ""), ))
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
-    conf.define ('ENABLE_NLS', [0,1][nls == 'yes'])
+    nls_flag = int(nls == 'yes')
+    conf.define ('ENABLE_NLS', nls_flag)
+    conf.env['ENABLE_NLS'] = nls_flag
     # compiler
-    conf.load('compiler_cxx')
+    conf.check_tool('compiler_cxx')
     #if opt.with_gcov: ##FIXME
-    #    conf.load('gcov')
+    #    conf.check_tool('gcov')
     if opt.python_wrapper or opt.glade_support:
-        conf.load('compiler_c')
+        conf.check_tool('compiler_c')
     conf.env['shlib_LINKFLAGS'].append("-fPIC") # error in waf 1.5.18?
     # linker flags
     conf.env.append_value('LDFLAGS', opt.ldflags.split())
@@ -760,15 +779,28 @@ def configure(conf):
 
     # defines for compilation
     gxsharedir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head'))
-    conf.define('GX_STYLE_DIR', os.path.join(gxsharedir,'skins'))
-    conf.define('GX_FACTORY_DIR', os.path.join(gxsharedir,'factorysettings'))
-    conf.define('GX_SOUND_DIR', os.path.join(gxsharedir,'sounds'))
-    print('##', gxsharedir, conf.env['GX_SOUND_DIR'])
-    conf.define('GX_SOUND_BPB_DIR', os.path.join(conf.env['GX_SOUND_DIR'],'bands'))
-    conf.define('GX_SOUND_BPA_DIR', os.path.join(conf.env['GX_SOUND_DIR'],'amps'))
-    conf.define('GX_BUILDER_DIR', os.path.join(gxsharedir,'builder'))
+    gx_style_dir = os.path.join(gxsharedir,'skins')
+    conf.env['GX_STYLE_DIR'] = gx_style_dir
+    conf.define('GX_STYLE_DIR', gx_style_dir)
+    gx_factory_dir = os.path.join(gxsharedir,'factorysettings')
+    conf.env['GX_FACTORY_DIR'] = gx_factory_dir
+    conf.define('GX_FACTORY_DIR', gx_factory_dir)
+    gx_sound_dir = os.path.join(gxsharedir,'sounds')
+    conf.env['GX_SOUND_DIR'] = gx_sound_dir
+    conf.define('GX_SOUND_DIR', gx_sound_dir)
+    gx_sound_bpb_dir = os.path.join(gx_sound_dir,'bands')
+    conf.env['GX_SOUND_BPB_DIR'] = gx_sound_bpb_dir
+    conf.define('GX_SOUND_BPB_DIR', gx_sound_bpb_dir)
+    gx_sound_bpa_dir = os.path.join(gx_sound_dir,'amps')
+    conf.env['GX_SOUND_BPA_DIR'] = gx_sound_bpa_dir
+    conf.define('GX_SOUND_BPA_DIR', gx_sound_bpa_dir)
+    gx_builder_dir = os.path.join(gxsharedir,'builder')
+    conf.env['GX_BUILDER_DIR'] = gx_builder_dir
+    conf.define('GX_BUILDER_DIR', gx_builder_dir)
     conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
-    conf.define('GX_PIXMAPS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
+    gx_pixmaps_dir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps'))
+    conf.env['GX_PIXMAPS_DIR'] = gx_pixmaps_dir
+    conf.define('GX_PIXMAPS_DIR', gx_pixmaps_dir)
 
     if opt.fontdir:
         conf.define('GX_FONTS_DIR', opt.fontdir)
@@ -801,7 +833,9 @@ def configure(conf):
         conf.env['MODGUI'] = opt.mod_lv2
         conf.env['NOSSE'] =  opt.disable_sse
         conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
-        conf.define('GX_LV2_STYLE_DIR', os.path.join(conf.env['GX_STYLE_DIR'],'LV2'))
+        gx_lv2_style_dir = os.path.join(gx_style_dir,'LV2')
+        conf.env['GX_LV2_STYLE_DIR'] = gx_lv2_style_dir
+        conf.define('GX_LV2_STYLE_DIR', gx_lv2_style_dir)
         if opt.lv2dir:
             conf.env['LV2DIR'] = opt.lv2dir
         else:
@@ -877,7 +911,7 @@ def configure(conf):
         conf.env['JOBS'] = str(opt.jobs)
 
     # writing config.h
-    conf.write_config_header('config.h')
+    conf.write_config_header('config.h', remove=False)
 
     # some output
     print("")
@@ -973,16 +1007,25 @@ def post(ctx):
         Utils.exec_command('/sbin/ldconfig')
 
 def build(bld):
-    if bld.env['JOBS'] and Options.options.jobs == Options.default_jobs:
+    if bld.env['JOBS'] and Options.options.jobs == bld.jobs:
         Options.options.jobs = int(bld.env['JOBS'])
 
     if bld.env['INTLTOOL']:
-        obj = bld.new_task_gen ('intltool_po')
-        obj.podir = 'po'
-        obj.appname = APPNAME
-
+        bld(features='intltool_po', appname=APPNAME, podir='po')
 
     # process subfolders from here
+    if not bld.env['ZITA_CONVOLVER'] and not bld.env['CONVOLVER_FFMPEG']:
+        bld.objects(source='src/zita-convolver/zita-convolver.cc',
+                    cxxflags='-fPIC',
+                    target='ZITA_CONVOLVER')
+    if not bld.env['ZITA_RESAMPLER']:
+        bld.objects(
+            source=[
+                'src/zita-resampler-1.1.0/resampler.cc',
+                'src/zita-resampler-1.1.0/resampler-table.cc',
+            ],
+            cxxflags='-fPIC',
+            target='ZITA_RESAMPLER')
     if bld.env["LADSPA"]:
         bld.add_subdirs('ladspa')
     if bld.env['STANDALONE'] or bld.env['LV2GUI']:
@@ -1028,7 +1071,7 @@ def build(bld):
         if not bld.env['DISABLE_NLS']:
             gen_desktop = bld(features  = "intltool_in",
                 podir     = "po",
-                flags     = ["-d", "-q", "-u", "-c"],
+                flags     = ["-d", "-q", "-u"],
                 source    = 'guitarix.desktop.in',
                 target    = 'guitarix.desktop',
                 install_path = "${DESKAPPS_DIR}/",
@@ -1055,7 +1098,7 @@ def build(bld):
             )
 
             gen_desktop.create_task
-        if Options.commands["install"]:  ## newer waf version: bld.cmd == 'install'
+        if "install" in Options.commands:
             if not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"]:
                 try:
                     bld.exec_command(["update-desktop-database", Utils.subst_vars("${DESKAPPS_DIR}", bld.env)])

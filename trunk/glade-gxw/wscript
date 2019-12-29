@@ -3,7 +3,7 @@
 
 from waflib import Options
 
-def options(opt):
+def set_options(opt):
     grp = opt.get_option_group("Guitarix Widget Library")
     grp.add_option('--glade-support',
                    action='store_const',
@@ -39,7 +39,7 @@ def build(bld):
         linkflags = bld.env['shlib_LINKFLAGS'].append("-lc"),
         target = 'gladegx',
         lib = ["gxw"],
-        libpath = bld.path.find_dir("../libgxw/gxw").bldpath(bld.env),
+        libpath = bld.path.find_dir("../libgxw/gxw").bldpath(),
         includes = ['..','../libgxw'],
         install_path = bld.env["GLADE_MODULES_DIR"],
         )

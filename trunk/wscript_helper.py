@@ -6,16 +6,11 @@ def add_zita_convolver(bld, uselib, sources, incl, base=".."):
         incl.append(base+'/zita-convolver-ffmpeg');
         uselib += ['LIBAVCODEC','LIBAVUTIL']
     else:
-        sources.append(base+'/zita-convolver/zita-convolver.cc')
-        incl.append(base+'/zita-convolver');
+        assert False
 
 def add_zita_resampler(bld, uselib, sources, incl, base=".."):
-    if bld.env['ZITA_RESAMPLER']:
-        uselib.append('ZITA_RESAMPLER')
-    else:
-        sources.append(base+'/zita-resampler-1.1.0/resampler.cc')
-        sources.append(base+'/zita-resampler-1.1.0/resampler-table.cc')
-        incl.append(base+'/zita-resampler-1.1.0')
+    assert bld.env['ZITA_RESAMPLER']
+    uselib.append('ZITA_RESAMPLER')
 
 def get_faust_args(bld):
     float_arg = ["-s","40000","--float"]

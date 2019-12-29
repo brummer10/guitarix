@@ -39,7 +39,7 @@ def options(opt):
                    )
 
 def configure(conf):
-    conf.check_tool('misc')
+    #conf.check_tool('misc') ##FIXME
     if Options.options.generate_cpp_wrapper:
         conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
         conf.cfg_get_variable(package='gtkmm-2.4', variable='gmmprocm4dir', prefix="GTK_")
@@ -62,18 +62,18 @@ def configure(conf):
 
 def template2cc(task):
     basename = os.path.splitext(
-        os.path.basename(task.inputs[0].srcpath(task.env)))[0]
+        os.path.basename(task.inputs[0].srcpath()))[0]
     srcdir = task.inputs[0].parent
     try:
-        os.remove(task.outputs[0].bldpath(task.env))
+        os.remove(task.outputs[0].bldpath())
     except OSError:
         pass
     try:
-        os.mkdir(task.outputs[0].parent.bldpath(task.env) + "/private")
+        os.mkdir(task.outputs[0].parent.bldpath() + "/private")
     except OSError:
         pass
-    spath = srcdir.srcpath(task.env)
-    dpath = srcdir.bldpath(task.env)
+    spath = srcdir.srcpath()
+    dpath = srcdir.bldpath()
     cmd = ["%s/gmmproc" % task.env["GMMPROCDIR"],
            "--defs", dpath,
            "-I", spath,
@@ -117,10 +117,10 @@ def process_hg(self, node):
         self.allnodes.append(cc_node)
 
 def header2defs(task):
-    sources = " ".join(["'%s'" % v.srcpath(task.env) for v in task.inputs[1:]])
+    sources = " ".join(["'%s'" % v.srcpath() for v in task.inputs[1:]])
     path = task.generator.path
-    dst = task.outputs[0].bldpath(task.env)
-    flt = task.inputs[0].srcpath(task.env)
+    dst = task.outputs[0].bldpath()
+    flt = task.inputs[0].srcpath()
     cmd = ("python '%s'/h2def.py -f '%s' -m gxw %s > '%s'"
            % (task.env["CODEGENDIR"], flt, sources, dst))
     Logs.debug("runner: system command -> %s" % cmd)
@@ -169,7 +169,7 @@ def build_generate_wrapper(bld):
         install_path = None,
         )
     bld.add_group()
-    libdir = bld.path.find_dir("../../libgxw/gxw").bldpath(bld.env)
+    libdir = bld.path.find_dir("../../libgxw/gxw").bldpath()
     e1 = 's/GdkEvent\\*/GdkEventButton*/'
     e2 = 's/return-type "const-gchar\\*"/return-type "gchar*"/'
     bld(name = "sigdefs",
@@ -183,7 +183,7 @@ def build_generate_wrapper(bld):
         target = "methods.defs",
         )
     bld(name = "enumdefs",
-        rule = bld.path.srcpath(bld.env)+"/enum.pl ${SRC} > ${TGT}",
+        rule = bld.path.srcpath()+"/enum.pl ${SRC} > ${TGT}",
         source = header,
         target = "enum.defs",
         )
@@ -267,7 +267,7 @@ def build(bld):
         build_generate_wrapper(bld)
     bld.add_group()
     if bld.env["GX_LIB_SHARED"]:
-        bld(features = ['cxx', 'cshlib', 'libtool'],
+        bld(features = ['cxx', 'cxxshlib', 'libtool'],
             type = 'cshlib',
             vnum = "0.1",
             includes = ['..','../../libgxw'],

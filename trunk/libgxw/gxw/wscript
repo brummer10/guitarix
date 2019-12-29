@@ -8,13 +8,14 @@ def options(opt):
     pass
 
 def configure(conf):
+    return ##FIXME
     if conf.env["GX_LIB_SHARED"] or conf.env["GXW_SHARED"]:
         conf.check_tool("libtool")
 
 def img2c(task):
     sources = "../libgxw/resources.xml"
     dst = "../libgxw/gximages.cc"
-    dstdir = task.outputs[0].bldpath(task.env)
+    dstdir = task.outputs[0].bldpath()
 
     cmd = ("glib-compile-resources --sourcedir=../libgxw/icons/ --target=%s  --generate-source %s" % ( dst, sources))
     Logs.debug("runner: system command -> %s" % cmd)
@@ -80,8 +81,7 @@ def build(bld):
     build_stock_images(bld)
     if bld.env["GX_LIB_STATIC"]:
         # static library
-        prog = bld(
-            features = ['cxx', 'cstaticlib'],
+        prog = bld.stlib(
             includes = ['.'],
             #cxxflags = ['-fPIC'],
             source = sources,
@@ -91,8 +91,7 @@ def build(bld):
             )
     if bld.env["GX_LIB_SHARED"] or bld.env["GXW_SHARED"]:
         # shared library
-        prog = bld(
-            features = ['cxx', 'cshlib'],
+        prog = bld.shlib(
             includes = ['.'],
             source = sources,
             uselib = ['GTHREAD', 'GTK2'],

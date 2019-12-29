@@ -82,7 +82,7 @@ Task.task_factory(
     color   = 'BLUE',
     ext_in  = '.dsp',
     ext_out = '.cc',
-    before  = 'cc cxx',
+    before  = 'cxx',
     ).scan = scan_dsp
 
 @TaskGen.extension('.dsp')
