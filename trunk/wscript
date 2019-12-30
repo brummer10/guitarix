@@ -411,7 +411,7 @@ def cfg_get_variable(self, package, variable, prefix=""):
     v = p.communicate()[0].strip()
     if p.returncode or not v:
         self.fatal('fail to get variable %s for package %s' % (variable, package))
-    self.env[prefix+variable.upper()] = v
+    self.env[prefix+variable.upper()] = v.decode()
 
 
 ################################################################

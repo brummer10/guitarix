@@ -61,19 +61,14 @@ def configure(conf):
 
 
 def template2cc(task):
-    basename = os.path.splitext(
-        os.path.basename(task.inputs[0].srcpath()))[0]
-    srcdir = task.inputs[0].parent
-    try:
-        os.remove(task.outputs[0].bldpath())
-    except OSError:
-        pass
-    try:
-        os.mkdir(task.outputs[0].parent.bldpath() + "/private")
-    except OSError:
-        pass
-    spath = srcdir.srcpath()
-    dpath = srcdir.bldpath()
+    src = task.inputs[0]
+    dst = task.outputs[0]
+    basename = src.change_ext('').name
+    dst.delete()
+    private = dst.parent.make_node('private')
+    private.mkdir()
+    spath = src.parent.bldpath()
+    dpath = dst.parent.bldpath()
     cmd = ["%s/gmmproc" % task.env["GMMPROCDIR"],
            "--defs", dpath,
            "-I", spath,
@@ -85,15 +80,16 @@ def template2cc(task):
            dpath,
            ]
     Logs.debug("runner: system command -> %s" % cmd)
-    ret = Utils.exec_command(cmd, shell=False)
+    ret = task.exec_command(cmd, shell=False)
     if ret != 0:
         return ret
-    dpath += "/"
-    spath += "/../gxwmm-generated/"
+    generated_dir = src.parent.parent.make_node('gxwmm-generated')
+    generated = generated_dir.make_node(basename).abspath()
     try:
-        shutil.copy2(dpath+basename+".cc", spath+basename+".cc")
-        shutil.copy2(dpath+basename+".h", spath+basename+".h")
-        shutil.copy2(dpath+"private/"+basename+"_p.h", spath+"private/"+basename+"_p.h")
+        shutil.copy2(dst.abspath(), generated+".cc")
+        shutil.copy2(dst.change_ext('.h').abspath(), generated+".h")
+        shutil.copy2(private.find_node(basename+"_p.h").abspath(),
+                     generated_dir.make_node(['private',basename+'_p.h']).abspath())
     except (OSError, IOError) as e:
         Logs.error("runner: cannot copy file -> %s" % e)
         return e.errno
@@ -110,21 +106,21 @@ def process_hg(self, node):
         cc_node = node.change_ext('.cc')
         task = self.create_task('gmmproc', [node], [cc_node])
         task.after = ["gxwdefs"]
-        task.deps_nodes.append(
+        task.dep_nodes.append(
             node.parent.find_resource(node.name.replace('.hg','.ccg')))
-        task.deps_nodes.append(
+        task.dep_nodes.append(
             node.parent.find_or_declare('gxw.defs'))
-        self.allnodes.append(cc_node)
+        self.source.append(cc_node)
 
 def header2defs(task):
-    sources = " ".join(["'%s'" % v.srcpath() for v in task.inputs[1:]])
+    sources = " ".join(["'%s'" % v.bldpath() for v in task.inputs[1:]])
     path = task.generator.path
     dst = task.outputs[0].bldpath()
-    flt = task.inputs[0].srcpath()
+    flt = task.inputs[0].bldpath()
     cmd = ("python '%s'/h2def.py -f '%s' -m gxw %s > '%s'"
            % (task.env["CODEGENDIR"], flt, sources, dst))
     Logs.debug("runner: system command -> %s" % cmd)
-    return Utils.exec_command(cmd, shell=True)
+    return task.exec_command(cmd, shell=True)
 
 def build_generate_wrapper(bld):
     header = ["GxTuner.h",
@@ -169,7 +165,7 @@ def build_generate_wrapper(bld):
         install_path = None,
         )
     bld.add_group()
-    libdir = bld.path.find_dir("../../libgxw/gxw").bldpath()
+    libdir = bld.bldnode.find_or_declare("libgxw/gxw").bldpath()
     e1 = 's/GdkEvent\\*/GdkEventButton*/'
     e2 = 's/return-type "const-gchar\\*"/return-type "gchar*"/'
     bld(name = "sigdefs",
@@ -183,7 +179,7 @@ def build_generate_wrapper(bld):
         target = "methods.defs",
         )
     bld(name = "enumdefs",
-        rule = bld.path.srcpath()+"/enum.pl ${SRC} > ${TGT}",
+        rule = bld.path.find_node('enum.pl').abspath()+" ${SRC} > ${TGT}",
         source = header,
         target = "enum.defs",
         )

@@ -10,11 +10,7 @@ def build(bld):
     prog = bld(features = 'cxx cprogram',
                source = 'gxw_demo.cc',
                target = 'gxw_demo',
-               uselib = 'GTKMM',
+               use = ['GTKMM','gxwmm','gxw'],
                includes = ['.','../libgxw'],
                install_path = None,
                )
-    if bld.env["GX_LIB_SHARED"]:
-        prog.use = ["gxwmm","gxw"]
-    else:
-        prog.uselib_local = ['gxwmm','gxw']
