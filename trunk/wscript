@@ -290,7 +290,7 @@ def display_msg(msg, status = None, color = None):
     sr = msg
     global g_maxlen
     g_maxlen = max(g_maxlen, len(msg))
-    if status:
+    if status is not None:
         print_msg("%s :" % msg.ljust(g_maxlen),False)
         Logs.pprint(color, status)
     else:
@@ -752,7 +752,7 @@ def configure(conf):
 
     check_zita_convolver(opt, conf)
     check_zita_resampler(opt, conf)
-    conf.find_program("gperf", var='HAVE_GPERF')
+    conf.find_program("gperf", var='HAVE_GPERF', mandatory=False)
     check_faust(conf)
     if conf.env['FAUST']:
         if Options.options.faust_vectorize and Options.options.faust_vectorize_float:
