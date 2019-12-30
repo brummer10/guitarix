@@ -28,25 +28,20 @@ def configure(conf):
         conf.check_cfg(package='bluez', args='--cflags --libs', uselib_store='BLUEZ', mandatory=0)
 
 def gperf2cc(task):
-    out_c = task.outputs[0]
-    out_h = task.outputs[1]
-    basename = os.path.splitext(
-        os.path.basename(task.inputs[0].srcpath()))[0]
-    srcdir = task.inputs[0].parent.srcpath()
+    def generated(node):
+        name = node.name.replace('.','-generated.')
+        return node.parent.find_or_declare([name]).get_src().abspath()
     if task.env["HAVE_GPERF"]:
-        cmd = [task.proc.abspath(), # bldpath() triggers bug in Waf 2.0.19 when logging active
-               task.inputs[0].bldpath(),
-               out_c.bldpath(),
-               out_h.bldpath(),
-               ]
+        # task.proc.bldpath() triggers bug in Waf 2.0.19 when logging is active
+        cmd = [task.proc.abspath()] + [n.bldpath() for n in task.inputs + task.outputs]
         Logs.debug("runner: system command -> %s" % cmd)
         ret = task.exec_command(cmd, shell=False)
-        shutil.copy2(out_c.srcpath(), os.path.join(srcdir, basename+"-generated.cc"))
-        shutil.copy2(out_h.srcpath(), os.path.join(srcdir, basename+"-generated.h"))
+        for out in task.outputs:
+            shutil.copy2(out.abspath(), generated(out))
         return ret
     else:
-        shutil.copy2(os.path.join(srcdir, basename+"-generated.cc"), out_c)
-        shutil.copy2(os.path.join(srcdir, basename+"-generated.h"), out_h)
+        for out in task.outputs:
+            shutil.copy2(generated(out), out.abspath())
         return 0
 
 Task.task_factory(
@@ -171,21 +166,11 @@ def build(bld):
         uselib += ['AVAHI_GOBJECT', 'AVAHI_GLIB', 'AVAHI_CLIENT']
     if bld.env["HAVE_BLUEZ"]:
         uselib.append('BLUEZ')
-    uselib_local = []
     wscript_helper.add_zita_convolver(bld, uselib, sources, incl)
     wscript_helper.add_zita_resampler(bld, uselib, sources, incl)
-    #sources.append('../../src/zita-convolver/zita-convolver.o')
-    #sources.append('../../src/zita-resampler-1.1.0/resampler.o')
-    #sources.append('../../src/zita-resampler-1.1.0/resampler-table.o')
     if bld.env["HAVE_PLUGINLIB"]:
-        uselib_local += ["plugins"]
-    #if bld.env["GX_LIB_SHARED"]:
-    #    lib += ['gxwmm','gxw']
-    #    libpath += [bld.path.find_dir("../../libgxw/gxw").bldpath(),
-    #                bld.path.find_dir("../../libgxwmm/gxwmm").bldpath()]
-    #else:
-    #    uselib_local += ['gxwmm','gxw']
-    uselib_local += ['gxwmm','gxw']
+        uselib += ["plugins"]
+    uselib += ['gxwmm','gxw']
     ldscript = bld.path.find_resource('guitarix.lds')
     mapfile = bld.path.find_or_declare("guitarix.map")
     task = bld(features = 'cxx cprogram',
@@ -193,9 +178,7 @@ def build(bld):
         obj_ext  = '.o',
         source = sources,
         lib = lib,
-        #uselib = uselib,
-        #uselib_local = uselib_local,
-        use = uselib+uselib_local,
+        use = uselib,
         libpath = libpath,
         target = bld.env['BIN_NAME'],
         chmod = 0o755,

@@ -11,21 +11,23 @@ import os, re, shutil
 def dsp2cc(task):
     # use the specified processor to create the output file and copy
     # the output file into faust-generated in the source tree
-    src = task.inputs[0].srcpath(task.env)
+    src = task.inputs[0].bldpath()
     o = task.outputs[0]
-    dst = o.bldpath(task.env)
-    cpy = os.path.join(o.parent.srcpath(task.env)+task.gen_dir_suffix,o.file())
-    lst = [task.proc, "-o", dst]
+    dst = o.abspath()
+    p = o.parent
+    gendir = p.parent.get_src().find_dir(p.name+task.gen_dir_suffix)
+    cpy = gendir.make_node(o.name).abspath()
+    lst = [task.proc.abspath(), "-o", dst]
     if len(task.outputs) == 2:
         o_h = task.outputs[1]
-        dst_h = o_h.bldpath(task.env)
-        cpy_h = os.path.join(o_h.parent.srcpath(task.env)+task.gen_dir_suffix,o_h.file())
+        dst_h = o_h.abspath()
+        cpy_h = gendir.make_node(o_h.name).abspath()
         lst += ["-H", dst_h]
     else:
         cpy_h = None
     lst += task.proc_args + [src]
     Logs.debug("runner: system command -> %s" % " ".join(lst))
-    ret = Utils.exec_command(lst,shell=False)
+    ret = task.exec_command(lst,shell=False)
     if ret != 0:
         return ret
     try:
@@ -49,8 +51,8 @@ class FaustScanner(object):
             n = node.parent.find_resource(node.name.replace(".dsp",s))
             if n:
                 self.deps.append(n)
-        pname = node.parent.abspath(task.env)
-        for m in re.finditer(self.scan_re, node.read(task.env)):
+        pname = node.parent.abspath()
+        for m in re.finditer(self.scan_re, node.read()):
             for fname in m.groupdict().values():
                 if not fname:
                     continue
@@ -88,7 +90,7 @@ Task.task_factory(
 @TaskGen.extension('.dsp')
 def dsp_file(self, node):
     tsk = self.create_task('dsp')
-    tsk.proc = self.proc
+    tsk.proc = self.bld.bldnode.find_node(self.proc)
     tsk.proc_args = getattr(self, "proc_args", [])
     tsk.gen_dir_suffix = getattr(self, "gen_dir_suffix", "-generated")
     tsk.set_inputs(node)
@@ -100,4 +102,4 @@ def dsp_file(self, node):
     if getattr(self, "separate_header", False):
         o = node.change_ext('.h')
         tsk.set_outputs(o)
-    self.bld.add_manual_dependency(node,self.bld.bldnode.find_resource(self.proc))
+    self.bld.add_manual_dependency(node, tsk.proc)
