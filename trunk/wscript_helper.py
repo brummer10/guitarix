@@ -9,7 +9,6 @@ def add_zita_convolver(bld, uselib, sources, incl, base=".."):
         assert False
 
 def add_zita_resampler(bld, uselib, sources, incl, base=".."):
-    assert bld.env['ZITA_RESAMPLER']
     uselib.append('ZITA_RESAMPLER')
 
 def get_faust_args(bld):
