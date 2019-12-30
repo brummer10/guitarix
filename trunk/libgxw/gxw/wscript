@@ -13,14 +13,15 @@ def configure(conf):
         conf.check_tool("libtool")
 
 def img2c(task):
-    sources = "../libgxw/resources.xml"
-    dst = "../libgxw/gximages.cc"
-    dstdir = task.outputs[0].bldpath()
+    src = task.inputs[0].bldpath()
+    dstnode = task.outputs[0]
+    dst = dstnode.abspath()
+    cpy = dstnode.parent.parent.get_src().abspath()
 
-    cmd = ("glib-compile-resources --sourcedir=../libgxw/icons/ --target=%s  --generate-source %s" % ( dst, sources))
+    cmd = ("glib-compile-resources --sourcedir=../libgxw/icons/ --target=%s  --generate-source %s" % (dst, src))
     Logs.debug("runner: system command -> %s" % cmd)
-    ret = Utils.exec_command(cmd, shell=True)
-    shutil.copy2(dst,dstdir)
+    ret = task.exec_command(cmd, shell=True)
+    shutil.copy2(dst,cpy)
     return ret
 
 def build_stock_images(bld):
