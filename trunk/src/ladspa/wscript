@@ -65,8 +65,7 @@ def build(bld):
         features='test_loadable',
         includes = incl,
         lib = lib,
-        uselib = uselib,
-        #uselib_local = ["plugins"], ## needs -fPIC
+        use = uselib,
         cxxflags = ["-fvisibility=hidden"],
         defines = ["LADSPA_SO"],
         target   = 'ladspa_guitarix',

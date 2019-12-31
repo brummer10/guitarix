@@ -1,12 +1,5 @@
 def add_zita_convolver(bld, uselib, sources, incl, base=".."):
-    if bld.env['ZITA_CONVOLVER']:
-        uselib.append('ZITA_CONVOLVER')
-    elif bld.env['CONVOLVER_FFMPEG']:
-        sources.append(base+'/zita-convolver-ffmpeg/zita-convolver.cc')
-        incl.append(base+'/zita-convolver-ffmpeg');
-        uselib += ['LIBAVCODEC','LIBAVUTIL']
-    else:
-        assert False
+    uselib.append('ZITA_CONVOLVER')
 
 def add_zita_resampler(bld, uselib, sources, incl, base=".."):
     uselib.append('ZITA_RESAMPLER')

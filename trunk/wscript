@@ -1014,18 +1014,26 @@ def build(bld):
         bld(features='intltool_po', appname=APPNAME, podir='po')
 
     # process subfolders from here
-    if not bld.env['ZITA_CONVOLVER'] and not bld.env['CONVOLVER_FFMPEG']:
-        bld.objects(source='src/zita-convolver/zita-convolver.cc',
-                    cxxflags='-fPIC',
-                    target='ZITA_CONVOLVER')
+    if bld.env['CONVOLVER_FFMPEG']:
+        bld.objects(name='ZITA_CONVOLVER',
+                    source = 'src/zita-convolver-ffmpeg/zita-convolver.cc',
+                    includes = 'src/headers',
+                    use = ['LIBAVCODEC','LIBAVUTIL'],
+                    cxxflags = bld.env.CXXFLAGS_cxxshlib,
+        )
+    elif not bld.env['ZITA_CONVOLVER']:
+        bld.objects(name='ZITA_CONVOLVER',
+                    source='src/zita-convolver/zita-convolver.cc',
+                    cxxflags = bld.env.CXXFLAGS_cxxshlib,
+        )
     if not bld.env['ZITA_RESAMPLER']:
-        bld.objects(
-            source=[
-                'src/zita-resampler-1.1.0/resampler.cc',
-                'src/zita-resampler-1.1.0/resampler-table.cc',
-            ],
-            cxxflags='-fPIC',
-            target='ZITA_RESAMPLER')
+        bld.objects(name='ZITA_RESAMPLER',
+                    source=[
+                        'src/zita-resampler-1.1.0/resampler.cc',
+                        'src/zita-resampler-1.1.0/resampler-table.cc',
+                    ],
+                    cxxflags = bld.env.CXXFLAGS_cxxshlib,
+        )
     if bld.env["LADSPA"]:
         bld.add_subdirs('ladspa')
     if bld.env['STANDALONE'] or bld.env['LV2GUI']:
