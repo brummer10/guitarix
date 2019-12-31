@@ -15,12 +15,7 @@ def build(bld):
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
-    uselib = ['LV2CORE']
-    if not bld.env['ZITA_CONVOLVER']:
-        if not bld.env['CONVOLVER_FFMPEG']:
-            uselib.append('FFTW3')
-    wscript_helper.add_zita_convolver(bld, uselib, src, incl, base="../..")
-    wscript_helper.add_zita_resampler(bld, uselib, src, incl, base="../..")
+    uselib = ['LV2CORE','GX_CONVOLVER']
     if sys.platform.startswith("linux"):
         lib.append('dl')
     cxxflag =[]
@@ -29,7 +24,7 @@ def build(bld):
     lv2_effects = bld.shlib(
         includes = incl,
         lib = lib,
-        uselib = uselib,
+        use = uselib,
         obj_ext  = '_16.o',
         cxxflags = cxxflag,
         defines  = ["LV2_SO"],

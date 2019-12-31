@@ -69,6 +69,30 @@ lib_sources = [ # put in static library linked with guitarix
     "bassboom.dsp",
     ]
 
+lib_sources_shared = [
+    'zita_rev1.dsp',
+    'vibe.cc',
+    'abgate.cc',
+    'ts9sim.dsp',
+    'aclipper.dsp',
+    'mxrdist.dsp',
+    'bossds1.dsp',
+    'flanger_gx.dsp',
+    'mbc.dsp',
+    'mbcs.dsp',
+    'mbd.dsp',
+    'mbe.dsp',
+    'mbdel.dsp',
+    'mbchor.dsp',
+    'reversedelay.cc',
+    'gcb_95.dsp',
+    'hfb.dsp',
+    'hogsfoot.dsp',
+    'lpbboost.dsp',
+    'rolandwah.dsp',
+    'metronome.cc',
+    ]
+
 def build(bld):
     if bld.env['FAUST']:
         arg, float_arg, double_arg = wscript_helper.get_faust_args(bld)
@@ -132,6 +156,13 @@ def build(bld):
             uselib = ["EIGEN3"],
             target = "plugins", # (also defines name of task)
             )
+    bld(name = 'shared_plugins',
+        features = 'cxx',
+        cxxflags = bld.env.CXXFLAGS_cxxshlib,
+        includes = incl,
+        source = [s.replace(".dsp",".cc") for s in lib_sources_shared],
+        use = ["EIGEN3"],
+        )
     for s in sources:
         tsk = bld(name = "create plugin .so",
             features = ['cxx', 'cshlib'],

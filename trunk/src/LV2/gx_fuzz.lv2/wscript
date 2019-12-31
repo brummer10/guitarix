@@ -23,7 +23,7 @@ def build(bld):
     lv2_effects = bld.shlib(
         includes = incl,
         lib = lib,
-        uselib = uselib,
+        use = uselib,
         obj_ext  = '_14.o',
         cxxflags = cxxflag,
         defines  = ["LV2_SO"],

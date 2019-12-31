@@ -1025,6 +1025,7 @@ def build(bld):
         bld.objects(name='ZITA_CONVOLVER',
                     source='src/zita-convolver/zita-convolver.cc',
                     cxxflags = bld.env.CXXFLAGS_cxxshlib,
+                    use = ['FFTW3','PTHREAD'],
         )
     if not bld.env['ZITA_RESAMPLER']:
         bld.objects(name='ZITA_RESAMPLER',
@@ -1032,6 +1033,7 @@ def build(bld):
                         'src/zita-resampler-1.1.0/resampler.cc',
                         'src/zita-resampler-1.1.0/resampler-table.cc',
                     ],
+                    use=['PTHREAD'],
                     cxxflags = bld.env.CXXFLAGS_cxxshlib,
         )
     if bld.env["LADSPA"]:
