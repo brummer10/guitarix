@@ -43,7 +43,7 @@ def options(opt):
         group.add_option ('--disable-' + option, action='store_true',
             default=disable, help='Disable ' + desc, dest='disable_' + option_)
 
-    #opt.tool_options('gcov') ##FIXME
+    opt.add_option('--with-gcov',action='store_true',help='Use gcov for profiling',default=False)
     opt.tool_options ('intltool')
 
     opt.add_option('--no-standalone',
@@ -696,8 +696,10 @@ def configure(conf):
     conf.define_with_env('ENABLE_NLS', nls_flag)
     # compiler
     conf.check_tool('compiler_cxx')
-    #if opt.with_gcov: ##FIXME
-    #    conf.check_tool('gcov')
+    if opt.with_gcov:
+        conf.find_program('gcov')
+        conf.env['CXXFLAGS'] = conf.env['CFLAGS'] = ['-fprofile-arcs', '-ftest-coverage']
+        conf.env['LDFLAGS'] = ['-lgcov', '-coverage']
     if opt.python_wrapper or opt.glade_support:
         conf.check_tool('compiler_c')
     conf.env['shlib_LINKFLAGS'].append("-fPIC") # error in waf 1.5.18?
