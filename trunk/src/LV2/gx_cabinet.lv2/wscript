@@ -15,12 +15,7 @@ def build(bld):
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
-    uselib = ['LV2CORE','GLIBMM','GX_CONVOLVER','GX_RESAMPLER']
-    if not bld.env['ZITA_CONVOLVER']:
-        if not bld.env['CONVOLVER_FFMPEG']:
-            uselib.append('FFTW3')
-    wscript_helper.add_zita_convolver(bld, uselib, src, incl, base="../..")
-    wscript_helper.add_zita_resampler(bld, uselib, src, incl, base="../..")
+    uselib = ['LV2CORE','GLIBMM','GX_CONVOLVER']
     cxxflag =[]
     ldscript = bld.path.find_resource('gx_cabinet.lds')
     mapfile = bld.path.find_or_declare("gx_cabinet.map")

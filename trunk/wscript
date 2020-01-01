@@ -2,26 +2,22 @@
 # encoding: utf-8
 
 import sys, os, re, shutil
-import Build, Utils, Options, Logs, Configure, Scripting
-from Constants import HEXVERSION
-from Configure import ConfigurationError
-from TaskGen import taskgen_method, feature, before_method, after_method
+from glob import glob
+from waflib import Context, Build, Utils, Options, Logs, Configure, Scripting
+from waflib.Errors import WafError
+from waflib.Configure import ConfigurationError
+from waflib.TaskGen import taskgen_method, feature, before_method, after_method
 import wscript_dsp
 
 # Waf version check, for global waf installs
 
-try:
-    from Constants import WAFVERSION
-except:
-    WAFVERSION='1.0.0'
-if WAFVERSION[:3] != '2.0':
+if Context.WAFVERSION[:3] != '2.0':
     print('Incompatible Waf, use 2.0')
     sys.exit (1)
 
 # these variables are mandatory ('/' are converted automatically)
 srcdir = '.'
 blddir = 'build'
-use_2to3 = True
 
 # used by waf dist and waf build
 VERSION='0.38.1git'
@@ -413,6 +409,10 @@ def cfg_get_variable(self, package, variable, prefix=""):
         self.fatal('fail to get variable %s for package %s' % (variable, package))
     self.env[prefix+variable.upper()] = v.decode()
 
+@Configure.conf
+def define_with_env(self, varname, value):
+    self.env[varname] = value
+    self.define(varname, value)
 
 ################################################################
 # configuration helper functions
@@ -539,13 +539,12 @@ def check_boost(conf):
     #        uselib_store="BOOST_THREAD", mandatory=1)
 
 def check_zita_convolver(opt, conf):
-    conf.env['CONVOLVER_FFMPEG'] = False
+    conf.env['HAVE_CONVOLVER_FFMPEG'] = False
+    conf.env['HAVE_ZITA_CONVOLVER'] = False
     if opt.includeconvolver:
-        conf.env['ZITA_CONVOLVER'] = False
         conf.define ('ZITA_CONVOLVER_VERSION', 3)
     elif opt.convolver_ffmpeg:
-        conf.env['ZITA_CONVOLVER'] = False
-        conf.env['CONVOLVER_FFMPEG'] = True
+        conf.env['HAVE_CONVOLVER_FFMPEG'] = True
         conf.define ('CONVOLVER_FFMPEG', 1)
         conf.define ('ZITA_CONVOLVER_VERSION', 3)
     else:
@@ -567,7 +566,6 @@ def check_zita_convolver(opt, conf):
                 mandatory=True,
                 define_name="ZITA_CONVOLVER")
             conf.define ('ZITA_CONVOLVER_VERSION', 3)
-            conf.env['ZITA_CONVOLVER'] = True
         except ConfigurationError:
             expected_zita_convolver_version = 4
             code="""
@@ -586,12 +584,11 @@ def check_zita_convolver(opt, conf):
                 mandatory=True,
                 define_name="ZITA_CONVOLVER")
             conf.define ('ZITA_CONVOLVER_VERSION', 4)
-            conf.env['ZITA_CONVOLVER'] = True
             
 
 def check_zita_resampler(opt, conf):
     if opt.includeresampler:
-        conf.env['ZITA_RESAMPLER'] = False
+        conf.env['HAVE_ZITA_RESAMPLER'] = False
     else:
         expected_zita_resampler_version = 1
         code="""
@@ -610,7 +607,6 @@ def check_zita_resampler(opt, conf):
             errmsg="Zita-resampler version %d not found" % expected_zita_resampler_version,
             mandatory=True,
             define_name="ZITA_RESAMPLER")
-        conf.env['ZITA_RESAMPLER'] = True
 
 @feature('intltool_po')
 @before_method('apply_intltool_po')
@@ -689,17 +685,15 @@ def configure(conf):
         else:
             option_checkfatal ('nls', 'localization')
             nls = 'N/A'
-            conf.define ('DISABLE_NLS', 1)
+            conf.define_with_env('DISABLE_NLS', 1)
     else:
         nls = 'no '
-        conf.define ('DISABLE_NLS', 1)
-        #sub_file('guitarix.desktop.in', 'build/default/guitarix.desktop', (('^_', '%s' % ""), ))
+        conf.define_with_env('DISABLE_NLS', 1)
         sub_file('guitarix.desktop.in', 'guitarix.desktop._in', (('^_', '%s' % ""), ))
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     nls_flag = int(nls == 'yes')
-    conf.define ('ENABLE_NLS', nls_flag)
-    conf.env['ENABLE_NLS'] = nls_flag
+    conf.define_with_env('ENABLE_NLS', nls_flag)
     # compiler
     conf.check_tool('compiler_cxx')
     #if opt.with_gcov: ##FIXME
@@ -780,33 +774,22 @@ def configure(conf):
     # defines for compilation
     gxsharedir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'gx_head'))
     gx_style_dir = os.path.join(gxsharedir,'skins')
-    conf.env['GX_STYLE_DIR'] = gx_style_dir
-    conf.define('GX_STYLE_DIR', gx_style_dir)
-    gx_factory_dir = os.path.join(gxsharedir,'factorysettings')
-    conf.env['GX_FACTORY_DIR'] = gx_factory_dir
-    conf.define('GX_FACTORY_DIR', gx_factory_dir)
+    conf.define_with_env('GX_STYLE_DIR', gx_style_dir)
+    conf.define_with_env('GX_FACTORY_DIR', os.path.join(gxsharedir,'factorysettings'))
     gx_sound_dir = os.path.join(gxsharedir,'sounds')
-    conf.env['GX_SOUND_DIR'] = gx_sound_dir
-    conf.define('GX_SOUND_DIR', gx_sound_dir)
-    gx_sound_bpb_dir = os.path.join(gx_sound_dir,'bands')
-    conf.env['GX_SOUND_BPB_DIR'] = gx_sound_bpb_dir
-    conf.define('GX_SOUND_BPB_DIR', gx_sound_bpb_dir)
-    gx_sound_bpa_dir = os.path.join(gx_sound_dir,'amps')
-    conf.env['GX_SOUND_BPA_DIR'] = gx_sound_bpa_dir
-    conf.define('GX_SOUND_BPA_DIR', gx_sound_bpa_dir)
-    gx_builder_dir = os.path.join(gxsharedir,'builder')
-    conf.env['GX_BUILDER_DIR'] = gx_builder_dir
-    conf.define('GX_BUILDER_DIR', gx_builder_dir)
-    conf.define('GX_ICON_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
-    gx_pixmaps_dir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps'))
-    conf.env['GX_PIXMAPS_DIR'] = gx_pixmaps_dir
-    conf.define('GX_PIXMAPS_DIR', gx_pixmaps_dir)
+    conf.define_with_env('GX_SOUND_DIR', gx_sound_dir)
+    conf.define_with_env('GX_SOUND_BPB_DIR', os.path.join(gx_sound_dir,'bands'))
+    conf.define_with_env('GX_SOUND_BPA_DIR', os.path.join(gx_sound_dir,'amps'))
+    conf.define_with_env('GX_BUILDER_DIR', os.path.join(gxsharedir,'builder'))
+    conf.define_with_env('GX_ICON_DIR',
+                         os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
+    conf.define_with_env('GX_PIXMAPS_DIR',
+                         os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
 
-    if opt.fontdir:
-        conf.define('GX_FONTS_DIR', opt.fontdir)
-    else:
-        conf.define('GX_FONTS_DIR', os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'fonts','truetype')))
-
+    fontdir = opt.fontdir
+    if not fontdir:
+        fontdir = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'fonts','truetype'))
+    conf.define_with_env('GX_FONTS_DIR', fontdir)
 
     conf.define('GX_VERSION', VERSION)
 
@@ -833,9 +816,7 @@ def configure(conf):
         conf.env['MODGUI'] = opt.mod_lv2
         conf.env['NOSSE'] =  opt.disable_sse
         conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
-        gx_lv2_style_dir = os.path.join(gx_style_dir,'LV2')
-        conf.env['GX_LV2_STYLE_DIR'] = gx_lv2_style_dir
-        conf.define('GX_LV2_STYLE_DIR', gx_lv2_style_dir)
+        conf.define_with_env('GX_LV2_STYLE_DIR', os.path.join(gx_style_dir,'LV2'))
         if opt.lv2dir:
             conf.env['LV2DIR'] = opt.lv2dir
         else:
@@ -945,11 +926,11 @@ def configure(conf):
     display_feature("Use prebuild gresouce file", not conf.env["HAVE_GLIB"])
     display_feature("Avahi service discovery", conf.env["HAVE_AVAHI"])
     display_feature("Bluetooth rfcomm", conf.env["HAVE_BLUEZ"])
-    display_feature("Use internal zita-resampler", not conf.env['ZITA_RESAMPLER'])
-    if conf.env['CONVOLVER_FFMPEG']:
+    display_feature("Use internal zita-resampler", not conf.env['HAVE_ZITA_RESAMPLER'])
+    if conf.env['HAVE_CONVOLVER_FFMPEG']:
         display_feature("Use zita-convolver-ffmpeg", True)
     else:
-        display_feature("Use internal zita-convolver", not conf.env['ZITA_CONVOLVER'])
+        display_feature("Use internal zita-convolver", not conf.env['HAVE_ZITA_CONVOLVER'])
 
     display_feature("Build standalone application", conf.env['STANDALONE'])
     display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
@@ -1014,20 +995,20 @@ def build(bld):
         bld(features='intltool_po', appname=APPNAME, podir='po')
 
     # process subfolders from here
-    if bld.env['CONVOLVER_FFMPEG']:
+    if bld.env['HAVE_CONVOLVER_FFMPEG']:
         bld.objects(name='ZITA_CONVOLVER',
                     source = 'src/zita-convolver-ffmpeg/zita-convolver.cc',
                     includes = 'src/headers',
                     use = ['LIBAVCODEC','LIBAVUTIL'],
                     cxxflags = bld.env.CXXFLAGS_cxxshlib,
         )
-    elif not bld.env['ZITA_CONVOLVER']:
+    elif not bld.env['HAVE_ZITA_CONVOLVER']:
         bld.objects(name='ZITA_CONVOLVER',
                     source='src/zita-convolver/zita-convolver.cc',
                     cxxflags = bld.env.CXXFLAGS_cxxshlib,
                     use = ['FFTW3','PTHREAD'],
         )
-    if not bld.env['ZITA_RESAMPLER']:
+    if not bld.env['HAVE_ZITA_RESAMPLER']:
         bld.objects(name='ZITA_RESAMPLER',
                     source=[
                         'src/zita-resampler-1.1.0/resampler.cc',
@@ -1056,7 +1037,8 @@ def build(bld):
         bld.add_subdirs('src/LV2')
     if bld.env['STANDALONE']:
         if bld.env['FONT']:
-            bld.install_files(os.path.join(bld.env['GX_FONTS_DIR'], 'robotocondensed'), './fonts/*', chmod=0o644)
+            bld.install_files(os.path.join(bld.env['GX_FONTS_DIR'], 'robotocondensed'),
+                              glob('./fonts/*'), chmod=0o644)
             if not bld.env["NO_UPDATE_FONT_CACHE"]:
                 bld.add_post_fun(install_hook)
 
@@ -1075,8 +1057,8 @@ def build(bld):
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jconv_mono', chmod=0o664)
         # "greathall.wav" is referenced in the source (keep in sync when changing)
         bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
-        bld.install_files(bld.env['GX_SOUND_BPB_DIR'], './IR/BestPlugins_Bands/*', chmod=0o664)
-        bld.install_files(bld.env['GX_SOUND_BPA_DIR'], './IR/BestPlugins_Amps/*', chmod=0o664)
+        bld.install_files(bld.env['GX_SOUND_BPB_DIR'], glob('./IR/BestPlugins_Bands/*'), chmod=0o664)
+        bld.install_files(bld.env['GX_SOUND_BPA_DIR'], glob('./IR/BestPlugins_Amps/*'), chmod=0o664)
 
         if not bld.env['DISABLE_NLS']:
             gen_desktop = bld(features  = "intltool_in",
@@ -1138,83 +1120,96 @@ def etags(ctx):
            " libgxw/gxw/*.h src/gx_head/engine/*.cpp src/gx_head/engine/*.cc"
            " src/gx_head/gui/*.cpp src/headers/*.h")
     Logs.debug("runner: system command -> %s" % cmd)
-    Utils.exec_command(cmd)
+    ctx.exec_command(cmd)
 
 def update_pot(ctx):
     "extract all text for localization into po/untitled.pot"
-    Utils.exec_command("cd po && intltool-update -p")
+    ctx.exec_command("cd po && intltool-update -p")
+
+
+# redefine the standard commands dist and distcheck
 
 dir_prefix = "guitarix"
 tar_prefix = "guitarix2"
 tar_ext = ".tar.xz"
 
-def _make_dict():
-    import Options
-    t = Options.options.dist_tree
-    if not t:
-        t = 'V%s' % VERSION
-    d = dict(t=t, d=dir_prefix, p=tar_prefix, e=tar_ext)
-    if re.match(r"V\d", t):
-        d["v"] = t[1:]
-        if Utils.exec_command("git show-ref --verify --quiet --tags refs/tags/'%(t)s'" % d) != 0:
-            raise Utils.WafError(
-                "tag '%(t)s' not found: please create revision tag" % d)
-    else:
-        d["v"] = t[1:]
-        try:
-            s = Utils.cmd_output("git show-ref --hash=8 '%(t)s' | sort -u" % d)
-            if not s:
-                raise ValueError
-            s = s.split()
-            if len(s) > 1:
-                raise Utils.WafError(
-                    "git tree-ish '%(t)s' is ambiguous" % d)
-            s = s[0]
-        except ValueError:
-            raise Utils.WafError(
-                "git tree-ish '%(t)s' not found" % d)
-        d["v"] = "git-" + s.strip()
-    return d
-
-def dist(ctx):
+class Archive(Context.Context):
+    # If cmd is set to another value, like 'archive', a new command
+    # would be defined (and Archive.__doc__ text will be used as help
+    # text).
     "makes a tarball for redistributing the sources"
-    Utils.exec_command("git config tar.tar.xz.command \"xz -c\"")
-    Utils.exec_command(
-        "git archive --format=tar.xz --prefix=%(d)s-%(v)s/ %(t)s ."
-        " > %(p)s-%(v)s%(e)s" % _make_dict())
+    cmd='dist'
+    def execute(self):
+        self.exec_command(
+            "git archive --prefix=%(d)s-%(v)s/ %(t)s | xz"
+            " > %(p)s-%(v)s%(e)s" % self.make_dict())
 
-def distcheck(ctx):
-    '''checks if the sources compile (tarball from 'dist')'''
-    import tempfile, tarfile, lzma, contextlib
-    waf = os.path.abspath(sys.argv[0])
-    d = _make_dict()
-    tarball = "%(p)s-%(v)s%(e)s" % d
-    path = "%(d)s-%(v)s" % d
-    if os.path.exists(path):
-        try:
-            raw_input("%s exists, press enter to remove (stop with Ctrl-C)\n" % path)
-        except KeyboardInterrupt:
-            print("")
-            raise Utils.WafError('distcheck cancelled')
-            return
+    def create_and_unpack(self, d, path):
+        self.exec_command(
+            "git archive %s | tar -xf - -C %s" % (d['t'], path))
+
+    def make_dict(self):
+        t = Options.options.dist_tree
+        if not t:
+            t = 'V%s' % VERSION
+        d = dict(t=t, d=dir_prefix, p=tar_prefix, e=tar_ext)
+        if re.match(r"V\d", t):
+            d["v"] = t[1:]
+            if self.exec_command("git show-ref --verify --quiet --tags refs/tags/'%(t)s'" % d) != 0:
+                raise WafError(
+                    "tag '%(t)s' not found: please create revision tag" % d)
         else:
-            print("removing %s" % path)
+            d["v"] = t[1:]
+            try:
+                s = self.cmd_and_log("git show-ref --hash=8 '%(t)s' | sort -u" % d,
+                                     quiet=True)
+                if not s:
+                    raise ValueError
+                s = s.split()
+                if len(s) > 1:
+                    raise WafError(
+                        "git tree-ish '%(t)s' is ambiguous" % d)
+                s = s[0]
+            except ValueError:
+                raise WafError(
+                    "git tree-ish '%(t)s' not found" % d)
+            d["v"] = "git-" + s.strip()
+        return d
+
+
+
+class ArchiveCheck(Archive):
+    cmd='distcheck'
+    def execute(self):
+        '''checks if the sources compile (tarball from 'dist')'''
+        import tempfile
+        waf = [sys.executable, sys.argv[0]]
+        d = self.make_dict()
+        path = "%(d)s-%(v)s" % d
+        if os.path.exists(path):
+            prompt = input
+            if sys.version_info.major < 3:
+                prompt = raw_input
+            try:
+                prompt("%s exists, press enter to remove (stop with Ctrl-C)\n" % path)
+            except KeyboardInterrupt:
+                print("")
+                raise WafError('distcheck cancelled')
+                return
+            else:
+                print("removing %s" % path)
+            shutil.rmtree(path)
+        print("creating tarball and extracting files into %s" % path)
+        os.mkdir(path)
+        self.create_and_unpack(d, path)
+        build_path = path
+        instdir = tempfile.mkdtemp('.inst', path)
+        cmdargs = waf + ['configure','build','install','uninstall', '--destdir='+instdir]
+        print('starting "%s"' % (" ".join(cmdargs)))
+        print("")
+        ret = Utils.subprocess.Popen(cmdargs, cwd=build_path).wait()
+        if ret:
+            raise WafError('distcheck failed with code %i'%ret)
+        if os.path.exists(instdir):
+            raise WafError('distcheck succeeded, but files were left in %s'%instdir)
         shutil.rmtree(path)
-    print("creating tarball and extracting files into %s" % path)
-    dist(ctx)
-    with contextlib.closing(lzma.LZMAFile(tarball)) as xz:
-        with tarfile.open(fileobj=xz) as t:
-            for x in t:
-                t.extract(x)
-        t.close()
-    build_path = path
-    instdir = tempfile.mkdtemp('.inst', path)
-    cmdargs = [waf,'configure','build','install','uninstall', '--destdir='+instdir]
-    print('starting "%s"' % (" ".join(cmdargs)))
-    print("")
-    ret = Utils.pproc.Popen(cmdargs, cwd=build_path).wait()
-    if ret:
-        raise Utils.WafError('distcheck failed with code %i'%ret)
-    if os.path.exists(instdir):
-        raise Utils.WafError('distcheck succeeded, but files were left in %s'%instdir)
-    shutil.rmtree(path)
