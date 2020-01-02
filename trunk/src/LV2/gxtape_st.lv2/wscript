@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import sys, os, TaskGen, ctypes
+import sys
 
 def configure(conf):
     pass
@@ -31,7 +31,7 @@ def build(bld):
         install_path = '${LV2DIR}/%s' % bundle,
         chmod = 0o755,
         )
-    lv2_effects.env['shlib_PATTERN'] = '%s.so'
+    lv2_effects.env['cxxshlib_PATTERN'] = '%s.so'
     
     if bld.env['LV2GUI']:
         libpath5 = []
@@ -52,7 +52,7 @@ def build(bld):
             install_path = '${LV2DIR}/%s' % bundle,
             chmod = 0o755,
             )
-        lv2_effetcs_gui.env['shlib_PATTERN'] = '%s.so'
+        lv2_effetcs_gui.env['cxxshlib_PATTERN'] = '%s.so'
 
     
     install_path = '${LV2DIR}/%s' % bundle,

@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import wscript_helper
-
 def build(bld):
     unused_sources = [
         'preamp.dsp',
@@ -177,35 +175,35 @@ def build(bld):
         ]
 
     if bld.env['FAUST']:
-        arg, float_arg, double_arg = wscript_helper.get_faust_args(bld)
-        bld.new_task_gen(
+        arg, float_arg, double_arg = bld.get_faust_args()
+        bld(
             source = sources,
             proc = "../tools/dsp2cc",
             separate_header = True,
             proc_args = arg+["--init-type=no-init-instance"],
             )
-        bld.new_task_gen(
+        bld(
             source = sources_float,
             proc = "../tools/dsp2cc",
             separate_header = True,
             proc_args = float_arg+["--init-type=no-init-instance"],
             )
-        bld.new_task_gen(
+        bld(
             source = sources_static,
             proc = "../tools/dsp2cc",
             proc_args = arg+["--init-type=no-init"],
             )
-        bld.new_task_gen(
+        bld(
             source = sources_plugin,
             proc = "../tools/dsp2cc",
             proc_args = arg+["--init-type=plugin-instance"],
             )
-        bld.new_task_gen(
+        bld(
             source = sources_plugin_float,
             proc = "../tools/dsp2cc",
             proc_args = float_arg+["--init-type=plugin-instance"]
             )
-        bld.new_task_gen(
+        bld(
             source = sources_plugin_double,
             proc = "../tools/dsp2cc",
             proc_args = double_arg+["--init-type=plugin-instance"]

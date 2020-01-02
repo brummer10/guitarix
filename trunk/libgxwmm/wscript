@@ -2,10 +2,10 @@
 # encoding: utf-8
 
 def configure(conf):
-    conf.sub_config('gxwmm');
+    conf.recurse('gxwmm');
 
 def build(bld):
-    bld.add_subdirs('gxwmm')
+    bld.recurse('gxwmm')
     bld.add_group()
     prog = bld(features = 'cxx cprogram',
                source = 'gxw_demo.cc',

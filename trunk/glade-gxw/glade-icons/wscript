@@ -34,4 +34,4 @@ def build(bld):
         path = j("hicolor", d, "actions")
         dest = j(bld.env['GX_ICON_DIR'], path)
         instfiles = [j(path, "widget-gxwidgets-" + v) for v in icon_files]
-        bld.install_files(dest, instfiles, chmod=0644)
+        bld.install_files(dest, instfiles, chmod=0o644)

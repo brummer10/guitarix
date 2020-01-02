@@ -1,9 +1,9 @@
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
-from waflib import Logs, Utils, Options
+from waflib import Logs, Options
 
-def set_options(opt):
+def options(opt):
     grp = opt.get_option_group("Guitarix Widget Library")
     grp.add_option('--python-wrapper',
                    action='store_const',
@@ -31,7 +31,7 @@ def h2defs(task):
     cmd = ("python '%s'/defsgen.py -m gx -l %s -f '%s' %s > '%s' && cat '%s' >> '%s'"
            % (task.env["CODEGENDIR"], lib, fltr, sources, dst, fltr, dst))
     Logs.debug("runner: system command -> %s" % cmd)
-    return Utils.exec_command(cmd, shell=True)
+    return task.exec_command(cmd, shell=True)
 
 def defs2c(task):
     ovr = task.inputs[0].srcpath()
@@ -48,7 +48,7 @@ def defs2c(task):
            " > '%s'"
            % (defsdir, defsdir, ovr, dst, src, dst))
     Logs.debug("runner: system command -> %s" % cmd)
-    return Utils.exec_command(cmd,shell=True)
+    return task.exec_command(cmd,shell=True)
 
 def build(bld):
     if not bld.env["GX_PYTHON_WRAPPER"]:
@@ -99,12 +99,7 @@ def build(bld):
         features = ['cc','cxx','pyext','cshlib'],
         source = ['gxw.c','gxw-module.c'],
         target = 'gxw',
-        uselib = ['PYGOBJECT','PYGTK','GTK2'],
+        use = ['PYGOBJECT','PYGTK','GTK2','gxw'],
         ccflags = ["-g"],
         includes = ['../libgxw'],
         )
-    if bld.env["GX_LIB_SHARED"]:
-        prog.libpath = [bld.path.find_dir("../libgxw/gxw").bldpath()]
-        prog.lib = ["gxw"]
-    else:
-        prog.uselib_local = ['gxw']

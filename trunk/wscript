@@ -2,12 +2,9 @@
 # encoding: utf-8
 
 import sys, os, re, shutil
-from glob import glob
-from waflib import Context, Build, Utils, Options, Logs, Configure, Scripting
-from waflib.Errors import WafError
-from waflib.Configure import ConfigurationError
-from waflib.TaskGen import taskgen_method, feature, before_method, after_method
-import wscript_dsp
+from waflib import Context, Build, Utils, Options, Logs, Configure, Scripting, Task
+from waflib.Errors import WafError, ConfigurationError
+from waflib.TaskGen import extension, taskgen_method, feature, before_method, after_method
 
 # Waf version check, for global waf installs
 
@@ -44,7 +41,7 @@ def options(opt):
             default=disable, help='Disable ' + desc, dest='disable_' + option_)
 
     opt.add_option('--with-gcov',action='store_true',help='Use gcov for profiling',default=False)
-    opt.tool_options ('intltool')
+    opt.load('intltool')
 
     opt.add_option('--no-standalone',
                     action='store_false',
@@ -55,7 +52,7 @@ def options(opt):
     group = opt.add_option_group ('Localization and documentation', '')
     add_enable_option ('nls', 'native language support', group)
 
-    opt.tool_options('compiler_cxx')
+    opt.load('compiler_cxx')
     comp = opt.get_option_group("Configuration options")
 
     comp.add_option('--debug',
@@ -254,7 +251,7 @@ def options(opt):
     opt.recurse('pygxw')
     opt.recurse('glade-gxw')
 
-    opt.tool_options('compiler_c') # for pygxw and glade-gxw
+    opt.load('compiler_c') # for pygxw and glade-gxw
 
     opt.add_option('--dist-tree',
                    type='string',
@@ -402,8 +399,8 @@ def append_optimization_flags(cxxflags):
 
 @Configure.conf
 def cfg_get_variable(self, package, variable, prefix=""):
-    p = Utils.pproc.Popen(["pkg-config", "--variable="+variable, package],
-                          stdout=Utils.pproc.PIPE, shell=False)
+    p = Utils.subprocess.Popen(["pkg-config", "--variable="+variable, package],
+                               stdout=Utils.subprocess.PIPE, shell=False)
     v = p.communicate()[0].strip()
     if p.returncode or not v:
         self.fatal('fail to get variable %s for package %s' % (variable, package))
@@ -417,20 +414,6 @@ def define_with_env(self, varname, value):
 ################################################################
 # configuration helper functions
 #
-def sub_file(src_fname, dst_fname, lst):
-
-    f = open(src_fname, 'rU')
-    txt = f.read()
-    f.close()
-
-    for (key, val) in lst:
-        re_pat = re.compile(key, re.M)
-        txt = re_pat.sub(val, txt)
-
-    f = open(dst_fname, 'w')
-    f.write(txt)
-    f.close()
-
 def check_roboto_font(conf):
     conf.start_msg('Checking for font RobotoCondensed')
     if conf.exec_command("fc-list | grep -q RobotoCondensed") != 0:
@@ -448,14 +431,14 @@ def check_faust(conf):
     if not conf.env['FAUST']:
         return
     try:
-        s = Utils.cmd_output(conf.env['FAUST']+['--version'], )
+        s = conf.cmd_and_log(conf.env['FAUST']+['--version'], quiet=True)
     except ValueError:
         Logs.warn('could not execute faust')
         return
-    m = re.match(br".*Version\s*(.*)", s)
+    m = re.match(r".*Version\s*(.*)", s)
     if not m:
         Logs.warn('could not determine faust version')
-    vers = m.group(1).decode()
+    vers = m.group(1)
     conf.env["FAUST_VERSION"] = vers
     if vers not in good_faust_versions and not Options.options.faust:
         conf.env['FAUST'] = None
@@ -672,37 +655,31 @@ def configure(conf):
 
     conf.env['OS'] = platform
 
-    def option_checkfatal (option, desc):
-        if hasattr (opt, 'enable_' + option):
-            if getattr (opt, 'enable_' + option):
-                Utils.pprint ('RED', desc + ' N/A')
-                sys.exit (1)
-
-    if option_enabled ('nls'):
-        conf.check_tool ('intltool')
+    if not opt.disable_nls:
+        conf.load('intltool')
         if conf.env['INTLTOOL'] and conf.env['MSGFMT']:
             nls = 'yes'
         else:
-            option_checkfatal ('nls', 'localization')
+            if opt.enable_nls:
+                Logs.pprint ('RED', 'localization N/A')
+                sys.exit (1)
             nls = 'N/A'
             conf.define_with_env('DISABLE_NLS', 1)
     else:
         nls = 'no '
         conf.define_with_env('DISABLE_NLS', 1)
-        sub_file('guitarix.desktop.in', 'guitarix.desktop._in', (('^_', '%s' % ""), ))
     conf.define ('GETTEXT_PACKAGE', APPNAME)
 
     nls_flag = int(nls == 'yes')
     conf.define_with_env('ENABLE_NLS', nls_flag)
     # compiler
-    conf.check_tool('compiler_cxx')
+    conf.load('compiler_cxx')
     if opt.with_gcov:
         conf.find_program('gcov')
         conf.env['CXXFLAGS'] = conf.env['CFLAGS'] = ['-fprofile-arcs', '-ftest-coverage']
         conf.env['LDFLAGS'] = ['-lgcov', '-coverage']
     if opt.python_wrapper or opt.glade_support:
-        conf.check_tool('compiler_c')
-    conf.env['shlib_LINKFLAGS'].append("-fPIC") # error in waf 1.5.18?
+        conf.load('compiler_c')
     # linker flags
     conf.env.append_value('LDFLAGS', opt.ldflags.split())
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
@@ -865,30 +842,23 @@ def configure(conf):
         conf.cfg_get_variable(package='pygobject-2.0', variable='codegendir')
 
     if conf.env['STANDALONE']:
-        conf.sub_config('src/gx_head');
+        conf.recurse('src/gx_head');
     if conf.env['FAUST']:
-        conf.sub_config('src/faust');
-    conf.sub_config('src/plugins');
+        conf.recurse('src/faust');
+    conf.recurse('src/plugins');
     if conf.env["LADSPA"]:
-        conf.sub_config('ladspa');
+        conf.recurse('ladspa');
     if conf.env["LV2"]:
         opt.shared_lib = True;
-        conf.sub_config('src/LV2');
+        conf.recurse('src/LV2');
 
         # config subdirs
     if conf.env['STANDALONE'] or conf.env['LV2GUI']:
-        conf.sub_config('pygxw');
-        conf.sub_config('glade-gxw');
-        conf.sub_config('libgxwmm');
-        conf.sub_config('libgxw/gxw');
-
-        conf.sub_config('rcstyles');
-        if conf.env["GX_LIB_DEV"]:
-            pa = conf.env['PREFIX']
-            sub_file('./libgxw/gxw.pc.in', './libgxw/gxw.pc', (('prefix=/path', 'prefix=%s' % pa), ))
-            sub_file('./libgxw/gxw.pc', './libgxw/gxw.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
-            sub_file('./libgxwmm/gxwmm.pc.in', './libgxwmm/gxwmm.pc', (('prefix=/path', 'prefix=%s' % pa), ))
-            sub_file('./libgxwmm/gxwmm.pc', './libgxwmm/gxwmm.pc', (('libdir=/path','libdir=%s' % conf.env['LIBDIR']), ))
+        conf.recurse('pygxw');
+        conf.recurse('glade-gxw');
+        conf.recurse('libgxwmm');
+        conf.recurse('libgxw/gxw');
+        conf.recurse('rcstyles');
 
     if opt.jobs:
         conf.env['JOBS'] = str(opt.jobs)
@@ -979,17 +949,244 @@ def configure(conf):
 # Build / Install
 ################################################################
 
-def install_hook(ctx):
-    try:
-        Utils.exec_command("fc-cache -fv")
-    except:
-        pass
+################################################################
+# Faust
 
-def post(ctx):
-    if os.geteuid() == 0:
-        Utils.exec_command('/sbin/ldconfig')
+# task function for task "dsp"
+def dsp2cc(task):
+    # use the specified processor to create the output file and copy
+    # the output file into faust-generated in the source tree
+    src = task.inputs[0].bldpath()
+    o = task.outputs[0]
+    dst = o.abspath()
+    p = o.parent
+    gendir = p.parent.get_src().find_dir(p.name+task.gen_dir_suffix)
+    cpy = gendir.make_node(o.name).abspath()
+    lst = [task.proc.abspath(), "-o", dst]
+    if len(task.outputs) == 2:
+        o_h = task.outputs[1]
+        dst_h = o_h.abspath()
+        cpy_h = gendir.make_node(o_h.name).abspath()
+        lst += ["-H", dst_h]
+    else:
+        cpy_h = None
+    lst += task.proc_args + [src]
+    Logs.debug("runner: system command -> %s" % " ".join(lst))
+    ret = task.exec_command(lst,shell=False)
+    if ret != 0:
+        return ret
+    try:
+        shutil.copy2(dst, cpy)
+        if cpy_h:
+            shutil.copy2(dst_h, cpy_h)
+    except (OSError, IOError) as e:
+        Logs.error("runner: cannot copy file -> %s" % e)
+        return e.errno
+    return 0
+
+class FaustScanner(object):
+
+    scan_re = "|".join([
+        r'\bimport\s*\(\s*"(?P<I>[^"]+)"\s*\)\s*;',
+        r'\bcomponent\s*\(\s*"(?P<C>[^"]+)"\s*\)',
+        ])
+
+    def scan_file(self, task, node):
+        for s in "_ui.cc", "_ui.glade":
+            n = node.parent.find_resource(node.name.replace(".dsp",s))
+            if n:
+                self.deps.append(n)
+        pname = node.parent.abspath()
+        for m in re.finditer(self.scan_re, node.read()):
+            for fname in m.groupdict().values():
+                if not fname:
+                    continue
+                key = (pname, fname)
+                if key in self.scanned:
+                    continue
+                self.scanned.add(key)
+                n = node.parent.find_resource(fname)
+                if n:
+                    self.deps.append(n)
+                    self.scan_file(task, n)
+
+    def scan(self, task):
+        self.deps = []
+        self.scanned = set()
+        for node in task.inputs:
+            self.scan_file(task, node)
+        return self.deps, []
+
+dsp_scanner = FaustScanner()
+
+def scan_dsp(task):
+    return dsp_scanner.scan(task)
+
+# definition of task "dsp"
+Task.task_factory(
+    name    = 'dsp',
+    func    = dsp2cc,
+    color   = 'BLUE',
+    ext_in  = '.dsp',
+    ext_out = '.cc',
+    before  = 'cxx',
+    ).scan = scan_dsp
+
+@extension('.dsp')
+def dsp_file(self, node):
+    tsk = self.create_task('dsp')
+    tsk.proc = self.bld.bldnode.find_node(self.proc)
+    tsk.proc_args = getattr(self, "proc_args", [])
+    tsk.gen_dir_suffix = getattr(self, "gen_dir_suffix", "-generated")
+    tsk.set_inputs(node)
+    tsk.dep_vars = ['DSP2CC_ARGS']
+    tsk.env['DSP2CC_ARGS'] = tsk.proc_args
+    parent = node.parent
+    o = node.change_ext('.cc')
+    tsk.set_outputs(o)
+    if getattr(self, "separate_header", False):
+        o = node.change_ext('.h')
+        tsk.set_outputs(o)
+    self.bld.add_manual_dependency(node, tsk.proc)
+
+@Configure.conf
+def get_faust_args(bld):
+    float_arg = ["-s","40000","--float"]
+    double_arg = ["--double"]
+    if bld.env['FAUST_DOUBLE']:
+        arg = ["--double"]
+    else:
+        arg = ["--float"]
+    if bld.env['FAUST_VECTORIZE']:
+        float_arg.append('--vectorize')
+        arg.append('--vectorize')
+        double_arg.append('--vectorize')
+    elif bld.env['FAUST_VECTORIZE_FLOAT']:
+        float_arg.append('--vectorize')
+        if not bld.env['FAUST_DOUBLE']:
+            arg.append('--vectorize')
+    add_args = bld.env['FAUST_OPTIONS']
+    if add_args:
+        add_args = "--add=%s" % add_args
+        float_arg.append(add_args)
+        double_arg.append(add_args)
+        arg.append(add_args)
+    return arg, float_arg, double_arg
+
+################################################################
+# Task features / LV2
+
+@feature('lv2')
+@before_method('apply_link')
+def lv2_prepare_link(self):
+    self.env.cxxshlib_PATTERN = '%s.so'
+
+@feature('*')
+@before_method('apply_link')
+def add_ldscript(self):
+    if not hasattr(self, 'ldflags'):
+        self.ldflags = []
+    if hasattr(self, 'ldscript'):
+        ldscript = self.ldscript
+        if isinstance(ldscript, str):
+            ldscript = self.path.find_resource(self.ldscript)
+            self.ldscript = ldscript
+        self.ldflags.append('-Wl,%s' % ldscript.bldpath())
+
+@feature('*')
+@before_method('apply_link')
+def add_mapfile(self):
+    if hasattr(self, 'mapfile'):
+        mapfile = self.path.find_or_declare(self.mapfile)
+        self.ldflags.append('-Wl,-Map=%s' % mapfile.bldpath())
+
+@feature('*')
+@after_method('apply_link')
+def add_ldscript_dep(self):
+    if hasattr(self, 'ldscript'):
+        self.link_task.dep_nodes.append(self.ldscript)
+
+def get_lv2_base(bld, kw, nframes=3):
+    try:
+        lv2_base = kw['lv2_base']
+    except KeyError:
+        pass
+    else:
+        return lv2_base, '${LV2DIR}/%s.lv2' % lv2_base
+    import inspect, pprint
+    cf = inspect.currentframe()
+    for i in range(nframes):
+        cf = cf.f_back
+    fi = inspect.getframeinfo(cf)
+    fn = bld.root.make_node(fi.filename).srcpath()
+    raise WafError(
+        '{}[{}]: lv2_base not set in lv2 task generator:\n{}'.format(
+            fn, fi.lineno, pprint.pformat(kw)))
+
+def lv2_add_common(tg, target, install_path, defines=None, linkflags=None, cxxflags=None):
+    tg.features.append('lv2')
+    if not tg.target:
+        tg.target = target
+    if not hasattr(tg, 'install_path'):
+        tg.install_path = install_path
+    if defines:
+        tg.defines = tg.to_list(getattr(tg, 'defines', [])) + tg.to_list(defines)
+    if linkflags:
+        tg.linkflags = tg.to_list(getattr(tg, 'linkflags', [])) + tg.to_list(linkflags)
+    if cxxflags:
+        tg.cxxflags = tg.to_list(getattr(tg, 'cxxflags', [])) + tg.to_list(cxxflags)
+
+@Configure.conf
+def lv2(bld, *k, **kw):
+    lv2_base, dst = get_lv2_base(bld, kw)
+    tg = bld.shlib(*k, **kw)
+    cxxflags = []
+    if not bld.env['OPT'] and bld.env['SSE2']:
+        cxxflags = [ "-msse2", "-mfpmath=sse"]
+    lv2_add_common(tg, lv2_base, dst, ["LV2_SO"], cxxflags=cxxflags)
+    if bld.env['MODGUI']:
+        bld.install_files(dst, bld.path.ant_glob('*.ttl'), relative_trick=True)
+        bld.install_files(dst, bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    else:
+        bld.install_files(dst, bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
+    return tg
+
+@Configure.conf
+def lv2_gui(bld, *k, **kw):
+    if not bld.env['LV2GUI']:
+        return None
+    lv2_base, dst = get_lv2_base(bld, kw)
+    tg = bld.shlib(*k, **kw)
+    lv2_add_common(tg, lv2_base+'_gui', dst, ["LV2_GUI"], ['-Wl,-z,nodelete'])
+    return tg
+
+
+################################################################
+# build
+
+@Configure.conf
+def add_post_fun_ignore_errors(bld, fun):
+    def wrapper(ctx):
+        try:
+            fun(ctx)
+        except Exception as e:
+            Logs.warn(e.msg)
+    bld.add_post_fun(wrapper)
 
 def build(bld):
+    def sub_file(task):
+        src_fname = task.inputs[0].abspath()
+        dst_fname = task.outputs[0].abspath()
+        lst = task.generator.sub_list
+
+        with open(src_fname, 'rU') as f:
+            txt = f.read()
+        for (key, val) in lst:
+            re_pat = re.compile(key, re.M)
+            txt = re_pat.sub(val, txt)
+        with open(dst_fname, 'w') as f:
+            f.write(txt)
+
     if bld.env['JOBS'] and Options.options.jobs == bld.jobs:
         Options.options.jobs = int(bld.env['JOBS'])
 
@@ -1020,31 +1217,32 @@ def build(bld):
                     cxxflags = bld.env.CXXFLAGS_cxxshlib,
         )
     if bld.env["LADSPA"]:
-        bld.add_subdirs('ladspa')
+        bld.recurse('ladspa')
     if bld.env['STANDALONE'] or bld.env['LV2GUI']:
-        bld.add_subdirs('libgxw/gxw')
+        bld.recurse('libgxw/gxw')
         bld.add_group()
-        bld.add_subdirs('libgxwmm')
-        bld.add_subdirs('glade-gxw')
-        bld.add_subdirs('pygxw')
+        bld.recurse('libgxwmm')
+        bld.recurse('glade-gxw')
+        bld.recurse('pygxw')
     if bld.env['STANDALONE']:
-        bld.add_subdirs('src/faust')
-        bld.add_subdirs('src/plugins')
-        bld.add_subdirs('rcstyles')
-        bld.add_subdirs('pixmaps')
-        bld.add_subdirs('src/gx_head')
+        bld.recurse('src/faust')
+        bld.recurse('src/plugins')
+        bld.recurse('rcstyles')
+        bld.recurse('pixmaps')
+        bld.recurse('src/gx_head')
     if bld.env["NEW_LADSPA"]:
-        bld.add_subdirs('src/ladspa')
+        bld.recurse('src/ladspa')
     if bld.env["LV2"]:
-        bld.add_subdirs('src/LV2')
+        bld.recurse('src/LV2')
     if bld.env['STANDALONE']:
         if bld.env['FONT']:
             bld.install_files(os.path.join(bld.env['GX_FONTS_DIR'], 'robotocondensed'),
-                              glob('./fonts/*'), chmod=0o644)
-            if not bld.env["NO_UPDATE_FONT_CACHE"]:
-                bld.add_post_fun(install_hook)
+                              bld.srcnode.ant_glob('fonts/*'), chmod=0o644)
+            if bld.is_install and not bld.env["NO_UPDATE_FONT_CACHE"] \
+               and not Options.options.no_font_cache_update:
+                bld.add_post_fun_ignore_errors(
+                    lambda ctx: ctx.exec_command("fc-cache -fv"))
 
-        bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop', chmod=0o644)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/dirlist.js', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/brummer.gx', chmod=0o664)
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/HarryVH.gx', chmod=0o664)
@@ -1059,8 +1257,8 @@ def build(bld):
         bld.install_files(bld.env['GX_FACTORY_DIR'], 'factorysettings/jconv_mono', chmod=0o664)
         # "greathall.wav" is referenced in the source (keep in sync when changing)
         bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
-        bld.install_files(bld.env['GX_SOUND_BPB_DIR'], glob('./IR/BestPlugins_Bands/*'), chmod=0o664)
-        bld.install_files(bld.env['GX_SOUND_BPA_DIR'], glob('./IR/BestPlugins_Amps/*'), chmod=0o664)
+        bld.install_files(bld.env['GX_SOUND_BPB_DIR'], bld.path.ant_glob('IR/BestPlugins_Bands/*'), chmod=0o664)
+        bld.install_files(bld.env['GX_SOUND_BPA_DIR'], bld.path.ant_glob('IR/BestPlugins_Amps/*'), chmod=0o664)
 
         if not bld.env['DISABLE_NLS']:
             gen_desktop = bld(features  = "intltool_in",
@@ -1084,33 +1282,37 @@ def build(bld):
                 return task
             gen_desktop.create_task = gen_desktop_add_scanner
         else:
-            gen_desktop = bld(features  = "subst",
-                source    = 'guitarix.desktop._in',
-                target    = 'guitarix.desktop',
-                install_path = "${DESKAPPS_DIR}/",
-                VAR        = ""
+            bld(name     = "guitarix_desktop",
+                rule     = sub_file,
+                source   = 'guitarix.desktop.in',
+                target   = 'guitarix.desktop',
+                sub_list = [('^_', '%s' % "")],
+            )
+            bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop')
+        if bld.is_install and not Options.options.destdir \
+           and not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"] \
+           and not Options.options.no_desktop_update:
+            bld.add_post_fun_ignore_errors(
+                lambda bld: bld.exec_command(
+                    ["update-desktop-database",
+                     Utils.subst_vars("${DESKAPPS_DIR}", bld.env)])
             )
 
-            gen_desktop.create_task
-        if "install" in Options.commands:
-            if not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"]:
-                try:
-                    bld.exec_command(["update-desktop-database", Utils.subst_vars("${DESKAPPS_DIR}", bld.env)])
-                except:
-                    pass
-
-
-    if bld.env["GX_LIB_SHARED"]:
-        if not bld.env["NO_LDCONFIG"]:
-            bld.add_post_fun(post)
     if bld.env["GX_LIB_DEV"]:
-        bld.install_files('${PREFIX}/include/gxw','libgxw/gxw/*.h')
+        for fname in 'libgxw/gxw.pc', 'libgxwmm/gxwmm.pc':
+            bld(rule = sub_file,
+                source = fname+'.in',
+                target = fname,
+                sub_list = [('prefix=/path', 'prefix={env[PREFIX]}'.format(env=bld.env)),
+                            ('libdir=/path','libdir={env[LIBDIR]}'.format(env=bld.env)),
+                            ],
+                )
+            bld.install_files('${LIBDIR}/pkgconfig', fname)
+        bld.install_files('${PREFIX}/include/gxw',bld.srcnode.ant_glob('libgxw/gxw/*.h'))
         bld.install_files('${PREFIX}/include','libgxw/gxw.h')
-        bld.install_files('${LIBDIR}/pkgconfig', './libgxw/gxw.pc')
-        bld.install_files('${PREFIX}/include/gxwmm','libgxwmm/gxwmm-generated/*.h')
-        bld.install_files('${PREFIX}/include/gxwmm','libgxwmm/gxwmm/*.h')
+        bld.install_files('${PREFIX}/include/gxwmm',bld.srcnode.ant_glob('libgxwmm/gxwmm-generated/*.h'))
+        bld.install_files('${PREFIX}/include/gxwmm',bld.srcnode.ant_glob('libgxwmm/gxwmm/*.h'))
         bld.install_files('${PREFIX}/include','libgxwmm/gxwmm.h')
-        bld.install_files('${LIBDIR}/pkgconfig', './libgxwmm/gxwmm.pc')
 
 ################################################################
 # other commands

@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import sys, wscript_helper
-from waflib import Task, Utils, Options, Logs
+import sys
+from waflib import Task, Options, Logs
 from waflib.TaskGen import extension
 import os, shutil
 
@@ -157,11 +157,7 @@ def build(bld):
         sources_gui.append("gui/avahi_discover.cpp")
         sources_engine.append("engine/avahi_register.cpp")
     sources = sources_engine + sources_engine_shared + sources_gui
-    incl = ['.','./engine','../..','..','../headers','../../libgxwmm','../../libgxw'] # need ".." for config.h
-    libpath = []
-    lib = []
-    if sys.platform.startswith("linux"):
-        lib.append('dl')
+    incl = ['.','./engine','../..','..','../headers'] # need ".." for config.h
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT', 'CURL',
               'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'LILV', 'BOOST_SYSTEM','BOOST_IOSTREAMS',
               'ZITA_CONVOLVER','ZITA_RESAMPLER']
@@ -172,27 +168,23 @@ def build(bld):
     if bld.env["HAVE_PLUGINLIB"]:
         uselib += ["plugins"]
     uselib += ['gxwmm','gxw']
-    ldscript = bld.path.find_resource('guitarix.lds')
-    mapfile = bld.path.find_or_declare("guitarix.map")
-    task = bld(features = 'cxx cprogram',
+    task = bld.program(
         includes = incl,
-        obj_ext  = '.o',
         source = sources,
-        lib = lib,
         use = uselib,
-        libpath = libpath,
         target = bld.env['BIN_NAME'],
         chmod = 0o755,
         install_path = bld.env['BINDIR'],
-        ldflags = ['-Wl,%s,-Map,%s' % (ldscript.bldpath(),mapfile.bldpath())],
+        ldscript = 'guitarix.lds',
+        mapfile = "guitarix.map",
         )
-    bld.add_manual_dependency(bld.path.find_or_declare(task.target), ldscript)
     bld.install_files(bld.env['GX_BUILDER_DIR'], builder_files, chmod=0o644)
 
-    bld(name = 'shared_engine',
-        features='cxx',
-        cxxflags = bld.env.CXXFLAGS_cxxshlib,
-        source = sources_engine_shared,
-        includes = incl,
-        use = ['GLIBMM','GIOMM','LILV'],
-        )
+    if bld.env["NEW_LADSPA"]:
+        bld(name = 'shared_engine',
+            features='cxx',
+            cxxflags = bld.env.CXXFLAGS_cxxshlib,
+            source = sources_engine_shared,
+            includes = incl,
+            use = ['GLIBMM','GIOMM','LILV','gxwmm'],
+            )

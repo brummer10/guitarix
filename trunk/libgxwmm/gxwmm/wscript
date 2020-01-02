@@ -39,7 +39,6 @@ def options(opt):
                    )
 
 def configure(conf):
-    #conf.check_tool('misc') ##FIXME
     if Options.options.generate_cpp_wrapper:
         conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
         conf.cfg_get_variable(package='gtkmm-2.4', variable='gmmprocm4dir', prefix="GTK_")
@@ -56,15 +55,15 @@ def configure(conf):
         conf.env["GX_LIB_SHARED"] = True
         conf.env["GX_LIB_DEV"] = True
         conf.env["GX_LIB_STATIC"] = False
-    if Options.options.no_ldconfig:
+    if Options.options.no_ldconfig or Options.options.destdir:
         conf.env["NO_LDCONFIG"] = True
 
 
 def template2cc(task):
     src = task.inputs[0]
     dst = task.outputs[0]
-    basename = src.change_ext('').name
-    dst.delete()
+    basename = os.path.splitext(src.name)
+    dst.delete(evict=False)
     private = dst.parent.make_node('private')
     private.mkdir()
     spath = src.parent.bldpath()
@@ -158,9 +157,8 @@ def build_generate_wrapper(bld):
     bld(features = ['cxx', 'cprogram'],
         source = "generate_defs_gxw.cc",
         includes = ["../../libgxw"],
-        uselib = ['GTKMM'],
+        use = ['GTKMM','gxw'],
         lib    = 'glibmm_generate_extra_defs-2.4',
-        uselib_local = "gxw",
         target = 'generate_defs_gxw',
         install_path = None,
         )
@@ -263,20 +261,25 @@ def build(bld):
         build_generate_wrapper(bld)
     bld.add_group()
     if bld.env["GX_LIB_SHARED"]:
-        bld(features = ['cxx', 'cxxshlib', 'libtool'],
-            type = 'cshlib',
+        bld.shlib(
+            name = 'gxwmm',
             vnum = "0.1",
-            includes = ['..','../../libgxw'],
+            includes = ['..'],
+            export_includes = ['..'],
             source = sources+["init.cc","wrap_init.cc"],
-            uselib = ['GTKMM'],
-            uselib_local = ['gxw'],
+            use = ['GTKMM','gxw'],
             target = 'gxwmm',
             )
+        if not bld.env["NO_LDCONFIG"]:
+            if bld.is_install and not Options.options.destdir \
+               and not Options.options.no_ldconfig and os.geteuid() == 0:
+                bld.add_post_fun_ignore_errors(
+                    lambda ctx: ctx.exec_command('/sbin/ldconfig'))
     else:
-        bld(features = ['cxx', 'cstaticlib'],
-            includes = ['..','../../libgxw'],
-            #cxxflags = ['-fPIC'],
+        bld.stlib(
+            includes = ['..'],
+            export_includes = ['..'],
             source = sources+["init.cc","wrap_init.cc"],
-            uselib = ['GTKMM'],
+            use = ['GTKMM','gxw'],
             target = 'gxwmm',
             )

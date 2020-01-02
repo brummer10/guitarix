@@ -50,7 +50,6 @@ gxstyle_files = [
     'rack_expand.png',
     'rack_shrink.png',
     'rack_preset.png',
-    'rack_preset.png',
     'insert.png',
     'hslider.png',
     'logo.png',

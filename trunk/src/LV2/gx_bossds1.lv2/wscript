@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import sys, os, TaskGen, ctypes, wscript_helper
+import sys
 
 def configure(conf):
     pass
@@ -16,7 +16,6 @@ def build(bld):
     if sys.platform.startswith("linux"):
         lib.append('dl')
     uselib = ['LV2CORE','GX_RESAMPLER']
-    wscript_helper.add_zita_resampler(bld, uselib, src, incl, base="../..")
     cxxflag =[]
     if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflag = [ "-msse2", "-mfpmath=sse"]
@@ -32,7 +31,7 @@ def build(bld):
         install_path = '${LV2DIR}/%s' % bundle,
         chmod = 0o755,
         )
-    lv2_effects.env['shlib_PATTERN'] = '%s.so'
+    lv2_effects.env['cxxshlib_PATTERN'] = '%s.so'
 
     if bld.env['LV2GUI']:
         libpath1 = []
@@ -53,7 +52,7 @@ def build(bld):
             install_path = '${LV2DIR}/%s' % bundle,
             chmod = 0o755,
             )
-        lv2_plugin_gui.env['shlib_PATTERN'] = '%s.so'
+        lv2_plugin_gui.env['cxxshlib_PATTERN'] = '%s.so'
 
     install_path = '${LV2DIR}/%s' % bundle,
     if bld.env['MODGUI']:

@@ -1,69 +1,22 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import sys, os, TaskGen, ctypes, wscript_helper
-
 def configure(conf):
     pass
 
 def build(bld):
-    bundle = 'gx_amp.lv2'
+    lv2_base = 'gx_amp'
 
-    src = ['gxamp.cpp',
-           'gx_amp.cc',
-           'gx_tonestack.cc',
-           ]
-    incl = ['../faust','./', '../DSP', '../DSP/tube_tables']
-    lib = []
-    if sys.platform.startswith("linux"):
-        lib.append('dl')
-    uselib = ['LV2CORE','GLIBMM','GX_CONVOLVER']
-    cxxflag =[]
-    ldscript = bld.path.find_resource('gx_amp.lds')
-    mapfile = bld.path.find_or_declare("gx_amp.map")
-    if not bld.env['OPT'] and bld.env['SSE2']:
-        cxxflag = [ "-msse2", "-mfpmath=sse"]
-    lv2_plugin = bld.shlib(
-        includes = incl,
-        lib = lib,
-        use = uselib,
-        obj_ext  = '_8.o',
-        cxxflags = cxxflag,
-        defines  = ["LV2_SO"],
-        target   = 'gx_amp',
-        source   = src,
-        install_path = '${LV2DIR}/%s' % bundle,
-        chmod = 0o755,
-        ldflags = ['-Wl,%s,-Map=%s' % (ldscript.bldpath(),mapfile.bldpath())],
+    bld.lv2(
+        lv2_base = lv2_base,
+        source   = ['gxamp.cpp', 'gx_amp.cc', 'gx_tonestack.cc'],
+        includes = ['../faust','./', '../DSP', '../DSP/tube_tables'],
+        use = ['LV2CORE','GLIBMM','GX_CONVOLVER'],
+        ldscript = 'gx_amp.lds',
+        mapfile = "gx_amp.map",
         )
-    bld.add_manual_dependency(bld.path.find_or_declare(lv2_plugin.target), ldscript)
-    lv2_plugin.env['shlib_PATTERN'] = '%s.so'
-
-    if bld.env['LV2GUI']:
-        libpath1 = []
-        lib1 = []
-        incl = ['../../../libgxwmm','../../../libgxw']
-        if sys.platform.startswith("linux"):
-            lib1.append('dl')
-
-        lv2_plugin_gui = bld.shlib(
-            includes = incl,
-            lib = lib1,
-            libpath = libpath1,
-            use = ['gxwmm','gxw','LV2CORE','GTKMM'],
-            linkflags = '-Wl,-z,nodelete',
-            defines  = ["LV2_GUI"],
-            target   = 'gx_amp_gui',
-            source   = 'widget.cpp gxamp_gui.cpp',
-            install_path = '${LV2DIR}/%s' % bundle,
-            chmod = 0o755,
-            )
-        lv2_plugin_gui.env['shlib_PATTERN'] = '%s.so'
-
-
-    install_path = '${LV2DIR}/%s' % bundle,
-    if bld.env['MODGUI']:
-        bld.install_files('${LV2DIR}/gx_amp.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
-        bld.install_files('${LV2DIR}/gx_amp.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
-    else:
-        bld.install_files('${LV2DIR}/gx_amp.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
+    bld.lv2_gui(
+        lv2_base = lv2_base,
+        source   = 'widget.cpp gxamp_gui.cpp',
+        use = ['gxwmm','gxw','LV2CORE','GTKMM'],
+        )

@@ -128,7 +128,7 @@ def configure(conf):
     pa = '.so'
 
     for x in dirlist():
-        conf.sub_config('%s' % x);
+        conf.recurse(x);
         if conf.env['MODGUI']:
             sub_file('./src/LV2/%s/manifest.ttl.in' % x, './src/LV2/%s/manifest.ttl' % x, (('@LIB_EXT@', '%s' % pa), ))
         else:
@@ -136,7 +136,7 @@ def configure(conf):
 
 def build(bld):
     # faust folder keep out of dirlist
-    bld.add_subdirs('faust')
+    bld.recurse('faust')
     bld.objects(name='GX_CONVOLVER',
                 source='DSP/gx_convolver.cc',
                 includes='DSP',
@@ -148,7 +148,7 @@ def build(bld):
                 cxxflags='-fPIC',
                 use=['ZITA_RESAMPLER'],
     )
-    bld.add_subdirs(dirlist())
+    bld.recurse(dirlist())
 
     if bld.env['LV2GUI']:
         gx_ampstyledir = bld.path.find_dir( 'GUI' ) ;

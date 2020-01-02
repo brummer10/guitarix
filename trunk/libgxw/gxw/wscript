@@ -8,9 +8,7 @@ def options(opt):
     pass
 
 def configure(conf):
-    return ##FIXME
-    if conf.env["GX_LIB_SHARED"] or conf.env["GXW_SHARED"]:
-        conf.check_tool("libtool")
+    pass
 
 def img2c(task):
     src = task.inputs[0].bldpath()
@@ -84,9 +82,9 @@ def build(bld):
         # static library
         prog = bld.stlib(
             includes = ['.'],
-            #cxxflags = ['-fPIC'],
+            export_includes = ['..'],
             source = sources,
-            uselib = ['GTHREAD', 'GTK2'],
+            use = ['GTHREAD', 'GTK2'],
             target = 'gxw',
             chmod=0o755,
             )
@@ -94,13 +92,13 @@ def build(bld):
         # shared library
         prog = bld.shlib(
             includes = ['.'],
+            export_includes = ['..'],
             source = sources,
-            uselib = ['GTHREAD', 'GTK2'],
+            use = ['GTHREAD', 'GTK2'],
             target = 'gxw',
             chmod=0o755,
             )
         if bld.env["GX_LIB_SHARED"] or bld.env["GXW_SHARED_INSTALL"]:
-            prog.features.append('libtool')
             prog.type = 'cshlib'
             prog.vnum = "0.1"
         else:

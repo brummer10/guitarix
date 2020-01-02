@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import sys, os, TaskGen, ctypes, wscript_helper
+import sys
 
 def configure(conf):
     pass
@@ -15,9 +15,7 @@ def build(bld):
     lib = []
     if sys.platform.startswith("linux"):
         lib.append('dl')
-    uselib = ['LV2CORE','GLIBMM']
-    uselib.append('FFTW3')
-    wscript_helper.add_zita_resampler(bld, uselib, src, incl, base="../..")
+    uselib = ['LV2CORE','GLIBMM','GX_RESAMPLER','FFTW3']
     if sys.platform.startswith("linux"):
         lib.append('dl')
     cxxflag =[]
@@ -35,7 +33,7 @@ def build(bld):
         install_path = '${LV2DIR}/%s' % bundle,
         chmod = 0o755,
         )
-    lv2_effects.env['shlib_PATTERN'] = '%s.so'
+    lv2_effects.env['cxxshlib_PATTERN'] = '%s.so'
 
     if bld.env['LV2GUI']:
         libpath5 = []
@@ -56,7 +54,7 @@ def build(bld):
             install_path = '${LV2DIR}/%s' % bundle,
             chmod = 0o755,
             )
-        lv2_effetcs_gui.env['shlib_PATTERN'] = '%s.so'
+        lv2_effetcs_gui.env['cxxshlib_PATTERN'] = '%s.so'
 
 
     install_path = '${LV2DIR}/%s' % bundle,
