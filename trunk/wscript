@@ -567,7 +567,7 @@ def check_zita_convolver(opt, conf):
                 mandatory=True,
                 define_name="ZITA_CONVOLVER")
             conf.define ('ZITA_CONVOLVER_VERSION', 4)
-            
+
 
 def check_zita_resampler(opt, conf):
     if opt.includeresampler:
@@ -1198,12 +1198,14 @@ def build(bld):
         bld.objects(name='ZITA_CONVOLVER',
                     source = 'src/zita-convolver-ffmpeg/zita-convolver.cc',
                     includes = 'src/headers',
+                    export_includes = 'src/zita-convolver-ffmpeg',
                     use = ['LIBAVCODEC','LIBAVUTIL'],
                     cxxflags = bld.env.CXXFLAGS_cxxshlib,
         )
     elif not bld.env['HAVE_ZITA_CONVOLVER']:
         bld.objects(name='ZITA_CONVOLVER',
                     source='src/zita-convolver/zita-convolver.cc',
+                    export_includes = 'src/zita-convolver',
                     cxxflags = bld.env.CXXFLAGS_cxxshlib,
                     use = ['FFTW3','PTHREAD'],
         )
@@ -1213,6 +1215,7 @@ def build(bld):
                         'src/zita-resampler-1.1.0/resampler.cc',
                         'src/zita-resampler-1.1.0/resampler-table.cc',
                     ],
+                    export_includes = 'src/zita-resampler-1.1.0',
                     use=['PTHREAD'],
                     cxxflags = bld.env.CXXFLAGS_cxxshlib,
         )
