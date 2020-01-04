@@ -166,4 +166,5 @@ def configure(conf):
     pass
 
 def build(bld):
-    bld.install_files(bld.env['GX_STYLE_DIR'], gxstyle_files, chmod=0o644)
+    if bld.env.STANDALONE:
+        bld.install_files(bld.env.GX_STYLE_DIR, gxstyle_files, chmod=0o644)

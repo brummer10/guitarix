@@ -18,11 +18,14 @@ def create_ladspa_plugin(bld, source, target, defstr, uselib = None):
         chmod    = 0o755,
         )
     ladspa_plugin.env.append_value("CXXFLAGS", ['-fPIC', '-shared'])
-    ladspa_plugin.env['cxxshlib_PATTERN'] = '%s.so'
+    ladspa_plugin.env.cxxshlib_PATTERN = '%s.so'
     return ladspa_plugin
 
 
 def build(bld):
+    if not bld.env.LADSPA:
+        return
+
     sources = [
         'crybaby.cpp',       
         'distortion.cpp',

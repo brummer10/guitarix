@@ -41,7 +41,7 @@ def build(bld):
     lv2_plugin_gui_stereo = bld(
         features='cxx cshlib ',
         includes = incl3,
-        use = ['LV2CORE','GTKMM','gxwmm','gxw'],
+        use = ['LV2CORE','GTKMM','gxwmm'],
         linkflags = '-Wl,-z,nodelete',
         defines  = ["LV2_GUI"],
         target   = 'gxpreamp_gui_stereo',

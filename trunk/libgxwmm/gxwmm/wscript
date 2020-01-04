@@ -39,7 +39,8 @@ def options(opt):
                    )
 
 def configure(conf):
-    if Options.options.generate_cpp_wrapper:
+    opt = conf.options
+    if opt.generate_cpp_wrapper:
         conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
         conf.cfg_get_variable(package='gtkmm-2.4', variable='gmmprocm4dir', prefix="GTK_")
         conf.cfg_get_variable(package='atkmm-1.6', variable='gmmprocm4dir', prefix="ATK_")
@@ -47,22 +48,22 @@ def configure(conf):
         conf.env["USE_GENERATED_CPP"] = False
     else:
         conf.env["USE_GENERATED_CPP"] = True
-    if Options.options.shared_lib or Options.options.lv2:
+    if opt.shared_lib or opt.lv2:
         conf.env["GX_LIB_SHARED"] = True
-    else:
+    elif opt.standalone:
         conf.env["GX_LIB_STATIC"] = True
-    if Options.options.lib_dev:
+    if opt.lib_dev:
         conf.env["GX_LIB_SHARED"] = True
         conf.env["GX_LIB_DEV"] = True
         conf.env["GX_LIB_STATIC"] = False
-    if Options.options.no_ldconfig or Options.options.destdir:
+    if opt.no_ldconfig or opt.destdir:
         conf.env["NO_LDCONFIG"] = True
 
 
 def template2cc(task):
     src = task.inputs[0]
     dst = task.outputs[0]
-    basename = os.path.splitext(src.name)
+    basename = os.path.splitext(src.name)[0]
     dst.delete(evict=False)
     private = dst.parent.make_node('private')
     private.mkdir()
@@ -98,12 +99,13 @@ Task.task_factory(
     'gmmproc',
     template2cc,
     color='BLUE',
-    before='cxx')
+    )
 
 @extension('.hg')
 def process_hg(self, node):
         cc_node = node.change_ext('.cc')
-        task = self.create_task('gmmproc', [node], [cc_node])
+        h_node = node.change_ext('.h')
+        task = self.create_task('gmmproc', [node], [cc_node, h_node])
         task.after = ["gxwdefs"]
         task.dep_nodes.append(
             node.parent.find_resource(node.name.replace('.hg','.ccg')))
@@ -117,7 +119,7 @@ def header2defs(task):
     dst = task.outputs[0].bldpath()
     flt = task.inputs[0].bldpath()
     cmd = ("python '%s'/h2def.py -f '%s' -m gxw %s > '%s'"
-           % (task.env["CODEGENDIR"], flt, sources, dst))
+           % (task.env["PYGOBJECT_codegendir"], flt, sources, dst))
     Logs.debug("runner: system command -> %s" % cmd)
     return task.exec_command(cmd, shell=True)
 
@@ -154,9 +156,8 @@ def build_generate_wrapper(bld):
               "GxPlayHead.h",
               ]
     header = ["../../libgxw/gxw/"+v for v in header]
-    bld(features = ['cxx', 'cprogram'],
+    bld.program(
         source = "generate_defs_gxw.cc",
-        includes = ["../../libgxw"],
         use = ['GTKMM','gxw'],
         lib    = 'glibmm_generate_extra_defs-2.4',
         target = 'generate_defs_gxw',
@@ -167,7 +168,7 @@ def build_generate_wrapper(bld):
     e1 = 's/GdkEvent\\*/GdkEventButton*/'
     e2 = 's/return-type "const-gchar\\*"/return-type "gchar*"/'
     bld(name = "sigdefs",
-        rule = ("LD_LIBRARY_PATH=\"%s\" ${SRC} | sed -e '"+e1+"' -e '"+e2+"'> ${TGT}") % libdir, #FIXME
+        rule = ("LD_LIBRARY_PATH=\"%s\" ${SRC} | sed -e '"+e1+"' -e '"+e2+"'> ${TGT}") % libdir,
         source = 'generate_defs_gxw',
         target = 'signals.defs',
         )
@@ -225,7 +226,11 @@ def build(bld):
         "portdisplay.hg",
         "playhead.hg",
         ]
-    if bld.env["USE_GENERATED_CPP"]:
+    bld(name='gxwmm_inc', export_includes=['..'], use='gxw_inc')
+    if not bld.env.GX_LIB_SHARED and not bld.env.GX_LIB_STATIC:
+        return
+    bld.add_group()
+    if bld.env.USE_GENERATED_CPP:
         gdir = "../gxwmm-generated/"
         for v in sources:
             s = v.replace(".hg", ".cc")
@@ -254,13 +259,12 @@ def build(bld):
         sources = [v.replace(".hg",".cc") for v in sources]
     else:
         bld(name = "wrap_init",
-            rule = bld.env["GMMPROCDIR"]+"/generate_wrap_init.pl --namespace=Gxw ${SRC} >${TGT}; cp ${TGT} ../libgxwmm/gxwmm-generated", #FIXME
+            rule = bld.env.GMMPROCDIR+"/generate_wrap_init.pl --namespace=Gxw ${SRC} >${TGT}; cp ${TGT} ../libgxwmm/gxwmm-generated",
             source = sources,
             target = "wrap_init.cc",
             )
         build_generate_wrapper(bld)
-    bld.add_group()
-    if bld.env["GX_LIB_SHARED"]:
+    if bld.env.GX_LIB_SHARED:
         bld.shlib(
             name = 'gxwmm',
             vnum = "0.1",
@@ -270,13 +274,14 @@ def build(bld):
             use = ['GTKMM','gxw'],
             target = 'gxwmm',
             )
-        if not bld.env["NO_LDCONFIG"]:
+        if not bld.env.NO_LDCONFIG:
             if bld.is_install and not Options.options.destdir \
                and not Options.options.no_ldconfig and os.geteuid() == 0:
                 bld.add_post_fun_ignore_errors(
                     lambda ctx: ctx.exec_command('/sbin/ldconfig'))
     else:
         bld.stlib(
+            name = 'gxwmm',
             includes = ['..'],
             export_includes = ['..'],
             source = sources+["init.cc","wrap_init.cc"],

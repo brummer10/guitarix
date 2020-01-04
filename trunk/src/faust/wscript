@@ -2,6 +2,9 @@
 # encoding: utf-8
 
 def build(bld):
+    if not (bld.env.STANDALONE or bld.env.NEW_LADSPA):
+        return
+
     unused_sources = [
         'preamp.dsp',
         'inputgain.dsp',

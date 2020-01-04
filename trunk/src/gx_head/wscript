@@ -22,7 +22,7 @@ def configure(conf):
         conf.check_cfg(package='avahi-gobject', args='--cflags --libs', uselib_store='AVAHI_GOBJECT', mandatory=1)
         conf.check_cfg(package='avahi-glib', args='--cflags --libs', uselib_store='AVAHI_GLIB', mandatory=1)
         conf.check_cfg(package='avahi-client', args='--cflags --libs', uselib_store='AVAHI_CLIENT', mandatory=1)
-        conf.env["HAVE_AVAHI"] = 1
+        conf.env.HAVE_AVAHI = 1
         conf.define("HAVE_AVAHI", 1)
     if not Options.options.no_bluez:
         conf.check_cfg(package='bluez', args='--cflags --libs', uselib_store='BLUEZ', mandatory=0)
@@ -31,7 +31,7 @@ def gperf2cc(task):
     def generated(node):
         name = node.name.replace('.','-generated.')
         return node.parent.find_or_declare([name]).get_src().abspath()
-    if task.env["HAVE_GPERF"]:
+    if task.env.HAVE_GPERF:
         # task.proc.bldpath() triggers bug in Waf 2.0.19 when logging is active
         cmd = [task.proc.abspath()] + [n.bldpath() for n in task.inputs + task.outputs]
         Logs.debug("runner: system command -> %s" % cmd)
@@ -61,6 +61,9 @@ def process_gperf_tmpl(self, node):
     self.bld.add_manual_dependency(node, task.proc)
 
 def build(bld):
+    if not (bld.env.STANDALONE or bld.env.NEW_LADSPA):
+        return
+
     sources_engine_shared = [
         'engine/gx_json.cpp',
         'engine/gx_faust_plugins.cpp',
@@ -153,38 +156,42 @@ def build(bld):
         './builder/gx_fullscreen.png',
         ]
 
-    if bld.env["HAVE_AVAHI"]:
-        sources_gui.append("gui/avahi_discover.cpp")
-        sources_engine.append("engine/avahi_register.cpp")
-    sources = sources_engine + sources_engine_shared + sources_gui
     incl = ['.','./engine','../..','..','../headers'] # need ".." for config.h
-    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT', 'CURL',
-              'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'LILV', 'BOOST_SYSTEM','BOOST_IOSTREAMS',
-              'ZITA_CONVOLVER','ZITA_RESAMPLER']
-    if bld.env["HAVE_AVAHI"]:
-        uselib += ['AVAHI_GOBJECT', 'AVAHI_GLIB', 'AVAHI_CLIENT']
-    if bld.env["HAVE_BLUEZ"]:
-        uselib.append('BLUEZ')
-    if bld.env["HAVE_PLUGINLIB"]:
-        uselib += ["plugins"]
-    uselib += ['gxwmm','gxw']
-    task = bld.program(
-        includes = incl,
-        source = sources,
-        use = uselib,
-        target = bld.env['BIN_NAME'],
-        chmod = 0o755,
-        install_path = bld.env['BINDIR'],
-        ldscript = 'guitarix.lds',
-        mapfile = "guitarix.map",
-        )
-    bld.install_files(bld.env['GX_BUILDER_DIR'], builder_files, chmod=0o644)
 
-    if bld.env["NEW_LADSPA"]:
+    if bld.env.NEW_LADSPA:
         bld(name = 'shared_engine',
             features='cxx',
             cxxflags = bld.env.CXXFLAGS_cxxshlib,
             source = sources_engine_shared,
             includes = incl,
-            use = ['GLIBMM','GIOMM','LILV','gxwmm'],
+            use = ['GLIBMM','GIOMM','LILV','gxwmm_inc','ZITA_CONVOLVER','ZITA_RESAMPLER'],
             )
+
+    if not bld.env.STANDALONE:
+        return
+
+    if bld.env.HAVE_AVAHI:
+        sources_gui.append("gui/avahi_discover.cpp")
+        sources_engine.append("engine/avahi_register.cpp")
+    sources = sources_engine + sources_engine_shared + sources_gui
+    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT', 'CURL',
+              'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'LILV', 'BOOST_SYSTEM','BOOST_IOSTREAMS',
+              'ZITA_CONVOLVER','ZITA_RESAMPLER']
+    if bld.env.HAVE_AVAHI:
+        uselib += ['AVAHI_GOBJECT', 'AVAHI_GLIB', 'AVAHI_CLIENT']
+    if bld.env.HAVE_BLUEZ:
+        uselib.append('BLUEZ')
+    if bld.env.HAVE_PLUGINLIB:
+        uselib += ["plugins"]
+    uselib += ['gxwmm']
+    bld.program(
+        includes = incl,
+        source = sources,
+        use = uselib,
+        target = bld.env.BIN_NAME,
+        chmod = 0o755,
+        install_path = bld.env.BINDIR,
+        ldscript = 'guitarix.lds',
+        mapfile = "guitarix.map",
+        )
+    bld.install_files(bld.env.GX_BUILDER_DIR, builder_files, chmod=0o644)

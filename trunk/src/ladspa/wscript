@@ -18,14 +18,15 @@ def test_loadable(self):
     self.link_task.run = link_and_test
 
 def build(bld):
+    if not bld.env.NEW_LADSPA:
+        return
+
     src = ['ladspa_guitarix.cpp']
     incl = ['../headers', '..']
     lib = []
-    if sys.platform.startswith("linux"):
-        lib.append('dl')
     uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT',
               'GLIBMM', 'GIOMM', 'FFTW3', 'BOOST_SYSTEM', 'LILV',
-              'ZITA_CONVOLVER','ZITA_RESAMPLER']
+              'gxwmm_inc']
     ladspa_plugin = bld.shlib(
         features='test_loadable',
         includes = incl,
@@ -38,5 +39,5 @@ def build(bld):
         install_path = '${LADSPADIR}',
         chmod = 0o755,
         )
-    ladspa_plugin.env['cxxshlib_PATTERN'] = '%s.so'
+    ladspa_plugin.env.cxxshlib_PATTERN = '%s.so'
     bld.install_files('${SHAREDIR}/ladspa/rdf', 'guitarix_amp.rdf')

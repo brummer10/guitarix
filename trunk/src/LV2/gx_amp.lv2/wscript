@@ -18,5 +18,5 @@ def build(bld):
     bld.lv2_gui(
         lv2_base = lv2_base,
         source   = 'widget.cpp gxamp_gui.cpp',
-        use = ['gxwmm','gxw','LV2CORE','GTKMM'],
+        use = ['gxwmm','LV2CORE','GTKMM'],
         )

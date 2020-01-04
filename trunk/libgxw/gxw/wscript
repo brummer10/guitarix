@@ -43,6 +43,9 @@ def build_stock_images(bld):
     bld.add_group()
 
 def build(bld):
+    if not (bld.env.STANDALONE or bld.env.LV2GUI or bld.env.NEW_LADSPA):
+        return
+
     sources = [
         'gxinit.cpp',
         'drawingutils.cpp',
@@ -103,3 +106,5 @@ def build(bld):
             prog.vnum = "0.1"
         else:
             prog.install_path = None
+
+    bld(name='gxw_inc', export_includes=['..'])

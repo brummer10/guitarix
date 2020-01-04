@@ -94,7 +94,10 @@ lib_sources_shared = [
     ]
 
 def build(bld):
-    if bld.env['FAUST']:
+    if not (bld.env.STANDALONE or bld.env.NEW_LADSPA):
+        return
+
+    if bld.env.FAUST:
         arg, float_arg, double_arg = bld.get_faust_args()
         arg += ["--init-type=plugin-instance"]
         bld(name = "dsp2cc sharedlib",
@@ -144,9 +147,9 @@ def build(bld):
         )
     bld.add_group()
     have_pluginlib = len(lib_sources) != 0
-    bld.env["HAVE_PLUGINLIB"] = have_pluginlib
+    bld.env.HAVE_PLUGINLIB = have_pluginlib
     incl = [".","../headers", "../gx_head/engine"]
-    if not bld.env['ZITA_RESAMPLER']:
+    if not bld.env.ZITA_RESAMPLER:
         incl.append('../zita-resampler-1.1.0')
     
     if have_pluginlib:
@@ -171,7 +174,7 @@ def build(bld):
             source = [s.replace(".dsp",".cc")],
             target = s.replace(".dsp",""),
             )
-        tsk.env['cxxshlib_PATTERN'] = '%s.so'
+        tsk.env.cxxshlib_PATTERN = '%s.so'
     for s in csources:
         if not isinstance(s, str):
             uselib = s[1]
@@ -187,7 +190,7 @@ def build(bld):
             use = uselib,
             install_path = None, # for now...
             )
-        tsk.env['cxxshlib_PATTERN'] = '%s.so'
+        tsk.env.cxxshlib_PATTERN = '%s.so'
 
 def configure(conf):
     conf.check_cfg(package='eigen3', args='--cflags', uselib_store="EIGEN3", mandatory=1)

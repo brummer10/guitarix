@@ -22,23 +22,23 @@ def options(opt):
 
 def configure(conf):
     if Options.options.glade_support:
-        conf.env["GX_GLADE_SUPPORT"] = True
-        conf.env["GXW_SHARED"] = True
-        conf.env["GXW_SHARED_INSTALL"] = True
-        conf.env["GLADE_CATALOG_DIR"] = Options.options.glade_catalog_dir
-        conf.env["GLADE_MODULES_DIR"] = Options.options.glade_modules_dir
+        conf.env.GX_GLADE_SUPPORT = True
+        conf.env.GXW_SHARED = True
+        conf.env.GXW_SHARED_INSTALL = True
+        conf.env.GLADE_CATALOG_DIR = Options.options.glade_catalog_dir
+        conf.env.GLADE_MODULES_DIR = Options.options.glade_modules_dir
         
 def build(bld):
-    if not bld.env["GX_GLADE_SUPPORT"]:
+    if not bld.env.GX_GLADE_SUPPORT:
         return
     bld.recurse("glade-icons")
     bld.shlib(
-        ccflags = bld.env['CXXFLAGS'],
+        ccflags = bld.env.CXXFLAGS,
         use = ['GTK2','gxw'],
         source = ['glade-gxw.c'],
         target = 'gladegx',
         includes = ['..'],
-        install_path = bld.env["GLADE_MODULES_DIR"],
+        install_path = bld.env.GLADE_MODULES_DIR,
         )
 
-    bld.install_files(bld.env["GLADE_CATALOG_DIR"], "gxw.xml", chmod=0o644)
+    bld.install_files(bld.env.GLADE_CATALOG_DIR, "gxw.xml", chmod=0o644)

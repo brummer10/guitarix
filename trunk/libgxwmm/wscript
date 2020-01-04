@@ -5,7 +5,12 @@ def configure(conf):
     conf.recurse('gxwmm');
 
 def build(bld):
+    env = bld.env
+    if not (env.STANDALONE or env.LV2GUI or env.NEW_LADSPA):
+        return
     bld.recurse('gxwmm')
+    if env.NEW_LADSPA:
+        return
     bld.add_group()
     prog = bld(features = 'cxx cprogram',
                source = 'gxw_demo.cc',

@@ -36,15 +36,10 @@ def build(bld):
     if bld.env['LV2GUI']:
         libpath1 = []
         lib1 = []
-        incl = ['../../../libgxwmm','../../../libgxw']
-        if sys.platform.startswith("linux"):
-            lib1.append('dl')
-
         lv2_plugin_gui = bld.shlib(
-            includes = incl,
             lib = lib1,
             libpath = libpath1,
-            use = ['gxwmm','gxw','LV2CORE','GTKMM'],
+            use = ['gxwmm','LV2CORE','GTKMM'],
             linkflags = '-Wl,-z,nodelete',
             defines  = ["LV2_GUI"],
             target   = 'gx_aclipper_gui',

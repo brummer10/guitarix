@@ -15,29 +15,29 @@ def options(opt):
 def configure(conf):
     if not Options.options.python_wrapper:
         return
-    conf.env["GX_PYTHON_WRAPPER"] = True
-    conf.env["GXW_SHARED"] = True
+    conf.env.GX_PYTHON_WRAPPER = True
+    conf.env.GXW_SHARED = True
     conf.check_python_headers()
     conf.check_cfg(package='pygtk-2.0', args='--cflags --libs', uselib_store='PYGTK' ,mandatory=True)
     conf.cfg_get_variable(package='pygtk-2.0', variable='defsdir')
     conf.check_python_module("numpy")
 
 def h2defs(task):
-    sources = " ".join(["'%s'" % v.srcpath() for v in task.inputs])
+    sources = " ".join(["'%s'" % v.bldpath() for v in task.inputs])
     path = task.generator.path
-    lib = path.find_resource(task.generator.lib).srcpath()
-    fltr = path.find_resource(task.generator.filter).srcpath()
+    lib = path.find_resource(task.generator.lib).bldpath()
+    fltr = path.find_resource(task.generator.filter).bldpath()
     dst = task.outputs[0].bldpath()
     cmd = ("python '%s'/defsgen.py -m gx -l %s -f '%s' %s > '%s' && cat '%s' >> '%s'"
-           % (task.env["CODEGENDIR"], lib, fltr, sources, dst, fltr, dst))
+           % (task.env.PYGOBJECT_codegendir, lib, fltr, sources, dst, fltr, dst))
     Logs.debug("runner: system command -> %s" % cmd)
     return task.exec_command(cmd, shell=True)
 
 def defs2c(task):
-    ovr = task.inputs[0].srcpath()
-    src = task.inputs[1].srcpath()
+    ovr = task.inputs[0].bldpath()
+    src = task.inputs[1].bldpath()
     dst = task.outputs[0].bldpath()
-    defsdir = task.env["DEFSDIR"]
+    defsdir = task.env.DEFSDIR
     cmd = ("pygobject-codegen-2.0"
            " --prefix gxw"
            " --register '%s'/gdk-types.defs"
@@ -51,7 +51,7 @@ def defs2c(task):
     return task.exec_command(cmd,shell=True)
 
 def build(bld):
-    if not bld.env["GX_PYTHON_WRAPPER"]:
+    if not bld.env.GX_PYTHON_WRAPPER:
         return
     bld.add_group()
     sources = ["GxTuner.h",
@@ -96,10 +96,10 @@ def build(bld):
         )
     bld.add_group()
     prog = bld(
-        features = ['cc','cxx','pyext','cshlib'],
+        name = 'pygxw',
+        features = ['c','cxx','pyext','cshlib'],
         source = ['gxw.c','gxw-module.c'],
         target = 'gxw',
         use = ['PYGOBJECT','PYGTK','GTK2','gxw'],
         ccflags = ["-g"],
-        includes = ['../libgxw'],
         )

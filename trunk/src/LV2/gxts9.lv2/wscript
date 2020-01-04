@@ -36,7 +36,7 @@ def build(bld):
     if bld.env['LV2GUI']:
         libpath4 = []
         lib4 = []
-        incl4 = ['../../../libgxwmm','../../../libgxw','../']
+        incl4 = ['../']
         if sys.platform.startswith("linux"):
             lib4.append('dl')
 
@@ -44,7 +44,7 @@ def build(bld):
             includes = incl4,
             lib = lib4,
             libpath = libpath4,
-            use = ['gxwmm','gxw','LV2CORE','GTKMM'],
+            use = ['gxwmm','LV2CORE','GTKMM'],
             linkflags = '-Wl,-z,nodelete',
             defines  = ["LV2_GUI"],
             target   = 'gxts9_gui',

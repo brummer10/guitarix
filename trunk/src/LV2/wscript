@@ -1,21 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import os, re
-
-def sub_file(src_fname, dst_fname, lst):
-
-    f = open(src_fname, 'rU')
-    txt = f.read()
-    f.close()
-
-    for (key, val) in lst:
-        re_pat = re.compile(key, re.M)
-        txt = re_pat.sub(val, txt)
-
-    f = open(dst_fname, 'w')
-    f.write(txt)
-    f.close()
+from waflib.Context import g_module
 
 def append_sse_flags():
     cpu_model = None
@@ -34,108 +20,97 @@ def append_sse_flags():
         pass
     if cpu_model is None or x86_flags is None:
         return False
-    model = cpu_model.split()
-    arch = os.uname()[4]
-
     if "sse2" in x86_flags:
         return True
     else:
         return False
 
-def dirlist():
-    subdirs = [
-        'gx_amp.lv2',
-        'gx_amp_stereo.lv2',
-        'gxautowah.lv2',
-        'gxbooster.lv2',
-        'gx_chorus.lv2',
-        'gx_compressor.lv2',
-        'gx_delay.lv2',
-        'gxechocat.lv2',
-        'gx_echo.lv2',
-        'gx_expander.lv2',
-        'gx_flanger.lv2',
-        'gxmetal_amp.lv2',
-        'gxmetal_head.lv2',
-        'gx_phaser.lv2',
-        #'gxpreamp.lv2',
-        #'gxpreamp.lv2/StereoAmp',
-        'gx_redeye.lv2',
-        'gx_reverb.lv2',
-        'gx_studiopre.lv2',
-        'gx_studiopre_st.lv2',
-        'gxtilttone.lv2',
-        'gx_tremolo.lv2',
-        'gxts9.lv2',
-        'gxtubedelay.lv2',
-        'gxtubetremelo.lv2',
-        'gxtubevibrato.lv2',
-        'gxtuner.lv2',
-        'gx_zita_rev1.lv2',
-        'gx_mbdistortion.lv2',
-        'gx_mbdelay.lv2',
-        'gx_mbecho.lv2',
-        'gx_mbcompressor.lv2',
-        'gx_fuzz.lv2',
-        'gx_graphiceq.lv2',
-        'gx_duck_delay.lv2',
-        'gx_duck_delay_st.lv2',
-        'gx_barkgraphiceq.lv2',
-        'gx_detune.lv2',
-        'gx_shimmizita.lv2',
-        'gx_switched_tremolo.lv2',
-        'gx_room_simulator.lv2',
-        'gx_digital_delay.lv2',
-        'gx_digital_delay_st.lv2',
-        'gx_livelooper.lv2',
-        'gx_mbreverb.lv2',
-        'gx_jcm800pre.lv2',
-        'gx_jcm800pre_st.lv2',
-        'gx_cabinet.lv2',
-        'gx_vibe.lv2',
-        'gx_fuzzface.lv2',
-        'gx_fuzzfacefm.lv2',
-        'gx_hfb.lv2',
-        'gx_hornet.lv2',
-        'gx_muff.lv2',
-        'gx_scream.lv2',
-        'gx_susta.lv2',
-        'gx_cstb.lv2',
-        'gx_fumaster.lv2',
-        'gx_oc_2.lv2',
-        'gx_mole.lv2',
-        'gx_rangem.lv2',
-        'gx_hogsfoot.lv2',
-        'gx_wah.lv2',
-        'gx_gcb_95.lv2',
-        'gx_aclipper.lv2',
-        'gx_bmp.lv2',
-        'gx_bossds1.lv2',
-        'gx_mxrdist.lv2',
-        'gxtape.lv2',
-        'gxtape_st.lv2',
-        'gx_alembic.lv2',
-        'gx_w20.lv2',
-
-
-       ]
-
-    return subdirs
+subdirs = [
+    'gx_amp.lv2',
+    'gx_amp_stereo.lv2',
+    'gxautowah.lv2',
+    'gxbooster.lv2',
+    'gx_chorus.lv2',
+    'gx_compressor.lv2',
+    'gx_delay.lv2',
+    'gxechocat.lv2',
+    'gx_echo.lv2',
+    'gx_expander.lv2',
+    'gx_flanger.lv2',
+    'gxmetal_amp.lv2',
+    'gxmetal_head.lv2',
+    'gx_phaser.lv2',
+    #'gxpreamp.lv2',
+    #'gxpreamp.lv2/StereoAmp',
+    'gx_redeye.lv2',
+    'gx_reverb.lv2',
+    'gx_studiopre.lv2',
+    'gx_studiopre_st.lv2',
+    'gxtilttone.lv2',
+    'gx_tremolo.lv2',
+    'gxts9.lv2',
+    'gxtubedelay.lv2',
+    'gxtubetremelo.lv2',
+    'gxtubevibrato.lv2',
+    'gxtuner.lv2',
+    'gx_zita_rev1.lv2',
+    'gx_mbdistortion.lv2',
+    'gx_mbdelay.lv2',
+    'gx_mbecho.lv2',
+    'gx_mbcompressor.lv2',
+    'gx_fuzz.lv2',
+    'gx_graphiceq.lv2',
+    'gx_duck_delay.lv2',
+    'gx_duck_delay_st.lv2',
+    'gx_barkgraphiceq.lv2',
+    'gx_detune.lv2',
+    'gx_shimmizita.lv2',
+    'gx_switched_tremolo.lv2',
+    'gx_room_simulator.lv2',
+    'gx_digital_delay.lv2',
+    'gx_digital_delay_st.lv2',
+    'gx_livelooper.lv2',
+    'gx_mbreverb.lv2',
+    'gx_jcm800pre.lv2',
+    'gx_jcm800pre_st.lv2',
+    'gx_cabinet.lv2',
+    'gx_vibe.lv2',
+    'gx_fuzzface.lv2',
+    'gx_fuzzfacefm.lv2',
+    'gx_hfb.lv2',
+    'gx_hornet.lv2',
+    'gx_muff.lv2',
+    'gx_scream.lv2',
+    'gx_susta.lv2',
+    'gx_cstb.lv2',
+    'gx_fumaster.lv2',
+    'gx_oc_2.lv2',
+    'gx_mole.lv2',
+    'gx_rangem.lv2',
+    'gx_hogsfoot.lv2',
+    'gx_wah.lv2',
+    'gx_gcb_95.lv2',
+    'gx_aclipper.lv2',
+    'gx_bmp.lv2',
+    'gx_bossds1.lv2',
+    'gx_mxrdist.lv2',
+    'gxtape.lv2',
+    'gxtape_st.lv2',
+    'gx_alembic.lv2',
+    'gx_w20.lv2',
+]
 
 def configure(conf):
-    if not conf.env['NOSSE']:
-        conf.env['SSE2'] = append_sse_flags()
-    pa = '.so'
+    if not conf.env.NOSSE:
+        conf.env.SSE2 = append_sse_flags()
 
-    for x in dirlist():
+    for x in subdirs:
         conf.recurse(x);
-        if conf.env['MODGUI']:
-            sub_file('./src/LV2/%s/manifest.ttl.in' % x, './src/LV2/%s/manifest.ttl' % x, (('@LIB_EXT@', '%s' % pa), ))
-        else:
-            sub_file('./src/LV2/%s/manifest.ttl.in' % x, './src/LV2/%s/manifest.ttl' % x, (('@LIB_EXT@', '%s' % pa), (',\n        <modgui.ttl> ','%s' % ' '), (', <modgui.ttl>','%s' % ' '), (', <modguis.ttl>','%s' % ' ')))
 
 def build(bld):
-    # faust folder keep out of dirlist
+    if not bld.env.LV2:
+        return
+
     bld.recurse('faust')
     bld.objects(name='GX_CONVOLVER',
                 source='DSP/gx_convolver.cc',
@@ -148,9 +123,26 @@ def build(bld):
                 cxxflags='-fPIC',
                 use=['ZITA_RESAMPLER'],
     )
-    bld.recurse(dirlist())
+
+    lib_ext = '.so'
+    if bld.env.MODGUI:
+        sub_list = [('@LIB_EXT@', lib_ext)]
+    else:
+        sub_list = [('@LIB_EXT@', lib_ext),
+                    (',\n        <modgui.ttl> ', ' '),
+                    (', <modgui.ttl>', ' '),
+                    (', <modguis.ttl>', ' '),
+                    ]
+    for x in subdirs:
+        bld(rule     = g_module.sub_file,
+            source   = '%s/manifest.ttl.in' % x,
+            target   = '%s/manifest.ttl' % x,
+            sub_list = sub_list,
+        )
+        bld.install_files('${LV2DIR}/%s' % x, bld.path.get_bld().ant_glob('%s/*.ttl' % x))
+    bld.recurse(subdirs)
 
     if bld.env['LV2GUI']:
-        gx_ampstyledir = bld.path.find_dir( 'GUI' ) ;
-        bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gx_ampstyledir.ant_glob('**/*.png'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
-        bld.install_files(bld.env['GX_LV2_STYLE_DIR'], gx_ampstyledir.ant_glob('**/*.rc'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
+        gx_ampstyledir = bld.path.find_dir( 'GUI' )
+        bld.install_files(bld.env.GX_LV2_STYLE_DIR, gx_ampstyledir.ant_glob('**/*.png'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
+        bld.install_files(bld.env.GX_LV2_STYLE_DIR, gx_ampstyledir.ant_glob('**/*.rc'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
