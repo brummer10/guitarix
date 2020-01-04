@@ -629,8 +629,8 @@ def build(bld):
                 source   = 'guitarix.desktop.in',
                 target   = 'guitarix.desktop',
                 sub_list = [('^_', '%s' % "")],
+                install_path = "${DESKAPPS_DIR}/",
             )
-            bld.install_files(bld.env['DESKAPPS_DIR'], 'guitarix.desktop')
         if bld.is_install and not Options.options.destdir \
            and not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"] \
            and not Options.options.no_desktop_update:

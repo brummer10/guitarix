@@ -138,8 +138,8 @@ def build(bld):
             source   = '%s/manifest.ttl.in' % x,
             target   = '%s/manifest.ttl' % x,
             sub_list = sub_list,
+            install_path = '${LV2DIR}/%s' % x,
         )
-        bld.install_files('${LV2DIR}/%s' % x, bld.path.get_bld().ant_glob('%s/*.ttl' % x))
     bld.recurse(subdirs)
 
     if bld.env['LV2GUI']:
