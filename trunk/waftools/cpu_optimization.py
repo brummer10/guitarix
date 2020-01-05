@@ -167,7 +167,6 @@ def configure(conf):
         if conf.env['NOOPT']:
             conf.env['OPT'] = False
             cpu_model = append_optimization_flags(conf, cxxflags)
-    if not opt.disable_cxx11:
-        cxxflags.append ("-std=c++11")
+    cxxflags.append ("-std=c++11")
     conf.env['CXXFLAGS'] += cxxflags
     conf.cpu_model = cpu_model
