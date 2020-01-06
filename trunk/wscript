@@ -20,12 +20,14 @@ blddir = 'build'
 VERSION='0.38.1git'
 APPNAME='guitarix'
 
-tooldir = 'waftools'
+Options.OptionsContext.gxload = \
+    Configure.ConfigurationContext.gxload = \
+        Build.BuildContext.gxload = \
+            lambda ctx, tool: ctx.load(tool, tooldir='waftools')
 
 good_faust_versions = ['2.15.11']
 
 g_maxlen = 40 # maximum width of message for 2-column display
-
 
 fontmsg = """
 RobotoCondensed font not found: please install the fonts-roboto package from your distribution (recommended)
@@ -62,7 +64,7 @@ def options(opt):
 
     comp = opt.get_option_group("Configuration options")
 
-    opt.load('cpu_optimization', tooldir=tooldir)
+    opt.gxload('cpu_optimization')
 
     comp.add_option('--enable-lfs',
                     action='store_const',
@@ -80,8 +82,8 @@ def options(opt):
     opt.recurse('libgxw/gxw')
     opt.recurse('libgxwmm/gxwmm')
 
-    opt.load('zita-resampler', tooldir=tooldir)
-    opt.load('zita-convolver', tooldir=tooldir)
+    opt.gxload('zita-resampler')
+    opt.gxload('zita-convolver')
 
     comp.add_option('--libdir',
                    type='string',
@@ -90,7 +92,7 @@ def options(opt):
                    help=('library install path '),
                    )
 
-    opt.load('faust', tooldir=tooldir)
+    opt.gxload('faust')
 
     ladspa = opt.add_option_group("LADSPA Options (installing ladspa modules)")
 
@@ -110,8 +112,8 @@ def options(opt):
                     type='string',
                     help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
-    opt.load('lv2', tooldir=tooldir)
-    opt.load('robotofont', tooldir=tooldir)
+    opt.gxload('lv2')
+    opt.gxload('robotofont')
 
     opt.recurse('pygxw')
     opt.recurse('glade-gxw')
@@ -176,15 +178,6 @@ def option_enabled (option):
     return True
 
 @Configure.conf
-def cfg_get_variable(self, package, variable, prefix=""):
-    p = Utils.subprocess.Popen(["pkg-config", "--variable="+variable, package],
-                               stdout=Utils.subprocess.PIPE, shell=False)
-    v = p.communicate()[0].strip()
-    if p.returncode or not v:
-        self.fatal('fail to get variable %s for package %s' % (variable, package))
-    self.env[prefix+variable.upper()] = v.decode()
-
-@Configure.conf
 def define_with_env(self, varname, value):
     self.env[varname] = value
     self.define(varname, value)
@@ -247,7 +240,7 @@ def check_boost(conf):
 #
 
 def configure(conf):
-    conf.load('bugfixes', tooldir=tooldir)
+    conf.gxload('bugfixes')
     opt = Options.options
 
     if opt.disable_sse and opt.optimization:
@@ -277,7 +270,7 @@ def configure(conf):
 
     if not opt.disable_nls:
         conf.load('intltool')
-        conf.load('intltool_extras', tooldir=tooldir)
+        conf.gxload('intltool_extras')
         if conf.env['INTLTOOL'] and conf.env['MSGFMT']:
             nls = 'yes'
         else:
@@ -295,7 +288,7 @@ def configure(conf):
     conf.define_with_env('ENABLE_NLS', nls_flag)
     # compiler
     conf.load('compiler_cxx')
-    conf.load('compile-extra', tooldir=tooldir)
+    conf.gxload('compile-extra')
     if opt.with_gcov:
         conf.find_program('gcov')
         conf.env['CXXFLAGS'] = conf.env['CFLAGS'] = ['-fprofile-arcs', '-ftest-coverage']
@@ -325,7 +318,7 @@ def configure(conf):
         conf.env['STANDALONE'] = True
         conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
         conf.check_cfg(package='libcurl', atleast_version='7.26.0', args='--cflags --libs', uselib_store='CURL', mandatory=1)
-        conf.load('robotofont', tooldir=tooldir)
+        conf.gxload('robotofont')
     else:
         conf.env['NO_MAIN'] = True
         opt.no_desktop_update = True
@@ -341,10 +334,10 @@ def configure(conf):
         conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
         check_boost(conf)
 
-    conf.load('zita-convolver', tooldir=tooldir)
-    conf.load('zita-resampler', tooldir=tooldir)
+    conf.gxload('zita-convolver')
+    conf.gxload('zita-resampler')
     conf.find_program("gperf", var='HAVE_GPERF', mandatory=False)
-    conf.load('faust', tooldir=tooldir)
+    conf.gxload('faust')
 
     if Options.options.generate_resources:
         conf.find_program('glib-compile-resources', var='HAVE_GLIB')
@@ -380,7 +373,7 @@ def configure(conf):
     conf.env['DESKAPPS_DIR'] = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications'))
     conf.env['BIN_NAME'] = APPNAME
     if opt.lv2:
-        conf.load('lv2', tooldir=tooldir)
+        conf.gxload('lv2')
     conf.env['LADSPA'] = opt.ladspa
     conf.env['NEW_LADSPA'] = opt.new_ladspa
     if opt.ladspa or opt.new_ladspa:
@@ -390,16 +383,10 @@ def configure(conf):
             conf.env['LADSPADIR'] = os.path.normpath(os.path.join(
                 conf.env['LIBDIR'], 'ladspa'))
 
-    conf.load('cpu_optimization', tooldir=tooldir)
+    conf.gxload('cpu_optimization')
 
     if opt.no_desktop_update:
         conf.env["NO_UPDATE_DESKTOP_DATA_BASE"] = True
-
-    # pygobject is used by both python and c++ wrapper
-    if opt.python_wrapper or opt.generate_cpp_wrapper:
-        conf.load('python')
-        conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
-        conf.check_cfg(package='pygobject-2.0', variables='codegendir', uselib_store='PYGOBJECT', mandatory=True)
 
     if conf.env['STANDALONE']:
         conf.recurse('src/gx_head');

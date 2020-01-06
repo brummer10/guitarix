@@ -15,7 +15,7 @@ def build(bld):
     prog = bld(features = 'cxx cprogram',
                source = 'gxw_demo.cc',
                target = 'gxw_demo',
-               use = ['GTKMM','gxwmm','gxw'],
-               includes = ['.','../libgxw'],
+               use = ['GTKMM','gxwmm'],
+               includes = ['.'],
                install_path = None,
                )

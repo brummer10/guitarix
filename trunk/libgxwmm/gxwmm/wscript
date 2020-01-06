@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-from waflib import Task, Options, Utils, Logs
+from waflib import Task, Options, Logs
 from waflib.TaskGen import extension
-import shutil, os.path
+import shutil, os
 
 def options(opt):
     grp = opt.add_option_group("Guitarix Widget Library")
@@ -40,46 +40,48 @@ def options(opt):
 
 def configure(conf):
     opt = conf.options
+    env = conf.env
     if opt.generate_cpp_wrapper:
-        conf.cfg_get_variable(package='glibmm-2.4', variable='gmmprocdir')
-        conf.cfg_get_variable(package='gtkmm-2.4', variable='gmmprocm4dir', prefix="GTK_")
-        conf.cfg_get_variable(package='atkmm-1.6', variable='gmmprocm4dir', prefix="ATK_")
-        conf.cfg_get_variable(package='pangomm-1.4', variable='gmmprocm4dir', prefix="PANGO_")
-        conf.env["USE_GENERATED_CPP"] = False
+        conf.check_cfg(package='glibmm-2.4', variables='gmmprocdir', uselib_store='GLIBMM', mandatory=True)
+        conf.check_cfg(package='gtkmm-2.4', variables='gmmprocm4dir', uselib_store='GTK', mandatory=True)
+        conf.check_cfg(package='atkmm-1.6', variables='gmmprocm4dir', uselib_store='ATK', mandatory=True)
+        conf.check_cfg(package='pangomm-1.4', variables='gmmprocm4dir', uselib_store='PANGO', mandatory=True)
+        conf.check_cfg(package='pygobject-2.0', variables='codegendir', uselib_store='PYGOBJECT', mandatory=True)
+        env.USE_GENERATED_CPP = False
     else:
-        conf.env["USE_GENERATED_CPP"] = True
+        env.USE_GENERATED_CPP = True
     if opt.shared_lib or opt.lv2:
-        conf.env["GX_LIB_SHARED"] = True
+        env.GX_LIB_SHARED = True
     elif opt.standalone:
-        conf.env["GX_LIB_STATIC"] = True
+        env.GX_LIB_STATIC = True
     if opt.lib_dev:
-        conf.env["GX_LIB_SHARED"] = True
-        conf.env["GX_LIB_DEV"] = True
-        conf.env["GX_LIB_STATIC"] = False
+        env.GX_LIB_SHARED = True
+        env.GX_LIB_DEV = True
+        env.GX_LIB_STATIC = False
     if opt.no_ldconfig or opt.destdir:
-        conf.env["NO_LDCONFIG"] = True
+        env.NO_LDCONFIG = True
 
 
 def template2cc(task):
     src = task.inputs[0]
     dst = task.outputs[0]
+    env = task.env
     basename = os.path.splitext(src.name)[0]
     dst.delete(evict=False)
     private = dst.parent.make_node('private')
     private.mkdir()
     spath = src.parent.bldpath()
     dpath = dst.parent.bldpath()
-    cmd = ["%s/gmmproc" % task.env["GMMPROCDIR"],
+    cmd = ["%s/gmmproc" % env.GLIBMM_gmmprocdir,
            "--defs", dpath,
            "-I", spath,
-           "-I", "%s" % task.env["GTK_GMMPROCM4DIR"],
-           "-I", "%s" % task.env["ATK_GMMPROCM4DIR"],
-           "-I", "%s" % task.env["PANGO_GMMPROCM4DIR"],
+           "-I", "%s" % env.GTK_gmmprocm4dir,
+           "-I", "%s" % env.ATK_gmmprocm4dir,
+           "-I", "%s" % env.PANGO_gmmprocm4dir,
            basename,
            spath,
            dpath,
            ]
-    Logs.debug("runner: system command -> %s" % cmd)
     ret = task.exec_command(cmd, shell=False)
     if ret != 0:
         return ret
@@ -118,9 +120,8 @@ def header2defs(task):
     path = task.generator.path
     dst = task.outputs[0].bldpath()
     flt = task.inputs[0].bldpath()
-    cmd = ("python '%s'/h2def.py -f '%s' -m gxw %s > '%s'"
-           % (task.env["PYGOBJECT_codegendir"], flt, sources, dst))
-    Logs.debug("runner: system command -> %s" % cmd)
+    cmd = ("python2 '%s'/h2def.py -f '%s' -m gxw %s > '%s'"
+           % (task.env.PYGOBJECT_codegendir, flt, sources, dst))
     return task.exec_command(cmd, shell=True)
 
 def build_generate_wrapper(bld):
@@ -226,30 +227,20 @@ def build(bld):
         "portdisplay.hg",
         "playhead.hg",
         ]
+    env = bld.env
     bld(name='gxwmm_inc', export_includes=['..'], use='gxw_inc')
-    if not bld.env.GX_LIB_SHARED and not bld.env.GX_LIB_STATIC:
+    if not env.GX_LIB_SHARED and not env.GX_LIB_STATIC:
         return
     bld.add_group()
-    if bld.env.USE_GENERATED_CPP:
+    if env.USE_GENERATED_CPP:
         gdir = "../gxwmm-generated/"
         for v in sources:
-            s = v.replace(".hg", ".cc")
-            bld(name = "copy-generated-cc",
-                rule = "cp ${SRC} ${TGT}",
-                source = gdir + s,
-                target = s,
-                )
-            s = v.replace(".hg", ".h")
-            bld(name = "copy-generated-h",
-                rule = "cp ${SRC} ${TGT}",
-                source = gdir + s,
-                target = s,
-                )
-            s = v.replace(".hg", "_p.h")
-            bld(name = "copy-generated-p-h",
-                rule = "cp ${SRC} ${TGT}",
-                source = gdir + "private/" + s,
-                target = "private/" + s,
+            v = os.split_ext(v)[0]
+            for s in v+".cc", v+".h", "private/"+v+"_p.h":
+                bld(name = "copy-generated-cc",
+                    rule = "cp ${SRC} ${TGT}",
+                    source = gdir + s,
+                    target = s,
                 )
         bld(name = "copy-wrap_init",
             rule = "cp ${SRC} ${TGT}",
@@ -259,12 +250,12 @@ def build(bld):
         sources = [v.replace(".hg",".cc") for v in sources]
     else:
         bld(name = "wrap_init",
-            rule = bld.env.GMMPROCDIR+"/generate_wrap_init.pl --namespace=Gxw ${SRC} >${TGT}; cp ${TGT} ../libgxwmm/gxwmm-generated",
+            rule = "${GLIBMM_gmmprocdir}/generate_wrap_init.pl --namespace=Gxw ${SRC} >${TGT}; cp ${TGT} ../libgxwmm/gxwmm-generated",
             source = sources,
             target = "wrap_init.cc",
             )
         build_generate_wrapper(bld)
-    if bld.env.GX_LIB_SHARED:
+    if env.GX_LIB_SHARED:
         bld.shlib(
             name = 'gxwmm',
             vnum = "0.1",
@@ -274,7 +265,7 @@ def build(bld):
             use = ['GTKMM','gxw'],
             target = 'gxwmm',
             )
-        if not bld.env.NO_LDCONFIG:
+        if not env.NO_LDCONFIG:
             if bld.is_install and not Options.options.destdir \
                and not Options.options.no_ldconfig and os.geteuid() == 0:
                 bld.add_post_fun_ignore_errors(

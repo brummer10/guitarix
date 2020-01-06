@@ -17,10 +17,13 @@ def configure(conf):
         return
     conf.env.GX_PYTHON_WRAPPER = True
     conf.env.GXW_SHARED = True
+    conf.load('python')
     conf.check_python_headers()
-    conf.check_cfg(package='pygtk-2.0', args='--cflags --libs', uselib_store='PYGTK' ,mandatory=True)
-    conf.cfg_get_variable(package='pygtk-2.0', variable='defsdir')
     conf.check_python_module("numpy")
+    conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
+    conf.check_cfg(package='pygobject-2.0', variables='codegendir', uselib_store='PYGOBJECT', mandatory=True)
+    conf.check_cfg(package='pygtk-2.0', args='--cflags --libs', uselib_store='PYGTK', mandatory=True)
+    conf.check_cfg(package='pygtk-2.0', variables='defsdir', uselib_store='PYGTK', mandatory=True)
 
 def h2defs(task):
     sources = " ".join(["'%s'" % v.bldpath() for v in task.inputs])
@@ -28,16 +31,15 @@ def h2defs(task):
     lib = path.find_resource(task.generator.lib).bldpath()
     fltr = path.find_resource(task.generator.filter).bldpath()
     dst = task.outputs[0].bldpath()
-    cmd = ("python '%s'/defsgen.py -m gx -l %s -f '%s' %s > '%s' && cat '%s' >> '%s'"
+    cmd = ("python2 '%s'/defsgen.py -m gx -l %s -f '%s' %s > '%s' && cat '%s' >> '%s'"
            % (task.env.PYGOBJECT_codegendir, lib, fltr, sources, dst, fltr, dst))
-    Logs.debug("runner: system command -> %s" % cmd)
     return task.exec_command(cmd, shell=True)
 
 def defs2c(task):
     ovr = task.inputs[0].bldpath()
     src = task.inputs[1].bldpath()
     dst = task.outputs[0].bldpath()
-    defsdir = task.env.DEFSDIR
+    defsdir = task.env.PYGTK_defsdir
     cmd = ("pygobject-codegen-2.0"
            " --prefix gxw"
            " --register '%s'/gdk-types.defs"
@@ -47,7 +49,6 @@ def defs2c(task):
            " '%s'"
            " > '%s'"
            % (defsdir, defsdir, ovr, dst, src, dst))
-    Logs.debug("runner: system command -> %s" % cmd)
     return task.exec_command(cmd,shell=True)
 
 def build(bld):
@@ -95,9 +96,9 @@ def build(bld):
         after = "h2defs",
         )
     bld.add_group()
-    prog = bld(
+    prog = bld.shlib(
         name = 'pygxw',
-        features = ['c','cxx','pyext','cshlib'],
+        features = ['pyext'],
         source = ['gxw.c','gxw-module.c'],
         target = 'gxw',
         use = ['PYGOBJECT','PYGTK','GTK2','gxw'],
