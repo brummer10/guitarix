@@ -235,7 +235,7 @@ def build(bld):
     if env.USE_GENERATED_CPP:
         gdir = "../gxwmm-generated/"
         for v in sources:
-            v = os.split_ext(v)[0]
+            v = os.path.splitext(v)[0]
             for s in v+".cc", v+".h", "private/"+v+"_p.h":
                 bld(name = "copy-generated-cc",
                     rule = "cp ${SRC} ${TGT}",
