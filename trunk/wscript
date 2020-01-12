@@ -402,7 +402,7 @@ def configure(conf):
     # config subdirs
     conf.recurse('pygxw')
     conf.recurse('glade-gxw')
-    if conf.env['STANDALONE'] or conf.env['LV2GUI'] or conf.env.NEW_LADSPA:
+    if conf.env['STANDALONE'] or conf.env['LV2GUI'] or conf.env.NEW_LADSPA or conf.env.GX_PYTHON_WRAPPER:
         conf.recurse('libgxwmm')
         conf.recurse('libgxw/gxw')
         conf.recurse('rcstyles')
