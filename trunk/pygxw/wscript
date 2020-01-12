@@ -18,38 +18,19 @@ def configure(conf):
     conf.env.GX_PYTHON_WRAPPER = True
     conf.env.GXW_SHARED = True
     conf.load('python')
-    conf.check_python_headers()
+    conf.check_python_headers(features='pyext')
+    if conf.env.PYTHON_VERSION[0] != '3':
+        raise conf.errors.WafError(
+            'need Python version 3; please use "python3 waf configure ..."'
+            ' or supply the executable path in environment variable PYTHON')
     conf.check_python_module("numpy")
     conf.check_cfg(package='pygobject-2.0', args='--cflags --libs', uselib_store='PYGOBJECT', mandatory=True)
-    conf.check_cfg(package='pygobject-2.0', variables='codegendir', uselib_store='PYGOBJECT', mandatory=True)
+    conf.check_cfg(package='pygobject-2.0', variables='codegendir', uselib_store='PYGOBJECT', mandatory=True, quiet=True)
     conf.check_cfg(package='pygtk-2.0', args='--cflags --libs', uselib_store='PYGTK', mandatory=True)
-    conf.check_cfg(package='pygtk-2.0', variables='defsdir', uselib_store='PYGTK', mandatory=True)
-
-def h2defs(task):
-    sources = " ".join(["'%s'" % v.bldpath() for v in task.inputs])
-    path = task.generator.path
-    lib = path.find_resource(task.generator.lib).bldpath()
-    fltr = path.find_resource(task.generator.filter).bldpath()
-    dst = task.outputs[0].bldpath()
-    cmd = ("python2 '%s'/defsgen.py -m gx -l %s -f '%s' %s > '%s' && cat '%s' >> '%s'"
-           % (task.env.PYGOBJECT_codegendir, lib, fltr, sources, dst, fltr, dst))
-    return task.exec_command(cmd, shell=True)
-
-def defs2c(task):
-    ovr = task.inputs[0].bldpath()
-    src = task.inputs[1].bldpath()
-    dst = task.outputs[0].bldpath()
-    defsdir = task.env.PYGTK_defsdir
-    cmd = ("pygobject-codegen-2.0"
-           " --prefix gxw"
-           " --register '%s'/gdk-types.defs"
-           " --register '%s'/gtk-types.defs"
-           " --override '%s'"
-           " --outfilename '%s'"
-           " '%s'"
-           " > '%s'"
-           % (defsdir, defsdir, ovr, dst, src, dst))
-    return task.exec_command(cmd,shell=True)
+    conf.check_cfg(package='pygtk-2.0', variables='defsdir', uselib_store='PYGTK', mandatory=True, quiet=True)
+    conf.check_cfg(package='gobject-introspection-1.0', mandatory=True)
+    conf.find_program('g-ir-scanner', mandatory=True)
+    conf.find_program('g-ir-compiler', mandatory=True)
 
 def build(bld):
     if not bld.env.GX_PYTHON_WRAPPER:
@@ -82,25 +63,24 @@ def build(bld):
                "GxValueDisplay.h",
                "GxRackTuner.h",
                ]
-    bld(name = "h2defs",
-        target = "gxw.defs",
-        rule = h2defs,
-        source = ["../libgxw/gxw/"+v for v in sources],
-        lib = "../libgxw/gxw/libgxw.so",
-        filter = "gxw-manual.defs",
+    glob = lambda n: bld.srcnode.ant_glob('libgxw/gxw/'+n)
+    bld.env.LIBRARY='libgxw/gxw/libgxw.so'
+    gir_name = "Gxw-0.1.gir"
+    bld(name = 'gxw_gir',
+        rule = (
+            "g-ir-scanner --namespace=Gxw --nsversion=0.1 --library ${LIBRARY}"
+	    "  --symbol-prefix=gx_ --symbol-prefix=gxw_ --identifier-prefix=Gx"
+	    "  $(pkg-config gtk+-3.0 --cflags --libs)"
+	    "  -Llibgxw/gxw -lgxw"
+	    "  --include Gtk-3.0"
+	    "  --output=${TGT}"
+            "  ${SRC}"
+            ),
+        source = glob('gxinit.*')+glob('Gx*.cpp')+glob('Gx*.h'),
+        target = gir_name,
         )
-    bld(name="defs2c",
-        target = "gxw.c",
-        rule = defs2c,
-        source = ['gxw.override','gxw.defs'],
-        after = "h2defs",
-        )
-    bld.add_group()
-    prog = bld.shlib(
-        name = 'pygxw',
-        features = ['pyext'],
-        source = ['gxw.c','gxw-module.c'],
-        target = 'gxw',
-        use = ['PYGOBJECT','PYGTK','GTK2','gxw'],
-        ccflags = ["-g"],
+    bld(name = 'gxw_typelib',
+        rule = 'g-ir-compiler ${SRC} --output=${TGT}',
+        source = gir_name,
+        target = gir_name.replace('.gir','.typelib'),
         )
