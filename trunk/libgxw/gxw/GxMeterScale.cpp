@@ -43,10 +43,10 @@ GType gx_tick_position_get_type(void)
 	static GType etype = 0;
 	if (G_UNLIKELY(etype == 0)) {
 		static const GEnumValue values[] = {
-			{ GX_TICK_LEFT, "TICK_LEFT", "tick left" },
-			{ GX_TICK_RIGHT,"TICK_RIGHT","tick right"},
-			{ GX_TICK_BOTH, "TICK_BOTH", "tick both" },
-			{ GX_TICK_BELOW,"TICK_BELOW","tick below"},
+			{ GX_TICK_LEFT, "TICK_LEFT", "left" },
+			{ GX_TICK_RIGHT,"TICK_RIGHT","right"},
+			{ GX_TICK_BOTH, "TICK_BOTH", "both" },
+			{ GX_TICK_BELOW,"TICK_BELOW","below"},
 			{ 0, NULL, NULL }
 		};
 		etype = g_enum_register_static (g_intern_static_string ("GxTickPosition"), values);
