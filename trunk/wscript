@@ -17,7 +17,7 @@ srcdir = '.'
 blddir = 'build'
 
 # used by waf dist and waf build
-VERSION='0.38.1git'
+VERSION='0.39.0'
 APPNAME='guitarix'
 
 Options.OptionsContext.gxload = \
