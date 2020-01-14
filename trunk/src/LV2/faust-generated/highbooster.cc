@@ -72,7 +72,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst3 = (0.0 - (1.0 / (fConst2 * fConst0)));
 	fConst4 = (1.0 / fConst2);
 	fConst5 = (1.0 - fConst1);
-	fVslider0 = FAUSTFLOAT(0.0);
+	fVslider0 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
@@ -107,7 +107,7 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case LEVEL: 
-		fVslider0_ = (float*)data; // , 0.0, 0.5, 20.0, 0.5 
+		fVslider0_ = (float*)data; // , 0.5, 0.0, 20.0, 0.5 
 		break;
 	default:
 		break;
