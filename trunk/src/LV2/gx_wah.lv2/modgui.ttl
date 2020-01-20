@@ -1,2 +1,0 @@
-@prefix modgui: <http://moddevices.com/ns/modgui#> .
-@prefix lv2:    <http://lv2plug.in/ns/lv2core#> .
