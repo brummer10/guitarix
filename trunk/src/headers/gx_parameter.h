@@ -106,7 +106,7 @@ class FileParameter;
 class Parameter: boost::noncopyable {
 public:
     enum ctrl_type { None, Continuous, Switch, Enum };
-    enum toggle_type { OnOff = 0, Constant = 1, _Count = 2 };
+    enum toggle_type { OnOff = 0, Constant = 1, Toggle = 2, _Count = 3 };
 private:
     virtual bool midi_set(float n, float high, float llimit, float ulimit); //RT
     virtual bool midi_set_bpm(float n, float high, float llimit, float ulimit); //RT

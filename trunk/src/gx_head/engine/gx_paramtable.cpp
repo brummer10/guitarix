@@ -326,6 +326,14 @@ bool MidiController::set_midi(int n, int last_value, bool update) {
                 }
                 break;
             }
+            case Parameter::toggle_type::Toggle: {
+                if (param->on_off_value() && !n) {
+                    ret = param->midi_set(0, 127, _lower, _upper);
+                } else {
+                    ret = param->midi_set(127, 127, _lower, _upper);
+                }
+                break;
+            }
         }
     } else {
         //fprintf(stderr,"continues %s \n",param->id().c_str());
