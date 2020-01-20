@@ -88,7 +88,7 @@ subdirs = [
     'gx_mole.lv2',
     'gx_rangem.lv2',
     'gx_hogsfoot.lv2',
-    'gx_wah.lv2',
+    'gx_colwah.lv2',
     'gx_gcb_95.lv2',
     'gx_aclipper.lv2',
     'gx_bmp.lv2',
