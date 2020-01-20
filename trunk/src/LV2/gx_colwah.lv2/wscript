@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import sys
+
+def configure(conf):
+    pass
+
+def build(bld):
+    bundle = 'gx_colwah.lv2'
+
+    src = ['gx_colwah.cpp'
+           ]
+    incl = ['../faust','./', '../DSP']
+    lib = []
+    if sys.platform.startswith("linux"):
+        lib.append('dl')
+    uselib = ['LV2CORE']
+    cxxflag =[]
+    if not bld.env['OPT'] and bld.env['SSE2']:
+        cxxflag = [ "-msse2", "-mfpmath=sse"]
+    lv2_effects = bld.shlib(
+        includes = incl,
+        lib = lib,
+        uselib = uselib,
+        obj_ext  = '_14.o',
+        cxxflags = cxxflag,
+        defines  = ["LV2_SO"],
+        target   = 'gx_colwah',
+        source   = src,
+        install_path = '${LV2DIR}/%s' % bundle,
+        chmod = 0o755,
+        )
+    lv2_effects.env['cxxshlib_PATTERN'] = '%s.so'
+
+    if bld.env['LV2GUI']:
+        libpath1 = []
+        lib1 = []
+        incl = []
+        if sys.platform.startswith("linux"):
+            lib1.append('dl')
+
+        lv2_plugin_gui = bld.shlib(
+            includes = incl,
+            lib = lib1,
+            libpath = libpath1,
+            use = ['gxwmm','LV2CORE','GTKMM'],
+            linkflags = '-Wl,-z,nodelete',
+            defines  = ["LV2_GUI"],
+            target   = 'gx_colwah_gui',
+            source   = 'widget.cpp gx_colwah_gui.cpp',
+            install_path = '${LV2DIR}/%s' % bundle,
+            chmod = 0o755,
+            )
+        lv2_plugin_gui.env['cxxshlib_PATTERN'] = '%s.so'
+
+    install_path = '${LV2DIR}/%s' % bundle,
+    if bld.env['MODGUI']:
+        bld.install_files('${LV2DIR}/gx_colwah.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
+        bld.install_files('${LV2DIR}/gx_colwah.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
+    else:
+        bld.install_files('${LV2DIR}/gx_colwah.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
