@@ -31,6 +31,7 @@ static void gx_small_knob_class_init(GxSmallKnobClass *klass)
 		                   P_("Inset of the arc around the knob"),
 		                 0, 100, 0, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	klass->parent_class.stock_id = "smallknob";
+	gtk_widget_class_set_css_name(widget_class, "gx-small-knob");
 }
 
 static void gx_small_knob_init(GxSmallKnob *small_knob)
