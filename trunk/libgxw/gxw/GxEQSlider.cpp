@@ -93,7 +93,7 @@ static void gx_eq_slider_size_request (GtkWidget *widget, gint *width, gint *hei
 		*width = 0;
 		*height = slider_height / 2;
 	}
-	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
+	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, FALSE);
 }
 
 static void eq_slider_expose(

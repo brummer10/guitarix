@@ -85,7 +85,7 @@ static void gx_play_head_size_request (GtkWidget *widget, gint *width, gint *hei
 	GxPlayHead *phead   = GX_PLAYHEAD(widget);
 	*width  = phead->width;
 	*height = phead->height;
-	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
+	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, TRUE);
 }
 
 static gboolean gx_play_head_draw(GtkWidget *widget, cairo_t *cr)

@@ -1002,6 +1002,8 @@ void _gx_regler_simple_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle
                       rect->y, regler->priv->value_layout);
 }
 
+#define DISPLAY_BORDER_SIZE 2
+
 void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
 {
 	if (!regler->priv->show_value) {
@@ -1013,20 +1015,15 @@ void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
 	if (!show_value) {
 		return;
 	}
-	GtkBorder border;
-	get_value_border(widget, &border);
-	//gint inset = max(0, min(2, min(min(border.left-4, border.right-4), min(border.top-1, border.bottom-1))));
-	//gint frm = inset < 2 ? 0 : 1;
-	double x0 = rect->x;// + frm;
-	double y0 = rect->y;// + frm;
-	double w  = rect->width;// - 2 * frm;
-	double h  = rect->height;// - 2 * frm;
-	gint border_width = 2;
+	double x0 = rect->x + DISPLAY_BORDER_SIZE;
+	double y0 = rect->y + DISPLAY_BORDER_SIZE;
+	double w  = rect->width - 2 * DISPLAY_BORDER_SIZE;
+	double h  = rect->height - 2 * DISPLAY_BORDER_SIZE;
     gint rad;
     GtkStyleContext *sc = gtk_widget_get_style_context(widget);
     gtk_widget_style_get(widget, "border-radius", &rad, NULL);
 
-    gx_draw_inset(cr, x0, y0, w, h, rad, 2);
+    gx_draw_inset(cr, x0, y0, w, h, rad, DISPLAY_BORDER_SIZE);
     gtk_render_background(sc, cr, x0, y0, w, h);
     gx_draw_glass(cr, x0, y0, w, h, rad);
 
@@ -1045,23 +1042,33 @@ void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
     pango_cairo_show_layout(cr, l);
 }
 
-void _gx_regler_calc_size_request(GxRegler *regler, gint *out_width, gint *out_height)
+/*
+ * _gx_regler_calc_size_request()
+ * calculate size of value display and add it to *out_width and *out_height
+ *
+ * setting of with_border when using
+ *   _gx_regler_simple_display_value: false
+ *   _gx_regler_display_value():      true
+ *
+ * value-spacing shifts the displayed value (padding between regler and value display)
+ * to make acts as padding around the displayed value between border
+ *
+ * value-border is the padding around the displayed value (and inside the border when with_border is set)
+ */
+void _gx_regler_calc_size_request(GxRegler *regler, gint *out_width, gint *out_height, gboolean with_border)
 {
 	if (!regler->priv->show_value) {
 		return;
 	}
+	GtkStyleContext *style = gtk_widget_get_style_context(GTK_WIDGET(regler));
 	gboolean show_value;
-	gtk_widget_style_get(GTK_WIDGET(regler), "show-value", &show_value, NULL);
+	gtk_style_context_get_style(style, "show-value", &show_value, NULL);
 	if (!show_value) {
 		return;
 	}
 	gx_regler_ensure_layout(regler);
 	PangoRectangle logical_rect1, logical_rect2;
 	GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(regler));
-	GtkBorder border;
-	get_value_border(GTK_WIDGET(regler), &border);
-	gint value_spacing;
-	gtk_widget_style_get(GTK_WIDGET(regler), "value-spacing", &value_spacing, NULL);
 	gchar *txt;
 	ensure_digits(regler);
 	txt = _gx_regler_format_value(regler, gtk_adjustment_get_lower(adj));
@@ -1072,11 +1079,17 @@ void _gx_regler_calc_size_request(GxRegler *regler, gint *out_width, gint *out_h
 	pango_layout_set_text(regler->priv->value_layout, txt, -1);
 	g_free(txt);
 	pango_layout_get_pixel_extents(regler->priv->value_layout, NULL, &logical_rect2);
-	gint height = max(logical_rect1.height,logical_rect2.height) + border.top + border.bottom;
-	gint width = max(logical_rect1.width,logical_rect2.width) + border.left + border.right;
+	GtkBorder border;
+	get_value_border(style, &border);
+	gint height = max(logical_rect1.height,logical_rect2.height)
+	    + border.top + border.bottom + 2 * DISPLAY_BORDER_SIZE;
+	gint width = max(logical_rect1.width,logical_rect2.width)
+	    + border.left + border.right + 2 * DISPLAY_BORDER_SIZE;
 	GxReglerPrivate *priv = regler->priv;
 	priv->value_req.width = width;
 	priv->value_req.height = height;
+	gint value_spacing;
+	gtk_style_context_get_style(style, "value-spacing", &value_spacing, NULL);
 	switch (regler->priv->value_position) {
 	case GTK_POS_LEFT:
 	case GTK_POS_RIGHT:

@@ -134,7 +134,7 @@ static void gx_wheel_vertical_size_request (GtkWidget *widget, gint *width, gint
     get_image_dimensions (widget, wb, &rect, &fcount);
     *width = rect.width;
     *height = rect.height;
-    _gx_regler_calc_size_request(GX_REGLER(widget), width, height);
+    _gx_regler_calc_size_request(GX_REGLER(widget), width, height, TRUE);
     g_object_unref(wb);
 }
 

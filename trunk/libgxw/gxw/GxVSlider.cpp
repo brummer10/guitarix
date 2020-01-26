@@ -90,7 +90,7 @@ static void gx_vslider_size_request (GtkWidget *widget, gint *width, gint *heigh
     GxVSlider *slider   = GX_VSLIDER(widget);
     *width  = slider->width;
     *height = slider->height;
-    _gx_regler_calc_size_request(GX_REGLER(widget), width, height);
+    _gx_regler_calc_size_request(GX_REGLER(widget), width, height, TRUE);
 }
 
 static gboolean gx_vslider_draw(GtkWidget *widget, cairo_t *cr)

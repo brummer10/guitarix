@@ -55,7 +55,7 @@ struct _GxReglerClass {
 
 GType gx_regler_get_type(void);
 
-void _gx_regler_calc_size_request(GxRegler *regler, gint *width, gint *height);
+void _gx_regler_calc_size_request(GxRegler *regler, gint *width, gint *height, gboolean with_border);
 gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step);
 void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
                               GdkRectangle *value_rect);

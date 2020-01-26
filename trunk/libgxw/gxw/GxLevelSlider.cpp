@@ -87,7 +87,7 @@ static void gx_level_slider_size_request (GtkWidget *widget, gint *width, gint *
 											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	*width = gdk_pixbuf_get_width(pb);
 	*height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
-	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
+	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, FALSE);
 	g_object_unref(pb);
 }
 

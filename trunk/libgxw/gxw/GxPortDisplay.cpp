@@ -84,7 +84,7 @@ static void gx_port_display_size_request (GtkWidget *widget, gint *width, gint *
 											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	*height = 2+gdk_pixbuf_get_height(pb);
 	*width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
-	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
+	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, FALSE);
 	g_object_unref(pb);
 }
 

@@ -465,7 +465,7 @@ static void gx_knob_size_request (GtkWidget *widget, gint *width, gint *height)
 		get_image_dimensions (widget, pb, &rect, &fcount);
 		*width = rect.width;
 		*height = rect.height;
-		_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
+		_gx_regler_calc_size_request(GX_REGLER(widget), width, height, TRUE);
 		g_object_unref(pb);
 	}
 }

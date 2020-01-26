@@ -69,7 +69,7 @@ static void gx_value_display_size_request(GtkWidget *widget, gint *width, gint *
 	g_assert(GX_IS_VALUE_DISPLAY(widget));
 	*width = 0;
 	*height = 0;
-	_gx_regler_calc_size_request(GX_REGLER(widget), width, height);
+	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, TRUE);
 }
 
 #define FILL_ALLOCATION_WIDTH
