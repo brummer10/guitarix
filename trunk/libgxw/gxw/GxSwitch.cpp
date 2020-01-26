@@ -27,19 +27,19 @@
 
 struct _GxSwitchPrivate {
 	gchar *var_id;
+	gchar *base_name;
 	GtkLabel *label;
 };
 
 enum {
 	PROP_VAR_ID = 1,
-	PROP_LABEL_REF,
 	PROP_BASE_NAME,
-	PROP_IMAGE,
+	PROP_LABEL_REF,
 };
 
 static void gx_control_parameter_interface_init (GxControlParameterIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE(GxSwitch, gx_switch, GTK_TYPE_TOGGLE_BUTTON,
+G_DEFINE_TYPE_WITH_CODE(GxSwitch, gx_switch, GTK_TYPE_CHECK_BUTTON,
                         G_ADD_PRIVATE(GxSwitch)
                         G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
                                               gx_control_parameter_interface_init));
@@ -51,7 +51,6 @@ static void gx_switch_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_switch_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
-static gboolean gx_switch_draw(GtkWidget *widget, cairo_t* cr);
 static gboolean gx_switch_scroll_event(GtkWidget *widget, GdkEventScroll *event);
 static void gx_switch_style_set(GtkWidget *widget, GtkStyle *previous_style);
 
@@ -91,7 +90,6 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 
 	gobject_class->set_property = gx_switch_set_property;
 	gobject_class->get_property = gx_switch_get_property;
-	widget_class->draw = gx_switch_draw;
 	widget_class->scroll_event = gx_switch_scroll_event;
 	widget_class->destroy = gx_switch_destroy;
 	widget_class->style_set = gx_switch_style_set;
@@ -101,6 +99,13 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 			"var-id", P_("Variable"),
 			P_("The id of the linked variable"),
 			NULL, GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
+	g_object_class_install_property (
+		gobject_class, PROP_BASE_NAME,
+		g_param_spec_string("base-name",
+							P_("css class name"),
+							P_("button image should be set in css"),
+							NULL,
+							GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	g_object_class_install_property(
 		gobject_class, PROP_LABEL_REF,
 		g_param_spec_object("label-ref",
@@ -108,15 +113,6 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 		                    P_("GtkLabel for caption"),
 		                    GTK_TYPE_LABEL,
 		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
-	g_object_class_install_property(
-		gobject_class, PROP_BASE_NAME,
-		g_param_spec_string("base-name",
-		                    P_("Image base name"),
-		                    P_("Base name of the image, append \"_on\" and \"_off\" for the stock names"),
-		                    "",
-		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
-	//g_object_class_override_property(gobject_class, PROP_VAR_ID, "var-id");
-	g_object_class_override_property(gobject_class, PROP_IMAGE, "image");
 }
 
 /*
@@ -275,35 +271,6 @@ static void button_paint(
 	}
 }
 
-static gboolean gx_switch_draw(GtkWidget *widget, cairo_t *cr)
-{
-	if (gtk_widget_is_drawable (widget)) {
-		GtkWidget *child = gtk_bin_get_child(GTK_BIN (widget));
-		GtkButton *button = GTK_BUTTON (widget);
-		GtkStateFlags state_flags;
-		GtkShadowType shadow_type;
-
-		state_flags = gtk_widget_get_state_flags(widget);
-
-		if (gtk_toggle_button_get_inconsistent(GTK_TOGGLE_BUTTON (widget))) {
-			if (state_flags == GTK_STATE_FLAG_ACTIVE) {
-				state_flags = GTK_STATE_FLAG_NORMAL;
-			}
-			shadow_type = GTK_SHADOW_ETCHED_IN;
-		} else {
-			shadow_type = state_flags == GTK_STATE_FLAG_ACTIVE ? GTK_SHADOW_IN : GTK_SHADOW_OUT;
-		}
-		button_paint(cr, button, state_flags, shadow_type,
-		             "togglebutton", "togglebuttondefault");
-
-		if (child) {
-			gtk_container_propagate_draw(GTK_CONTAINER(widget), child, cr);
-		}
-	}
-
-	return FALSE;
-}
-
 /****************************************************************
  ** init the Switch type/size
  */
@@ -312,8 +279,12 @@ static void gx_switch_init(GxSwitch *swtch)
 {
 	swtch->priv = GX_SWITCH_GET_PRIVATE(swtch);
 	swtch->priv->var_id = NULL;
+	swtch->priv->base_name = 0;
 	swtch->priv->label = NULL;
+	gx_switch_set_base_name(swtch, "switch");
 	//GTK_BUTTON(swtch)->relief = GTK_RELIEF_NONE;
+	gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(swtch)), "gx_switch");
+	gtk_toggle_button_set_mode(GTK_TOGGLE_BUTTON(swtch), TRUE);
 }
 
 /****************************************************************
@@ -325,6 +296,8 @@ static void gx_switch_destroy(GtkWidget *object)
 		g_object_unref(swtch->priv->label);
 		swtch->priv->label = 0;
 	}
+	g_free(swtch->priv->base_name);
+	swtch->priv->base_name = 0;
 	g_free(swtch->priv->var_id);
 	swtch->priv->var_id = 0;
 	GTK_WIDGET_CLASS(gx_switch_parent_class)->destroy (object);
@@ -375,35 +348,37 @@ GtkLabel *gx_switch_get_label_ref(GxSwitch *swtch)
 void gx_switch_set_base_name(GxSwitch *swtch, const char *base_name)
 {
 	g_return_if_fail(GX_IS_SWITCH(swtch));
-	GtkWidget *img = gtk_button_get_image(GTK_BUTTON(swtch));
-	if (img && GX_IS_TOGGLE_IMAGE(img)) {
-		const gchar *old = gx_toggle_image_get_base_name(GX_TOGGLE_IMAGE(img));
-		if (!base_name || !*base_name) {
-			gtk_button_set_image(GTK_BUTTON(swtch), NULL);
-		} else if (old && strcmp(old, base_name) == 0) {
-			return;
-		}
-		gx_toggle_image_set_base_name(GX_TOGGLE_IMAGE(img), base_name);
-	} else {
-		if (!base_name || !*base_name) {
-			return;
-		}
-		gtk_button_set_image(GTK_BUTTON(swtch),
-		                     GTK_WIDGET(g_object_new(GX_TYPE_TOGGLE_IMAGE, "base-name",
-		                                             base_name, NULL)));
+	if (!base_name) {
+		base_name = "";
 	}
+	if (swtch->priv->base_name && strcmp(swtch->priv->base_name, base_name) == 0) {
+		return;
+	}
+	char *old = swtch->priv->base_name;
+	GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(swtch));
+	swtch->priv->base_name = g_strdup(base_name);
+	if (*base_name) {
+		char buffer[100] = "gx_sw_";
+		strncat(buffer, base_name, sizeof buffer);
+		gtk_style_context_add_class(context, buffer);
+	}
+	if (!old) {
+		return;
+	}
+	if (*old) {
+		char buffer[100] = "gx_sw_";
+		strncat(buffer, old, sizeof buffer);
+		gtk_style_context_remove_class(context, buffer);
+	}
+	g_free(old);
 	gtk_widget_queue_resize(GTK_WIDGET(swtch));
 	g_object_notify(G_OBJECT(swtch), "base-name");
 }
 
 const char *gx_switch_get_base_name(GxSwitch *swtch)
 {
-	GtkWidget *img = gtk_button_get_image(GTK_BUTTON(swtch));
-	if (img && GX_IS_TOGGLE_IMAGE(img)) {
-		return gx_toggle_image_get_base_name(GX_TOGGLE_IMAGE(img));
-	} else {
-		return g_strdup("");
-	}
+	g_return_val_if_fail(GX_IS_SWITCH(swtch), "");
+	return swtch->priv->base_name;
 }
 
 static void
@@ -420,13 +395,11 @@ gx_switch_set_property (GObject *object, guint prop_id, const GValue *value,
 		g_object_notify(object, "var-id");
 		break;
 	}
-	case PROP_LABEL_REF:
-		gx_switch_set_label_ref(swtch, GTK_LABEL(g_value_get_object(value)));
-		break;
 	case PROP_BASE_NAME:
 		gx_switch_set_base_name(swtch, g_value_get_string(value));
 		break;
-	case PROP_IMAGE:
+	case PROP_LABEL_REF:
+		gx_switch_set_label_ref(swtch, GTK_LABEL(g_value_get_object(value)));
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -444,20 +417,11 @@ gx_switch_get_property(GObject *object, guint prop_id, GValue *value,
 	case PROP_VAR_ID:
 		g_value_set_string(value, swtch->priv->var_id);
 		break;
+	case PROP_BASE_NAME:
+		g_value_set_string(value, swtch->priv->base_name);
+		break;
 	case PROP_LABEL_REF:
 		g_value_set_object(value, swtch->priv->label);
-		break;
-	case PROP_BASE_NAME: {
-		GtkWidget *img = gtk_button_get_image(GTK_BUTTON(object));
-		if (img && GX_IS_TOGGLE_IMAGE(img)) {
-			g_object_get_property(G_OBJECT(img), pspec->name, value);
-		} else {
-			g_value_set_string(value, "");
-		}
-		break;
-	}
-	case PROP_IMAGE:
-		g_value_set_object(value, 0);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

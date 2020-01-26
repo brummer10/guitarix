@@ -35,12 +35,12 @@ typedef struct _GxSwitchPrivate GxSwitchPrivate;
 typedef struct _GxSwitchClass GxSwitchClass;
 
 struct _GxSwitch {
-	GtkToggleButton parent;
+	GtkCheckButton parent;
 	GxSwitchPrivate* priv;
 };
 
 struct _GxSwitchClass {
-	GtkToggleButtonClass parent_class;
+	GtkCheckButtonClass parent_class;
 };
 
 GType gx_switch_get_type(void);
