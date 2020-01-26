@@ -841,59 +841,79 @@ gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step)
 }
 
 void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
-                              GdkRectangle *value_rect)
+                              GdkRectangle *value_rect, gboolean hfill)
 {
 	GtkWidget *widget = GTK_WIDGET(regler);
+	GtkStyleContext *style = gtk_widget_get_style_context(widget);
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(widget, &allocation);
 	gint x = 0;
 	gint y = 0;
-	gint width = image_rect->width;
-	gint height =  image_rect->height;
+	gint width = 0;
+	gint height =  0;
+	if (image_rect) {
+	    width = image_rect->width;
+	    height = image_rect->height;
+	}
 	gboolean show_value;
-	gtk_widget_style_get(widget, "show-value", &show_value, NULL);
+	gtk_style_context_get_style(style, "show-value", &show_value, NULL);
 	if (regler->priv->show_value && show_value) {
 		GxReglerPrivate *priv = regler->priv;
 		gint text_width = priv->value_req.width;
 		gint text_height = priv->value_req.height;
 		gint text_x = 0, text_y = 0;
 		gint value_spacing;
-		gtk_widget_style_get(widget, "value-spacing", &value_spacing, NULL);
+		gtk_style_context_get_style(style, "value-spacing", &value_spacing, NULL);
 		switch (priv->value_position) {
 		case GTK_POS_LEFT:
 			text_x = x + (allocation.width - width - text_width - value_spacing) / 2;
 			text_y = y + (allocation.height - text_height) / 2;
-			image_rect->x = x + (allocation.width - width + text_width + value_spacing) / 2;
-			image_rect->y = y + (allocation.height - height) / 2;
+			if (image_rect) {
+			    image_rect->x = x + (allocation.width - width + text_width + value_spacing) / 2;
+			    image_rect->y = y + (allocation.height - height) / 2;
+			}
 			break;
 		case GTK_POS_RIGHT:
 			text_x = x + value_spacing + (allocation.width + width - text_width - value_spacing) / 2;
 			text_y = y + (allocation.height - text_height) / 2;
-			image_rect->x = x + (allocation.width - width - text_width - value_spacing) / 2;
-			image_rect->y = y + (allocation.height - height) / 2;
+			if (image_rect) {
+			    image_rect->x = x + (allocation.width - width - text_width - value_spacing) / 2;
+			    image_rect->y = y + (allocation.height - height) / 2;
+			}
 			break;
 		case GTK_POS_TOP:
 			text_x = x + (allocation.width - text_width) / 2;
 			text_y = y + (allocation.height - height - text_height - value_spacing) / 2;
-			image_rect->x = x + (allocation.width - width) / 2;
-			image_rect->y = y + (allocation.height - height + text_height + value_spacing) / 2;
+			if (image_rect) {
+			    image_rect->x = x + (allocation.width - width) / 2;
+			    image_rect->y = y + (allocation.height - height + text_height + value_spacing) / 2;
+			}
 			break;
 		case GTK_POS_BOTTOM:
 			text_x = x + (allocation.width - text_width) / 2;
 			text_y = y + value_spacing + (allocation.height + height - text_height - value_spacing) / 2;
-			image_rect->x = x + (allocation.width - width) / 2;
-			image_rect->y = y + (allocation.height - height - text_height - value_spacing) / 2;
+			if (image_rect) {
+			    image_rect->x = x + (allocation.width - width) / 2;
+			    image_rect->y = y + (allocation.height - height - text_height - value_spacing) / 2;
+			}
 			break;
 		}
 		if (value_rect) {
+		    if (hfill) {
+			value_rect->x = 0;
+			value_rect->width = allocation.width;
+		    } else {
 			value_rect->x = text_x;
-			value_rect->y = text_y;
 			value_rect->width = text_width;
-			value_rect->height = text_height;
+		    }
+		    value_rect->y = text_y;
+		    value_rect->height = text_height;
 		}
 	} else {
+	    if (image_rect) {
 		image_rect->x = x + (allocation.width - width) / 2;
 		image_rect->y = y + (allocation.height - height) / 2;
+	    }
 		if (value_rect) {
 			value_rect->x = value_rect->y = value_rect->width = value_rect->height = 0;
 		}
@@ -997,9 +1017,11 @@ void _gx_regler_simple_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle
     pango_layout_set_text(l, txt, -1);
     g_free (txt);
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
-    gtk_render_layout(gtk_widget_get_style_context(widget), cr,
-                      rect->x + (rect->width - logical_rect.width) / 2,
-                      rect->y, regler->priv->value_layout);
+    GtkBorder border;
+    get_value_border(style, &border);
+    gtk_render_layout(style, cr,
+                      rect->x + (rect->width - logical_rect.width + border.left - border.right) / 2,
+                      rect->y + border.top, regler->priv->value_layout);
 }
 
 #define DISPLAY_BORDER_SIZE 2
@@ -1036,9 +1058,11 @@ void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
     g_free(txt);
     PangoRectangle logical_rect;
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
-    gdouble off = border_width + border.left + regler->priv->value_xalign *
-		(rect->width - logical_rect.width - (2*border_width + border.left + border.right));
-    cairo_move_to(cr, x0-1+off, y0+3);
+    GtkBorder border;
+    get_value_border(style, &border);
+    gdouble off = border.left + regler->priv->value_xalign *
+		(w - logical_rect.width - (border.left + border.right));
+    cairo_move_to(cr, x0+off, y0+border.top);
     pango_cairo_show_layout(cr, l);
 }
 

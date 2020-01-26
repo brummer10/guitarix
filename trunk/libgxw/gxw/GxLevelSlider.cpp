@@ -113,7 +113,7 @@ static gboolean gx_level_slider_draw(GtkWidget *widget, cairo_t *cr)
 	image_rect.width = gdk_pixbuf_get_width(pb);
 	image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
 	gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.height-slider_height);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 	level_slider_expose(widget, cr, &image_rect, sliderstate, pb);
 	_gx_regler_simple_display_value(GX_REGLER(widget), cr, &value_rect);
 	g_object_unref(pb);
@@ -168,7 +168,7 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
 	gtk_widget_get_allocation(widget, &allocation);
 	x += allocation.x;
 	y += allocation.y;
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 	if (!drag && !_approx_in_rectangle(x, y, &image_rect)) {
 		return FALSE;
 	}

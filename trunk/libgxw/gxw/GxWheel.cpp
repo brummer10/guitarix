@@ -91,7 +91,7 @@ static gboolean gx_wheel_draw (GtkWidget *widget, cairo_t *cr)
 		
 		wheelstate = _gx_regler_get_step_pos(regler, 1);
 		get_image_dimensions (widget, wb, &image_rect, &fcount);
-		_gx_regler_get_positions(regler, &image_rect, &value_rect);
+		_gx_regler_get_positions(regler, &image_rect, &value_rect, false);
 		
 		fcount--; // zero based index
 		findex = (int)(fcount * wheelstate);
@@ -113,7 +113,7 @@ static gboolean gx_wheel_draw (GtkWidget *widget, cairo_t *cr)
 
 		gint step = gdk_pixbuf_get_width(ws) / 2;
 		wheelstate = _gx_regler_get_step_pos(regler, step);
-		_gx_regler_get_positions(regler, &image_rect, &value_rect);
+		_gx_regler_get_positions(regler, &image_rect, &value_rect, false);
 		GtkAdjustment *adj = gtk_range_get_adjustment(GTK_RANGE(widget));
 		int smoth_pointer = 0;
 		if (wheelstate > (gtk_adjustment_get_upper(adj) - gtk_adjustment_get_lower(adj))) {
@@ -197,7 +197,7 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 	x += allocation.x;
 	y += allocation.y;
 
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 	if (!drag) {
 		GdkRectangle *rect = NULL;
 		if (_approx_in_rectangle(x, y, &image_rect)) {

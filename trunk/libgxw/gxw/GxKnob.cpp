@@ -166,7 +166,7 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
                                  "ring_led_distance", &ring_led_distance,
                                  "ring_width", &ring_width, "ring_led_size", &ring_led_size,
                                  "x_center", &x_center, "y_center", &y_center, NULL);
-	
+
     GtkStyleContext *style = gtk_widget_get_style_context(widget);
     // foreground and background color
     GdkRGBA color;
@@ -214,7 +214,6 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
         gdk_cairo_set_source_rgba(cr, &color);
         cairo_arc (cr, x_center + x0, y_center + y0, ring_radius,
             add_angle + scale_zero, add_angle + angle);
-
         if (ring_width >= 3) {
             cairo_stroke_preserve(cr);
             
@@ -327,7 +326,7 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
 	
 	g_object_unref(pb);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {
 			return FALSE;
@@ -481,7 +480,7 @@ static gboolean gx_knob_draw(GtkWidget *widget, cairo_t *cr)
 		gint fcount;
 		get_image_dimensions (widget, pb, &image_rect, &fcount);
 		gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
-		_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+		_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 		_gx_knob_expose(widget, cr, &image_rect, knobstate, pb, fcount, gtk_widget_has_focus(widget));
 		_gx_regler_display_value(GX_REGLER(widget), cr, &value_rect);
 		g_object_unref(pb);

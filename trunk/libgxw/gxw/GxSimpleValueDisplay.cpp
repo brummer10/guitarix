@@ -64,7 +64,6 @@ static void gx_simple_value_display_get_preferred_height (GtkWidget *widget, gin
 	}
 }
 
-
 static void gx_simple_value_display_size_request(GtkWidget *widget, gint *width, gint *height)
 {
 	g_assert(GX_IS_SIMPLE_VALUE_DISPLAY(widget));
@@ -73,21 +72,11 @@ static void gx_simple_value_display_size_request(GtkWidget *widget, gint *width,
 	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, FALSE);
 }
 
-#define FILL_ALLOCATION_WIDTH
-
 static gboolean gx_simple_value_display_draw(GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_SIMPLE_VALUE_DISPLAY(widget));
-	GdkRectangle image_rect, value_rect;
-	image_rect.width = 0;
-	image_rect.height = 0;
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-#ifdef FILL_ALLOCATION_WIDTH
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(widget, &allocation);
-	value_rect.x = allocation.x;
-	value_rect.width = allocation.width;
-#endif
+	GdkRectangle value_rect;
+	_gx_regler_get_positions(GX_REGLER(widget), NULL, &value_rect, true);
 	_gx_regler_simple_display_value(GX_REGLER(widget), cr, &value_rect);
 	return FALSE;
 }
@@ -96,16 +85,14 @@ static gboolean gx_simple_value_display_button_press (GtkWidget *widget, GdkEven
 {
 	g_assert(GX_IS_SIMPLE_VALUE_DISPLAY(widget));
 	gtk_widget_grab_focus(widget);
-	if (event->button != 3) {
+	if (event->button != 1 && event->button != 3) {
 		return FALSE;
 	}
 	GdkRectangle image_rect, value_rect;
 	image_rect.width = 0;
 	image_rect.height = 0;
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(widget, &allocation);
-	if (_approx_in_rectangle(event->x + allocation.x, event->y + allocation.y, &value_rect)) {
+	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, true);
+	if (_approx_in_rectangle(event->x, event->y, &value_rect)) {
 		gboolean ret;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &value_rect, event, &ret);
 	}

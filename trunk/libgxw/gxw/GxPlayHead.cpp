@@ -100,7 +100,7 @@ static gboolean gx_play_head_draw(GtkWidget *widget, cairo_t *cr)
     phead->image_rect.x = phead->image_rect.y = 0;
 	//GdkRectangle  value_rect;
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), rect_width - (phead->height*2));
-	//_gx_regler_get_positions(GX_REGLER(widget), &phead->image_rect, &value_rect);
+	//_gx_regler_get_positions(GX_REGLER(widget), &phead->image_rect, &value_rect, false);
     // background
     phead->scaled_image = gdk_pixbuf_scale_simple(
 			phead->image, rect_width+(phead->height*60), phead->height, GDK_INTERP_NEAREST);

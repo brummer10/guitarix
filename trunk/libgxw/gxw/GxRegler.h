@@ -58,7 +58,7 @@ GType gx_regler_get_type(void);
 void _gx_regler_calc_size_request(GxRegler *regler, gint *width, gint *height, gboolean with_border);
 gdouble _gx_regler_get_step_pos(GxRegler *regler, gint step);
 void _gx_regler_get_positions(GxRegler *regler, GdkRectangle *image_rect,
-                              GdkRectangle *value_rect);
+                              GdkRectangle *value_rect, gboolean hfill);
 void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *value_rect);
 void _gx_regler_simple_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *value_rect);
 gboolean _gx_regler_check_display_popup(GxRegler *regler, GdkRectangle *image_rect,

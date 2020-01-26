@@ -102,7 +102,7 @@ static gboolean gx_vslider_draw(GtkWidget *widget, cairo_t *cr)
     slider->image_rect.x = slider->image_rect.y = 0;
 	GdkRectangle  value_rect;
     gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), slider->height - slider->slider_height);
-	_gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect);
+    _gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect, false);
     if (gtk_widget_has_focus(widget)) {
         gtk_render_focus(gtk_widget_get_style_context(widget), cr,
                          x, y, slider->width, slider->height);
@@ -160,7 +160,7 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
     GxVSlider *slider = GX_VSLIDER(widget);
     GdkRectangle value_rect;
     slider->image_rect.x = slider->image_rect.y = 0;
-	_gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect);
+    _gx_regler_get_positions(GX_REGLER(widget), &slider->image_rect, &value_rect, false);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &slider->image_rect, &value_rect, event)) {
 			return FALSE;

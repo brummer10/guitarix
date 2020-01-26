@@ -117,7 +117,7 @@ static gboolean gx_eq_slider_draw(GtkWidget *widget, cairo_t *cr)
 		image_rect.width = gdk_pixbuf_get_width(pb);
 		image_rect.height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
 		gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.height-slider_height);
-		_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+		_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 		eq_slider_expose(cr, &image_rect, sliderstate, pb);
 		_gx_regler_simple_display_value(GX_REGLER(widget), cr, &value_rect);
 		g_object_unref(pb);
@@ -150,7 +150,7 @@ static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x,
 	get_width_height(widget, &image_rect);
 	image_rect.height = (image_rect.height + slider_height) / 2;
 
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {
 			return FALSE;

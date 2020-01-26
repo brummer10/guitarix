@@ -82,7 +82,7 @@ static gboolean gx_wheel_vertical_draw (GtkWidget *widget, cairo_t *cr)
 
 	wheel_verticalstate = _gx_regler_get_step_pos(regler, 1);
 	get_image_dimensions (widget, wb, &image_rect, &fcount);
-	_gx_regler_get_positions(regler, &image_rect, &value_rect);
+	_gx_regler_get_positions(regler, &image_rect, &value_rect, false);
 
 	fcount--; // zero based index
 	findex = (int)(fcount * wheel_verticalstate);
@@ -154,7 +154,7 @@ static gboolean wheel_vertical_set_from_pointer(GtkWidget *widget, gdouble x, gd
     x += allocation.x;
     y += allocation.y;
 
-    _gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+    _gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
     if (!drag) {
         GdkRectangle *rect = NULL;
         if (_approx_in_rectangle(x, y, &image_rect)) {
