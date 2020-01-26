@@ -68,7 +68,6 @@ static void gx_regler_class_init(GxReglerClass *klass);
 static void gx_regler_init(GxRegler *regler);
 static void gx_control_parameter_interface_init (GxControlParameterIface *iface);
 static void gx_regler_finalize(GObject*);
-static void gx_regler_style_set (GtkWidget *widget, GtkStyle  *previous_style);
 static void gx_regler_destroy(GtkWidget *object);
 static void gx_regler_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
@@ -316,7 +315,6 @@ static void gx_regler_class_init(GxReglerClass *klass)
 	gobject_class->get_property = gx_regler_get_property;
 
 	widget_class->destroy = gx_regler_destroy;
-	widget_class->style_set = gx_regler_style_set;
 	widget_class->button_release_event = gx_regler_button_release;
 	widget_class->scroll_event = gx_regler_scroll;
 
@@ -1295,12 +1293,6 @@ static gboolean gx_regler_scroll (GtkWidget *widget, GdkEventScroll *event)
 	}
 
 	return TRUE;
-}
-
-
-static void gx_regler_style_set(GtkWidget *widget, GtkStyle  *previous_style)
-{
-	//FIXME: value_req need recalc
 }
 
 /****************************************************************
