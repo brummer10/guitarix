@@ -11,23 +11,14 @@ def options(opt):
                    const=True,
                    help=('build support for Glade / GtkBuilder (Developers only!!)'),
                    )
-    grp.add_option('--glade-catalog-dir',
-                   type='string',
-                   default='/usr/share/glade3/catalogs',
-                   help='Glade catalog dir [Default: %default]')
-    grp.add_option('--glade-modules-dir',
-                   type='string',
-                   default='/usr/lib/glade3/modules',
-                   help='Glade modules dir [Default: %default]')
 
 def configure(conf):
     if Options.options.glade_support:
+        conf.check_cfg(package='gladeui-2.0', variables='catalogdir pixmapdir moduledir', uselib_store='GLADEUI', mandatory=True)
         conf.env.GX_GLADE_SUPPORT = True
         conf.env.GXW_SHARED = True
         conf.env.GXW_SHARED_INSTALL = True
-        conf.env.GLADE_CATALOG_DIR = Options.options.glade_catalog_dir
-        conf.env.GLADE_MODULES_DIR = Options.options.glade_modules_dir
-        
+
 def build(bld):
     if not bld.env.GX_GLADE_SUPPORT:
         return
@@ -38,7 +29,7 @@ def build(bld):
         source = ['glade-gxw.c'],
         target = 'gladegx',
         includes = ['..'],
-        install_path = bld.env.GLADE_MODULES_DIR,
+        install_path = bld.env.GLADEUI_moduledir,
         )
 
-    bld.install_files(bld.env.GLADE_CATALOG_DIR, "gxw.xml", chmod=0o644)
+    bld.install_files(bld.env.GLADEUI_catalogdir, "gxw.xml", chmod=0o644)

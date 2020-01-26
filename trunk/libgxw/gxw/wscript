@@ -43,7 +43,7 @@ def build_stock_images(bld):
     bld.add_group()
 
 def build(bld):
-    if not (bld.env.STANDALONE or bld.env.LV2GUI or bld.env.NEW_LADSPA or bld.env.GX_PYTHON_WRAPPER):
+    if not (bld.env.STANDALONE or bld.env.LV2GUI or bld.env.NEW_LADSPA or bld.env.GX_PYTHON_WRAPPER or bld.env.GX_GLADE_SUPPORT):
         return
 
     sources = [

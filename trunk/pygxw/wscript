@@ -17,6 +17,7 @@ def configure(conf):
         return
     conf.env.GX_PYTHON_WRAPPER = True
     conf.env.GXW_SHARED = True
+    conf.env.GXW_SHARED_INSTALL = True
     conf.load('python')
     conf.check_python_headers(features='pyext')
     if conf.env.PYTHON_VERSION[0] != '3':
