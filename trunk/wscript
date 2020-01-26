@@ -402,7 +402,7 @@ def configure(conf):
     # config subdirs
     conf.recurse('pygxw')
     conf.recurse('glade-gxw')
-    if conf.env['STANDALONE'] or conf.env['LV2GUI'] or conf.env.NEW_LADSPA or conf.env.GX_PYTHON_WRAPPER:
+    if conf.env['STANDALONE'] or conf.env['LV2GUI'] or conf.env.NEW_LADSPA or conf.env.GX_PYTHON_WRAPPER or conf.env.GX_GLADE_SUPPORT:
         conf.recurse('libgxwmm')
         conf.recurse('libgxw/gxw')
         conf.recurse('rcstyles')
@@ -470,8 +470,8 @@ def configure(conf):
     display_feature("Localization  (intltool)", conf.env['ENABLE_NLS'])
     display_feature("skip glade support", not conf.env['GX_GLADE_SUPPORT'])
     if conf.env['GX_GLADE_SUPPORT']:
-        display_msg("glade catalog dir", conf.env['GLADE_CATALOG_DIR'], 'CYAN')
-        display_msg("glade modules dir", conf.env['GLADE_MODULES_DIR'], 'CYAN')
+        display_msg("glade catalog dir", conf.env.GLADEUI_catalogdir, 'CYAN')
+        display_msg("glade modules dir", conf.env.GLADEUI_moduledir, 'CYAN')
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     if conf.env['STANDALONE']:
         display_msg("Install standalone binary", conf.env['BINDIR'], 'CYAN')
