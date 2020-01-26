@@ -35,6 +35,7 @@ static void gx_simple_value_display_class_init(GxSimpleValueDisplayClass *klass)
 	widget_class->get_preferred_width = gx_simple_value_display_get_preferred_width;
 	widget_class->get_preferred_height = gx_simple_value_display_get_preferred_height;
 	widget_class->button_press_event = gx_simple_value_display_button_press;
+	gtk_widget_class_set_css_name(widget_class, "gx-simple-value-display");
 }
 
 static void gx_simple_value_display_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
