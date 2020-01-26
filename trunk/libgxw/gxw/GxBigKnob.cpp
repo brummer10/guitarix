@@ -23,6 +23,7 @@ G_DEFINE_TYPE(GxBigKnob, gx_big_knob, GX_TYPE_KNOB);
 static void gx_big_knob_class_init(GxBigKnobClass *klass)
 {
 	klass->parent_class.stock_id = "bigknob";
+	gtk_widget_class_set_css_name((GtkWidgetClass*)klass, "gx-big-knob");
 }
 
 static void gx_big_knob_init(GxBigKnob *big_knob)
