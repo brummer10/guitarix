@@ -33,6 +33,8 @@ class FastMeter: public Gtk::DrawingArea {
 	_WRAP_METHOD(void set_hold_count(int val), gx_fast_meter_set_hold_count)
 	_WRAP_PROPERTY(hold, int)
 	_WRAP_PROPERTY(dimen, int)
+	_WRAP_PROPERTY(horiz, bool)
+	_WRAP_PROPERTY(type, int)
 	_WRAP_PROPERTY("var-id", Glib::ustring)
 };
 
