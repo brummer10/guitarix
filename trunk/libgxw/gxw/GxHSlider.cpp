@@ -56,6 +56,7 @@ static void gx_hslider_class_init(GxHSliderClass *klass)
 		g_param_spec_int("slider-width",P_("size of slider"),
 		                   P_("Width of movable part of vslider"),
 		                 0, 100, 36, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_set_css_name(widget_class, "gx-hslider");
 }
 
 static void gx_hslider_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
