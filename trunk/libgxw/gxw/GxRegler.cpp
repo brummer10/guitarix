@@ -982,16 +982,15 @@ static void set_value_color(GtkWidget *wi, cairo_t *cr)
 
 static const GtkBorder default_value_border = { 6, 6, 3, 3 };
 
-static void get_value_border(GtkWidget *widget, GtkBorder *value_border)
+static void get_value_border(GtkStyleContext *style, GtkBorder *value_border)
 {
-	GtkBorder *tmp_border;
-
-	gtk_widget_style_get(widget, "value-border", &tmp_border, NULL);
-	if (tmp_border) {
-		*value_border = *tmp_border;
-		gtk_border_free(tmp_border);
-	} else {
-		*value_border = default_value_border;
+    GtkBorder *tmp_border;
+    gtk_style_context_get_style(style, "value-border", &tmp_border, NULL);
+    if (tmp_border) {
+	*value_border = *tmp_border;
+	gtk_border_free(tmp_border);
+    } else {
+	*value_border = default_value_border;
     }
 }
 
@@ -1000,8 +999,9 @@ void _gx_regler_simple_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle
 	if (!regler->priv->show_value) {
 		return;
 	}
+	GtkStyleContext *style = gtk_widget_get_style_context(GTK_WIDGET(regler));
 	gboolean show_value;
-	gtk_widget_style_get(GTK_WIDGET(regler), "show-value", &show_value, NULL);
+	gtk_style_context_get_style(style, "show-value", &show_value, NULL);
 	if (!show_value) {
 		return;
 	}
@@ -1031,7 +1031,8 @@ void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
 	}
 	gboolean show_value;
     GtkWidget * widget = GTK_WIDGET(regler);
-	gtk_widget_style_get(widget, "show-value", &show_value, NULL);
+	GtkStyleContext *style = gtk_widget_get_style_context(GTK_WIDGET(regler));
+	gtk_style_context_get_style(style, "show-value", &show_value, NULL);
 	if (!show_value) {
 		return;
 	}
