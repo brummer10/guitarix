@@ -538,6 +538,8 @@ void queue_redraw (GxFastMeter* fm)
     rect.width   = hrz ? new_top : b.width;
     rect.height  = hrz ? b.width : new_top;
     rect.y       = hrz ? b.y : b.y + b.height - new_top;
+    rect.y += gtk_widget_get_margin_top(widget);
+    rect.x += gtk_widget_get_margin_left(widget);
 
 	if (new_top >= tom) {
         if (hrz) {
