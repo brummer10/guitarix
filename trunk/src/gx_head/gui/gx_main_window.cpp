@@ -1193,11 +1193,22 @@ void MainWindow::change_skin(Glib::RefPtr<Gtk::RadioAction> action) {
 
 void MainWindow::set_new_skin(const Glib::ustring& skin_name) {
     if (!skin_name.empty()) {
+	Glib::RefPtr<Gtk::IconTheme> deftheme = Gtk::IconTheme::get_default();
+	std::vector<Glib::ustring> pathlist = deftheme->get_search_path();
+	if (pathlist.empty() || pathlist.front() != options.get_style_filepath(options.skin_name)) {
+	    pathlist.insert(pathlist.cbegin(), "");
+	}
 	options.skin_name = skin_name;
-	string rcfile = options.get_style_filepath(
-	    "gx_head_" + skin_name + ".rc");
-	gtk_rc_parse(rcfile.c_str());
-	gtk_rc_reset_styles(gtk_settings_get_default());
+	*pathlist.begin() = options.get_style_filepath(skin_name);
+	deftheme->set_search_path(pathlist);
+	deftheme->rescan_if_needed();
+	string cssfile = options.get_style_filepath("gx_head_" + skin_name + ".css");
+	try {
+	    css_provider->load_from_path(cssfile);
+	} catch (Gtk::CssProviderError& e) {
+	    cerr << "CSS Style Error: " << e.what() << endl;
+	    assert(false);
+	}
 	make_icons();
     }
 }
@@ -2857,6 +2868,9 @@ void MainWindow::amp_controls_visible(Gtk::Range *rr) {
 MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
 		       Gtk::Window *splash, const Glib::ustring& title)
     : sigc::trackable(),
+      css_provider(Gtk::CssProvider::create()),
+      css_show_values(Gtk::CssProvider::create()),
+      style_context(Gtk::StyleContext::create()),
       options(options_),
       machine(machine_),
       bld(),
@@ -2905,6 +2919,12 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       groupmap(),
       ladspalist_window(),
       szg_rack_units(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)) {
+    style_context->add_provider_for_screen(
+	Gdk::Screen::get_default(), css_provider,
+	GTK_STYLE_PROVIDER_PRIORITY_USER);
+    style_context->add_provider_for_screen(
+	Gdk::Screen::get_default(), css_show_values,
+	GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
     convolver_mono_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);

@@ -459,6 +459,8 @@ static void mainGtk(int argc, char *argv[]) {
     Gtk::Main main(argc, argv, options);
     Gxw::init();
     options.process(argc, argv);
+    std::string st_dir = options.get_style_dir();
+    Gtk::IconTheme::get_default()->prepend_search_path(st_dir.substr(0, st_dir.size()-1));
     GxSplashBox * Splash = NULL;
 #ifdef NDEBUG
     Splash =  new GxSplashBox();

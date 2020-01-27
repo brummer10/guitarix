@@ -187,8 +187,8 @@ void SkinHandling::set_styledir(const string& style_dir) {
             continue;
         }
         p += 8;
-        int n = strlen(p) - 3;
-        if (strcmp(p+n, ".rc") != 0) {
+        int n = strlen(p) - 4;
+        if (strcmp(p+n, ".css") != 0) {
             continue;
         }
         skin_list.push_back(string(p, n));

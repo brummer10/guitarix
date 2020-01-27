@@ -584,6 +584,9 @@ public:
 
 class MainWindow: public sigc::trackable {
 private:
+    Glib::RefPtr<Gtk::CssProvider> css_provider;
+    Glib::RefPtr<Gtk::CssProvider> css_show_values;
+    Glib::RefPtr<Gtk::StyleContext> style_context;
     gx_system::CmdlineOptions& options;
     gx_engine::GxMachineBase&  machine;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
