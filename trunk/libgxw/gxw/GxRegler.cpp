@@ -23,7 +23,6 @@
 
 #include "GxRegler.h"
 #include "GxControlParameter.h"
-#include "GxGradient.h"
 #include <gdk/gdkkeysyms.h>
 
 #define P_(s) (s)   // FIXME -> gettext
@@ -392,14 +391,6 @@ static void gx_regler_class_init(GxReglerClass *klass)
 		                   P_("Extra space for value display"),
 		                   GTK_TYPE_BORDER,
 		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
-	gtk_widget_class_install_style_property_parser(
-		widget_class,
-		g_param_spec_boxed("value-color",
-		                   P_("Value color"),
-		                   P_("Color gradient defined as part of skin"),
-		                   GX_TYPE_GRADIENT,
-		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
-		gx_parse_gradient);
 
 	g_object_class_install_property(
 		gobject_class, PROP_SHOW_VALUE,
@@ -962,24 +953,6 @@ static gchar* _gx_regler_format_value(GxRegler *regler, gdouble value)
 }
 
 
-// set cairo color related to the used skin
-static void set_value_color(GtkWidget *wi, cairo_t *cr)
-{
-	GxGradient *grad;
-	gtk_widget_style_get(wi, "value-color", &grad, NULL);
-	if (!grad) {
-		GdkRGBA p2;
-		GtkStyleContext *sc = gtk_widget_get_style_context(wi);
-		gtk_style_context_get_color(sc, GTK_STATE_FLAG_NORMAL, &p2);
-		cairo_set_source_rgba(cr, p2.red, p2.green, p2.blue, 0.8);
-		return;
-	}
-	GxGradientElement *el = (GxGradientElement*)grad->colors->data;
-	cairo_set_source_rgba(cr, el->red, el->green, el->blue, el->alpha);
-	gx_gradient_free(grad);
-}
-
-
 static const GtkBorder default_value_border = { 6, 6, 3, 3 };
 
 static void get_value_border(GtkStyleContext *style, GtkBorder *value_border)
@@ -1005,7 +978,6 @@ void _gx_regler_simple_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle
 	if (!show_value) {
 		return;
 	}
-    GtkWidget *widget = GTK_WIDGET(regler);
     GtkAdjustment* adjustment = gtk_range_get_adjustment(GTK_RANGE(regler));
     PangoLayout *l = regler->priv->value_layout;
     PangoRectangle logical_rect;
@@ -1031,7 +1003,8 @@ void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
 	}
 	gboolean show_value;
     GtkWidget * widget = GTK_WIDGET(regler);
-	GtkStyleContext *style = gtk_widget_get_style_context(GTK_WIDGET(regler));
+	GtkStyleContext *style = gtk_widget_get_style_context(widget);
+	GtkStateFlags state_flags = gtk_widget_get_state_flags(widget);
 	gtk_style_context_get_style(style, "show-value", &show_value, NULL);
 	if (!show_value) {
 		return;
@@ -1051,7 +1024,10 @@ void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
 	gchar *txt;
 	ensure_digits(regler);
 	txt = _gx_regler_format_value(regler, gtk_adjustment_get_value(gtk_range_get_adjustment(GTK_RANGE(regler))));
-	set_value_color(GTK_WIDGET(regler),cr);
+    GdkRGBA color;
+    gtk_style_context_get_color(style, state_flags, &color);
+    cairo_set_source_rgba(cr, color.red, color.green, color.blue, color.alpha);
+
     PangoLayout *l = regler->priv->value_layout;
     pango_layout_set_text(l, txt, -1);
     g_free(txt);

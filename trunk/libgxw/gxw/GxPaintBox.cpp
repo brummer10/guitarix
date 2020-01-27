@@ -18,7 +18,6 @@
 
 
 #include "GxPaintBox.h"
-#include "GxGradient.h"
 #include "GxLevelSlider.h"
 #include <cmath>
 #include <cstring>
@@ -86,30 +85,6 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 		                    P_("Type of paint function for background"),
 		                    "",
 		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
-	gtk_widget_class_install_style_property_parser(
-		GTK_WIDGET_CLASS(klass),
-		g_param_spec_boxed("skin-gradient",
-		                   P_("Skin color"),
-		                   P_("Color gradient defined as part of skin"),
-		                   GX_TYPE_GRADIENT,
-		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
-		gx_parse_gradient);
-	gtk_widget_class_install_style_property_parser(
-		GTK_WIDGET_CLASS(klass),
-		g_param_spec_boxed("box-gradient",
-		                   P_("Skin color"),
-		                   P_("Color gradient defined as part of skin"),
-		                   GX_TYPE_GRADIENT,
-		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
-		gx_parse_gradient);
-	gtk_widget_class_install_style_property_parser(
-		GTK_WIDGET_CLASS(klass),
-		g_param_spec_boxed("rack-gradient",
-		                   P_("Skin color"),
-		                   P_("Color gradient defined as part of skin"),
-		                   GX_TYPE_GRADIENT,
-		                   GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
-		gx_parse_gradient);
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_string("paint-func",
@@ -362,53 +337,41 @@ inline double cairo_clr(guint16 clr)
 // set cairo color related to the used skin
 static void set_skin_color(GtkWidget *wi, cairo_pattern_t *pat)
 {
-	GxGradient *grad;
-	gtk_widget_style_get(wi, "skin-gradient", &grad, NULL);
-	if (!grad) {
-		GtkStyle* style = gtk_widget_get_style(wi);
-		GdkColor *p1 = &style->bg[GTK_STATE_NORMAL];
-		cairo_pattern_add_color_stop_rgba(
-			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
-			cairo_clr(p1->blue), 0.8);
-		GdkColor *p2 = &style->fg[GTK_STATE_NORMAL];
-		cairo_pattern_add_color_stop_rgba(
-			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
-			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
-			(cairo_clr(p1->blue)+cairo_clr(p2->blue))/2, 0.8);
-		return;
-	}
-	GSList *p;
-	for (p = grad->colors; p; p = g_slist_next(p)) {
-		GxGradientElement *el = (GxGradientElement*)p->data;
-		cairo_pattern_add_color_stop_rgba(pat, el->offset, el->red, el->green, el->blue, el->alpha);
-	}
-	gx_gradient_free(grad);
+    GtkStyleContext* style = gtk_widget_get_style_context(wi);
+    //GdkColor *p = &style->bg[GTK_STATE_NORMAL];
+    GdkRGBA p1;
+    gtk_style_context_get_color(style, gtk_widget_get_state_flags(wi), &p1);
+    cairo_pattern_add_color_stop_rgba(
+	pat, 0, cairo_clr(p1.red), cairo_clr(p1.green),
+	cairo_clr(p1.blue), p1.alpha);
+    //GdkColor *p2 = &style->fg[GTK_STATE_NORMAL];
+    GdkRGBA p2;
+    gtk_style_context_get_color(style, GTK_STATE_FLAG_INSENSITIVE, &p2);
+    cairo_pattern_add_color_stop_rgba(
+	pat, 1, (cairo_clr(p1.red)+cairo_clr(p2.red))/2,
+	(cairo_clr(p1.green)+cairo_clr(p2.green))/2,
+	(cairo_clr(p1.blue)+cairo_clr(p2.blue))/2, p2.alpha);
+    return;
 }
 
 // set cairo color related to the used skin
 static void set_box_color(GtkWidget *wi, cairo_pattern_t *pat)
 {
-	GxGradient *grad;
-	gtk_widget_style_get(wi, "box-gradient", &grad, NULL);
-	if (!grad) {
-		GtkStyle* style = gtk_widget_get_style(wi);
-		GdkColor *p1 = &style->bg[GTK_STATE_NORMAL];
-		cairo_pattern_add_color_stop_rgba(
-			pat, 0, cairo_clr(p1->red), cairo_clr(p1->green),
-			cairo_clr(p1->blue), 0.8);
-		GdkColor *p2 = &style->fg[GTK_STATE_NORMAL];
-		cairo_pattern_add_color_stop_rgba(
-			pat, 1, (cairo_clr(p1->red)+cairo_clr(p2->red))/2,
-			(cairo_clr(p1->green)+cairo_clr(p2->green))/2,
-			(cairo_clr(p1->blue)+cairo_clr(p2->blue))/2, 0.8);
-		return;
-	}
-	GSList *p;
-	for (p = grad->colors; p; p = g_slist_next(p)) {
-		GxGradientElement *el = (GxGradientElement*)p->data;
-		cairo_pattern_add_color_stop_rgba(pat, el->offset, el->red, el->green, el->blue, el->alpha);
-	}
-	gx_gradient_free(grad);
+    GtkStyleContext* style = gtk_widget_get_style_context(wi);
+    //GdkColor *p1 = &style->bg[GTK_STATE_NORMAL];
+    GdkRGBA p1;
+    gtk_style_context_get_color(style, gtk_widget_get_state_flags(wi), &p1);
+    cairo_pattern_add_color_stop_rgba(
+	pat, 0, cairo_clr(p1.red), cairo_clr(p1.green),
+	cairo_clr(p1.blue), p1.alpha);
+    //GdkColor *p2 = &style->fg[GTK_STATE_NORMAL];
+    GdkRGBA p2;
+    gtk_style_context_get_color(style, GTK_STATE_FLAG_INSENSITIVE, &p2);
+    cairo_pattern_add_color_stop_rgba(
+	pat, 1, (cairo_clr(p1.red)+cairo_clr(p2.red))/2,
+	(cairo_clr(p1.green)+cairo_clr(p2.green))/2,
+	(cairo_clr(p1.blue)+cairo_clr(p2.blue))/2, p2.alpha);
+    return;
 }
 
 static void draw_skin (GtkWidget *wi, cairo_t *cr)
@@ -441,7 +404,7 @@ static void draw_skin (GtkWidget *wi, cairo_t *cr)
         top    = alt->top / 100.;
         bottom = alt->bottom / 100.;
     }
-    
+
     // draw main color
     GdkPixbuf * bg = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
                                               inverse ? "background2" : "background1", -1,

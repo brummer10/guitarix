@@ -150,7 +150,6 @@ def build_generate_wrapper(bld):
               "GxLevelSlider.h",
               "GxPaintBox.h",
               "GxMeterScale.h",
-              "GxGradient.h",
               "GxValueDisplay.h",
               "GxSimpleValueDisplay.h",
               "GxPortDisplay.h",

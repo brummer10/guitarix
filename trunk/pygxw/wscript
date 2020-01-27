@@ -60,7 +60,6 @@ def build(bld):
                "GxLevelSlider.h",
                "GxPaintBox.h",
                "GxMeterScale.h",
-               "GxGradient.h",
                "GxValueDisplay.h",
                "GxRackTuner.h",
                ]

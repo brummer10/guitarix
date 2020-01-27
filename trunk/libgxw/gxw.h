@@ -44,7 +44,6 @@
 #include <gxw/GxLevelSlider.h>
 #include <gxw/GxPaintBox.h>
 #include <gxw/GxMeterScale.h>
-#include <gxw/GxGradient.h>
 #include <gxw/GxValueDisplay.h>
 #include <gxw/GxPlayHead.h>
 #include <gxw/gxinit.h>

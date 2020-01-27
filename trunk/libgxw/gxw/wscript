@@ -73,7 +73,6 @@ def build(bld):
         'GxLevelSlider.cpp',
         'GxPaintBox.cpp',
         'GxMeterScale.cpp',
-        'GxGradient.cpp',
         'GxValueDisplay.cpp',
         'GxSimpleValueDisplay.cpp',
         'GxRackTuner.cpp',

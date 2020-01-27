@@ -17,7 +17,6 @@
  */
 
 #include "GxIREdit.h"
-#include "GxGradient.h"
 
 #include <math.h>
 #include <assert.h>
@@ -263,38 +262,34 @@ static void gx_ir_edit_class_init(GxIREditClass* klass)
 		                    P_("Color of zoom marker"),
 		                    GDK_TYPE_RGBA,
 		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
-	gtk_widget_class_install_style_property_parser(
+	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_boxed ("no-data-color",
 		                    P_("No data color"),
 		                    P_("Color of graph background when no data is available"),
 		                    GDK_TYPE_RGBA,
-		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
-		gx_parse_rgba);
-	gtk_widget_class_install_style_property_parser(
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_boxed ("sample-graph-color",
 		                    P_("Sample graph color"),
 		                    P_("Color of graph with sampled values"),
 		                    GDK_TYPE_RGBA,
-		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
-		gx_parse_rgba);
-	gtk_widget_class_install_style_property_parser(
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_boxed ("sample-graph-color-out",
 		                    P_("Sample graph color outside"),
 		                    P_("Color of graph outside of cut region"),
 		                    GDK_TYPE_RGBA,
-		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
-		gx_parse_rgba);
-	gtk_widget_class_install_style_property_parser(
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_boxed ("gain-line-color",
 		                    P_("Gain line color"),
 		                    P_("Color of gain line"),
 		                    GDK_TYPE_RGBA,
-		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)),
-		gx_parse_rgba);
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
 	gtk_widget_class_install_style_property(
 		GTK_WIDGET_CLASS(klass),
 		g_param_spec_double(
