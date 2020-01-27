@@ -1019,14 +1019,24 @@ void MainWindow::add_icon(const std::string& name) {
 }
 
 void MainWindow::on_show_values() {
+    /* Gtk 3.24 uses information about which style modifications
+     * change widget sizes this doesn't work with the (deprecated)
+     * style setting show-value as work-around use a fake min-width
+     * setting and remove it after the update
+     *
+     * DON'T USE "min-width: 1px" for GxRegler derived widgets in the
+     * css style sheet, it will disable this update hack.
+     */
     options.system_show_value = actions.show_values->get_active();
-    std::string s =
-	"style \"ShowValue\" {\n"
-	"  GxRegler::show-value = " + gx_system::to_string(options.system_show_value) + "\n"
-	"}\n"
-	"class \"*GxRegler*\" style:highest \"ShowValue\"\n";
-    gtk_rc_parse_string(s.c_str());
-    gtk_rc_reset_styles(gtk_settings_get_default());
+    boost::format fmt(
+	"gx-regler, gx-big-knob, gx-mid-knob, gx-small-knob, gx-small-knob-r, gx-value-display {\n"
+	"  -GxRegler-show-value: %1%;\n%2%"
+	"}\n");
+    fmt % gx_system::to_string(options.system_show_value);
+    css_show_values->load_from_data((boost::format(fmt) % "  min-width: 1px\n").str());
+    while(Gtk::Main::events_pending())
+        Gtk::Main::iteration(false);
+    css_show_values->load_from_data((fmt % "").str());
 }
 
 void MainWindow::on_preset_action() {
