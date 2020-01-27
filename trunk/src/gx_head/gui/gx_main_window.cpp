@@ -1740,7 +1740,7 @@ void MainWindow::create_actions() {
     ** option actions
     */
     actions.show_values = Gtk::ToggleAction::create(
-	"ShowValues",_("_Show _Values"), "", true);
+	"ShowValues",_("Show _Values"), "", true);
     actions.group->add(actions.show_values,
 		       sigc::mem_fun(*this, &MainWindow::on_show_values));
 

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Guitarix-0.37.3\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-04-15 17:28+0300\n"
-"PO-Revision-Date: 2019-04-24 09:17MSK\n"
+"PO-Revision-Date: 2020-01-25 15:48+0100\n"
 "Last-Translator: Olesya Gerasimenko <gammaray@basealt.ru>\n"
 "Language-Team: Basealt Translation Team\n"
 "Language: ru\n"
@@ -3958,8 +3958,8 @@ msgid "Order Rack _Horizontally"
 msgstr "_Горизонтальная компоновка рэка"
 
 #: ../src/gx_head/gui/gx_main_window.cpp:1733
-msgid "_Show _Values"
-msgstr "_Показывать _значения"
+msgid "Show _Values"
+msgstr "Показывать _значения"
 
 #: ../src/gx_head/gui/gx_main_window.cpp:1738
 msgid "Show _Tooltips"

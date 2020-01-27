@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gx_head\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-03-25 21:48+0200\n"
-"PO-Revision-Date: 2011-02-09 16:48+0100\n"
+"PO-Revision-Date: 2020-01-25 15:49+0100\n"
 "Last-Translator: Ivan Tarozzi <itarozzi@gmail.com>\n"
 "Language-Team: Italian\n"
 "Language: it\n"
@@ -2204,7 +2204,7 @@ msgstr ""
 
 #: ../src/gx_head/gui/gx_main_window.cpp:1538
 #, fuzzy
-msgid "_Show _Values"
+msgid "Show _Values"
 msgstr "mostra accordatore"
 
 #: ../src/gx_head/gui/gx_main_window.cpp:1543
