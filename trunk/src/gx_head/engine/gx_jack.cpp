@@ -182,6 +182,7 @@ void GxJack::read_connections(gx_system::JsonParser& jp) {
             jp.skip_object();
             continue;
         }
+	i->clear();
         jp.next(gx_system::JsonParser::begin_array);
         while (jp.peek() == gx_system::JsonParser::value_string) {
             jp.next();
