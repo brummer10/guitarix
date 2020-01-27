@@ -1361,7 +1361,7 @@ bool RackContainer::drag_highlight_draw(const Cairo::RefPtr<Cairo::Context> &cr,
         x = 0;
         y = 0;
     }
-    Glib::RefPtr<Gdk::Pixbuf> pb_ = render_icon_pixbuf(Gtk::StockID("insert"), Gtk::IconSize(-1));
+    Glib::RefPtr<Gdk::Pixbuf> pb_ = Gtk::IconTheme::get_default()->load_icon("insert", -1, Gtk::ICON_LOOKUP_GENERIC_FALLBACK);
     if (pb_) {
         Gdk::Cairo::set_source_pixbuf(cr, pb_, x, y);
         cr->get_source()->set_extend(Cairo::EXTEND_REPEAT);
@@ -1406,13 +1406,13 @@ void RackContainer::find_index(int x, int y, int* len, int *ypos) {
     for (std::list<childpos>::iterator cp = l.begin(); cp != l.end(); ++cp) {
 	if (y < (cp->y0 + cp->y1) / 2) {
 	    *len = cp->pos;
-	    *ypos = (cp->y0+sy)/2;
+	    *ypos = (cp->y0+sy)/2 - a0.get_y();
 	    return;
 	}
 	sy = cp->y1;
     }
     *len = mpos+1;
-    *ypos = sy;
+    *ypos = sy - a0.get_y();
 }
 
 void RackContainer::on_my_remove(Gtk::Widget *ch) {
