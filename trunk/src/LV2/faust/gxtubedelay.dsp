@@ -8,7 +8,7 @@ import("redeye.lib");
 LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
 level = vslider("level[style:knob]", 0, 0, 1, 0.1):LogPot(1):smoothi(0.993);
 feedback = vslider("feedback[style:knob]", 0, 0.0, 1, 0.01);
-dtime	= vslider("de.delay[unit:ms][style:knob]", 0, 0.1, 2500, 0.1)*ma.SR/1000.0;
+dtime	= vslider("de.delay[unit:ms][style:knob]", 0.1, 0.1, 2500, 0.1)*ma.SR/1000.0;
 
 interp = 100*ma.SR/1000.0;
 
