@@ -26,6 +26,7 @@
 #include <gxw/GxLevelSlider.h>
 #include <gtkmm/accelmap.h>
 #include "jsonrpc.h"
+#include <boost/algorithm/string/replace.hpp>
 
 /****************************************************************
  ** class TextLoggingBox
@@ -1233,7 +1234,10 @@ void MainWindow::add_skin_menu() {
 	Glib::ustring name = *i;
 	Glib::ustring actname = Glib::ustring::compose("ChangeSkin_%1", name);
 	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
-	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(sg, actname, name);
+	std::string display = name;
+	boost::replace_all(display, "_", " ");
+	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(
+	    sg, actname, display);
 	if (name == options.skin_name) {
 	    action->set_active(true);
 	}
