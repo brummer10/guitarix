@@ -824,14 +824,8 @@ void StackBoxBuilder::addLiveWaveDisplay(const char* label) {
     Gtk::HBox * box      = new Gtk::HBox(false, 4);
     Gtk::VBox * box1     = new Gtk::VBox(false, 0);
     Gtk::VBox * box2     = new Gtk::VBox(false, 0);
-    Gtk::EventBox* e_box = new Gtk::EventBox();
-    //g_signal_connect(box->gobj(), "expose-event", G_CALLBACK(gx_cairo::conv_widget_expose), NULL);
-    //box->set_size_request(303, 82);
-    e_box->set_size_request(284, 84);
-    //box->set_border_width(12);
-    e_box->add(fWaveView);
     box->pack_start(*manage(box1), true, true, 0);
-    box->pack_start(*manage(e_box), false, false, 0);
+    box->pack_start(fWaveView, false, false, 0);
     box->pack_start(*manage(box2), true, true, 0);
     fBox.add(manage(box), label);
     fWaveView.hide(); // was show()'n by addWidget
