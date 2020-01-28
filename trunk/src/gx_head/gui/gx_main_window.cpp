@@ -1891,28 +1891,31 @@ void MainWindow::make_icons(bool force) {
         gtk_widget_set_visual(GTK_WIDGET(w.gobj()), rgba->gobj());
     }
     Gtk::VBox vb;
+    vb.show();
     w.add(vb);
-    Glib::RefPtr<Gtk::SizeGroup> sz = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_BOTH);
     std::vector<std::pair<PluginUI*,Gtk::Widget*> > l;
+    int max_width = 0, max_height = 0;
     for (std::map<std::string, PluginUI*>::iterator i = plugin_dict.begin(); i != plugin_dict.end(); ++i) {
 	if (!force && i->second->icon) {
 	    continue;
 	}
         Gtk::Widget *r = RackBox::create_icon_widget(*i->second, options);
+	Gtk::Requisition min_size, nat_size;
+	r->get_preferred_size(min_size, nat_size);
+	if (nat_size.width > max_width) {
+	    max_width = nat_size.width;
+	}
+	if (nat_size.height > max_height) {
+	    max_height = nat_size.height;
+	}
         r->hide();
-        r->set_no_show_all(true);
         vb.add(*manage(r));
-        sz->add_widget(*r);
 	l.push_back(std::pair<PluginUI*,Gtk::Widget*>(i->second, r));
     }
-    //FIXME hack to set a minimum size
-    l.begin()->second->show();
-    int min_width, natural_width;
-    vb.get_preferred_width(min_width, natural_width);
-    if (min_width < 110) {
-	vb.set_size_request(110, -1);
+    if (max_width < 110) {
+	max_width = 110;
     }
-    w.show_all();
+    vb.set_size_request(max_width, max_height);
     for (std::vector<std::pair<PluginUI*,Gtk::Widget*> >::iterator i = l.begin(); i != l.end(); ++i) {
         i->second->show();
 	w.show();
