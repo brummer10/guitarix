@@ -288,14 +288,10 @@ void StackBoxBuilder::addwidget(Gtk::Widget *widget) {
 
 void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw) {
     Gtk::Button *button = new Gtk::Button();
+    button->get_style_context()->add_class("gx_rack_small_button");
     button->set_name("smallbutton");
     Gtk::Label *lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style_context()->get_font();
-    font.set_size(7*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_NORMAL);
-    lab->override_font(font);
     button->add(*manage(lab));
-    //lab->set_name("rack_label_inverse");
     lab->set_padding(5,0);
     fBox.add(manage(button), label);
     lab->show();
@@ -317,10 +313,7 @@ void StackBoxBuilder::openSetLabelBox() {
     box->set_spacing(0);
     box->set_border_width(0);
     convolver_filename_label.set_name("rack_label");
-    Pango::FontDescription font = convolver_filename_label.get_style_context()->get_font();
-    font.set_size(8*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_BOLD);
-    convolver_filename_label.override_font(font);
+    convolver_filename_label.get_style_context()->add_class("gx_rack_box_label");
     box->pack_start(convolver_filename_label, false, false, 0);
     box->show_all();
     gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter("jconv.convolver"));
@@ -338,10 +331,7 @@ void StackBoxBuilder::openSetMonoLabelBox() {
     box->set_spacing(0);
     box->set_border_width(0);
     convolver_mono_filename_label.set_name("rack_label");
-    Pango::FontDescription font = convolver_mono_filename_label.get_style_context()->get_font();
-    font.set_size(8*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_BOLD);
-    convolver_mono_filename_label.override_font(font);
+    convolver_mono_filename_label.get_style_context()->add_class("gx_rack_box_label");
     box->pack_start(convolver_mono_filename_label, true, false, 0);
     box->show_all();
     gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter("jconv_mono.convolver"));
@@ -358,12 +348,7 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
     button->set_can_default(false);
     button->set_can_focus(false);
     Gtk::Label *lab = new Gtk::Label(label);
-    //Pango::FontDescription font = lab->get_style_context()->get_font();
-    //font.set_size(10*Pango::SCALE);
-    //font.set_weight(Pango::WEIGHT_NORMAL);
-    //lab->override_font(font);
     button->add(*manage(lab));
-    //lab->set_name("rack_label_inverse");
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
     al->add(*manage(button));
     al->show_all();
@@ -375,13 +360,9 @@ void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw)
 void StackBoxBuilder::addSmallSeqButton(const char* label, gx_seq::SEQWindow *seqw) {
     Gtk::Button *button = new Gtk::Button();
     button->set_name("smallbutton");
+    button->get_style_context()->add_class("gx_rack_small_button");
     Gtk::Label *lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style_context()->get_font();
-    font.set_size(7*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_NORMAL);
-    lab->override_font(font);
     button->add(*manage(lab));
-    //lab->set_name("rack_label_inverse");
     lab->set_padding(5,0);
     fBox.add(manage(button), label);
     lab->show();
@@ -394,12 +375,7 @@ void StackBoxBuilder::addSeqButton(const char* label, gx_seq::SEQWindow *seqw) {
     button->set_can_default(false);
     button->set_can_focus(false);
     Gtk::Label *lab = new Gtk::Label(label);
-    //Pango::FontDescription font = lab->get_style_context()->get_font();
-    //font.set_size(10*Pango::SCALE);
-    //font.set_weight(Pango::WEIGHT_NORMAL);
-    //lab->override_font(font);
     button->add(*manage(lab));
-    //lab->set_name("rack_label_inverse");
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
     al->add(*manage(button));
     al->show_all();
@@ -473,10 +449,7 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     boxv->set_spacing(0);
    // boxv->set_border_width(4);
     Gtk::Label *lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style_context()->get_font();
-    font.set_size(6*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_NORMAL);
-    lab->override_font(font);
+    lab->get_style_context()->add_class("gx_simple_c_meter_label");
     lab->set_name("beffekt_label");
     boxv->add(*manage(lab));
     boxv->add(*manage(box));
