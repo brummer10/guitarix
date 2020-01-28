@@ -1,0 +1,43 @@
+#! /usr/bin/env python3
+import sys
+from re import compile
+from os import makedirs, remove, symlink, readlink
+from os.path import join, splitext, islink, basename
+
+def scan_css(fname):
+    defn = compile(' *\* *([-a-zA-Z0-9_]+) *: *([-a-zA-Z0-9_.]+)').match
+    with open(fname) as fd:
+        for line in fd:
+            if line.strip() == '/* ICON THEME':
+                break
+        else:
+            raise ValueError("icon table start not found: '/* ICON THEME'")
+        for line in fd:
+            m = defn(line)
+            if not m:
+                if line.strip() == ('* ICON THEME'):
+                    break
+                continue
+            yield m.group(1, 2)
+        else:
+            raise ValueError("icon table end not found: ' * ICON THEME'")
+
+def main():
+    if len(sys.argv) < 2:
+        raise SystemExit('usage: make_icon_dirs dirpath {cssfile} ..')
+    path = sys.argv[1]
+    for cssfile in sys.argv[2:]:
+        name = splitext(basename(cssfile))[0][8:]
+        makedirs(join(path, name), exist_ok=True)
+        for src, dst in scan_css(cssfile):
+            src += splitext(dst)[1]
+            lpath = join(path, name, dst)
+            dst = join('..', dst)
+            if islink(lpath):
+                if readlink(lpath) == dst:
+                    continue
+                remove(lpath)
+            symlink(dst, lpath)
+
+if __name__ == '__main__':
+    main()

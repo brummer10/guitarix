@@ -1,0 +1,138 @@
+#effekt_label {
+    font: 8px "sans";
+}
+
+gx-regler {
+    -GxRegler-value-spacing: 2;
+    -GxRegler-value-border: 6 6 3 3;
+    font: 7.5px "sans";
+    /*-GxRegler-value-color = {{ 0, 20971, 52428, 10485, 52428 }};*/ /* GX_TYPE_GRADIENT */
+}
+
+gx-simple-value-display { /* GxSimpleValueDisplay, parent: GxRegler */
+    -GxRegler-value-spacing: 1;
+    -GxRegler-value-border: 1 1 2 2;
+    color: rgb(178.5, 178.5, 178.5); /* { 0.7, 0.7, 0.7 } */
+    font: 7.5px "sans";
+}
+
+gx-simple-value-display:active {
+    color: rgb(51, 51, 51); /* { 0.2, 0.2, 0.2 } */
+}
+
+gx-simple-value-display:hover {
+    color: rgb(255, 255, 255); /* fg[PRELIGHT] = { 1.0, 1.0, 1.0 } */
+}
+
+gx-simple-value-display:disabled {
+    color: rgb(0, 0, 0); /* fg[INSENSITIVE] = { 0.0, 0.0, 0.0 } */
+}
+
+gx-simple-value-display:selected {
+    color: rgb(204, 204, 204); /* fg[SELECTED] = { 0.8, 0.8, 0.8 } */
+}
+
+.gx-switch { /* GxSwitch */
+    padding: 0; /* xthickness = 0, ythickness = 0 */
+    -GtkButton-inner-border: 0 0 0 0;
+    -GtkButton-default-border: 0 0 0 0;
+    -GtkButton-focus-line-width: 0;
+    -GtkButton-focus-padding: 0;
+    -GtkButton-interior-focus: 0;
+    -GtkButton-child-displacement-x: 0;
+    -GtkButton-child-displacement-y: 0;
+    /* -Clearlooks-disable-focus: true; */
+    -Clearlooks-style: classic;
+}
+
+#smallbutton {
+    -GtkButton-inner-border: 0 0 0 0;
+    -GtkButton-default-border: 0 0 0 0;
+    -GtkButton-focus-line-width: 0;
+    -GtkButton-focus-padding: 0;
+    -GtkButton-interior-focus: 0;
+    -GtkButton-inner-spacing: 0;
+    -GtkButton-child-displacement-x: 0;
+    -GtkButton-child-displacement-y: 0;
+}
+
+gx-selector {
+    color: rgb(81.6, 204, 40.8); /* { 0.32, 0.8, 0.16 } */
+    -GtkRange-trough-border: 2;
+    -GtkRange-stepper-size: 8;
+    -GtkRange-stepper-spacing: 2;
+    -GxRegler-value-border: 2 0 0 0;
+    font: 7.5px "sans";
+    padding: 1px 10px 1px 10px;
+}
+
+gx-wave-view {
+    -GxWaveView-box-gradient: {
+	{ 26214, 65536, 13107, 0, 52428 }, /* 0.4, 1, 0.2, 0, 0.8 */
+	{ 52428, 13107, 65536, 13107, 52428 }}; /* 0.8, 0.2, 1, 0.2, 0.8 */
+    color: rgba(204, 204, 51, 153); /* { 0.48, 0.48, 0.12 } # RGBA: 0.8, 0.8, 0.2, 0.6 */
+    font: 6px "sans";
+}
+
+gx-hslider { /* GxHSlider */
+    -GxRegler-value-border: 0 0 0 0;
+}
+
+gx-eqslider { /* GxEQSlider */
+    font: 6px "sans";
+}
+
+#filter_box #effekt_label {
+    font: bold 8px "sans";
+}
+
+gx-fast-meter {
+    -GxFastMeter-clr-bottom: #003808;
+    -GxFastMeter-clr-middle: #00ff00;
+    -GxFastMeter-clr-top:    #ff0000;
+    -GxFastMeter-over:       #ff0000;
+}
+
+gx-ir-edit {
+    -GxIREdit-sample-graph-color-out: { 20000, 20000, 20000, 65535 };
+    -GxIREdit-shade-alpha: 0.6;
+    -GxIREdit-gain-line-color: { 0, 60000, 0, 65535 };
+}
+
+#playhead {
+    -GxRegler-stock-portdisplay: "playhead.png"; /* ??? */
+    -GxRegler-show-value: 0;
+}
+
+#lmw {
+    -GxLevelSlider-stock-levelslider: "simplelevelslider.png";
+    -GxRegler-show-value: 0;
+    -GxLevelSlider-slider-width: 3;
+}
+
+#ui #tuner_reference_pitch,
+#amp #out_amp,
+#show_always,
+#midi_out #channel_X #channel, /* X: FIXME */
+#midi_out #channel_X #program,
+#gx_distortion #split_low_freq,
+#gx_distortion #split_middle_freq,
+#gx_distortion #split_high_freq {
+    -GxRegler-show-value: 1;
+}
+
+window eventbox gx-paint-box label {
+    color: rgb(255, 255, 255);
+}
+
+window eventbox gx-paint-box label:hover {
+    color: rgb(51, 255, 51);
+}
+
+window eventbox gx-paint-box label:selected {
+    color: rgb(255, 0, 0);
+}
+
+window eventbox gx-paint-box label:disabled {
+    color: rgb(102, 25.5, 25.5);
+}

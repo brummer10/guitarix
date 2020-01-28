@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import fnmatch
+
 gxstyle_files = [
-    'gx_head_Guitarix.rc',
+    'gx_head_Guitarix.css',
     'background1.png',
     'background2.png',
     'live_wallpaper_aluminium.png',
@@ -27,7 +29,7 @@ gxstyle_files = [
     'live_wallpaper_rust.png',
     'live_wallpaper_gold.png',
     
-    'clear.rc',
+    'clear.css',
     'tactile_knob_large_151f.png',
     'tactile_knob_small_99f.png',
     'tactile_knob_medium_151f.png',
@@ -65,23 +67,23 @@ gxstyle_files = [
     'knob_big.png',
     
     ###COPPER THEME
-    'gx_head_Copper.rc',
+    'gx_head_Copper.css',
     'copper.png',
     
     ###LAVENDER THEME
-    'gx_head_Lavender.rc',
+    'gx_head_Lavender.css',
     'lavender.png',
     
     ###SKY THEME
-    'gx_head_Sky.rc',
+    'gx_head_Sky.css',
     'sky.png',
     
     ###OLIVE THEME
-    'gx_head_Olive.rc',
+    'gx_head_Olive.css',
     'olive.png',
     
     ###HIPPIE THEME
-    'gx_head_Hippie.rc',
+    'gx_head_Hippie.css',
     'hippie.png',
     'hippie2.png',
     'knob_small_hippie.png',
@@ -90,73 +92,73 @@ gxstyle_files = [
     'knob_big_hippie.png',
     
     ###PSYCEDELIC THEME
-    'gx_head_Psycedelic.rc',
+    'gx_head_Psycedelic.css',
     'psycedelic.png',
     
     ###GRANDMA THEME
-    'gx_head_Grandma.rc',
+    'gx_head_Grandma.css',
     'grandma.png',
     
     ###GRUNGY SUN THEME
-    'gx_head_Grungy_Sun_Dark.rc',
+    'gx_head_Grungy_Sun_Dark.css',
     'grungy_sun_dark.png',
     'grungy_sun_dark2.png',
     
     ###GRUNGY SUN THEME
-    'gx_head_Grungy_Sun.rc',
+    'gx_head_Grungy_Sun.css',
     'grungy_sun.png',
     'grungy_sun2.png',
     
     ###ALUMINIUM THEME
-    'gx_head_Aluminium.rc',
+    'gx_head_Aluminium.css',
     'aluminium1.png',
     'aluminium2.png',
     
     ###OAK THEME
-    'gx_head_Oak.rc',
+    'gx_head_Oak.css',
     'oak1.png',
     'oak2.png',
     
     ###BURL THEME
-    'gx_head_Burl.rc',
+    'gx_head_Burl.css',
     'burl1.png',
     'burl2.png',
     
     ###WHITE OAK THEME
-    'gx_head_White_Oak.rc',
+    'gx_head_White_Oak.css',
     'oak_white.png',
     #'oak2.png',
     
     ###GUITARIX OAK THEME
-    'gx_head_Guitarix_Oak.rc',
+    'gx_head_Guitarix_Oak.css',
     'oak_green.png',
     #'oak2.png',
     
     ###DARK THEME
-    'gx_head_Plain_Dark.rc',
-    'gx_head_Dark.rc',
+    'gx_head_Plain_Dark.css',
+    'gx_head_Dark.css',
     'dark.png',
 
     ###NEBULA THEMA
-    'gx_head_Nebula.rc',
+    'gx_head_Nebula.css',
     'nebula.png',
     'nebula2.png',
 
     ###CAMOUFLAGE THEME
-    'gx_head_Camouflage.rc',
+    'gx_head_Camouflage.css',
     'camouflage.png',
     
     ###ORANGE THEME
-    'gx_head_Orange.rc',
+    'gx_head_Orange.css',
     'orange.png',
     
     ###RUST THEME
-    'gx_head_Rust.rc',
+    'gx_head_Rust.css',
     'rust.png',
     'rust2.png',
     
     ###GOLD THEME
-    'gx_head_Gold.rc',
+    'gx_head_Gold.css',
     'gold1.png',
     'gold2.png',
     
@@ -168,3 +170,9 @@ def configure(conf):
 def build(bld):
     if bld.env.STANDALONE:
         bld.install_files(bld.env.GX_STYLE_DIR, gxstyle_files, chmod=0o644)
+        if bld.is_install:
+            pgm = bld.path.find_resource('make_icon_dirs').abspath()
+            bld(rule = pgm + ' ${GX_STYLE_DIR} ${SRC}',
+                source = fnmatch.filter(gxstyle_files, 'gx_head_*.css'),
+                always = True,
+            )
