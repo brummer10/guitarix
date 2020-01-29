@@ -205,20 +205,13 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkAlignment" id="alignment6">
+                                      <object class="GxValueDisplay" id="gxvaluedisplay1">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="xscale">0</property>
-                                        <property name="yscale">0</property>
-                                        <child>
-                                          <object class="GxValueDisplay" id="gxvaluedisplay1">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="round_digits">0</property>
-                                            <property name="var_id">zita_rev1.decay_times.lf_x</property>
-                                          </object>
-                                        </child>
+                                        <property name="can_focus">True</property>
+                                        <property name="receives_default">True</property>
+                                        <property name="margin_right">6</property>
+                                        <property name="round_digits">0</property>
+                                        <property name="var_id">zita_rev1.decay_times.lf_x</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>

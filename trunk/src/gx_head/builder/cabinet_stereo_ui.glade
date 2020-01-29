@@ -23,6 +23,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="var_id">cab_st.select</property>
+		<property name="valign">center</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -51,6 +52,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="var_id">cab_st.select</property>
+		    <property name="valign">center</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>

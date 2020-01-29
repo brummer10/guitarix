@@ -298,7 +298,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fVslider8 = FAUSTFLOAT(200.0);
 	fVslider9 = FAUSTFLOAT(60.0);
 	fVslider10 = FAUSTFLOAT(0.0);
-			IOTA = 0;
+	IOTA = 0;
 	clear_state_f();
 }
 
@@ -789,20 +789,13 @@ const char *Dsp::glade_def = "\
                                       </packing>\n\
                                     </child>\n\
                                     <child>\n\
-                                      <object class=\"GtkAlignment\" id=\"alignment6\">\n\
+                                      <object class=\"GxValueDisplay\" id=\"gxvaluedisplay1\">\n\
                                         <property name=\"visible\">True</property>\n\
-                                        <property name=\"can_focus\">False</property>\n\
-                                        <property name=\"xscale\">0</property>\n\
-                                        <property name=\"yscale\">0</property>\n\
-                                        <child>\n\
-                                          <object class=\"GxValueDisplay\" id=\"gxvaluedisplay1\">\n\
-                                            <property name=\"visible\">True</property>\n\
-                                            <property name=\"can_focus\">True</property>\n\
-                                            <property name=\"receives_default\">True</property>\n\
-                                            <property name=\"round_digits\">0</property>\n\
-                                            <property name=\"var_id\">zita_rev1.decay_times.lf_x</property>\n\
-                                          </object>\n\
-                                        </child>\n\
+                                        <property name=\"can_focus\">True</property>\n\
+                                        <property name=\"receives_default\">True</property>\n\
+                                        <property name=\"margin_right\">6</property>\n\
+                                        <property name=\"round_digits\">0</property>\n\
+                                        <property name=\"var_id\">zita_rev1.decay_times.lf_x</property>\n\
                                       </object>\n\
                                       <packing>\n\
                                         <property name=\"expand\">False</property>\n\

@@ -1221,7 +1221,7 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">7</property>\n\
+                <property name=\"spacing\">1</property>\n\
                 <child>\n\
                   <object class=\"GtkBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
