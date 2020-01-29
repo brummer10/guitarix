@@ -175,7 +175,7 @@ void SkinHandling::set_styledir(const string& style_dir) {
     if (!d) {
         return;
     }
-    // look for gx_head_*.rc and extract *-part
+    // look for gx_head_*.css and extract *-part
     struct dirent *de;
     skin_list.clear();
     while ((de = readdir(d)) != 0) {
@@ -719,7 +719,7 @@ CmdlineOptions::CmdlineOptions()
     Glib::OptionEntry opt_style_dir;
     opt_style_dir.set_short_name('S');
     opt_style_dir.set_long_name("style-dir");
-    opt_style_dir.set_description(_("directory with skin style definitions (.rc files)"));
+    opt_style_dir.set_description(_("directory with skin style definitions (.css files)"));
     opt_style_dir.set_arg_description("DIR");
     optgroup_debug.add_entry_filename(opt_style_dir, style_dir);
     Glib::OptionEntry opt_log_terminal;
