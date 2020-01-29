@@ -193,24 +193,8 @@ class Parser(object):
                 return line
         return ""
 
-    def copy(self, exp, line=None):
-        cp = []
-        if line:
-            cp.append(line)
-        m = re.compile(exp).match
-        p = re.compile(r"\tint fSamplingFreq;").match
-        o = re.compile(r" public:").match
-        for line in self.lines:
-            if not line.strip():
-                continue
-            if p(line):
-                continue
-            if m(line):
-                break
-            if o(line):
-                break
-            cp.append(line)
-        # remove indentation
+    @staticmethod
+    def remove_indentation(cp):
         m = re.compile(r"\t*").match
         n = 10
         for l in cp:
@@ -218,20 +202,35 @@ class Parser(object):
                 n = min(n, len(m(l).group(0)))
         return [l[n:] for l in cp]
 
+    def copy(self, exp, line=None):
+        cp = []
+        if line:
+            cp.append(line)
+        m = re.compile(exp).match
+        p = re.compile(r"\tint (fSamplingFreq|fSampleRate);").match
+        o = re.compile(r" public:").match
+        for line in self.lines:
+            if not line.strip():
+                continue
+            t = p(line)
+            if t:
+                self.sample_rate_var = t.group(1)
+                continue
+            if m(line):
+                break
+            if o(line):
+                break
+            cp.append(line)
+        return self.remove_indentation(cp)
+
     def read_init(self, exp, line=None):
         cp = []
         if line:
             cp.append(line)
         m = re.compile(exp).match
-        n = re.compile("		}").match
-        p = re.compile(r"\tint fSamplingFreq;").match
         o = re.compile(r" public:").match
         for line in self.lines:
             if not line.strip():
-                continue
-            if p(line):
-                continue
-            if n(line):
                 continue
             if m(line):
                 break
@@ -239,17 +238,14 @@ class Parser(object):
                 break
             if line.startswith("		for"):
                 line = line.replace("{\n","")
-                line = line.replace("\t","")
                 l = next(self.lines)
                 line += l.replace("\t","")
+                l = next(self.lines)
+                if not l.strip():
+                    l = next(self.lines)
+                assert l.strip() == '}', repr(l)
             cp.append(line)
-        # remove indentation
-        m = re.compile(r"\t*").match
-        n = 10
-        for l in cp:
-            if l != "\n":
-                n = min(n, len(m(l).group(0)))
-        return [l[n:] for l in cp]
+        return self.remove_indentation(cp)
 
     def get_section_list(self):
         return "includes", "incl_class", "var-decl", "alias-defines", "alias-undefines", "var-init", "var-free", "ui", "compute", "post_compute"
@@ -579,7 +575,12 @@ class Parser(object):
         s = {}
         self.ui = UIDefs()
         #self.readMeta()  # (needed only for faust 9.4
-        self.headvers = self.skip_until(r"\s*\s*(Code generated with Faust.*)").group(1)
+        headvers = self.skip_until(r"\s*\s*((Code generated with Faust *)([^  ]*)(.*))")
+        self.faust_version = headvers.group(3)
+        if self.options.version_header:
+            self.headvers = headvers.group(1)
+        else:
+            self.headvers = headvers.group(2) + headvers.group(4).lstrip()
         cl,self.l,s["includes"] = self.readIncludes(r"#ifndef FAUSTCLASS")
         if cl:
             s["incl_class"] = self.readClass(r"#ifndef FAUSTCLASS")
@@ -600,8 +601,8 @@ class Parser(object):
         self.skip_until(r"\s*virtual void instanceResetUserInterface")
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void instanceClear")
-        s["var-init"] += self.read_init(r"\s*virtual void init")
-        del s["var-init"] [-1]
+        s["var-init"] += self.read_init(r'\t}')
+        self.sample_rate_param = self.skip_until(r"\s*virtual void init\(int ([a-zA-Z_]+)\)").group(1)
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
         s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl,options.init_type)
@@ -854,7 +855,7 @@ namespace %(namespace)s {
 #if %(has_activate)s
 static bool mem_allocated = false;
 #endif
-static int	fSamplingFreq;
+static int	%(sample_rate_var)s;
 
 #if %(has_state)s
 static void clear_state_f(PluginDef* = 0)
@@ -863,7 +864,7 @@ static void clear_state_f(PluginDef* = 0)
 }
 
 #endif
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+static void init(unsigned int %(sample_rate_param)s, PluginDef* = 0)
 {
 %(init_body)s\
 #if %(has_state_no_activate)s
@@ -1054,16 +1055,16 @@ private:
 #if %(has_stereo)s
 	gx_resample::FixedRateResampler smps;
 #endif
-	int samplingFreq;
+	int %(sample_rate_param)s;
 #endif
 #if %(has_oversample)s
 	gx_resample::FixedRateResampler smp;
 #if %(has_stereo)s
 	gx_resample::FixedRateResampler smps;
 #endif
-	int samplingFreq;
+	int %(sample_rate_param)s;
 #endif
-	int fSamplingFreq;
+	int %(sample_rate_var)s;
 %(var_decl)s\
 
 #if %(has_insert_p)s
@@ -1097,7 +1098,7 @@ public:
 	static const char *glade_def;
 #endif
 #endif
-	void init(unsigned int samplingFreq);
+	void init(unsigned int %(sample_rate_param)s);
 	void compute(int %(countname)s%(compute_args)s);
 	int register_par(const ParamReg& reg);
 #if %(has_plugindef)s
@@ -1111,7 +1112,7 @@ public:
 #if %(has_ui)s
 	static int load_ui_f_static(const UiBuilder& b, int form);
 #endif
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int %(sample_rate_param)s, PluginDef*);
 	static void compute_static(int %(countname)s%(compute_args)s, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -1189,23 +1190,23 @@ void Dsp::clear_state_f_static(PluginDef *p)
 #if %(has_fixedrate)s
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = %(fixedrate)s;
-	smp.setup(RsamplingFreq, samplingFreq);
+	%(sample_rate_param)s = %(fixedrate)s;
+	smp.setup(RsamplingFreq, %(sample_rate_param)s);
 #if %(has_stereo)s
-	smps.setup(RsamplingFreq, samplingFreq);
+	smps.setup(RsamplingFreq, %(sample_rate_param)s);
 #endif
 #endif
 #if %(has_oversample)s
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = %(oversample)s * RsamplingFreq;
-	smp.setup(RsamplingFreq, samplingFreq);
+	%(sample_rate_param)s = %(oversample)s * RsamplingFreq;
+	smp.setup(RsamplingFreq, %(sample_rate_param)s);
 #if %(has_stereo)s
-	smps.setup(RsamplingFreq, samplingFreq);
+	smps.setup(RsamplingFreq, %(sample_rate_param)s);
 #endif
 #endif
 #if %(no_oversample)s
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int %(sample_rate_param)s)
 {
 #endif
 %(init_body)s\
@@ -1218,9 +1219,9 @@ inline void Dsp::init(unsigned int samplingFreq)
 }
 
 #if %(has_plugindef)s
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int %(sample_rate_param)s, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(%(sample_rate_param)s);
 }
 
 #endif
@@ -1470,16 +1471,16 @@ private:
 #if %(has_stereo)s
 	gx_resample::FixedRateResampler smps;
 #endif
-	uint32_t samplingFreq;
+	uint32_t %(sample_rate_param)s;
 #endif
 #if %(has_oversample)s
 	gx_resample::FixedRateResampler smp;
 #if %(has_stereo)s
 	gx_resample::FixedRateResampler smps;
 #endif
-	uint32_t samplingFreq;
+	uint32_t %(sample_rate_param)s;
 #endif
-	uint32_t fSamplingFreq;
+	uint32_t %(sample_rate_var)s;
 %(var_decl)s\
 
 #if %(has_insert_p)s
@@ -1512,7 +1513,7 @@ public:
 #if %(has_activate)s
 	int activate(bool start);
 #endif
-	void init(uint32_t samplingFreq);
+	void init(uint32_t %(sample_rate_param)s);
 	void compute(int %(countname)s%(compute_args)s);
 #if %(has_plugindef)s
 
@@ -1522,7 +1523,7 @@ public:
 #if %(has_activate)s
 	static int activate_static(bool start, PluginLV2*);
 #endif
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t %(sample_rate_param)s, PluginLV2*);
 	static void compute_static(int %(countname)s%(compute_args)s, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 #if %(has_lv2)s
@@ -1596,23 +1597,23 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 #if %(has_fixedrate)s
 inline void Dsp::init(uint32_t RsamplingFreq)
 {
-	samplingFreq = %(fixedrate)s;
-	smp.setup(RsamplingFreq, samplingFreq);
+	%(sample_rate_param)s = %(fixedrate)s;
+	smp.setup(RsamplingFreq, %(sample_rate_param)s);
 #if %(has_stereo)s
-	smps.setup(RsamplingFreq, samplingFreq);
+	smps.setup(RsamplingFreq, %(sample_rate_param)s);
 #endif
 #endif
 #if %(has_oversample)s
 inline void Dsp::init(uint32_t RsamplingFreq)
 {
-	samplingFreq = %(oversample)s * RsamplingFreq;
-	smp.setup(RsamplingFreq, samplingFreq);
+	%(sample_rate_param)s = %(oversample)s * RsamplingFreq;
+	smp.setup(RsamplingFreq, %(sample_rate_param)s);
 #if %(has_stereo)s
-	smps.setup(RsamplingFreq, samplingFreq);
+	smps.setup(RsamplingFreq, %(sample_rate_param)s);
 #endif
 #endif
 #if %(no_oversample)s
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t %(sample_rate_param)s)
 {
 #endif
 %(init_body)s\
@@ -1625,9 +1626,9 @@ inline void Dsp::init(uint32_t samplingFreq)
 }
 
 #if %(has_plugindef)s
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t %(sample_rate_param)s, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(%(sample_rate_param)s);
 }
 
 #endif
@@ -2177,6 +2178,8 @@ class Output(object):
             has_separate_header = fp_head is not None,
             header_name = h_name,
             sharedlib = self.options.template_type == "sharedlib",
+            sample_rate_param = self.parser.sample_rate_param,
+            sample_rate_var = self.parser.sample_rate_var,
             ))
         s.seek(0)
         preprocess(s, fp, fp_head)
@@ -2193,18 +2196,18 @@ class Output(object):
         self.parser.write(fp, "var-decl", dct=dict(static="static "))
         if self.has_activate:
             fp.write("static bool mem_allocated = false;\n")
-        fp.write("static int\tfSamplingFreq;\n\n")
+        fp.write("static int\t%s;\n\n" % self.parser.sample_rate_var)
         if self.state_init:
             fp.write("static void clear_state_f(PluginDef* = 0)\n{\n")
             fp.write(self.state_init);
             fp.write("}\n\n")
         if self.state_init and not self.has_activate:
-            fp.write("static void init(unsigned int samplingFreq, PluginDef* = 0)\n{\n")
+            fp.write("static void init(unsigned int %s, PluginDef* = 0)\n{\n" % self.parser.sample_rate_param)
             self.parser.write(fp, "var-init", 1, filt=self.parser.ui.var_filter(1))
             fp.write('\tclear_state_f();\n')
             fp.write("}\n\n")
         else:
-            fp.write("static void init(unsigned int samplingFreq, PluginDef* = 0)\n{\n")
+            fp.write("static void init(unsigned int %s, PluginDef* = 0)\n{\n" % self.parser.sample_rate_param)
             self.parser.write(fp, "var-init", 1, filt=self.parser.ui.var_filter(1))
             fp.write("}\n\n")
         if self.has_activate:
@@ -2276,6 +2279,8 @@ def main():
                   help="put definitions inside an extra namespace")
     op.add_option("-e", "--param-warn", dest="param_warn", action="store_true", default=False,
                   help="don't signal an error when the ui definition references an unknown dsp parameter")
+    op.add_option("--no-version-header", dest="version_header", action="store_false", default=True,
+                  help="don't display the faust version in generated files")
     options, args = op.parse_args()
     if options.init_type not in init_opts:
         op.error("unknown init-type")

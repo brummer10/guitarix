@@ -187,24 +187,8 @@ class Parser(object):
                 return line
         return ""
 
-    def copy(self, exp, line=None):
-        cp = []
-        if line:
-            cp.append(line)
-        m = re.compile(exp).match
-        p = re.compile(r"\tint fSamplingFreq;").match
-        o = re.compile(r" public:").match
-        for line in self.lines:
-            if not line.strip():
-                continue
-            if p(line):
-                continue
-            if m(line):
-                break
-            if o(line):
-                break
-            cp.append(line)
-        # remove indentation
+    @staticmethod
+    def remove_indentation(cp):
         m = re.compile(r"\t*").match
         n = 10
         for l in cp:
@@ -212,20 +196,35 @@ class Parser(object):
                 n = min(n, len(m(l).group(0)))
         return [l[n:] for l in cp]
 
+    def copy(self, exp, line=None):
+        cp = []
+        if line:
+            cp.append(line)
+        m = re.compile(exp).match
+        p = re.compile(r"\tint (fSamplingFreq|fSampleRate);").match
+        o = re.compile(r" public:").match
+        for line in self.lines:
+            if not line.strip():
+                continue
+            t = p(line)
+            if t:
+                self.sample_rate_var = t.group(1)
+                continue
+            if m(line):
+                break
+            if o(line):
+                break
+            cp.append(line)
+        return self.remove_indentation(cp)
+
     def read_init(self, exp, line=None):
         cp = []
         if line:
             cp.append(line)
         m = re.compile(exp).match
-        n = re.compile("		}").match
-        p = re.compile(r"\tint fSamplingFreq;").match
         o = re.compile(r" public:").match
         for line in self.lines:
             if not line.strip():
-                continue
-            if p(line):
-                continue
-            if n(line):
                 continue
             if m(line):
                 break
@@ -233,17 +232,14 @@ class Parser(object):
                 break
             if line.startswith("		for"):
                 line = line.replace("{\n","")
-                line = line.replace("\t","")
                 l = next(self.lines)
                 line += l.replace("\t","")
+                l = next(self.lines)
+                if not l.strip():
+                    l = next(self.lines)
+                assert l.strip() == '}', repr(l)
             cp.append(line)
-        # remove indentation
-        m = re.compile(r"\t*").match
-        n = 10
-        for l in cp:
-            if l != "\n":
-                n = min(n, len(m(l).group(0)))
-        return [l[n:] for l in cp]
+        return self.remove_indentation(cp)
 
     def get_section_list(self):
         return "includes", "var-decl", "alias-defines", "alias-undefines", "var-init", "var-free", "ui", "compute"
@@ -551,8 +547,8 @@ class Parser(object):
         self.skip_until(r"\s*virtual void instanceResetUserInterface")
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void instanceClear")
-        s["var-init"] += self.read_init(r"\s*virtual void init")
-        del s["var-init"] [-1]
+        s["var-init"] += self.read_init(r'\t}')
+        self.sample_rate_param = self.skip_until(r"\s*virtual void init\(int ([a-zA-Z_]+)\)").group(1)
         self.skip_until(r"\s*virtual void buildUserInterface")
         s["ui"] = self.readUI(r"\s*}$")
         s["var-decl"], s["alias-defines"], s["alias-undefines"] = self.change_var_decl(var_decl,options.init_type)
@@ -686,7 +682,7 @@ insert_p1_incl = \"\"\"
 
 insert_p1_class = \"\"\"
 #if %(has_oversample)s
-	int samplingFreq;
+	int %(sample_rate_param)s;
 	gx_resample::FixedRateResampler smpCl;
 #if %(has_stereo)s
 	gx_resample::FixedRateResampler smpsCl;
@@ -697,10 +693,10 @@ insert_p1_class = \"\"\"
 
 insert_p1_init = \"\"\"
 #if %(has_oversample)s
-	samplingFreq = %(oversample)s;
-	smpCl.setup(fSamplingFreq, samplingFreq);
+	%(sample_rate_param)s = %(oversample)s;
+	smpCl.setup(%(sample_rate_var)s, %(sample_rate_param)s);
 #if %(has_stereo)s
-	smpsCl.setup(fSamplingFreq, samplingFreq);
+	smpsCl.setup(%(sample_rate_var)s, %(sample_rate_param)s);
 #endif
 #endif
 %(init_body)s\
@@ -864,6 +860,8 @@ class Output(object):
             compute_body = self.parser_sect("compute", 1),
             undefines = self.parser_sect("alias-undefines", 0),
             register_body = self.parser_ui("reg."),
+            sample_rate_param = self.parser.sample_rate_param,
+            sample_rate_var = self.parser.sample_rate_var,
             ))
         s.seek(0)
         preprocess(s, fp, fp_head)
