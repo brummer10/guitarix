@@ -180,7 +180,8 @@ def build(bld):
                 is_copy=True,
                 install_path=bld.env.GX_STYLE_DIR)
         env = bld.env.derive()
-        env.MAKE_ICON_DIRS = bld.path.find_resource('make_icon_dirs').abspath()
+        prog = 'make_icon_dirs'
+        env.MAKE_ICON_DIRS = bld.path.find_resource(prog).abspath()
         if bld.is_install:
             # make_icon_dirs creates theme folder as symlink farms
             # only missing / changed links are created
@@ -201,4 +202,5 @@ def build(bld):
                     source = src,
                     target = theme_from_scss(src),
                     env = env,
+                    deps = prog,
                 )

@@ -38,7 +38,7 @@ def main():
         makedirs(dest, exist_ok=True)
         for src, dst in scan_scss(scssfile):
             src += splitext(dst)[1]
-            lpath = join(dest, dst)
+            lpath = join(dest, src)
             dst = join('..', dst)
             if islink(lpath):
                 if readlink(lpath) == dst:
