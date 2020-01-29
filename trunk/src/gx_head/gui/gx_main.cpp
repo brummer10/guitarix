@@ -488,6 +488,13 @@ static void mainGtk(int argc, char *argv[]) {
     }
 
     gx_engine::GxMachine machine(options);
+    while(Gtk::Main::events_pending()) {
+	// prevents crash in show_error_msg!dialog.run() when its
+	// called due to an early exception (like some icon file not
+	// found when the style-dir is bad). This is probably not the
+	// correct cure but it helps...
+        Gtk::Main::iteration(false);
+    }
 #if 0
 #ifndef NDEBUG
     if (argc > 1) {
