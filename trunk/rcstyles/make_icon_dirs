@@ -2,9 +2,9 @@
 import sys
 from re import compile
 from os import makedirs, remove, symlink, readlink
-from os.path import join, splitext, islink, basename
+from os.path import join, splitext, islink, basename, exists
 
-def scan_css(fname):
+def scan_scss(fname):
     defn = compile(' *\* *([-a-zA-Z0-9_]+) *: *([-a-zA-Z0-9_.]+)').match
     with open(fname) as fd:
         for line in fd:
@@ -23,19 +23,28 @@ def scan_css(fname):
             raise ValueError("icon table end not found: ' * ICON THEME'")
 
 def main():
-    if len(sys.argv) < 2:
-        raise SystemExit('usage: make_icon_dirs dirpath {cssfile} ..')
+    single = False
+    if sys.argv[1:2] == ['-s']:
+        del sys.argv[1]
+        single = True
+        if len(sys.argv) != 3:
+            raise SystemExit('error: only one sccsfile with option -s')
+    elif len(sys.argv) < 2:
+        raise SystemExit('usage: make_icon_dirs [-s] dirpath {scssfile} ..')
     path = sys.argv[1]
-    for cssfile in sys.argv[2:]:
-        name = splitext(basename(cssfile))[0][8:]
-        makedirs(join(path, name), exist_ok=True)
-        for src, dst in scan_css(cssfile):
+    for scssfile in sys.argv[2:]:
+        name = splitext(basename(scssfile))[0][8:]
+        dest = path if single else join(path, name)
+        makedirs(dest, exist_ok=True)
+        for src, dst in scan_scss(scssfile):
             src += splitext(dst)[1]
-            lpath = join(path, name, dst)
+            lpath = join(dest, dst)
             dst = join('..', dst)
             if islink(lpath):
                 if readlink(lpath) == dst:
                     continue
+                remove(lpath)
+            elif exists(lpath):
                 remove(lpath)
             symlink(dst, lpath)
 

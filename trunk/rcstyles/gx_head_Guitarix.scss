@@ -23,9 +23,9 @@ rc-file: { left, right, top, bottom }
 css-file: { top, right, bottom, left }
 */
 
-@define-color bg_button rgb(45, 45, 45);
-@define-color bg_button_hover rgb(60, 60, 60);
-@define-color bg_button_checked rgb(0, 0, 0);
+$bg-button: rgb(45, 45, 45);
+$bg-button-hover: rgb(60, 60, 60);
+$bg-button-checked: rgb(0, 0, 0);
 
 
 /**/
@@ -56,13 +56,13 @@ css-file: { top, right, bottom, left }
 #rackbox checkbutton#effect_on_off.gx_sw_switch_mid,
 #rackbox checkbutton.gx_effect_on_off.gx_sw_switch_mid {
     box-shadow: none;
-    background-color: @bg_button;
+    background-color: $bg-button;
 }
 #rackbox checkbutton#effect_on_off.gx_sw_switch_mid check,
 #rackbox checkbutton.gx_effect_on_off.gx_sw_switch_mid check {
     padding: 5px 0px 5px 3px;
     box-shadow: none;
-    background-color: @bg_button;
+    background-color: $bg-button;
 }
 
 .gx_sw_switch_mid check:checked {
@@ -121,16 +121,6 @@ gx-paint-box, box, label, grid, button {
 }
 
 gx-paint-box {
-    -GxPaintBox::box-gradient: {
-	{ 0, 19661, 19661, 19661, 32428 }, /* 0, 0.3, 0.3, 0.3, 0.49 */
-	{ 65536, 29661, 29661, 29661, 32428 }}; /* 1, 0.45, 0.45, 0.45, 0.49 */
-
-    -GxPaintBox-skin-gradient: {
-	{ 65536, 4107, 4107, 4107, 52428 }}; /* 0.2, 0, 0, 0.2, 0.2 */
-	
-    -GxPaintBox-rack-gradient: {
-	{ 65536, 2768, 2768, 2768, 52428 }}; /* 0.2, 0, 0, 0.2, 0.8 */
-
     -GxPaintBox-bevel         : 0.11;
     -GxPaintBox-inverse       : 0;
     -GxPaintBox-alternate-box : 60 0 0 0;
@@ -422,7 +412,7 @@ button {
     box-shadow: none;
     background-image: none;
     /* experimental: 3d effect
-    background-color: @bg_button;
+    background-color: $bg-button;
     box-shadow:
 	1px 1px 0px 1px black,
 	0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.1),
@@ -431,12 +421,12 @@ button {
 }
 
 button * {
-    background-color: @bg_button;
+    background-color: $bg-button;
 }
 
 /* experimental: 3d effect
 button:checked {
-    background-color: @bg_button_checked;
+    background-color: $bg-button-checked;
     box-shadow:
 	1px 1px 0px 1px black,
 	0.5px 0.5px 0px 0.5px rgba(200,200,200,0.4),
@@ -445,11 +435,11 @@ button:checked {
 */
 
 button:checked * {
-    background-color: @bg_button_checked;
+    background-color: $bg-button-checked;
 }
 
 button:hover * {
-    background-color: @bg_button_hover;
+    background-color: $bg-button-hover;
 }
 
 #seq_button {
@@ -510,7 +500,7 @@ button {
 }
 
 .gx_bg_fastmeter {
-    background-color: @bg_button;
+    background-color: $bg-button;
 }
 
 #vbox14 {
@@ -578,14 +568,14 @@ button {
 #rackcontainer .gx_effect_on_off.gx_switch,
 #rackcontainer #effect_on_off.gx_switch check,
 #rackcontainer .gx_effect_on_off.gx_switch check {
-    background-color: @bg_button;
+    background-color: $bg-button;
 }
 
 #rackcontainer #effect_on_off.gx_switch:hover,
 #rackcontainer .gx_effect_on_off.gx_switch:hover,
 #rackcontainer #effect_on_off.gx_switch:hover check,
 #rackcontainer .gx_effect_on_off.gx_switch:hover check {
-  background-color: @bg_button_hover;
+  background-color: $bg-button-hover;
 }
 
 
@@ -662,8 +652,6 @@ gx-big-knob {
     background-color: #222222; /* border */
     /*base[NORMAL]   = { 0.05, 0.05, 0.05 }        # text background */
     /*text[NORMAL]   = "#ff9000"                   # arrow */
-    -GxRegler-value-color: {
-	{ 0, 20971, 52428, 10485, 52428 }};
 }
 
 gx-value-display {
@@ -716,7 +704,7 @@ gx-regler:hover {
 }
 
 #rackcontainer #effect_title,
-#drag_widget #*effect_title {
+#drag_widget #effect_title {
     font: 12px "Roboto Condensed Regular";
     color: #222222;
 }
@@ -816,8 +804,15 @@ gx-fast-meter:hover,
     padding: 1px 0px 1px 0px;
 }
 
+#ampdetails .gx_sw_minitoggle,
 #hboxcenter .gx_sw_minitoggle {
   padding: 5px;
+  background-color: $bg-button;
+}
+
+#ampdetails .gx_sw_minitoggle:hover,
+#hboxcenter .gx_sw_minitoggle:hover {
+  background-color: $bg-button-hover;
 }
 
 #rackcontainer gx-vslider {
@@ -923,32 +918,32 @@ gx-ir-edit {
 /* IR Edit Window */
 
 #run_switch.gx_switch {
-  background-color: @bg_button;
+  background-color: $bg-button;
   outline-style: none;
 }
 
 #run_switch.gx_switch check {
   min-width: 48px;
-  background-color: @bg_button;
+  background-color: $bg-button;
 }
 
 #run_switch.gx_switch:hover,
 #run_switch.gx_switch:hover check {
-  background-color: @bg_button_hover;
+  background-color: $bg-button-hover;
 }
 
 #run_switch.gx_switch:checked:hover:not(:active),
 #run_switch.gx_switch:checked:hover:not(:active) check {
-  background-color: @bg_button_hover;
+  background-color: $bg-button-hover;
 }
 
 #run_switch.gx_switch:checked,
 #run_switch.gx_switch:active {
-  background-color: @bg_button_checked;
+  background-color: $bg-button-checked;
 }
 
 #run_switch.gx_switch:checked check,
 #run_switch.gx_switch:active check,
 #run_switch.gx_switch:checked:active check {
-  background-color: @bg_button_checked;
+  background-color: $bg-button-checked;
 }

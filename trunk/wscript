@@ -319,6 +319,7 @@ def configure(conf):
         conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
         conf.check_cfg(package='libcurl', atleast_version='7.26.0', args='--cflags --libs', uselib_store='CURL', mandatory=1)
         conf.gxload('robotofont')
+        conf.gxload('sassc')
     else:
         conf.env['NO_MAIN'] = True
         opt.no_desktop_update = True
