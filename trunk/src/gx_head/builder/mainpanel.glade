@@ -14,7 +14,6 @@
         <property name="name">amp_background:ampbox</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="border_width">5</property>
         <property name="paint_func">gx_rack_amp_expose</property>
         <child>
           <object class="GtkAlignment" id="amp_padding">
@@ -123,6 +122,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="vexpand">True</property>
                         <property name="var_id">gxdistortion.wet_dry</property>
                       </object>
                       <packing>
@@ -136,6 +136,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="vexpand">True</property>
                         <property name="var_id">amp2.stage1.Pregain</property>
                         <property name="value_position">top</property>
                       </object>
@@ -221,34 +222,6 @@
                             <property name="can_focus">False</property>
                             <property name="row_spacing">4</property>
                             <child>
-                              <object class="GtkBox" id="hboxbassboost">
-                                <property name="name">hboxbassboost</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label6:effekt_label">
-                                    <property name="name">label6:effekt_label</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes"> Bass Boost  </property>
-                                    <property name="xalign">0.5</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">0</property>
-                              </packing>
-                            </child>
-                            <child>
                               <object class="GxSmallKnobR" id="gxmediumknobbassboost">
                                 <property name="name">gxmediumknobbassboost</property>
                                 <property name="visible">True</property>
@@ -267,12 +240,27 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="halign">center</property>
+                                <property name="draw_indicator">True</property>
                                 <property name="var_id">amp.bass_boost.on_off</property>
                                 <property name="base_name">minitoggle</property>
                               </object>
                               <packing>
                                 <property name="left_attach">0</property>
                                 <property name="top_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label6:effekt_label">
+                                <property name="name">label6:effekt_label</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes"> Bass Boost  </property>
+                                <property name="xalign">0.5</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
                               </packing>
                             </child>
                           </object>
@@ -288,34 +276,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="row_spacing">4</property>
-                            <child>
-                              <object class="GtkBox" id="hboxpresence">
-                                <property name="name">hboxpresence</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label7:effekt_label">
-                                    <property name="name">label7:effekt_label</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes"> Presence </property>
-                                    <property name="xalign">0.5</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">0</property>
-                              </packing>
-                            </child>
                             <child>
                               <object class="GxSmallKnobR" id="gxmediumknobpresence">
                                 <property name="name">gxmediumknobpresence</property>
@@ -335,12 +295,27 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="halign">center</property>
+                                <property name="draw_indicator">True</property>
                                 <property name="var_id">con.on_off</property>
                                 <property name="base_name">minitoggle</property>
                               </object>
                               <packing>
                                 <property name="left_attach">0</property>
                                 <property name="top_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label7:effekt_label">
+                                <property name="name">label7:effekt_label</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes"> Presence </property>
+                                <property name="xalign">0.5</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
                               </packing>
                             </child>
                           </object>
@@ -356,34 +331,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="row_spacing">4</property>
-                            <child>
-                              <object class="GtkBox" id="hboxreverb">
-                                <property name="name">hboxreverb</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="label8:effekt_label">
-                                    <property name="name">label8:effekt_label</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes"> Reverb  </property>
-                                    <property name="xalign">0.5</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="left_attach">0</property>
-                                <property name="top_attach">0</property>
-                              </packing>
-                            </child>
                             <child>
                               <object class="GxSmallKnobR" id="gxmediumknobreverb">
                                 <property name="name">gxmediumknobreverb</property>
@@ -403,12 +350,27 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="halign">center</property>
+                                <property name="draw_indicator">True</property>
                                 <property name="var_id">amp.feed_on_off</property>
                                 <property name="base_name">minitoggle</property>
                               </object>
                               <packing>
                                 <property name="left_attach">0</property>
                                 <property name="top_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label8:effekt_label">
+                                <property name="name">label8:effekt_label</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes"> Reverb  </property>
+                                <property name="xalign">0.5</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
                               </packing>
                             </child>
                           </object>
@@ -441,12 +403,19 @@
                                 <property name="name">fastmeterL</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="margin_left">8</property>
+                                <property name="margin_right">8</property>
+                                <property name="margin_top">4</property>
+                                <property name="margin_bottom">2</property>
                                 <property name="hold">20</property>
                                 <property name="dimen">0</property>
                                 <property name="horiz">True</property>
                                 <property name="type">1</property>
                               </object>
                             </child>
+                            <style>
+                              <class name="gx_bg_fastmeter"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -465,12 +434,19 @@
                                 <property name="name">fastmeterR</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="margin_left">8</property>
+                                <property name="margin_right">8</property>
+                                <property name="margin_top">2</property>
+                                <property name="margin_bottom">4</property>
                                 <property name="hold">20</property>
                                 <property name="dimen">0</property>
                                 <property name="horiz">True</property>
                                 <property name="type">2</property>
                               </object>
                             </child>
+                            <style>
+                              <class name="gx_bg_fastmeter"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -503,6 +479,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="vexpand">True</property>
                         <property name="var_id">amp.out_master</property>
                       </object>
                       <packing>
@@ -524,8 +501,10 @@
                     </child>
                     <child>
                       <object class="GxPaintBox" id="gxlogobox">
+                        <property name="name">gxlogobox</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="vexpand">True</property>
                         <property name="paint_func">live_box_expose</property>
                         <child>
                           <placeholder/>
@@ -1329,6 +1308,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="hscrollbar_policy">never</property>
+                        <property name="window_placement_set">False</property>
+                        <property name="overlay_scrolling">False</property>
                         <child>
                           <object class="GtkToolPalette" id="effects_toolpalette">
                             <property name="name">effects_toolpalette</property>
@@ -1369,6 +1350,9 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="hscrollbar_policy">never</property>
+                            <property name="vscrollbar_policy">always</property>
+                            <property name="window_placement_set">False</property>
+                            <property name="overlay_scrolling">False</property>
                             <child>
                               <object class="GtkViewport" id="viewport2">
                                 <property name="name">viewport2</property>
@@ -1380,57 +1364,59 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="orientation">vertical</property>
+                                    <property name="baseline_position">top</property>
                                     <property name="paint_func">rack_expose</property>
                                     <child>
-                                      <object class="GtkLabel" id="spacer_widget">
-                                        <property name="width_request">600</property>
-                                        <property name="height_request">1</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
+                                      <placeholder/>
                                     </child>
                                     <child>
-                                      <object class="GtkBox" id="monobox">
-                                        <property name="name">monobox</property>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
+                                      <object class="GtkBox">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="valign">start</property>
                                         <property name="orientation">vertical</property>
                                         <child>
-                                          <object class="GtkBox" id="upper_rackbox">
-                                            <property name="name">upper_rackbox</property>
+                                          <object class="GtkBox" id="monobox">
+                                            <property name="name">monobox</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
+                                            <property name="valign">start</property>
                                             <property name="orientation">vertical</property>
+                                            <property name="baseline_position">top</property>
                                             <child>
-                                              <object class="GxPaintBox" id="monoampcontainer:ampdetails">
-                                                <property name="name">monoampcontainer:ampdetails</property>
+                                              <object class="GtkBox" id="upper_rackbox">
+                                                <property name="name">upper_rackbox</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="orientation">vertical</property>
-                                                <property name="paint_func">gx_rack_amp_expose</property>
                                                 <child>
-                                                  <object class="GtkAlignment" id="details_padding">
-                                                    <property name="name">details_padding</property>
+                                                  <object class="GxPaintBox" id="monoampcontainer:ampdetails">
+                                                    <property name="name">monoampcontainer:ampdetails</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="left_padding">32</property>
-                                                    <property name="right_padding">32</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <property name="paint_func">gx_rack_amp_expose</property>
                                                     <child>
-                                                      <object class="GtkBox" id="vbox2">
-                                                        <property name="name">vbox2</property>
+                                                      <object class="GtkAlignment" id="details_padding">
+                                                        <property name="name">details_padding</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="orientation">vertical</property>
+                                                        <property name="left_padding">32</property>
+                                                        <property name="right_padding">32</property>
                                                         <child>
-                                                          <object class="GtkBox" id="ampdetail_mini">
+                                                          <object class="GtkBox" id="vbox2">
+                                                            <property name="name">vbox2</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="orientation">vertical</property>
+                                                            <child>
+                                                            <object class="GtkBox" id="ampdetail_mini">
                                                             <property name="name">ampdetail_mini</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="border_width">4</property>
+                                                            <property name="border_width">0</property>
                                                             <child>
                                                             <object class="GtkBox" id="vbox3">
                                                             <property name="name">vbox3</property>
@@ -1445,13 +1431,15 @@
                                                             <property name="receives_default">True</property>
                                                             <child>
                                                             <object class="GtkImage" id="image3">
-                                                            <property name="name">image3</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="stock">rack_expand</property>
+                                                            <property name="icon_name">rack_expand</property>
                                                             <property name="icon_size">1</property>
                                                             </object>
                                                             </child>
+                                                            <style>
+                                                            <class name="gx_effect_on_off"/>
+                                                            </style>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1482,15 +1470,15 @@
                                                             <property name="position">1</property>
                                                             </packing>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkBox" id="ampdetail_normal">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkBox" id="ampdetail_normal">
                                                             <property name="name">ampdetail_normal</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -1514,7 +1502,7 @@
                                                             <packing>
                                                             <property name="left_attach">0</property>
                                                             <property name="top_attach">0</property>
-                                                            <property name="width">3</property>
+                                                            <property name="width">2</property>
                                                             </packing>
                                                             </child>
                                                             <child>
@@ -1523,12 +1511,15 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="halign">end</property>
+                                                            <property name="valign">center</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">noise_gate.on_off</property>
                                                             <property name="base_name">minitoggle</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="top_attach">2</property>
+                                                            <property name="left_attach">0</property>
+                                                            <property name="top_attach">1</property>
                                                             </packing>
                                                             </child>
                                                             <child>
@@ -1555,18 +1546,6 @@
                                                             <property name="top_attach">1</property>
                                                             </packing>
                                                             </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1592,7 +1571,7 @@
                                                             <packing>
                                                             <property name="left_attach">0</property>
                                                             <property name="top_attach">0</property>
-                                                            <property name="width">3</property>
+                                                            <property name="width">2</property>
                                                             </packing>
                                                             </child>
                                                             <child>
@@ -1601,12 +1580,15 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="halign">end</property>
+                                                            <property name="valign">center</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">shaper.on_off</property>
                                                             <property name="base_name">minitoggle</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="top_attach">2</property>
+                                                            <property name="left_attach">0</property>
+                                                            <property name="top_attach">1</property>
                                                             </packing>
                                                             </child>
                                                             <child>
@@ -1633,18 +1615,6 @@
                                                             <property name="top_attach">1</property>
                                                             </packing>
                                                             </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1669,10 +1639,13 @@
                                                             <property name="name">image4</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="stock">rack_shrink</property>
+                                                            <property name="icon_name">rack_shrink</property>
                                                             <property name="icon_size">1</property>
                                                             </object>
                                                             </child>
+                                                            <style>
+                                                            <class name="gx_effect_on_off"/>
+                                                            </style>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1706,7 +1679,7 @@
                                                             <packing>
                                                             <property name="left_attach">0</property>
                                                             <property name="top_attach">0</property>
-                                                            <property name="width">3</property>
+                                                            <property name="width">2</property>
                                                             </packing>
                                                             </child>
                                                             <child>
@@ -1715,12 +1688,15 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="halign">end</property>
+                                                            <property name="valign">center</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">amp.on_off</property>
                                                             <property name="base_name">minitoggle</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="top_attach">2</property>
+                                                            <property name="left_attach">0</property>
+                                                            <property name="top_attach">1</property>
                                                             </packing>
                                                             </child>
                                                             <child>
@@ -1747,18 +1723,6 @@
                                                             <property name="top_attach">1</property>
                                                             </packing>
                                                             </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1784,7 +1748,7 @@
                                                             <packing>
                                                             <property name="left_attach">0</property>
                                                             <property name="top_attach">0</property>
-                                                            <property name="width">3</property>
+                                                            <property name="width">2</property>
                                                             </packing>
                                                             </child>
                                                             <child>
@@ -1793,12 +1757,15 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="halign">end</property>
+                                                            <property name="valign">center</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">amp.clip.on_off</property>
                                                             <property name="base_name">minitoggle</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="top_attach">2</property>
+                                                            <property name="left_attach">0</property>
+                                                            <property name="top_attach">1</property>
                                                             </packing>
                                                             </child>
                                                             <child>
@@ -1825,18 +1792,6 @@
                                                             <property name="top_attach">1</property>
                                                             </packing>
                                                             </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1844,14 +1799,21 @@
                                                             <property name="position">4</property>
                                                             </packing>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">1</property>
-                                                          </packing>
+                                                            </packing>
+                                                            </child>
+                                                          </object>
                                                         </child>
                                                       </object>
+                                                      <packing>
+                                                        <property name="expand">False</property>
+                                                        <property name="fill">False</property>
+                                                        <property name="position">0</property>
+                                                      </packing>
                                                     </child>
                                                   </object>
                                                   <packing>
@@ -1860,36 +1822,29 @@
                                                     <property name="position">0</property>
                                                   </packing>
                                                 </child>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GxPaintBox" id="tunerbox">
-                                                <property name="name">tunerbox</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="orientation">vertical</property>
-                                                <property name="paint_func">gx_rack_amp_expose</property>
                                                 <child>
-                                                  <object class="GtkAlignment" id="tuner_padding">
-                                                    <property name="name">tuner_padding</property>
-                                                    <property name="visible">True</property>
+                                                  <object class="GxPaintBox" id="tunerbox">
+                                                    <property name="name">tunerbox</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="left_padding">32</property>
-                                                    <property name="right_padding">32</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <property name="paint_func">gx_rack_amp_expose</property>
                                                     <child>
-                                                      <object class="GtkBox" id="vbox_tuner_main">
-                                                        <property name="name">vbox_tuner_main</property>
+                                                      <object class="GtkAlignment" id="tuner_padding">
+                                                        <property name="name">tuner_padding</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="border_width">4</property>
-                                                        <property name="orientation">vertical</property>
-                                                        <property name="spacing">10</property>
+                                                        <property name="left_padding">32</property>
+                                                        <property name="right_padding">32</property>
                                                         <child>
-                                                          <object class="GtkBox" id="hbox_tuner_top">
+                                                          <object class="GtkBox" id="vbox_tuner_main">
+                                                            <property name="name">vbox_tuner_main</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="border_width">4</property>
+                                                            <property name="orientation">vertical</property>
+                                                            <property name="spacing">3</property>
+                                                            <child>
+                                                            <object class="GtkBox" id="hbox_tuner_top">
                                                             <property name="name">hbox_tuner_top</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -1900,6 +1855,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">ui.racktuner</property>
                                                             <property name="base_name">switchit</property>
                                                             </object>
@@ -1936,11 +1892,12 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="halign">start</property>
                                                             <property name="var_id">racktuner.tuning</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
                                                             <property name="position">0</property>
                                                             </packing>
                                                             </child>
@@ -1953,8 +1910,8 @@
                                                             <property name="var_id">racktuner.streaming</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
                                                             <property name="position">1</property>
                                                             </packing>
                                                             </child>
@@ -1967,8 +1924,8 @@
                                                             <property name="var_id">ui.tuner_reference_pitch</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
                                                             <property name="pack_type">end</property>
                                                             <property name="position">2</property>
                                                             </packing>
@@ -1982,82 +1939,39 @@
                                                             <property name="var_id">racktuner.temperament</property>
                                                             </object>
                                                             <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
                                                             <property name="position">3</property>
+                                                            </packing>
+                                                            </child>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">2</property>
                                                             </packing>
                                                             </child>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
-                                                            <property name="position">2</property>
+                                                            <property name="position">0</property>
                                                             </packing>
                                                             </child>
-                                                          </object>
-                                                          <packing>
-                                                            <property name="expand">True</property>
-                                                            <property name="fill">True</property>
-                                                            <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GxRackTuner" id="racktuner">
+                                                            <child>
+                                                            <object class="GxRackTuner" id="racktuner">
                                                             <property name="name">racktuner</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="streaming">True</property>
                                                             <property name="temperament">1</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">1</property>
-                                                          </packing>
-                                                        </child>
-                                                      </object>
-                                                    </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">False</property>
-                                                    <property name="position">0</property>
-                                                  </packing>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GxPaintBox" id="midi_out_box">
-                                                <property name="name">midi_out_box</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="border_width">4</property>
-                                                <property name="orientation">vertical</property>
-                                                <property name="paint_func">box_uni_2_expose</property>
-                                                <child>
-                                                  <object class="GtkBox" id="midi_out_mini">
-                                                    <property name="name">midi_out_mini</property>
-                                                    <property name="can_focus">False</property>
-                                                    <child>
-                                                      <object class="GtkAlignment" id="alignment16">
-                                                        <property name="name">alignment16</property>
-                                                        <property name="width_request">35</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="xscale">0</property>
-                                                        <property name="yscale">0</property>
-                                                        <child>
-                                                          <object class="GxSwitch" id="gxswitch7">
-                                                            <property name="name">gxswitch7</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="var_id">midi_out.on_off</property>
-                                                            <property name="base_name">switch_min</property>
+                                                            </packing>
+                                                            </child>
                                                           </object>
                                                         </child>
                                                       </object>
@@ -2067,127 +1981,170 @@
                                                         <property name="position">0</property>
                                                       </packing>
                                                     </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GxPaintBox" id="midi_out_box">
+                                                    <property name="name">midi_out_box</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <property name="paint_func">box_uni_2_expose</property>
                                                     <child>
-                                                      <object class="GtkAlignment" id="alignment17">
-                                                        <property name="name">alignment17</property>
-                                                        <property name="visible">True</property>
+                                                      <object class="GtkBox" id="midi_out_mini">
+                                                        <property name="name">midi_out_mini</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="xalign">0</property>
-                                                        <property name="yalign">0</property>
-                                                        <property name="top_padding">4</property>
-                                                        <property name="bottom_padding">4</property>
-                                                        <property name="left_padding">4</property>
-                                                        <property name="right_padding">4</property>
                                                         <child>
-                                                          <object class="GtkButton" id="button5:effect_reset">
+                                                          <object class="GtkAlignment" id="alignment16">
+                                                            <property name="name">alignment16</property>
+                                                            <property name="width_request">35</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="xscale">0</property>
+                                                            <property name="yscale">0</property>
+                                                            <child>
+                                                            <object class="GxSwitch" id="gxswitch7">
+                                                            <property name="name">gxswitch7</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
+                                                            <property name="var_id">midi_out.on_off</property>
+                                                            <property name="base_name">switch_min</property>
+                                                            </object>
+                                                            </child>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">0</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkAlignment" id="alignment17">
+                                                            <property name="name">alignment17</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="yalign">0</property>
+                                                            <property name="top_padding">4</property>
+                                                            <property name="bottom_padding">4</property>
+                                                            <property name="left_padding">4</property>
+                                                            <property name="right_padding">4</property>
+                                                            <child>
+                                                            <object class="GtkButton" id="button5:effect_reset">
                                                             <property name="name">button5:effect_reset</property>
                                                             <property name="width_request">6</property>
                                                             <property name="visible">True</property>
                                                             <property name="sensitive">False</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            </object>
+                                                            </child>
                                                           </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">1</property>
+                                                          </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">1</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkLabel" id="label11:rack_effect_label">
-                                                        <property name="name">label11:rack_effect_label</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="label" translatable="yes">Midi Out</property>
-                                                        <attributes>
-                                                          <attribute name="size" value="7680"/>
-                                                        </attributes>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">2</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkLabel" id="label11">
-                                                        <property name="name">label11</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">True</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">3</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkButton" id="midi_out_presets_mini">
-                                                        <property name="name">midi_out_presets_mini</property>
-                                                        <property name="width_request">18</property>
-                                                        <property name="height_request">18</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">True</property>
-                                                        <property name="receives_default">True</property>
                                                         <child>
-                                                          <object class="GtkLabel" id="label12">
+                                                          <object class="GtkLabel" id="label11:rack_effect_label">
+                                                            <property name="name">label11:rack_effect_label</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="label" translatable="yes">Midi Out</property>
+                                                            <attributes>
+                                                            <attribute name="size" value="7680"/>
+                                                            </attributes>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">2</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkLabel" id="label11">
+                                                            <property name="name">label11</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">3</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkButton" id="midi_out_presets_mini">
+                                                            <property name="name">midi_out_presets_mini</property>
+                                                            <property name="width_request">18</property>
+                                                            <property name="height_request">18</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">True</property>
+                                                            <property name="receives_default">True</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label12">
                                                             <property name="name">label12</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="label" translatable="yes" context="preset">p</property>
+                                                            </object>
+                                                            </child>
                                                           </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">4</property>
+                                                          </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">4</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkAlignment" id="alignment18">
-                                                        <property name="name">alignment18</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="xalign">0</property>
-                                                        <property name="yalign">0</property>
-                                                        <property name="top_padding">4</property>
-                                                        <property name="bottom_padding">4</property>
-                                                        <property name="left_padding">8</property>
-                                                        <property name="right_padding">4</property>
                                                         <child>
-                                                          <object class="GtkButton" id="button5:effect_reset1">
+                                                          <object class="GtkAlignment" id="alignment18">
+                                                            <property name="name">alignment18</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="yalign">0</property>
+                                                            <property name="top_padding">4</property>
+                                                            <property name="bottom_padding">4</property>
+                                                            <property name="left_padding">8</property>
+                                                            <property name="right_padding">4</property>
+                                                            <child>
+                                                            <object class="GtkButton" id="button5:effect_reset1">
                                                             <property name="name">button5:effect_reset1</property>
                                                             <property name="width_request">6</property>
                                                             <property name="visible">True</property>
                                                             <property name="sensitive">False</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            </object>
+                                                            </child>
                                                           </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">5</property>
+                                                          </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">5</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkAlignment" id="alignment15">
-                                                        <property name="name">alignment15</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="xalign">0</property>
-                                                        <property name="yalign">0</property>
-                                                        <property name="xscale">0</property>
-                                                        <property name="yscale">0</property>
-                                                        <property name="top_padding">1</property>
-                                                        <property name="left_padding">4</property>
-                                                        <property name="right_padding">4</property>
                                                         <child>
-                                                          <object class="GtkBox" id="hbox23">
+                                                          <object class="GtkAlignment" id="alignment15">
+                                                            <property name="name">alignment15</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="yalign">0</property>
+                                                            <property name="xscale">0</property>
+                                                            <property name="yscale">0</property>
+                                                            <property name="top_padding">1</property>
+                                                            <property name="left_padding">4</property>
+                                                            <property name="right_padding">4</property>
+                                                            <child>
+                                                            <object class="GtkBox" id="hbox23">
                                                             <property name="name">hbox23</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -2214,35 +2171,35 @@
                                                             <property name="position">0</property>
                                                             </packing>
                                                             </child>
+                                                            </object>
+                                                            </child>
                                                           </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">6</property>
+                                                          </packing>
                                                         </child>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">False</property>
                                                         <property name="fill">False</property>
-                                                        <property name="position">6</property>
+                                                        <property name="position">0</property>
                                                       </packing>
                                                     </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">False</property>
-                                                    <property name="position">0</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkBox" id="midi_out_normal">
-                                                    <property name="name">midi_out_normal</property>
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
                                                     <child>
-                                                      <object class="GtkBox" id="vbox25">
-                                                        <property name="name">vbox25</property>
+                                                      <object class="GtkBox" id="midi_out_normal">
+                                                        <property name="name">midi_out_normal</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="orientation">vertical</property>
                                                         <child>
-                                                          <object class="GtkLabel" id="label6:rack_effect_label">
+                                                          <object class="GtkBox" id="vbox25">
+                                                            <property name="name">vbox25</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="orientation">vertical</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label6:rack_effect_label">
                                                             <property name="name">label6:rack_effect_label</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -2250,15 +2207,15 @@
                                                             <attributes>
                                                             <attribute name="size" value="7680"/>
                                                             </attributes>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkBox" id="hbox19">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkBox" id="hbox19">
                                                             <property name="name">hbox19</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -2275,6 +2232,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.on_off</property>
                                                             <property name="base_name">switch</property>
                                                             </object>
@@ -2314,28 +2272,28 @@
                                                             <property name="position">1</property>
                                                             </packing>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">1</property>
+                                                            </packing>
+                                                            </child>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">0</property>
                                                           </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">0</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkBox" id="vbox30">
-                                                        <property name="name">vbox30</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="orientation">vertical</property>
                                                         <child>
-                                                          <object class="GtkBox" id="hbox30">
+                                                          <object class="GtkBox" id="vbox30">
+                                                            <property name="name">vbox30</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="orientation">vertical</property>
+                                                            <child>
+                                                            <object class="GtkBox" id="hbox30">
                                                             <property name="name">hbox30</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -2352,6 +2310,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.channel_2.on_off</property>
                                                             <property name="base_name">switch</property>
                                                             </object>
@@ -2366,6 +2325,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.channel_3.on_off</property>
                                                             <property name="base_name">switch</property>
                                                             </object>
@@ -2428,6 +2388,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.midistat1</property>
                                                             <property name="base_name">led</property>
                                                             </object>
@@ -2442,6 +2403,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.midistat2</property>
                                                             <property name="base_name">led</property>
                                                             </object>
@@ -2456,6 +2418,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.midistat3</property>
                                                             <property name="base_name">led</property>
                                                             </object>
@@ -2470,6 +2433,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.midistat</property>
                                                             <property name="base_name">led</property>
                                                             </object>
@@ -2719,6 +2683,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.channel_1.autogain</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
@@ -2840,6 +2805,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.channel_1.auto_pitch</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
@@ -3085,6 +3051,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.channel_2.autogain</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
@@ -3206,6 +3173,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.channel_2.auto_pitch</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
@@ -3451,6 +3419,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.channel_3.autogain</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
@@ -3572,6 +3541,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            <property name="draw_indicator">True</property>
                                                             <property name="var_id">midi_out.channel_3.auto_pitch</property>
                                                             <property name="base_name">switch_min</property>
                                                             </object>
@@ -3696,15 +3666,15 @@
                                                             <property name="position">1</property>
                                                             </packing>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkBox" id="hbox31">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkBox" id="hbox31">
                                                             <property name="name">hbox31</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -3918,6 +3888,13 @@
                                                             <property name="position">4</property>
                                                             </packing>
                                                             </child>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">1</property>
+                                                            </packing>
+                                                            </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">True</property>
@@ -3925,53 +3902,46 @@
                                                             <property name="position">1</property>
                                                           </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">True</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">1</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkAlignment" id="alignment9">
-                                                        <property name="name">alignment9</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="xscale">0</property>
-                                                        <property name="top_padding">4</property>
-                                                        <property name="bottom_padding">4</property>
-                                                        <property name="left_padding">4</property>
-                                                        <property name="right_padding">8</property>
                                                         <child>
-                                                          <object class="GtkButton" id="button3:effect_reset">
+                                                          <object class="GtkAlignment" id="alignment9">
+                                                            <property name="name">alignment9</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="xscale">0</property>
+                                                            <property name="top_padding">4</property>
+                                                            <property name="bottom_padding">4</property>
+                                                            <property name="left_padding">4</property>
+                                                            <property name="right_padding">8</property>
+                                                            <child>
+                                                            <object class="GtkButton" id="button3:effect_reset">
                                                             <property name="name">button3:effect_reset</property>
                                                             <property name="width_request">6</property>
                                                             <property name="visible">True</property>
                                                             <property name="sensitive">False</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
+                                                            </object>
+                                                            </child>
                                                           </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">2</property>
+                                                          </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">2</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkAlignment" id="alignment14">
-                                                        <property name="name">alignment14</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="xalign">0</property>
-                                                        <property name="yalign">0</property>
-                                                        <property name="xscale">0</property>
-                                                        <property name="yscale">0.69999998807907104</property>
-                                                        <property name="top_padding">1</property>
-                                                        <property name="right_padding">4</property>
                                                         <child>
-                                                          <object class="GtkBox" id="vbox24">
+                                                          <object class="GtkAlignment" id="alignment14">
+                                                            <property name="name">alignment14</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="xalign">0</property>
+                                                            <property name="yalign">0</property>
+                                                            <property name="xscale">0</property>
+                                                            <property name="yscale">0.69999998807907104</property>
+                                                            <property name="top_padding">1</property>
+                                                            <property name="right_padding">4</property>
+                                                            <child>
+                                                            <object class="GtkBox" id="vbox24">
                                                             <property name="name">vbox24</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -4023,27 +3993,60 @@
                                                             <property name="position">1</property>
                                                             </packing>
                                                             </child>
+                                                            </object>
+                                                            </child>
                                                           </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">3</property>
+                                                          </packing>
                                                         </child>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">False</property>
                                                         <property name="fill">False</property>
-                                                        <property name="position">3</property>
+                                                        <property name="position">1</property>
                                                       </packing>
                                                     </child>
                                                   </object>
                                                   <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">False</property>
-                                                    <property name="position">1</property>
+                                                    <property name="expand">True</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">2</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkBox" id="monorackcontainer">
+                                                <property name="name">monorackcontainer</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkLabel" id="label4">
+                                                    <property name="name">label4</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="label" translatable="yes">mono rack</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">True</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
                                                   </packing>
                                                 </child>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
                                                 <property name="fill">True</property>
-                                                <property name="position">2</property>
+                                                <property name="position">1</property>
                                               </packing>
                                             </child>
                                           </object>
@@ -4054,17 +4057,23 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkBox" id="monorackcontainer">
-                                            <property name="name">monorackcontainer</property>
+                                          <object class="GtkBox" id="stereorackcontainerV">
+                                            <property name="name">stereorackcontainerV</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
+                                            <property name="valign">start</property>
+                                            <property name="vexpand">True</property>
                                             <property name="orientation">vertical</property>
+                                            <property name="baseline_position">top</property>
                                             <child>
-                                              <object class="GtkLabel" id="label4">
-                                                <property name="name">label4</property>
+                                              <object class="GtkLabel" id="label3">
+                                                <property name="name">label3</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="label" translatable="yes">mono rack</property>
+                                                <property name="label" translatable="yes">stereo rack, vertical mode</property>
+                                                <attributes>
+                                                  <attribute name="foreground" value="#ffffffffffff"/>
+                                                </attributes>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
@@ -4082,34 +4091,6 @@
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkBox" id="stereorackcontainerV">
-                                        <property name="name">stereorackcontainerV</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <child>
-                                          <object class="GtkLabel" id="label3">
-                                            <property name="name">label3</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="label" translatable="yes">stereo rack, vertical mode</property>
-                                            <attributes>
-                                              <attribute name="foreground" value="#ffffffffffff"/>
-                                            </attributes>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
                                         <property name="fill">True</property>
                                         <property name="position">2</property>
                                       </packing>
@@ -4138,6 +4119,9 @@
                         <property name="name">stereorackbox</property>
                         <property name="can_focus">True</property>
                         <property name="hscrollbar_policy">never</property>
+                        <property name="vscrollbar_policy">always</property>
+                        <property name="window_placement_set">False</property>
+                        <property name="overlay_scrolling">False</property>
                         <child>
                           <object class="GtkViewport" id="viewport1">
                             <property name="name">viewport1</property>

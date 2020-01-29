@@ -816,13 +816,13 @@ Glib::RefPtr<Gtk::SizeGroup> RackBox::szg;
 void RackBox::set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
     pb.property_paint_func().set_value("gx_rack_unit_shrink_expose");
-    pb.set_border_width(4);
+    pb.set_border_width(0);
 }
 
 void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, const PluginUI& plugin) {
     pb.set_name("rackbox");
     pb.property_paint_func().set_value("gx_rack_unit_expose");
-    pb.set_border_width(4);
+    pb.set_border_width(0);
     // FIXME set special background for LV2 plugins
     // if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2)
     //   fprintf(stderr,"LV2 Plugin Load for %s %i\n",plugin.plugin->get_pdef()->name, plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2);
@@ -834,7 +834,7 @@ void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, const PluginUI& plugin) {
 void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
    // pb.property_paint_func().set_value("rectangle_skin_color_expose");
-    pb.set_border_width(4);
+    pb.set_border_width(0);
 }
 
 Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort) {
@@ -1594,7 +1594,7 @@ void RackContainer::on_add(Widget *ch) {
 }
 
 void RackContainer::add(RackBox& r, int pos) {
-    pack_start(r, Gtk::PACK_SHRINK);
+    pack_start(r, false, true);
     increment();
     if (config_mode) {
 	r.set_config_mode(true);
