@@ -1,0 +1,11 @@
+#! /bin/bash
+start() {
+    ./build/src/gx_head/guitarix --style-dir build/rcstyles "$@" &
+    GUIT=$!; echo $GUIT; wait $GUIT; kill -TERM -$$
+}
+
+watch() {
+    ls rcstyles/*.scss | entr -ps "python3 waf --target=scss && kill -USR2 $GUIT"
+}
+
+{ start "$@" & } | { read GUIT && watch; kill $GUIT; }

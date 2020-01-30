@@ -265,7 +265,7 @@ bool PresetIO::convert_old(gx_system::JsonParser &jp) {
     }
     if (s == "ui.skin_name") {
 	jp.next(gx_system::JsonParser::value_string);
-	opt.skin_name = jp.current_value();
+	opt.skin.name = jp.current_value();
 	return true;
     }
     if (s == "ui.latency_nowarn") {

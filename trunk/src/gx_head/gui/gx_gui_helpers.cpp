@@ -66,6 +66,29 @@ int logarithmic_input_value(gpointer obj, gpointer nv)
 }
 
 /****************************************************************
+ ** WaitCursor
+ */
+
+WaitCursor::WaitCursor(Gtk::Window *window) {
+    gdk_window = window->get_window();
+    if (!gdk_window) {
+	return;
+    }
+    Glib::RefPtr<Gdk::Cursor> cursor(
+	Gdk::Cursor::create(window->get_display(), Gdk::WATCH));
+    gdk_window->set_cursor(cursor);
+    while(Gtk::Main::events_pending()) {
+        Gtk::Main::iteration(false);
+    }
+}
+
+WaitCursor::~WaitCursor() {
+    if (gdk_window) {
+	gdk_window->set_cursor();
+    }
+}
+
+/****************************************************************
  ** message boxes
  */
 

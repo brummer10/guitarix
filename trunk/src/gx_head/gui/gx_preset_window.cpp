@@ -865,7 +865,7 @@ void PresetWindow::show_online_preset() {
                 return;
             } 
         }
-    window->set_cursor(); 
+    window->set_cursor();
     }
     load_new = false;
     create_preset_menu(load_new);

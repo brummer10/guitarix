@@ -1020,24 +1020,11 @@ void MainWindow::add_icon(const std::string& name) {
 }
 
 void MainWindow::on_show_values() {
-    /* Gtk 3.24 uses information about which style modifications
-     * change widget sizes this doesn't work with the (deprecated)
-     * style setting show-value as work-around use a fake min-width
-     * setting and remove it after the update
-     *
-     * DON'T USE "min-width: 1px" for GxRegler derived widgets in the
-     * css style sheet, it will disable this update hack.
-     */
     options.system_show_value = actions.show_values->get_active();
-    boost::format fmt(
-	"gx-regler, gx-big-knob, gx-mid-knob, gx-small-knob, gx-small-knob-r, gx-value-display {\n"
-	"  -GxRegler-show-value: %1%;\n%2%"
-	"}\n");
-    fmt % gx_system::to_string(options.system_show_value);
-    css_show_values->load_from_data((boost::format(fmt) % "  min-width: 1px\n").str());
-    while(Gtk::Main::events_pending())
-        Gtk::Main::iteration(false);
-    css_show_values->load_from_data((fmt % "").str());
+    gx_gui::WaitCursor wait(window);
+    actions.show_values->set_sensitive(false);
+    theme.update_show_values();
+    actions.show_values->set_sensitive(true);
 }
 
 void MainWindow::on_preset_action() {
@@ -1199,27 +1186,8 @@ void MainWindow::on_miditable_toggle() {
 }
 
 void MainWindow::change_skin(Glib::RefPtr<Gtk::RadioAction> action) {
-    set_new_skin(options.skin[action->get_current_value()]);
-}
-
-void MainWindow::set_new_skin(const Glib::ustring& skin_name) {
-    if (!skin_name.empty()) {
-	Glib::RefPtr<Gtk::IconTheme> deftheme = Gtk::IconTheme::get_default();
-	std::vector<Glib::ustring> pathlist = deftheme->get_search_path();
-	if (pathlist.empty() || pathlist.front() != options.get_style_filepath(options.skin_name)) {
-	    pathlist.insert(pathlist.cbegin(), "");
-	}
-	options.skin_name = skin_name;
-	*pathlist.begin() = options.get_style_filepath(skin_name);
-	deftheme->set_search_path(pathlist);
-	deftheme->rescan_if_needed();
-	string cssfile = options.get_style_filepath("gx_head_" + skin_name + ".css");
-	try {
-	    css_provider->load_from_path(cssfile);
-	} catch (Gtk::CssProviderError& e) {
-	    cerr << "CSS Style Error: " << e.what() << endl;
-	    assert(false);
-	}
+    gx_gui::WaitCursor wait(window);
+    if (theme.set_new_skin(options.skin[action->get_current_value()])) {
 	make_icons();
     }
 }
@@ -1238,7 +1206,7 @@ void MainWindow::add_skin_menu() {
 	boost::replace_all(display, "_", " ");
 	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(
 	    sg, actname, display);
-	if (name == options.skin_name) {
+	if (name == options.skin.name) {
 	    action->set_active(true);
 	}
 	actions.group->add(action);
@@ -2883,13 +2851,11 @@ void MainWindow::amp_controls_visible(Gtk::Range *rr) {
 }
 
 MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
-		       Gtk::Window *splash, const Glib::ustring& title)
+		       GxTheme& theme_, Gtk::Window *splash, const Glib::ustring& title)
     : sigc::trackable(),
-      css_provider(Gtk::CssProvider::create()),
-      css_show_values(Gtk::CssProvider::create()),
-      style_context(Gtk::StyleContext::create()),
       options(options_),
       machine(machine_),
+      theme(theme_),
       bld(),
       freezer(),
       plugin_dict(),
@@ -2936,12 +2902,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       groupmap(),
       ladspalist_window(),
       szg_rack_units(Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL)) {
-    style_context->add_provider_for_screen(
-	Gdk::Screen::get_default(), css_provider,
-	GTK_STYLE_PROVIDER_PRIORITY_USER);
-    style_context->add_provider_for_screen(
-	Gdk::Screen::get_default(), css_show_values,
-	GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
     convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
     convolver_mono_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
@@ -3271,14 +3231,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     //effects_toolpalette->set_name("effects_toolpalette");
     effects_toolpalette->show();
-    if (!options.get_clear_rc()) {
-		  //g_object_set (gtk_settings_get_default (),"gtk-theme-name",NULL, NULL);
-          set_new_skin(options.skin_name);
-    } else {
-      gtk_rc_parse(
-          (options.get_style_filepath("clear.rc")).c_str());
-      make_icons();
-    }
+    make_icons();
 
     // call some action functions to sync state
     // with settings defined in create_actions()

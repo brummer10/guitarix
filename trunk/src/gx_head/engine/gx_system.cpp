@@ -197,6 +197,10 @@ void SkinHandling::set_styledir(const string& style_dir) {
     sort(skin_list.begin(), skin_list.end());
 }
 
+string SkinHandling::get_cssfile() const {
+    return "gx_head_" + name + ".css";
+}
+
 bool SkinHandling::is_in_list(const string& name) {
     return index(name) < skin_list.size();
 }
@@ -215,6 +219,7 @@ const Glib::ustring& SkinHandling::operator[](unsigned int idx) {
     if (idx < skin_list.size()) {
 	return skin_list[idx];
     } else {
+	static Glib::ustring empty;
 	return empty;
     }
 }
@@ -480,14 +485,13 @@ CmdlineOptions::CmdlineOptions()
 #ifndef NDEBUG
       dump_parameter(false),
 #endif
-      skin(style_dir),
+      skin(style_dir, "Guitarix"),
       mainwin_x(-1),
       mainwin_y(-1),
       mainwin_height(-1),
       window_height(600),
       preset_window_height(220),
       mul_buffer(1),
-      skin_name("Guitarix"),
       no_warn_latency(false),
       system_order_rack_h(false),
       system_show_value(false),
@@ -777,7 +781,7 @@ void CmdlineOptions::read_ui_vars() {
 		mul_buffer = jp.current_value_int();
 	    } else if (jp.current_value() == "ui.skin_name") {
 		jp.next(JsonParser::value_string);
-		skin_name = jp.current_value();
+		skin.name = jp.current_value();
 	    } else if (jp.current_value() == "ui.latency_nowarn") {
 		jp.next(JsonParser::value_number);
 		no_warn_latency = jp.current_value_int();
@@ -826,7 +830,7 @@ void CmdlineOptions::write_ui_vars() {
 	jw.write_kv("system.mainwin_rack_height", window_height);
 	jw.write_kv("system.preset_window_height", preset_window_height);
 	jw.write_kv("system.mul_buffer", mul_buffer);
-	jw.write_kv("ui.skin_name", skin_name);
+	jw.write_kv("ui.skin_name", skin.name);
 	jw.write_kv("ui.latency_nowarn", no_warn_latency);
 	jw.write_kv("system.order_rack_h", system_order_rack_h);
 	jw.write_kv("system.show_value", system_show_value);
@@ -938,7 +942,7 @@ void CmdlineOptions::process(int argc, char** argv) {
     }
     if (!rcset.empty()) {
 	if (skin.is_in_list(rcset)) {
-	    skin_name = rcset;
+	    skin.name = rcset;
 	} else {
 	    throw Glib::OptionError(
 		Glib::OptionError::BAD_VALUE,

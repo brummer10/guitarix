@@ -22,6 +22,29 @@
  * ----------------------------------------------------------------------------
  */
 
+/****************************************************************
+ ** class GxTheme
+ */
+
+class GxTheme {
+private:
+    gx_system::CmdlineOptions* options;
+    Glib::RefPtr<Gtk::CssProvider> css_provider;
+    Glib::RefPtr<Gtk::CssProvider> css_show_values;
+    Glib::RefPtr<Gtk::StyleContext> style_context;
+public:
+    GxTheme() {}
+    void init(gx_system::CmdlineOptions *options_);
+    bool set_new_skin(const Glib::ustring& skin_name);
+    void update_show_values();
+    void reload_css();
+};
+
+
+/****************************************************************
+ ** template class UiToggleAction
+ */
+
 template <class T>
 class UiToggleAction: public Gtk::ToggleAction {
 private:
@@ -584,11 +607,9 @@ public:
 
 class MainWindow: public sigc::trackable {
 private:
-    Glib::RefPtr<Gtk::CssProvider> css_provider;
-    Glib::RefPtr<Gtk::CssProvider> css_show_values;
-    Glib::RefPtr<Gtk::StyleContext> style_context;
     gx_system::CmdlineOptions& options;
     gx_engine::GxMachineBase&  machine;
+    GxTheme& theme;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     Freezer freezer;
     PluginDict plugin_dict;
@@ -765,7 +786,6 @@ private:
     void do_program_change(int pgm);
     void on_engine_toggled();
     void on_engine_state_change(gx_engine::GxEngineState state);
-    void set_new_skin(const Glib::ustring& skin_name);
     void set_tuning(Gxw::RackTuner& tuner);
     void set_tuner_tet(Gxw::RackTuner& tuner);
     void set_tuner_ref(Gxw::RackTuner& tuner);
@@ -822,7 +842,7 @@ private:
     void on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c);
 public:
     Glib::RefPtr<Gtk::SizeGroup> left_column;
-    MainWindow(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options,
+    MainWindow(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options, GxTheme& theme,
 	       Gtk::Window *splash, const Glib::ustring& title);
     ~MainWindow();
     void hide_effect(const std::string& name);

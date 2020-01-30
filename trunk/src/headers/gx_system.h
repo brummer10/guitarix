@@ -272,16 +272,16 @@ inline void measure_stop()  {}
 /****************************************************************/
 
 class SkinHandling {
-private:
-    Glib::ustring empty;
 public:
-    std::vector<Glib::ustring>   skin_list;
-    SkinHandling(const std::string& styledir)
-	: skin_list() { set_styledir(styledir); }
+    Glib::ustring name;
+    std::vector<Glib::ustring> skin_list;
+    SkinHandling(const std::string& styledir, Glib::ustring skin_name)
+	: name(skin_name), skin_list() { set_styledir(styledir); }
     void set_styledir(const std::string& styledir);
-    bool is_in_list(const std::string& name);
+    bool is_in_list(const std::string& skin_name);
     const Glib::ustring& operator[](unsigned int idx);
-    unsigned int index(const Glib::ustring& name);
+    unsigned int index(const Glib::ustring& skin_name);
+    string get_cssfile() const;
 };
 
 /****************************************************************/
@@ -444,7 +444,6 @@ public:
     int window_height;
     int preset_window_height;
     int mul_buffer;
-    Glib::ustring skin_name;
     bool no_warn_latency;
     bool system_order_rack_h;
     bool system_show_value;
@@ -461,6 +460,7 @@ public:
     void process(int argc, char** argv);
     const std::string& get_path_to_program() const { return path_to_program; }
     std::string get_style_filepath(const std::string& basename) const { return style_dir + basename; }
+    std::string get_current_style_cssfile() const { return get_style_filepath(skin.get_cssfile()); }
     std::string get_pixmap_filepath(const std::string& basename) const { return pixmap_dir + basename; }
     std::string get_preset_filepath(const std::string& basename) const { return preset_dir + basename; }
     std::string get_plugin_filepath(const std::string& basename) const { return plugin_dir + basename; }

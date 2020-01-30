@@ -172,7 +172,7 @@ def configure(conf):
 
 def build(bld):
     if bld.env.STANDALONE:
-        bld(source = scss_theme_files, install_path=bld.env.GX_STYLE_DIR, chmod=0o644)
+        bld(name = 'scss', source = scss_theme_files, install_path=bld.env.GX_STYLE_DIR, chmod=0o644)
         for fname in gxstyle_files:
             bld(features='subst',
                 source=fname,
