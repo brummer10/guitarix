@@ -27,6 +27,7 @@
 #include <iomanip>            // NOLINT
 #include <cstring>            // NOLINT
 #include <string>             // NOLINT
+#include <boost/algorithm/string/replace.hpp>
 #include <gxw/GxControlParameter.h>
 
 namespace gx_gui {
@@ -562,7 +563,12 @@ void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine) {
             continue;
         }
 	if (!wname) {
-	    Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_name(v);
+	    wname = gtk_widget_get_name(GTK_WIDGET(*i));
+	}
+	if (!wname || !wname[0]) {
+	    string v_css = v;
+	    boost::replace_all(v_css, ".", "-");
+	    Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_name(v_css);
 	}
         if (!machine.parameter_hasId(v)) {
 	    Glib::RefPtr<Gtk::Widget> wd = Glib::RefPtr<Gtk::Widget>::cast_dynamic(w);
