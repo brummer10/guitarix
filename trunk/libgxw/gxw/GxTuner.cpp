@@ -44,6 +44,8 @@ static void gx_tuner_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_tuner_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void gx_tuner_get_preferred_width(GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_tuner_get_preferred_height(GtkWidget *widget, gint *min_height, gint *natural_height);
 
 static const int tuner_width = 100;
 static const int tuner_height = 90;
@@ -73,6 +75,8 @@ static void gx_tuner_class_init(GxTunerClass *klass)
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
 	widget_class->draw = gx_tuner_draw;
+	widget_class->get_preferred_width = gx_tuner_get_preferred_width;
+	widget_class->get_preferred_height = gx_tuner_get_preferred_height;
 	gobject_class->finalize = gx_tuner_finalize;
 	gobject_class->set_property = gx_tuner_set_property;
 	gobject_class->get_property = gx_tuner_get_property;
@@ -121,8 +125,6 @@ static void gx_tuner_init (GxTuner *tuner)
 	tuner->priv->reference_pitch = 440.0;
 	tuner->priv->scale = 1.0;
 	tuner_surface_init(tuner);
-	gtk_widget_set_size_request(GTK_WIDGET(tuner), tuner_width * tuner->priv->scale,
-	                            tuner_height * tuner->priv->scale);
 }
 
 static void gx_tuner_finalize(GObject *object)
@@ -221,6 +223,28 @@ static void gx_tuner_get_property(GObject *object, guint prop_id,
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
 		break;
+	}
+}
+
+static void gx_tuner_get_preferred_width(GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width = tuner_width * GX_TUNER(widget)->priv->scale;
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_tuner_get_preferred_height(GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint height = tuner_height * GX_TUNER(widget)->priv->scale;
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
 	}
 }
 
