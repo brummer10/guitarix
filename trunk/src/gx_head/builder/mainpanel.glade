@@ -837,6 +837,11 @@
       </object>
     </child>
   </object>
+  <object class="GtkAdjustment" id="rack_vadjustment">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkListStore" id="bank_combo_liststore">
     <columns>
       <!-- column-name gchararray -->
@@ -1338,76 +1343,81 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkBox" id="tuner_box_no_rack">
-                        <property name="name">tuner_box_no_rack</property>
+                      <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkScrolledWindow" id="vrack_scrolledbox">
-                            <property name="name">vrack_scrolledbox</property>
-                            <property name="height_request">50</property>
+                          <object class="GtkBox" id="tuner_box_no_rack">
+                            <property name="name">tuner_box_no_rack</property>
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="hscrollbar_policy">never</property>
-                            <property name="vscrollbar_policy">always</property>
-                            <property name="window_placement_set">False</property>
-                            <property name="overlay_scrolling">False</property>
+                            <property name="can_focus">False</property>
+                            <property name="orientation">vertical</property>
                             <child>
-                              <object class="GtkViewport" id="viewport2">
-                                <property name="name">viewport2</property>
+                              <object class="GtkScrolledWindow" id="vrack_scrolledbox">
+                                <property name="name">vrack_scrolledbox</property>
+                                <property name="height_request">50</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can_focus">True</property>
+                                <property name="vadjustment">rack_vadjustment</property>
+                                <property name="hscrollbar_policy">never</property>
+                                <property name="vscrollbar_policy">external</property>
+                                <property name="window_placement_set">False</property>
+                                <property name="overlay_scrolling">False</property>
                                 <child>
-                                  <object class="GxPaintBox" id="vbox14">
-                                    <property name="name">vbox14</property>
+                                  <object class="GtkViewport" id="viewport2">
+                                    <property name="name">viewport2</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="orientation">vertical</property>
-                                    <property name="baseline_position">top</property>
-                                    <property name="paint_func">rack_expose</property>
                                     <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <placeholder/>
-                                    </child>
-                                    <child>
-                                      <object class="GtkBox">
+                                      <object class="GxPaintBox" id="vbox14">
+                                        <property name="name">vbox14</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="valign">start</property>
                                         <property name="orientation">vertical</property>
+                                        <property name="baseline_position">top</property>
+                                        <property name="paint_func">rack_expose</property>
                                         <child>
-                                          <object class="GtkBox" id="monobox">
-                                            <property name="name">monobox</property>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <object class="GtkBox">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="valign">start</property>
                                             <property name="orientation">vertical</property>
-                                            <property name="baseline_position">top</property>
                                             <child>
-                                              <object class="GtkBox" id="upper_rackbox">
-                                                <property name="name">upper_rackbox</property>
+                                              <object class="GtkBox" id="monobox">
+                                                <property name="name">monobox</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
+                                                <property name="valign">start</property>
                                                 <property name="orientation">vertical</property>
+                                                <property name="baseline_position">top</property>
                                                 <child>
-                                                  <object class="GxPaintBox" id="monoampcontainer:ampdetails">
-                                                    <property name="name">monoampcontainer:ampdetails</property>
+                                                  <object class="GtkBox" id="upper_rackbox">
+                                                    <property name="name">upper_rackbox</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <property name="orientation">vertical</property>
-                                                    <property name="paint_func">gx_rack_amp_expose</property>
                                                     <child>
-                                                      <object class="GtkAlignment" id="details_padding">
-                                                        <property name="name">details_padding</property>
+                                                      <object class="GxPaintBox" id="monoampcontainer:ampdetails">
+                                                        <property name="name">monoampcontainer:ampdetails</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="left_padding">32</property>
-                                                        <property name="right_padding">32</property>
+                                                        <property name="orientation">vertical</property>
+                                                        <property name="paint_func">gx_rack_amp_expose</property>
                                                         <child>
-                                                          <object class="GtkBox" id="vbox2">
+                                                          <object class="GtkAlignment" id="details_padding">
+                                                            <property name="name">details_padding</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="left_padding">32</property>
+                                                            <property name="right_padding">32</property>
+                                                            <child>
+                                                            <object class="GtkBox" id="vbox2">
                                                             <property name="name">vbox2</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -1806,7 +1816,14 @@
                                                             <property name="position">1</property>
                                                             </packing>
                                                             </child>
+                                                            </object>
+                                                            </child>
                                                           </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">0</property>
+                                                          </packing>
                                                         </child>
                                                       </object>
                                                       <packing>
@@ -1815,32 +1832,17 @@
                                                         <property name="position">0</property>
                                                       </packing>
                                                     </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">False</property>
-                                                    <property name="position">0</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GxPaintBox" id="tunerbox">
-                                                    <property name="name">tunerbox</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="orientation">vertical</property>
-                                                    <property name="paint_func">gx_rack_amp_expose</property>
                                                     <child>
-                                                      <object class="GtkAlignment" id="tuner_padding">
-                                                        <property name="name">tuner_padding</property>
-                                                        <property name="visible">True</property>
+                                                      <object class="GxPaintBox" id="tunerbox">
+                                                        <property name="name">tunerbox</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="left_padding">32</property>
-                                                        <property name="right_padding">32</property>
+                                                        <property name="orientation">vertical</property>
+                                                        <property name="paint_func">gx_rack_amp_expose</property>
                                                         <child>
                                                           <object class="GtkBox" id="vbox_tuner_main">
                                                             <property name="name">vbox_tuner_main</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="border_width">4</property>
                                                             <property name="orientation">vertical</property>
                                                             <property name="spacing">3</property>
                                                             <child>
@@ -1973,33 +1975,31 @@
                                                             </packing>
                                                             </child>
                                                           </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">0</property>
+                                                          </packing>
                                                         </child>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">False</property>
                                                         <property name="fill">False</property>
-                                                        <property name="position">0</property>
+                                                        <property name="position">1</property>
                                                       </packing>
                                                     </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">False</property>
-                                                    <property name="fill">False</property>
-                                                    <property name="position">1</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GxPaintBox" id="midi_out_box">
-                                                    <property name="name">midi_out_box</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="orientation">vertical</property>
-                                                    <property name="paint_func">box_uni_2_expose</property>
                                                     <child>
-                                                      <object class="GtkBox" id="midi_out_mini">
-                                                        <property name="name">midi_out_mini</property>
+                                                      <object class="GxPaintBox" id="midi_out_box">
+                                                        <property name="name">midi_out_box</property>
                                                         <property name="can_focus">False</property>
+                                                        <property name="orientation">vertical</property>
+                                                        <property name="paint_func">box_uni_2_expose</property>
                                                         <child>
-                                                          <object class="GtkAlignment" id="alignment16">
+                                                          <object class="GtkBox" id="midi_out_mini">
+                                                            <property name="name">midi_out_mini</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment16">
                                                             <property name="name">alignment16</property>
                                                             <property name="width_request">35</property>
                                                             <property name="visible">True</property>
@@ -2017,15 +2017,15 @@
                                                             <property name="base_name">switch_min</property>
                                                             </object>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
                                                             <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkAlignment" id="alignment17">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment17">
                                                             <property name="name">alignment17</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -2045,15 +2045,15 @@
                                                             <property name="receives_default">True</property>
                                                             </object>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
                                                             <property name="position">1</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="label11:rack_effect_label">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label11:rack_effect_label">
                                                             <property name="name">label11:rack_effect_label</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -2061,27 +2061,27 @@
                                                             <attributes>
                                                             <attribute name="size" value="7680"/>
                                                             </attributes>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
                                                             <property name="position">2</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="label11">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label11">
                                                             <property name="name">label11</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">3</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkButton" id="midi_out_presets_mini">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkButton" id="midi_out_presets_mini">
                                                             <property name="name">midi_out_presets_mini</property>
                                                             <property name="width_request">18</property>
                                                             <property name="height_request">18</property>
@@ -2096,15 +2096,15 @@
                                                             <property name="label" translatable="yes" context="preset">p</property>
                                                             </object>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
                                                             <property name="position">4</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkAlignment" id="alignment18">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment18">
                                                             <property name="name">alignment18</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -2124,15 +2124,15 @@
                                                             <property name="receives_default">True</property>
                                                             </object>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
                                                             <property name="position">5</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkAlignment" id="alignment15">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment15">
                                                             <property name="name">alignment15</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -2173,27 +2173,27 @@
                                                             </child>
                                                             </object>
                                                             </child>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">6</property>
+                                                            </packing>
+                                                            </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
-                                                            <property name="position">6</property>
+                                                            <property name="position">0</property>
                                                           </packing>
                                                         </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">0</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkBox" id="midi_out_normal">
-                                                        <property name="name">midi_out_normal</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
                                                         <child>
-                                                          <object class="GtkBox" id="vbox25">
+                                                          <object class="GtkBox" id="midi_out_normal">
+                                                            <property name="name">midi_out_normal</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <child>
+                                                            <object class="GtkBox" id="vbox25">
                                                             <property name="name">vbox25</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -2279,15 +2279,15 @@
                                                             <property name="position">1</property>
                                                             </packing>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">0</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkBox" id="vbox30">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkBox" id="vbox30">
                                                             <property name="name">vbox30</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -3895,15 +3895,15 @@
                                                             <property name="position">1</property>
                                                             </packing>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">True</property>
                                                             <property name="fill">True</property>
                                                             <property name="position">1</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkAlignment" id="alignment9">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment9">
                                                             <property name="name">alignment9</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -3922,15 +3922,15 @@
                                                             <property name="receives_default">True</property>
                                                             </object>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
                                                             <property name="position">2</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkAlignment" id="alignment14">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment14">
                                                             <property name="name">alignment14</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
@@ -3995,25 +3995,58 @@
                                                             </child>
                                                             </object>
                                                             </child>
+                                                            </object>
+                                                            <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">False</property>
+                                                            <property name="position">3</property>
+                                                            </packing>
+                                                            </child>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">False</property>
                                                             <property name="fill">False</property>
-                                                            <property name="position">3</property>
+                                                            <property name="position">1</property>
                                                           </packing>
                                                         </child>
                                                       </object>
                                                       <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">False</property>
-                                                        <property name="position">1</property>
+                                                        <property name="expand">True</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">2</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkBox" id="monorackcontainer">
+                                                    <property name="name">monorackcontainer</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="orientation">vertical</property>
+                                                    <child>
+                                                      <object class="GtkLabel" id="label4">
+                                                        <property name="name">label4</property>
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">mono rack</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="expand">True</property>
+                                                        <property name="fill">True</property>
+                                                        <property name="position">0</property>
                                                       </packing>
                                                     </child>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">True</property>
                                                     <property name="fill">True</property>
-                                                    <property name="position">2</property>
+                                                    <property name="position">1</property>
                                                   </packing>
                                                 </child>
                                               </object>
@@ -4024,17 +4057,23 @@
                                               </packing>
                                             </child>
                                             <child>
-                                              <object class="GtkBox" id="monorackcontainer">
-                                                <property name="name">monorackcontainer</property>
+                                              <object class="GtkBox" id="stereorackcontainerV">
+                                                <property name="name">stereorackcontainerV</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
+                                                <property name="valign">start</property>
+                                                <property name="vexpand">True</property>
                                                 <property name="orientation">vertical</property>
+                                                <property name="baseline_position">top</property>
                                                 <child>
-                                                  <object class="GtkLabel" id="label4">
-                                                    <property name="name">label4</property>
+                                                  <object class="GtkLabel" id="label3">
+                                                    <property name="name">label3</property>
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="label" translatable="yes">mono rack</property>
+                                                    <property name="label" translatable="yes">stereo rack, vertical mode</property>
+                                                    <attributes>
+                                                      <attribute name="foreground" value="#ffffffffffff"/>
+                                                    </attributes>
                                                   </object>
                                                   <packing>
                                                     <property name="expand">True</property>
@@ -4052,58 +4091,40 @@
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkBox" id="stereorackcontainerV">
-                                            <property name="name">stereorackcontainerV</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="valign">start</property>
-                                            <property name="vexpand">True</property>
-                                            <property name="orientation">vertical</property>
-                                            <property name="baseline_position">top</property>
-                                            <child>
-                                              <object class="GtkLabel" id="label3">
-                                                <property name="name">label3</property>
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="label" translatable="yes">stereo rack, vertical mode</property>
-                                                <attributes>
-                                                  <attribute name="foreground" value="#ffffffffffff"/>
-                                                </attributes>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">True</property>
-                                                <property name="fill">True</property>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">True</property>
                                             <property name="fill">True</property>
-                                            <property name="position">1</property>
+                                            <property name="position">2</property>
                                           </packing>
                                         </child>
                                       </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">2</property>
-                                      </packing>
                                     </child>
                                   </object>
                                 </child>
                               </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="pack_type">end</property>
+                                <property name="position">1</property>
+                              </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
+                            <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="pack_type">end</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScrollbar" id="monorackscroller">
+                            <property name="name">monorackscroller</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="orientation">vertical</property>
+                            <property name="adjustment">rack_vadjustment</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -4339,6 +4360,7 @@
                                 <property name="name">scrolledwindow4</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="vexpand">True</property>
                                 <property name="hscrollbar_policy">never</property>
                                 <property name="propagate_natural_width">True</property>
                                 <property name="propagate_natural_height">True</property>
@@ -4416,6 +4438,7 @@
                                 <property name="name">scrolledwindow5</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="vexpand">True</property>
                                 <property name="hscrollbar_policy">never</property>
                                 <property name="propagate_natural_width">True</property>
                                 <property name="propagate_natural_height">True</property>

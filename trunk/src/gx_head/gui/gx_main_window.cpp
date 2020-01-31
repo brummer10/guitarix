@@ -1904,8 +1904,6 @@ void MainWindow::make_icons(bool force) {
     gint wr = hanr->get_width();
     bld->find_widget("amp_padding", vbam);
     vbam->set_padding(0, 4, wl, wr);
-    bld->find_widget("tuner_padding", vbam);
-    vbam->set_padding(0, 4, wl, wr);
     bld->find_widget("details_padding", vbam);
     vbam->set_padding(0, 4, wl, wr);
 }
@@ -2919,7 +2917,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     Gtk::AccelMap::load(options.get_builder_filepath("accels_rc"));
 
     const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore",
-			      "bank_combo_liststore", 0 };
+			      "bank_combo_liststore", "rack_vadjustment", nullptr };
     bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &machine, id_list);
     load_widget_pointers();
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
