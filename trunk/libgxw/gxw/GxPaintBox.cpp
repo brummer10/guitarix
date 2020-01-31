@@ -396,7 +396,7 @@ static void draw_skin (GtkWidget *wi, cairo_t *cr)
     left = right = top = bottom = 0;
     
     gtk_widget_style_get(wi, "inverse", &inverse, "alternate_box", &alt, "bevel", &bevel, NULL);
-    
+
     if (h > 64 and alt) {
         // only draw alternate color if height > 64 pixels
         left   = alt->left / 100.;

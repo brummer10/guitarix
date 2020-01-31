@@ -233,30 +233,12 @@ void PluginDict::compress(bool state) {
  ** class DragIcon
  */
 
-inline guint8 convert_color_channel (guint8 src, guint8 alpha) {
-    return alpha ? ((guint (src) << 8) - src) / alpha : 0;
-}
-
-void convert_bgra_to_rgba (guint8 const* src, guint8* dst, int width, int height) {
-    guint8 const* src_pixel = src;
-    guint8*       dst_pixel = dst;
-
-    for (int i = 0; i < height*width; ++i) {
-        dst_pixel[0] = convert_color_channel(src_pixel[2], src_pixel[3]);
-        dst_pixel[1] = convert_color_channel(src_pixel[1], src_pixel[3]);
-        dst_pixel[2] = convert_color_channel(src_pixel[0], src_pixel[3]);
-        dst_pixel[3] = src_pixel[3];
-
-        dst_pixel += 4;
-        src_pixel += 4;
-    }
-}
-
 DragIcon::DragIcon(const PluginUI& plugin, Glib::RefPtr<Gdk::DragContext> context, gx_system::CmdlineOptions& options, int xoff)
     : window(), drag_icon_pixbuf() {
     Glib::RefPtr<Gdk::Screen> screen = context->get_source_window()->get_screen();
-    Glib::RefPtr<Gdk::Visual> rgba = screen->get_rgba_visual();
+    Glib::RefPtr<Gdk::Visual> rgba;
     if (screen->is_composited()) {
+	rgba = screen->get_rgba_visual();
 	window = new Gtk::Window(Gtk::WINDOW_POPUP);
 	if (rgba) { // else will look ugly..
 	    gtk_widget_set_visual(GTK_WIDGET(window->gobj()), rgba->gobj());
@@ -297,21 +279,17 @@ void DragIcon::create_drag_icon_pixbuf(const PluginUI& plugin, Glib::RefPtr<Gdk:
     w.add(*r);
     w.show_all();
     w.get_window()->process_updates(true);
-}
-
-static void destroy_data(const guint8 *data) {
-    delete[] data;
+    drag_icon_pixbuf = w.get_pixbuf();
 }
 
 bool DragIcon::window_draw(const Cairo::RefPtr<Cairo::Context> &cr, Gtk::OffscreenWindow& widget) {
-    cr->set_operator(Cairo::OPERATOR_SOURCE);
-    cr->set_source_rgba(0,0,0,0);
-    cr->paint();
     Gtk::Widget *child = widget.get_child();
     if (child) {
 	widget.propagate_draw(*child, cr);
     }
-    Cairo::RefPtr<Cairo::Surface> x_surf = cr->get_target();
+    if (!window) {
+	return true;
+    }
     int w = widget.get_window()->get_width();
     int h = widget.get_window()->get_height();
     Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(w, 0, w-gradient_length, 0);
@@ -319,14 +297,6 @@ bool DragIcon::window_draw(const Cairo::RefPtr<Cairo::Context> &cr, Gtk::Offscre
     grad->add_color_stop_rgba(1, 1, 1, 1, 0);
     cr->rectangle(w-gradient_length, 0, gradient_length, h);
     cr->mask(grad);
-    Cairo::RefPtr<Cairo::ImageSurface> i_surf = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
-    Cairo::RefPtr<Cairo::Context> crt = Cairo::Context::create(i_surf);
-    crt->set_operator(Cairo::OPERATOR_SOURCE);
-    crt->set_source(x_surf, 0, 0);
-    crt->paint();
-    guint8 *data = new guint8[w*h*4];
-    convert_bgra_to_rgba(i_surf->get_data(), data, w, h);
-    drag_icon_pixbuf = Gdk::Pixbuf::create_from_data(data, Gdk::COLORSPACE_RGB, true, 8, w, h, i_surf->get_stride(), sigc::ptr_fun(destroy_data));
     return true;
 }
 
