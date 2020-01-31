@@ -624,7 +624,7 @@ CmdlineOptions::CmdlineOptions()
     opt_jack_midi.set_arg_description("PORT");
     Glib::OptionEntry opt_jack_noconnect;
     opt_jack_noconnect.set_short_name('J');
-    opt_jack_noconnect.set_long_name("jack-no-conect");
+    opt_jack_noconnect.set_long_name("jack-no-connect");
     opt_jack_noconnect.set_description("dissable self-connect JACK ports");
     Glib::OptionEntry opt_jack_instance;
     opt_jack_instance.set_short_name('n');
