@@ -87,7 +87,7 @@ void GxTheme::update_show_values() {
 	return;
     }
     boost::format fmt(
-	"gx-regler, gx-big-knob, gx-mid-knob, gx-small-knob, gx-small-knob-r, gx-value-display {\n"
+	"gx-regler, gx-big-knob, gx-mid-knob, gx-small-knob, gx-small-knob-r, gx-value-display, gx-vslider, gx-hslider {\n"
 	"  -GxRegler-show-value: %1%;\n%2%"
 	"}\n");
     fmt % gx_system::to_string(options->system_show_value);
