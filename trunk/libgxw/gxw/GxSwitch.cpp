@@ -55,7 +55,7 @@ static gboolean gx_switch_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 static void gx_switch_style_set(GtkWidget *widget, GtkStyle *previous_style);
 
 static void
-gx_switch_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step)
+gx_switch_cp_configure(GxControlParameter *self, const gchar* group, const gchar *name, gdouble lower, gdouble upper, gdouble step)
 {
 	GxSwitch *swtch = GX_SWITCH(self);
 	if (swtch->priv->label) {

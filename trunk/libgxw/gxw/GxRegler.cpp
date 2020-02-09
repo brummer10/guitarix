@@ -95,7 +95,7 @@ static void gx_regler_value_changed(GtkRange *range)
 
 
 static void
-gx_regler_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step)
+gx_regler_cp_configure(GxControlParameter *self, const gchar* group, const gchar *name, gdouble lower, gdouble upper, gdouble step)
 {
 	g_return_if_fail(GX_IS_REGLER(self));
 	GxRegler *regler = GX_REGLER(self);

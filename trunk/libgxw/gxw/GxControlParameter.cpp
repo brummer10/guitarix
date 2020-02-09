@@ -56,7 +56,7 @@ gx_control_parameter_get_type (void)
 }
 
 void
-gx_control_parameter_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step)
+gx_control_parameter_cp_configure(GxControlParameter *self, const gchar* group, const gchar *name, gdouble lower, gdouble upper, gdouble step)
 {
 	g_return_if_fail (GX_IS_CONTROL_PARAMETER(self));
 	GX_CONTROL_PARAMETER_GET_INTERFACE(self)->cp_configure(self, group, name, lower, upper, step);
@@ -80,14 +80,14 @@ gint gx_control_parameter_cp_get_int_value(GxControlParameter *self)
 	return int(round(GX_CONTROL_PARAMETER_GET_INTERFACE(self)->cp_get_value(self)));
 }
 
-gchar *gx_control_parameter_cp_get_var(GxControlParameter *self)
+const gchar *gx_control_parameter_cp_get_var(GxControlParameter *self)
 {
 	gchar *v;
 	g_object_get(self, "var-id", &v, NULL);
 	return v;
 }
 
-void gx_control_parameter_cp_set_var(GxControlParameter *self, gchar *varname)
+void gx_control_parameter_cp_set_var(GxControlParameter *self, const gchar *varname)
 {
 	g_object_set(self, "var-id", varname, NULL);
 }

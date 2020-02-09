@@ -25,8 +25,8 @@ _PINCLUDE(gtkmm/private/checkbutton_p.h)
 
 namespace Gxw {
 
-class Switch: public Gtk::ToggleButton, public ControlParameter {
-	_CLASS_GTKOBJECT(Switch,GxSwitch,GX_SWITCH,Gtk::ToggleButton,GtkToggleButton)
+class Switch: public Gtk::CheckButton, public ControlParameter {
+	_CLASS_GTKOBJECT(Switch,GxSwitch,GX_SWITCH,Gtk::CheckButton,GtkCheckButton)
 	_IMPLEMENTS_INTERFACE(ControlParameter)
 	public:
 	_CTOR_DEFAULT
