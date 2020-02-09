@@ -17,6 +17,7 @@
  */
 
 #include "GxLevelSlider.h"
+#include "log_meter.h"
 
 #define P_(s) (s)   // FIXME -> gettext
 
@@ -118,33 +119,6 @@ static gboolean gx_level_slider_draw(GtkWidget *widget, cairo_t *cr)
 	_gx_regler_simple_display_value(GX_REGLER(widget), cr, &value_rect);
 	g_object_unref(pb);
 	return FALSE;
-}
-
-static double log_meter_inv(double def)
-{
-    def *= 115.0;
-    if (def <= 0.0) {
-        return -70.0;
-	}
-    if (def <= 2.5) {
-        return def/0.25 - 70;
-	}
-    if (def <= 7.5) {
-        return (def-2.5)/0.5 - 60;
-	}
-    if (def <= 15.0) {
-        return (def-7.5)/0.75 - 50;
-	}
-    if (def <= 30.0) {
-        return (def-15.0)/1.5 - 40;
-	}
-    if (def <= 50.0) {
-        return (def-30.0)/2.0 - 30;
-	}
-    if (def <= 115) {
-        return (def-50.0)/2.5 - 20;
-	}
-    return 6.0;
 }
 
 static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)

@@ -18,7 +18,7 @@
 
 
 #include "GxPaintBox.h"
-#include "GxLevelSlider.h"
+#include "log_meter.h"
 #include <cmath>
 #include <cstring>
 

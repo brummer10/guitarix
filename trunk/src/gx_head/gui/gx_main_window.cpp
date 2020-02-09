@@ -23,7 +23,7 @@
  */
 
 #include <guitarix.h>
-#include <gxw/GxLevelSlider.h>
+#include <gxw/log_meter.h>
 #include <gtkmm/accelmap.h>
 #include "jsonrpc.h"
 #include <boost/algorithm/string/replace.hpp>
