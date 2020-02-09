@@ -392,14 +392,17 @@ void Meterbridge::start_stop(Glib::RefPtr<Gtk::ToggleAction>& action, gx_jack::G
         if (childprocs.find(app_name)) {
             return;
         }
-        string s = jack.get_instancename() + "_" + app_name;
+	string s[6] = {
+	    jack.get_instancename() + "_" + app_name,
+	    jack.client_name+":in_0",
+	    jack.client_name+":out_0",
+	    jack.client_insert_name+":in_0",
+	    jack.client_insert_name+":out_0",
+	    jack.client_insert_name+":out_1",
+	};
         const char * const args[] = {
-            app_name, "-n", s.c_str(), "-t", "sco", "-c", "3",
-            (jack.client_name+":in_0").c_str(),
-            (jack.client_name+":out_0").c_str(),
-            (jack.client_insert_name+":in_0").c_str(),
-            (jack.client_insert_name+":out_0").c_str(),
-            (jack.client_insert_name+":out_1").c_str(),
+            app_name, "-n", s[0].c_str(), "-t", "sco", "-c", "3",
+	    s[1].c_str(), s[2].c_str(), s[3].c_str(), s[4].c_str(), s[5].c_str(),
             0 };
         GxChild *meterbridge = childprocs.launch(app_name, args, SIGKILL);
         if (meterbridge) {
