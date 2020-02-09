@@ -44,7 +44,6 @@ int main(int argc, char** argv)
 	          << get_defs(GX_TYPE_EQ_SLIDER)
 	          << get_defs(GX_TYPE_PAINT_BOX)
 	          << get_defs(GX_TYPE_METER_SCALE)
-	          << get_defs(GX_TYPE_GRADIENT)
 		;
 	return 0;
 }
