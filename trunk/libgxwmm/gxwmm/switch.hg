@@ -16,12 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gtkmm/togglebutton.h>
+#include <gtkmm/checkbutton.h>
 #include <gtkmm/label.h>
 #include <gxwmm/controlparameter.h>
 
 _DEFS(gxwmm,gxw)
-_PINCLUDE(gtkmm/private/togglebutton_p.h)
+_PINCLUDE(gtkmm/private/checkbutton_p.h)
 
 namespace Gxw {
 
