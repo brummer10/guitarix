@@ -169,8 +169,26 @@ static void gx_port_display_init(GxPortDisplay *port_display)
     port_display->cutoff_high = 0;
 }
 
+void gx_port_display_set_cutoff_low(GxPortDisplay *port_display, gint cutoff_low) {
+    gx_port_display_set_state(port_display, cutoff_low, -1);
+}
+
+void gx_port_display_set_cutoff_high(GxPortDisplay *port_display, gint cutoff_high) {
+    gx_port_display_set_state(port_display, -1, cutoff_high);
+}
+
 void gx_port_display_set_state(GxPortDisplay *port_display, gint cutoff_low, gint cutoff_high) {
     g_assert(GX_IS_PORT_DISPLAY(port_display));
+    if (cutoff_low < 0) {
+	cutoff_low = port_display->cutoff_low;
+    }
+    if (cutoff_high < 0) {
+	cutoff_high = port_display->cutoff_high;
+    }
+    if (port_display->cutoff_low == cutoff_low && port_display->cutoff_high == cutoff_high) {
+	return;
+    }
     port_display->cutoff_low = cutoff_low;
     port_display->cutoff_high = cutoff_high;
+    gtk_widget_queue_draw(GTK_WIDGET(port_display));
 }
