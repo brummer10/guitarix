@@ -20,12 +20,12 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-#define get_stock_id(widget) (GX_PORT_DISPLAY_CLASS(GTK_WIDGET_GET_CLASS(widget))->parent_class.stock_id)
-
 static gboolean gx_port_display_draw (GtkWidget *widget, cairo_t *cr);
 static void gx_port_display_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width);
 static void gx_port_display_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height);
 static void gx_port_display_size_request (GtkWidget *widget, gint *width, gint *height);
+static void gx_port_display_state_flags_changed(GtkWidget*, GtkStateFlags);
+static const char *get_stock_id(GtkWidget *widget);
 
 G_DEFINE_TYPE(GxPortDisplay, gx_port_display, GX_TYPE_VSLIDER);
 
@@ -40,12 +40,33 @@ static void gx_port_display_class_init(GxPortDisplayClass *klass)
 	widget_class->motion_notify_event = NULL;
 	widget_class->enter_notify_event = NULL;
 	widget_class->leave_notify_event = NULL;
+	widget_class->state_flags_changed = gx_port_display_state_flags_changed;
 	klass->parent_class.stock_id = "portdisplay";
 	gtk_widget_class_install_style_property(
 		widget_class,
 		g_param_spec_int("display-width",P_("size of display"),
 				 P_("Height of movable part of display"),
 		                 0, 80, 0, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_string("icon-name",
+		                    P_("Icon Name"),
+		                    P_("Icon to use as Slider"),
+		                    NULL,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_set_css_name(widget_class, "gx-port-display");
+}
+
+static const char *get_stock_id(GtkWidget *widget)
+{
+	gchar *icon;
+	gtk_widget_style_get(widget, "icon-name", &icon, NULL);
+	if (icon) {
+		return icon;
+	} else {
+		return GX_PORT_DISPLAY_CLASS(
+			GTK_WIDGET_GET_CLASS(widget))->parent_class.stock_id;
+	}
 }
 
 static void gx_port_display_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
@@ -86,6 +107,11 @@ static void gx_port_display_size_request (GtkWidget *widget, gint *width, gint *
 	*width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
 	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, FALSE);
 	g_object_unref(pb);
+}
+
+static void gx_port_display_state_flags_changed(GtkWidget *widget, GtkStateFlags previous_state_flags)
+{
+    gtk_widget_queue_draw(widget);
 }
 
 static void port_display_expose(cairo_t *cr,
@@ -134,16 +160,6 @@ static gboolean gx_port_display_draw(GtkWidget *widget, cairo_t *cr)
 	  g_object_unref(pb);
     }
 	return FALSE;
-}
-
-static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
-{
-	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
-											 get_stock_id(widget), -1,
-											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
-	r->width = gdk_pixbuf_get_width(pb);
-	r->height = gdk_pixbuf_get_height(pb);
-	g_object_unref(pb);
 }
 
 static void gx_port_display_init(GxPortDisplay *port_display)
