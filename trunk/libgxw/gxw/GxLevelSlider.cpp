@@ -21,14 +21,13 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-#define get_stock_id(widget) (GX_LEVEL_SLIDER_CLASS(GTK_WIDGET_GET_CLASS(widget))->parent_class.stock_id)
-
 static gboolean gx_level_slider_draw (GtkWidget *widget, cairo_t *cr);
 static void gx_level_slider_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width);
 static void gx_level_slider_get_preferred_height (GtkWidget *widget, gint *min_height, gint *natural_height);
 static void gx_level_slider_size_request (GtkWidget *widget, gint *width, gint *height);
 static gboolean gx_level_slider_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_level_slider_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
+static const char *get_stock_id(GtkWidget *widget);
 
 G_DEFINE_TYPE(GxLevelSlider, gx_level_slider, GX_TYPE_VSLIDER);
 
@@ -49,6 +48,26 @@ static void gx_level_slider_class_init(GxLevelSliderClass *klass)
 		g_param_spec_int("slider-width",P_("size of slider"),
 		                   P_("Height of movable part of vslider"),
 		                 0, 100, 5, GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_install_style_property(
+		GTK_WIDGET_CLASS(klass),
+		g_param_spec_string("icon-name",
+		                    P_("Icon Name"),
+		                    P_("Icon to use as Slider"),
+		                    NULL,
+		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
+	gtk_widget_class_set_css_name(widget_class, "gx-level-slider");
+}
+
+static const char *get_stock_id(GtkWidget *widget)
+{
+	gchar *icon;
+	gtk_widget_style_get(widget, "icon-name", &icon, NULL);
+	if (icon) {
+		return icon;
+	} else {
+		return GX_LEVEL_SLIDER_CLASS(
+			GTK_WIDGET_GET_CLASS(widget))->parent_class.stock_id;
+	}
 }
 
 static void gx_level_slider_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
