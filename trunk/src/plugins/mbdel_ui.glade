@@ -918,6 +918,8 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbdel.v1</property>
                           </object>
                           <packing>
@@ -932,6 +934,8 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbdel.v2</property>
                           </object>
                           <packing>
@@ -946,6 +950,8 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbdel.v3</property>
                           </object>
                           <packing>
@@ -960,6 +966,8 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbdel.v4</property>
                           </object>
                           <packing>
@@ -974,6 +982,8 @@
                             <property name="can_focus">False</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbdel.v5</property>
                           </object>
                           <packing>

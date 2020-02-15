@@ -240,9 +240,8 @@
                           <object class="GxFastMeter" id="gxcompressormeter1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="hold">120</property>
+                            <property name="hold">0</property>
                             <property name="dimen">3</property>
-                            <property name="horiz">True</property>
                             <property name="var_id">compressor.v1</property>
                           </object>
                         </child>

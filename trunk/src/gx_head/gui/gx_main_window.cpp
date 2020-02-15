@@ -23,7 +23,6 @@
  */
 
 #include <guitarix.h>
-#include <gxw/log_meter.h>
 #include <gtkmm/accelmap.h>
 #include "jsonrpc.h"
 #include <boost/algorithm/string/replace.hpp>
@@ -2584,42 +2583,6 @@ bool MainWindow::on_refresh_oscilloscope() {
     return machine.oscilloscope_plugin_box_visible();
 }
 
-/* --------- calculate power (percent) to decibel -------- */
-// Note: could use fast_log10 (see ardour code) to make it faster
-inline float power2db(float power) {
-    return  20.*log10(power);
-}
-
-bool MainWindow::refresh_meter_level(float falloff) {
-    const unsigned int channels = sizeof(fastmeter)/sizeof(fastmeter[0]);
-    gx_jack::GxJack *jack = machine.get_jack();
-    if (jack && !jack->client) {
-	return true;
-    }
-
-    // Note: removed RMS calculation, we will only focus on max peaks
-    static float old_peak_db[channels] = {-INFINITY, -INFINITY};
-
-    // fill up from engine buffers
-    float level[channels];
-    machine.maxlevel_get(channels, level);
-    for (unsigned int c = 0; c < channels; c++) {
-	// update meters (consider falloff as well)
-	// calculate peak dB and translate into meter
-	float peak_db = -INFINITY;
-	if (level[c] > 0) {
-	    peak_db = power2db(level[c]);
-	}
-	// retrieve old meter value and consider falloff
-	if (peak_db < old_peak_db[c]) {
-	    peak_db = max(peak_db, old_peak_db[c] - falloff);
-	}
-	fastmeter[c]->set(log_meter(peak_db));
-	old_peak_db[c] = peak_db;
-    }
-    return true;
-}
-
 bool MainWindow::survive_jack_shutdown() {
     gx_jack::GxJack *jack = machine.get_jack();
     if (!jack) {
@@ -3085,14 +3048,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     for (unsigned int i = 0; i < sizeof(fastmeter)/sizeof(fastmeter[0]); ++i) {
         fastmeter[i]->signal_button_release_event().connect(
             sigc::mem_fun(*this, &MainWindow::on_meter_button_release));
-        fastmeter[i]->set_tooltip_text(_("Overall Rack output"));
     }
-    const float meter_falloff = 27; // in dB/sec.
-    const float meter_display_timeout = 60; // in millisec
-    const float falloff = meter_falloff * meter_display_timeout * 0.001;
-    Glib::signal_timeout().connect(
-	sigc::bind(sigc::mem_fun(this, &MainWindow::refresh_meter_level), falloff),
-	meter_display_timeout);
 
     /*
     ** amp top box signal connections

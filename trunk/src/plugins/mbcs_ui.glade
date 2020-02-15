@@ -1416,6 +1416,8 @@
                             <property name="tooltip_text" translatable="yes">Sum of Band1 </property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v1</property>
                           </object>
                           <packing>
@@ -1431,6 +1433,8 @@
                             <property name="tooltip_text" translatable="yes">Sum of Band2</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v2</property>
                           </object>
                           <packing>
@@ -1446,6 +1450,8 @@
                             <property name="tooltip_text" translatable="yes">Sum of Band3</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v3</property>
                           </object>
                           <packing>
@@ -1461,6 +1467,8 @@
                             <property name="tooltip_text" translatable="yes">Sum of Band4</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v4</property>
                           </object>
                           <packing>
@@ -1476,6 +1484,8 @@
                             <property name="tooltip_text" translatable="yes">Sum of Band5</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
+			    <property name="orientation">vertical</property>
+                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v5</property>
                           </object>
                           <packing>

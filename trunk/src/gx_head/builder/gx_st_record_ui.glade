@@ -71,7 +71,7 @@
                                         <property name="can_focus">False</property>
                                         <property name="hold">120</property>
                                         <property name="dimen">3</property>
-                                        <property name="horiz">True</property>
+                                        <property name="falloff">True</property>
                                         <property name="var_id">st_recorder.v1</property>
                                       </object>
                                     </child>

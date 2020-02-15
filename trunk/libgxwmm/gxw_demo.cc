@@ -32,7 +32,6 @@
 #include <gxwmm/radiobutton.h>
 #include <gxwmm/paintbox.h>
 
-
 // The paint functions as found in GxPaintBox
 static const char* s_paint_funcs[] = {
 	"rectangle_skin_color_expose",
@@ -271,7 +270,7 @@ Demo::Demo():
 	// Viewers
 	m_vbox3.set_valign(Gtk::ALIGN_START);
 	m_vbox3.add(*Gtk::manage(new Gtk::Label("Fast Meter")));
-	m_fastmeter.property_horiz() = true;
+	m_fastmeter.property_orientation() = Gtk::ORIENTATION_HORIZONTAL;
 	m_fastmeter.set_hold_count(3);
 	m_fastmeter.set(m_meter_value);
 	m_vbox3.add(m_fastmeter);
