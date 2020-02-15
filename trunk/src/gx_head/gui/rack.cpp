@@ -281,6 +281,9 @@ void DragIcon::create_drag_icon_pixbuf(const PluginUI& plugin, Glib::RefPtr<Gdk:
     Gtk::Widget *r = RackBox::create_drag_widget(plugin, options);
     w.add(*r);
     w.show_all();
+    while (Gtk::Main::events_pending()) { // needed for style updates
+	Gtk::Main::iteration(false);
+    }
     w.get_window()->process_updates(true);
     drag_icon_pixbuf = w.get_pixbuf();
 }
