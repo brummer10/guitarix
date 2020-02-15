@@ -322,7 +322,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="use_stock">True</property>
                         <property name="var_id">dide.Freeze</property>
                         <property name="label_ref">label31:rack_label_inverse</property>
                         <property name="base_name">frbutton</property>

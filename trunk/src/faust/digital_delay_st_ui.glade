@@ -81,12 +81,15 @@
               <object class="GtkBox" id="vbox8">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="halign">center</property>
+                <property name="margin_bottom">4</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">10</property>
                 <child>
                   <object class="GtkBox" id="hbox1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="spacing">4</property>
                     <child>
                       <object class="GtkBox" id="vbox3">
                         <property name="visible">True</property>
@@ -250,6 +253,8 @@
                   <object class="GtkGrid" id="table1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">8</property>
+                    <property name="margin_right">8</property>
                     <property name="row_spacing">3</property>
                     <property name="column_spacing">6</property>
                     <child>
@@ -323,9 +328,10 @@
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="use_stock">True</property>
+                        <property name="draw_indicator">True</property>
                         <property name="var_id">didest.Freeze</property>
-                        <property name="label_ref">label31:rack_label_inverse</property>
                         <property name="base_name">frbutton</property>
+                        <property name="label_ref">label31:rack_label_inverse</property>
                       </object>
                       <packing>
                         <property name="left_attach">3</property>

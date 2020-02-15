@@ -17,14 +17,16 @@
           <object class="GxPaintBox" id="rackbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="spacing">4</property>
+            <property name="margin_left">4</property>
+            <property name="margin_right">5</property>
             <property name="paint_func">box_uni_2_expose</property>
             <child>
               <object class="GtkGrid" id="table1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
                 <property name="row_spacing">10</property>
-                <property name="column_spacing">3</property>
                 <child>
                   <object class="GtkBox" id="vbox2">
                     <property name="visible">True</property>
@@ -400,6 +402,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs31_25</property>
                   </object>
                   <packing>
@@ -412,6 +415,9 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="margin_left">8</property>
+                    <property name="margin_right">8</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs62_5</property>
                   </object>
                   <packing>
@@ -424,6 +430,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs125</property>
                   </object>
                   <packing>
@@ -436,6 +443,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs250</property>
                   </object>
                   <packing>
@@ -448,6 +456,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs500</property>
                   </object>
                   <packing>
@@ -460,6 +469,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs1k</property>
                   </object>
                   <packing>
@@ -472,6 +482,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs2k</property>
                   </object>
                   <packing>
@@ -484,6 +495,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">False</property>
                     <property name="var_id">eqs.fs4k</property>
                   </object>
                   <packing>
@@ -496,6 +508,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs8k</property>
                   </object>
                   <packing>
@@ -508,6 +521,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs16k</property>
                   </object>
                   <packing>
@@ -644,7 +658,7 @@
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">False</property>
             <property name="position">0</property>
           </packing>
@@ -654,9 +668,6 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="spacing">4</property>
-            <child>
-              <placeholder/>
-            </child>
             <child>
               <placeholder/>
             </child>
