@@ -69,6 +69,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
       on_map_conn()
       /* widget pointers not initialized */ {
     load_widget_pointers(bld);
+    gx_gui::GxBuilder::connect_gx_tooltip_handler(GTK_WIDGET(bank_treeview->gobj()));
     actions.new_bank = Gtk::Action::create("NewBank");
     actions.group->add(actions.new_bank, sigc::mem_fun(*this, &PresetWindow::on_new_bank));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(new_preset_bank->gobj()), actions.new_bank->gobj());

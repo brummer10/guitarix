@@ -127,7 +127,7 @@ void CpBase::init(Gxw::Regler& regler, bool show_value) {
     if (param.desc().empty()) {
 	tip = id.substr(id.find_last_of(".")+1);
     }
-    regler.set_tooltip_text(tip);
+    GxBuilder::set_tooltip_text_connect_handler(regler, tip);
     set_cp_value(machine.get_parameter_value<float>(id), regler);
     machine.signal_parameter_value<float>(id).connect(
 	sigc::bind(sigc::mem_fun(this, &CpBase::set_cp_value), sigc::ref(regler)));
@@ -276,7 +276,7 @@ CpSelectorBase::CpSelectorBase(Gxw::Selector& selector, gx_engine::GxMachineBase
     if (param.desc().empty()) {
 	tip = id.substr(id.find_last_of(".")+1);
     }
-    selector.set_tooltip_text(tip);
+    GxBuilder::set_tooltip_text_connect_handler(selector, tip);
     selector.get_accessible()->set_description(id);
     selector.get_accessible()->set_name(id.substr(id.find_last_of(".")+1));
 }
@@ -360,7 +360,7 @@ UiSwitchFloat::UiSwitchFloat(gx_engine::GxMachineBase& machine_, const char *sw_
     if (param.desc().empty()) {
 	tip = param.id().substr(param.id().find_last_of(".")+1);
     }
-    set_tooltip_text(tip);
+    GxBuilder::set_tooltip_text_connect_handler(*this, tip);
     get_accessible()->set_description (param.id());
     get_accessible()->set_name (param.id().substr(
           param.id().find_last_of(".")+1));
@@ -389,7 +389,7 @@ UiSwitchBool::UiSwitchBool(gx_engine::GxMachineBase& machine_, const char *sw_ty
     if (param.desc().empty()) {
 	tip = param.id().substr(param.id().find_last_of(".")+1);
     }
-    set_tooltip_text(tip);
+    GxBuilder::set_tooltip_text_connect_handler(*this, tip);
     get_accessible()->set_description (param.id());
     get_accessible()->set_name 
           (param.id().substr( param.id().find_last_of(".")+1));

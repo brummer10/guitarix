@@ -230,7 +230,7 @@ void SEQWindow::init_connect() {
 
     add_button->signal_clicked().connect(
       sigc::mem_fun(*this, &SEQWindow::on_preset_add_clicked));
-    add_button->set_tooltip_text(_("add effect unit preset to the sequence"));
+    gx_gui::GxBuilder::set_tooltip_text_connect_handler(*add_button, _("add effect unit preset to the sequence"));
 
     gtk_window->signal_key_press_event().connect(
       sigc::mem_fun(this, &SEQWindow::on_key_press_event));
@@ -357,7 +357,7 @@ void SEQWindow::make_preset_button(Gtk::Box * box) {
     p->add(*Gtk::manage(l));
     p->set_can_default(false);
     p->set_can_focus(false);
-    p->set_tooltip_text(_("manage effect unit presets"));
+    gx_gui::GxBuilder::set_tooltip_text_connect_handler(*p, _("manage effect unit presets"));
     p->set_name("effect_on_off");
     box->pack_start(*Gtk::manage(p),Gtk::PACK_SHRINK);
     p->signal_clicked().connect(

@@ -281,6 +281,8 @@ struct TypeTraits<GObject*> {
 
 namespace gx_gui {
 
+bool GxBuilder::show_tooltips = true;
+
 //static
 Glib::RefPtr<GxBuilder> GxBuilder::create_from_file(
     const std::string& filename, gx_engine::GxMachineBase* pmach, const char* object_id) {
@@ -542,16 +544,39 @@ static void make_enum_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr
     }
 }
 
-void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine) {
+static gboolean gx_query_tooltip(GtkWidget *widget, gint x, gint y, gboolean keyboard_mode,
+				 GtkTooltip *tooltip, gpointer user_data) {
+    if (!*static_cast<bool*>(user_data)) {
+	g_signal_stop_emission_by_name(widget, "query-tooltip");
+	return FALSE;
+    }
+    return FALSE;
+}
+
+void GxBuilder::connect_gx_tooltip_handler(GtkWidget *widget) {
+    g_signal_connect(widget, "query-tooltip", G_CALLBACK(gx_query_tooltip), &show_tooltips);
+}
+
+void GxBuilder::set_tooltip_text_connect_handler(GtkWidget *widget, const char *text) {
+    gtk_widget_set_tooltip_text(widget, text);
+    connect_gx_tooltip_handler(widget);
+}
+
+void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine, sigc::signal<void(bool)> *out_ctr) {
     Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
         gtk_builder_get_objects(gobj()), Glib::OWNERSHIP_DEEP);
     for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); ++i) {
-	const char *wname = 0;
+	const char *wname = nullptr;
+	GtkWidget *widget = nullptr;
 	if (g_type_is_a(G_OBJECT_TYPE(*i), GTK_TYPE_WIDGET)) {
 	    const char *id = gtk_buildable_get_name(GTK_BUILDABLE(*i));
+	    widget = GTK_WIDGET(*i);
 	    wname = g_strstr_len(id, -1, ":");
 	    if (wname) {
-		gtk_widget_set_name(GTK_WIDGET(*i), wname+1);
+		gtk_widget_set_name(widget, wname+1);
+	    }
+	    if (gtk_widget_get_has_tooltip(widget)) {
+		connect_gx_tooltip_handler(widget);
 	    }
 	}
         if (!g_type_is_a(G_OBJECT_TYPE(*i), GX_TYPE_CONTROL_PARAMETER)) {
@@ -563,7 +588,7 @@ void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine) {
             continue;
         }
 	if (!wname) {
-	    wname = gtk_widget_get_name(GTK_WIDGET(*i));
+	    wname = gtk_widget_get_name(widget);
 	}
 	if (!wname || !wname[0]) {
 	    string v_css = v;
@@ -573,7 +598,7 @@ void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine) {
         if (!machine.parameter_hasId(v)) {
 	    Glib::RefPtr<Gtk::Widget> wd = Glib::RefPtr<Gtk::Widget>::cast_dynamic(w);
 	    wd->set_sensitive(0);
-            wd->set_tooltip_text(v);
+            wd->set_tooltip_text(v); // always shown
             gx_print_warning(
 		"load dialog",
 		(boost::format("Parameter variable %1% not found") % v).str());
@@ -583,6 +608,7 @@ void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine) {
         if (!p.desc().empty()) {
             Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(
 		gettext(p.desc().c_str()));
+	    connect_gx_tooltip_handler(widget);
         }
 	switch (p.getControlType()) {
 	case gx_engine::Parameter::None:       assert(false); break;

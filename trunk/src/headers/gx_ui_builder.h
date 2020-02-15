@@ -103,6 +103,7 @@ inline void uiToggle<bool>::on_parameter_changed(bool v) {
 
 class GxBuilder: public Gtk::Builder {
 private:
+    static bool show_tooltips;
     // only implemented for base class, make inaccessable
     static Glib::RefPtr<GxBuilder> create_from_file(const std::string& filename, const char* object_id);
     static Glib::RefPtr<GxBuilder> create_from_file(const std::string& filename, const Glib::ustring& object_id);
@@ -125,6 +126,15 @@ public:
 
     static Glib::RefPtr<GxBuilder> create_from_string(
 	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids);
+
+    static bool get_show_tooltips() { return show_tooltips; }
+    static void set_show_tooltips(bool v) { show_tooltips = v; }
+    static void connect_gx_tooltip_handler(GtkWidget *widget);
+    static void set_tooltip_text_connect_handler(GtkWidget *widget, const char *text);
+    static void set_tooltip_text_connect_handler(Gtk::Widget& widget, const char *text) {
+	set_tooltip_text_connect_handler(widget.gobj(), text); }
+    static void set_tooltip_text_connect_handler(Gtk::Widget& widget, const Glib::ustring& text) {
+	set_tooltip_text_connect_handler(widget.gobj(), text.c_str()); }
 
     void fixup_controlparameters(gx_engine::GxMachineBase& machine);
 

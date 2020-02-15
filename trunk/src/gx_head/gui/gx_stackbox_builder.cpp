@@ -1112,7 +1112,7 @@ void StackBoxBuilder::openpaintampBox(const char* label) {
     GxPaintBox *box =  new GxPaintBox("rectangle_skin_color_expose");
     box->m_hbox.set_border_width(4);
     box->set_name(label);
-    box->set_tooltip_text(label);
+    GxBuilder::set_tooltip_text_connect_handler(*box, label);
     fBox.box_pack_start(manage(box));
     box->show_all();
     fBox.push(&box->m_hbox);

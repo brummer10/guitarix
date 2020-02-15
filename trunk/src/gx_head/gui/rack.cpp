@@ -824,7 +824,7 @@ Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
     Gtk::Button *button = new Gtk::Button();
     button->set_size_request(32,-1);
     //button->set_name("effect_reset");
-    button->set_tooltip_text(_("Drag'n' Drop Handle"));
+    gx_gui::GxBuilder::set_tooltip_text_connect_handler(*button, _("Drag'n' Drop Handle"));
     button->set_relief(Gtk::RELIEF_NONE);
     button->set_sensitive(sens);
     al->add(*manage(button));
@@ -1155,10 +1155,10 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
     //b->set_relief(Gtk::RELIEF_NONE);
     if (expand) {
 	t = "rack_expand";
-	b->set_tooltip_text(_("expand effect unit"));
+	gx_gui::GxBuilder::set_tooltip_text_connect_handler(*b, _("expand effect unit"));
     } else {
 	t = "rack_shrink";
-	b->set_tooltip_text(_("shrink effect unit"));
+	gx_gui::GxBuilder::set_tooltip_text_connect_handler(*b, _("shrink effect unit"));
     }
     Gtk::Image *l = new Gtk::Image(t, Gtk::ICON_SIZE_BUTTON);
     b->set_focus_on_click(false);
@@ -1181,7 +1181,7 @@ Gtk::Button *RackBox::make_preset_button() {
     p->add(*manage(l));
     p->set_can_default(false);
     p->set_can_focus(false);
-	p->set_tooltip_text(_("manage effect unit presets"));
+    gx_gui::GxBuilder::set_tooltip_text_connect_handler(*p, _("manage effect unit presets"));
 	p->set_name("effect_on_off");
     p->signal_clicked().connect(
 	sigc::mem_fun(plugin, &PluginUI::on_plugin_preset_popup));

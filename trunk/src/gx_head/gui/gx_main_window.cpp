@@ -1085,7 +1085,7 @@ void MainWindow::add_toolitem(PluginUI& pl, Gtk::ToolItemGroup *gw) {
     tb->signal_drag_data_get().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ti_drag_data_get), pl.get_id()));
     Gtk::Image *img = new Gtk::Image(pl.icon);
     if (!pl.tooltip.empty()) {
-	img->set_tooltip_text(pl.tooltip);
+	gx_gui::GxBuilder::set_tooltip_text_connect_handler(*img, pl.tooltip);
     }
     tb->add(*manage(img));
     tb->show_all();
@@ -1413,9 +1413,7 @@ void gx_show_about() {
 
 void MainWindow::set_tooltips() {
     options.system_show_tooltips = actions.tooltips->get_active();
-    gtk_settings_set_long_property(
-        gtk_settings_get_default(), "gtk-enable-tooltips", options.system_show_tooltips,
-        "gx_head menu-option");
+    gx_gui::GxBuilder::set_show_tooltips(options.system_show_tooltips);
 }
 
 void MainWindow::set_animations() {
