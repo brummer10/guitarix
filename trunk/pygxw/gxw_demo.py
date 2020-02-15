@@ -113,11 +113,21 @@ def demo(w):
     r.props.model = model
     h.add(r)
 
-    h1 = Gtk.HBox()
+    r = Gxw.PortDisplay(adjustment=adj)
+    r.props.show_value = False
+    h.add(r)
+
+    orientation = Gtk.Orientation.HORIZONTAL
+    #orientation = Gtk.Orientation.VERTICAL
+    h1 = Gtk.Box(orientation=not orientation)
+    h1.set_size_request(200, -1)
     h.add(h1)
 
-    r = Gxw.FastMeter()
-    r.set(0.6)
+    r = Gxw.FastMeter(orientation=orientation, hold=30)
+    def set_meter(o, r=r):
+        v = o.get_value()
+        r.set(v)
+    adj.connect('value-changed', set_meter)
     h1.add(r)
 
     global ms
@@ -127,7 +137,7 @@ def demo(w):
         r.add_mark(lm(p), str(p));
     h1.add(r)
 
-    r = Gxw.FastMeter()
+    r = Gxw.FastMeter(orientation=orientation)
     r.set(0.7)
     h1.add(r)
 
@@ -149,11 +159,11 @@ def demo(w):
 
 itheme = Gtk.IconTheme
 deftheme = itheme.get_default()
-deftheme.prepend_search_path(os.path.join(basedir, '../rcstyle'))
-deftheme.prepend_search_path('/usr/local/share/gx_head/skins/Guitarix')
+deftheme.prepend_search_path(os.path.join(basedir, '../build/rcstyle'))
+deftheme.prepend_search_path('../build/rcstyle/Guitarix')
 style = Gtk.StyleContext()
 provider = Gtk.CssProvider()
-provider.load_from_path(os.path.join(basedir, '../rcstyles/gx_head_Guitarix.css'))
+provider.load_from_path(os.path.join(basedir, '../build/rcstyles/gx_head_Guitarix.css'))
 style.add_provider_for_screen(
     Gdk.Screen.get_default(),
     provider,
