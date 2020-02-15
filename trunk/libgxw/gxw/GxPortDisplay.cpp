@@ -119,24 +119,29 @@ static void port_display_expose(cairo_t *cr,
 {
     GxPortDisplay *port_display = GX_PORT_DISPLAY(widget);
 
-	gdk_cairo_set_source_pixbuf(cr, image, rect->x - (rect->width-(gint)sliderstate), rect->y);
+    bool sensitive = gtk_widget_get_sensitive(widget);
+    int pos = rect->x - rect->width;
+    if (sensitive) {
+	pos +=  (gint)sliderstate;
+    }
+	gdk_cairo_set_source_pixbuf(cr, image, pos, rect->y);
 	cairo_rectangle(cr, rect->x, rect->y, rect->width, rect->height);
 	cairo_fill(cr);
-    if (port_display->cutoff_low + port_display->cutoff_high) {
+    if ((port_display->cutoff_low + port_display->cutoff_high) && sensitive) {
       cairo_set_source_rgba (cr, 0.8, 0.1, 0.1, 0.4);
       cairo_set_line_width(cr, rect->height);
       gint low = rect->width * port_display->cutoff_low * 0.01;
-      gint high = (rect->width* port_display->cutoff_high * 0.01)-5;
+      gint high = (rect->width* port_display->cutoff_high * 0.01);
       gint lw = rect->height/2;
       cairo_move_to(cr,rect->x, rect->y+lw);
       cairo_line_to(cr,rect->x + low, rect->y+lw);
       cairo_stroke (cr);
-      cairo_move_to(cr,rect->width - high, rect->y+lw);
-      cairo_line_to(cr,rect->width+5, rect->y+lw);
+      cairo_move_to(cr,rect->x + rect->width - high, rect->y+lw);
+      cairo_line_to(cr,rect->x + rect->width, rect->y+lw);
       cairo_stroke (cr);
       cairo_set_source_rgba (cr, 1.0, 0.6, 0.0, 0.4);
-      cairo_move_to(cr,rect->x+ low, rect->y+lw);
-      cairo_line_to(cr,rect->width - high, rect->y+lw);
+      cairo_move_to(cr,rect->x + low, rect->y+lw);
+      cairo_line_to(cr,rect->x + rect->width - high, rect->y+lw);
       cairo_stroke (cr);
     }
 }
