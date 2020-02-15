@@ -385,20 +385,6 @@ void ErrorPopup::on_response(int) {
 void ErrorPopup::show_msg() {
     dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
     dialog->set_keep_above(true);
-    Gtk::Box *ma = dialog->get_message_area();
-    // add an alignment parent to the label widget inside the message area
-    // should better define our own dialog instead of hacking MessageDialog...
-    Gtk::Alignment *align = new Gtk::Alignment();
-    align->show();
-    dynamic_cast<Gtk::Label*>(*ma->get_children().begin())->reparent(*align);
-    ma->pack_start(*manage(align));
-    align->set_padding(50,20,0,10);
-    Gtk::Box *vbox = dialog->get_content_area();
-    vbox->set_redraw_on_allocate(true);
-    g_signal_connect(GTK_WIDGET(vbox->gobj()), "draw",
-                     G_CALLBACK(gx_cairo::error_box_draw), NULL);
-   // vbox->signal_expose_event().connect(
-	//sigc::group(&gx_cairo::error_box_expose,GTK_WIDGET(vbox->gobj()),sigc::_1,(void*)0),false);
     dialog->set_title(_("GUITARIX ERROR"));
     dialog->signal_response().connect(
 	sigc::mem_fun(*this, &ErrorPopup::on_response));
@@ -411,28 +397,31 @@ void ErrorPopup::show_msg() {
  */
 
 class GxSplashBox: public Gtk::Window {
- public:
-    explicit GxSplashBox();
-    ~GxSplashBox();
+private:
     virtual void on_show();
+    virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr);
+    Cairo::RefPtr<Cairo::ImageSurface> image;
+public:
+    explicit GxSplashBox(const string& imgpath);
+    ~GxSplashBox() {}
     virtual void on_message(const Glib::ustring& msg_, GxLogger::MsgType tp, bool plugged);
 };
-GxSplashBox::~GxSplashBox() {}
 
-GxSplashBox::GxSplashBox()
-    : Gtk::Window(Gtk::WINDOW_POPUP) {
-    set_redraw_on_allocate(true);
+GxSplashBox::GxSplashBox(const string& imgpath)
+    : Gtk::Window(Gtk::WINDOW_POPUP),
+      image(Cairo::ImageSurface::create_from_png(imgpath)) {
     set_app_paintable();
-    g_signal_connect(GTK_WIDGET(gobj()), "draw",
-                     G_CALLBACK(gx_cairo::splash_draw), NULL);
-    //signal_expose_event().connect(
-    //    sigc::group(&gx_cairo::splash_expose, GTK_WIDGET(gobj()),
-	//	    sigc::_1, (void*)0), false);
-    set_decorated(false);
-    set_type_hint(Gdk::WINDOW_TYPE_HINT_SPLASHSCREEN);
-    set_position(Gtk::WIN_POS_CENTER );
-    set_default_size(613, 180);
-    show_all();
+    set_position(Gtk::WIN_POS_CENTER);
+    set_default_size(image->get_width(), image->get_height());
+    realize();
+    shape_combine_region(Gdk::Cairo::create_region_from_surface(image));
+    show();
+}
+
+bool GxSplashBox::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
+    cr->set_source(image, 0, 0);
+    cr->paint();
+    return false;
 }
 
 void GxSplashBox::on_message(const Glib::ustring& msg_, GxLogger::MsgType tp, bool plugged) {
@@ -682,7 +671,7 @@ static void mainProg(int argc, char *argv[]) {
     }
     GxSplashBox * Splash = NULL;
 #ifdef NDEBUG
-    Splash =  new GxSplashBox();
+    Splash =  new GxSplashBox(options.get_pixmap_filepath("gx_splash.png"));
     GxLogger::get_logger().signal_message().connect(
 	sigc::mem_fun(Splash, &GxSplashBox::on_message));
     g_log_set_handler("Gtk",G_LOG_LEVEL_WARNING,null_handler,NULL);
@@ -698,6 +687,9 @@ static void mainProg(int argc, char *argv[]) {
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
     if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
+	if (Splash) {
+	    Splash->hide();
+	}
 	Gtk::MessageDialog dialog(
 	    _("old config directory found (.gx_head)."
 	      " state file and standard presets file have been copied to"

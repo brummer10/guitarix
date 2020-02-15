@@ -110,7 +110,6 @@ def build(bld):
         './gui/gx_main_boxes.cpp',
         './gui/gx_mono_rack_builder.cpp',
         './gui/gx_stereo_rack_builder.cpp',
-        './gui/gx_cairo_callbacks.cpp',
         './gui/gx_portmap.cpp',
         './gui/gx_main.cpp',
         ]
