@@ -1361,20 +1361,19 @@ void MainWindow::set_latency() {
     else actions.osc_buffer_menu->set_sensitive(true);
 }
 
-void show_forum_help() {
-    GError *error = NULL;
-    gtk_show_uri(gdk_screen_get_default(), "https://sourceforge.net/p/guitarix/discussion/general/",
-    gtk_get_current_event_time(), &error);
-    if (error)
-    {
-        gx_print_error("guitarix help",
-				  _("failed to load online help   "));
-        g_error_free(error);
+void MainWindow::show_forum_help() {
+    try {
+	window->show_uri(
+	    "https://sourceforge.net/p/guitarix/discussion/general/",
+	    gtk_get_current_event_time());
+    } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
+	gx_print_info("guitarix help", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
+	gx_print_error("guitarix help", _("failed to load online help   "));
     }
 }
 
-void gx_show_help() {
-    Glib::signal_idle().connect_once(sigc::ptr_fun( show_forum_help));
+void MainWindow::gx_show_help() {
+    Glib::signal_idle().connect_once(sigc::mem_fun(this, &MainWindow::show_forum_help));
 }
 
 // ----menu funktion about
@@ -1776,7 +1775,7 @@ void MainWindow::create_actions() {
     ** Help and About
     */
     actions.group->add(Gtk::Action::create("Help", _("_Help")),
-		     sigc::ptr_fun(gx_show_help));
+		       sigc::mem_fun(this, &MainWindow::gx_show_help));
     actions.group->add(Gtk::Action::create("About", _("_About")),
 		     sigc::ptr_fun(gx_show_about));
 

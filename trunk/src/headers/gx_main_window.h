@@ -840,6 +840,8 @@ private:
     bool on_quit();
     void amp_controls_visible(Gtk::Range *rr);
     void on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c);
+    void gx_show_help();
+    void show_forum_help();
 public:
     Glib::RefPtr<Gtk::SizeGroup> left_column;
     MainWindow(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options, GxTheme& theme,
