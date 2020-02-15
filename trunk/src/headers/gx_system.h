@@ -275,13 +275,14 @@ class SkinHandling {
 public:
     Glib::ustring name;
     std::vector<Glib::ustring> skin_list;
-    SkinHandling(const std::string& styledir, Glib::ustring skin_name)
-	: name(skin_name), skin_list() { set_styledir(styledir); }
+    SkinHandling(const std::string& styledir)
+	: name(), skin_list() { set_styledir(styledir); }
     void set_styledir(const std::string& styledir);
     bool is_in_list(const std::string& skin_name);
     const Glib::ustring& operator[](unsigned int idx);
     unsigned int index(const Glib::ustring& skin_name);
     string get_cssfile() const;
+    void set_default_skin_name();
 };
 
 /****************************************************************/

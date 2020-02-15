@@ -57,19 +57,22 @@ void GxTheme::init(gx_system::CmdlineOptions* options_) {
 }
 
 bool GxTheme::set_new_skin(const Glib::ustring& skin_name) {
-    if (!options || skin_name.empty()) {
+    if (!options) {
 	return false;
     }
-    Glib::RefPtr<Gtk::IconTheme> deftheme = Gtk::IconTheme::get_default();
-    std::vector<Glib::ustring> pathlist = deftheme->get_search_path();
-    if (pathlist.empty() || pathlist.front() != options->get_style_filepath(options->skin.name)) {
-	pathlist.insert(pathlist.cbegin(), "");
+    if (skin_name.empty()) {
+	options->skin.name = skin_name;
+    } else {
+	Glib::RefPtr<Gtk::IconTheme> deftheme = Gtk::IconTheme::get_default();
+	std::vector<Glib::ustring> pathlist = deftheme->get_search_path();
+	if (pathlist.empty() || pathlist.front() != options->get_style_filepath(options->skin.name)) {
+	    pathlist.insert(pathlist.cbegin(), "");
+	}
+	options->skin.name = skin_name;
+	*pathlist.begin() = options->get_style_filepath(skin_name);
+	deftheme->set_search_path(pathlist);
+	deftheme->rescan_if_needed();
     }
-    options->skin.name = skin_name;
-    *pathlist.begin() = options->get_style_filepath(skin_name);
-    deftheme->set_search_path(pathlist);
-    deftheme->rescan_if_needed();
-    string cssfile = options->get_style_filepath("gx_head_" + skin_name + ".css");
     css_provider->load_from_path(options->get_current_style_cssfile());
     return true;
 }
@@ -101,16 +104,30 @@ void GxTheme::update_show_values() {
     css_show_values->load_from_data((fmt % "").str());
 }
 
-void GxTheme::reload_css() {
-    if (!options) {
-	return;
-    }
+void GxTheme::reload_css_post() {
+    window->show();
+    window->move(window_x, window_y);
+    window->set_focus_on_map(true);
     try {
 	css_provider->load_from_path(options->get_current_style_cssfile());
     } catch (Gtk::CssProviderError& e) {
 	cerr << "CSS Style Error: " << e.what() << endl;
 	gx_gui::show_error_msg(e.what());
     }
+    style_context->add_provider_for_screen(
+	Gdk::Screen::get_default(), css_provider,
+	GTK_STYLE_PROVIDER_PRIORITY_APPLICATION+1);
+}
+
+void GxTheme::reload_css() {
+    if (!options) {
+	return;
+    }
+    style_context->remove_provider_for_screen(Gdk::Screen::get_default(), css_provider);
+    Glib::signal_idle().connect_once(sigc::mem_fun(this, &GxTheme::reload_css_post));
+    window->get_position(window_x, window_y);
+    window->set_focus_on_map(false);
+    window->hide();
 }
 
 /****************************************************************
@@ -650,7 +667,19 @@ static void mainProg(int argc, char *argv[]) {
     Gtk::Main main(argc, argv, options);
     Gxw::init();
     options.process(argc, argv);
+    bool theme_ok = false;
+    if (options.get_clear_rc()) {
+	options.skin.name = "";
+    } else if (options.skin.name.empty()) {
+	options.skin.name = "Guitarix";
+    }
     theme.init(&options);
+    try { // early theme init
+	theme.set_new_skin(options.skin.name);
+	theme_ok = false;
+    } catch (...) {
+	// try again later to display message dialog
+    }
     GxSplashBox * Splash = NULL;
 #ifdef NDEBUG
     Splash =  new GxSplashBox();
@@ -663,12 +692,8 @@ static void mainProg(int argc, char *argv[]) {
     ErrorPopup popup;
     GxLogger::get_logger().signal_message().connect(
 	sigc::mem_fun(popup, &ErrorPopup::on_message));
-    if (!options.get_clear_rc()) {
-	//g_object_set (gtk_settings_get_default (),"gtk-theme-name",NULL, NULL);
-	theme.set_new_skin(options.skin.name);
-    } else { //FIXME
-	gtk_rc_parse(
-	    (options.get_style_filepath("clear.rc")).c_str());
+    if (!theme_ok) {
+	theme.set_new_skin(options.skin.name); // try again, display error message
     }
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;

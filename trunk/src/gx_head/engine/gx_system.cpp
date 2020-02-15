@@ -198,6 +198,9 @@ void SkinHandling::set_styledir(const string& style_dir) {
 }
 
 string SkinHandling::get_cssfile() const {
+    if (name.empty()) {
+	return "minimal.css";
+    }
     return "gx_head_" + name + ".css";
 }
 
@@ -224,6 +227,9 @@ const Glib::ustring& SkinHandling::operator[](unsigned int idx) {
     }
 }
 
+void SkinHandling::set_default_skin_name() {
+    name = "Guitarix";
+}
 
 /****************************************************************
  ** class PathList
@@ -485,7 +491,7 @@ CmdlineOptions::CmdlineOptions()
 #ifndef NDEBUG
       dump_parameter(false),
 #endif
-      skin(style_dir, "Guitarix"),
+      skin(style_dir),
       mainwin_x(-1),
       mainwin_y(-1),
       mainwin_height(-1),
@@ -901,10 +907,15 @@ void CmdlineOptions::process(int argc, char** argv) {
 	    string("unknown argument on command line: ")+argv[1]);
     }
 #endif
-    if (clear && !rcset.empty()) {
-	throw Glib::OptionError(
-	    Glib::OptionError::BAD_VALUE,
-	    _("-c and -r cannot be used together"));
+    if (clear) {
+	if (!rcset.empty()) {
+	    throw Glib::OptionError(
+		Glib::OptionError::BAD_VALUE,
+		_("-c and -r cannot be used together"));
+	}
+	skin.name = "";
+    } else if (skin.name.empty()) {
+	skin.set_default_skin_name();
     }
     if (nogui && liveplaygui) {
 		throw Glib::OptionError(
