@@ -577,6 +577,7 @@ void MainWindow::load_widget_pointers() {
     bld->find_widget("tunerbox", tunerbox);
     bld->find_widget("tuner_box_no_rack", tuner_box_no_rack);
     bld->find_widget("vrack_scrolledbox", vrack_scrolledbox);
+    bld->find_widget("monorackscroller", monorackscroller);
     bld->find_widget("stereorackcontainerH", stereorackcontainerH);
     bld->find_widget("stereorackcontainerV", stereorackcontainerV);
     bld->find_widget("rackcontainer", rackcontainer);
@@ -718,7 +719,7 @@ bool MainWindow::is_variable_size() {
 
 void MainWindow::maybe_change_resizable() {
     Glib::RefPtr<Gdk::Window> w = window->get_window();
-    if (w && w->get_state() != 0) {
+    if (w && w->get_state() & (Gdk::WINDOW_STATE_MAXIMIZED|Gdk::WINDOW_STATE_FULLSCREEN|Gdk::WINDOW_STATE_TILED)) {
 	return;
     }
     if (!is_variable_size() && window->get_resizable()) {
@@ -735,11 +736,11 @@ void MainWindow::set_vpaned_handle() {
 }
 
 void MainWindow::on_show_rack() {
-    Gtk::Widget *w;
+    Gtk::Widget *stereobox;
     if (rackbox_stacked_vertical()) {
-	w = stereorackcontainerV;
+	stereobox = stereorackcontainerV;
     } else {
-	w = stereorackbox;
+	stereobox = stereorackbox;
     }
     bool v = options.system_show_rack = actions.show_rack->get_active();
     actions.rackh->set_sensitive(v);
@@ -750,26 +751,28 @@ void MainWindow::on_show_rack() {
         compress_button->set_visible(!c);
         expand_button->set_visible(c);
     } else {
-        compress_button->set_visible(v);
-        expand_button->set_visible(v);
+        compress_button->set_visible(false);
+        expand_button->set_visible(false);
     }
     if (actions.presets->get_active() && preset_scrolledbox->get_mapped()) {
 	options.preset_window_height = preset_scrolledbox->get_allocation().get_height();
     }
     if (v) {
+	// show rack
 	midi_out_box->set_visible(actions.midi_out->get_active());
-    if (pool_act) {
+	if (pool_act) {
 	    actions.show_plugin_bar->set_active(true);
-    }
+	}
 	int min_height, natural_height;
 	window->get_preferred_height(min_height, natural_height);
 	options.window_height = max(options.window_height, min_height);
 	main_vpaned->set_position(oldpos);
-	w->show();
+	stereobox->show();
 	monoampcontainer->show();
 	monorackcontainer.show_entries();
-	vrack_scrolledbox->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
+	vrack_scrolledbox->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_EXTERNAL);
 	vrack_scrolledbox->set_size_request(scrl_size_x, scrl_size_y);
+	monorackscroller->show();
 	if (preset_scrolledbox->get_parent() != main_vpaned) {
 	    preset_box_no_rack->remove(*preset_scrolledbox);
 	    main_vpaned->add(*preset_scrolledbox);
@@ -790,15 +793,16 @@ void MainWindow::on_show_rack() {
 	    }
 	}
     } else {
+	// show only amp (and maybe presets), hide rack
 	if (actions.midi_out->get_active()) {
 	    midi_out_box->set_visible(false);
 	}
-    pool_act = actions.show_plugin_bar->get_active();
-    if (pool_act) {
+	pool_act = actions.show_plugin_bar->get_active();
+	if (pool_act) {
 	    actions.show_plugin_bar->set_active(false);
-    }
+	}
 	oldpos = main_vpaned->get_position();
-	w->hide();
+	stereobox->hide();
 	monoampcontainer->hide();
 	monorackcontainer.hide_entries();
 	if (preset_scrolledbox->get_parent() == main_vpaned) {
@@ -809,6 +813,7 @@ void MainWindow::on_show_rack() {
 	}
 	preset_box_no_rack->set_visible(actions.presets->get_active());
 	vrack_scrolledbox->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_NEVER);
+	monorackscroller->hide();
 	vrack_scrolledbox->get_size_request(scrl_size_x, scrl_size_y);
 	vrack_scrolledbox->set_size_request(-1,-1);
 	if (actions.presets->get_active()) {

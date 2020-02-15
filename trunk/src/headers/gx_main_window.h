@@ -672,6 +672,7 @@ private:
     Gxw::PaintBox *tunerbox;
     Gtk::Box *tuner_box_no_rack;
     Gtk::ScrolledWindow *vrack_scrolledbox;
+    Gtk::Scrollbar *monorackscroller;
     Gtk::Box *stereorackcontainerH;
     Gtk::Box *stereorackcontainerV;
     Gxw::PaintBox *rackcontainer;
