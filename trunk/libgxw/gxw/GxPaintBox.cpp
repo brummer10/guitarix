@@ -46,7 +46,7 @@ static void gx_paint_box_set_property(
 static void gx_paint_box_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static gboolean gx_paint_box_draw(GtkWidget *widget, cairo_t *cr);
-static void gx_paint_box_style_set (GtkWidget *widget, GtkStyle  *previous_style);
+static void gx_paint_box_style_updated(GtkWidget *widget);
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
 
@@ -67,7 +67,7 @@ static void gx_paint_box_class_init (GxPaintBoxClass *klass)
 	gobject_class->set_property = gx_paint_box_set_property;
 	gobject_class->get_property = gx_paint_box_get_property;
 	widget_class->destroy = gx_paint_box_destroy;
-	widget_class->style_set = gx_paint_box_style_set;
+	widget_class->style_updated = gx_paint_box_style_updated;
 	widget_class->draw = gx_paint_box_draw;
 	klass->stock_id = "gxhead";
     klass->widget_id = "gxplate";
@@ -211,10 +211,11 @@ static void set_paint_func(GxPaintBox *paint_box, const gchar *paint_func)
 	gtk_widget_queue_draw(GTK_WIDGET(paint_box));
 }
 
-static void gx_paint_box_style_set(GtkWidget *widget, GtkStyle  *previous_style)
+static void gx_paint_box_style_updated(GtkWidget *widget)
 {
 	GxPaintBox *paint_box = GX_PAINT_BOX(widget);
 	set_paint_func(paint_box, paint_box->priv->paint_func);
+	GTK_WIDGET_CLASS(gx_paint_box_parent_class)->style_updated(widget);
 }
 
 static void gx_paint_box_init (GxPaintBox *paint_box)
