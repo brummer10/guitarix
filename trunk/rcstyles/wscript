@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import re
+import re, os
+from waflib import TaskGen, Logs
+from waflib.Build import INSTALL, UNINSTALL
 
 scss_theme_files = [
     'gx_head_Guitarix.scss',
@@ -26,6 +28,10 @@ scss_theme_files = [
     'gx_head_Orange.scss',
     'gx_head_Rust.scss',
     'gx_head_Gold.scss',
+    ]
+
+scss_additional_files = [
+    'minimal.scss',
     ]
 
 gxstyle_files = [
@@ -168,39 +174,28 @@ gxstyle_files = [
      ]
 
 def configure(conf):
-    pass
+    conf.env.SASSC_ARGS = '-ltexpanded' if conf.options.debug else '-tcompressed'
 
 def build(bld):
-    if bld.env.STANDALONE:
-        bld(name = 'scss', source = scss_theme_files, install_path=bld.env.GX_STYLE_DIR, chmod=0o644)
-        for fname in gxstyle_files:
-            bld(features='subst',
-                source=fname,
-                target=fname,
-                is_copy=True,
-                install_path=bld.env.GX_STYLE_DIR)
-        env = bld.env.derive()
-        prog = 'make_icon_dirs'
-        env.MAKE_ICON_DIRS = bld.path.find_resource(prog).abspath()
-        if bld.is_install:
-            # make_icon_dirs creates theme folder as symlink farms
-            # only missing / changed links are created
-            # this usage of a waf task generator is sort of a hack
-            bld(rule = '${MAKE_ICON_DIRS} ${TGT} ${SRC}',
-                source = scss_theme_files,
-                target = bld.env.GX_STYLE_DIR,
-                env = env,
-                always = True,
-            )
-        else:
-            # create the theme folders in the build directory, so a developer
-            # can call guitarix with --style-dir build/rcstyles after calling
-            # waf build (no need for waf install)
-            theme_from_scss = lambda f: re.match('gx_head_([^.]*).scss', f).group(1)
-            for src in scss_theme_files:
-                bld(rule = '${MAKE_ICON_DIRS} -s ${TGT} ${SRC}',
-                    source = src,
-                    target = theme_from_scss(src),
-                    env = env,
-                    deps = prog,
-                )
+    if not bld.env.STANDALONE:
+        return
+    full_rcstyle_dir = True # set to use "guitarix --style-dir build/rcstyles"
+    features = []
+    if full_rcstyle_dir:
+        bld(features='subst',
+            source=gxstyle_files,
+            target=gxstyle_files,
+            is_copy=True,
+            install_path=bld.env.GX_STYLE_DIR)
+        features.append('generate_symlink_icons')
+    bld(name = 'scss',
+        features = features,
+        source = scss_theme_files,
+        proc_args = bld.env.SASSC_ARGS,
+        install_path=bld.env.GX_STYLE_DIR,
+        chmod=0o644)
+    bld(name = 'scss_add',
+        source = scss_additional_files,
+        proc_args = bld.env.SASSC_ARGS,
+        install_path=bld.env.GX_STYLE_DIR,
+        chmod=0o644)

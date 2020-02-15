@@ -1,13 +1,17 @@
 /* GX-Style Guitarix */
 
+@import 'minimal';
+
+/****************************************************************
+ * Theme Variable Settings
+ ****************************************************************/
+
 /* ICON THEME
  * 
  * bigknob:        knob_big.png
- * levelslider:    simplelevelslider.png
  * midknob:        knob_mid.png
  * minitoggle_off: switch_mid_off.png
  * minitoggle_on:  switch_mid_on.png
- * portdisplay:    playhead.png
  * smallknob:      knob_small.png
  * smallknobr:     knob_small_r.png
  * switchit_off:   switch_off.png
@@ -18,453 +22,149 @@
  */
 
 /*
-border spec (all -X-xx are rc file format):
-rc-file: { left, right, top, bottom }
-css-file: { top, right, bottom, left }
-*/
+ * Override basic GX Widget settings
+ */
+
+@include gx-toggle-def(minitoggle, 10px);  // -> switch_mid_{on,off}.png
+@include gx-toggle-def(switchit,   16px); // -> switch_{on,off}.png
 
 $bg-button: rgb(45, 45, 45);
-$bg-button-hover: rgb(60, 60, 60);
-$bg-button-checked: rgb(0, 0, 0);
+//$bg-button-hover: scale-color($bg-button, $lightness: 7%);
+$bg-button-hover: lighten($bg-button, 6%);
+//$bg-button-checked: scale-color($bg-button, $lightness: -100%);
+$bg-button-checked: darken($bg-button, 20%);
+$bg-meterbox: rgb(25.5, 25.5, 25.5);
 
-
-/**/
-.gx_switch check {
-    -gtk-icon-transform: none;
-    -gtk-icon-shadow: none;
-    background-image: none;
-    transition-duration: 0;
-    /*transition-property: none;*/ /* no need for reset if duration is 0 */
-    border: none;
-    box-shadow: none;
-}
-.gx_sw_led check {
-    -gtk-icon-source: -gtk-icontheme("led_off");
-    min-width: 20px;
-    min-height: 20px;
-}
-.gx_sw_led check:checked {
-    -gtk-icon-source: -gtk-icontheme("led_on");
-}
-
-.gx_sw_switch_mid check {
-    -gtk-icon-source: -gtk-icontheme("switch_mid_off");
-    min-width: 10px;
-    min-height: 10px;
-}
-
-#rackbox checkbutton#effect_on_off.gx_sw_switch_mid,
-#rackbox checkbutton.gx_effect_on_off.gx_sw_switch_mid {
-    box-shadow: none;
-    background-color: $bg-button;
-}
-#rackbox checkbutton#effect_on_off.gx_sw_switch_mid check,
-#rackbox checkbutton.gx_effect_on_off.gx_sw_switch_mid check {
-    padding: 5px 0px 5px 3px;
-    box-shadow: none;
-    background-color: $bg-button;
-}
-
-.gx_sw_switch_mid check:checked {
-    -gtk-icon-source: -gtk-icontheme("switch_mid_on");
-}
-
-.gx_sw_switch check {
-    -gtk-icon-source: -gtk-icontheme("switch_off");
-    min-width: 16px;
-    min-height: 16px;
-}
-.gx_sw_switch check:checked {
-    -gtk-icon-source: -gtk-icontheme("switch_on");
-}
-
-.gx_sw_switchit check {
-    -gtk-icon-source: -gtk-icontheme("switchit_off");
-    min-width: 37px;
-    min-height: 28px;
-}
-.gx_sw_switchit check:checked {
-    -gtk-icon-source: -gtk-icontheme("switchit_on");
-}
-
-.gx_sw_minitoggle check {
-    -gtk-icon-source: -gtk-icontheme("minitoggle_off");
-    min-width: 10px;
-    min-height: 10px;
-}
-.gx_sw_minitoggle check:checked {
-    -gtk-icon-source: -gtk-icontheme("minitoggle_on");
-}
-
-.gx_sw_button check {
-    -gtk-icon-source: -gtk-icontheme("button_off");
-    min-width: 16px;
-    min-height: 16px;
-}
-.gx_sw_button check:checked {
-    -gtk-icon-source: -gtk-icontheme("button_on");
-}
-/**/
-
-/*
-button {
-    background-color: rgb(25.5, 25.5, 25.5);
-}
-
-button:checked {
-    background-color: #000;
-}
+/* Conversion .rc -> .css:
+ * border spec (all -X-xx are rc file format):
+ * rc-file: { left, right, top, bottom }
+ * css-file: { top, right, bottom, left }
 */
 
-gx-paint-box, box, label, grid, button {
-    background-color: rgba(0,0,0,0);
+
+/****************************************************************
+ * General style settings
+ ****************************************************************/
+
+.dialog-vbox > box > box { // message area
+    margin: 20px 20px 0px 10px;
 }
-
-gx-paint-box {
-    -GxPaintBox-bevel         : 0.11;
-    -GxPaintBox-inverse       : 0;
-    -GxPaintBox-alternate-box : 60 0 0 0;
-
-    -GxPaintBox-width: 600;
-    -GxPaintBox-height: 180;
-    -GxPaintBox-icon-set: 7;
-    -GxPaintBox-stock-gxhead: "live_wallpaper.png";
-}
-
-gx-wheel {
-    -GxWheel-stock-wheel-back: "tactile_wheel_101f.png";
-    -GxWheel-framecount: 101; /* use 0 for auto (assumes square frames)
-				 and >1 for non squareframe animations */
-}
-
-#lmw {
-    -GxLevelSlider-stock-levelslider: "simplelevelslider.png";
-    -GxRegler-show-value: 0;
-    -GxLevelSlider-slider-width: 3;
-}
-
-gx-wave-view {
-    background-image: linear-gradient(
-	to top,
-	rgba(255, 51, 0, 0.5) 12.5%,
-	rgba(255, 207, 0, 0.5) 40%,
-	rgba(255, 207, 0, 0.5) 60%,
-	rgba(255, 51, 0, 0.5) 87.5%
-    );
-    color: rgb(153, 153, 153); /* { 0.6, 0.6, 0.6 } # RGBA: 0.8, 0.8, 0.2, 0.6 */
-    font: 6pt "sans";
-}
-
-#tuner_reference_pitch,
-#amp #out_amp,
-#show_always,
-#midi_out #channel_X #channel,
-#midi_out #channel_X #program,
-#gx_distortion #split_low_freqm,
-#gx_distortion #split_middle_freq,
-#gx_distortion #split_high_freq {
-    -GxRegler-show-value: 1;
-}
-
-#tuner_reference_pitch {
-    -GxRegler-value-spacing: 2;
-    -GxRegler-value-border: 5 8 4 8;
-    font-size: 8pt;
-}
-
-#playhead {
-    -GxPortDisplay-stock-portdisplay: "playhead.png";
-    -GxRegler-show-value: 0;
-}
-
-#smallbutton {
-    /*-GtkButton-inner-border: 0 0 0 0;*/
-    /*-GtkButton-default-border: 0 0 0 0;*/
-    /*-GtkButton-focus-line-width: 0;*/
-    /*-GtkButton-focus-padding: 0;*/
-    /*-GtkButton-interior-focus: 0;*/
-    /*-GtkButton-inner-spacing: 0;*/
-    /*-GtkButton-child-displacement-x: 0;
-    -GtkButton-child-displacement-y: 0;*/
-}
-
-.gx_switch {
-    padding: 0px;
-    /*-GtkButton-inner-border: 5 5 5 5;*/
-    /*-GtkButton-default-border: 0 0 0 0;*/
-    /*-GtkButton-focus-line-width: 0;*/
-    /*-GtkButton-focus-padding: 0;*/
-    /*-GtkButton-interior-focus: 0;*/
-    /*-GtkButton-child-displacement-x: 0;
-    -GtkButton-child-displacement-y: 0;*/
-    -GtkButton-button-relief: GTK_RELIEF_NORMAL;
-
-    -Aurora-menubarstyle: 0; /* 0 = flat, 1 = gradient, 2 = sunken */
-    -Aurora-curvature: 2.0;
-    -Aurora-arrowsize: 1.0; /* controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize) */
-    -Aurora-old-arrowstyle: false; /* set to TRUE for original circled arrows */
-    -Aurora-animation: true; /* FALSE = disabled, TRUE = enabled */
-
-    /* -Clearlooks-disable_focus: true; */
-    -Clearlooks-style: classic;
-}
-
-#no_dim {
-    /*-GtkButton-inner-border: 0 0 0 0;*/
-}
-
-scrollbar {
-    border-color: rgba(0,0,0,0.5);
-}
-
-scrollbar slider {
-    background-color: rgba(255,255,255,0.1);
-    transition-duration: 0.3s;
-}
-
-scrollbar:hover slider {
-    background-color: rgba(255,255,255,0.2);
-}
-
-scrolledwindow undershoot {
-    /* avoid opaque regions with global background color when scrolling */
-    background-color: rgba(0,0,0,0);
-}
-
 
 * {
-    -GtkScrollbar-has-backward-stepper: 0;
-    -GtkScrollbar-has-forward-stepper: 0;
-    -GtkScrolledWindow-scrollbar-spacing: 0;
-    
-    -GxPaintBox-bevel: 0.11;
-    -GxPaintBox-inverse: 0;
-    -GxPaintBox-alternate-box: 60 0 0 0;
-    
-    /*-GtkButton-child-displacement-x: 0;
-    -GtkButton-child-displacement-y: 0;*/
-    
-    -GtkTreeView-even-row-color: #000000;
-    -GtkTreeView-odd-row-color: #000000;
-
     color: rgb(216.8, 216.8, 216.8); /* 0.85, 0.85, 0.85 */
     background-color: rgb(25.5, 25.5, 25.5); /* 0.10, 0.10, 0.10 */
-    /*
-    fg[ACTIVE]              = { 1.0, 1.0, 1.0 }
-    fg[PRELIGHT]            = { 1.0, 1.0, 1.0 }
-    fg[INSENSITIVE]         = { 0.5, 0.5, 0.5 }
-    fg[SELECTED]            = { 0.9, 0.9, 0.9 }
-    
-    bg[ACTIVE]              = { 0.0, 0.0, 0.0 }
-    bg[PRELIGHT]            = { 0.25, 0.25, 0.25 }
-    bg[INSENSITIVE]         = { 0.2, 0.2, 0.2 }
-    bg[SELECTED]            = { 0.20, 0.20, 0.20 }
-    
-    text[NORMAL]            = { 0.9, 0.9, 0.9 }
-    text[ACTIVE]            = "#ff9000"
-    text[PRELIGHT]          = { 1.0, 1.0, 1.0 }
-    text[INSENSITIVE]       = { 0.5, 0.5, 0.5 }
-    text[SELECTED]          = { 1.0, 1.0, 1.0 }
-    
-    base[NORMAL]            = { 0.0, 0.0, 0.0 }
-    base[ACTIVE]            = { 0.18, 0.18, 0.18 }
-    base[PRELIGHT]          = { 0.1, 0.1, 0.1 }
-    base[INSENSITIVE]       = { 0.2, 0.2, 0.2 }
-    base[SELECTED]          = { 0.8, 0.18, 0.18 }
-   */
-
-    /*
-    stock["handle_left"]    = {{"handle_left.png"}}
-    stock["handle_right"]   = {{"handle_right.png"}}
-    stock["logo"]           = {{"logo.png"}}
-    stock["rack_preset"]    = {{"rack_preset.png"}}
-    stock["switchit_on"]    = {{"switch_on.png"}}
-    stock["switchit_off"]   = {{"switch_off.png"}}
-    stock["minitoggle_on"]  = {{"switch_mid_on.png"}}
-    stock["minitoggle_off"] = {{"switch_mid_off.png"}}
-    stock["hslider"]        = {{"hslider.png"}}
-    stock["rack_expand"]    = {{"rack_expand.png"}}
-    stock["rack_shrink"]    = {{"rack_shrink.png"}}
-    stock["insert"]         = {{"insert.png"}}
-    -GxPaintBox-stock-background1: "background1.png";
-    -GxPaintBox-stock-background2: "background2.png";
-    -GxSmallKnob-stock-smallknob: "knob_small.png";
-    -GxSmallKnobR-stock-smallknobr: "knob_small_r.png";
-    -GxMidKnob-stock-midknob: "knob_mid.png";
-    -GxBigKnob-stock-bigknob: "knob_big.png";
-   */
-
-    /* FIXME
-    engine "murrine"  {
-        focusstyle: 1;
-        scrollbarstyle: 2;
-        contrast: 0.8;
-        glazestyle          = 0 # 0 = flat hilight, 1 = curved hilight (default), 2 = concave style
-        gradient-shades     = {1.15,1.07,1.02,0.9} # default: {1.1,1.0,1.0,1.1}
-        glowstyle           = 4 
-        roundness           = 2 # 0 = squared, 1 = smooth squared, >= 2 round
-        menubarstyle        = 2 # 0 = flat, 1 = glassy, 2 = gradient, 3 = striped
-        listviewheaderstyle = 1 # 0 = flat, 1 = glass
-        menuitemstyle       = 0 # 0 = flat, 1 = glassy, 2 = striped
-        menubaritemstyle    = 1 # 0 = menuitem look, 1 = button look
-        menustyle           = 0     # 0 = no vertical menu stripe, 1 = display vertical menu stripe
-        animation           = TRUE
-        rgba = TRUE
-        sliderstyle         = 1     # 0 = nothing added, 1 = handles
-        stepperstyle        = 1     # 0 = standard, 1 = integrated stepper handles, 2 = unknown
-        toolbarstyle        = 1    # 0 = flat, 1 = glassy, 2 = gradient
-        reliefstyle         = 0     # 0 = flat, 1 = inset, 2 = shadow
-        listviewstyle       = 1     # 0 = nothing, 1 = dotted
-        highlight-shade     = 1.07  # set highlight amount for buttons or widgets
-        lightborder-shade   = 1.36   # sets lightborder amount for buttons or widgets
-        lightborderstyle    = 1     # 0 = lightborder on top side, 1 = lightborder on all sides
-    }
-
-    engine "nodoka"
-    {
-        animation           = TRUE # FALSE = disabled, TRUE = enabled
-        listviewheaderstyle = 0 # 0 = flat, 1 = gradient, 2 = raised
-        listviewstyle       = 1 # 0 = nothing, 1 = dotted
-        menubarstyle        = 0 # 0 = flat, 1 = normal raised gradient, 2 = normal lowered gradient, 3 = menubar gradient
-        toolbarstyle        = 0 # 0 = flat, 1 = normal raised gradient, 2 = normal lowered gradient, 3 = menubar gradient
-        roundness           = 3 # 0 = squared, 1 = old default, more will increase roundness
-        scrollbarstyle      = 1 # 0 = nothing, 1 = circles, 2 = bars
-        stripes             = TRUE # enable or disable stripes in progressbars
-        bullet-color        = { 0.85, 0.85, 0.85 }
-        focus-fill          = FALSE # enable or disable focus overlay fill
-        focus-inner         = FALSE    # TRUE = secondary focus ring inside, FALSE = secondary focus ring outside widgets
-    }
-
-    engine "aurora" {
-        menubarstyle    = 0 # 0 = flat, 1 = gradient, 2 = sunken
-        curvature: 2.0;
-        arrowsize       = 0.5# controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize)
-        old-arrowstyle  = FALSE #set to TRUE for original circled arrows
-        animation       = TRUE # FALSE = disabled, TRUE = enabled
-    }
-    
-    engine "clearlooks" {
-       # focus-color         = { 0, 0, 0 }
-        contrast: 0.66;
-        menubarstyle: 0;
-        #reliefstyle: 0;
-        radius: 1.0;
-        #disable-focus       = TRUE
-        style               = INVERTED #CLASSIC GLOSSY GUMMY INVERTED
-    }
-    */
 }
 
 *:disabled {
     color: rgb(128,128,128);
 }
 
-#ampdetails {
-    -GxPaintBox-alternate-box: 0 0 0 0;
-    -GxPaintBox-inverse: 0;
-}
-
-#LivePlay {
-    background-color: rgb(12.75, 12.75, 12.75); /* 0.05, 0.05, 0.05 */
-}
-
-#ampbox {
-    padding: 4px;
-    -GxPaintBox-alternate-box: 33 0 33 0;
-    font: 10.5px "Roboto Condensed Regular";
-}
-
-#ampbox label {
-    color: #222222;
-}
-
-gx-paint-box {
-    /*font: 9px "sans";*/
+gx-paint-box, box, label, grid, button {
+    background-color: rgba(0,0,0,0);
 }
 
 scrollbar {
-    
+    border-color: rgba(0,0,0,0.5);
     background-color: rgb(2.55, 2.55, 2.55); /* { 0.10, 0.10, 0.10 } */
-
-    -Aurora-menubarstyle: 0; /* 0 = flat, 1 = gradient, 2 = sunken */
-    -Aurora-curvature: 2.0;
-    -Aurora-arrowsize: 1.0; /* controls combo-arrow circle size.  Diameter set by (11 + 2 * arrowsize) */
-    -Aurora-old-arrowstyle: false; /* set to TRUE for original circled arrows */
-    -Aurora-animation: true; /* FALSE = disabled, TRUE = enabled */
-
-    -Clearlooks-scrollbar-color: #333333;
-
+    &:hover,
+    &:active {
+	background-color: rgb(76.5, 76.5, 76.5);
+    }
+    &:disabled {
+	background-color: rgb(51, 51, 51);
+    }
+    slider {
+	background-color: rgba(255,255,255,0.1);
+	transition-duration: 0.3s;
+	&:hover {
+	    background-color: rgba(255,255,255,0.2);
+	}
+    }
 }
 
-scrollbar:hover,
-scrollbar:active {
-    background-color: rgb(76.5, 76.5, 76.5);
+scrolledwindow {
+    /* avoid opaque regions with global background color when scrolling */
+    undershoot,
+    overshoot {
+	background-color: rgba(0,0,0,0);
+    }
 }
 
-scrollbar:disabled {
-    background-color: rgb(51, 51, 51);
+tooltip {
+  border-radius: 0px;
+  background-color: black;
+  border: 1px solid rgba(255,255,255,0.2);
+  * {
+      margin: 0px;
+      padding: 0px;
+  }
 }
 
-button {
+button, checkbutton {
+    background-clip: initial;
     border-width: 0px;
     border-radius: 0px;
-    padding: 2px;
+    padding: 2px 6px 2px 6px;
     box-shadow: none;
     background-image: none;
+    text-shadow: none;
+    transition-duration: 0;
+    -gtk-icon-shadow: none;
+    &, * {
+	background-color: $bg-button;
+    }
+    &:hover, &:hover *, &:checked:hover:not(:active), &:checked:hover:not(:active) * {
+	background-color: $bg-button-hover;
+    }
+    &:checked, &:checked *, &:active, &:active * {
+	background-color: $bg-button-checked;
+    }
     /* experimental: 3d effect
     background-color: $bg-button;
     box-shadow:
 	1px 1px 0px 1px black,
 	0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.1),
 	-0.5px -0.5px 0px 0.5px rgba(200,200,200,0.4);
+    &:checked {
+	background-color: $bg-button-checked;
+	box-shadow:
+	    1px 1px 0px 1px black,
+	    0.5px 0.5px 0px 0.5px rgba(200,200,200,0.4),
+	    -0.5px -0.5px 0px 0.5px rgba(255, 255, 255, 0.1);
+    }
    */
 }
 
-button * {
-    background-color: $bg-button;
+radiobutton radio,
+treeview check {
+    color: rgb(50, 50, 50);
 }
 
-/* experimental: 3d effect
-button:checked {
-    background-color: $bg-button-checked;
-    box-shadow:
-	1px 1px 0px 1px black,
-	0.5px 0.5px 0px 0.5px rgba(200,200,200,0.4),
-	-0.5px -0.5px 0px 0.5px rgba(255, 255, 255, 0.1);
-}
-*/
+/****************************************************************
+ * XX
+ */
 
-button:checked * {
-    background-color: $bg-button-checked;
-}
-
-button:hover * {
-    background-color: $bg-button-hover;
+#window1,
+dialog {
+    entry { border-color: black; }
+    treeview {
+	background-color: black;
+	&:hover { background-color: rgb(10,10,10); }
+	&:selected { background-color: rgb(20,20,20); }
+    }
+    checkbutton check { color: black; }
 }
 
-#seq_button {
-    background-color: rgb(64, 64, 64); /* 0.25, 0.25, 0.25 */
-}
 
-#seq_button:active {
-    background-color: rgb(0, 0, 0); /* 0.0, 0.0, 0.0 */
-}
+/****************************************************************
+ * Main Window
+ */
 
-#seq_button:hover {
-    background-color: rgb(76.5, 76.5, 76.5); /* 0.30, 0.30, 0.30 */
-}
+/* Toolbar (left side) */
 
-#seq_button:disabled,
-#seq_button:selected {
-    background-color: rgb(51, 51, 51); /* 0.2, 0.2, 0.2 */
-}
-
-#rackcontainer {
-    border-left-width: 1px;
-    border-left-style: solid;
-    border-left-color: black;
-    /*margin-left: 1px;*/
-}
+$toolpalette-width: 120px; // max. ToolItem label width
+$toolpalette-right:   4px; // label right margin
+$toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appears)
 
 #effects_frame_paintbox {
     border-right-width: 1px;
@@ -472,17 +172,64 @@ button:hover * {
     border-right-color: rgb(15,15,15);
 }
 
-#monorackcontainer {
-    min-width: 600px;
+#scrolledwindow_effects {
+    min-width: $toolpalette-width + $toolpalette-right + $toolpalette-left;
 }
 
-#rackcontainer button {
-    color: #ff9000;
-    padding: 4px 8px 4px 8px;
+#effects_toolpalette toolitemgroup {
+    toolitem {
+	label {
+	    min-width: $toolpalette-width;
+	    margin: {
+		top: 4px;
+		bottom: 4px;
+		right: $toolpalette-right;
+	    }
+	}
+    }
+
+    arrow {
+	color: #ff9000;
+	-gtk-icon-transform: scale(1.5); // make the arrow left of the button bigger
+    }
+    button {
+	padding-bottom: 1px;
+	background-color: black;
+	background-clip: border-box;
+	label {
+	    color: #ff9000;
+	    background-color: black;
+	    font-size: 12px;
+	    margin-left: 4px; // make some space between arrow and label
+	}
+	&:hover * {
+	    color: #ffffff;
+	    //background-color: black;
+	}
+    }
 }
 
-#rackcontainer button:hover {
-    color: #ffffff;
+/* Paned window (right side) */
+
+#main_vpaned button {
+    border-width: 0px;
+    border-radius: 0px;
+    padding: 2px;
+    box-shadow: none;
+    background-image: none;
+    background-clip: content-box;
+    background-color: initial;
+}
+
+/* Presets (bottom part) */
+
+#preset_scrolledbox treeview {
+    background-color: rgb(10,10,10);
+}
+
+#scrolledwindow4 {
+    margin-top: -5px;
+    color: black;
 }
 
 #preset_status {
@@ -490,365 +237,282 @@ button:hover * {
     background-color: black;
 }
 
-button {
-    text-shadow: none;
-    background-clip: content-box;
+/****************************************************************
+ * Rackbox
+ ****************************************************************/
+
+/* Buttons */
+
+#rackbox {
+    checkbutton.gx_sw_switch_mid {
+	&#effect_on_off,
+	&.gx_effect_on_off {
+	    box-shadow: none;
+	    background-color: $bg-button;
+	& check {
+	    padding: 5px 0px 5px 3px;
+	    box-shadow: none;
+	    background-color: $bg-button;
+	}
+	}
+    }
+    .gx_rack_small_button {
+	font-size: 7pt;
+	font-weight: normal;
+    }
+    .gx_rack_box_label {
+	font-size: 8pt;
+	font-weight: bold;
+    }
+    .gx_simple_c_meter_label {
+	font-size: 6pt;
+	font-weight: normal;
+    }
+}
+
+/* specific parts */
+
+#hboxcenter,
+#ampdetails {
+    -GxPaintBox-alternate-box: 0 0 0 0;
+    -GxPaintBox-inverse: 0;
+    .gx_sw_minitoggle {
+	background-color: $bg-button;
+	&:hover {
+	    background-color: $bg-button-hover;
+	}
+    }
+}
+
+#tunerbox {
+    -GxPaintBox-alternate-box: 55 0 0 0;
+}
+
+#PLUI-ampstack {
+    gx-paint-box {
+	-GxPaintBox-paint-func: "gx_rack_amp_expose";
+    }
+    #hboxmain {
+	padding-left: 8px;
+    }
+    .rackmain {
+	-GxPaintBox-alternate-box: 33 0 33 0;
+	font: condensed 9pt "Roboto";
+    }
+    .rackmini {
+    }
+}
+
+.rackmini {
+    -GxPaintBox-paint-func: "gx_rack_unit_shrink_expose";
+}
+
+.rackmain {
+    -GxPaintBox-paint-func: "gx_rack_unit_expose";
 }
 
 #status_image {
     -gtk-icon-effect: dim;
 }
 
-.gx_bg_fastmeter {
-    background-color: $bg-button;
+#LivePlay {
+    background-color: rgb(12.75, 12.75, 12.75);
 }
 
-#vbox14 {
-    -GxPaintBox-paint-func: "rack_expose";
+/****************************************************************
+* Widgets inside of the rack container (#rackcontainer)
+*/
+
+/* Boxes with GxFastMeter's (1 or 2 channels)
+ * and (optional) a GxSwitch(switch_mid) (0 dBFS clipping display)
+ */
+
+.meterbox {
+    gx-fast-meter {
+	border-color: $bg-meterbox;
+	border-style: solid;
+    }
+    .gx_sw_switch_mid {
+	border-style: solid;
+	border-color: lighten($bg-meterbox,3%);
+	&:disabled:checked check {
+	    -gtk-icon-source: -gtk-icontheme("switch_mid_off");
+	}
+    }
+    &.mono {
+	gx-fast-meter {
+	    -GxFastMeter-border-radius: 6;
+	    -GxFastMeter-bevel: 0.12;
+	    border-width: 4px 4px 4px 8px;
+	}
+	.gx_sw_switch_mid {
+	    border-width: 4px 4px 4px 0px;
+	}
+    }
+    &.stereo {
+	gx-fast-meter {
+	    -GxFastMeter-border-radius: 6;
+	    -GxFastMeter-bevel: 0;
+	    &.horizontal {
+		&.left {
+		    border-width: 4px 8px 2px 8px;
+		}
+		&.right {
+		    border-width: 2px 8px 4px 8px;
+		}
+	    }
+	}
+	.gx_sw_switch_mid {
+	    border-width: 8px 8px 8px 0px;
+	}
+    }
 }
 
-#ampbox #gxlogobox {
-    -GxPaintBox-paint-func: "logo_expose";
-    min-height: 16px;
+/* box with GxFastMeter (left), GxVSlider (right) and GtkLabel (top)
+ * used in Graphic EQ
+ */
+.metered-slider {
+    min-width: 42px;
+    gx-vslider {
+	-GxRegler-value-border: 0 0 0 0;
+    }
+    gx-fast-meter {
+	border-style: solid;
+	border-width: 0px 0px 0px 1px;
+	border-color: lighten($bg-meterbox,3%);
+	border-radius: 3px;
+	background-color: $bg-meterbox;
+    }
+    label { margin-top: 2px; }
+    box { margin-bottom: 2px; }
 }
 
-#rackcontainer button#effect_on_off,
-#rackcontainer button.gx_effect_on_off,
-#rackcontainer #effect_reset {
-    min-width: 0px;
-    min-height: 24px;
-    padding: 0px;
-    margin: 4px 8px 4px -4px;
-    -gtk-icon-shadow: none;
-    box-shadow: none;
-    
+#rackcontainer {
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: black;
+    button {
+	color: #ff9000;
+	padding: 4px 8px 4px 8px;
+	&:hover {
+	    color: #ffffff;
+	}
+    }
+    button#effect_on_off,
+    button.gx_effect_on_off,
+    #effect_reset {
+	min-width: 0px;
+	min-height: 24px;
+	padding: 0px;
+	margin: 4px 8px 4px -4px;
+	-gtk-icon-shadow: none;
+	box-shadow: none;
+    }
+    /* shadow for rackbox buttons */
+    button#effect_on_off image,
+    button.gx_effect_on_off image,
+    #effect_on_off.gx_switch,
+    .gx_effect_on_off.gx_switch {
+	box-shadow:
+	    1px 1px 0px 1px black,
+	    0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.1),
+	    -0.5px -0.5px 0px 0.5px rgba(200,200,200,0.4);
+    }
+    button#effect_on_off image,
+    button.gx_effect_on_off image {
+	padding: 0px 3px 0px 5px;
+    }
+    button#effect_on_off,
+    button.gx_effect_on_off {
+	check {
+	    -gtk-icon-shadow: none;
+	    padding: 1px 3px 0px 5px;
+	}
+    }
+    #effect_on_off.gx_switch,
+    .gx_effect_on_off.gx_switch {
+	margin: 4px 6px 4px 5px;
+	min-height: 23px;
+	check {
+	    padding: 1px 3px 0px 5px;
+	}
+    }
+    #effect_on_off.gx_switch,
+    .gx_effect_on_off.gx_switch,
+    #effect_on_off.gx_switch check,
+    .gx_effect_on_off.gx_switch check {
+	background-color: $bg-button;
+	&:checked { background-color: $bg-button-checked; }
+    }
+    #effect_on_off.gx_switch:hover,
+    .gx_effect_on_off.gx_switch:hover,
+    #effect_on_off.gx_switch:hover check,
+    .gx_effect_on_off.gx_switch:hover check {
+	background-color: $bg-button-hover;
+    }
+    gx-vslider {
+	border-radius: 3px;
+	border: 2px solid;
+	-GxVSlider-slider-width: 36;
+	font: condensed 6pt "Roboto";
+	-GxRegler-value-border: 6px 6px 4px 4px;
+	color: #ff9000;
+	background-color: black;
+    }
 }
 
-
-/* shadow for rackbox buttons */
-#rackcontainer button#effect_on_off image,
-#rackcontainer button.gx_effect_on_off image,
-#rackcontainer #effect_on_off.gx_switch,
-#rackcontainer .gx_effect_on_off.gx_switch {
-  box-shadow:
-      1px 1px 0px 1px black,
-      0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.1),
-      -0.5px -0.5px 0px 0.5px rgba(200,200,200,0.4);
+#seq_button {
+    background-color: rgb(64, 64, 64); /* 0.25, 0.25, 0.25 */
+    &:active {
+	background-color: rgb(0, 0, 0); /* 0.0, 0.0, 0.0 */
+    }
+    &:hover {
+	background-color: rgb(76.5, 76.5, 76.5); /* 0.30, 0.30, 0.30 */
+    }
+    &:disabled, &:selected {
+	background-color: rgb(51, 51, 51); /* 0.2, 0.2, 0.2 */
+    }
 }
 
-#rackcontainer button#effect_on_off image,
-#rackcontainer button.gx_effect_on_off image {
-  padding: 0px 3px 0px 5px;
+#drag_widget {
+    .effect_title {
+	color: #222222;
+    }
 }
 
-#rackcontainer button#effect_on_off check,
-#rackcontainer button.gx_effect_on_off check {
-    -gtk-icon-shadow: none;
-    min-width: 20px;
-    min-height: 0px;
-    padding: 1px 3px 0px 5px;
-}
-
-#rackcontainer #effect_on_off.gx_switch,
-#rackcontainer .gx_effect_on_off.gx_switch {
-    padding: 0px;
-    margin: 4px 6px 4px 5px;
-    min-width: 24px;
-}
-
-#rackcontainer #effect_on_off.gx_switch check,
-#rackcontainer .gx_effect_on_off.gx_switch check {
-    -gtk-icon-shadow: none;
-    min-width: 0px;
-    min-height: 23px;
-    padding: 1px 3px 0px 5px;
-}
-
-#rackcontainer #effect_on_off.gx_switch,
-#rackcontainer .gx_effect_on_off.gx_switch,
-#rackcontainer #effect_on_off.gx_switch check,
-#rackcontainer .gx_effect_on_off.gx_switch check {
-    background-color: $bg-button;
-}
-
-#rackcontainer #effect_on_off.gx_switch:hover,
-#rackcontainer .gx_effect_on_off.gx_switch:hover,
-#rackcontainer #effect_on_off.gx_switch:hover check,
-#rackcontainer .gx_effect_on_off.gx_switch:hover check {
-  background-color: $bg-button-hover;
-}
-
-
-tooltip {
-  border-radius: 0px;
-  background-color: black;
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-tooltip * {
-  margin: 0px;
-  padding: 0px;
-}
-
-toolitem image {
-  margin-left: 8px;
-  margin-right: 8px;
-  margin-top: 4px;
-  margin-bottom: 4px;
-}
-
-#effects_toolpalette toolitemgroup button {
-    background-clip: border-box;
-}
-
-#effects_toolpalette toolitemgroup * {
-    color: #ff9000;
-    background-color: black;
-    font-size: 12px;
-}
-
-#effects_toolpalette toolitemgroup button:hover * {
-    color: #ffffff;
-    background-color: black;
-}
-
-#effect_title {
-    font: 11.5px "Roboto Condensed Regular";
-}
-
-gx-selector {
-    /*padding: 4px 4px 4px 4px;*/
-    /*border: 4px 32px 4px 8px solid #272727;*/
-    border-style: solid;
-    border-color: #272727;
-    border-width: 4px 24px 4px 8px;
-    padding-top: 3px;
-    background-color: black;
-    color: #ff9000;
-    /*-GxRegler-value-border: 2px 4px 8px 4px;*/
-    /*-GxRegler-value-border: 2px 4px 2px 4px;*/
-    -GxRegler-value-border: 1px 4px 0px 4px;
-    -GxRegler-border-radius: 0px;
-    font-size: 10px;
-    /*padding: 2px 0px 0px 8px;*/
-    border-radius: 3px;
-    -GxRegler-bevel: 0.12;
-}
-
-gx-regler,
-gx-small-knob,
-gx-small-knob-r,
-gx-mid-knob,
-gx-big-knob {
-    font: 7pt "Roboto Condensed Regular";
-    
-    -GxRegler-value-border: 2px 4px 2px 4px; /* border around text */
-    -GxRegler-border-radius: 6px;
-    -GxRegler-bevel: 0.12;
-    
-    padding: 4px 8px 4px 8px;
-    
-    color: #ff9000;            /* text */
-    background-color: #222222; /* border */
-    /*base[NORMAL]   = { 0.05, 0.05, 0.05 }        # text background */
-    /*text[NORMAL]   = "#ff9000"                   # arrow */
-}
-
-gx-value-display {
-    font: 7pt "Roboto Condensed Regular";
-    -GxRegler-value-border: 4px 8px 4px 8px;
-    /* -GxRegler-value-border: 2px 4px 2px 4px; / border around text */
-    -GxRegler-border-radius: 6px;
-    -GxRegler-value-spacing: 0px;
-    color: #ff9000;            /* text */
-    background-color: #222222; /* border */
-}
-
-gx-regler:hover {
-    color: #ffffff;
-    background-color: #222222;
-    /*fg[PRELIGHT]   = "#ffffff"                   # text hover
-    bg[PRELIGHT]   = "#222222"                   # border hover
-    base[PRELIGHT] = "#000000"                   # text background hover
-    text[PRELIGHT] = "#ffffff"                   # arrow hover*/
+#rackcontainer .effect_title {
+    font: condensed 10pt "Roboto";
+    color: #222222;
 }
 
 #rack_label,
 #Value, /* *Value */
-#ampbox #label,
+#ampbox label,
 #beffekt_label,
 #tab_rack label,
 #rack_effect_label {
-    font: 11px "Roboto Condensed Regular";
+    font: condensed 8pt "Roboto";
     color: #222222; /* #dadfe1 # #c9d5b9  # #ffffff */
 }
 
-#rackbox .gx_rack_small_button {
-    font-size: 7pt;
-    font-weight: normal;
-}
-
-#rackbox .gx_rack_box_label {
-    font-size: 8pt;
-    font-weight: bold;
-}
-
-#rackbox .gx_simple_c_meter_label {
-    font-size: 6pt;
-    font-weight: normal;
-}
-
 #rack_label_inverse {
-    font: 7pt "Roboto Condensed Regular";
+    font: condensed 7pt "Roboto";
     color: #aaaaaa;
 }
 
-#rackcontainer #effect_title,
-#drag_widget #effect_title {
-    font: 12px "Roboto Condensed Regular";
-    color: #222222;
-}
-
 #rack_drag_button {
-    font: 20px "Roboto Condensed Regular";
+    font: condensed 20px "Roboto";
     padding: 0px 11px 0px 11px;
-}
-
-#tunerbox {
-    -GxPaintBox-alternate-box: 42 0 0 0;
-}
-
-/* ### KNOBS ### */
-
-gx-knob:disabled,
-gx-small-knob:disabled,
-gx-small-knob-r:disabled,
-gx-mid-knob:disabled,
-gx-big-knob:disabled {
-    color: #211006;
-}
-
-gx-small-knob {
-    -GxKnob-x-center: -1;
-    -GxKnob-y-center: -1;
-    -GxKnob-ring-radius: 15;
-    -GxKnob-ring-width: 2;
-    -GxKnob-ring-led-size: 3;
-    -GxKnob-ring-led-distance: 2;
-    -GxKnob-indicator-radius: 11;
-    -GxKnob-indicator-width: 2;
-    -GxKnob-indicator-length: 5;
-}
-
-gx-small-knob-r {
-    -GxKnob-x-center: -1;
-    -GxKnob-y-center: -1;
-    -GxKnob-ring-radius: 26;
-    -GxKnob-ring-width: 3;
-    -GxKnob-ring-led-size: 3;
-    -GxKnob-ring-led-distance: 2;
-    -GxKnob-indicator-radius: 12;
-    -GxKnob-indicator-width: 3;
-    -GxKnob-indicator-length: 3;
-}
-
-gx-mid-knob {
-    -GxKnob-x-center: -1;
-    -GxKnob-y-center: -1;
-    -GxKnob-ring-radius: 35;
-    -GxKnob-ring-width: 6;
-    -GxKnob-ring-led-size: 2;
-    -GxKnob-ring-led-distance: 2;
-    -GxKnob-indicator-radius: 27;
-    -GxKnob-indicator-width: 2;
-    -GxKnob-indicator-length: 6;
-}
-
-gx-big-knob {
-    -GxKnob-x-center: -1;
-    -GxKnob-y-center: -1;
-    -GxKnob-ring-radius: 50.5;
-    -GxKnob-ring-width: 3;
-    -GxKnob-ring-led-size: 0;
-    -GxKnob-ring-led-distance: 0;
-    -GxKnob-indicator-radius: 46;
-    -GxKnob-indicator-width: 3;
-    -GxKnob-indicator-length: 6;
-}
-
-gx-fast-meter,
-#meterframe {
-    padding: 4px 8px 4px 8px;
-    
-    background-color: #222222; /* border */
-    
-    -GxFastMeter-clr-bottom: #b96901;
-    -GxFastMeter-clr-middle: #d4cd00;
-    -GxFastMeter-clr-top: #ff0500;
-    -GxFastMeter-over: #ff1100;
-    -GxFastMeter-mid-pos: 0.717;
-    -GxFastMeter-dimen: 2;
-    -GxFastMeter-led-border: 1;
-    -GxFastMeter-led-width: 2;
-    -GxFastMeter-led-height: 2;
-    -GxFastMeter-border-radius: 6;
-    -GxFastMeter-bevel: 0.12;
-}
-
-gx-fast-meter:hover,
-#meterframe:hover {
-    background-color: #222222; /* border hover */
 }
 
 #simplemeter {
     padding: 1px 0px 1px 0px;
 }
 
-#ampdetails .gx_sw_minitoggle,
-#hboxcenter .gx_sw_minitoggle {
-  padding: 5px;
-  background-color: $bg-button;
-}
-
-#ampdetails .gx_sw_minitoggle:hover,
-#hboxcenter .gx_sw_minitoggle:hover {
-  background-color: $bg-button-hover;
-}
-
-#rackcontainer gx-vslider {
-    border-radius: 3px;
-    border: 2px solid;
-    -GxVSlider-slider-width: 36;
-    font: 6pt "Roboto Condensed Regular";
-    -GxRegler-value-border: 6px 6px 4px 4px;
-    color: #ff9000;
-    background-color: black;
-}
-
-gx-hslider {
-    -GxHSlider-slider-width: 36;
-}
-
-gx-meter-scale {
-    padding: 2px 8px 2px 8px;
-    -GxMeterScale-tick-size: 3;
-    -GxMeterScale-tick-space: 1;
-}
-
 
 #tab_rack {
     padding: 5px;
     background-color: rgb(25.5, 25.5, 25.5); /* { 0.10, 0.10, 0.10 } */
-
-    -Aurora-menubarstyle: 0; /* 0 = flat, 1 = gradient, 2 = sunken */
-    -Aurora-curvature: 2.0;
-    -Aurora-arrowsize: 1.0; /* controls combo_arrow circle size.  Diameter set by (11 + 2 * arrowsize) */
-    -Aurora-old-arrowstyle: false; /* set to TRUE for original circled arrows */
-    -Aurora-animation: true; /* FALSE = disabled, TRUE = enabled */
-
-    -Clearlooks-contrast: 0.75;
-    -Clearlooks-radius: 3.0;
-    -Clearlooks-style: glossy; /* INVERTED CLASSIC GLOSSY GUMMY */
 }
 
 #tab_rack:active {
@@ -869,17 +533,7 @@ gx-meter-scale {
 
 separator.horizontal {
     padding: 2px;
-
     background-color: #97BB6D;
-
-    /*-Aurora-menubarstyle: 0; / 0 = flat, 1 = gradient, 2 = sunken */
-    /*
-    -Aurora-curvature: 0.0;
-
-    -Clearlooks-contrast: 1.2;
-    -Clearlooks-radius: 4.0;
-    */
-    /* -Clearlooks-disable-focus: true; */
 }
 
 separator.vertical {
@@ -889,15 +543,6 @@ separator.vertical {
 frame, #frame_inversed, frame border, #frame_inversed border {
     padding: 4px;
     background-color: transparent;
-
-    /*
-    -Aurora-menubarstyle: 0; / 0 = flat, 1 = gradient, 2 = sunken /
-    -Aurora-curvature: 0.0;
-
-    -Clearlooks-contrast: 1.9;
-    -Clearlooks-radius: 4.0;
-    / -Clearlooks-disable-focus: true; /
-    */
 }
 
 #frame_inversed border {
@@ -906,44 +551,20 @@ frame, #frame_inversed, frame border, #frame_inversed border {
     border-width: 1px;
 }
 
-gx-ir-edit {
-    -GxIREdit-shade-alpha: 0.6;
-    -GxIREdit-gain-line-color: rgba(118.5, 152.4, 78.7, 255); /* 30463, 39167, 20223, 65535 */
-    /* -GxIREdit-zoom-marker-color */
-    -GxIREdit-no-data-color: rgba(255, 140.1, 0, 255); /* 65535, 36000, 0, 65535 */
-    -GxIREdit-sample-graph-color: rgba(255, 140.1, 0, 255); /* 65535, 36000, 0, 65535 */
-    -GxIREdit-sample-graph-color-out: rgba(255, 140.1, 0, 140.1); /* 65535, 36000, 0, 36000 */
-}
-
 /* IR Edit Window */
 
-#run_switch.gx_switch {
-  background-color: $bg-button;
-  outline-style: none;
-}
-
 #run_switch.gx_switch check {
-  min-width: 48px;
-  background-color: $bg-button;
+    min-width: 48px;
+    min-height: 48px;
 }
 
-#run_switch.gx_switch:hover,
-#run_switch.gx_switch:hover check {
-  background-color: $bg-button-hover;
+/****************************************************************/
+/* to check */
+
+#smallbutton {
 }
 
-#run_switch.gx_switch:checked:hover:not(:active),
-#run_switch.gx_switch:checked:hover:not(:active) check {
-  background-color: $bg-button-hover;
-}
-
-#run_switch.gx_switch:checked,
-#run_switch.gx_switch:active {
-  background-color: $bg-button-checked;
-}
-
-#run_switch.gx_switch:checked check,
-#run_switch.gx_switch:active check,
-#run_switch.gx_switch:checked:active check {
-  background-color: $bg-button-checked;
+.gx_switch {
+    padding: 0px;
+    -GtkButton-button-relief: GTK_RELIEF_NORMAL;
 }
