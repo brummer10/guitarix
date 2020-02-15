@@ -282,16 +282,11 @@ public:
  ** class RackBox, class MiniRackBox
  */
 
-//#define USE_SZG   // use a SizeGroup instead of predefined width for Gxw::Switch("switchit")
-
 class MiniRackBox;
 class RackContainer;
 
 class RackBox: public Gtk::VBox {
 private:
-#ifdef USE_SZG
-    static Glib::RefPtr<Gtk::SizeGroup> szg;
-#endif
     PluginUI& plugin;
     MainWindow& main;
     bool config_mode;

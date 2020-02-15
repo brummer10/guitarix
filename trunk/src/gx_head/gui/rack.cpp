@@ -403,11 +403,6 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
         mb_delete_button = make_delete_button(rb);
         mb_delete_button->set_no_show_all(true);
         top->pack_end(*manage(mb_delete_button), Gtk::PACK_SHRINK);
-#ifdef USE_SZG
-        RackBox::szg->add_widget(*al);
-#else
-        al->set_size_request(32, -1);
-#endif
     } else { // special minibox for main amp in config mode
         if (!szg_label) {
             szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
@@ -432,11 +427,6 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
         top->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET);
         box->pack_start(*manage(al), Gtk::PACK_SHRINK);
         box->pack_start(*manage(top));
-#ifdef USE_SZG
-        RackBox::szg->add_widget(*al);
-#else
-        al->set_size_request(64, 32);
-#endif
     }
     show_all();
 }
@@ -779,10 +769,6 @@ PluginPresetPopup::PluginPresetPopup(const PluginDef *pdef_, gx_engine::GxMachin
  ** class RackBox
  */
 
-#ifdef USE_SZG
-Glib::RefPtr<Gtk::SizeGroup> RackBox::szg;
-#endif
-
 void RackBox::set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
     pb.property_paint_func().set_value("gx_rack_unit_shrink_expose");
@@ -889,13 +875,6 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
 	pb->property_paint_func().set_value("gx_rack_amp_expose");
     }
-    //Gxw::Switch *swtch = new Gxw::Switch("switchit");
-    //swtch->set_active(plugin.plugin->get_on_off());
-#ifdef USE_SZG
-    //RackBox::szg->add_widget(*swtch);
-#else
-    //swtch->set_size_request(35, -1);
-#endif
     Gtk::Widget *effect_label = RackBox::make_label(plugin, options);
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->set_padding(0,0,4,20);
@@ -943,11 +922,6 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     if (strcmp(plugin.get_id(), "ampstack") != 0) { // FIXME
 	gx_gui::connect_midi_controller(&on_off_switch, plugin.plugin->id_on_off().c_str(), main.get_machine());
     }
-#ifdef USE_SZG
-    if (!szg) {
-	szg = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
-    }
-#endif
     if (bare) {
 	compress = false;
 	delete_button = false;
@@ -1253,9 +1227,6 @@ Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
     Gtk::VBox *vbox2 = new Gtk::VBox();
     hbox2->pack_start(*manage(vbox2));
     hbox2->pack_start(*manage(wrap_bar(4,4)), Gtk::PACK_SHRINK);
-#ifdef USE_SZG
-    szg->add_widget(&on_off_switch);
-#endif
     Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 0.0, 0.0);
     al->add(on_off_switch);
     vbox2->pack_start(*manage(al));
