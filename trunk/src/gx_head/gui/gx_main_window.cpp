@@ -2880,6 +2880,9 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 			      "bank_combo_liststore", "rack_vadjustment", nullptr };
     bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &machine, id_list);
     load_widget_pointers();
+#ifndef NDEBUG
+    theme.set_window(window);
+#endif
     rackcontainer->set_homogeneous(true); // setting it in glade is awkward to use with glade tool
     szg_rack_units->add_widget(*ampdetail_mini);
     szg_rack_units->add_widget(*ampdetail_normal);
@@ -3262,7 +3265,9 @@ MainWindow::~MainWindow() {
     gtk_accel_map_add_filter("<Actions>/PresetList/PresetList_*");
     Gtk::AccelMap::save(options.get_user_filepath("accels_rc"));
 #endif
-
+#ifndef NDEBUG
+    theme.set_window(nullptr);
+#endif
     int mainwin_width;
     window->get_size(mainwin_width, options.mainwin_height);
     Glib::RefPtr<Gdk::Window> win = window->get_window();

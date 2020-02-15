@@ -32,12 +32,20 @@ private:
     Glib::RefPtr<Gtk::CssProvider> css_provider;
     Glib::RefPtr<Gtk::CssProvider> css_show_values;
     Glib::RefPtr<Gtk::StyleContext> style_context;
+#ifndef NDEBUG
+    Gtk::Window *window;
+    int window_x, window_y;
+    void reload_css_post();
+#endif
 public:
     GxTheme() {}
     void init(gx_system::CmdlineOptions *options_);
     bool set_new_skin(const Glib::ustring& skin_name);
     void update_show_values();
+#ifndef NDEBUG
     void reload_css();
+    void set_window(Gtk::Window *window_) { window = window_; }
+#endif
 };
 
 
