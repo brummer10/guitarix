@@ -129,6 +129,7 @@ void StackBoxBuilder::fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox) {
     if (l.size() == 2) {
 	Glib::ListHandle<Gtk::Widget*>::iterator i = l.begin();
 	minibox = new Gtk::VBox();
+	minibox->get_style_context()->add_class("minibox");
 	minibox->show();
 	(*i)->show();
 	(*i)->reparent(*minibox);

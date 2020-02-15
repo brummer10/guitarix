@@ -22,6 +22,7 @@
  */
 
 #include <guitarix.h>
+#include <boost/algorithm/string/replace.hpp>
 
 /****************************************************************
  ** class PluginUI
@@ -371,6 +372,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
         Gtk::Alignment *al = new Gtk::Alignment();
         al->set_padding(0, 4, 0, 0);
         al->set_border_width(0);
+	al->get_style_context()->add_class("minibox-title");
     
         evbox.add(*manage(al));
     
@@ -776,21 +778,12 @@ PluginPresetPopup::PluginPresetPopup(const PluginDef *pdef_, gx_engine::GxMachin
  */
 
 void RackBox::set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp) {
-    pb.set_name("rackbox");
-    pb.property_paint_func().set_value("gx_rack_unit_shrink_expose");
+    pb.get_style_context()->add_class("rackmini");
     pb.set_border_width(0);
 }
 
 void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, const PluginUI& plugin) {
-    pb.set_name("rackbox");
-    pb.property_paint_func().set_value("gx_rack_unit_expose");
     pb.set_border_width(0);
-    // FIXME set special background for LV2 plugins
-    // if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2)
-    //   fprintf(stderr,"LV2 Plugin Load for %s %i\n",plugin.plugin->get_pdef()->name, plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2);
-    // else if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LADSPA)
-    //   fprintf(stderr,"LADSPA Plugin Load for %s %i\n",plugin.plugin->get_pdef()->name, plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2);
-
 }
 
 void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
@@ -803,7 +796,7 @@ Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptio
     const char *effect_name = useshort ? plugin.get_shortname() : plugin.get_name();
     Gtk::Label *effect_label = new Gtk::Label(effect_name);
     effect_label->set_alignment(0.0, 0.5);
-    effect_label->set_name("effect_title");
+    effect_label->get_style_context()->add_class("effect_title");
     if (plugin.get_type() == PLUGIN_TYPE_STEREO) {
         effect_label->set_markup("◗◖ " + effect_label->get_label()); //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
     }
@@ -878,9 +871,6 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
     RackBox::set_paintbox_unit_shrink(*pb, plugin.get_type());
     pb->set_name("drag_widget");
-    if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
-	pb->property_paint_func().set_value("gx_rack_amp_expose");
-    }
     Gtk::Widget *effect_label = RackBox::make_label(plugin, options);
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->set_padding(0,0,4,20);
@@ -954,7 +944,6 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     if (bare) {
 	add(*manage(bare));
 	fbox = bare;
-	mbox.property_paint_func().set_value("gx_rack_amp_expose");
     } else {
 	Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
 	pb->show();
@@ -962,6 +951,18 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
 	pb->pack_start(*manage(make_full_box(tl.get_options())));
 	pack_start(*manage(pb), Gtk::PACK_SHRINK);
 	fbox = pb;
+    }
+    fbox->get_style_context()->add_class("rackmain");
+
+    string css_id = plugin.plugin->get_pdef()->id;
+    boost::replace_all(css_id, ".", "-");
+    set_name("PLUI-" + css_id);
+    Glib::RefPtr<Gtk::StyleContext> context = get_style_context();
+    context->add_class("rackbox");
+    if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2) {
+	context->add_class("PL-LV2");
+    } else if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LADSPA) {
+	context->add_class("PL-LADSPA");
     }
     on_off_switch.signal_toggled().connect(
 	sigc::mem_fun(*this, &RackBox::on_state_change));
