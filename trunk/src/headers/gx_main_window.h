@@ -765,7 +765,7 @@ private:
     bool on_ti_button_press(GdkEventButton *ev, const char *effect_id);
     void on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, int info, int timestamp);
     void fill_pluginlist();
-    void make_icons(bool force=true);
+    //void make_icons(bool force=true);
     void jack_connection();
     void on_miditable_toggle();
     void on_portmap_activate();

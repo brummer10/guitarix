@@ -1082,7 +1082,14 @@ void MainWindow::add_toolitem(PluginUI& pl, Gtk::ToolItemGroup *gw) {
     }
     tb->drag_source_set(listTargets, Gdk::BUTTON1_MASK, Gdk::ACTION_MOVE);
     tb->signal_drag_data_get().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ti_drag_data_get), pl.get_id()));
-    Gtk::Image *img = new Gtk::Image(pl.icon);
+    //Gtk::Image *img = new Gtk::Image(pl.icon);
+    Glib::ustring name = pl.get_shortname();
+    if (pl.get_type() == PLUGIN_TYPE_STEREO) {
+        name = "◗◖ " + name; //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
+    }
+    Gtk::Label *img = new Gtk::Label(name);
+    img->set_xalign(0);
+    img->set_halign(Gtk::ALIGN_END);
     if (!pl.tooltip.empty()) {
 	gx_gui::GxBuilder::set_tooltip_text_connect_handler(*img, pl.tooltip);
     }
@@ -1186,9 +1193,9 @@ void MainWindow::on_miditable_toggle() {
 
 void MainWindow::change_skin(Glib::RefPtr<Gtk::RadioAction> action) {
     gx_gui::WaitCursor wait(window);
-    if (theme.set_new_skin(options.skin[action->get_current_value()])) {
-	make_icons();
-    }
+    //if (theme.set_new_skin(options.skin[action->get_current_value()])) {
+    //	make_icons();
+    //}
 }
 
 void MainWindow::add_skin_menu() {
@@ -1846,6 +1853,7 @@ void MainWindow::clear_box(Gtk::Container& box) {
     }
 }
 
+/*
 void MainWindow::make_icons(bool force) {
     Gtk::OffscreenWindow w;
     w.set_type_hint(Gdk::WINDOW_TYPE_HINT_DOCK); // circumvent canberra-gtk-module bug on AV Linux
@@ -1891,18 +1899,8 @@ void MainWindow::make_icons(bool force) {
 	w.hide();
         i->second->hide();
     }
-
-    // Amp padding
-    auto theme = Gtk::IconTheme::get_default();
-    auto hanl = theme->load_icon("handle_left", -1, Gtk::ICON_LOOKUP_GENERIC_FALLBACK);
-    auto hanr = theme->load_icon("handle_right", -1, Gtk::ICON_LOOKUP_GENERIC_FALLBACK);
-    gint wl = hanl->get_width();
-    gint wr = hanr->get_width();
-    bld->find_widget("amp_padding", vbam);
-    vbam->set_padding(0, 4, wl, wr);
-    bld->find_widget("details_padding", vbam);
-    vbam->set_padding(0, 4, wl, wr);
 }
+*/
 
 class JConvPluginUI: public PluginUI {
 private:
@@ -1928,7 +1926,7 @@ void JConvPluginUI::on_plugin_preset_popup() {
 
 void MainWindow::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c) {
     if (!pl) { // end of update sequence
-	make_icons(true); // re-create all icons, width might have changed
+	//make_icons(true); // re-create all icons, width might have changed
     } else if (c == gx_engine::PluginChange::add) {
 	register_plugin(new PluginUI(*this, pl->get_pdef()->id, ""));
     } else {
@@ -2055,6 +2053,8 @@ Gtk::ToolItemGroup *MainWindow::add_plugin_category(const char *group, bool coll
     effects_toolpalette->add(*manage(gw));
     effects_toolpalette->set_exclusive(*gw, true);
     effects_toolpalette->set_expand(*gw, true);
+    // make groups label left aligned (not settable in CSS)
+    gw->get_label_widget()->set_halign(Gtk::ALIGN_START);
     return gw;
 }
 
@@ -3185,7 +3185,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     mainamp_plugin->rackbox = add_rackbox_internal(*mainamp_plugin, 0, 0, false, -1, false, amp_background);
     //effects_toolpalette->set_name("effects_toolpalette");
     effects_toolpalette->show();
-    make_icons();
+    //make_icons();
 
     // call some action functions to sync state
     // with settings defined in create_actions()
