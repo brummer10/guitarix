@@ -104,6 +104,7 @@ void GxTheme::update_show_values() {
     css_show_values->load_from_data((fmt % "").str());
 }
 
+#ifndef NDEBUG
 void GxTheme::reload_css_post() {
     window->show();
     window->move(window_x, window_y);
@@ -129,6 +130,7 @@ void GxTheme::reload_css() {
     window->set_focus_on_map(false);
     window->hide();
 }
+#endif
 
 /****************************************************************
  ** class PosixSignals
@@ -241,7 +243,9 @@ void PosixSignals::signal_helper_thread() {
     pthr = pthread_self();
     const char *signame;
     guint source_id_usr1 = 0;
+#ifndef NDEBUG
     guint source_id_usr2 = 0;
+#endif
     pthread_sigmask(SIG_BLOCK, &waitset, NULL);
     bool seen = false;
     while (true) {
@@ -272,6 +276,7 @@ void PosixSignals::signal_helper_thread() {
 		source_id_usr1 = idle_source->get_id();
 	    }
 	    break;
+#ifndef NDEBUG
 	case SIGUSR2:
 	    if (gtk_level() < 1) {
 		gx_print_info(_("system startup"),
@@ -289,6 +294,7 @@ void PosixSignals::signal_helper_thread() {
 		source_id_usr2 = idle_source->get_id();
 	    }
 	    break;
+#endif
 	case SIGCHLD:
 	    Glib::signal_idle().connect_once(
 		sigc::ptr_fun(gx_child_process::gx_sigchld_handler));
@@ -650,7 +656,11 @@ static void mainProg(int argc, char *argv[]) {
     Glib::init();
 
     GxTheme theme;
+#ifndef NDEBUG
     PosixSignals posixsig(true, &theme); // catch unix signals in special thread
+#else
+    PosixSignals posixsig(true, nullptr);
+#endif
     Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
     gx_system::CmdlineOptions options;
     Gtk::Main main(argc, argv, options);
