@@ -25,6 +25,8 @@
 #ifndef SRC_HEADERS_GX_UI_BUILDER_H_
 #define SRC_HEADERS_GX_UI_BUILDER_H_
 
+#include <gxwmm/controlparameter.h>
+
 class PluginUI;
 class MainWindow;
 
@@ -116,16 +118,16 @@ public:
     static inline Glib::RefPtr<GxBuilder> create() { return Glib::RefPtr<GxBuilder>(new GxBuilder()); }
 
     static Glib::RefPtr<GxBuilder> create_from_file(
-	const std::string& filename, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0);
+	const std::string& filename, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0, sigc::signal<void(bool)> *out_ctr = 0);
 
     static Glib::RefPtr<GxBuilder> create_from_file(
-	const std::string& filename, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids);
+	const std::string& filename, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids, sigc::signal<void(bool)> *out_ctr = 0);
 
     static Glib::RefPtr<GxBuilder> create_from_string(
-	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0);
+	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0, sigc::signal<void(bool)> *out_ctr = 0);
 
     static Glib::RefPtr<GxBuilder> create_from_string(
-	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids);
+	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids, sigc::signal<void(bool)> *out_ctr = 0);
 
     static bool get_show_tooltips() { return show_tooltips; }
     static void set_show_tooltips(bool v) { show_tooltips = v; }
@@ -136,7 +138,7 @@ public:
     static void set_tooltip_text_connect_handler(Gtk::Widget& widget, const Glib::ustring& text) {
 	set_tooltip_text_connect_handler(widget.gobj(), text.c_str()); }
 
-    void fixup_controlparameters(gx_engine::GxMachineBase& machine);
+    void fixup_controlparameters(gx_engine::GxMachineBase& machine, sigc::signal<void(bool)> *out_ctr);
 
     template <class T_Widget> inline
     void find_widget(const Glib::ustring& name, T_Widget*& widget) {
@@ -246,7 +248,8 @@ protected:
     static void load_glade_file_(const char *fname);
     virtual bool load(gx_engine::Plugin *p);
 public:
-    UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl=0);
+    UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl, sigc::signal<void(bool)> *out_ctr);
+    ~UiBuilderImpl();
     bool load_unit(PluginDef *pl);
     friend class gx_engine::GxMachineRemote;
 };

@@ -67,6 +67,7 @@ struct CmdConnection::methodnames;
 "desc", true
 "list", true
 "insert_param", false
+"get_updates", false
 
 /* Preset Banks */
 
@@ -139,12 +140,6 @@ struct CmdConnection::methodnames;
 "get_tuner_freq", true
 "switch_tuner", false
 "tuner_used_for_display", false
-
-
-/* Level Meter */
-
-"get_max_input_level", true
-"get_max_output_level", true
 
 
 /* Oscilloscope */

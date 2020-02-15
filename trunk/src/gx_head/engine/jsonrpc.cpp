@@ -232,7 +232,7 @@ public:
  */
 
 const static int InterfaceVersionMajor = 1;
-const static int InterfaceVersionMinor = 0;
+const static int InterfaceVersionMinor = 1;
 
 CmdConnection::CmdConnection(GxService& serv_, const Glib::RefPtr<Gio::SocketConnection>& connection_)
     : serv(serv_),
@@ -242,6 +242,12 @@ CmdConnection::CmdConnection(GxService& serv_, const Glib::RefPtr<Gio::SocketCon
       midi_config_mode(false),
       flags(),
       maxlevel() {
+    gx_engine::ParamMap& pmap = serv.settings.get_param();
+    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
+	if (i->second->isMaxlevel()) {
+	    maxlevel[i->first] = i->second->getFloat().get_value();
+	}
+    }
     jp.start_parser();
 }
 
@@ -638,25 +644,6 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.write_kv("frequency", serv.jack.get_engine().tuner.get_freq());
 	jw.write_kv("note", serv.jack.get_engine().tuner.get_note());
 	jw.end_object();
-    }
-
-    FUNCTION(get_max_input_level) {
-	jw.write(0.0);
-    }
-
-    FUNCTION(get_max_output_level) {
-	serv.update_maxlevel();
-	unsigned int n = params[0]->getInt();
-	jw.begin_array();
-	for (unsigned int i = 0; i < n; i++) {
-	    if (i < gx_engine::MaxLevel::channelcount) {
-		jw.write(maxlevel[i]);
-		maxlevel[i] = 0.0;
-	    } else {
-		jw.write(0.0);
-	    }
-	}
-	jw.end_array();
     }
 
     FUNCTION(get_tuner_freq) {
@@ -1060,6 +1047,27 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	    serv.broadcast(jw, f_parameter_change_notify, this);
 	}
 	serv.save_state();
+    }
+
+    PROCEDURE(get_updates) {
+	gx_engine::ParamMap& param = serv.settings.get_param();
+	gx_system::JsonStringWriter jw;
+	serv.jwc = &jw;
+	send_notify_begin(jw, "set");
+	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
+	    gx_engine::Parameter& p = param[(*i)->getString()];
+	    jw.write(p.id());
+	    if (p.isMaxlevel()) {
+		serv.update_maxlevel(p.id());
+		float& f = maxlevel[p.id()];
+		jw.write(f);
+		f = 0;
+	    } else {
+		jw.write(p.getFloat().get_value());
+	    }
+	}
+	serv.jwc = 0;
+	serv.broadcast(jw, f_parameter_change_notify);
     }
 
     PROCEDURE(setpreset) {
@@ -1757,7 +1765,11 @@ GxService::GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
     pmap.signal_insert_remove().connect(
 	sigc::mem_fun(this, &GxService::on_param_insert_remove));
     for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
-	connect_value_changed_signal(i->second);
+	if (i->second->isMaxlevel()) {
+	    maxlevel[i->first] = i->second->getFloat().get_value();
+	} else {
+	    connect_value_changed_signal(i->second);
+	}
     }
 }
 
@@ -2218,13 +2230,19 @@ void GxService::broadcast(gx_system::JsonStringWriter& jw, CmdConnection::msg_ty
     }
 }
 
-void GxService::update_maxlevel(CmdConnection *curr) {
-    gx_engine::MaxLevel& m = jack.get_engine().maxlevel;
-    for (unsigned int i = 0; i < m.channelcount; i++) {
-	float v = m.get(i);
-	maxlevel[i] = max(maxlevel[i], v);
-	for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
-	    (*p)->update_maxlevel(i, v);
-	}
+float GxService::update_maxlevel(const std::string& id, bool reset) {
+    gx_engine::FloatParameter& p = settings.get_param()[id].getFloat();
+    float v = p.get_value();
+    p.set_zero();
+    for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
+	(*p)->update_maxlevel(id, v);
     }
+    float& m = maxlevel[id];
+    if (reset) {
+	v = max(v, m);
+	m = 0;
+    } else {
+	m = max(m, v);
+    }
+    return v;
 }

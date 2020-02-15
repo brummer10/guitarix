@@ -52,6 +52,7 @@ private:
     Glib::RefPtr<Gtk::AccelGroup> accels;
     Glib::RefPtr<Gdk::Pixbuf> window_icon;
     int next_flags;
+    sigc::signal<void(bool)> *output_widget_state;
 
     static const          gboolean homogene = false;
     void loadRackFromGladeData(const char *xmldesc);
@@ -74,8 +75,6 @@ private:
     void check_set_flags(Gxw::Regler *r);
     void create_simple_meter(const std::string& id);
     void create_simple_c_meter(const std::string& id, const std::string& idl, const char *label);
-    bool set_simple(Gxw::FastMeter *fastmeter, const std::string id);
-    bool set_compressor_level(Gxw::FastMeter *fastmeter, const std::string id);
     void create_mid_rackknob(const std::string& id, const char *label);
     void create_small_rackknob(const std::string& id, const char *label);
     void create_small_rackknobr(const std::string& id);
@@ -118,10 +117,6 @@ private:
     void create_eq_rackslider_no_caption(const std::string& id) {
 	addwidget(new UiRegler<Gxw::EqSlider>(machine, id, true));
     }
-    bool set_engine_value(const std::string id);
-    bool set_engine_cp_value(Gxw::Switch *w,const std::string id);
-    bool set_regler_cp_value(Gxw::Regler *w,const std::string id);
-    bool set_pd_value(Gxw::PortDisplay *w, const std::string id, const std::string& idl, const std::string& idh);
     void load_file(const std::string& id, const std::string& idf);
     void on_file_chooser_response(int response_id, Gtk::FileChooserDialog *d, const std::string& id, const std::string& idf);
     void load_file_f(const std::string& id, const std::string& idf);
@@ -160,6 +155,9 @@ public:
     void get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
     void prepare();
     void fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
+    void set_output_state_signal(sigc::signal<void(bool)>  *output_controls) {
+	output_widget_state = output_controls; }
+
     // mono
     void make_rackbox_oscilloscope();
     void make_rackbox_jconv_mono();

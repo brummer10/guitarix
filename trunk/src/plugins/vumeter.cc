@@ -117,9 +117,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("vu.gain","","S","",&fslider0, 0.0, -2e+01, 4.0, 0.1);
-	reg.registerNonMidiFloatVar("vu.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
-	reg.registerNonMidiFloatVar("vu.v2",&fcheckbox1  , false, true, 0.0, 0.0, 1.0, 1.0);
+	reg.registerFloatVar("vu.gain","Gain","S","",&fslider0, 0.0, -20, 4.0, 0.1, 0);
+	reg.registerFloatVar("vu.v1","","SLNO","",&fbargraph0, 0.0003, 0.0003, 4.0, 0.00001, 0);
+	reg.registerFloatVar("vu.v2","","BNO","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
 	return 0;
 }
 

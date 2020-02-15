@@ -221,8 +221,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("metro.BPM","","S",N_("Beats per Minute"),&fslider1, 3e+01, 24.0, 3.6e+02, 1.0);
-	reg.registerVar("metro.Gain","","S",N_("Gain (value between 0 and 1)"),&fslider0, 0.8, 0.0, 1e+01, 0.01);
+	reg.registerFloatVar("metro.BPM","","S",N_("Beats per Minute"),&fslider1, 3e+01, 24.0, 3.6e+02, 1.0, 0);
+	reg.registerFloatVar("metro.Gain","","S",N_("Gain (value between 0 and 1)"),&fslider0, 0.8, 0.0, 1e+01, 0.01, 0);
 	return 0;
 }
 

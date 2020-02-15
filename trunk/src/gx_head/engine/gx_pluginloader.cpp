@@ -32,32 +32,58 @@ gx_engine::ParamMap *ParamRegImpl::pmap = 0;
 ParamRegImpl::ParamRegImpl(gx_engine::ParamMap* pm): ParamReg() {
     pmap = pm;
     plugin = 0;
-    registerVar = registerVar_;
+    registerFloatVar = registerFloatVar_;
+    registerIntVar = registerIntVar_;
     registerBoolVar = registerBoolVar_;
-    registerNonMidiVar = registerNonMidiVar_;
-    registerNonMidiFloatVar = registerNonMidiFloatVar_;
-    registerNonMidiSharedVar = registerNonMidiSharedVar_;
-    registerEnumVar = registerEnumVar_;
-    registerSharedEnumVar = registerSharedEnumVar_;
-    registerIEnumVar = registerIEnumVar_;
 }
 
-float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* tp,
-			      const char* tooltip, float* var, float val,
-			      float low, float up, float step) {
-    assert(step > 0);
-    assert(up > low);
+struct param_opts {
+    bool shared;
+    bool log;
+    bool nomidi;
+    bool output;
+    bool maxlevel;
+    string name;
+};
+
+void get_param_opts(param_opts& opts, const char* tp, const char *id, const char *name) {
     if (!name[0]) {
 	assert(strrchr(id, '.'));
-	name = strrchr(id, '.')+1;
+	opts.name = strrchr(id, '.')+1;
+	if (!opts.name.empty()) {
+	    opts.name[0] = toupper(opts.name[0]);
+	}
+    } else {
+	opts.name = name;
     }
-    int n = strlen(tp);
-    if (n && tp[n-1] == 'A') {
+    assert(tp[0] == 'S' || tp[0] == 'B');
+
+    for (const char *p = tp+1; *p; p++) {
+	switch (*p) {
+	case 'A': opts.shared = true; break;
+	case 'L': opts.log = true; assert(tp[0] == 'S'); break;
+	case 'N': opts.nomidi = true; break;
+	case 'O': opts.output = true; opts.nomidi = true; break;
+	case 'M': opts.maxlevel = true; break;
+	default:
+	    cerr << id << ": unknown type char: " << *p << endl;
+	    assert(false);
+	    break;
+	}
+    }
+}
+
+float *ParamRegImpl::registerFloatVar_(const char* id, const char* name, const char* tp,
+				       const char* tooltip, float* var, float val,
+				       float low, float up, float step, const value_pair* values) {
+    param_opts opts = { 0 };
+    get_param_opts(opts, tp, id, name);
+    if (opts.shared) {
 	if (pmap->hasId(id)) {
 	    gx_engine::Parameter& p = (*pmap)[id];
 #ifndef NDEBUG
 	    gx_engine::FloatParameter p2(
-		id, name, (tp[0] == 'B' ? Parameter::Switch : gx_engine::Parameter::Continuous),
+		id, opts.name, (tp[0] == 'B' ? Parameter::Switch : gx_engine::Parameter::Continuous),
 		true, p.getFloat().value, val, low, up, step, true, false);
 	    p2.set_desc(tooltip);
 	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
@@ -66,22 +92,25 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
 	}
     }
     gx_engine::Parameter *p = 0;
-    int i = 0;
-    if (tp[0] == 'S') {
-	i = 1;
-	p = pmap->reg_par(id, name, var, val, low, up, step);
-	if (tp[1] == 'L') {
-	    assert(step > 1);
-	    p->set_log_display();
-	    i = 2;
-	}
-    } else if (tp[0] == 'B') {
-	i = 1;
-	p = pmap->reg_par(id, name, var, val);
+    if (values) {
+	assert(!opts.log);
+	p = pmap->reg_enum_par(id, opts.name, values, var, val, low, !opts.nomidi);
     } else {
-	assert(false);
+	if (tp[0] == 'S') {
+	    p = pmap->reg_par(id, opts.name, var, val, low, up, step, !opts.nomidi);
+	    if (opts.log) {
+		assert(step > 1 || opts.output);
+		p->set_log_display();
+	    }
+	    if (opts.maxlevel) {
+		p->setMaxlevel(true);
+	    }
+	} else if (tp[0] == 'B') {
+	    p = pmap->reg_par(id, opts.name, var, val, !opts.nomidi);
+	}
     }
-    if (tp[i] == 'O') {
+    if (opts.output) {
+	p->setOutput(true);
 	p->setSavable(false);
     }
     if (tooltip && tooltip[0]) {
@@ -90,100 +119,80 @@ float *ParamRegImpl::registerVar_(const char* id, const char* name, const char* 
     return var;
 }
 
-void ParamRegImpl::registerBoolVar_(const char* id, const char* name, const char* tp,
-			   const char* tooltip, bool* var, bool val) {
-    gx_engine::Parameter *p = pmap->reg_par(id, name, var, val);
-    if (tooltip && tooltip[0]) {
-        p->set_desc(tooltip);
-    }
-}
-
-void ParamRegImpl::registerEnumVar_(const char *id, const char* name, const char* tp,
-			       const char* tooltip, const value_pair* values, float *var,
-			       float val, float low, float up, float step) {
-    if (!name[0]) {
-        assert(strrchr(id, '.'));
-        name = strrchr(id, '.')+1;
-    }
-    assert(step == 1.0);
-    gx_engine::Parameter *p = pmap->reg_enum_par(id, name, values, var, val, low);
-    if (tooltip && tooltip[0]) {
-        p->set_desc(tooltip);
-    }
-}
-
-float *ParamRegImpl::registerSharedEnumVar_(const char *id, const char* name, const char* tp,
-			       const char* tooltip, const value_pair* values, float *var,
-			       float val, float low, float up, float step) {
-    if (!name[0]) {
-        assert(strrchr(id, '.'));
-        name = strrchr(id, '.')+1;
-    }
-    assert(step == 1.0);
-    int n = strlen(tp);
-    if (n && tp[n-1] == 'A') {
+int *ParamRegImpl::registerIntVar_(const char* id, const char* name, const char* tp,
+				   const char* tooltip, int* var, int val,
+				   int low, int up, const value_pair* values) {
+    assert(up > low || values);
+    param_opts opts = { 0 };
+    get_param_opts(opts, tp, id, name);
+    assert(!opts.log);
+    if (opts.shared) {
 	if (pmap->hasId(id)) {
 	    gx_engine::Parameter& p = (*pmap)[id];
+#if 0
 #ifndef NDEBUG
-	    gx_engine::FloatParameter p2(
-		id, name, gx_engine::Parameter::Enum,
-		true, p.getFloat().value, val, low, up, step, true, false);
+	    gx_engine::IntParameter p2(
+		id, opts.name, (tp[0] == 'B' ? Parameter::Switch : gx_engine::Parameter::Continuous),
+		true, p.getInt().value, val, low, up, true, false);
 	    p2.set_desc(tooltip);
 	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
 #endif
-	    return p.getFloat().value;
+#endif
+	    return p.getInt().value;
 	}
     }
-	gx_engine::Parameter *p = pmap->reg_enum_par(id, name, values, var, val, low);
+    gx_engine::Parameter *p = 0;
+    if (values) {
+	p = pmap->reg_enum_par(id, opts.name, values, var, val, !opts.nomidi);
+    } else {
+	if (tp[0] == 'S') {
+	    p = pmap->reg_par(id, opts.name, var, val, low, up, !opts.nomidi);
+	} else if (tp[0] == 'B') {
+	    p = pmap->reg_par(id, opts.name, var, val, !opts.nomidi);
+	}
+    }
+    if (opts.output) {
+	p->setOutput(true);
+	p->setSavable(false);
+    }
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
     }
     return var;
 }
 
-void ParamRegImpl::registerIEnumVar_(const char *id, const char* name, const char* tp,
-			       const char* tooltip, const value_pair* values,
-			       int *var, int val) {
-    if (!name[0]) {
-        assert(strrchr(id, '.'));
-        name = strrchr(id, '.')+1;
+bool *ParamRegImpl::registerBoolVar_(const char* id, const char* name, const char* tp,
+				     const char* tooltip, bool* var, bool val) {
+    param_opts opts = { 0 };
+    get_param_opts(opts, tp, id, name);
+    assert(!opts.log);
+    if (opts.shared) {
+	if (pmap->hasId(id)) {
+	    gx_engine::Parameter& p = (*pmap)[id];
+#if 0
+#ifndef NDEBUG
+	    gx_engine::BoolParameter p2(
+		id, opts.name, Parameter::Switch,
+		true, p.getBool().value, val, true, false);
+	    p2.set_desc(tooltip);
+	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
+#endif
+#endif
+	    return p.getBool().value;
+	}
     }
-    gx_engine::Parameter *p = pmap->reg_enum_par(id, name, values, var, val);
+    gx_engine::Parameter *p = 0;
+    if (tp[0] == 'B') {
+	p = pmap->reg_par(id, opts.name, var, val, !opts.nomidi);
+    }
+    if (opts.output) {
+	p->setOutput(true);
+	p->setSavable(false);
+    }
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
     }
-}
-
-void ParamRegImpl::registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave) {
-    BoolParameter *p = pmap->reg_non_midi_par(id, var, preset);
-    if (nosave) {
-	p->setSavable(false);
-    }
-}
-
-void ParamRegImpl::registerNonMidiFloatVar_(const char * id, float *var, bool preset, bool nosave,
-			       float val, float low, float up, float step) {
-    FloatParameter *p = pmap->reg_non_midi_par(id, var, preset, val, low, up, step);
-    if (nosave) {
-	p->setSavable(false);
-    }
-}
-
-float *ParamRegImpl::registerNonMidiSharedVar_(const char * id, float *var, bool preset, bool nosave,
-			       float val, float low, float up, float step) {
-	if (pmap->hasId(id)) {
-	    gx_engine::Parameter& p = (*pmap)[id];
-        p.setSavable(false);
-#ifndef NDEBUG
-	    gx_engine::FloatParameter p2(
-		id, "", gx_engine::Parameter::Continuous,
-		preset, p.getFloat().value, val, low, up, step, preset, nosave);
-	    gx_engine::compare_parameter("Alias Parameter", &p, &p2);
-#endif
-	    return p.getFloat().value;
-	}
-    FloatParameter *p = pmap->reg_non_midi_par(id, var, preset, val, low, up, step);
-    return p->getFloat().value;
+    return var;
 }
 
 

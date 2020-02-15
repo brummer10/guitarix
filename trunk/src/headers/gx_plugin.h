@@ -121,24 +121,17 @@ struct value_pair {
 
 struct ParamReg {
     PluginDef *plugin;
-    float *(*registerVar)(const char* id, const char* name, const char* tp,
-			  const char* tooltip, float* var, float val,
-			  float low, float up, float step);
-    void (*registerBoolVar)(const char* id, const char* name, const char* tp,
-			    const char* tooltip, bool* var, bool val);
-    void (*registerNonMidiVar)(const char * id, bool*var, bool preset, bool nosave);
-    void (*registerNonMidiFloatVar)(const char * id, float *var, bool preset, bool nosave,
-              float val, float low, float up, float step);
-    void (*registerEnumVar)(const char *id, const char* name, const char* tp,
-			    const char* tooltip, const value_pair* values, float *var, float val,
-			    float low, float up, float step);
-    float *(*registerSharedEnumVar)(const char *id, const char* name, const char* tp,
-			    const char* tooltip, const value_pair* values, float *var, float val,
-			    float low, float up, float step);
-    void (*registerIEnumVar)(const char *id, const char* name, const char* tp,
-			     const char* tooltip, const value_pair* values, int *var, int val);
-    float *(*registerNonMidiSharedVar)(const char * id, float *var, bool preset, bool nosave,
-              float val, float low, float up, float step);
+    float *(*registerFloatVar)(
+	const char* id, const char* name, const char* tp,
+	const char* tooltip, float* var, float val,
+	float low, float up, float step, const value_pair* values);
+    int *(*registerIntVar)(
+	const char* id, const char* name, const char* tp,
+	const char* tooltip, int* var, int val,
+	int low, int up, const value_pair* values);
+    bool *(*registerBoolVar)(
+	const char* id, const char* name, const char* tp,
+	const char* tooltip, bool* var, bool val);
 };
 
 /*

@@ -1004,8 +1004,8 @@ RackBox *MainWindow::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate)
     Gtk::Widget *miniwidget = 0;
     boxbuilder.get_box(pl.get_id(), mainwidget, miniwidget);
     if (!mainwidget) {
-	gx_gui::UiBuilderImpl builder(this, &boxbuilder);
-	
+	gx_gui::UiBuilderImpl builder(this, &boxbuilder, nullptr, &pl.output_widget_state);
+	boxbuilder.set_output_state_signal(&pl.output_widget_state);
 	if (machine.load_unit(builder, pl.plugin->get_pdef())) {
 	    boxbuilder.fetch(mainwidget, miniwidget);
 	}
@@ -2108,7 +2108,7 @@ void MainWindow::fill_pluginlist() {
     p.push_back(new JConvPluginUI(*this, "jconv"));
     p.push_back(new JConvPluginUI(*this, "jconv_mono"));
 
-    gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p);
+    gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p, nullptr);
     machine.pluginlist_append_rack(builder);
 
     std::sort(p.begin(), p.end(), plugins_by_name_less);

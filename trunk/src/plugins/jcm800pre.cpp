@@ -3892,10 +3892,9 @@ DKPlugin::DKPlugin():
 #define PARAM(p) ("JCM800Pre" "." p)
 
 int DKPlugin::registerparam(const ParamReg& reg) {
-            DKPlugin& self = *static_cast<DKPlugin*>(reg.plugin);
-        
-        reg.registerVar(PARAM("P6v"), N_("Volume"), "S", N_(""), &self.pots[0], 0.5, 0, 1, 0.01);
-        return 0;
+    DKPlugin& self = *static_cast<DKPlugin*>(reg.plugin);
+    reg.registerFloatVar(PARAM("P6v"), N_("Volume"), "S", N_(""), &self.pots[0], 0.5, 0, 1, 0.01, 0);
+    return 0;
 }
 
 void DKPlugin::init(unsigned int samplingFreq, PluginDef *plugin) {

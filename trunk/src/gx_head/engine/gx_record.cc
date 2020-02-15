@@ -369,19 +369,19 @@ int SCapture::register_par(const ParamReg& reg)
 {
     static const value_pair fformat_values[] = {{"wav"},{"ogg"},{"w64"},{0}};
     if (channel == 1) {
-    reg.registerEnumVar("recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 2.0, 1.0);
-    reg.registerVar("recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-    reg.registerVar("recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
-    reg.registerNonMidiFloatVar("recorder.clip",&fcheckbox1, false, true, 0.0, 0.0, 1.0, 1.0);
-    reg.registerNonMidiFloatVar("recorder.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
+	reg.registerFloatVar("recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 2.0, 1.0, fformat_values);
+	reg.registerFloatVar("recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f, 0);
+	reg.registerFloatVar("recorder.clip","","BN","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("recorder.v1","","SO","",&fbargraph0, -70.0, -70.0, 4.0, 0.00001, 0);
     } else {
-    reg.registerEnumVar("st_recorder.file","","S",N_("select file format"),fformat_values,&fformat, 0.0, 0.0, 2.0, 1.0);
-    reg.registerVar("st_recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0);
-    reg.registerVar("st_recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f);
-    reg.registerNonMidiFloatVar("st_recorder.clip",&fcheckbox1, false, true, 0.0, 0.0, 1.0, 1.0);
-    reg.registerNonMidiFloatVar("st_recorder.v1",&fbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
+	reg.registerFloatVar("st_recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 2.0, 1.0, fformat_values);
+	reg.registerFloatVar("st_recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("st_recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f, 0);
+	reg.registerFloatVar("st_recorder.clip","","BN","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("st_recorder.v1","","SO","",&fbargraph0, -70.0, -70.0, 4.0, 0.00001, 0);
     }
-    
+
     return 0;
 }
 

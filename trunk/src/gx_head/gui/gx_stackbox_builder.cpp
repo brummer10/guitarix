@@ -1,3 +1,4 @@
+#include <gxw/GxControlParameter.h>
 #include "guitarix.h"        // NOLINT
 
 #include <glibmm/i18n.h>     // NOLINT
@@ -171,100 +172,6 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
     }
     bld->find_widget("rackbox", w);
     fBox.add(w);
-    
-    // find fastmeters in glade UI's and add a timeout callback to set the levels
-    // fastmeters must have id=gxfastmeterN were N starts with 1
-    std::string id;
-    for (int i = 1; i<12;++i) {
-        Glib::ustring fm = "gxfastmeter" + gx_system::to_string(i);
-        if (bld->has_object(fm)) {
-            Gxw::FastMeter *fastmeter;
-            bld->find_widget(fm, fastmeter);
-            fastmeter->get_property("var_id",id);
-            fastmeter->set_name("simplemeter");
-            if (!id.empty())
-            Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-                  sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
-            fastmeter->set_by_power(0.0001);        
-        } else {
-            break;
-        }
-    }
-    for (int i = 1; i<12;++i) {
-        Glib::ustring fm = "gxfastmeter" + gx_system::to_string(i)+ ":meterframe";
-        if (bld->has_object(fm)) {
-            Gxw::FastMeter *fastmeter;
-            bld->find_widget(fm, fastmeter);
-            fastmeter->get_property("var_id",id);
-            //fastmeter->set_name("meterframe");
-            if (!id.empty())
-            Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-                  sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
-            fastmeter->set_by_power(0.0001);        
-        } else {
-            break;
-        }
-    }
-    for (int i = 1; i<12;++i) {
-        Glib::ustring fm = "gxcompressormeter" + gx_system::to_string(i);
-        if (bld->has_object(fm)) {
-            Gxw::FastMeter *fastmeter;
-            bld->find_widget(fm, fastmeter);
-            fastmeter->get_property("var_id",id);
-            fastmeter->set_name("simplemeter");
-            if (!id.empty())
-            Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-                  sigc::mem_fun(*this, &StackBoxBuilder::set_compressor_level),id), fastmeter), 60);
-            fastmeter->set_c_level(0.0);        
-        } else {
-            break;
-        }
-    }
-    for (int i = 1; i<12;++i) {
-        Glib::ustring fm = "gxportdisplay" + gx_system::to_string(i);
-        if (bld->has_object(fm)) {
-            Gxw::PortDisplay *regler;
-            bld->find_widget(fm, regler);
-            regler->get_property("var_id",id);
-            if (!id.empty())
-            Glib::signal_timeout().connect(sigc::bind<const std::string>(
-              sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
-         } else {
-            break;
-        }
-    }
-    // find feedback switches and connect a timeout callback to update the UI elements.
-    // feedback switches must have the id gxfswitchN were N starts with 1
-    for (int i = 1; i<12;++i) {
-        Glib::ustring fm = "gxfswitch" + gx_system::to_string(i);
-        if (bld->has_object(fm)) {
-            Gxw::Switch *sw;
-            bld->find_widget(fm, sw);
-            sw->get_property("var_id",id);
-            sw->set_name("effect_on_off");
-            if (!id.empty())
-            Glib::signal_timeout().connect(sigc::bind<Gxw::Switch*>(sigc::bind<const std::string>(
-                  sigc::mem_fun(*this, &StackBoxBuilder::set_engine_cp_value),id),sw), 60);
-        } else {
-            break;
-        }
-    }
-    // find feedback Regler and connect a timeout callback to update the UI elements.
-    // were Regler could be GxKnob's or GxSlider's
-    // feedback Regler must have the id gxfreglerN were N starts with 1
-    for (int i = 1; i<12;++i) {
-        Glib::ustring fm = "gxfregler" + gx_system::to_string(i);
-        if (bld->has_object(fm)) {
-            Gxw::Regler *regler;
-            bld->find_widget(fm, regler);
-            regler->get_property("var_id",id);
-            if (!id.empty())
-            Glib::signal_timeout().connect(sigc::bind<Gxw::Regler*>(sigc::bind<const std::string>(
-                  sigc::mem_fun(*this, &StackBoxBuilder::set_regler_cp_value),id),regler), 60);
-        } else {
-            break;
-        }
-    }
 }
 
 static const char *rackbox_ids[] = { "rackbox", "minibox", 0 };
@@ -272,11 +179,11 @@ static const char *rackbox_ids[] = { "rackbox", "minibox", 0 };
 void StackBoxBuilder::loadRackFromGladeFile(const char *fname) {
     loadRackFromBuilder(
 	GxBuilder::create_from_file(
-	    machine.get_options().get_builder_filepath(fname), &machine, rackbox_ids));
+	    machine.get_options().get_builder_filepath(fname), &machine, rackbox_ids, output_widget_state));
 }
 
 void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
-    loadRackFromBuilder(GxBuilder::create_from_string(xmldesc, &machine, rackbox_ids));
+    loadRackFromBuilder(GxBuilder::create_from_string(xmldesc, &machine, rackbox_ids, output_widget_state));
 }
 
 void StackBoxBuilder::addwidget(Gtk::Widget *widget) {
@@ -388,38 +295,15 @@ void StackBoxBuilder::set_next_flags(int flags) {
     next_flags = flags;
 }
 
-bool StackBoxBuilder::set_simple(Gxw::FastMeter *fastmeter,const std::string id) {
-    if (machine.parameter_hasId(id)) {
-    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
-    fastmeter->set_by_power(machine.get_parameter_value<float>(id));
-    else
-    fastmeter->set_by_power(0.0001);
-    return true;
-    } else {
-    return false;
-    }
-}
-
-bool StackBoxBuilder::set_compressor_level(Gxw::FastMeter *fastmeter,const std::string id) {
-    if (machine.parameter_hasId(id)) {
-    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
-    fastmeter->set_c_level(machine.get_parameter_value<float>(id));
-    else
-    fastmeter->set_c_level(0.0);
-    return true;
-    } else {
-    return false;
-    }
-}
-
 void StackBoxBuilder::create_simple_meter(const std::string& id) {
+     //FIXME need ui connect, like eg. create_port_display
     Gxw::FastMeter *fastmeter = new Gxw::FastMeter();
     fastmeter->set_hold_count(5);
-    fastmeter->set_property("dimen",2);
-    fastmeter->set_property("type",0);
-    Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-      sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
-    fastmeter->set_by_power(0.0001);
+    fastmeter->property_dimen() = 2;
+    fastmeter->property_falloff() = true;
+    fastmeter->property_power() = true;
+    fastmeter->set_sensitive(false);
+    machine.set_update_parameter(fastmeter, id);
     Gtk::HBox *box =  new Gtk::HBox();
     box->set_border_width(2);
     box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
@@ -430,12 +314,10 @@ void StackBoxBuilder::create_simple_meter(const std::string& id) {
 void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::string& idm, const char *label) {
     Gxw::FastMeter *fastmeter = new Gxw::FastMeter();
     fastmeter->set_hold_count(5);
-    fastmeter->set_property("dimen",2);
-    fastmeter->set_property("type",0);
+    fastmeter->property_dimen() = 2;
+    fastmeter->property_power() = true;
+    fastmeter->property_falloff() = true;
     fastmeter->set_name("simplemeter");
-    Glib::signal_timeout().connect(sigc::bind<Gxw::FastMeter*>(sigc::bind<const std::string>(
-      sigc::mem_fun(*this, &StackBoxBuilder::set_simple),id), fastmeter), 60);
-    fastmeter->set_by_power(0.0001);
     Gxw::LevelSlider *w = new UiRegler<Gxw::LevelSlider>(machine, idm);
     w->set_name("lmw");
     GxPaintBox *box =  new GxPaintBox("simple_level_meter_expose");
@@ -444,7 +326,7 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     box->add(*Gtk::manage(static_cast<Gtk::Widget*>(w)));
     if (label && label[0]) {
     Gtk::VBox *boxv =  new Gtk::VBox();
-    //boxv->set_property("orientation",Gtk::ORIENTATION_VERTICAL);
+    //boxv->property_orientation() = Gtk::ORIENTATION_VERTICAL;
     boxv->set_homogeneous(false);
     boxv->set_spacing(0);
    // boxv->set_border_width(4);
@@ -461,100 +343,89 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     }
 }
 
-bool StackBoxBuilder::set_regler_cp_value(Gxw::Regler * regler, const std::string id) {
-    if (machine.parameter_hasId(id)) {
-    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
-      regler->cp_set_value(machine.get_parameter_value<float>(id));
-    return true;
-    } else {
-    return false;
-    }
-}
+class UiPortDisplayWithCaption: public UiReglerWithCaption<Gxw::PortDisplay> {
+public:
+    UiPortDisplayWithCaption(gx_engine::GxMachineBase& machine, const std::string& id)
+	: UiReglerWithCaption(machine, id) {}
+    void activate_output(bool state);
+};
 
-bool StackBoxBuilder::set_engine_cp_value(Gxw::Switch * sw, const std::string id) {
-    if (machine.parameter_hasId(id)) {
-    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
-      sw->cp_set_value(machine.get_parameter_value<float>(id));
-    return true;
-    } else {
-    return false;
-    }
-}
-
-bool StackBoxBuilder::set_engine_value(const std::string id) {
-    if (machine.parameter_hasId(id)) {
-    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off"))
-      machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id));
-    return true;
-    } else {
-    return false;
-    }
+void UiPortDisplayWithCaption::activate_output(bool state) {
+    base.machine.set_update_parameter(&regler, regler.cp_get_var(), state);
+    regler.set_sensitive(state);
 }
 
 void StackBoxBuilder::create_port_display(const std::string& id, const char *label) {
-    if (machine.get_jack()) {
-        UiReglerWithCaption<Gxw::PortDisplay> *w = new UiReglerWithCaption<Gxw::PortDisplay>(machine, id);
-        Glib::signal_timeout().connect(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
-        if (next_flags & UI_LABEL_INVERSE) {
-            w->set_rack_label_inverse(label);
-        } else {
-            w->set_rack_label(label);
-        }
-        addwidget(w);
+    UiPortDisplayWithCaption *w = new UiPortDisplayWithCaption(machine, id);
+    output_widget_state->connect(sigc::mem_fun(w, &UiPortDisplayWithCaption::activate_output));
+    if (next_flags & UI_LABEL_INVERSE) {
+	w->set_rack_label_inverse(label);
+    } else {
+	w->set_rack_label(label);
     }
+    addwidget(w);
 }
 
-bool StackBoxBuilder::set_pd_value(Gxw::PortDisplay *w, const std::string id, const std::string& idl, const std::string& idh) {
-    if (machine.parameter_hasId(id)) {
-    if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
-      float low = machine.get_parameter_value<float>(idl);
-      float high = 100-machine.get_parameter_value<float>(idh);
-      w->set_state(int(low),int(high));
-      float set = (low + high)*0.001;
-      machine.signal_parameter_value<float>(id)(machine.get_parameter_value<float>(id)+set);
-    }
-    return true;
-    } else {
-    return false;
-    }
+class UiPDisplay: private CpBase, public Gxw::PortDisplay {
+private:
+    string idl;
+    string idh;
+    static int reversed_slider(int v) { return 100 - v; }
+public:
+    UiPDisplay(gx_engine::GxMachineBase& machine, const std::string& id,
+	       const string& idl_, const string& idh_);
+    void activate_output(bool state);
+};
+
+UiPDisplay::UiPDisplay(gx_engine::GxMachineBase& machine, const std::string& id,
+		       const string& idl_, const string& idh_)
+    : CpBase(machine, id),
+      Gxw::PortDisplay(),
+      idl(idl_), idh(idh_) {
+    init(*this, false);
+    set_cutoff_low(machine.get_parameter_value<float>(idl));
+    set_cutoff_high(reversed_slider(machine.get_parameter_value<float>(idh)));
+    machine.signal_parameter_value<float>(idl).connect(
+	sigc::mem_fun(this, &Gxw::PortDisplay::set_cutoff_low));
+    machine.signal_parameter_value<float>(idh).connect(
+	sigc::compose(
+	    sigc::mem_fun(this, &Gxw::PortDisplay::set_cutoff_high),
+	    sigc::ptr_fun(reversed_slider)));
 }
-    
+
+void UiPDisplay::activate_output(bool state) {
+    machine.set_update_parameter(this, UiPDisplay::cp_get_var(), state);
+    machine.set_update_parameter(this, idl, state);
+    machine.set_update_parameter(this, idh, state);
+    set_sensitive(state);
+}
+
 void StackBoxBuilder::create_p_display(const std::string& id, const std::string& idl, const std::string& idh) {
-    Gxw::PortDisplay *w = new UiRegler<Gxw::PortDisplay>(machine, id);
-	w->set_name("playhead");
-    Gtk::EventBox* e_box = new Gtk::EventBox();
-    e_box->set_size_request(-1, -1);
-    e_box->set_border_width(0);
-    e_box->set_visible_window(true);
-    e_box->set_above_child(true);
-    e_box->add(*manage(static_cast<Gtk::Widget*>(w)));
-    addwidget(e_box);
-    e_box->show_all();
-    if (machine.get_jack()) {
-        Glib::signal_timeout().connect(sigc::bind<Gxw::PortDisplay*>(sigc::bind<const std::string>(
-          sigc::bind<const std::string>(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_pd_value),idh),idl),id),w ), 60);
-    } else {
-        Glib::signal_timeout().connect(sigc::bind<Gxw::PortDisplay*>(sigc::bind<const std::string>(
-          sigc::bind<const std::string>(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_pd_value),idh),idl),id),w ), 2000);
-    }
+    UiPDisplay *w = new UiPDisplay(machine, id, idl, idh);
+    w->get_style_context()->add_class("playhead");
+    w->show_all();
+    addwidget(w);
+    output_widget_state->connect(sigc::mem_fun(w, &UiPDisplay::activate_output));
+}
+
+class UiFeedbackSwitch: public UiSwitchFloat {
+public:
+    UiFeedbackSwitch(gx_engine::GxMachineBase& machine, const char *sw_type,
+		     gx_engine::FloatParameter &param):
+	UiSwitchFloat(machine, sw_type, param) {}
+    void activate_output(bool state);
+};
+
+void UiFeedbackSwitch::activate_output(bool state) {
+    machine.set_update_parameter(this, param.id(), state);
 }
 
 void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::string& id) {
-	Gtk::Widget *sw = UiSwitch::create(machine, sw_type, id);
-	Gxw::Switch *regler = static_cast<Gxw::Switch*>(sw);
-	//regler->set_relief(Gtk::RELIEF_NONE);
-	regler->set_name("effect_on_off");
+    UiFeedbackSwitch *sw = new UiFeedbackSwitch(machine, sw_type, machine.get_parameter(id).getFloat());
+	//sw->set_relief(Gtk::RELIEF_NONE);
+	sw->set_name("effect_on_off");
 	addwidget(sw);
-    if (machine.get_jack()) {
-        Glib::signal_timeout().connect(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
-    } else {
-        Glib::signal_timeout().connect(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 2000);
-    }
+	output_widget_state->connect(sigc::mem_fun(sw, &UiFeedbackSwitch::activate_output));
 }
 
 void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
@@ -699,18 +570,23 @@ void StackBoxBuilder::create_v_switch(const char *sw_type, const std::string& id
     addwidget(sw);
 }
 
+class UiFeedbackSlider: public UiMasterReglerWithCaption<Gxw::HSlider> {
+public:
+    UiFeedbackSlider(gx_engine::GxMachineBase& machine, const std::string& id):
+	UiMasterReglerWithCaption(machine, id) {}
+    void activate_output(bool state);
+};
+
+void UiFeedbackSlider::activate_output(bool state) {
+    base.machine.set_update_parameter(&regler, regler.cp_get_var(), state);
+}
+
 void StackBoxBuilder::create_feedback_slider(const std::string& id, const char *label) {
-	UiMasterReglerWithCaption<Gxw::HSlider> *w = new UiMasterReglerWithCaption<Gxw::HSlider>(machine, id);
-    if (machine.get_jack()) {
-        Glib::signal_timeout().connect(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 60);
-    } else {
-        Glib::signal_timeout().connect(sigc::bind<const std::string>(
-          sigc::mem_fun(*this, &StackBoxBuilder::set_engine_value),id), 2000);
-    }
+    UiFeedbackSlider *w = new UiFeedbackSlider(machine, id);
 	w->set_label(label);
 	addwidget(w);
-    }
+	output_widget_state->connect(sigc::mem_fun(w, &UiFeedbackSlider::activate_output));
+}
 
 void StackBoxBuilder::create_selector(const std::string& id, const char *widget_name) {
     gx_engine::Parameter& p = machine.get_parameter(id);

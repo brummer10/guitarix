@@ -435,7 +435,7 @@ int ModuleSelectorFromList::register_parameter(const ParamReg &param) {
     }
     p[size].value_id = 0;
     p[size].value_label = 0;
-    param.registerIEnumVar(select_id, select_name, "S", "", p, &selector, 0);
+    param.registerIntVar(select_id, select_name, "S", "", &selector, 0, 0, 0, p);
     seq.get_param()[select_id].signal_changed_int().connect(
 	sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
     return 0;

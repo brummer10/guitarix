@@ -50,10 +50,15 @@ public:
     gx_system::PresetFileGui* operator*() { return (*it)->get_guiwrapper(); }
 };
 
+typedef map<string, set<void*> > output_listen_map;
+
 class GxMachineBase {
+private:
+    sigc::connection update_timeout;
 protected:
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> > impresp_list;
     sigc::signal<void, MidiAudioBuffer::Load> jack_load_change;
+    output_listen_map update_map;
 private:
     virtual int _get_parameter_value_int(const std::string& id) = 0;
     virtual int _get_parameter_value_bool(const std::string& id) = 0;
@@ -62,6 +67,7 @@ private:
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id) = 0;
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id) = 0;
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id) = 0;
+    virtual bool update_parameter() = 0;
 protected:
     GxMachineBase();
 public:
@@ -86,7 +92,6 @@ public:
     virtual sigc::signal<void, bool>& signal_oscilloscope_visible() = 0;
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation() = 0;
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change() = 0;
-    virtual void maxlevel_get(int channels, float *values) = 0;
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) = 0;
     virtual gx_system::CmdlineOptions& get_options() const = 0;
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port) = 0;
@@ -165,6 +170,7 @@ public:
     virtual Parameter& get_parameter(const std::string& id) = 0;
     virtual void insert_param(Glib::ustring group, Glib::ustring name) = 0;
     virtual void set_init_values() = 0;
+    void set_update_parameter(void *control, const string& id, bool on=true);
     virtual bool parameter_hasId(const char *p) = 0;
     virtual bool parameter_hasId(const std::string& id) = 0;
     virtual void reset_unit(const PluginDef *pdef) const = 0;
@@ -258,6 +264,7 @@ private:
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id);
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id);
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id);
+    virtual bool update_parameter();
 public:
     GxMachine(gx_system::CmdlineOptions& options);
     virtual ~GxMachine();
@@ -280,7 +287,6 @@ public:
     virtual sigc::signal<void, bool>& signal_oscilloscope_visible();
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
-    virtual void maxlevel_get(int channels, float *values);
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port);
@@ -448,6 +454,7 @@ private:
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id);
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id);
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id);
+    virtual bool update_parameter();
 
 public:
     GxMachineRemote(gx_system::CmdlineOptions& options);
@@ -471,7 +478,6 @@ public:
     virtual sigc::signal<void, bool>& signal_oscilloscope_visible();
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
-    virtual void maxlevel_get(int channels, float *values);
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port);

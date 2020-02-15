@@ -110,7 +110,6 @@ public:
 private:
     virtual bool midi_set(float n, float high, float llimit, float ulimit); //RT
     virtual bool midi_set_bpm(float n, float high, float llimit, float ulimit); //RT
-    virtual void trigger_changed();
     friend class MidiController;
 protected:
     enum value_type { tp_float, tp_int, tp_bool, tp_file, tp_string, tp_special };
@@ -125,6 +124,8 @@ protected:
     bool do_not_save       : 1;
     bool blocked           : 1;
     bool midi_blocked      : 1;
+    bool output            : 1;
+    bool maxlevel          : 1;
     bool used              : 1; // debug
 protected:
     void range_warning(float value, float lower, float upper);
@@ -146,10 +147,13 @@ public:
 	do_not_save(false),
 	blocked(false),
 	midi_blocked(false),
+	output(false),
+	maxlevel(false),
         used(false) {}
     Parameter(gx_system::JsonParser& jp);
     virtual ~Parameter();
     virtual void serializeJSON(gx_system::JsonWriter& jw);
+    virtual void trigger_changed();
 
 #ifndef NDEBUG
     bool isUsed() const { return used; }
@@ -170,6 +174,10 @@ public:
     bool isInPreset() const { return save_in_preset; }
     bool isSavable() const { return !do_not_save; }
     void setSavable(bool v) { do_not_save = !v; }
+    bool isOutput() const { return output; }
+    void setOutput(bool v) { output = v; }
+    bool isMaxlevel() const { return maxlevel; }
+    void setMaxlevel(bool v) { maxlevel = v; }
     const string& id() const { return _id; }
     const string& group() const { return _group; }
     string l_group() const { return gettext(_group.c_str()); }
@@ -240,11 +248,13 @@ protected:
     sigc::signal<void, float> changed;
     float value_storage;
     friend class ParamRegImpl;
+    friend class GxMachine;
 public:
     bool set(float val) const;
     bool ramp_value(float val);
     float get_value() const { return *value; }
     void convert_from_range(float low, float up);
+    void set_zero() { *value = 0; }
     virtual void stdJSON_value();
     virtual bool on_off_value();
     virtual void writeJSON(gx_system::JsonWriter& jw) const;
@@ -303,6 +313,7 @@ protected:
     int lower, upper;
     sigc::signal<void, int> changed;
     int value_storage;
+    friend class ParamRegImpl;
 public:
     bool set(int val) const;
     int get_value() const { return *value; }
@@ -358,6 +369,7 @@ protected:
     bool std_value;
     sigc::signal<void, bool> changed;
     bool value_storage;
+    friend class ParamRegImpl;
 public:
     bool set(bool val) const;
     virtual void stdJSON_value();
@@ -553,8 +565,8 @@ class ParamMap: boost::noncopyable {
     void unregister(Parameter *p);
     void unregister(const string& id);
     inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std,
-				   float lower, float upper, float step) {
-	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, true, var, std, lower, upper, step, true, replace_mode);
+				   float lower, float upper, float step, bool midi=true) {
+	FloatParameter *p = new FloatParameter(id, name, Parameter::Continuous, true, var, std, lower, upper, step, midi, replace_mode);
 	insert(p);
 	return p;
     }
@@ -564,19 +576,19 @@ class ParamMap: boost::noncopyable {
 	insert(p);
 	return p;
     }
-    inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std = 0) {
-	FloatParameter *p = new FloatParameter(id, name, Parameter::Switch, true, var, std, 0, 1, 1, true, replace_mode);
+    inline FloatParameter *reg_par(const string& id, const string& name, float *var, float std = 0, bool midi = true) {
+	FloatParameter *p = new FloatParameter(id, name, Parameter::Switch, true, var, std, 0, 1, 1, midi, replace_mode);
 	insert(p);
 	return p;
     }
-    inline BoolParameter *reg_par(const string& id, const string& name, bool *var, bool std=false, bool preset=true) {
-	BoolParameter * p = new BoolParameter(id, name, Parameter::Switch, preset, var, std, true);
+    inline BoolParameter *reg_par(const string& id, const string& name, bool *var, bool std=false, bool preset=true, bool midi=true) {
+	BoolParameter * p = new BoolParameter(id, name, Parameter::Switch, preset, var, std, midi);
 	insert(p);
 	return p;
     }
     inline EnumParameter *reg_enum_par(const string& id, const string& name,
-				       const value_pair *vl, int *var, int std = 0) {
-	EnumParameter *p = new EnumParameter(id, name, vl, true, var, std, true);
+				       const value_pair *vl, int *var, int std = 0, bool midi=true) {
+	EnumParameter *p = new EnumParameter(id, name, vl, true, var, std, midi);
 	insert(p);
 	return p;
     }
@@ -589,13 +601,24 @@ class ParamMap: boost::noncopyable {
     }
     inline FloatEnumParameter *reg_enum_par(const string& id, const string& name,
 					    const value_pair *vl, float *var,
-					    int std = 0, int low = 0) {
-	FloatEnumParameter *p = new FloatEnumParameter(id, name, vl, true, var, std, low, true, replace_mode);
+					    int std = 0, int low = 0, bool midi=true) {
+	FloatEnumParameter *p = new FloatEnumParameter(id, name, vl, true, var, std, low, midi, replace_mode);
 	insert(p);
 	return p;
     }
     inline BoolParameter *reg_non_midi_par(const string& id, bool *var, bool preset, bool std = false) {
 	BoolParameter *p = new BoolParameter(id, "", Parameter::Switch, preset, var, std, false);
+	insert(p);
+	return p;
+    }
+    inline IntParameter *reg_par(const string& id, const string& name, int *var, int std,
+				 int lower, int upper, bool midi) {
+	IntParameter *p = new IntParameter(id, name, Parameter::Continuous, true, var, std, lower, upper, midi);
+	insert(p);
+	return p;
+    }
+    inline IntParameter *reg_par(const string& id, const string& name, int *var, int std, bool midi) {
+	IntParameter *p = new IntParameter(id, name, Parameter::Switch, true, var, std, 0, 1, midi);
 	insert(p);
 	return p;
     }

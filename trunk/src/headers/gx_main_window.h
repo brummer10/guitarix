@@ -199,6 +199,8 @@ public:
     RackBox *rackbox;
     bool hidden;
     bool hidden_by_move;
+    sigc::signal<void(bool)> output_widget_state;
+    bool output_widgets_active;
 
     PluginUI(MainWindow& main, const char* id_,
 	     const Glib::ustring& tooltip_="");
@@ -331,6 +333,10 @@ private:
     Gtk::VBox *switcher_vbox(gx_system::CmdlineOptions& options);
     bool has_delete() const { return delete_button; }
     void do_expand();
+    bool get_update_cond() {
+	return on_off_switch.get_active() && !config_mode /*&& !get_plug_visible()*/;  }
+    void set_update_state(bool state);
+    void on_state_change();
 public:
     RackBox(PluginUI& plugin, MainWindow& main, Gtk::Widget* bare=0);
     static Gtk::Widget *create_drag_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);

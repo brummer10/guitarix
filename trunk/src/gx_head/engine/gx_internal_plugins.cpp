@@ -77,8 +77,8 @@ void NoiseGate::inputlevel_compute(int count, float *input, float *output, Plugi
 }
 
 int NoiseGate::noisegate_register(const ParamReg& reg) {
-    reg.registerVar("noise_gate.threshold", N_("Threshold"), "S", "", &fnglevel,
-		    0.017f, 0.01f, 0.31f, 0.001f);
+    reg.registerFloatVar("noise_gate.threshold", N_("Threshold"), "S", "", &fnglevel,
+			 0.017f, 0.01f, 0.31f, 0.001f, 0);
     return 0;
 }
 
@@ -1096,10 +1096,10 @@ void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, Pl
 
 int CabinetConvolver::register_cab(const ParamReg& reg) {
     CabinetConvolver& cab = *static_cast<CabinetConvolver*>(reg.plugin);
-    reg.registerIEnumVar("cab.select", "select", "B", "", cab.cab_names, &cab.cabinet, 0);
-    reg.registerVar("cab.Level", N_("Level"),  "S", N_("Level"), &cab.level,  1.0, 0.5, 5.0, 0.5);
-    reg.registerVar("cab.bass", N_("Bass"),   "S", N_("Bass"), &cab.bass,   0.0, -10.0, 10.0, 0.5);
-    reg.registerVar("cab.treble", N_("Treble"), "S", N_("Treble"), &cab.treble, 0.0, -10.0, 10.0, 0.5);
+    reg.registerIntVar("cab.select", "select", "B", "", &cab.cabinet, 0, 0, 0, cab.cab_names);
+    reg.registerFloatVar("cab.Level", N_("Level"),  "S", N_("Level"), &cab.level,  1.0, 0.5, 5.0, 0.5, 0);
+    reg.registerFloatVar("cab.bass", N_("Bass"),   "S", N_("Bass"), &cab.bass,   0.0, -10.0, 10.0, 0.5, 0);
+    reg.registerFloatVar("cab.treble", N_("Treble"), "S", N_("Treble"), &cab.treble, 0.0, -10.0, 10.0, 0.5, 0);
     cab.impf.register_par(reg);
     return 0;
 }
@@ -1238,10 +1238,10 @@ void CabinetStereoConvolver::run_cab_conf(int count, float *input0, float *input
 
 int CabinetStereoConvolver::register_cab(const ParamReg& reg) {
     CabinetStereoConvolver& cab = *static_cast<CabinetStereoConvolver*>(reg.plugin);
-    reg.registerIEnumVar("cab_st.select", "select", "B", "", cab.cab_names, &cab.cabinet, 0);
-    reg.registerVar("cab_st.Level", N_("Level"),  "S", N_("Level"), &cab.level,  1.0, 0.5, 5.0, 0.5);
-    reg.registerVar("cab_st.bass", N_("Bass"),   "S", N_("Bass"), &cab.bass,   0.0, -10.0, 10.0, 0.5);
-    reg.registerVar("cab_st.treble", N_("Treble"), "S", N_("Treble"), &cab.treble, 0.0, -10.0, 10.0, 0.5);
+    reg.registerIntVar("cab_st.select", "select", "B", "", &cab.cabinet, 0, 0, 0, cab.cab_names);
+    reg.registerFloatVar("cab_st.Level", N_("Level"),  "S", N_("Level"), &cab.level,  1.0, 0.5, 5.0, 0.5, 0);
+    reg.registerFloatVar("cab_st.bass", N_("Bass"),   "S", N_("Bass"), &cab.bass,   0.0, -10.0, 10.0, 0.5, 0);
+    reg.registerFloatVar("cab_st.treble", N_("Treble"), "S", N_("Treble"), &cab.treble, 0.0, -10.0, 10.0, 0.5, 0);
     cab.impf.register_par(reg);
     return 0;
 }
@@ -1419,10 +1419,10 @@ void PreampConvolver::run_pre_conf(int count, float *input0, float *output0, Plu
 
 int PreampConvolver::register_pre(const ParamReg& reg) {
     PreampConvolver& pre = *static_cast<PreampConvolver*>(reg.plugin);
-    reg.registerIEnumVar("pre.select", "select", "B", "", pre.pre_names, &pre.preamp, 0);
-    reg.registerVar("pre.Level", N_("Level"),  "S", N_("Level"), &pre.level,  1.0, 0.1, 2.1, 0.1);
-    reg.registerVar("pre.bass", N_("Bass"),   "S", N_("Bass"), &pre.bass,   0.0, -10.0, 10.0, 0.5);
-    reg.registerVar("pre.treble", N_("Treble"), "S", N_("Treble"), &pre.treble, 0.0, -10.0, 10.0, 0.5);
+    reg.registerIntVar("pre.select", "select", "B", "", &pre.preamp, 0, 0, 0, pre.pre_names);
+    reg.registerFloatVar("pre.Level", N_("Level"),  "S", N_("Level"), &pre.level,  1.0, 0.1, 2.1, 0.1, 0);
+    reg.registerFloatVar("pre.bass", N_("Bass"),   "S", N_("Bass"), &pre.bass,   0.0, -10.0, 10.0, 0.5, 0);
+    reg.registerFloatVar("pre.treble", N_("Treble"), "S", N_("Treble"), &pre.treble, 0.0, -10.0, 10.0, 0.5, 0);
     pre.impf.register_par(reg);
     return 0;
 }
@@ -1561,10 +1561,10 @@ void PreampStereoConvolver::run_pre_conf(int count, float *input0, float *input1
 
 int PreampStereoConvolver::register_pre(const ParamReg& reg) {
     PreampStereoConvolver& pre = *static_cast<PreampStereoConvolver*>(reg.plugin);
-    reg.registerIEnumVar("pre_st.select", "select", "B", "", pre.pre_names, &pre.preamp, 0);
-    reg.registerVar("pre_st.Level", N_("Level"),  "SA", N_("Level"), &pre.level,  1.0, 0.1, 2.1, 0.1);
-    reg.registerVar("pre_st.bass", N_("Bass"),   "SA", N_("Bass"), &pre.bass,   0.0, -10.0, 10.0, 0.5);
-    reg.registerVar("pre_st.treble", N_("Treble"), "SA", N_("Treble"), &pre.treble, 0.0, -10.0, 10.0, 0.5);
+    reg.registerIntVar("pre_st.select", "select", "B", "", &pre.preamp, 0, 0, 0, pre.pre_names);
+    reg.registerFloatVar("pre_st.Level", N_("Level"),  "SA", N_("Level"), &pre.level,  1.0, 0.1, 2.1, 0.1, 0);
+    reg.registerFloatVar("pre_st.bass", N_("Bass"),   "SA", N_("Bass"), &pre.bass,   0.0, -10.0, 10.0, 0.5, 0);
+    reg.registerFloatVar("pre_st.treble", N_("Treble"), "SA", N_("Treble"), &pre.treble, 0.0, -10.0, 10.0, 0.5, 0);
     pre.impf.register_par(reg);
     return 0;
 }
@@ -1645,7 +1645,7 @@ void ContrastConvolver::check_update() {
 
 int ContrastConvolver::register_con(const ParamReg& reg) {
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(reg.plugin);
-    reg.registerVar("con.Level", "",  "S", "", &self.level,  1.0, 0.5, 5.0, 0.5);
+    reg.registerFloatVar("con.Level", "",  "S", "", &self.level,  1.0, 0.5, 5.0, 0.5, 0);
     self.presl.register_par(reg);
     return 0;
 }
@@ -2029,31 +2029,31 @@ void __rt_func DrumSequencer::compute_static(int count, FAUSTFLOAT *input0, FAUS
 
 int DrumSequencer::register_par(const ParamReg& reg)
 {
-	reg.registerNonMidiFloatVar("seq.hat_closed.dsp.gate",&fSlow3, false, true, 0.0, 0.0, 1.0, 1.0);
-	reg.registerNonMidiFloatVar("seq.kick.dsp.gate",&fSlow5, false, true, 0.0, 0.0, 1.0, 1.0);
-	reg.registerNonMidiFloatVar("seq.snare.dsp.gate",&fSlow1, false, true, 0.0, 0.0, 1.0, 1.0);
-	reg.registerNonMidiFloatVar("seq.tom.dsp.gate",&fSlow7, false, true, 0.0, 0.0, 1.0, 1.0);
-	reg.registerNonMidiSharedVar("seq.tom.dsp.Gainf",&fSlow20, false, true, -2e+01, -6e+01, 4e+01, 0.1);
-	reg.registerVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fSlow12, -2e+01, -6e+01, 4e+01, 0.1);
-	reg.registerVar("seq.tom.dsp.Gain1","","S",N_("Volume level in decibels"),&fSlow14, -2e+01, -6e+01, 4e+01, 0.1);
-	reg.registerVar("seq.tom.dsp.Gain2","","S",N_("Volume level in decibels"),&fSlow16, -2e+01, -6e+01, 4e+01, 0.1);
-	reg.registerNonMidiFloatVar("seq.tom.dsp.freq",&fSlow18, false, true, 9e+01, 9e+01, 1.5e+02, 1.0);
-	reg.registerVar("seq.bpm","","S",N_("Beats per Minute"),&fsliderbpm, 120, 24, 360, 1);
+	reg.registerFloatVar("seq.hat_closed.dsp.gate","","S","",&fSlow3, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.kick.dsp.gate","","SN","",&fSlow5, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.snare.dsp.gate","","SN","",&fSlow1, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.tom.dsp.gate","","SN","",&fSlow7, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.tom.dsp.Gainf","","SNA","",&fSlow20, -2e+01, -6e+01, 4e+01, 0.1, 0);
+	reg.registerFloatVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fSlow12, -2e+01, -6e+01, 4e+01, 0.1, 0);
+	reg.registerFloatVar("seq.tom.dsp.Gain1","","S",N_("Volume level in decibels"),&fSlow14, -2e+01, -6e+01, 4e+01, 0.1, 0);
+	reg.registerFloatVar("seq.tom.dsp.Gain2","","S",N_("Volume level in decibels"),&fSlow16, -2e+01, -6e+01, 4e+01, 0.1, 0);
+	reg.registerFloatVar("seq.tom.dsp.freq","","SN","",&fSlow18, 9e+01, 9e+01, 1.5e+02, 1.0, 0);
+	reg.registerFloatVar("seq.bpm","","S",N_("Beats per Minute"),&fsliderbpm, 120, 24, 360, 1, 0);
 	static const value_pair ftact_values[] = {{"1/4"},{"2/4"},{"3/4"},{"4/4"},{0}};
-	reg.registerEnumVar("seq.tact","","S",N_("select tact"),ftact_values,&ftact, 4.0, 1.0, 4.0, 1.0);
-	reg.registerVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 240.0, 4.0);
-	reg.registerVar("seq.hum","","B",N_("Randomize Sequence"),&fsliderhum, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("seq.npreset","","BO",N_("Load next unit preset"),0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("seq.ppreset","","BO",N_("Load previous unit preset"),0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerNonMidiFloatVar("seq.pos",&position, false, true, 0.0, 0.0, 2300.0, 1.0);
-	reg.registerNonMidiFloatVar("seq.step",&step, false, true, 0.0, 0.0, 240.0, 1.0);
-	reg.registerNonMidiFloatVar("seq.step_orig",&step_orig, false, true, 0.0, 0.0, 240.0, 1.0);
-	reg.registerVar("seq.set_step","","BO",N_("Set stepper one Beat back"),0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("seq.set_fstep","","BO",N_("Set stepper one Beat forward"),0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("seq.set_sync","","BO",N_("Set stepper back on Beat "),0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("seq.reset_step","","BO",N_("Set stepper one Start"),0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("seq.follow","","BO",N_("follow playhead"),0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("seq.direct_out","","BA",N_("bypass the rack for direct output"),&fSlow22, 0.0, 0.0, 1.0, 1.0);
+	reg.registerFloatVar("seq.tact","","S",N_("select tact"),&ftact, 4.0, 1.0, 4.0, 1.0, ftact_values);
+	reg.registerFloatVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 240.0, 4.0, 0);
+	reg.registerFloatVar("seq.hum","","B",N_("Randomize Sequence"),&fsliderhum, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.npreset","","BO",N_("Load next unit preset"),0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.ppreset","","BO",N_("Load previous unit preset"),0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.pos","","SN","",&position, 0.0, 0.0, 2300.0, 1.0, 0);
+	reg.registerFloatVar("seq.step","","SN","",&step, 0.0, 0.0, 240.0, 1.0, 0);
+	reg.registerFloatVar("seq.step_orig","","SN","",&step_orig, 0.0, 0.0, 240.0, 1.0, 0);
+	reg.registerFloatVar("seq.set_step","","BO",N_("Set stepper one Beat back"),0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.set_fstep","","BO",N_("Set stepper one Beat forward"),0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.set_sync","","BO",N_("Set stepper back on Beat "),0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.reset_step","","BO",N_("Set stepper one Start"),0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.follow","","BO",N_("follow playhead"),0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.direct_out","","BA",N_("bypass the rack for direct output"),&fSlow22, 0.0, 0.0, 1.0, 1.0, 0);
 	for (int i=0; i<24; i++) Vectom.push_back(0);
 	for (int i=0; i<24; i++) Vectom1.push_back(0);
 	for (int i=0; i<24; i++) Vectom2.push_back(0);
@@ -2529,19 +2529,19 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
 
 int smbPitchShift::register_par(const ParamReg& reg) 
 {
-    reg.registerVar("smbPitchShift.semitone", N_("Detune"), "S", "", &semitones, 0.0, -12., 12., 0.1);
+    reg.registerFloatVar("smbPitchShift.semitone", N_("Detune"), "S", "", &semitones, 0.0, -12., 12., 0.1, 0);
     static const value_pair octave_values[] = {{"unison"},{"octave up"},{"octave down"},{0}};
-    reg.registerIEnumVar("smbPitchShift.octave",N_("add harmonics"),"B",N_("add harmonics"),octave_values,&octave, 0);
+    reg.registerIntVar("smbPitchShift.octave",N_("add harmonics"),"B",N_("add harmonics"),&octave, 0, 0, 0, octave_values);
     static const value_pair latency_values[] = {{"latency "},{"compensate"},{0}};
-    reg.registerEnumVar("smbPitchShift.l",N_("compensate latency"),"S",N_("compensate latency"),latency_values,&l, 0.0f, 0.0f, 1.0f, 1.0f);
+    reg.registerFloatVar("smbPitchShift.l",N_("compensate latency"),"S",N_("compensate latency"),&l, 0.0f, 0.0f, 1.0f, 1.0f, latency_values);
     static const value_pair latency_set[] = {{"high quality"},{"low quality"},{"realtime"},{0}};
-    reg.registerIEnumVar("smbPitchShift.latency",N_("latency settings"),"B",N_("latency settings"),latency_set,&latency, 0);
-    reg.registerVar("smbPitchShift.wet", N_("Wet"), "S", N_("Wet amount"), &wet, 50.0, 0.0, 100.0, 1);
-    reg.registerVar("smbPitchShift.dry", N_("Dry"), "S", N_("Dry amount"), &dry, 50.0, 0.0, 100.0, 1);
-    reg.registerVar("smbPitchShift.a", N_("low"), "S", N_("Sub"), &a, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.b", N_("middle low"), "S", N_("Low"), &b, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.c", N_("middle treble"), "S", N_("Mid"), &c, 1.0, 0.0, 2.0, 0.01);
-    reg.registerVar("smbPitchShift.d", N_("treble"), "S", N_("Hi"), &d, 1.0, 0.0, 2.0, 0.01);
+    reg.registerIntVar("smbPitchShift.latency",N_("latency settings"),"B",N_("latency settings"),&latency, 0, 0, 0, latency_set);
+    reg.registerFloatVar("smbPitchShift.wet", N_("Wet"), "S", N_("Wet amount"), &wet, 50.0, 0.0, 100.0, 1, 0);
+    reg.registerFloatVar("smbPitchShift.dry", N_("Dry"), "S", N_("Dry amount"), &dry, 50.0, 0.0, 100.0, 1, 0);
+    reg.registerFloatVar("smbPitchShift.a", N_("low"), "S", N_("Sub"), &a, 1.0, 0.0, 2.0, 0.01, 0);
+    reg.registerFloatVar("smbPitchShift.b", N_("middle low"), "S", N_("Low"), &b, 1.0, 0.0, 2.0, 0.01, 0);
+    reg.registerFloatVar("smbPitchShift.c", N_("middle treble"), "S", N_("Mid"), &c, 1.0, 0.0, 2.0, 0.01, 0);
+    reg.registerFloatVar("smbPitchShift.d", N_("treble"), "S", N_("Hi"), &d, 1.0, 0.0, 2.0, 0.01, 0);
     param["smbPitchShift.latency"].signal_changed_int().connect(
         sigc::hide(sigc::mem_fun(this, &smbPitchShift::change_latency)));
     return 0;

@@ -109,6 +109,27 @@ GxMachineBase::GxMachineBase()
 GxMachineBase::~GxMachineBase() {
 }
 
+void GxMachineBase::set_update_parameter(void *control, const string& id, bool on) {
+    if (on) {
+	update_map[id].insert(control);
+	if (!update_timeout.connected()) {
+	    update_timeout = Glib::signal_timeout().connect(
+		sigc::mem_fun(*this, &GxMachineBase::update_parameter), 60);
+	}
+    } else {
+	output_listen_map::iterator i = update_map.find(id);
+	if (i != update_map.end()) {
+	    i->second.erase(control);
+	    if (i->second.empty()) {
+		update_map.erase(id);
+	    }
+	}
+	if (update_map.empty()) {
+	    update_timeout.disconnect();
+	}
+    }
+}
+
 
 /****************************************************************
  ** GxMachine
@@ -448,19 +469,6 @@ sigc::signal<int, bool>& GxMachine::signal_oscilloscope_activation() {
 
 sigc::signal<void, unsigned int>& GxMachine::signal_oscilloscope_size_change() {
     return engine.oscilloscope.size_change;
-}
-
-void GxMachine::maxlevel_get(int channels, float *values) {
-    if (sock) {
-	sock->update_maxlevel();
-	for (int i = 0; i < channels; i++) {
-	    values[i] = sock->get_maxlevel(i);
-	}
-    } else {
-	for (int i = 0; i < channels; i++) {
-	    values[i] = engine.maxlevel.get(i);
-	}
-    }
 }
 
 void GxMachine::get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) {
@@ -809,6 +817,24 @@ Parameter& GxMachine::get_parameter(const std::string& id) {
 
 void GxMachine::set_init_values() {
     pmap.set_init_values();
+}
+
+bool GxMachine::update_parameter() {
+    for (output_listen_map::const_iterator i = update_map.cbegin(); i != update_map.cend(); ++i) {
+	Parameter& p = pmap[i->first];
+	if (p.isMaxlevel()) {
+	    float*f = p.getFloat().value;
+	    if (sock) {
+		*f = sock->update_maxlevel(i->first, true);
+		}
+	    p.trigger_changed();
+	    //cout << p.id() << " " << f << endl;
+	    *f = 0.0;
+	} else {
+	    p.trigger_changed();
+	}
+    }
+    return true;
 }
 
 bool GxMachine::parameter_hasId(const char *p) {
@@ -1890,22 +1916,6 @@ float GxMachineRemote::get_tuner_freq() {
     END_RECEIVE(return 0);
 }
 
-void GxMachineRemote::maxlevel_get(int channels, float *values) {
-    START_CALL(get_max_output_level);
-    jw->write(channels);
-    START_RECEIVE();
-    jp->next(gx_system::JsonParser::begin_array);
-    for (int i = 0; i < channels; i++) {
-	if (jp->peek() != gx_system::JsonParser::end_array) {
-	    jp->next(gx_system::JsonParser::value_number);
-	    values[i] = jp->current_value_float();
-	} else {
-	    values[i] = 0.0;
-	}
-    }
-    END_RECEIVE();
-}
-
 void GxMachineRemote::get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) {
     START_CALL(get_oscilloscope_info);
     START_RECEIVE();
@@ -2563,6 +2573,15 @@ void GxMachineRemote::set_init_values() {
 			sigc::mem_fun(this, &GxMachineRemote::param_signal), i->second)));
 	}
     }
+}
+
+bool GxMachineRemote::update_parameter() {
+    START_NOTIFY(get_updates);
+    for (output_listen_map::const_iterator i = update_map.cbegin(); i != update_map.cend(); ++i) {
+	jw->write(i->first);
+    }
+    SEND();
+    return true;
 }
 
 bool GxMachineRemote::parameter_hasId(const char *p) {

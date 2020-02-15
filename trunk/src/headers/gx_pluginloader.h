@@ -97,24 +97,17 @@ public:
 class ParamRegImpl: public ParamReg {
 private:
     static ParamMap *pmap;
-    static float *registerVar_(const char* id, const char* name, const char* tp,
-			       const char* tooltip, float* var, float val,
-			       float low, float up, float step);
-    static void registerBoolVar_(const char* id, const char* name, const char* tp,
-				 const char* tooltip, bool* var, bool val);
-    static void registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave);
-    static void registerNonMidiFloatVar_(const char * id, float *var, bool preset, bool nosave,
-              float val, float low, float up, float step);
-    static float *registerNonMidiSharedVar_(const char * id, float *var, bool preset, bool nosave,
-              float val, float low, float up, float step);
-    static void registerEnumVar_(const char *id, const char* name, const char* tp,
-				 const char* tooltip, const value_pair* values, float *var, float val,
-				 float low, float up, float step);
-    static float *registerSharedEnumVar_(const char *id, const char* name, const char* tp,
-				 const char* tooltip, const value_pair* values, float *var, float val,
-				 float low, float up, float step);
-    static void registerIEnumVar_(const char *id, const char* name, const char* tp,
-				  const char* tooltip, const value_pair* values, int *var, int val);
+    static float *registerFloatVar_(
+	const char* id, const char* name, const char* tp,
+	const char* tooltip, float* var, float val,
+	float low, float up, float step, const value_pair* values=0);
+    static int *registerIntVar_(
+	const char* id, const char* name, const char* tp,
+	const char* tooltip, int* var, int val,
+	int low, int up, const value_pair* values=0);
+    static bool *registerBoolVar_(
+	const char* id, const char* name, const char* tp,
+	const char* tooltip, bool* var, bool val);
 public:
     ParamRegImpl(ParamMap* pm);
 };

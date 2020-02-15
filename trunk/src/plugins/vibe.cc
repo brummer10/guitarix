@@ -226,18 +226,18 @@ int Vibe::registerparam(const ParamReg& reg) {
 	univibe_depth = "univibe.depth";
 	univibe_wet_dry = "univibe.wet_dry";
 	univibe_fb = "univibe.fb";
-	reg.registerVar("univibe.panning",N_("Pan"),"S",N_("panning of output (left / right)"),&self.Ppanning,0,-1,1,0.01);
-	reg.registerVar("univibe.lrcross",N_("XOver"),"S",N_("left/right channel crossing"),&self.flrcross,0,-1,1,0.01);
+	reg.registerFloatVar("univibe.panning",N_("Pan"),"S",N_("panning of output (left / right)"),&self.Ppanning,0,-1,1,0.01, 0);
+	reg.registerFloatVar("univibe.lrcross",N_("XOver"),"S",N_("left/right channel crossing"),&self.flrcross,0,-1,1,0.01, 0);
     } else {
 	univibe_width = "univibe_mono.width";
 	univibe_depth = "univibe_mono.depth";
 	univibe_wet_dry = "univibe_mono.wet_dry";
 	univibe_fb = "univibe_mono.fb";
     }
-    reg.registerVar(univibe_width,N_("Width"),"S",N_("LFO amplitude"),&self.Pwidth, 0.5, 0, 1, 0.01);
-    reg.registerVar(univibe_depth,N_("Depth"),"S",N_("DC level in LFO"),&self.Pdepth,0.37,0,1,0.01);
-    reg.registerVar(univibe_wet_dry,N_("Wet/Dry"),"S",N_("output mix (signal / effect)"),&self.wet_dry,1,0,1,0.01);
-    reg.registerVar(univibe_fb,NC_("Feedback", "F/B"),"S",N_("sound modification by feedback"),&self.fb,-0.6,-1,1,0.01);
+    reg.registerFloatVar(univibe_width,N_("Width"),"S",N_("LFO amplitude"),&self.Pwidth, 0.5, 0, 1, 0.01, 0);
+    reg.registerFloatVar(univibe_depth,N_("Depth"),"S",N_("DC level in LFO"),&self.Pdepth,0.37,0,1,0.01, 0);
+    reg.registerFloatVar(univibe_wet_dry,N_("Wet/Dry"),"S",N_("output mix (signal / effect)"),&self.wet_dry,1,0,1,0.01, 0);
+    reg.registerFloatVar(univibe_fb,NC_("Feedback", "F/B"),"S",N_("sound modification by feedback"),&self.fb,-0.6,-1,1,0.01, 0);
     return 0;
 }
 

@@ -908,6 +908,15 @@ void Parameter::serializeJSON(gx_system::JsonWriter& jw) {
     if (!save_in_preset) {
 	jw.write_key("non_preset"); jw.write(false);
     }
+    if (do_not_save) {
+	jw.write_key("do_not_save"); jw.write(true);
+    }
+    if (output) {
+	jw.write_key("output"); jw.write(true);
+    }
+    if (maxlevel) {
+	jw.write_key("maxlevel"); jw.write(true);
+    }
     jw.end_object();
 }
 
@@ -924,6 +933,9 @@ Parameter::Parameter(gx_system::JsonParser& jp)
       controllable(true),
       do_not_save(false),
       blocked(false),
+      midi_blocked(false),
+      output(false),
+      maxlevel(false),
       used(false) {
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
@@ -947,6 +959,15 @@ Parameter::Parameter(gx_system::JsonParser& jp)
 	} else if (jp.current_value() == "non_preset") {
 	    jp.next(gx_system::JsonParser::value_number);
 	    save_in_preset = false;
+	} else if (jp.current_value() == "do_not_save") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    do_not_save = true;
+	} else if (jp.current_value() == "output") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    output = true;
+	} else if (jp.current_value() == "maxlevel") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    maxlevel = true;
 	} else {
 	    gx_print_warning(
 		"Parameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -2124,7 +2145,7 @@ bool ParamMap::unit_has_std_values(const PluginDef *pdef) const {
     std::string position = group_id + "position";
     for (iterator i = begin(); i != end(); ++i) {
 	if (i->first.compare(0, group_id.size(), group_id) == 0 || compare_groups(i->first, pdef->groups)) {
-	    if (i->second->isInPreset()) {
+	    if (i->second->isInPreset() && !i->second->isOutput()) {
 		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->stdJSON_value();
 		    if (!i->second->compareJSON_value()) {

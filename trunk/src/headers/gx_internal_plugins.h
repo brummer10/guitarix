@@ -54,6 +54,7 @@ private:
     static void process(int count, float *input0, float *input1,
 			float *output0, float *output1, PluginDef*);
     static int activate(bool start, PluginDef *plugin);
+    static int regparam(const ParamReg& reg);
 public:
     static float get(unsigned int channel) {
 	assert(channel < channelcount);

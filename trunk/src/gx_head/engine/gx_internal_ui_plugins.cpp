@@ -67,9 +67,17 @@ MaxLevel::MaxLevel()
     name = "?maxlevel";
     stereo_audio = process;
     activate_plugin = activate;
+    register_params = regparam;
 }
 
 float MaxLevel::maxlevel[channelcount] = {0};
+
+int MaxLevel::regparam(const ParamReg& reg) {
+    const char *tooltip = _("Overall Rack output");
+    reg.registerFloatVar("maxlevel.left", "", "SLMO", tooltip, &maxlevel[0], 0.0, 0.0, 1.0, 0.0, 0);
+    reg.registerFloatVar("maxlevel.right", "", "SLMO", tooltip, &maxlevel[1], 0.0, 0.0, 1.0, 0.0, 0);
+    return 0;
+}
 
 void MaxLevel::process(int count, float *input1, float *input2, float*, float*, PluginDef*) {
     const float *data[channelcount] = {input1, input2};

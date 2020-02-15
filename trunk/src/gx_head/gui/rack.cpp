@@ -54,7 +54,9 @@ PluginUI::PluginUI(MainWindow& main_, const char *name,
       main(main_),
       rackbox(),
       hidden(false),
-      hidden_by_move(false) {
+      hidden_by_move(false),
+      output_widget_state(),
+      output_widgets_active(false) {
     if (plugin->get_pdef()->description && tooltip.empty()) {
 	tooltip = plugin->get_pdef()->description;
     }
@@ -62,6 +64,7 @@ PluginUI::PluginUI(MainWindow& main_, const char *name,
 }
 
 PluginUI::~PluginUI() {
+    output_widget_state.clear();
     delete rackbox;
     if (toolitem) {
 	if (group) {
@@ -914,10 +917,24 @@ void RackBox::display(bool v, bool animate) {
 }
 
 RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
-    : Gtk::VBox(), plugin(plugin_), main(tl), config_mode(false), anim_tag(),
-      compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), minibox(0),
-      fbox(0), target(), anim_height(0), anim_step(), drag_icon(), target_height(0),
-      box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), on_off_switch("switchit"),
+    : Gtk::VBox(),
+      plugin(plugin_),
+      main(tl),
+      config_mode(false),
+      anim_tag(),
+      compress(true),
+      delete_button(true),
+      mbox(Gtk::ORIENTATION_HORIZONTAL),
+      minibox(0),
+      fbox(0),
+      target(),
+      anim_height(0),
+      anim_step(),
+      drag_icon(),
+      target_height(0),
+      box(Gtk::ORIENTATION_HORIZONTAL, 2),
+      box_visible(true),
+      on_off_switch("switchit"),
       toggle_on_off(tl.get_machine(), &on_off_switch, plugin.plugin->id_on_off()) {
     if (strcmp(plugin.get_id(), "ampstack") != 0) { // FIXME
 	gx_gui::connect_midi_controller(&on_off_switch, plugin.plugin->id_on_off().c_str(), main.get_machine());
@@ -943,7 +960,22 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
 	pack_start(*manage(pb), Gtk::PACK_SHRINK);
 	fbox = pb;
     }
+    on_off_switch.signal_toggled().connect(
+	sigc::mem_fun(*this, &RackBox::on_state_change));
+    set_update_state(get_update_cond());
     show();
+}
+
+void RackBox::set_update_state(bool state) {
+    plugin.output_widgets_active = state;
+    plugin.output_widget_state(state);
+}
+
+void RackBox::on_state_change() {
+    int i = get_update_cond();
+    if (i != plugin.output_widgets_active) {
+	set_update_state(i);
+    }
 }
 
 void RackBox::init_dnd() {
@@ -1083,6 +1115,7 @@ void RackBox::set_visibility(bool v) {
 
 void RackBox::swtch(bool mini) {
     plugin.plugin->set_plug_visible(mini);
+    on_state_change();
     if (!config_mode) {
 	if (mini) {
 	    vis_switch(*fbox, mbox);
@@ -1094,6 +1127,7 @@ void RackBox::swtch(bool mini) {
 
 void RackBox::set_config_mode(bool mode) {
     config_mode = mode;
+    on_state_change();
     if (!can_compress() || !get_plug_visible()) {
 	if (mode) {
 	    vis_switch(*fbox, mbox);

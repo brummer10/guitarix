@@ -581,8 +581,8 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    snm = TrimLabel(nm, cnt_in_row);
 	}
 	if (d->tp == tp_enum) {
-	    reg.registerEnumVar(self.make_id(*d).c_str(), snm.c_str(), "S", nm, d->values, &self.ports[d->index],
-				d->dflt, d->low, d->up, d->step);
+	    reg.registerFloatVar(self.make_id(*d).c_str(), snm.c_str(), "S", nm, &self.ports[d->index],
+				 d->dflt, d->low, d->up, d->step, d->values);
 	} else {
 	    const char *tp = 0;
 	    switch (d->tp) {
@@ -596,12 +596,12 @@ int LadspaDsp::registerparam(const ParamReg& reg) {
 	    case tp_display_toggle: tp = "BO"; break;
 	    default: assert(false);
 	    }
-	    reg.registerVar(self.make_id(*d).c_str(), snm.c_str(), tp, nm, &self.ports[d->index],
-			    d->dflt, d->low, d->up, d->step);
+	    reg.registerFloatVar(self.make_id(*d).c_str(), snm.c_str(), tp, nm, &self.ports[d->index],
+				 d->dflt, d->low, d->up, d->step, 0);
 	}
     }
     self.idd = self.pd->id_str + ".dry_wet";
-    reg.registerVar(self.idd.c_str(),"","S","dry/wet",&self.dry_wet, 100, 0, 100, 1);
+    reg.registerFloatVar(self.idd.c_str(),"","S","dry/wet",&self.dry_wet, 100, 0, 100, 1, 0);
     return 0;
 }
 
@@ -1184,11 +1184,11 @@ int Lv2Dsp::registerparam(const ParamReg& reg) {
 	    snm = TrimLabel(nm, cnt_in_row);
 	}
 	if (d->tp == tp_enum) {
-	    reg.registerEnumVar(self.make_id(*d).c_str(), snm.c_str(), "S", nm, d->values, &self.ports[d->index],
-				d->dflt, d->low, d->up, d->step);
+	    reg.registerFloatVar(self.make_id(*d).c_str(), snm.c_str(), "S", nm, &self.ports[d->index],
+				 d->dflt, d->low, d->up, d->step, d->values);
 	} else if (d->tp == tp_enabled) {
-	    reg.registerVar(self.make_id(*d).c_str(), snm.c_str(),"BA" , nm, &self.ports[d->index],
-			    d->dflt, d->low, d->up, d->step);
+	    reg.registerFloatVar(self.make_id(*d).c_str(), snm.c_str(),"BA" , nm, &self.ports[d->index],
+				 d->dflt, d->low, d->up, d->step, 0);
         ParamMap& pmap = self.loader.get_parameter_map();
         pmap[self.pd->id_str + ".on_off"].signal_changed_bool().connect(
             sigc::bind(sigc::mem_fun(self, &Lv2Dsp::set_enabled),sigc::ref(pmap[self.make_id(*d)])));
@@ -1205,13 +1205,13 @@ int Lv2Dsp::registerparam(const ParamReg& reg) {
 	    case tp_display_toggle: tp = "BO"; break;
 	    default: assert(false);
 	    }
-	    reg.registerVar(self.make_id(*d).c_str(), snm.c_str(), tp, nm, &self.ports[d->index],
-			    d->dflt, d->low, d->up, d->step);
+	    reg.registerFloatVar(self.make_id(*d).c_str(), snm.c_str(), tp, nm, &self.ports[d->index],
+				 d->dflt, d->low, d->up, d->step, 0);
 	}
 	lilv_node_free(nm_node);
     }
     self.idd = self.pd->id_str + ".dry_wet";
-    reg.registerVar(self.idd.c_str(),"","S","dry/wet",&self.dry_wet, 100, 0, 100, 1);
+    reg.registerFloatVar(self.idd.c_str(),"","S","dry/wet",&self.dry_wet, 100, 0, 100, 1, 0);
     return 0;
 }
 
