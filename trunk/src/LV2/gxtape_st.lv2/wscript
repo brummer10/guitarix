@@ -56,6 +56,5 @@ def build(bld):
 
     
     install_path = '${LV2DIR}/%s' % bundle,
-    bld.install_files('${LV2DIR}/gxtape_st.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gxtape_st.lv2', 'gxtape_st.ttl')
 

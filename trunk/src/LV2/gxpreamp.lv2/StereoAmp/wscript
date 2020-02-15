@@ -53,6 +53,5 @@ def build(bld):
 
     
     install_path = '${LV2DIR}/%s' % bundle2,
-    bld.install_files('${LV2DIR}/gxpreamp_stereo.lv2', 'manifest.ttl')
     bld.install_files('${LV2DIR}/gxpreamp_stereo.lv2', 'gxpreamp_stereo.ttl')
     
