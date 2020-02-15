@@ -2161,7 +2161,7 @@ void GxService::save_state() {
     time_t now = time(NULL);
     if (oldest_unsaved == 0) {
 	oldest_unsaved = last_change = now;
-	save_conn = Glib::signal_timeout().connect(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), 1000*min_idle);
+	save_conn = Glib::signal_timeout().connect_seconds(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), min_idle);
 	return;
     }
     if (now - oldest_unsaved >= max_delay || now - last_change >= min_idle) {
@@ -2175,7 +2175,7 @@ void GxService::save_state() {
 	    oldest_unsaved = now;
 	}
 	save_conn.disconnect();
-	save_conn = Glib::signal_timeout().connect(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), 1000*min_idle);
+	save_conn = Glib::signal_timeout().connect_seconds(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), min_idle);
     }
 }
 
