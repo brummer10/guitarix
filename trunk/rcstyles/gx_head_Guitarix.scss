@@ -189,8 +189,13 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     }
 
     arrow {
-	color: #ff9000;
+	// gtk3 parser BUG: in compressed output mode a ";" before a
+	// "}" will be removed by sassc, but the gtk3 css parser (as
+	// of version 3.24) will produce an error when seeing
+	// "scale(1.5)}".
+	// Be careful to put some other setting after the scale expression
 	-gtk-icon-transform: scale(1.5); // make the arrow left of the button bigger
+	color: #ff9000;
     }
     button {
 	padding-bottom: 1px;
