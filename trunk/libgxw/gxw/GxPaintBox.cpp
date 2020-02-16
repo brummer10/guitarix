@@ -50,8 +50,6 @@ static void gx_paint_box_style_updated(GtkWidget *widget);
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxPaintBox, gx_paint_box, GTK_TYPE_BOX)
 
-#define GX_PAINT_BOX_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_PAINT_BOX, GxPaintBoxPrivate))
-
 #define get_stock_id(widget) (GX_PAINT_BOX_CLASS(GTK_WIDGET_GET_CLASS(widget))->stock_id)
 #define get_widget_id(widget) (GX_PAINT_BOX_CLASS(GTK_WIDGET_GET_CLASS(widget))->widget_id)
 #define get_widget_id2(widget) (GX_PAINT_BOX_CLASS(GTK_WIDGET_GET_CLASS(widget))->widget_id2)
@@ -220,7 +218,7 @@ static void gx_paint_box_style_updated(GtkWidget *widget)
 
 static void gx_paint_box_init (GxPaintBox *paint_box)
 {
-	paint_box->priv = GX_PAINT_BOX_GET_PRIVATE(paint_box);
+	paint_box->priv = (GxPaintBoxPrivate*)gx_paint_box_get_instance_private(paint_box);
 	gtk_widget_set_redraw_on_allocate(GTK_WIDGET(paint_box), TRUE);
 	paint_box->priv->paint_func = g_strdup("");
 	set_paint_func(paint_box, NULL);

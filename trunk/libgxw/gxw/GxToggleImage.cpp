@@ -32,8 +32,6 @@ enum {
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxToggleImage, gx_toggle_image, GTK_TYPE_WIDGET)
 
-#define GX_TOGGLE_IMAGE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_TOGGLE_IMAGE, GxToggleImagePrivate))
-
 static void gx_toggle_image_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_toggle_image_get_property(
@@ -73,7 +71,7 @@ static void gx_toggle_image_class_init(GxToggleImageClass *klass)
 
 static void gx_toggle_image_init(GxToggleImage *toggle_image)
 {
-	toggle_image->priv = GX_TOGGLE_IMAGE_GET_PRIVATE(toggle_image);
+	toggle_image->priv = (GxToggleImagePrivate*)gx_toggle_image_get_instance_private(toggle_image);
 	toggle_image->priv->base_name = g_strdup("switch");
 	gtk_widget_set_has_window(GTK_WIDGET(toggle_image), FALSE);
 }

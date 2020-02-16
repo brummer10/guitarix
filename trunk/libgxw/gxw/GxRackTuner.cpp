@@ -98,8 +98,6 @@ static const int min_led = 32;
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxRackTuner, gx_rack_tuner, GX_TYPE_TUNER);
 
-#define GX_RACK_TUNER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_RACK_TUNER, GxRackTunerPrivate))
-
 static void gx_rack_tuner_map(GtkWidget*);
 static void gx_rack_tuner_unmap(GtkWidget*);
 static void gx_rack_tuner_state_changed(GtkWidget*, GtkStateType);
@@ -197,7 +195,7 @@ static const char *octave[] = {"0","1","2","3","4","5"," "};
 static void gx_rack_tuner_init (GxRackTuner *tuner)
 {
 	g_assert(GX_IS_RACK_TUNER(tuner));
-	tuner->priv = GX_RACK_TUNER_GET_PRIVATE(tuner);
+	tuner->priv = (GxRackTunerPrivate*)gx_rack_tuner_get_instance_private(tuner);
 	tuner->priv->scale_lim = 0.03;
 	tuner->priv->speed = 0.15;
 	tuner->priv->display_flat = FALSE;

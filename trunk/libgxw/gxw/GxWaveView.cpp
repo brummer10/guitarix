@@ -61,8 +61,6 @@ static void gx_wave_view_get_property(
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxWaveView, gx_wave_view, GTK_TYPE_DRAWING_AREA);
 
-#define GX_WAVE_VIEW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_WAVE_VIEW, GxWaveViewPrivate))
-
 static const int background_width = 282;
 static const int background_height = 82;
 static const int liveview_x = background_width+1;
@@ -346,7 +344,7 @@ static void gx_wave_view_class_init (GxWaveViewClass *klass)
 
 static void gx_wave_view_init(GxWaveView *waveview)
 {
-	waveview->priv = GX_WAVE_VIEW_GET_PRIVATE(waveview);
+	waveview->priv = (GxWaveViewPrivate*)gx_wave_view_get_instance_private(waveview);
 	waveview->priv->frame = NULL;
 	waveview->priv->frame_size = 0;
 	waveview->priv->text_top_left = NULL;

@@ -42,8 +42,6 @@ static void draw_indicator(GtkCheckButton *check_button, cairo_t *cr);
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxRadioButton, gx_radio_button, GTK_TYPE_RADIO_BUTTON);
 
-#define GX_RADIO_BUTTON_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_RADIO_BUTTON, GxRadioButtonPrivate))
-
 static void gx_radio_button_class_init(GxRadioButtonClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
@@ -63,7 +61,7 @@ static void gx_radio_button_class_init(GxRadioButtonClass *klass)
 
 static void gx_radio_button_init(GxRadioButton *radio_button)
 {
-	radio_button->priv = GX_RADIO_BUTTON_GET_PRIVATE(radio_button);
+	radio_button->priv = (GxRadioButtonPrivate*)gx_radio_button_get_instance_private(radio_button);
 	radio_button->priv->base_name = g_strdup("switch");
 }
 

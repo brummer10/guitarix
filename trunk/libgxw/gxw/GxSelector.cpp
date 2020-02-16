@@ -432,7 +432,7 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 
 static void gx_selector_init(GxSelector *selector)
 {
-	selector->priv = G_TYPE_INSTANCE_GET_PRIVATE(selector, GX_TYPE_SELECTOR, GxSelectorPrivate);
+	selector->priv = (GxSelectorPrivate*)gx_selector_get_instance_private(selector);
 	gtk_widget_set_has_window(GTK_WIDGET(selector), FALSE);
 	gtk_widget_set_can_focus(GTK_WIDGET(selector), TRUE);
     selector->icon = NULL;

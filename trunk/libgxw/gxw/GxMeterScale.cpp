@@ -198,7 +198,7 @@ void gx_meter_scale_clear_marks(GxMeterScale *meter_scale)
 
 static void gx_meter_scale_init(GxMeterScale *meter_scale)
 {
-	meter_scale->priv = G_TYPE_INSTANCE_GET_PRIVATE (meter_scale, GX_TYPE_METER_SCALE, GxMeterScalePrivate);
+	meter_scale->priv = (GxMeterScalePrivate*)gx_meter_scale_get_instance_private(meter_scale);
 	gtk_widget_set_has_window(GTK_WIDGET(meter_scale), FALSE);
 	meter_scale->priv->tick_pos = GX_TICK_RIGHT;
 }
