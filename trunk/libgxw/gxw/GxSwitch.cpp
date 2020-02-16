@@ -113,7 +113,6 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 }
 
-
 /****************************************************************
  ** init the Switch type/size
  */
