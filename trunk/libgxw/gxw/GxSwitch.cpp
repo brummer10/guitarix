@@ -359,7 +359,7 @@ void gx_switch_set_base_name(GxSwitch *swtch, const char *base_name)
 	swtch->priv->base_name = g_strdup(base_name);
 	if (*base_name) {
 		char buffer[100] = "gx_sw_";
-		strncat(buffer, base_name, sizeof buffer);
+		strncat(buffer, base_name, sizeof buffer - 1);
 		gtk_style_context_add_class(context, buffer);
 	}
 	if (!old) {
@@ -367,7 +367,7 @@ void gx_switch_set_base_name(GxSwitch *swtch, const char *base_name)
 	}
 	if (*old) {
 		char buffer[100] = "gx_sw_";
-		strncat(buffer, old, sizeof buffer);
+		strncat(buffer, old, sizeof buffer - 1);
 		gtk_style_context_remove_class(context, buffer);
 	}
 	g_free(old);
