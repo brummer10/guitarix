@@ -26,8 +26,6 @@ class UIDefs(object):
         def write(self, fp, v, prefix):
             d = {}
             d.update(self)
-            # set diggits
-            #d["tail"] = "".join([", "+str(round(float(str(x).replace('f','')),4)) for x in d["value"]])
             d["tail"] = "".join([", "+x for x in d["value"]])
             d["prefix"] = prefix
             d["N_name"] = wrap_N_("%(name)s" % self)
@@ -70,7 +68,6 @@ class UIDefs(object):
                 if "alias" in d:
                     assert "enum" not in d
                     fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
-                   # fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
             elif "enum" in d:
                 def value_pair(s):
                     m = re.match(r"(.*)\[(.*)\]$", s)
@@ -82,10 +79,8 @@ class UIDefs(object):
                 d["ename"] = ename = d["variable"] + "_values"
                 fp.write('\t// static const value_pair %s[] = {%s};\n' % (ename, enumvals))
                 fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
-                #fp.write('\t%(prefix)sregisterEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
             else:
                 fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
-               #fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
 
         def write_port_head(self, fp, v, prefix):
             d = {}

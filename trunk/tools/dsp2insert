@@ -31,22 +31,11 @@ class UIDefs(object):
             d["N_tooltip"] = wrap_N_("%(tooltip)s" % self)
             if "log" in d:
                 d["type"] += "L"
+            if "nomidi" in d:
+                d["type"] += "N"
             if "alias" in d:
-                #assert "enum" not in d
-                if "enum" in d:
-                    def value_pair(s):
-                        m = re.match(r"(.*)\[(.*)\]$", s)
-                        if m:
-                            return '{"%s",%s}' % (m.group(1), wrap_N_(m.group(2)))
-                        else:
-                            return '{"%s"}' % s
-                    enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
-                    d["ename"] = ename = d["variable"] + "_values"
-                    fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
-                    fp.write('\t%(variable)s_ = %(prefix)sregisterSharedEnumVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
-                else:
-                    fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
-            elif "enum" in d:
+                d["type"] += "A"
+            if "enum" in d:
                 def value_pair(s):
                     m = re.match(r"(.*)\[(.*)\]$", s)
                     if m:
@@ -56,12 +45,12 @@ class UIDefs(object):
                 enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
                 d["ename"] = ename = d["variable"] + "_values"
                 fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
-                fp.write('\t%(prefix)sregisterEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
-            elif "nomidi" in d:
-                assert "enum" not in d
-                fp.write('\t%(prefix)sregisterNonMidiFloatVar("%(id)s",&%(variable)s, false, true%(tail)s);\n' % d)
             else:
-                fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+                d["ename"] = "0"
+            fp.write('\t')
+            if "alias" in d:
+                fp.write('%(variable)s_ = ' %d)
+            fp.write('%(prefix)sregisterFloatVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s, %(ename)s);\n' % d)
 
         def write_port(self, fp, v, prefix):
             d = {}
@@ -78,7 +67,6 @@ class UIDefs(object):
                 if "alias" in d:
                     assert "enum" not in d
                     fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
-                   # fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
             elif "enum" in d:
                 def value_pair(s):
                     m = re.match(r"(.*)\[(.*)\]$", s)
@@ -90,10 +78,8 @@ class UIDefs(object):
                 d["ename"] = ename = d["variable"] + "_values"
                 fp.write('\t// static const value_pair %s[] = {%s};\n' % (ename, enumvals))
                 fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
-                #fp.write('\t%(prefix)sregisterEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
             else:
                 fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
-               #fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
 
         def write_port_head(self, fp, v, prefix):
             d = {}
@@ -304,8 +290,8 @@ class Parser(object):
         vslider = re.compile(pre+r"addVerticalSlider\(%s\);" % sarg).match
         hslider = re.compile(pre+r"addHorizontalSlider\(%s\);" % sarg).match
         numentry = re.compile(pre+r"addNumEntry\(%s\);" % sarg).match
-        vbargrahp = re.compile(pre+r"addVerticalBargraph\(%s\);" % sargb).match
-        hbargrahp = re.compile(pre+r"addHorizontalBargraph\(%s\);" % sargb).match
+        vbargraph = re.compile(pre+r"addVerticalBargraph\(%s\);" % sargb).match
+        hbargraph = re.compile(pre+r"addHorizontalBargraph\(%s\);" % sargb).match
         checkbutton = re.compile(pre+r"addCheckButton\(%s,\s*&%s\);" % (nm, vr)).match
         declare = re.compile(pre+r"declare\((?:&%s|0),\s*%s,\s*%s\);" % (vr, nm, nm)).match
         stack = []
@@ -367,12 +353,12 @@ class Parser(object):
                 self.ui.add(vn, "id", make_name(m.group(1)))
                 self.ui.add(vn, "value", ("0.0","0.0","1.0","1.0"))
                 continue
-            m = vbargrahp(line) or hbargrahp(line) 
+            m = vbargraph(line) or hbargraph(line)
             if m:
                 vn = m.group(2)
-                self.ui.add(vn, "type", "S")
+                self.ui.add(vn, "type", "SO")
                 self.ui.add(vn, "id", make_name(m.group(1)))
-                self.ui.add(vn, "value", ("-70.0","-70.0","4.0","0.00001"))
+                self.ui.add(vn, "value", ("0",)+m.groups()[2:]+("0",))
                 continue
             m = declare(line)
             if m:
