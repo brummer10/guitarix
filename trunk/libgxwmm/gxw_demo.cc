@@ -1,6 +1,7 @@
 #include <glibmm.h>
 #include <gtkmm/main.h>
 #include <gtkmm/window.h>
+#include <gtkmm/cssprovider.h>
 #include <gtkmm/box.h>
 #include <gtkmm/treestore.h>
 #include <gtkmm/stack.h>
@@ -59,6 +60,8 @@ static const char* s_paint_funcs[] = {
 	"logo_expose",
 	nullptr
 };
+
+#include "gxw_css.cc"
 
 // Frequencies for the tuner.
 static double s_freq[] = {
@@ -178,6 +181,10 @@ Demo::Demo():
 	m_meter_value(0.5),
 	m_freq_index(0)
 {
+	Glib::RefPtr<Gtk::CssProvider> css_provider(Gtk::CssProvider::create());
+	css_provider->load_from_data(styles_css);
+	Gtk::StyleContext::add_provider_for_screen(
+		Gdk::Screen::get_default(), css_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
 	// Stack setup
 	Gtk::Box *vbox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
 	vbox->pack_start(m_stacksidebar, true, true);
