@@ -171,7 +171,7 @@ enum {
 
 #define PLUGINDEF_VERMAJOR_MASK 0xff00
 #define PLUGINDEF_VERMINOR_MASK 0x00ff
-#define PLUGINDEF_VERSION       0x0600
+#define PLUGINDEF_VERSION       0x0700
 
 struct PluginDef {
     int version;	 // = PLUGINDEF_VERSION
