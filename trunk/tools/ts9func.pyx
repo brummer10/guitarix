@@ -1,6 +1,9 @@
 import numpy as np
 cimport numpy as np
 
+cdef extern from "gx_compiler.h":
+    pass
+
 cdef extern from "ts9nonlin.h":
     double ts9nonlin(double x)
     extern float x0ts9 "ts9table.low"

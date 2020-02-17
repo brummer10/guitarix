@@ -195,19 +195,19 @@ cdef class dsp(object):
                 raise ValueError("need ndarray")
             if inp.dtype != np.float32:
                 raise ValueError("need float32")
-            count = inp.shape[inp.ndim-1]
+            count = np.PyArray_DIMS(inp)[np.PyArray_NDIM(inp)-1]
         if ni == 1:
-            if not (inp.ndim == 1 or (inp.ndim == 2 and inp.shape[1] >= 1)):
+            if not (np.PyArray_NDIM(inp) == 1 or (np.PyArray_NDIM(inp) == 2 and np.PyArray_DIMS(inp)[1] >= 1)):
                 raise ValueError("need vector or 2-dim array with 1 row")
         elif ni > 1:
-            if not (inp.ndim == 2 and inp.shape[1] >= ni):
+            if not (np.PyArray_NDIM(inp) == 2 and np.PyArray_DIMS(inp)[1] >= ni):
                 raise ValueError("need 2-dim array with at least %d rows" % ni)
         cdef floatp *ina = <floatp*>alloca(ni*sizeof(floatp))
         cdef int i, n
         if inp is not None:
-            n = inp.strides[0]
+            n = np.PyArray_STRIDES(inp)[0]
             for i in range(ni):
-                ina[i] = <floatp>(inp.data+i*n)
+                ina[i] = <floatp>(np.PyArray_DATA(inp))+i*n
         cdef int no = self.Cdsp.getNumOutputs()
         cdef floatp *oa = <floatp*>alloca(no*sizeof(floatp))
         cdef np.ndarray o
@@ -215,9 +215,9 @@ cdef class dsp(object):
             o = np.empty(count,dtype=np.float32)
         else:
             o = np.empty((no,count),dtype=np.float32)
-        n = o.strides[0]
+        n = np.PyArray_STRIDES(o)[0]
         for i in range(no):
-            oa[i] = <floatp>(o.data + i*n)
+            oa[i] = <floatp>(np.PyArray_DATA(o)) + i*n
         cdef timespec t0, t1
         clock_gettime(CLOCK_MONOTONIC, &t0)
         self.Cdsp.compute(count, ina, oa)

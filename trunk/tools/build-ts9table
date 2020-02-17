@@ -1,8 +1,9 @@
 #! /bin/bash
 set -e
-python ts9sim.py T > ../src/plugins/ts9nonlin.cc
-cython --cplus ts9func.pyx
-opt="$(python-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
+python3 ts9sim.py T > ../src/plugins/ts9nonlin.cc
+cython3 -3 --cplus ts9func.pyx
+opt="$(python3-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
 opt="$opt -Wno-unused-function -shared -fPIC"
-g++ ts9func.cpp $opt -I ../src/plugins -o ts9func.so
-python ts9sim.py
+opt="$opt -DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION"
+g++ ts9func.cpp $opt -I ../src/plugins -I ../src/headers -o ts9func.so
+python3 ts9sim.py

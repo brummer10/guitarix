@@ -43,6 +43,14 @@ def show_diff(pm):
     y1 = vectorize(ts9func)(x)
     plot(x, y-y1, "-")
 
+def format(v):
+    # python2 str(float) compatible formatting function
+    # produces same output for the table as the old python2 version
+    s = "%.12g" % v
+    if "." not in s:
+        s += ".0";
+    return s
+
 def write_ftube_table(Vi, Vp):
     """write C source"""
     sys.stdout.write('\t%g,%g,%g,%d, {' % (Vi[0], Vi[-1], (len(Vi)-1)/(Vi[-1]-Vi[0]), len(Vi)))
@@ -51,7 +59,7 @@ def write_ftube_table(Vi, Vp):
         if i % 5 == 0:
             sys.stdout.write(s+"\n\t")
             s = ""
-        sys.stdout.write(s+str(Vp[i]))
+        sys.stdout.write(s+format(Vp[i]))
         s = ","
     sys.stdout.write("\n\t}")
 

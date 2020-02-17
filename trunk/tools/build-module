@@ -3,13 +3,14 @@ function compile() {
   set -e
   rm -f "$2".so
   faust $faustargs -a "$tooldir"/pythonmodule.cpp -o faustwrap.cpp "$1"
-  cython --cplus "$2".pyx
-  opt="$(python-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
+  cython3 -3 --cplus "$2".pyx
+  opt="$(python3-config --cflags --ldflags | sed s/-Wstrict-prototypes//)"
   opt="$opt -shared -fPIC -lrt"
   opt="$opt -I$instdir/src/gx_head/engine -I$instdir/src/headers"
   opt="$opt -Wall -Wno-unused-function"
   #opt="$opt -Wno-unused-but-set-variable"
   opt="$opt -O3 -march=native -pipe -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
+  opt="$opt -DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION"
   g++ "$2".cpp -o "$2".so $opt
   rm -f faustwrap.cpp $2.cpp
   echo "created $2.so"
