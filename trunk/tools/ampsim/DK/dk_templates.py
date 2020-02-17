@@ -444,7 +444,7 @@ int DKPlugin::registerparam(const ParamReg& reg) {
         DKPlugin& self = *static_cast<DKPlugin*>(reg.plugin);
     %end
     %for @r in @regs:
-        reg.registerVar(PARAM("@r.id"), N_("@r.name"), "S", N_("@r.desc"), &self.pots[@r.varidx], 0.5, 0, 1, 0.01);
+        reg.registerFloatVar(PARAM("@r.id"), N_("@r.name"), "S", N_("@r.desc"), &self.pots[@r.varidx], 0.5, 0, 1, 0.01, nullptr);
     %end
     return 0;
 }

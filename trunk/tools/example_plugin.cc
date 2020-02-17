@@ -50,7 +50,7 @@ int Dsp::registerparam(const ParamReg& reg) {
     Dsp& self = *static_cast<Dsp*>(reg.plugin);
     // the numbers are: default, lower, upper, step
     // (step is not used by the python module)
-    reg.registerVar(PARAM("level"),"","S","",&self.level,5.0,0.1,10.0,0.1);
+    reg.registerFloatVar(PARAM("level"),"","S","",&self.level,5.0,0.1,10.0,0.1,nullptr);
     return 0;
 }
 
