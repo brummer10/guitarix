@@ -83,7 +83,8 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     actions.online_preset_bank = Gtk::Action::create("OnlineBank");
     actions.group->add(actions.online_preset_bank, sigc::mem_fun(*this, &PresetWindow::on_online_preset));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(online_preset->gobj()), actions.online_preset_bank->gobj());
-    if (!machine.get_jack()) online_preset->set_sensitive(false);
+
+    // bank treeview
     bank_treeview->set_model(Gtk::ListStore::create(bank_col));
     bank_treeview->get_selection()->set_select_function(
 	sigc::mem_fun(*this, &PresetWindow::select_func));
@@ -749,46 +750,38 @@ void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
 }
 
 void PresetWindow::read_preset_menu() {
-    if (! machine.get_jack()) usleep(5000);
-    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_config_filename(), resolve_hostname()));
-    Glib::RefPtr<Gio::DataInputStream> in = Gio::DataInputStream::create(dest->read());    
-    std::string NAME_;
-    std::string FILE_;
-    std::string INFO_;
-    std::string AUTHOR_;
-    std::string line;
-    while ( in->read_line(line) )
-    {
-        std::istringstream is(line);
-        gx_system::JsonParser jp(&is);
-        try {
-            jp.next(gx_system::JsonParser::begin_array);
-            do {
-                jp.next(gx_system::JsonParser::begin_object);
-                do {
-                    jp.next(gx_system::JsonParser::value_key);
-                    if (jp.current_value() == "name") {
-                        jp.read_kv("name", NAME_);
-                    } else if (jp.current_value() == "description") {
-                        jp.read_kv("description", INFO_);
-                    } else if (jp.current_value() == "author") {
-                        jp.read_kv("author", AUTHOR_);
-                    } else if (jp.current_value() == "file") {
-                        jp.read_kv("file", FILE_);
-                        INFO_ += "Author : " + AUTHOR_;
-                        olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
-                     } else {
-                        jp.skip_object();
-                    }
-                } while (jp.peek() == gx_system::JsonParser::value_key);
-                jp.next(gx_system::JsonParser::end_object);
-            } while (jp.peek() == gx_system::JsonParser::begin_object);
-        } catch (gx_system::JsonException& e) {
-            cerr << "JsonException: " << e.what() << ": '" << jp.current_value() << "'" << endl;
-            assert(false);
-        }
+    ifstream is(options.get_online_config_filename());
+    gx_system::JsonParser jp(&is);
+    try {
+	jp.next(gx_system::JsonParser::begin_array);
+	do {
+	    std::string NAME_;
+	    std::string FILE_;
+	    std::string INFO_;
+	    std::string AUTHOR_;
+	    jp.next(gx_system::JsonParser::begin_object);
+	    do {
+		jp.next(gx_system::JsonParser::value_key);
+		if (jp.current_value() == "name") {
+		    jp.read_kv("name", NAME_);
+		} else if (jp.current_value() == "description") {
+		    jp.read_kv("description", INFO_);
+		} else if (jp.current_value() == "author") {
+		    jp.read_kv("author", AUTHOR_);
+		} else if (jp.current_value() == "file") {
+		    jp.read_kv("file", FILE_);
+		} else {
+		    jp.skip_object();
+		}
+	    } while (jp.peek() == gx_system::JsonParser::value_key);
+	    jp.next(gx_system::JsonParser::end_object);
+	    INFO_ += "Author : " + AUTHOR_;
+	    olp.push_back(std::tuple<std::string,std::string,std::string>(NAME_,FILE_,INFO_));
+	} while (jp.peek() == gx_system::JsonParser::begin_object);
+    } catch (gx_system::JsonException& e) {
+	cerr << "JsonException: " << e.what() << ": '" << jp.current_value() << "'" << endl;
+	assert(false);
     }
-    in->close ();
 }
 
 void PresetWindow::popup_pos( int& x, int& y, bool& push_in ){
@@ -798,14 +791,14 @@ void PresetWindow::popup_pos( int& x, int& y, bool& push_in ){
     push_in = false;
 }
  
-void PresetWindow::create_preset_menu(bool is_new) {
+void PresetWindow::create_preset_menu() {
 
     static bool read_new = true;
-    if (read_new || is_new) {
+    if (read_new) {
         read_preset_menu();
         read_new = false;
     }
-   
+
     Gtk::MenuItem* item;
     Gtk::Menu *presetMenu = Gtk::manage(new Gtk::Menu());
     presetMenu->set_size_request (-1, 600);
@@ -813,53 +806,41 @@ void PresetWindow::create_preset_menu(bool is_new) {
         item = Gtk::manage(new Gtk::MenuItem(get<0>(*it), true));
         item->set_tooltip_text(get<2>(*it));
         std::string f = get<1>(*it);
-        item->signal_activate().connect(sigc::bind(sigc::bind(sigc::mem_fun(
-          *this, &PresetWindow::downloadPreset),f),presetMenu));
+        item->signal_activate().connect(
+	    sigc::bind(sigc::mem_fun(*this, &PresetWindow::downloadPreset),
+		       presetMenu, f));
         presetMenu->append(*item);
-            
     }
     presetMenu->show_all();
     presetMenu->popup(Gtk::Menu::SlotPositionCalc(sigc::mem_fun(
        *this, &PresetWindow::popup_pos ) ),0,gtk_get_current_event_time());
 }
 
-void PresetWindow::replace_inline(std::string& subject, const std::string& search,
-                          const std::string& replace) {
-    size_t pos = 0;
-    while ((pos = subject.find(search, pos)) != std::string::npos) {
-         subject.replace(pos, search.length(), replace);
-         pos += replace.length();
-    }
-}
-
 void PresetWindow::show_online_preset() {
-
-    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_uri(Glib::filename_to_uri(options.get_online_config_filename(), resolve_hostname()));
     static bool load_new = true;
-    static bool load = false;
-    Glib::RefPtr<Gdk::Window> window = preset_scrolledbox->get_toplevel()->get_window();
-    if (load_new || ! dest->query_exists()) {
-        Glib::RefPtr<Gdk::Display> disp = preset_scrolledbox->get_toplevel()->get_display();
-        Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(disp, Gdk::WATCH));
-        window->set_cursor(cursor);
-        if (dest->query_exists()) {
-            Gtk::MessageDialog *d = new Gtk::MessageDialog(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),
-             "Do you want to check for new presets from\n https://musical-artifacts.com ? \n Note, that may take a while",
-              false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
-            d->set_position(Gtk::WIN_POS_MOUSE);
-            if (d->run() == Gtk::RESPONSE_YES) load = true;
-            delete d;
+    Glib::RefPtr<Gio::File> dest = Gio::File::create_for_path(options.get_online_config_filename());
+    bool exists = dest->query_exists();
+    if (load_new || !exists) {
+	load_new = false;
+	bool reload = false;
+	gx_gui::WaitCursor(dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel()));
+        if (exists) {
+            Gtk::MessageDialog d(*dynamic_cast<Gtk::Window*>(online_preset->get_toplevel()),
+				 "Do you want to check for new presets from\n https://musical-artifacts.com ?\n"
+				 "Note, that may take a while",
+				 false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
+            d.set_position(Gtk::WIN_POS_MOUSE);
+            if (d.run() == Gtk::RESPONSE_YES) {
+		reload = true;
+	    }
         }
-        if (load || ! dest->query_exists()) {
-            if (!download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {
-                window->set_cursor(); 
-                return;
-            } 
-        }
-    window->set_cursor();
+	if (!exists || reload) {
+	    if (!download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {
+		return;
+	    }
+	}
     }
-    load_new = false;
-    create_preset_menu(load_new);
+    create_preset_menu();
 }
 
 void PresetWindow::on_online_preset() {
