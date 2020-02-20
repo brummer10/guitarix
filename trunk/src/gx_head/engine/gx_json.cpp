@@ -1981,6 +1981,9 @@ bool GxSettingsBase::convert_preset(PresetFile& pf) {
     state_io->commit_state();
     delete sp;
     seq.start_ramp_up();
+    if (res) {
+	presetlist_changed();
+    }
     return res;
 }
 
@@ -1992,6 +1995,8 @@ bool GxSettingsBase::rename_bank(const Glib::ustring& oldname, const Glib::ustri
 	current_bank = newname;
 	presetlist_changed();
 	selection_changed();
+    } else {
+	presetlist_changed();
     }
     return true;
 }
@@ -2002,6 +2007,10 @@ bool GxSettingsBase::remove_bank(const Glib::ustring& bank) {
     }
     if (bank == current_bank) {
 	set_source_to_state();
+	presetlist_changed();
+	selection_changed();
+    } else {
+	presetlist_changed();
     }
     return true;
 }
@@ -2010,8 +2019,8 @@ bool GxSettingsBase::rename_preset(PresetFile& pf, const Glib::ustring& oldname,
     if (!pf.rename(oldname, newname)) {
 	return false;
     }
+    presetlist_changed();
     if (setting_is_preset() && current_bank == pf.get_name()) {
-	presetlist_changed();
 	if (current_name == oldname) {
 	    current_name = newname;
 	    selection_changed();
