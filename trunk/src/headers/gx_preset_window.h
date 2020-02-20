@@ -99,26 +99,27 @@ private:
     sigc::connection on_map_conn;
 
     // widget pointers (keep last)
-    Gtk::Button *close_preset;
     Gtk::Button *save_preset;
     Gtk::Button *new_preset_bank;
     Gtk::ToggleButton *organize_presets;
     Gtk::Button *online_preset;
     MyTreeView *bank_treeview;
-    Glib::RefPtr<Gtk::CellRendererText> bank_cellrenderer;
+    Gtk::CellRendererText *bank_cellrenderer;
     MyTreeView *preset_treeview;
-    Glib::RefPtr<Gtk::CellRendererText> preset_cellrenderer;
+    Gtk::CellRendererText *preset_cellrenderer;
     Gtk::ComboBox *banks_combobox;
     MyTreeView *presets_target_treeview;
     Gtk::Label *preset_title;
     Gtk::ScrolledWindow *presets_target_scrolledbox;
-    Glib::RefPtr<Gtk::TreeViewColumn> bank_column_edit;
-    Glib::RefPtr<Gtk::TreeViewColumn> bank_column_delete;
-    Glib::RefPtr<Gtk::TreeViewColumn> preset_column_edit;
-    Glib::RefPtr<Gtk::TreeViewColumn> preset_column_delete;
+    Gtk::TreeViewColumn* bank_column_flags;
+    Gtk::TreeViewColumn* bank_column_bank;
+    Gtk::TreeViewColumn* bank_column_edit;
+    Gtk::TreeViewColumn* bank_column_delete;
+    Gtk::TreeViewColumn* preset_column_preset;
+    Gtk::TreeViewColumn* preset_column_edit;
+    Gtk::TreeViewColumn* preset_column_delete;
     Gtk::Paned *main_vpaned;
     Gtk::ScrolledWindow *preset_scrolledbox;
-    Glib::RefPtr<Gtk::SizeGroup> left_column;
 private:
     void load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld);
     void target_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
@@ -126,7 +127,6 @@ private:
     Glib::ustring get_combo_selection();
     void reload_combo();
     void on_preset_combo_changed();
-    void reload_target();
     bool select_func(const Glib::RefPtr<Gtk::TreeModel>& model, const Gtk::TreePath& path, bool path_currently_selected);
     void highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter);
     void text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter);
@@ -145,13 +145,12 @@ private:
     void on_preset_save();
     const std::string pdir() { return options.get_preset_dir();}
     void on_online_preset();
-    void replace_inline(std::string& l, const std::string& s, const std::string& r);
     void show_online_preset();
     void popup_pos( int& x, int& y, bool& push_in );
     void downloadPreset(Gtk::Menu *presetMenu,std::string uri);
     bool download_file(Glib::ustring from_uri, Glib::ustring to_path);
     Glib::ustring resolve_hostname();
-    void create_preset_menu(bool is_new);
+    void create_preset_menu();
     void read_preset_menu();
     std::vector< std::tuple<std::string,std::string,std::string> > olp;
     bool on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
@@ -159,8 +158,6 @@ private:
     void on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
     void on_bank_changed();
     bool on_bank_query_tooltip(int x, int y, bool kb_tooltip, Glib::RefPtr<Gtk::Tooltip> tooltip);
-    void reload_banks(const Glib::ustring& sel_bank);
-    void set_presets();
     void on_bank_reordered(const Gtk::TreeModel::Path& path);
     bool on_preset_button_release(GdkEventButton *ev);
     bool on_preset_button_press(GdkEventButton *ev);
@@ -179,6 +176,7 @@ private:
     void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFileGui *f);
     void display_paned(bool show_preset, int paned_child_height);
     void on_selection_changed();
+    void on_presetlist_changed();
 public:
     PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine,
 		 const gx_system::CmdlineOptions& options, GxActions& actions);
