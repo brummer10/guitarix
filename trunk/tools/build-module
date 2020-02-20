@@ -36,6 +36,4 @@ if [ "$tooldir" != . -o "$bname" != faustmod ]; then
   trap 'rm -f "$bname".pyx' EXIT
   ln -s "$tooldir"/faustmod.pyx "$bname".pyx
 fi
-echo "$1"
-echo "$basename"
 compile "$1" "$bname"

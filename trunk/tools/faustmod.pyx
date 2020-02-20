@@ -59,12 +59,32 @@ cdef extern from "faustwrap.cpp":
     cppclass UI:
         pass
 
+    cppclass charmapType
+    cppclass charmapIter:
+        charmapIter operator++()
+        bint operator!=(charmapIter)
+        bint operator==(charmapIter)
+        charmapType operator*()
+
+    cppclass charmapType:
+        const char *first
+        const char *second
+        charmapIter begin()
+        charmapIter end()
+        charmapIter find(char *s)
+
+    cppclass Meta(charmapType):
+        pass
+
     cppclass mydsp:
+        char *id
+        char *name
         void buildUserInterface(UI* interface)
         int getNumInputs()
         int getNumOutputs()
         void init(int samplingRate)
         void compute(int len, float** inputs, float** outputs)
+        void metadata(Meta *m)
 
     cppclass CMDUI(UI):
         fKeyType fKeyParam
@@ -100,6 +120,7 @@ cdef class dsp(object):
     cdef mydsp *Cdsp
     cdef CMDUI *interface
     cdef dict Cparameter
+    cdef dict meta
     cdef int defsize
     cdef double time_per_sample
 
@@ -107,13 +128,22 @@ cdef class dsp(object):
         self.Cdsp = new mydsp()
         self.interface = new CMDUI()
         self.Cdsp.buildUserInterface(self.interface)
-        cdef fKeyIter i
-        i = self.interface.fKeyParam.begin()
+        cdef fKeyIter i = self.interface.fKeyParam.begin()
         p = {}
+        cdef object p_id
         while i != self.interface.fKeyParam.end():
-            p[deref(i).first.c_str()] = (deref(i).second.fMin, deref(i).second.fMax)
+            p_id = deref(i).first.c_str()
+            p[p_id.decode()] = (deref(i).second.fMin, deref(i).second.fMax)
             inc(i)
         self.Cparameter = p
+        cdef Meta m
+        self.Cdsp.metadata(&m)
+        cdef charmapIter j = m.begin()
+        k = {}
+        while j != m.end():
+            k[deref(j).first.decode()] = deref(j).second.decode()
+            inc(j)
+        self.meta = k
         self.defsize = 128
         self.time_per_sample = 0
 
@@ -142,14 +172,14 @@ cdef class dsp(object):
         returns: allowed range tuple (lower, upper)"""
         return self.Cparameter[key]
 
-    def __getitem__(self, char* pname):
-        cdef fKeyIter p = self.interface.fKeyParam.find(pname)
+    def __getitem__(self, str pname):
+        cdef fKeyIter p = self.interface.fKeyParam.find(pname.encode())
         if p == self.interface.fKeyParam.end():
             raise KeyError("not found: %s" % pname)
         return deref(p).second.fZone[0]
     
-    def __setitem__(self, char* pname, float pval):
-        cdef fKeyIter p = self.interface.fKeyParam.find(pname)
+    def __setitem__(self, str pname, float pval):
+        cdef fKeyIter p = self.interface.fKeyParam.find(pname.encode())
         if p == self.interface.fKeyParam.end():
             raise KeyError("not found: %s" % pname)
         if not (deref(p).second.fMin <= pval <= deref(p).second.fMax):
@@ -157,6 +187,11 @@ cdef class dsp(object):
                 "parameter %s value %s outside range [%s, %s]"
                 % (pname, pval, deref(p).second.fMin, deref(p).second.fMax))
         deref(p).second.fZone[0] = pval
+
+    property meta:
+        "meta dictionary"
+        def __get__(self):
+            return self.meta
 
     property num_inputs:
         "number of input channels"

@@ -50,7 +50,7 @@ opt="$opt -Wall -Wno-unused-function"
 opt="$opt -D_= "
 opt="$opt -O2 -march=native -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
 g++ $opt "$DIR""$bname.cc" -o "$DIR""$bname.so"
-#rm -f "$bname.cc"
+rm -f "$bname.cc"
 if [ $copy = 1 ]; then
   rm -f ~/.config/guitarix/plugins/"$bname.so"
   cp "$DIR""$bname.so" ~/.config/guitarix/plugins/.

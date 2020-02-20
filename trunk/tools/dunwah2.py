@@ -3,10 +3,18 @@ from pylab import *
 from scipy.signal import freqz, lfilter
 from scipy import optimize
 
+def load_crybaby():
+    from lv2loader import LV2_Plugin
+    return LV2_Plugin('holters-sim/crybaby-1.2/')
+
+def load_dunwah():
+    import dunwah
+    return dunwah.dsp()
+
 def display_parameter(filt):
-    print "Parameter:"
-    print "\n".join(["    %s=%s [%s..%s]" % ((k,filt[k])+filt.get_range(k))
-                   for k in filt.keys()])
+    print("Parameter:")
+    print("\n".join(["    %s=%s [%s..%s]" % ((k,filt[k])+tuple(filt.get_range(k)))
+                     for k in filt.keys()]))
 
 def freqz_scaled(v, rate, rng, n = 2400):
     w, h = freqz(v, worN=n)
@@ -48,7 +56,7 @@ def plotone(filt, freq, para, impulse, clr='--', fs=44100):
     wmax3, hmax3 = db_point(w, h, hmax-3)
     q = wmax/wmax3
     Q = 1/abs(q-1/q)
-    print "%.2f %.2f %g %g" % (freq, wmax, hmax, Q)
+    print("%.2f %.2f %g %g" % (freq, wmax, hmax, Q))
     semilogx(w, h, clr, label="%.3f" % freq)
     return (freq, wmax, hmax, Q)
 
@@ -76,18 +84,16 @@ def plot_figure(filt, name, para, rg, clr="-", fs=44100):
     #show()
 
 def plot_figure_libcrybaby(clr="-",fs=44100):
-    from pluginloader import Plugin
-    filt = Plugin("../build/default/src/plugins/libcrybaby.so")
-    filt['crybaby2.refvolt'] = 0.1
-    para = 'crybaby2.hotpotz'
+    filt = load_crybaby()
+    filt['refvolt'] = 0.1
+    para = 'hotpotz'
     name = filt.get_var_attr(para)[0]
     rg = log10(linspace(*np.power(10,filt.get_range(para)), num=10))
     filt.init(fs)
     plot_figure(filt, name, para, rg, clr, fs)
 
 def plot_figure_dunwah(clr="-", fs=44100):
-    import dunwah
-    filt = dunwah.dsp()
+    filt = load_dunwah()
     para = 'wah'
     name = "DunWah"
     #rg = linspace(*filt.get_range(para), num=10)
@@ -119,54 +125,61 @@ def plot_figure_autowah(clr="-", fs=44100):
 
 def save_octave(name, var, fd):
     assert isinstance(var, ndarray) and len(var.shape) == 1
-    print >>fd, "# name:", name
+    print("# name:", name, file=fd)
     iscompl = iscomplexobj(var)
     if iscompl:
-        print >>fd, "# type: complex matrix"
+        print("# type: complex matrix", file=fd)
     else:
-        print >>fd, "# type: matrix"
-    print >>fd, "# rows: 1"
-    print >>fd, "# columns:", var.shape[0]
+        print("# type: matrix", file=fd)
+    print("# rows: 1", file=fd)
+    print("# columns:", var.shape[0], file=fd)
     if iscompl:
         for v in var:
-            print >>fd, (v.real, v.imag),
+            print((v.real, v.imag), file=fd, end=' ')
     else:
         for v in var:
-            print >>fd, v,
-    print >>fd
+            print(v, file=fd, end=' ')
+    print(file=fd)
 
 def load_octave(fd):
     var = []
     d = {}
     for l in fd:
+        l = l.strip()
         if l.startswith("#"):
             m = re.match("# *([a-z]+): *(.*)\n", l)
             if not m:
                 continue
             d[m.group(1)] = m.group(2)
-        else:
+        elif l:
             var.append(array([float(v) for v in l.split()]))
     return var
 
 def invfreqz(w, h):
-    fd = file("/tmp/out", "w");
-    save_octave("F", w, fd)
-    save_octave("H", h, fd)
-    fd.close()
+    # w: frequency points array
+    # h: response array (complex values)
+    # returns the fitted polinomial coeffients A and B of order 3
+    # (biquad filter)
+    with open("/tmp/out", "w") as fd:
+        save_octave("F", w, fd)
+        save_octave("H", h, fd)
     p = os.popen("octave -q","w")
     p.write(
+        "pkg load signal;\n"
         "load /tmp/out;\n"
         "wt = 1 ./ F.^2;\n"
         "[B,A] = invfreqz(H,F,3,3,wt);\n"
         "save /tmp/out B A;\n")
     p.close()
-    fd = file("/tmp/out");
-    res = load_octave(fd)
-    fd.close()
+    with open("/tmp/out") as fd:
+        res = load_octave(fd)
     os.remove("/tmp/out")
     return res
 
 def run_filter(filt,impulse,fs):
+    # returns a biquad filter estimate (coefficients B, A) and the
+    # (complex) frequency response h
+    #
     # skip transients
     filt.compute(zeros(10000,dtype=float32))
     # calculate frequency response
@@ -178,6 +191,18 @@ def run_filter(filt,impulse,fs):
     return B, A, h
 
 def estimate(rg, filt, para, impulse, fs):
+    # para: parameter to sweep
+    # rg: range of values for parameter para
+    # filt: filter to be analyzed
+    # impulse: input vector
+    # fs: sample rate
+    # returns biquad filter estimates for each parameter value:
+    #  0: (aa) vector of biquad theta * fs
+    #  1: (Q) vector of biquad quality factors
+    #  2: (maxh) vector of maxium absolute value of frequency response
+    #  3: mean value of real roots
+    #  4: (Bconst)  B for freq_const
+    #  5: (freq_const)  para value at center of range
     aa = zeros(len(rg))
     Q = zeros(len(rg))
     maxh = zeros(len(rg))
@@ -187,8 +212,8 @@ def estimate(rg, filt, para, impulse, fs):
         B, A, h = run_filter(filt, impulse, fs)
         maxh[i] = max(abs(h))
         # use a constant B
-        #print B/B[0]
-        if i == (len(rg)+1)/2:
+        #print(B/B[0])
+        if i == (len(rg)+1)//2:
             Bconst = B
             freq_const = freq
         # use just the two conjugate roots for the biquad
@@ -206,9 +231,9 @@ def estimate(rg, filt, para, impulse, fs):
         aa[i] = fs * theta
         Q[i] = theta / (2 - 2*R)
 
-        print 'Pole frequency = %f Hz' % (aa[i]/(2*pi))
-        #print 'Q = %f' % Q[i]
-        #print "R =", R
+        print('Pole frequency = %f Hz' % (aa[i]/(2*pi)))
+        #print('Q = %f' % Q[i])
+        #print("R =", R)
 
     return aa, Q, maxh, sum(real_roots) / len(real_roots), Bconst, freq_const
 
@@ -293,6 +318,12 @@ def make_gain(rg, off, a1A, qA, maxh, z1, Bconst, fs):
     return gain, g_off, a
 
 def estimate_SR(filt, para, freq_const, impulse):
+    # estimate fitted biquad parameter dependency on sample rate
+    # returns
+    #  0: (z1) mean of the first root
+    #  1: polynomial fit for the second root
+    #  2: polynomial fit for the third root
+    #  3: polynomial fit for B[0]
     lz1 = []
     lz2 = []
     lz3 = []
@@ -314,25 +345,26 @@ def estimate_SR(filt, para, freq_const, impulse):
     return z1, z2A, z3A, gc
 
 def output_freqz_libcrybaby():
-    from pluginloader import Plugin
-    filt = Plugin("../build/default/src/plugins/libcrybaby.so")
-    filt['crybaby2.refvolt'] = 0.1
-    para = 'crybaby2.hotpotz'
+    filt = load_crybaby()
+    filt['refvolt'] = 0.1
+    para = 'hotpotz'
     name = filt.get_var_attr(para)[0]
     fs = 44100
     filt.init(fs)
     impulse = zeros(10000,dtype=float32)
     impulse[0] = 1
     rg = log10(linspace(*np.power(10,filt.get_range(para)), num=20))
-    if False:
+    if True:
         aa, Q, maxh, p1, Bconst, freq_const = estimate(rg, filt, para, impulse, fs)
-        pickle.dump((aa,Q,maxh,p1,Bconst,freq_const), file("p.out","w"))
+        with open("p.out","wb") as fd:
+            pickle.dump((aa,Q,maxh,p1,Bconst,freq_const), fd)
     else:
-        aa, Q, maxh, p1, Bconst, freq_const = pickle.load(file("p.out"))
+        with open("p.out","rb") as fd:
+            aa, Q, maxh, p1, Bconst, freq_const = pickle.load(fd)
     z1, z2A, z3A, gcA = estimate_SR(filt, para, freq_const, impulse)
     off, a1A, qA = fit_param(rg, aa, Q, fs)
     gain, g_off, gA = make_gain(rg, off, a1A, qA, maxh, p1, Bconst, fs)
-    #show_param(rg, off, g_off, aa, a1A, Q, qA, gain, gA)
+    show_param(rg, off, g_off, aa, a1A, Q, qA, gain, gA)
     rg = log10(linspace(*np.power(10,filt.get_range(para)), num=10))
     filt.init(fs)
     for i, freq in enumerate(rg):
@@ -354,14 +386,14 @@ def output_freqz_libcrybaby():
         semilogx((w*fs/(2*pi))[1:],  20*log10(abs(h[1:])), "b")
         semilogx((w1*fs/(2*pi))[1:], 20*log10(abs(h1[1:])), "r")
 
-    print "theta2pi = (%g - 1000 / (%s)) / SR;" % (off, string_polyval(a1A*1000, "wah"))
-    print "Q = %s;" % string_polyval(qA, "wah")
-    print "g = %g - 1 / (%s);" % (g_off, string_polyval(gA, "wah"))
-    print "gc = %s;" % string_polyval(gcA, "SR")
-    print "p1 = exp(-1000/(%g*SR));" % (-1000/(fs*log(p1)))
-    print "z1 = %g;" % z1
-    print "z2 = %s;" % string_polyval(z2A, "SR")
-    print "z3 = %s;" % string_polyval(z3A, "SR")
+    print("theta2pi = (%g - 1000 / (%s)) / SR;" % (off, string_polyval(a1A*1000, "wah")))
+    print("Q = %s;" % string_polyval(qA, "wah"))
+    print("g = %g - 1 / (%s);" % (g_off, string_polyval(gA, "wah")))
+    print("gc = %s;" % string_polyval(gcA, "SR"))
+    print("p1 = exp(-1000/(%g*SR));" % (-1000/(fs*log(p1))))
+    print("z1 = %g;" % z1)
+    print("z2 = %s;" % string_polyval(z2A, "SR"))
+    print("z3 = %s;" % string_polyval(z3A, "SR"))
 
     show()
 
@@ -372,16 +404,17 @@ def compare_dynamics(freq, fs):
     lfo_freq = 5.0
     block_size = 64
     time = 1
-    block_cnt = (time*fs+block_size-1)/block_size
+    block_cnt = (time*fs+block_size-1)//block_size
+    print(block_cnt)
     samples = block_cnt * block_size
 
     def sine(freq, div=1):
-        return array(sin(2*pi*linspace(0,freq*time,samples / div)),dtype=float32)
+        return array(sin(2*pi*linspace(0,freq*time,samples // div)),dtype=float32)
 
     tm = linspace(0,samples/float(fs),samples)
     lfo = 0.5 + sine(lfo_freq,block_size) * 0.5
     signal = sine(freq).reshape(block_cnt,block_size)
-    tt = linspace(0,1,samples / 100)
+    tt = linspace(0,1,samples // 100)
 
     def sweep(filt, para, clr):
         filt[para] = 0.0
@@ -394,18 +427,16 @@ def compare_dynamics(freq, fs):
         ampl = lfilter([1-t],[1,-t],abs(out.reshape(samples)))
         plot(tm[4000:], 20*log10(ampl[4000:]), clr)
 
-    import dunwah
-    filt = dunwah.dsp()
+    filt = load_dunwah()
     filt.init(fs)
     para = "wah"
 
     sweep(filt, para, "r")
 
-    from pluginloader import Plugin
-    filt = Plugin("../build/default/src/plugins/libcrybaby.so")
+    filt = load_crybaby()
     filt.init(fs)
-    filt['crybaby2.refvolt'] = 0.1
-    para = 'crybaby2.hotpotz'
+    filt['refvolt'] = 0.1
+    para = 'hotpotz'
 
     sweep(filt, para, "b")
 

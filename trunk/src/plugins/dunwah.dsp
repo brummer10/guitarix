@@ -3,7 +3,7 @@ declare name "DunWah";
 
 import("stdfaust.lib");
 
-dunwah = *(gs) : fi.tf2(1,-1,0,a1s,a2s)
+dunwah = *(gs) : tf2(1,-1,0,a1s,a2s)
 with {
     // calculated by dunwah1.py
     theta2pi = (1892.75 - 1 / (((0.000927476*wah+-0.00197293)*wah+0.002474)*wah+-0.00152132))/ma.SR;
@@ -15,17 +15,17 @@ with {
     a2 = R*R;                   // biquad coeff
 
     // dezippering of slider-driven signals:
-    s = 0.999; // smoothing parameter (one-fi.pole fi.pole location)
+    s = 0.999; // smoothing parameter (one-pole pole location)
     a1s = a1 : si.smooth(s);
     a2s = a2 : si.smooth(s);
     gs =  g  : si.smooth(s);
 
-    fi.tf2 = component("filter.lib").fi.tf2;
+    tf2 = component("filter.lib").tf2;
     //wah = vslider("wah", 0, 0, 1, 0.01) : *(9) : +(1) : log10;
     wah = vslider("wah", 0, 0, 1, 0.01);
 };
 
-dunwah2 = *(gs) : fi.iir((b0, b1, b2, b3), (A1, A2, A3))
+dunwah2 = *(gs) : iir((b0, b1, b2, b3), (A1, A2, A3))
 with {
     // calculated by dunwah2.py
     theta2pi = (1973.48 - 1000 / ((((((12.499*wah+-40.3658)*wah+49.9836)*wah+-28.3434)*wah+5.76598)*wah+1.9841)*wah+-1.6086)) / ma.SR;
@@ -43,7 +43,7 @@ with {
     b3 = -z1*z2*z3;
 
     // dezippering of slider-driven signals:
-    s = 0.993; // smoothing parameter (one-fi.pole fi.pole location)
+    s = 0.993; // smoothing parameter (one-pole pole location)
 
     R = 1 - theta2pi/(2*Q);
     a1 = -2.0*R*cos(theta2pi) : si.smooth(s); // biquad coeff
@@ -54,7 +54,7 @@ with {
     A2 = a2 - a1 * p1;
     A3 = -a2 * p1;
 
-    fi.iir = component("filter.lib").fi.iir;
+    iir = component("filter.lib").iir;
 
     //wah = vslider("wah", 0, 0, 1, 0.01) : *(9) : +(1) : log10;
     wah = vslider("wah", 0, 0, 1, 0.01);
