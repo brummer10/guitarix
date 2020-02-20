@@ -216,30 +216,51 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 
 /* Paned window (right side) */
 
-#main_vpaned button {
-    border-width: 0px;
-    border-radius: 0px;
-    padding: 2px;
-    box-shadow: none;
-    background-image: none;
-    background-clip: content-box;
-    background-color: initial;
+#main_vpaned {
+    separator {
+	margin: {
+	    // sum of top + buttom is used in the preset pane, but can't
+	    // be queried by the program. If the values don't
+	    // these are the standard values;
+	    top: 0px;
+	    bottom: -8px;
+	}
+    }
+    button {
+	border-width: 0px;
+	border-radius: 0px;
+	padding: 2px;
+	box-shadow: none;
+	background-image: none;
+	background-clip: content-box;
+	background-color: initial;
+    }
 }
 
 /* Presets (bottom part) */
 
-#preset_scrolledbox treeview {
-    background-color: rgb(10,10,10);
-}
-
-#scrolledwindow4 {
-    margin-top: -5px;
-    color: black;
+#preset_scrolledbox {
+    treeview {
+	background-color: rgb(10,10,10);
+	&:selected {
+	    background-color: rgb(51,51,51);
+	    &:focus {
+		background-color: rgb(204, 46, 46);
+	    }
+	}
+    }
+    grid > label {
+	// settings to get horizontal alignment with the combobox in
+	// organize mode
+	min-height: 28px;
+	padding-top: 6px;
+    }
 }
 
 #preset_status {
     border: none;
     background-color: black;
+    min-height: 0px;
 }
 
 /****************************************************************

@@ -122,6 +122,8 @@ def build(bld):
         './builder/iredit_mono.glade',
         './builder/jackstarter.glade',
         './builder/mainpanel.glade',
+        './builder/ampbox.glade',
+        './builder/liveplay.glade',
         './builder/ladspaliste.glade',
         './builder/crybaby_ui.glade',
         './builder/wah_ui.glade',

@@ -2406,7 +2406,7 @@ bool MainWindow::on_scroll_toggle(GdkEventScroll* ev) {
 	    machine.set_state(gx_engine::kEngineOff);
 	}
     }
-    
+
     return true;
 }
 
@@ -2721,7 +2721,7 @@ void MainWindow::hide_extended_settings() {
         //window->present();
         window->deiconify();
     } else {
-        //window->hide();        
+        //window->hide();
         window->iconify();
     }
 }
@@ -2881,9 +2881,12 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     */
     Gtk::AccelMap::load(options.get_builder_filepath("accels_rc"));
 
-    const char *id_list[] = { "MainWindow", "amp_background:ampbox", "bank_liststore", "target_liststore",
-			      "bank_combo_liststore", "rack_vadjustment", nullptr };
-    bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), &machine, id_list);
+    const char *id_list[] = { "MainWindow", "bank_liststore", "target_liststore",
+			      "bank_combo_liststore", "rack_vadjustment", "left_column", nullptr };
+    bld = gx_gui::GxBuilder::create_from_file(options_.get_builder_filepath("mainpanel.glade"), nullptr, id_list);
+    const char *id_list1[] = { "amp_background:ampbox", nullptr };
+    bld->add_from_file(options_.get_builder_filepath("ampbox.glade"), Glib::StringArrayHandle(id_list1));
+    bld->fixup_controlparameters(machine, nullptr);
     load_widget_pointers();
 #ifndef NDEBUG
     theme.set_window(window);
@@ -2897,18 +2900,9 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     clear_box(*stereorackcontainerH);
     clear_box(*stereorackcontainerV);
     clear_box(*preset_box_no_rack);
-    
-    // create left column for equal width
-    left_column = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
-    Gtk::ScrolledWindow *swe;
-    bld->find_widget("scrolledwindow_effects", swe);
-    left_column->add_widget(*swe);
-    Gtk::Button *pb;
-    bld->find_widget("presets:barbutton", pb);
-    left_column->add_widget(*pb);
-    
+
     // preset window also creates some actions
-    preset_window = new PresetWindow(bld, machine, options, actions, left_column);
+    preset_window = new PresetWindow(bld, machine, options, actions);
 
     // create uimanager and load menu
     uimanager = Gtk::UIManager::create();
@@ -3148,7 +3142,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     /*
     ** create liveplay and setup liveplay racktuner
     */
-    live_play = new Liveplay(options, machine, options.get_builder_filepath("mainpanel.glade"), actions);
+    live_play = new Liveplay(options, machine, options.get_builder_filepath("liveplay.glade"), actions);
     setup_tuner(live_play->get_tuner());
     live_play->get_tuner().signal_poll_status_changed().connect(
 	sigc::mem_fun1(machine, &gx_engine::GxMachineBase::tuner_used_for_display));
@@ -3170,7 +3164,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     sigc::mem_fun(*this, &MainWindow::on_log_activated));
     logstate_image->get_parent()->signal_scroll_event().connect(
     sigc::mem_fun(*this, &MainWindow::on_log_scrolled));
-    
+
     //logstate_image->get_parent()->signal_button_press_event().connect(
 	//sigc::bind_return(
 	//    sigc::group(

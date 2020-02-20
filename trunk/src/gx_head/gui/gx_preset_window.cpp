@@ -43,8 +43,7 @@ bool PresetStore::row_draggable_vfunc(const TreeModel::Path& path) const {
 
 
 PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine_,
-			   const gx_system::CmdlineOptions& options_, GxActions& actions_,
-			   const Glib::RefPtr<Gtk::SizeGroup>& lc)
+			   const gx_system::CmdlineOptions& options_, GxActions& actions_)
     : sigc::trackable(),
       machine(machine_),
       actions(actions_),
@@ -70,6 +69,8 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
       /* widget pointers not initialized */ {
     load_widget_pointers(bld);
     gx_gui::GxBuilder::connect_gx_tooltip_handler(GTK_WIDGET(bank_treeview->gobj()));
+
+    // create actions
     actions.new_bank = Gtk::Action::create("NewBank");
     actions.group->add(actions.new_bank, sigc::mem_fun(*this, &PresetWindow::on_new_bank));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(new_preset_bank->gobj()), actions.new_bank->gobj());
@@ -79,16 +80,11 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     actions.organize = Gtk::ToggleAction::create("Organize", _("_Organize"));
     actions.group->add(actions.organize, sigc::mem_fun(*this, &PresetWindow::on_organize));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(organize_presets->gobj()), GTK_ACTION(actions.organize->gobj()));
-    //act = Gtk::Action::create("ClosePresetsAction");
-    //actiongroup->add(act, sigc::mem_fun(*this, &PresetWindow::on_presets_close));
-    //gtk_activatable_set_related_action(GTK_ACTIVATABLE(close_preset->gobj()), act->gobj());
-    close_preset->hide(); // disable (maybe remove later)
     actions.online_preset_bank = Gtk::Action::create("OnlineBank");
     actions.group->add(actions.online_preset_bank, sigc::mem_fun(*this, &PresetWindow::on_online_preset));
     gtk_activatable_set_related_action(GTK_ACTIVATABLE(online_preset->gobj()), actions.online_preset_bank->gobj());
     if (!machine.get_jack()) online_preset->set_sensitive(false);
     bank_treeview->set_model(Gtk::ListStore::create(bank_col));
-    bank_treeview->set_name("PresetView");
     bank_treeview->get_selection()->set_select_function(
 	sigc::mem_fun(*this, &PresetWindow::select_func));
     bank_treeview->set_has_tooltip(true);
@@ -124,12 +120,12 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     bank_treeview->signal_drag_begin().connect(
 	sigc::hide(sigc::mem_fun(machine, &gx_engine::GxMachineBase::bank_drag_begin)));
     Glib::RefPtr<Gtk::TreeSelection> sel = bank_treeview->get_selection();
-    sel->set_mode(Gtk::SELECTION_BROWSE);
     sel->signal_changed().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_changed));
     bank_treeview->signal_button_release_event().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_button_release), true);
     Glib::RefPtr<Gtk::TreeModel> ls = bank_treeview->get_model();
     bank_row_del_conn = ls->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_bank_reordered));
 
+    // preset treeview
     preset_treeview->set_model(pstore);
     preset_treeview->set_name("PresetView");
     preset_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_drag_motion), false);
@@ -165,13 +161,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
 	sigc::mem_fun(*this, &PresetWindow::target_drag_data_received));
     machine.signal_selection_changed().connect(
 	sigc::mem_fun(*this, &PresetWindow::on_selection_changed));
-    
-    left_column = lc;
-    lc->add_widget(*close_preset);
-    lc->add_widget(*save_preset);
-    lc->add_widget(*new_preset_bank);
-    lc->add_widget(*organize_presets);
-    lc->add_widget(*online_preset);
+
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
 }

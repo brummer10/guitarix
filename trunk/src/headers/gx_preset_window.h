@@ -181,8 +181,7 @@ private:
     void on_selection_changed();
 public:
     PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine,
-		 const gx_system::CmdlineOptions& options, GxActions& actions,
-		 const Glib::RefPtr<Gtk::SizeGroup>& lc);
+		 const gx_system::CmdlineOptions& options, GxActions& actions);
     ~PresetWindow();
     void on_preset_select(bool v, bool animated, int preset_window_height);
 };
