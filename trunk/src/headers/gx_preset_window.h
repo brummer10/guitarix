@@ -89,13 +89,12 @@ private:
     Glib::RefPtr<PresetStore> pstore;
     TargetModelColumns target_col;
     BankModelColumns bank_col;
-    sigc::connection bank_row_del_conn;
-    sigc::connection preset_row_del_conn;
     int vpaned_pos;
     int vpaned_step;
     int vpaned_target;
     const gx_system::CmdlineOptions& options;
     bool in_current_preset;
+    bool load_in_progress;
     sigc::connection on_map_conn;
 
     // widget pointers (keep last)
@@ -115,9 +114,11 @@ private:
     Gtk::TreeViewColumn* bank_column_bank;
     Gtk::TreeViewColumn* bank_column_edit;
     Gtk::TreeViewColumn* bank_column_delete;
+    Gtk::TreeViewColumn* bank_column_spacer;
     Gtk::TreeViewColumn* preset_column_preset;
     Gtk::TreeViewColumn* preset_column_edit;
     Gtk::TreeViewColumn* preset_column_delete;
+    Gtk::TreeViewColumn* preset_column_spacer;
     Gtk::Paned *main_vpaned;
     Gtk::ScrolledWindow *preset_scrolledbox;
 private:
@@ -128,10 +129,10 @@ private:
     void reload_combo();
     void on_preset_combo_changed();
     bool select_func(const Glib::RefPtr<Gtk::TreeModel>& model, const Gtk::TreePath& path, bool path_currently_selected);
+    void set_cell_text(Gtk::Widget *widget, Gtk::CellRenderer *cell, const Glib::ustring& text, bool selected);
     void highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter);
     void text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter);
     void on_editing_started(const Gtk::CellEditable* edit, const Glib::ustring& path, Glib::RefPtr<Gtk::TreeModel>& model);
-    bool edit_cell(Gtk::TreeModel::Path pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell);
     void reset_edit(Gtk::TreeViewColumn& col);
     void on_edit_canceled(Gtk::TreeViewColumn *col);
     void start_edit(const Gtk::TreeModel::Path& pt, Gtk::TreeViewColumn& col, Gtk::CellRenderer& cell);
@@ -163,14 +164,12 @@ private:
     bool on_preset_button_press(GdkEventButton *ev);
     void on_preset_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column);
     void on_preset_edited(const Glib::ustring& path, const Glib::ustring& newtext);
-    void on_cursor_changed();
     void on_preset_changed();
     bool on_preset_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
     void on_preset_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
     void on_preset_reordered(const Gtk::TreeModel::Path& path);
     void autosize();
     void on_organize();
-    void on_presets_close();
     bool animate_preset_show();
     bool animate_preset_hide();
     void set_row_for_presetfile(Gtk::TreeIter i, gx_system::PresetFileGui *f);

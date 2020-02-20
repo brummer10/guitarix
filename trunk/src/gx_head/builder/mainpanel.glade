@@ -3440,7 +3440,9 @@
                                       <object class="GtkTreeViewColumn" id="bank_column_flags">
                                         <property name="title" translatable="yes">column</property>
                                         <child>
-                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf2"/>
+                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf2">
+                                            <property name="xpad">2</property>
+                                          </object>
                                           <attributes>
                                             <attribute name="pixbuf">1</attribute>
                                           </attributes>
@@ -3451,7 +3453,9 @@
                                       <object class="GtkTreeViewColumn" id="bank_column_bank">
                                         <property name="title" translatable="yes">Bank</property>
                                         <child>
-                                          <object class="GtkCellRendererText" id="bank_cellrenderer"/>
+                                          <object class="GtkCellRendererText" id="bank_cellrenderer">
+                                            <property name="xpad">2</property>
+                                          </object>
                                           <attributes>
                                             <attribute name="text">0</attribute>
                                           </attributes>
@@ -3463,7 +3467,9 @@
                                         <property name="visible">False</property>
                                         <property name="title" translatable="yes">column</property>
                                         <child>
-                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf1"/>
+                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf1">
+                                            <property name="xpad">2</property>
+                                          </object>
                                           <attributes>
                                             <attribute name="pixbuf">2</attribute>
                                           </attributes>
@@ -3475,11 +3481,20 @@
                                         <property name="visible">False</property>
                                         <property name="title" translatable="yes">column</property>
                                         <child>
-                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf3"/>
+                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf3">
+                                            <property name="xpad">2</property>
+                                          </object>
                                           <attributes>
                                             <attribute name="pixbuf">3</attribute>
                                           </attributes>
                                         </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkTreeViewColumn" id="bank_column_spacer">
+                                        <property name="visible">False</property>
+                                        <property name="title" translatable="yes">column</property>
+                                        <property name="expand">True</property>
                                       </object>
                                     </child>
                                   </object>
@@ -3518,7 +3533,9 @@
                                       <object class="GtkTreeViewColumn" id="preset_column_preset">
                                         <property name="title" translatable="yes">Preset</property>
                                         <child>
-                                          <object class="GtkCellRendererText" id="preset_cellrenderer"/>
+                                          <object class="GtkCellRendererText" id="preset_cellrenderer">
+                                            <property name="xpad">2</property>
+                                          </object>
                                           <attributes>
                                             <attribute name="text">0</attribute>
                                           </attributes>
@@ -3531,7 +3548,9 @@
                                         <property name="sizing">autosize</property>
                                         <property name="title" translatable="yes">column</property>
                                         <child>
-                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf4"/>
+                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf4">
+                                            <property name="xpad">2</property>
+                                          </object>
                                           <attributes>
                                             <attribute name="pixbuf">1</attribute>
                                           </attributes>
@@ -3544,11 +3563,20 @@
                                         <property name="sizing">autosize</property>
                                         <property name="title" translatable="yes">column</property>
                                         <child>
-                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf5"/>
+                                          <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf5">
+                                            <property name="xpad">2</property>
+                                          </object>
                                           <attributes>
                                             <attribute name="pixbuf">2</attribute>
                                           </attributes>
                                         </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkTreeViewColumn" id="preset_column_spacer">
+                                        <property name="visible">False</property>
+                                        <property name="title" translatable="yes">column</property>
+                                        <property name="expand">True</property>
                                       </object>
                                     </child>
                                   </object>

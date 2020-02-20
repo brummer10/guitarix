@@ -55,6 +55,10 @@ $bg-meterbox: rgb(25.5, 25.5, 25.5);
     background-color: rgb(25.5, 25.5, 25.5); /* 0.10, 0.10, 0.10 */
 }
 
+entry selection {
+    background-color: rgb(80,80,80);
+}
+
 *:disabled {
     color: rgb(128,128,128);
 }
@@ -245,8 +249,21 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 	&:selected {
 	    background-color: rgb(51,51,51);
 	    &:focus {
-		background-color: rgb(204, 46, 46);
+		//background-color: rgb(204, 46, 46);
 	    }
+	}
+	&#bank_treeview:selected {
+	}
+	&#preset_treeview:selected {
+	    color: #ff9000;
+	}
+	&:checked {
+	    // misused to mark the current preset in bank_treeview and preset_treeview
+	    // settable attributes:
+	    //  - color  (used only for non-selected lines)
+	    //  - font-weight
+	    color: #ff9000;
+	    font-weight: bold;
 	}
     }
     grid > label {
