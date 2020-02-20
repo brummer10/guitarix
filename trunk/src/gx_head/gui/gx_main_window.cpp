@@ -685,7 +685,7 @@ void MainWindow::rebuild_preset_menu() {
     Glib::ustring s = "<menubar><menu action=\"PresetsMenu\"><menu action=\"PresetListMenu\">";
     int idx = 0;
     for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
-	Glib::ustring actname = "PresetList_" + i->name;
+	Glib::ustring actname = Glib::ustring::compose("PresetList_%1", idx);
 	Glib::RefPtr<Gtk::Action> action = Gtk::Action::create(actname, i->name);
 	preset_list_actiongroup->add(
 	    action, sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
