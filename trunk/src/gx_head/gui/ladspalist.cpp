@@ -101,17 +101,14 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("plugin_quirks", plugin_quirks);
     bld->find_widget("master_slider_idx", master_slider_idx);
     bld->find_widget("master_slider_name", master_slider_name);
-    cellrenderer_master = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_master"));
-    cellrenderer_newrow = Glib::RefPtr<Gtk::CellRendererToggle>::cast_dynamic(bld->get_object("cellrenderer_newrow"));
-    cellrenderer_caption = Glib::RefPtr<Gtk::CellRendererToggle>::cast_dynamic(bld->get_object("cellrenderer_caption"));
-    cellrenderer_active = Glib::RefPtr<Gtk::CellRendererToggle>::cast_dynamic(bld->get_object("cellrenderer_active"));
-    cellrenderer_category = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_category"));
-    cellrenderer_quirks = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_quirks"));
+    bld->find_object("cellrenderer_master", cellrenderer_master);
+    bld->find_object("cellrenderer_newrow", cellrenderer_newrow);
+    bld->find_object("cellrenderer_caption", cellrenderer_caption);
+    bld->find_object("cellrenderer_active", cellrenderer_active);
+    bld->find_object("cellrenderer_category", cellrenderer_category);
+    bld->find_object("cellrenderer_quirks", cellrenderer_quirks);
 
     set_title();
-    treeview1->set_name("PresetView");
-    treeview2->set_name("PresetView");
-    treeview3->set_name("PresetView");
     actiongroup->add(Gtk::Action::create("FileMenuAction",_("_File")));
     save_action = Gtk::Action::create("SaveAction", _("_Ok"));
     actiongroup->add(save_action, sigc::mem_fun(this, &PluginDisplay::on_save));
@@ -175,14 +172,14 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     label->show();
     c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_newrow"));
     c->set_widget(*manage(label));
-    c->set_cell_data_func(*cellrenderer_newrow.get(), sigc::mem_fun(this, &PluginDisplay::display_newrow));
+    c->set_cell_data_func(*cellrenderer_newrow, sigc::mem_fun(this, &PluginDisplay::display_newrow));
     cellrenderer_caption->signal_toggled().connect(sigc::mem_fun(this, &PluginDisplay::on_caption_toggled));
     label = new Gtk::Label("C");
     label->set_tooltip_text(_("display the name as caption above the control"));
     label->show();
     c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_caption"));
     c->set_widget(*manage(label));
-    c->set_cell_data_func(*cellrenderer_caption.get(), sigc::mem_fun(this, &PluginDisplay::display_caption));
+    c->set_cell_data_func(*cellrenderer_caption, sigc::mem_fun(this, &PluginDisplay::display_caption));
 
     r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_name"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_name_edited));
@@ -251,11 +248,11 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
 
     Gtk::ComboBox *cb;
     bld->find_widget("plugin_category", cb);
-    cb->set_cell_data_func(*cellrenderer_category.get(), sigc::mem_fun(this, &PluginDisplay::display_category));
+    cb->set_cell_data_func(*cellrenderer_category, sigc::mem_fun(this, &PluginDisplay::display_category));
     bld->find_widget("plugin_quirks", cb);
-    cb->set_cell_data_func(*cellrenderer_quirks.get(), sigc::mem_fun(this, &PluginDisplay::display_quirks));
+    cb->set_cell_data_func(*cellrenderer_quirks, sigc::mem_fun(this, &PluginDisplay::display_quirks));
 
-    master_slider_idx->set_cell_data_func(*cellrenderer_master.get(), sigc::mem_fun(this, &PluginDisplay::display_master_idx));
+    master_slider_idx->set_cell_data_func(*cellrenderer_master, sigc::mem_fun(this, &PluginDisplay::display_master_idx));
     master_slider_idx->signal_changed().connect(sigc::mem_fun(this, &PluginDisplay::set_master_text));
 
     selected_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), selected_only));

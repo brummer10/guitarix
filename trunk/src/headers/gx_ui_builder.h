@@ -145,6 +145,13 @@ public:
 	widget = dynamic_cast<T_Widget*>(get_widget_checked(name, T_Widget::get_base_type()));
 	assert(widget);
     }
+    // pointer set by find_object only have the lifetime of the underlying GxBuilder
+    // if you need a longer lifetime, use get_object()!
+    template <class T_Object> inline
+    void find_object(const Glib::ustring& name, T_Object*& object) {
+	object = dynamic_cast<T_Object*>(get_object(name).get());
+	assert(object);
+    }
 
     template <class T_Widget, class F> inline
     void find_widget_derived(const Glib::ustring& name, T_Widget*& widget, F f) {
