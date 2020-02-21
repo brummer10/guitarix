@@ -559,7 +559,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     FUNCTION(bank_insert_content) {
-	gx_system::PresetFile *f = serv.settings.bank_insert_content(params[0]->getString(), params[1]->getString());
+	gx_system::PresetFile *f = serv.settings.bank_insert_content(params[0]->getString(), params[1]->getString(), params[2]->getInt());
 	if (f) {
 	    f->writeJSON_remote(jw);
 	}
@@ -885,6 +885,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(bank_set_flag) {
 	serv.settings.banks.get_file(params[0]->getString())->set_flag(params[1]->getInt(), params[2]->getInt());
+	serv.settings.signal_presetlist_changed()();
     }
 
     PROCEDURE(pf_append) {

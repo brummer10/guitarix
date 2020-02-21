@@ -155,6 +155,8 @@ private:
     void read_preset_menu();
     std::vector< std::tuple<std::string,std::string,std::string> > olp;
     bool on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
+    bool bank_drag_moveable(Gtk::TreePath pt);
+    bool bank_find_drop_position(int x, int y, Gtk::TreeModel::Path& pt, Gtk::TreeViewDropPosition& dst);
     void on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp);
     void on_bank_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
     void on_bank_changed();

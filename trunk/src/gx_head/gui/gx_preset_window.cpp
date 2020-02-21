@@ -401,16 +401,17 @@ void PresetWindow::on_bank_drag_data_received(const Glib::RefPtr<Gdk::DragContex
     bool is_move = context->get_selected_action() == Gdk::ACTION_MOVE;
     bool success = false;
     std::vector<Glib::ustring> uris = data.get_uris();
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
-    for (std::vector<Glib::ustring>::iterator i = uris.begin(); i != uris.end(); ++i) {
-	gx_system::PresetFileGui *f = machine.bank_insert_uri(*i, is_move);
-	if (f) {
-	    Gtk::TreeIter i = ls->prepend();
-	    set_row_for_presetfile(i,f);
-	    bank_treeview->set_cursor(ls->get_path(i));
-	    bank_treeview->get_selection()->select(i);
-	    success = true;
+    Gtk::TreePath pt;
+    Gtk::TreeViewDropPosition dst;
+    int position = 0;
+    if (PresetWindow::bank_find_drop_position(x, y, pt, dst)) {
+	position = pt[0];
+	if (dst == Gtk::TREE_VIEW_DROP_AFTER) {
+	    position += 1;
 	}
+    }
+    for (std::vector<Glib::ustring>::iterator i = uris.begin(); i != uris.end(); ++i) {
+	machine.bank_insert_uri(*i, is_move, position);
     }
     context->drag_finish(success, false, timestamp);
 }
@@ -434,7 +435,6 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
 	return;
     }
     gx_system::PresetFileGui& fl = *machine.get_bank_file(bank);
-    Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(presets_target_treeview->get_model());
     Glib::ustring srcnm = data.get_data_as_string();
     Glib::ustring dstnm = srcnm;
     int n = 1;
@@ -451,15 +451,12 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
     Gtk::TreeModel::Path pt;
     Gtk::TreeViewDropPosition dst;
     if (!presets_target_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
-	ls->append()->set_value(target_col.name, dstnm);
 	machine.pf_append(pf, srcnm, fl, dstnm);
     } else {
-	Gtk::TreeIter it = ls->get_iter(pt);
+	Gtk::TreeIter it = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(presets_target_treeview->get_model())->get_iter(pt);
 	if (dst == Gtk::TREE_VIEW_DROP_BEFORE || dst == Gtk::TREE_VIEW_DROP_INTO_OR_BEFORE) {
-	    ls->insert(it)->set_value(target_col.name, dstnm);
 	    machine.pf_insert_before(pf, srcnm, fl, it->get_value(target_col.name), dstnm);
 	} else { // gtk.TREE_VIEW_DROP_INTO_OR_AFTER, gtk.TREE_VIEW_DROP_AFTER
-	    ls->insert_after(it)->set_value(target_col.name, dstnm);
 	    machine.pf_insert_after(pf, srcnm, fl, it->get_value(target_col.name), dstnm);
 	}
     }
@@ -468,6 +465,14 @@ void PresetWindow::target_drag_data_received(const Glib::RefPtr<Gdk::DragContext
     }
     if (src_bank == bank) {
 	on_bank_changed();
+    }
+}
+
+inline void change_drag_dst_before_or_after(Gtk::TreeViewDropPosition& dst) {
+    if (dst == Gtk::TREE_VIEW_DROP_INTO_OR_BEFORE) {
+	dst = Gtk::TREE_VIEW_DROP_BEFORE;
+    } else if (dst == Gtk::TREE_VIEW_DROP_INTO_OR_AFTER) {
+	dst = Gtk::TREE_VIEW_DROP_AFTER;
     }
 }
 
@@ -485,6 +490,16 @@ bool PresetWindow::on_target_drag_motion(const Glib::RefPtr<Gdk::DragContext>& c
 	get_combo_selection() == nm) {
 	context->drag_status(Gdk::ACTION_COPY, timestamp);
     }
+    Gtk::TreeModel::Path pt;
+    Gtk::TreeViewDropPosition dst;
+    if (presets_target_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
+	change_drag_dst_before_or_after(dst);
+    } else {
+	Gtk::TreeModel::Path start;
+	presets_target_treeview->get_visible_range(start, pt);
+	dst = Gtk::TREE_VIEW_DROP_AFTER;
+    }
+    presets_target_treeview->set_drag_dest_row(pt, dst);
     return true;
 }
 
@@ -697,13 +712,7 @@ void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring
     }
     Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(banks_combobox->get_model());
     if (edit_iter) {
-	gx_system::PresetFileGui *f = machine.bank_insert_new(newname);
-	if (f) {
-	    ls->prepend()->set_value(target_col.name, f->get_name());
-	    edit_iter = ls->children().end();
-	    set_row_for_presetfile(sel, f);
-	    w->get_selection()->select(sel);
-	}
+	machine.bank_insert_new(newname);
     } else {
 	machine.rename_bank(oldname, newname);
 	Gtk::TreeNodeChildren ch = ls->children();
@@ -779,13 +788,7 @@ void PresetWindow::downloadPreset(Gtk::Menu *presetMenu,std::string uri) {
 
         if (download_file(uri, ff)) {
             Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
-            gx_system::PresetFileGui *f = machine.bank_insert_uri(Glib::filename_to_uri(ff, resolve_hostname()), false);
-            if (f) {
-                Gtk::TreeIter i = ls->prepend();
-                set_row_for_presetfile(i,f);
-                bank_treeview->set_cursor(ls->get_path(i));
-                bank_treeview->get_selection()->select(i);
-            }
+            machine.bank_insert_uri(Glib::filename_to_uri(ff, resolve_hostname()), false, 0);
         }
     } else {
         gx_print_error("downloadPreset", _("can't download preset from https://musical-artifacts.com/"));
@@ -890,43 +893,88 @@ void PresetWindow::on_online_preset() {
     Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PresetWindow::show_online_preset));
 }
 
+bool PresetWindow::bank_drag_moveable(Gtk::TreePath pt) {
+    if (!pt) {
+	return false;
+    }
+    Gtk::TreeIter it = bank_treeview->get_model()->get_iter(pt);
+    if (!it) {
+	return false;
+    }
+    string nm = it->get_value(bank_col.name);
+    if (nm.empty()) {
+	return false;
+    }
+    return machine.get_bank_file(nm)->is_moveable();
+}
+
+bool PresetWindow::bank_find_drop_position(int x, int y, Gtk::TreeModel::Path& pt, Gtk::TreeViewDropPosition& dst) {
+    if (bank_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
+	change_drag_dst_before_or_after(dst);
+    } else {
+	Gtk::TreeModel::Path start;
+	preset_treeview->get_visible_range(start, pt);
+	dst = Gtk::TREE_VIEW_DROP_AFTER;
+    }
+    if (!bank_drag_moveable(pt)) {
+	if (dst == Gtk::TREE_VIEW_DROP_AFTER) {
+	    pt.next();
+	    if (bank_drag_moveable(pt)) {
+		dst = Gtk::TREE_VIEW_DROP_BEFORE;
+	    } else {
+		return false;
+	    }
+	} else {
+	    if (pt.prev()) {
+		if (bank_drag_moveable(pt)) {
+		    dst = Gtk::TREE_VIEW_DROP_AFTER;
+		} else {
+		    return false;
+		}
+	    }
+	}
+    }
+    return true;
+}
+
 bool PresetWindow::on_bank_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
     Gtk::Widget *source_widget = Gtk::Widget::drag_get_source_widget(context);
-    if (!source_widget) {
-	// URI from other application
-	Gdk::DragAction a;
-	if (context->get_suggested_action() == Gdk::ACTION_MOVE) {
-	    a = context->get_suggested_action();
-	} else {
-	    a = Gdk::ACTION_COPY;
-	}
-	context->drag_status(a, timestamp);
-    } else if (source_widget != bank_treeview) {
+    if (source_widget && source_widget != bank_treeview) {
 	// other window
 	context->drag_status((Gdk::DragAction)0, timestamp);
+	return true;
+    }
+    Gdk::DragAction action;
+    if (!source_widget) {
+	// URI from other application
+	if (context->get_suggested_action() & Gdk::ACTION_MOVE) {
+	    action = Gdk::ACTION_MOVE;
+	} else {
+	    action = Gdk::ACTION_COPY;
+	}
     } else {
 	// reorder
 	Gtk::TreeIter it = get_current_bank_iter();
 	if (!it) {
-	    return true;
-	}
-	int tp = it->get_value(bank_col.tp);
-	if (tp != gx_system::PresetFile::PRESET_SCRATCH && tp != gx_system::PresetFile::PRESET_FILE) {
+	    // unknown source drag bank
 	    context->drag_status((Gdk::DragAction)0, timestamp);
 	    return true;
 	}
-	Gtk::TreeModel::Path pt;
-	Gtk::TreeViewDropPosition dst;
-	if (bank_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
-	    tp = bank_treeview->get_model()->get_iter(pt)->get_value(bank_col.tp);
-	    if (tp != gx_system::PresetFile::PRESET_SCRATCH && tp != gx_system::PresetFile::PRESET_FILE) {
-		context->drag_status((Gdk::DragAction)0, timestamp);
-		return true;
-	    }
+	if (!machine.get_bank_file(it->get_value(bank_col.name))->is_moveable()) {
+	    context->drag_status((Gdk::DragAction)0, timestamp);
+	    return true;
 	}
-	bank_treeview->on_drag_motion(context, x, y, timestamp);
-	context->drag_status(Gdk::ACTION_MOVE, timestamp);
+	action = Gdk::ACTION_MOVE;
     }
+    Gtk::TreeModel::Path pt;
+    Gtk::TreeViewDropPosition dst;
+    if (PresetWindow::bank_find_drop_position(x, y, pt, dst)) {
+	bank_treeview->set_drag_dest_row(pt, dst);
+    } else {
+	action = (Gdk::DragAction)0;
+	bank_treeview->unset_drag_dest_row();
+    }
+    context->drag_status(action, timestamp);
     return true;
 }
 
@@ -935,14 +983,6 @@ void PresetWindow::on_bank_changed() {
 	return;
     }
     load_in_progress = true;
-    Gtk::TreeIter it1 = get_current_bank_iter();
-    Glib::ustring nm1;
-    if (it1) {
-	 nm1 = it1->get_value(bank_col.name);
-    }
-    if (in_edit) {
-	pstore->prepend();
-    }
     pstore->clear();
     Gtk::TreeIter it = get_current_bank_iter();
     if (!it) {
@@ -1149,19 +1189,23 @@ void PresetWindow::on_preset_edited(const Glib::ustring& path, const Glib::ustri
 bool PresetWindow::on_preset_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
     if (Gtk::Widget::drag_get_source_widget(context) == preset_treeview) {
 	Gtk::TreeIter it = get_current_bank_iter();
-	bool ro = it && (machine.get_bank_file(it->get_value(bank_col.name))->get_flags() & gx_system::PRESET_FLAG_READONLY);
-	if (!ro) {
+	if (it && (machine.get_bank_file(it->get_value(bank_col.name))->is_mutable())) {
 	    preset_treeview->on_drag_motion(context, x, y, timestamp);
 	    Gtk::TreeModel::Path pt;
 	    Gtk::TreeViewDropPosition dst;
 	    if (preset_treeview->get_dest_row_at_pos(x, y, pt, dst)) {
-		if (dst == Gtk::TREE_VIEW_DROP_BEFORE ||
-		    (dst == Gtk::TREE_VIEW_DROP_AFTER &&
-		     !pstore->get_iter(pt)->get_value(pstore->col.name).empty())) {
-		    context->drag_status(Gdk::ACTION_MOVE, timestamp);
-		    return true;
+		if (pstore->get_iter(pt)->get_value(pstore->col.name).empty()) {
+		    dst = Gtk::TREE_VIEW_DROP_BEFORE;
 		}
+		change_drag_dst_before_or_after(dst);
+	    } else {
+		Gtk::TreeModel::Path start;
+		preset_treeview->get_visible_range(start, pt);
+		dst = Gtk::TREE_VIEW_DROP_BEFORE;
 	    }
+	    preset_treeview->set_drag_dest_row(pt, dst);
+	    context->drag_status(Gdk::ACTION_MOVE, timestamp);
+	    return true;
 	}
     }
     context->drag_status((Gdk::DragAction)0, timestamp);

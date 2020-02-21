@@ -136,7 +136,7 @@ public:
     virtual void disable_autosave(bool v) = 0;
     virtual sigc::signal<void>& signal_selection_changed() = 0;
     virtual sigc::signal<void>& signal_presetlist_changed() = 0;
-    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move) = 0;
+    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move, int position) = 0;
     virtual gx_system::PresetFileGui *bank_insert_new(const Glib::ustring& newname) = 0;
     virtual bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname) = 0;
     virtual bool rename_preset(gx_system::PresetFileGui& pf, const Glib::ustring& oldname, const Glib::ustring& newname) = 0;
@@ -330,7 +330,7 @@ public:
     virtual void disable_autosave(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
-    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move);
+    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move, int position);
     virtual gx_system::PresetFileGui *bank_insert_new(const Glib::ustring& newname);
     virtual bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname);
     virtual bool rename_preset(gx_system::PresetFileGui& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
@@ -521,7 +521,7 @@ public:
     virtual void disable_autosave(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
-    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move);
+    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move, int position);
     virtual gx_system::PresetFileGui *bank_insert_new(const Glib::ustring& newname);
     virtual bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname);
     virtual bool rename_preset(gx_system::PresetFileGui& pf, const Glib::ustring& oldname, const Glib::ustring& newname);

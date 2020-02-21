@@ -364,7 +364,8 @@ public:
     bool remove_file();
     iterator begin();
     iterator end() { return entries.end(); }
-    bool is_mutable() const { return (tp == PRESET_SCRATCH || tp == PRESET_FILE) && !flags; }
+    bool is_moveable() const { return tp == PRESET_SCRATCH || tp == PRESET_FILE; }
+    bool is_mutable() const { return is_moveable() && !flags; }
     PresetFileGui *get_guiwrapper();
 };
 
@@ -386,6 +387,7 @@ public:
     using PresetFile::get_type;
     using PresetFile::begin;
     using PresetFile::end;
+    using PresetFile::is_moveable;
     using PresetFile::is_mutable;
     operator PresetFile*() { return this; }
 };
@@ -446,7 +448,7 @@ public:
     void save();
     int size() { return banklist.size(); }
     Glib::ustring get_name(int n);
-    void insert(PresetFile* f) { banklist.push_front(f); save(); }
+    void insert(PresetFile* f, int position = 0);
     bool has_entry(const Glib::ustring& bank) const { return get_file(bank) != 0; }
     bool has_file(const std::string& file) const;
     bool rename(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);

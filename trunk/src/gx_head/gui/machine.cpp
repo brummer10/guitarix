@@ -702,8 +702,8 @@ sigc::signal<void>& GxMachine::signal_presetlist_changed() {
     return settings.signal_presetlist_changed();
 }
 
-gx_system::PresetFileGui* GxMachine::bank_insert_uri(const Glib::ustring& uri, bool move) {
-    gx_system::PresetFile *f = settings.bank_insert_uri(uri, move);
+gx_system::PresetFileGui* GxMachine::bank_insert_uri(const Glib::ustring& uri, bool move, int position) {
+    gx_system::PresetFile *f = settings.bank_insert_uri(uri, move, position);
     if (f) {
 	return f->get_guiwrapper();
     } else {
@@ -747,6 +747,7 @@ void GxMachine::erase_preset(gx_system::PresetFileGui& pf, const Glib::ustring& 
 void GxMachine::bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v) {
     static_cast<gx_system::PresetFile*>(pf)->set_flag(flag, v);
     settings.banks.save();
+    signal_presetlist_changed()();
 }
 
 std::string GxMachine::bank_get_filename(const Glib::ustring& bank) {
@@ -861,15 +862,7 @@ void GxMachine::set_parameter_value(const std::string& id, bool value) {
     pmap[id].getBool().set(value);
 }
 
- //bool GxMachine::ui_f_update(const std::string& id, float value) {
- //    pmap[id].getFloat().set(value);
- //    return false;
- //}
-
 void GxMachine::set_parameter_value(const std::string& id, float value) {
-    // Glib::signal_timeout().connect(
-    //     sigc::bind<const std::string&>(sigc::bind<float>(
-     //    sigc::mem_fun (*this, &GxMachine::ui_f_update),value),id), 20);
     pmap[id].getFloat().set(value);
 }
 
@@ -2225,7 +2218,7 @@ sigc::signal<void>& GxMachineRemote::signal_presetlist_changed() {
     return presetlist_changed;
 }
 
-gx_system::PresetFileGui *GxMachineRemote::bank_insert_uri(const Glib::ustring& uri, bool move) {
+gx_system::PresetFileGui *GxMachineRemote::bank_insert_uri(const Glib::ustring& uri, bool move, int position) {
     START_CALL(bank_insert_content);
     jw->write(uri);
     Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(uri);
@@ -2233,13 +2226,14 @@ gx_system::PresetFileGui *GxMachineRemote::bank_insert_uri(const Glib::ustring& 
     stringstream s;
     s << f.rdbuf();
     jw->write(s.str());
+    jw->write(position);
     START_RECEIVE(0);
     if (jp->peek() != gx_system::JsonParser::begin_object) {
 	return 0;
     }
     gx_system::PresetFile *pf = new gx_system::PresetFile();
     pf->readJSON_remote(*jp);
-    banks.insert(pf);
+    banks.insert(pf, position);
     return pf->get_guiwrapper();
     END_RECEIVE(return 0);
 }

@@ -1027,7 +1027,7 @@ Glib::RefPtr<Gio::File> GxSettings::uri_to_name_filename(const Glib::ustring& ur
     return rem;
 }
 
-gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, bool move) {
+gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, bool move, int position) {
     Glib::ustring name;
     std::string filename;
     Glib::RefPtr<Gio::File> rem = uri_to_name_filename(uri, name, filename);
@@ -1040,7 +1040,8 @@ gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, boo
     }
     gx_system::PresetFile *f = new gx_system::PresetFile();
     if (f->open_file(name, filename, gx_system::PresetFile::PRESET_FILE, 0)) {
-	banks.insert(f);
+	banks.insert(f, position);
+	presetlist_changed();
     } else {
 	delete f;
 	try {
@@ -1060,7 +1061,7 @@ gx_system::PresetFile* GxSettings::bank_insert_uri(const Glib::ustring& uri, boo
     return f;
 }
 
-gx_system::PresetFile* GxSettings::bank_insert_content(const Glib::ustring& uri, const std::string content) {
+gx_system::PresetFile* GxSettings::bank_insert_content(const Glib::ustring& uri, const std::string content, int position) {
     Glib::ustring name;
     std::string filename;
     uri_to_name_filename(uri, name, filename);
@@ -1075,7 +1076,8 @@ gx_system::PresetFile* GxSettings::bank_insert_content(const Glib::ustring& uri,
     }
     gx_system::PresetFile *f = new gx_system::PresetFile();
     if (f->open_file(name, filename, gx_system::PresetFile::PRESET_FILE, 0)) {
-	banks.insert(f);
+	banks.insert(f, position);
+	presetlist_changed();
     } else {
 	delete f;
 	try {
@@ -1095,6 +1097,7 @@ gx_system::PresetFile *GxSettings::bank_insert_new(const Glib::ustring& name) {
     gx_system::PresetFile *f = new gx_system::PresetFile();
     if (f->create_file(newname, newfile, gx_system::PresetFile::PRESET_FILE, 0)) {
 	banks.insert(f);
+	presetlist_changed();
 	return f;
     } else {
 	delete f;

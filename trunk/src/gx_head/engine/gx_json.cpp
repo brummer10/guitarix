@@ -932,15 +932,12 @@ void PresetFile::writeJSON_remote(gx_system::JsonWriter& jw) {
     }
     if (flags & gx_system::PRESET_FLAG_INVALID) {
 	jw.write_key("flag_invalid");
-	jw.write(1);
     }
     if (flags & gx_system::PRESET_FLAG_READONLY) {
 	jw.write_key("flag_readonly");
-	jw.write(1);
     }
     if (flags & gx_system::PRESET_FLAG_VERSIONDIFF) {
 	jw.write_key("flag_versiondiff");
-	jw.write(1);
     }
     jw.write_key("presets");
     jw.begin_array();
@@ -1513,6 +1510,13 @@ void PresetBanks::collect_lost_banks(const char* scratchpad_name, const char* sc
     }
 }
 
+
+void PresetBanks::insert(PresetFile* f, int position) {
+    std::list<PresetFile*>::iterator i = banklist.begin();
+    for (; position > 0 && i != banklist.end(); ++i, --position);
+    banklist.insert(i, f);
+    save();
+}
 
 void PresetBanks::save() {
     if (filepath.empty()) { //FIXME remote operation hack
