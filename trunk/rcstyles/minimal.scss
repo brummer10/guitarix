@@ -276,10 +276,6 @@ gx-level-slider.lmw {
     padding-left: 38px;
 }
 
-#PLUI-ampstack .rackmini {
-    padding-left: 72px;
-}
-
 /* permanent value displays (are not switched off by preference option */
 
 %show-value-always,
@@ -293,9 +289,17 @@ gx-level-slider.lmw {
 
 /* specific parts */
 
-#PLUI-ampstack #effect_title {
-    min-height: 36px;
-    margin-left: 71px;
+#PLUI-ampstack {
+    #effect_title {
+	min-height: 36px;
+	margin-left: 71px;
+    }
+    #rack_unit_title_bar .effect_title {
+	padding-bottom: 4px;
+    }
+    .rackmini {
+	padding-left: 72px;
+    }
 }
 
 #tunerbox {
@@ -303,6 +307,15 @@ gx-level-slider.lmw {
 	margin-left: 32px;
 	margin-right: 32px;
 	margin-bottom: 4px;
+    }
+}
+
+#ampdetail_mini {
+    min-height: 36px;
+    padding: {
+	left: 72px;
+	right: 4px;
+	bottom: 4px;
     }
 }
 

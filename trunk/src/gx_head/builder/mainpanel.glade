@@ -574,7 +574,6 @@
                                                             <property name="name">vbox2</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="halign">end</property>
                                                             <property name="orientation">vertical</property>
                                                             <child>
                                                             <object class="GtkBox" id="ampdetail_mini">
@@ -620,13 +619,16 @@
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkLabel" id="labelInOut:effect_title">
-                                                            <property name="name">labelInOut:effect_title</property>
+                                                            <object class="GtkLabel" id="labelInOut">
+                                                            <property name="name">labelInOut</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="label" translatable="yes">Input/Output</property>
                                                             <property name="use_markup">True</property>
                                                             <property name="xalign">0</property>
+                                                            <style>
+                                                            <class name="effect_title"/>
+                                                            </style>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">True</property>
@@ -646,13 +648,17 @@
                                                             <property name="name">ampdetail_normal</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="border_width">4</property>
+                                                            <property name="halign">end</property>
+                                                            <property name="margin_left">4</property>
+                                                            <property name="margin_right">4</property>
+                                                            <property name="margin_bottom">4</property>
                                                             <property name="spacing">26</property>
                                                             <child>
                                                             <object class="GtkGrid" id="table3">
                                                             <property name="name">table3</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
+                                                            <property name="margin_top">4</property>
                                                             <property name="row_spacing">2</property>
                                                             <property name="column_spacing">2</property>
                                                             <child>
@@ -722,6 +728,7 @@
                                                             <property name="name">table4</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
+                                                            <property name="margin_top">4</property>
                                                             <property name="row_spacing">2</property>
                                                             <property name="column_spacing">2</property>
                                                             <child>
@@ -830,6 +837,7 @@
                                                             <property name="name">table5</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
+                                                            <property name="margin_top">4</property>
                                                             <property name="row_spacing">2</property>
                                                             <property name="column_spacing">2</property>
                                                             <child>
@@ -899,6 +907,7 @@
                                                             <property name="name">table6</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
+                                                            <property name="margin_top">4</property>
                                                             <property name="row_spacing">2</property>
                                                             <property name="column_spacing">2</property>
                                                             <child>
