@@ -442,11 +442,11 @@ void PluginDict::resize_finished(RackContainer *container)
 }
 
 void PluginDict::check_order() {
-    check_order(PLUGIN_TYPE_MONO);
-    check_order(PLUGIN_TYPE_STEREO);
+    check_order(PLUGIN_TYPE_MONO, false);
+    check_order(PLUGIN_TYPE_STEREO, false);
 }
 
-void PluginDict::check_order(PluginType tp) {
+void PluginDict::check_order(PluginType tp, bool animate) {
     RackContainer& container = (tp == PLUGIN_TYPE_STEREO) ? stereorackcontainer : monorackcontainer;
     const std::vector<std::string> ol = machine.get_rack_unit_order(tp);
     bool in_order = true;
@@ -460,7 +460,7 @@ void PluginDict::check_order(PluginType tp) {
 	    continue;
 	}
 	if (unit_set.find(id) == unit_set.end()) {
-	    deactivate(id, true);
+	    deactivate(id, animate);
 	    continue;
 	}
 	if (!in_order) {
@@ -484,7 +484,7 @@ void PluginDict::check_order(PluginType tp) {
     int n = 0;
     for (std::vector<std::string>::const_iterator oi = ol.begin(); oi != ol.end(); ++oi) {
 	PluginUI *p = at(*oi);
-	p->activate(true, "");
+	p->activate(animate, "");
 	if (p->rackbox) {
 	    container.reorder_child(*p->rackbox, n++);
 	}
@@ -493,7 +493,7 @@ void PluginDict::check_order(PluginType tp) {
 }
 
 void PluginDict::unit_order_changed(bool stereo) {
-    check_order(stereo ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO);
+    check_order(stereo ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO, true);
 }
 
 void PluginDict::reorder(RackContainer *container, const std::string& name, const std::string& before) {
@@ -1635,7 +1635,6 @@ void RackBox::set_visibility(bool v) {
 }
 
 void RackBox::swtch(bool mini) {
-    cerr << "SW " << get_id() << ": " << mini << endl;
     plugin.plugin->set_plug_visible(mini);
     plugin.on_state_change();
     if (!plugin_dict.get_config_mode()) {

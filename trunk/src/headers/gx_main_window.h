@@ -474,7 +474,7 @@ public:
     void show_entries();
     void hide_entries();
     void check_order();
-    void check_order(PluginType tp);
+    void check_order(PluginType tp, bool animate);
     void unit_order_changed(bool stereo);
     void reorder(RackContainer *container, const std::string& name, const std::string& before);
     bool use_animations() { return options.system_animations; }
