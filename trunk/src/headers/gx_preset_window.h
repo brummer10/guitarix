@@ -60,10 +60,14 @@ public:
 class MyTreeView: public Gtk::TreeView {
 private:
     MyTreeView(BaseObjectType* cobject): Gtk::TreeView(cobject) {}
+    sigc::signal<void()> m_signal_row_clicked;
+    virtual bool on_button_press_event(GdkEventButton* button_event);
 public:
     static MyTreeView *create_from_builder(BaseObjectType* cobject) { return new MyTreeView(cobject); }
     //virtual bool on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp);
     using Gtk::TreeView::on_drag_motion;
+    /// like Gtk::TreeSelection::signal_changed, but is also emitted when the selection didn't change
+    sigc::signal<void()>& signal_row_clicked() { return m_signal_row_clicked; }
 };
 
 class GxActions;
@@ -163,7 +167,6 @@ private:
     bool on_bank_query_tooltip(int x, int y, bool kb_tooltip, Glib::RefPtr<Gtk::Tooltip> tooltip);
     void on_bank_reordered(const Gtk::TreeModel::Path& path);
     bool on_preset_button_release(GdkEventButton *ev);
-    bool on_preset_button_press(GdkEventButton *ev);
     void on_preset_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column);
     void on_preset_edited(const Glib::ustring& path, const Glib::ustring& newtext);
     void on_preset_changed();

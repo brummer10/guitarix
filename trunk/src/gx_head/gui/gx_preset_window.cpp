@@ -148,12 +148,11 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     preset_treeview->signal_drag_motion().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_drag_motion), false);
     preset_treeview->signal_drag_data_get().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_drag_data_get));
     preset_treeview->signal_row_activated().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_row_activated));
-    preset_treeview->signal_button_press_event().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_button_press));
     preset_treeview->signal_button_release_event().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_button_release), true);
     pstore->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_reordered));
     preset_treeview->get_selection()->set_select_function(
 	sigc::mem_fun(*this, &PresetWindow::select_func));
-    preset_treeview->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_changed));
+    preset_treeview->signal_row_clicked().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_changed));
     preset_cellrenderer->signal_edited().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_edited));
     preset_cellrenderer->signal_editing_canceled().connect(
 	sigc::bind(sigc::mem_fun(*this, &PresetWindow::on_edit_canceled), preset_column_preset));
@@ -211,7 +210,7 @@ void PresetWindow::on_selection_changed() {
     actions.save_changes->set_sensitive(savable);
 }
 
-/*
+/**
  * state of model has changed
  *
  * reload the bank list and try to preserve the state of the displayed
@@ -256,6 +255,12 @@ void PresetWindow::on_presetlist_changed() {
     }
 }
 
+bool MyTreeView::on_button_press_event(GdkEventButton* button_event) {
+    bool r = Gtk::TreeView::on_button_press_event(button_event);
+    m_signal_row_clicked();
+    return r;
+}
+
 void PresetWindow::load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld) {
     bld->find_widget("save_preset", save_preset);
     bld->find_widget("new_preset_bank", new_preset_bank);
@@ -280,11 +285,6 @@ void PresetWindow::load_widget_pointers(Glib::RefPtr<gx_gui::GxBuilder> bld) {
     bld->find_object("preset_column_spacer", preset_column_spacer);
     bld->find_widget("main_vpaned", main_vpaned);
     bld->find_widget("preset_scrolledbox", preset_scrolledbox);
-}
-
-static bool preset_button_press_idle(Gtk::Widget& w) {
-    w.grab_focus();
-    return false;
 }
 
 bool PresetWindow::on_bank_query_tooltip(int x, int y, bool kb_tooltip, Glib::RefPtr<Gtk::Tooltip> tooltip) {
@@ -354,15 +354,6 @@ void PresetWindow::on_preset_row_activated(const Gtk::TreePath& path, Gtk::TreeV
 	preset_treeview->get_selection()->select(path);
     }
 }
-
-bool PresetWindow::on_preset_button_press(GdkEventButton *ev) {
-    return false;
-    if (ev->type == GDK_BUTTON_PRESS) {
-	Glib::signal_idle().connect(sigc::bind(sigc::ptr_fun(preset_button_press_idle), sigc::ref(*preset_treeview)));
-    }
-    return false;
-}
-
 
 void PresetWindow::on_preset_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp) {
     if (selection.get_target() == "application/x-guitarix-preset") {
