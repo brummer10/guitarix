@@ -155,7 +155,7 @@ GxChild *GxChildProcs::launch(string name, list<string> args, int killsignal) {
     assert(i == args.size());
     p[i] = 0;
     GxChild *c = launch(name, p, killsignal);
-    delete p;
+    delete[] p;
     return c;
 }
 

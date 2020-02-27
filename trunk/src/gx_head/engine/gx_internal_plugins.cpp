@@ -400,8 +400,6 @@ JConvParameter::~ParameterV() {
 
 JConvParameter::ParameterV(gx_system::JsonParser& jp)
  : Parameter(jp_next(jp, "Parameter")),
-   searchpath(0),
-   pfx_conv(0),
    json_value(),
    value(&value_storage),
    std_value() {

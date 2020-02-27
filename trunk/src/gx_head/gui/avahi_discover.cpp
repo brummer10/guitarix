@@ -62,10 +62,12 @@ AvahiBrowser::~AvahiBrowser() {
     }
 }
 
+#if 0 // unused
 static inline std::ostream& operator<<(std::ostream& o, const AvahiBrowser::Entry& e) {
     o << "<" << e.interface << ", " << e.protocol << ", " << e.name << ", " << e.type << ", " << e.domain << ", " << e.flags << ">";
     return o;
 }
+#endif
 
 bool AvahiBrowser::get_address_port(Glib::ustring& address, int& port, Glib::ustring& name, Glib::ustring& host) {
     AvahiAddress a = AvahiAddress();

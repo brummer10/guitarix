@@ -32,7 +32,7 @@ GtkStyleContext *gx_get_entry_style_context()
     return entry_context;
 }
 
-void gx_draw_inset (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad, gint depth) {
+void gx_draw_inset (cairo_t * cr, double x, double y, double width, double height, double rad, double depth) {
     cairo_pattern_t *pat = cairo_pattern_create_linear (x, y, x, y + height);
     cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.0, 0.0, 0.0, 0.33);
     cairo_pattern_add_color_stop_rgba(pat, 1.0, 1.0, 1.0, 1.0, 0.1);
@@ -41,7 +41,7 @@ void gx_draw_inset (cairo_t * cr, gint x, gint y, gint width, gint height, gint 
 	cairo_fill(cr);
     cairo_pattern_destroy (pat);
 }
-void gx_draw_glass (cairo_t *cr, gint x, gint y, gint width, gint height, gint rad) {
+void gx_draw_glass (cairo_t *cr, double x, double y, double width, double height, double rad) {
     cairo_pattern_t *pat = cairo_pattern_create_linear (x, y, x, y + 3);
     cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.0, 0.0, 0.0, 0.5);
     cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 0.0);
@@ -51,7 +51,7 @@ void gx_draw_glass (cairo_t *cr, gint x, gint y, gint width, gint height, gint r
     cairo_pattern_destroy (pat);
 }
 
-void gx_create_rectangle (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad) {
+void gx_create_rectangle (cairo_t * cr, double x, double y, double width, double height, double rad) {
     if (rad == 0) {
         cairo_rectangle(cr, x, y, width, height);
         return;
@@ -67,7 +67,7 @@ void gx_create_rectangle (cairo_t * cr, gint x, gint y, gint width, gint height,
     cairo_curve_to(cr,x,y,x,y,x+rad,y);             // Curve to A
 }
 
-void gx_bevel (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad, float bevel) {
+void gx_bevel (cairo_t * cr, double x, double y, double width, double height, double rad, double bevel) {
     if (bevel == 0)
         return;
     cairo_save(cr);

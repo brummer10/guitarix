@@ -282,7 +282,7 @@ static gboolean gx_tuner_draw (GtkWidget *widget, cairo_t *cr)
 		}
 
 		// display note
-		float pitch_add = fabsf(tuner->priv->reference_pitch - 440.00);
+		float pitch_add = std::abs(tuner->priv->reference_pitch - 440.00);
 		cairo_set_source_rgba(cr, fabsf(scale)*2+(pitch_add*0.1), 1-(scale*scale*4+(pitch_add*0.1)), 0.2,1-(fabsf(scale)*2));
 		cairo_set_font_size(cr, 18.0);
 		cairo_move_to(cr,x0+50 -9 , y0+30 +9 );

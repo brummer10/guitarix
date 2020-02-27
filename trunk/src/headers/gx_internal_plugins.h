@@ -351,8 +351,6 @@ class ConvolverAdapter;
 template<>
 class ParameterV<GxJConvSettings>: public Parameter {
 private:
-    const gx_system::PathList *searchpath;
-    const gx_system::PrefixConverter* pfx_conv;
     GxJConvSettings json_value;
     GxJConvSettings *value;
     GxJConvSettings std_value;
@@ -827,7 +825,6 @@ class FileResampler {
 private:
     Resampler r_file;
     int inputRate, outputRate;
-    int last_in_count;
 public:
     int setup(int _inputRate, int _outputRate);
     int run(int count, float *input, float *output);
@@ -1096,7 +1093,6 @@ private:
 	FAUSTFLOAT 	position;
 	FAUSTFLOAT 	ftact;
 	FAUSTFLOAT 	fsec;
-	FAUSTFLOAT 	fslidergain;
 	FAUSTFLOAT 	fsliderbpm;
 	FAUSTFLOAT 	fsliderhum;
     drumseq::Dsp drums;
@@ -1229,8 +1225,8 @@ private:
     int ai;
     int aio;
     int ii;
-	long  gRover , gInit ;
-	double magn, phase, tmp, window, real, imag;
+	long  gRover ;
+	double magn, phase, tmp, real, imag;
 	double freqPerBin, freqPerBin1, freqPerBin2, expct;
     double fftFrameSize3;
     double fftFrameSize4;

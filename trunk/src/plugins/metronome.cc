@@ -12,7 +12,6 @@ class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT 	fcheckbox0;
 	FAUSTFLOAT 	fslider1;
 	int 	iRec6[2];
 	int 	iConst0;

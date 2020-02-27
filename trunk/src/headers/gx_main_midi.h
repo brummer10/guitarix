@@ -80,7 +80,6 @@ class MidiConnect {
         { gx_engine::Parameter::toggle_type::Constant, "constant state toggle" },
         { gx_engine::Parameter::toggle_type::Toggle, "toggle state" }
     };
-    GtkTreeSelection* selection;
     GtkListStore* store;
     gx_engine::Parameter &param;
     gx_engine::GxMachineBase& machine;

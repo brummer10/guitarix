@@ -39,13 +39,11 @@ namespace gx_preset {
  */
 
 PresetIO::PresetIO(gx_engine::MidiControllerList& mctrl_,
-		   gx_engine::ConvolverAdapter& cvr_,
 		   gx_engine::ParamMap& param_,
 		   gx_system::CmdlineOptions& opt_,
 		   UnitRacks& rack_units_)
     : gx_system::AbstractPresetIO(),
       mctrl(mctrl_),
-      convolver(cvr_),
       param(param_),
       opt(opt_),
       plist(),
@@ -549,10 +547,10 @@ void PresetIO::copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsF
  ** class StateIO
  */
 
-StateIO::StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-		 gx_engine::ParamMap& param, gx_engine::MidiStandardControllers& mstdctr,
-		 gx_jack::GxJack& jack_, gx_system::CmdlineOptions& opt_, UnitRacks& rack_units)
-    : PresetIO(mctrl, cvr, param, opt_, rack_units),
+StateIO::StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ParamMap& param,
+		 gx_engine::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack_,
+		 gx_system::CmdlineOptions& opt_, UnitRacks& rack_units)
+    : PresetIO(mctrl, param, opt_, rack_units),
       midi_std_control(mstdctr),
       jack(jack_) {
 }
@@ -870,8 +868,8 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
     : sigc::trackable(),
       GxSettingsBase(seq_),
       param(seq_.get_param()),
-      preset_io(mctrl_, cvr, param, opt, rack_units),
-      state_io(mctrl_, cvr, param, mstdctr, jack_, opt, rack_units),
+      preset_io(mctrl_, param, opt, rack_units),
+      state_io(mctrl_, param, mstdctr, jack_, opt, rack_units),
       state_loaded(false),
       no_autosave(false),
       jack(jack_),

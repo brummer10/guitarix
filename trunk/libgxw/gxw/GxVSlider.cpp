@@ -142,20 +142,6 @@ static gboolean gx_vslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 	return TRUE;
 }
 
-static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
-{
-	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
-											 get_stock_id(widget), -1,
-											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
-	if (GDK_IS_PIXBUF(pb)) {
-		r->width = gdk_pixbuf_get_width(pb);
-		r->height = gdk_pixbuf_get_height(pb);
-		g_object_unref(pb);
-	} else {
-		r->width = r->height = 0;
-	}
-}
-
 static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)
 {
     GxVSlider *slider = GX_VSLIDER(widget);

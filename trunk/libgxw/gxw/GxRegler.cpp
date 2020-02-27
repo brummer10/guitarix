@@ -225,9 +225,9 @@ marshal_STRING__DOUBLE (GClosure     *closure,
   typedef gchar* (*GMarshalFunc_STRING__DOUBLE) (gpointer     data1,
                                                  gdouble      arg_1,
                                                  gpointer     data2);
-  register GMarshalFunc_STRING__DOUBLE callback;
-  register GCClosure *cc = (GCClosure*) closure;
-  register gpointer data1, data2;
+  GMarshalFunc_STRING__DOUBLE callback;
+  GCClosure *cc = (GCClosure*) closure;
+  gpointer data1, data2;
   gchar* v_return;
 
   g_return_if_fail (return_value != NULL);
@@ -266,9 +266,9 @@ marshal_BOOLEAN__BOXED_BOXED (GClosure     *closure,
                                                    gpointer     arg_1,
                                                    gpointer     arg_2,
                                                    gpointer     data2);
-  register GMarshalFunc_BOOLEAN__BOXED_BOXED callback;
-  register GCClosure *cc = (GCClosure*) closure;
-  register gpointer data1, data2;
+  GMarshalFunc_BOOLEAN__BOXED_BOXED callback;
+  GCClosure *cc = (GCClosure*) closure;
+  gpointer data1, data2;
   gboolean v_return;
 
   g_return_if_fail (return_value != NULL);
@@ -807,8 +807,6 @@ static void gx_regler_ensure_layout(GxRegler *regler)
 		regler->priv->value_layout = gtk_widget_create_pango_layout(GTK_WIDGET(regler), NULL);
 	}
 }
-
-static const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
 
 #ifndef min
 #define min(x, y) ((x) < (y) ? (x) : (y))

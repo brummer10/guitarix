@@ -54,12 +54,12 @@ AvahiService::~AvahiService() {
 void AvahiService::state_changed(GaEntryGroup *group, GaEntryGroupState state, void *data) {
     AvahiService& self = *static_cast<AvahiService*>(data);
     switch (state) {
-    case AVAHI_ENTRY_GROUP_UNCOMMITED: break;
-    case AVAHI_ENTRY_GROUP_REGISTERING: break;
-    case AVAHI_ENTRY_GROUP_ESTABLISHED:
+    case GA_ENTRY_GROUP_STATE_UNCOMMITED: break;
+    case GA_ENTRY_GROUP_STATE_REGISTERING: break;
+    case GA_ENTRY_GROUP_STATE_ESTABLISHED:
 	gx_print_info("avahi registration", "established");
 	break;
-    case AVAHI_ENTRY_GROUP_COLLISION: {
+    case GA_ENTRY_GROUP_STATE_COLLISTION: { // typo in header??
 	gx_print_info("avahi registration", "collision");
 	char *n = avahi_alternative_service_name(self.current_name.c_str());
 	std::string name = n;
@@ -67,7 +67,7 @@ void AvahiService::state_changed(GaEntryGroup *group, GaEntryGroupState state, v
 	self.register_service(name, self.registered_port);
 	break;
     }
-    case AVAHI_ENTRY_GROUP_FAILURE:
+    case GA_ENTRY_GROUP_STATE_FAILURE:
 	gx_print_error("avahi registration", "failure");
 	break;
     }

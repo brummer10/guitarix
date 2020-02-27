@@ -186,7 +186,6 @@ static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_SELECTOR(widget));
 	GxSelector *selector = GX_SELECTOR(widget);
-	GxSelectorPrivate *priv = selector->priv;
 	int selectorstate = get_selector_state(selector);
     
     gx_selector_create_icon(selector);
@@ -228,7 +227,6 @@ static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr)
 		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
 		pango_layout_set_text(layout, s, -1);
 		pango_layout_get_pixel_extents(layout, NULL, &logical);
-		int baseline = pango_layout_get_baseline(layout);
 		gint x = text.x + (text.width - logical.width) / 2;
 		gint y = off_y;
 		gtk_render_layout(sc, cr, x, y, layout);

@@ -668,7 +668,6 @@ insert_p1_incl = \"\"\"
 
 insert_p1_class = \"\"\"
 #if %(has_oversample)s
-	int %(sample_rate_param)s;
 	gx_resample::FixedRateResampler smpCl;
 #if %(has_stereo)s
 	gx_resample::FixedRateResampler smpsCl;

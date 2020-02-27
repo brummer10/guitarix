@@ -65,7 +65,6 @@ public:
 class PresetIO: public gx_system::AbstractPresetIO {
 private:
     gx_engine::MidiControllerList& mctrl;
-    gx_engine::ConvolverAdapter& convolver;
     gx_engine::ParamMap& param;
     gx_system::CmdlineOptions& opt;
     gx_engine::paramlist plist;
@@ -83,8 +82,8 @@ private:
     void collectRackOrder(gx_engine::Parameter *p, gx_system::JsonParser &jp, UnitsCollector& u);
     friend class StateIO;
 public:
-    PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-	     gx_engine::ParamMap& param, gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
+    PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ParamMap& param,
+	     gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
     ~PresetIO();
     void read_online(gx_system::JsonParser &jp);
     void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
@@ -98,9 +97,9 @@ private:
     gx_engine::MidiStandardControllers& midi_std_control;
     gx_jack::GxJack& jack;
 public:
-    StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-	    gx_engine::ParamMap& param, gx_engine::MidiStandardControllers& mstdctr,
-	    gx_jack::GxJack& jack, gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
+    StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ParamMap& param,
+	    gx_engine::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack,
+	    gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
     ~StateIO();
     void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
     void commit_state();

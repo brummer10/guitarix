@@ -23,10 +23,10 @@
 #include <gtk/gtk.h>
 
 GtkStyleContext *gx_get_entry_style_context();
-void gx_draw_inset(cairo_t *cr, gint x, gint y, gint width, gint height, gint rad, gint depth);
-void gx_draw_glass(cairo_t *cr, gint x, gint y, gint width, gint height, gint rad);
+void gx_draw_inset(cairo_t *cr, double x, double y, double width, double height, double rad, double depth);
+void gx_draw_glass(cairo_t *cr, double x, double y, double width, double height, double rad);
 
-void gx_create_rectangle(cairo_t * cr, gint x, gint y, gint width, gint height, gint rad);
-void gx_bevel(cairo_t * cr, gint x, gint y, gint width, gint height, gint rad, float bevel);
+void gx_create_rectangle(cairo_t * cr, double x, double y, double width, double height, double rad);
+void gx_bevel(cairo_t * cr, double x, double y, double width, double height, double rad, double bevel);
 
 #endif /* __DRAWINGUTILS_H__ */

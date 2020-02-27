@@ -250,7 +250,6 @@ private:
     void reset_switch_bank();
     int get_bank_num(Glib::ustring num);
     void set_mute_state(int mute);
-    volatile int block;
     void do_program_change(int pgm);
     void do_bank_change(int pgm);
     void edge_toggle_tuner(bool v);
