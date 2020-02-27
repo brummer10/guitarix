@@ -268,8 +268,16 @@ gx-level-slider.lmw {
     min-width: 600px;
 }
 
+.rackbox {
+    min-height: 32px;
+}
+
 .minibox {
-    padding-left: 30px;
+    padding-left: 38px;
+}
+
+#PLUI-ampstack .rackmini {
+    padding-left: 72px;
 }
 
 /* permanent value displays (are not switched off by preference option */
