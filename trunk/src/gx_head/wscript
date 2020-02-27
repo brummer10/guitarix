@@ -200,3 +200,16 @@ def build(bld):
         mapfile = "guitarix.map",
         )
     bld.install_files(bld.env.GX_BUILDER_DIR, builder_files, chmod=0o644)
+    if "RUN_DOXYGEN" in os.environ:
+        # save source file list and include paths for use by doxygen
+        bld(rule="echo ${SRC} > ${TGT}",
+            source = [src for src in sources if not src.endswith('.gperf_tmpl')],
+            target = 'input_gx_head.txt',
+            )
+        bld(rule = "echo ${CPPPATH_ST:INCPATHS} > ${TGT}",
+            features = "use uselib includes",
+            includes = incl,
+            use = uselib,
+            source = "gui/gx_main.cpp",
+            target = 'clang_options.txt',
+            )

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from waflib import Logs, Utils, Configure, Options
-import os.path, shutil
+import os, shutil
 
 def options(opt):
     pass
@@ -107,3 +107,9 @@ def build(bld):
             prog.install_path = None
 
     bld(name='gxw_inc', export_includes=['..'])
+    if "RUN_DOXYGEN" in os.environ:
+        # save source file list and include paths for use by doxygen
+        bld(rule="echo ${SRC} > ${TGT}",
+            source = sources,
+            target = 'input_libgxw.txt',
+            )

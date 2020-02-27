@@ -35,3 +35,12 @@ def write_linguas_file (self):
 @after_method('apply_intltool_po')
 def get_localedir(self):
     self.bld.define('LOCALEDIR', self.env.LOCALEDIR)
+
+def configure(conf):
+    env = conf.env
+    if not env.LOCALEDIR:
+        if env.DATAROOTDIR:
+            env.LOCALEDIR=os.path.join(env.DATAROOTDIR,'locale')
+        else:
+            env.LOCALEDIR=os.path.join(env.PREFIX,'share','locale')
+    conf.define('LOCALEDIR', env.LOCALEDIR)

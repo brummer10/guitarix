@@ -276,3 +276,12 @@ def build(bld):
             use = ['GTKMM','gxw'],
             target = 'gxwmm',
             )
+    if "RUN_DOXYGEN" in os.environ:
+        # save source file list and include paths for use by doxygen
+        bld(rule="echo ${SRC} > ${TGT}",
+            source = (["init.cc","wrap_init.cc"] +
+                      [v.replace('.hg','.h') for v in sources] +
+                      [v.replace('.hg','.cc') for v in sources]),
+                      #['private/'+v.replace('.hg','_p.h') for v in sources]),
+            target = 'input_libgxwmm.txt',
+            )

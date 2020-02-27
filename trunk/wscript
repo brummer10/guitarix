@@ -573,6 +573,7 @@ def build(bld):
     bld.recurse('src/gx_head')
     bld.recurse('src/ladspa')
     bld.recurse('src/LV2')
+    bld.recurse('documentation')
 
     if bld.env['STANDALONE']:
         if bld.env['FONT']:
@@ -747,3 +748,12 @@ class ArchiveCheck(Archive):
         if os.path.exists(instdir):
             raise WafError('distcheck succeeded, but files were left in %s'%instdir)
         shutil.rmtree(path)
+
+class DistClean(Context.Context):
+    # redefine distclean
+    cmd='distclean'
+    def execute(self):
+        Context.g_module.distclean(self)
+        html_path = 'html'
+        if os.path.exists(html_path):
+            shutil.rmtree(html_path)
