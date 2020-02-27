@@ -28,7 +28,7 @@
 #include <gxwmm/controlparameter.h>
 
 class PluginUI;
-class MainWindow;
+class PluginDict;
 
 namespace gx_gui {
 
@@ -214,7 +214,7 @@ class StackBoxBuilder;
 
 class UiBuilderImpl: public gx_engine::UiBuilderBase {
 protected:
-    MainWindow& main;
+    PluginDict& plugin_dict;
     std::vector<PluginUI*> *pluginlist;
     static StackBoxBuilder *intf;
     static void openTabBox_(const char* label);
@@ -255,7 +255,7 @@ protected:
     static void load_glade_file_(const char *fname);
     virtual bool load(gx_engine::Plugin *p);
 public:
-    UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl, sigc::signal<void(bool)> *out_ctr);
+    UiBuilderImpl(PluginDict *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl, sigc::signal<void(bool)> *out_ctr);
     ~UiBuilderImpl();
     bool load_unit(PluginDef *pl);
     friend class gx_engine::GxMachineRemote;

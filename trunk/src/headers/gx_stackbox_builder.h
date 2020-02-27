@@ -46,8 +46,8 @@ private:
     WidgetStack          fBox;
     gx_engine::GxMachineBase& machine;
     Gxw::WaveView&       fWaveView;
-    Gtk::Label&          convolver_filename_label;
-    Gtk::Label&          convolver_mono_filename_label;
+    Gtk::Label           convolver_filename_label;
+    Gtk::Label           convolver_mono_filename_label;
     Gtk::HBox           *widget;
     Glib::RefPtr<Gtk::AccelGroup> accels;
     Glib::RefPtr<Gdk::Pixbuf> window_icon;
@@ -148,8 +148,7 @@ private:
     friend class UiBuilderImpl;
 public:
     StackBoxBuilder(
-	gx_engine::GxMachineBase& machine_, Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
-	Gtk::Label& convolver_mono_filename_label_, Glib::RefPtr<Gdk::Pixbuf> window_icon);
+	gx_engine::GxMachineBase& machine_, Gxw::WaveView &fWaveView_, Glib::RefPtr<Gdk::Pixbuf> window_icon);
     ~StackBoxBuilder();
     void set_accelgroup(Glib::RefPtr<Gtk::AccelGroup> accels_) { accels = accels_; }
     void get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox);

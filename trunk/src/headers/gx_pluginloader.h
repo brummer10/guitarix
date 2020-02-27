@@ -45,11 +45,11 @@ enum {			       // additional flags for PluginDef (used internally)
 class Plugin {
 private:
     PluginDef *pdef;
-    BoolParameter *p_box_visible; // In Rack: UI Interface Box visible
-    BoolParameter *p_plug_visible; // In Box: UI Interface Box visible
-    BoolParameter *p_on_off;	   // Audio Processing
-    IntParameter  *p_position; // Position in Rack / Audio Processing Chain
-    IntParameter  *p_effect_post_pre; // pre/post amp position (post = 0)
+    BoolParameter *p_box_visible; ///< In Rack: UI Interface Box visible
+    BoolParameter *p_plug_visible; ///< minibox visible (false: full box)
+    BoolParameter *p_on_off;	   ///< Audio Processing
+    IntParameter  *p_position; ///< Position in Rack / Audio Processing Chain
+    IntParameter  *p_effect_post_pre; ///< pre/post amp position (post = 0)
     int pos_tmp;
 public:
     PluginDef *get_pdef() { return pdef; }

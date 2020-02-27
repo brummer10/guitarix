@@ -89,12 +89,12 @@ Gtk::Widget *WidgetStack::add(Gtk::Widget *w, const Glib::ustring& label) {
  */
 
 StackBoxBuilder::StackBoxBuilder(
-    gx_engine::GxMachineBase& machine_, Gxw::WaveView &fWaveView_, Gtk::Label &convolver_filename_label_,
-    Gtk::Label &convolver_mono_filename_label_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
-    : fBox(), machine(machine_),
-      fWaveView(fWaveView_), convolver_filename_label(convolver_filename_label_),
-      convolver_mono_filename_label(convolver_mono_filename_label_),
-      widget(), accels(), window_icon(window_icon_), next_flags(0) {
+    gx_engine::GxMachineBase& machine_, Gxw::WaveView &fWaveView_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
+    : fBox(), machine(machine_), fWaveView(fWaveView_), convolver_filename_label(), convolver_mono_filename_label(),
+      widget(), accels(), window_icon(window_icon_), next_flags(0), output_widget_state() {
+    convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
+    convolver_mono_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
+
 }
 
 StackBoxBuilder::~StackBoxBuilder() {

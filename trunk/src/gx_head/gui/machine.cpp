@@ -550,16 +550,12 @@ void GxMachine::remove_rack_unit(const std::string& unit, PluginType type) {
     if (!settings.remove_rack_unit(unit, type == PLUGIN_TYPE_STEREO)) {
 	return;
     }
-    if (sock) {
-	sock->send_rack_changed(type == PLUGIN_TYPE_STEREO, 0);
-    }
+    settings.signal_rack_unit_order_changed()(type == PLUGIN_TYPE_STEREO);
 }
 
 void GxMachine::insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) {
     settings.insert_rack_unit(unit, before, type == PLUGIN_TYPE_STEREO);
-    if (sock) {
-	sock->send_rack_changed(type == PLUGIN_TYPE_STEREO, 0);
-    }
+    settings.signal_rack_unit_order_changed()(type == PLUGIN_TYPE_STEREO);
 }
 
 // tuner_switcher
@@ -1715,7 +1711,7 @@ static const std::string next_string(gx_system::JsonParser *jp) {
 }
 
 int GxMachineRemote::load_remote_ui_static (const UiBuilder& builder, int form) {
-    GxMachineRemote *m = dynamic_cast<GxMachineRemote*>(&static_cast<const gx_gui::UiBuilderImpl*>(&builder)->main.get_machine());
+    GxMachineRemote *m = dynamic_cast<GxMachineRemote*>(&static_cast<const gx_gui::UiBuilderImpl*>(&builder)->plugin_dict.get_machine());
     return m->load_remote_ui(builder, form);
 }
 
@@ -2004,6 +2000,7 @@ void GxMachineRemote::remove_rack_unit(const std::string& unit, PluginType type)
     jw->write(unit);
     jw->write(type == PLUGIN_TYPE_STEREO);
     SEND();
+    rack_units.rack_unit_order_changed(type == PLUGIN_TYPE_STEREO);
 }
 
 void GxMachineRemote::insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) {
@@ -2012,6 +2009,7 @@ void GxMachineRemote::insert_rack_unit(const std::string& unit, const std::strin
     jw->write(before);
     jw->write(type == PLUGIN_TYPE_STEREO);
     SEND();
+    rack_units.rack_unit_order_changed(type == PLUGIN_TYPE_STEREO);
 }
 
 // tuner_switcher
