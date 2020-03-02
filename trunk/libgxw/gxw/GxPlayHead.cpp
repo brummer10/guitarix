@@ -98,21 +98,17 @@ static gboolean gx_play_head_draw(GtkWidget *widget, cairo_t *cr)
     int y = 0;
     int rect_width  = allocation.width;
     phead->image_rect.x = phead->image_rect.y = 0;
-	//GdkRectangle  value_rect;
-    gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), rect_width - (phead->height*2));
-	//_gx_regler_get_positions(GX_REGLER(widget), &phead->image_rect, &value_rect, false);
+    gdouble slstate = _gx_regler_get_step_pos(GX_REGLER(widget), rect_width - (phead->height*5));
     // background
     phead->scaled_image = gdk_pixbuf_scale_simple(
-			phead->image, rect_width+(phead->height*60), phead->height, GDK_INTERP_NEAREST);
-	gdk_cairo_set_source_pixbuf (cr, phead->scaled_image, x, y);
+			phead->image, rect_width*3, phead->height, GDK_INTERP_NEAREST);
+	gdk_cairo_set_source_pixbuf (cr, phead->scaled_image, x-20, y);
 	cairo_rectangle(cr, x, y, rect_width, phead->height);
 	cairo_fill(cr);
     //phead
-    //int sx = gtk_widget_get_state(widget) ? phead->phead_width : 0;
-    gdk_cairo_set_source_pixbuf (cr, phead->image, x - ((phead->width+(phead->height)) - slstate), y);
+    gdk_cairo_set_source_pixbuf (cr, phead->image, x -(phead->width/2 + phead->height) + slstate, y);
     cairo_rectangle(cr, x + slstate, y, (phead->height*3), phead->height);
     cairo_fill(cr);
-	//_gx_regler_display_value(GX_REGLER(widget), &value_rect);
 	g_object_unref(phead->scaled_image);
 	return FALSE;
 }

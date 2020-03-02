@@ -612,7 +612,7 @@ void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::Box *box)
             dynamic_cast<Gtk::ToggleButton*>((*itt))->set_name("seq_button");
             i0 = 0;
         } else {
-            dynamic_cast<Gtk::ToggleButton*>((*itt))->set_name("button");
+            dynamic_cast<Gtk::ToggleButton*>((*itt))->set_name("seqbutton");
             ++i0;
         }
         ++itt;
