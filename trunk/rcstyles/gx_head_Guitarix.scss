@@ -104,6 +104,18 @@ tooltip {
   }
 }
 
+menu, menuitem {
+    &:active {
+	background-color: $bg-button;
+    }
+    &:hover {
+	background-color: $bg-button-hover;
+    }
+    &:disabled, &:selected {
+	background-color: $bg-button-checked;
+    }
+}
+
 button, checkbutton {
     background-clip: initial;
     border-width: 0px;
@@ -506,8 +518,8 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 
 #seq_button {
     /* background-color: rgb(64, 64, 64); */ /* 0.25, 0.25, 0.25 */
-	border-width: 1px 1px 1px 1px;
 	border-color: lighten($bg-button,3%);
+	border-width: 1px 1px 1px 1px;
     &:active {
 	background-color: rgb(0, 0, 0); /* 0.0, 0.0, 0.0 */
     }
@@ -521,8 +533,8 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 
 #seqbutton {
     /* background-color: rgb(64, 64, 64); */ /* 0.25, 0.25, 0.25 */
-	border-width: 1px 1px 1px 1px;
 	border-color: darken($bg-button,3%);    
+	border-width: 1px 1px 1px 1px;
     &:active {
 	background-color: rgb(0, 0, 0); /* 0.0, 0.0, 0.0 */
     }

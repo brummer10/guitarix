@@ -21,3 +21,22 @@
  */
 
 @import url("gx_head_Guitarix.css");
+
+
+#rackcontainer .effect_title {
+    color: #ffffff;
+}
+
+#drag_widget {
+    .effect_title {
+	color: #ffffff;
+    }
+}
+
+#rack_label,
+#Value, /* *Value */
+#ampbox label,
+#beffekt_label,
+#rack_effect_label {
+    color: #ffffff;
+}

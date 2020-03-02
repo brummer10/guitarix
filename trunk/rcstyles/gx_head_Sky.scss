@@ -19,3 +19,11 @@
  */
 
 @import url("gx_head_Guitarix.css");
+
+frame, #frame_inversed, frame border, #frame_inversed border {
+  background-color: transparent;
+}
+
+frame border, #frame_inversed border {
+  border-color: black;
+}
