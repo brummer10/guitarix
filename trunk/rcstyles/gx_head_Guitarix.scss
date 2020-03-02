@@ -157,6 +157,11 @@ treeview check {
     color: rgb(50, 50, 50);
 }
 
+notebook {
+    border: none;
+    background-color: black;
+}
+
 gx-paint-box {
     -GxPaintBox-icon-set: 10;
     -GxPaintBox-stock-gxhead: "live_wallpaper.png";
@@ -559,6 +564,11 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 }
 
 #rackcontainer .effect_title {
+    font: condensed 10pt "Roboto";
+    color: #222222;
+}
+
+#effect_title {
     font: condensed 10pt "Roboto";
     color: #222222;
 }
