@@ -22,6 +22,11 @@
 @import url("gx_head_Guitarix.css");
 
 
+gx-paint-box {
+    -GxPaintBox-icon-set: 3;
+    -GxPaintBox-stock-gxhead: "live_wallpaper_camouflage.png";
+}
+
 #rackcontainer .effect_title {
     color: #ffffff;
 }

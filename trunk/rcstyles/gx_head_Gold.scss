@@ -15,12 +15,18 @@
  * switchit_off:   switch_off.png
  * switchit_on:    switch_on.png
  * wheel_back:     tactile_wheel_101f.png
+ * gxhead:         live_wallpaper_gold.png
  * 
  * ICON THEME
  */
 
 @import url("gx_head_Guitarix.css");
 
+
+gx-paint-box {
+    -GxPaintBox-icon-set: 6;
+    -GxPaintBox-stock-gxhead: "live_wallpaper_gold.png";
+}
 
 #rackcontainer .effect_title {
     color: #000000;

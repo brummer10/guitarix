@@ -15,11 +15,18 @@
  * switchit_off:   switch_off.png
  * switchit_on:    switch_on.png
  * wheel_back:     tactile_wheel_101f.png
+ * gxhead:         live_wallpaper_grungy_sun.png
  * 
  * ICON THEME
  */
 
 @import url("gx_head_Guitarix.css");
+
+
+gx-paint-box {
+    -GxPaintBox-icon-set: 8;
+    -GxPaintBox-stock-gxhead: "live_wallpaper_grungy_sun.png";
+}
 
 frame, #frame_inversed, frame border, #frame_inversed border {
     background-color: transparent;

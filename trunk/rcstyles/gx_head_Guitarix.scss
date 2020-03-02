@@ -17,6 +17,7 @@
  * switchit_off:   switch_off.png
  * switchit_on:    switch_on.png
  * wheel_back:     tactile_wheel_101f.png
+ * gxhead:         live_wallpaper.png
  * 
  * ICON THEME
  */
@@ -154,6 +155,11 @@ button, checkbutton {
 radiobutton radio,
 treeview check {
     color: rgb(50, 50, 50);
+}
+
+gx-paint-box {
+    -GxPaintBox-icon-set: 10;
+    -GxPaintBox-stock-gxhead: "live_wallpaper.png";
 }
 
 /****************************************************************
