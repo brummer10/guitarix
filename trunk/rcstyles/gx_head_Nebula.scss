@@ -16,8 +16,37 @@
  * switchit_off:   switch_off.png
  * switchit_on:    switch_on.png
  * wheel_back:     tactile_wheel_101f.png
+ * gxhead:         live_wallpaper_nebula.png
  * 
  * ICON THEME
  */
 
 @import url("gx_head_Guitarix.css");
+
+gx-paint-box {
+    -GxPaintBox-icon-set: 14;
+    -GxPaintBox-stock-gxhead: "live_wallpaper_nebula.png";
+}
+
+#rackcontainer .effect_title {
+    color: #999999;
+}
+
+#effect_title {
+    font: condensed 10pt "Roboto";
+    color: #999999;
+}
+
+#drag_widget {
+    .effect_title {
+	color: #999999;
+    }
+}
+
+#rack_label,
+#Value, /* *Value */
+#ampbox label,
+#beffekt_label,
+#rack_effect_label {
+    color: #999999;
+}

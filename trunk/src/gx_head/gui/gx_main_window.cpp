@@ -1064,6 +1064,7 @@ void MainWindow::on_miditable_toggle() {
 
 void MainWindow::change_skin(Glib::RefPtr<Gtk::RadioAction> action) {
     gx_gui::WaitCursor wait(bld.window);
+    theme.set_new_skin(options.skin[action->get_current_value()]);
 }
 
 void MainWindow::add_skin_menu() {

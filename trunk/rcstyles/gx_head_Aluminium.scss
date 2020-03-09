@@ -21,6 +21,11 @@
 
 @import url("gx_head_Guitarix.css");
 
+gx-paint-box {
+    -GxPaintBox-icon-set: 1;
+    -GxPaintBox-stock-gxhead: "live_wallpaper_aluminium.png";
+}
+
 frame, #frame_inversed, frame border, #frame_inversed border {
     background-color: transparent;
 }
