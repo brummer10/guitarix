@@ -106,21 +106,25 @@ def configure(conf):
 
     for x in subdirs:
         conf.recurse(x);
+    conf.recurse('xputty/resources')
+    conf.recurse('xputty');
 
 def build(bld):
     if not bld.env.LV2:
         return
 
     bld.recurse('faust')
+    bld.recurse('xputty/resources')
+    bld.recurse('xputty')
     bld.objects(name='GX_CONVOLVER',
                 source='DSP/gx_convolver.cc',
                 includes='DSP',
-                cxxflags='-fPIC',
+                cxxflags=['-fvisibility=hidden','-fPIC','-Wl,--exclude-libs,ALL'],
                 use=['ZITA_CONVOLVER','GX_RESAMPLER'],
     )
     bld.objects(name='GX_RESAMPLER',
                 source='DSP/gx_resampler.cc',
-                cxxflags='-fPIC',
+                cxxflags=['-fvisibility=hidden','-fPIC','-Wl,--exclude-libs,ALL'],
                 use=['ZITA_RESAMPLER'],
     )
 
