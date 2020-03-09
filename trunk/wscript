@@ -373,6 +373,7 @@ def configure(conf):
     conf.env['DESKAPPS_DIR'] = os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'applications'))
     conf.env['BIN_NAME'] = APPNAME
     if opt.lv2:
+        conf.gxload('strip')
         conf.gxload('lv2')
     conf.env['LADSPA'] = opt.ladspa
     conf.env['NEW_LADSPA'] = opt.new_ladspa
@@ -539,13 +540,13 @@ def build(bld):
                     includes = 'src/headers',
                     export_includes = 'src/zita-convolver-ffmpeg',
                     use = ['LIBAVCODEC','LIBAVUTIL'],
-                    cxxflags = bld.env.CXXFLAGS_cxxshlib,
+                    cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden','-Wl,--exclude-libs,ALL'],
         )
     elif not bld.env['HAVE_ZITA_CONVOLVER']:
         bld.objects(name='ZITA_CONVOLVER',
                     source='src/zita-convolver/zita-convolver.cc',
                     export_includes = 'src/zita-convolver',
-                    cxxflags = bld.env.CXXFLAGS_cxxshlib,
+                    cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden','-Wl,--exclude-libs,ALL'],
                     use = ['FFTW3','PTHREAD'],
         )
     if not bld.env['HAVE_ZITA_RESAMPLER']:
@@ -557,7 +558,7 @@ def build(bld):
                     includes = 'src/zita-resampler-1.1.0',
                     export_includes = 'src/zita-resampler-1.1.0',
                     use=['PTHREAD'],
-                    cxxflags = bld.env.CXXFLAGS_cxxshlib,
+                    cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden','-Wl,--exclude-libs,ALL'],
         )
     # process subfolders from here
     bld.recurse('ladspa')

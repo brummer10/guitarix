@@ -762,7 +762,9 @@ const LV2_Descriptor GxPluginMono::descriptor =
   extension_data
 };
 
-extern "C"
+#ifdef __cplusplus
+extern "C" {
+#endif
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
 lv2_descriptor(uint32_t index)
@@ -775,3 +777,6 @@ lv2_descriptor(uint32_t index)
       return NULL;
     }
 }
+#ifdef __cplusplus
+}
+#endif
