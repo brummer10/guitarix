@@ -882,7 +882,8 @@ void MainWindow::on_rack_configuration() {
 	if (pre_act) {
 	    actions.presets->set_active(false);
 	}
-    actions.show_rack->set_active(true);
+	actions.show_rack->set_active(true);
+	bld.tunerbox->hide();
 	bld.effects_frame_paintbox->show();
 	bld.upper_rackbox->hide();
 	int min_width2, natural_width2;
@@ -901,6 +902,7 @@ void MainWindow::on_rack_configuration() {
 	bld.effects_frame_paintbox->set_size_request(min_width2, -1);
 	bld.monobox->set_size_request(width,-1);
     } else {
+	bld.tunerbox->set_visible(actions.tuner->get_active());
 	if (!plugin_bar) {
 	    bld.effects_frame_paintbox->hide();
 	}
