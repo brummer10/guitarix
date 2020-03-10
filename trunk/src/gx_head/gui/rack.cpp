@@ -143,6 +143,7 @@ void PluginUI::activate(bool animate, const string& before) {
     } else {
 	rackbox = plugin_dict.add_rackbox(*this, plug, -1, animate);
     }
+    plugin->set_box_visible(true);
     rackbox->set_config_mode(plugin_dict.get_config_mode());
     set_update_state(get_update_cond());
     if (hidden) {
