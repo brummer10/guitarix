@@ -433,14 +433,6 @@ double PluginDict::stop_at(RackContainer *container, double off, double step_siz
     }
 }
 
-void PluginDict::resize_finished(RackContainer *container)
-{
-    //FIXME gtk3, still needed?
-    if (container == &monorackcontainer) { // && !actions.rackh->get_active()) {
-	stereorackcontainer.queue_draw();
-    }
-}
-
 void PluginDict::check_order() {
     check_order(PLUGIN_TYPE_MONO, false);
     check_order(PLUGIN_TYPE_STEREO, false);
@@ -1446,8 +1438,6 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     return pb;
 }
 
-#define suicide() hide()
-
 void RackBox::display(bool v, bool animate) {
     // this function hides the rackbox. It could also destroy it (or
     // some other function could do it, e.g. when unloading a module),
@@ -1467,15 +1457,6 @@ void RackBox::display(bool v, bool animate) {
 	}
     }
 }
-
-/*
-RackBox::suicide() {
-    //RackBox *p = plugin.rackbox;
-    //plugin.rackbox = nullptr;
-    //delete p;
-    hide();
-}
-*/
 
 RackBox::RackBox(PluginUI& plugin_, PluginDict& tl, Gtk::Widget* bare)
     : Gtk::VBox(),
@@ -1766,22 +1747,6 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     //al->show_all();
     bx->show_all();
     return bx;
-}
-
-Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
-    Gtk::VBox *vbox = new Gtk::VBox();
-    
-    Gtk::HBox *hbox = new Gtk::HBox();
-    vbox->pack_start(*manage(hbox));
-    Gtk::HBox *hbox2 = new Gtk::HBox();
-    hbox->pack_start(*manage(hbox2), Gtk::PACK_SHRINK);
-    Gtk::VBox *vbox2 = new Gtk::VBox();
-    hbox2->pack_start(*manage(vbox2));
-    hbox2->pack_start(*manage(wrap_bar(4,4)), Gtk::PACK_SHRINK);
-    Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 0.0, 0.0);
-    al->add(on_off_switch);
-    vbox2->pack_start(*manage(al));
-    return vbox;
 }
 
 

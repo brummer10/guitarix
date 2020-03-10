@@ -239,7 +239,6 @@ private:
     Gtk::Button *make_expand_button(bool expand);
     Gtk::Button *make_preset_button();
     Gtk::HBox *make_full_box(gx_system::CmdlineOptions& options);
-    Gtk::VBox *switcher_vbox(gx_system::CmdlineOptions& options);
     bool has_delete() const { return delete_button; }
     void do_expand();
 public:
@@ -478,7 +477,6 @@ public:
     void unit_order_changed(bool stereo);
     void reorder(RackContainer *container, const std::string& name, const std::string& before);
     bool use_animations() { return options.system_animations; }
-    void resize_finished(RackContainer *container);
     void on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, int info, int timestamp);
     gx_engine::GxMachineBase& get_machine() { return machine; }
     gx_system::CmdlineOptions& get_options() { return options; }
