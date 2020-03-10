@@ -215,8 +215,9 @@ bool PluginUI::on_rack_handle_press(GdkEventButton* ev) {
     if (ev->type == GDK_2BUTTON_PRESS && ev->button == 1) {
         plugin_dict.deactivate(get_id(), true);
 	group->set_collapsed(false);
+	return true;
     }
-    return true;
+    return false;
 }
 
 void PluginUI::on_ti_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context) {
@@ -1011,7 +1012,7 @@ void MiniRackBox::pack(Gtk::Widget *w) {
     }
 }
 
-void MiniRackBox::set_config_mode(bool mode) {
+void MiniRackBox::set_config_mode(bool mode, PluginUI& plugin) {
     evbox.set_above_child(mode);
     if (mode) {
 	mconbox.hide();
@@ -1022,7 +1023,13 @@ void MiniRackBox::set_config_mode(bool mode) {
 	    mb_expand_button->hide();
 	}
 	if (mb_delete_button) {
-	    mb_delete_button->show();
+	    // force event handling of the button to be above the evbox
+	    mb_delete_button->hide();
+	    Glib::signal_idle().connect_once(
+		sigc::mem_fun(mb_delete_button,&Gtk::Widget::show),
+		Glib::PRIORITY_HIGH_IDLE);
+	    evbox_button = evbox.signal_button_press_event().connect(
+		sigc::mem_fun(plugin, &PluginUI::on_rack_handle_press));
 	}
     } else {
 	mconbox.show();
@@ -1033,6 +1040,7 @@ void MiniRackBox::set_config_mode(bool mode) {
 	    mb_expand_button->show();
 	}
 	if (mb_delete_button) {
+	    evbox_button.disconnect();
 	    mb_delete_button->hide();
 	}
     }
@@ -1608,9 +1616,8 @@ void RackBox::vis_switch(Gtk::Widget& a, Gtk::Widget& b) {
 void RackBox::set_visibility(bool v) {
     bool config_mode = plugin_dict.get_config_mode();
     if (config_mode || get_plug_visible()) {
-	minibox->set_config_mode(false);
 	mbox.set_visible(v);
-	minibox->set_config_mode(config_mode);
+	set_config_mode(plugin_dict.get_config_mode());
     } else {
 	fbox->set_visible(v);
     }
@@ -1619,12 +1626,10 @@ void RackBox::set_visibility(bool v) {
 void RackBox::swtch(bool mini) {
     plugin.plugin->set_plug_visible(mini);
     plugin.on_state_change();
-    if (!plugin_dict.get_config_mode()) {
-	if (mini) {
-	    vis_switch(*fbox, mbox);
-	} else {
-	    vis_switch(mbox, *fbox);
-	}
+    if (mini || plugin_dict.get_config_mode()) {
+	vis_switch(*fbox, mbox);
+    } else {
+	vis_switch(mbox, *fbox);
     }
 }
 
@@ -1639,7 +1644,7 @@ void RackBox::set_config_mode(bool mode) {
 	    vis_switch(mbox, *fbox);
 	}
     }
-    minibox->set_config_mode(mode);
+    minibox->set_config_mode(mode, plugin);
     enable_drag(mode);
 }
 
