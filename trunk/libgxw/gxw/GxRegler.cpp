@@ -86,8 +86,6 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE(GxRegler, gx_regler, GTK_TYPE_RANGE,
                                  G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
                                                        gx_control_parameter_interface_init));
 
-#define GX_REGLER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_REGLER, GxReglerPrivate))
-
 static void gx_regler_value_changed(GtkRange *range)
 {
 	gtk_widget_queue_draw(GTK_WIDGET(range));
@@ -1308,7 +1306,7 @@ static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec)
 
 static void gx_regler_init(GxRegler *regler)
 {
-	regler->priv = GX_REGLER_GET_PRIVATE (regler);
+	regler->priv = (GxReglerPrivate*)gx_regler_get_instance_private(regler);
 	gtk_range_set_round_digits(GTK_RANGE(regler), -1);
 	regler->priv->value_position = GTK_POS_BOTTOM;
 	regler->priv->show_value = TRUE;

@@ -147,7 +147,7 @@ static void gx_knob_class_init(GxKnobClass *klass)
 
 static void gx_knob_init(GxKnob *knob)
 {
-	knob->priv = G_TYPE_INSTANCE_GET_PRIVATE(knob, GX_TYPE_KNOB, GxKnobPrivate);
+	knob->priv = (GxKnobPrivate*)gx_knob_get_instance_private(knob);
 }
 
 static const double scale_zero = 40 * (M_PI/180); // defines "dead zone" for knobs

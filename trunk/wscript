@@ -302,7 +302,7 @@ def configure(conf):
     # needed libaries
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
-    conf.check_cfg(package='glibmm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
+    conf.check_cfg(package='glibmm-2.4', atleast_version='2.38', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
     conf.check(header_name='fftw3.h', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.3.8', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
 

@@ -44,8 +44,6 @@ G_DEFINE_TYPE_WITH_CODE(GxSwitch, gx_switch, GTK_TYPE_CHECK_BUTTON,
                         G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
                                               gx_control_parameter_interface_init));
 
-#define GX_SWITCH_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_SWITCH, GxSwitchPrivate))
-
 static void gx_switch_destroy(GtkWidget *object);
 static void gx_switch_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
@@ -115,14 +113,13 @@ static void gx_switch_class_init(GxSwitchClass *klass)
 		                    GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 }
 
-
 /****************************************************************
  ** init the Switch type/size
  */
 
 static void gx_switch_init(GxSwitch *swtch)
 {
-	swtch->priv = GX_SWITCH_GET_PRIVATE(swtch);
+	swtch->priv = (GxSwitchPrivate*)gx_switch_get_instance_private(swtch);
 	swtch->priv->var_id = NULL;
 	swtch->priv->base_name = 0;
 	swtch->priv->label = NULL;

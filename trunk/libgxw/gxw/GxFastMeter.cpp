@@ -103,8 +103,6 @@ G_DEFINE_TYPE_WITH_CODE(GxFastMeter, gx_fast_meter, GTK_TYPE_DRAWING_AREA,
                                               gx_control_parameter_interface_init)
 						G_IMPLEMENT_INTERFACE (GTK_TYPE_ORIENTABLE, NULL));
 
-#define GX_FAST_METER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_FAST_METER, GxFastMeterPrivate))
-
 static void
 gx_fast_meter_cp_configure(GxControlParameter *self, const gchar* group, const gchar *name, gdouble lower, gdouble upper, gdouble step)
 {
@@ -259,7 +257,7 @@ void gx_fast_meter_class_init(GxFastMeterClass* klass)
 void gx_fast_meter_init(GxFastMeter* fm)
 {
 	GtkWidget *widget = GTK_WIDGET(fm);
-	fm->priv = GX_FAST_METER_GET_PRIVATE(fm);
+	fm->priv = (GxFastMeterPrivate*)gx_fast_meter_get_instance_private(fm);
 	fm->priv->surface = 0;
 	fm->priv->overlay = 0;
 	fm->priv->top_of_meter = 0;

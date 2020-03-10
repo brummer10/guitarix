@@ -231,5 +231,5 @@ static gboolean gx_wheel_vertical_pointer_motion (GtkWidget *widget, GdkEventMot
 
 static void gx_wheel_vertical_init(GxWheelVertical *wheel_vertical)
 {
-    wheel_vertical->priv = G_TYPE_INSTANCE_GET_PRIVATE(wheel_vertical, GX_TYPE_WHEEL_VERTICAL, GxWheelVerticalPrivate);
+    wheel_vertical->priv = (GxWheelVerticalPrivate*)gx_wheel_vertical_get_instance_private(wheel_vertical);
 }

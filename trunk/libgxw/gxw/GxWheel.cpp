@@ -274,5 +274,5 @@ static gboolean gx_wheel_pointer_motion (GtkWidget *widget, GdkEventMotion *even
 
 static void gx_wheel_init(GxWheel *wheel)
 {
-	wheel->priv = G_TYPE_INSTANCE_GET_PRIVATE(wheel, GX_TYPE_WHEEL, GxWheelPrivate);
+	wheel->priv = (GxWheelPrivate*)gx_wheel_get_instance_private(wheel);
 }

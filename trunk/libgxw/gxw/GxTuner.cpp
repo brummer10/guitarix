@@ -68,8 +68,6 @@ static const double dash_ind[] = {
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxTuner, gx_tuner, GTK_TYPE_DRAWING_AREA);
 
-#define GX_TUNER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_TUNER, GxTunerPrivate))
-
 static void gx_tuner_class_init(GxTunerClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
@@ -120,7 +118,7 @@ static void tuner_surface_finalize(GxTuner *tuner)
 static void gx_tuner_init (GxTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
-	tuner->priv = GX_TUNER_GET_PRIVATE(tuner);
+	tuner->priv = (GxTunerPrivate*)gx_tuner_get_instance_private(tuner);
 	tuner->priv->freq = 0;
 	tuner->priv->reference_pitch = 440.0;
 	tuner->priv->scale = 1.0;
