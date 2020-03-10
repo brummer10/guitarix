@@ -260,6 +260,14 @@ bool PluginUI::on_my_enter_in(GdkEventCrossing *focus) {
     return true;
 }
 
+Glib::ustring PluginUI::get_displayname(bool useshort) const {
+    Glib::ustring name = useshort ? get_shortname() : get_name();
+    if (get_type() == PLUGIN_TYPE_STEREO) {
+	name = "◗◖ " + name; //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
+    }
+    return name;
+}
+
 void PluginUI::add_toolitem(Gtk::ToolItemGroup *gw) {
     Gtk::ToolItem *tb = new Gtk::ToolItem();
     tb->set_use_drag_window(true);
@@ -278,11 +286,7 @@ void PluginUI::add_toolitem(Gtk::ToolItemGroup *gw) {
     }
     tb->drag_source_set(listTargets, Gdk::BUTTON1_MASK, Gdk::ACTION_MOVE);
     tb->signal_drag_data_get().connect(sigc::mem_fun(*this, &PluginUI::on_ti_drag_data_get));
-    Glib::ustring name = get_shortname();
-    if (get_type() == PLUGIN_TYPE_STEREO) {
-        name = "◗◖ " + name; //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
-    }
-    Gtk::Label *img = new Gtk::Label(name);
+    Gtk::Label *img = new Gtk::Label(get_displayname(true));
     img->set_xalign(0);
     img->set_halign(Gtk::ALIGN_END);
     if (!tooltip.empty()) {
@@ -1355,13 +1359,9 @@ void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
 }
 
 Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort) {
-    const char *effect_name = useshort ? plugin.get_shortname() : plugin.get_name();
-    Gtk::Label *effect_label = new Gtk::Label(effect_name);
+    Gtk::Label *effect_label = new Gtk::Label(plugin.get_displayname(useshort));
     effect_label->set_alignment(0.0, 0.5);
     effect_label->get_style_context()->add_class("effect_title");
-    if (plugin.get_type() == PLUGIN_TYPE_STEREO) {
-        effect_label->set_markup("◗◖ " + effect_label->get_label()); //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
-    }
     return effect_label;
 }
 

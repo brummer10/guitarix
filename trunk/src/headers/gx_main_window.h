@@ -416,6 +416,7 @@ public:
     void on_state_change();
     void animate_remove();
     bool on_rack_handle_press(GdkEventButton* ev);
+    Glib::ustring get_displayname(bool useshort) const;
 };
 
 bool plugins_by_name_less(PluginUI *a, PluginUI *b);
