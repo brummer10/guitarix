@@ -1000,6 +1000,7 @@ void PresetWindow::on_bank_changed() {
     }
     bool modifiable = ll.is_mutable();
     Gtk::TreeIter first_row;
+    Gtk::TreePath sel_path;
     for (gx_system::PresetFile::iterator s = ll.begin(); s != ll.end(); ++s) {
 	i = pstore->append();
 	if (!first_row) {
@@ -1012,7 +1013,7 @@ void PresetWindow::on_bank_changed() {
 	}
 	if (in_current_preset && s->name == machine.get_current_name()) {
 	    if (preset_treeview->get_mapped()) {
-		preset_treeview->scroll_to_row(pstore->get_path(i));
+		sel_path = pstore->get_path(i);
 	    }
 	}
     }
@@ -1031,6 +1032,9 @@ void PresetWindow::on_bank_changed() {
 	// the cursor is set:
 	preset_treeview->set_cursor(pstore->get_path(first_row));
 	preset_treeview->get_selection()->unselect(first_row);
+    }
+    if (sel_path) {
+	preset_treeview->scroll_to_row(sel_path);
     }
     load_in_progress = false;
 }
