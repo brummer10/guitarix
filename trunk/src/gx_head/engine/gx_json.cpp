@@ -28,7 +28,7 @@
 
 namespace gx_system {
 
-bool check_mtime(const std::string& filename, time_t& mtime) {
+static bool check_mtime(const std::string& filename, time_t& mtime) {
     struct stat st;
     if (stat(filename.c_str(), &st) != 0) {
 	mtime = 0;
@@ -1106,6 +1106,11 @@ bool PresetFile::ensure_is_current() {
     return false;
 }
 
+bool PresetFile::is_newer(time_t m) {
+    check_mtime(filename, mtime);
+    return mtime >= m;
+}
+
 void PresetFile::open(const std::string& fname) {
     filename = fname;
     open();
@@ -1516,6 +1521,18 @@ void PresetBanks::insert(PresetFile* f, int position) {
     for (; position > 0 && i != banklist.end(); ++i, --position);
     banklist.insert(i, f);
     save();
+}
+
+void PresetBanks::check_save() {
+    for (iterator i = begin(); i != end(); ++i) {
+	int tp = i->get_type();
+	if (tp == PresetFile::PRESET_FILE || tp == PresetFile::PRESET_SCRATCH) {
+	    if (i->is_newer(mtime)) {
+		save();
+		return;
+	    }
+	}
+    }
 }
 
 void PresetBanks::save() {

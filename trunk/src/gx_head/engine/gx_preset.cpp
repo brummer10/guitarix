@@ -911,6 +911,7 @@ void GxSettings::auto_save_state() {
 		save(*pf, current_name);
 	    }
 	}
+	banks.check_save();
 	if (!no_autosave) {
 	    save_to_state();
 	}

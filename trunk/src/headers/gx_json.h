@@ -367,6 +367,7 @@ public:
     bool is_moveable() const { return tp == PRESET_SCRATCH || tp == PRESET_FILE; }
     bool is_mutable() const { return is_moveable() && !flags; }
     PresetFileGui *get_guiwrapper();
+    bool is_newer(time_t m);
 };
 
 class PresetFileGui: private PresetFile {
@@ -445,6 +446,7 @@ public:
     iterator begin() { return iterator(banklist.begin()); }
     iterator end() { return iterator(banklist.end()); }
     bool remove(const Glib::ustring& bank);
+    void check_save();
     void save();
     int size() { return banklist.size(); }
     Glib::ustring get_name(int n);
