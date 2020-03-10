@@ -316,6 +316,14 @@ void PluginUI::on_state_change() {
     }
 }
 
+void PluginUI::dispose_rackbox() {
+    // too many memory leaks in the stack based builder
+    rackbox->hide();
+    //RackBox *p = rackbox;
+    //rackbox = nullptr;
+    //delete p;
+}
+
 bool PluginUI::animate_vanish() {
     rackbox->anim_height -= rackbox->anim_step;
     if (rackbox->anim_height > 0) {
@@ -324,15 +332,11 @@ bool PluginUI::animate_vanish() {
     }
     rackbox->set_visibility(true);
     rackbox->set_size_request(-1,-1);
-    plugin_dict.resize_finished(rackbox->get_parent());
     if (plugin->get_box_visible()) {
-	rackbox->hide();
-	return false;
+	rackbox->hide(); // dnd operation, just hide
+    } else {
+	dispose_rackbox();
     }
-    rackbox->hide();
-    return false;
-    rackbox = nullptr;
-    delete rackbox;
     return false;
 }
 
@@ -340,9 +344,9 @@ bool PluginUI::animate_vanish() {
 #define ANIMATE_TIME 20
 #define AUTOSCROLL_TIMEOUT 50
 
-void PluginUI::animate_remove() {
-    if (!plugin_dict.use_animations()) {
-	rackbox->hide();
+void PluginUI::remove(bool animate) {
+    if (!animate || !plugin_dict.use_animations()) {
+	dispose_rackbox();
     } else {
 	if (rackbox->anim_tag.connected()) {
 	    rackbox->anim_tag.disconnect();
@@ -448,6 +452,9 @@ void PluginDict::check_order(PluginType tp, bool animate) {
     RackContainer& container = (tp == PLUGIN_TYPE_STEREO) ? stereorackcontainer : monorackcontainer;
     const std::vector<std::string> ol = machine.get_rack_unit_order(tp);
     bool in_order = true;
+    int pos = 0;
+    unsigned int post_pre = 1;
+    bool need_renumber = false;
     std::set<std::string> unit_set(ol.begin(), ol.end());
     RackContainer::rackbox_list l = container.get_children();
     std::vector<std::string>::const_iterator oi = ol.begin();
@@ -470,24 +477,35 @@ void PluginDict::check_order(PluginType tp, bool animate) {
 	}
 	if (*oi != id) {
 	    in_order = false;
+	    continue;
+	}
+	if (id == "ampstack") {
+	    pos = 0;
+	    post_pre = 0;
+	    continue;
+	}
+	if (!need_renumber && !(*c)->compare_position(pos, post_pre)) {
+	    need_renumber = true;
 	}
 	++oi;
     }
     if (oi != ol.end()) {
 	in_order = false;
     }
-    if (in_order) {
-	return;
-    }
-    int n = 0;
-    for (std::vector<std::string>::const_iterator oi = ol.begin(); oi != ol.end(); ++oi) {
-	PluginUI *p = at(*oi);
-	p->activate(animate, "");
-	if (p->rackbox) {
-	    container.reorder_child(*p->rackbox, n++);
+    if (!in_order) {
+	int n = 0;
+	for (std::vector<std::string>::const_iterator oi = ol.begin(); oi != ol.end(); ++oi) {
+	    PluginUI *p = at(*oi);
+	    p->activate(animate, "");
+	    if (p->rackbox) {
+		container.reorder_child(*p->rackbox, n++);
+	    }
 	}
     }
-    container.renumber();
+    if (!in_order || need_renumber) {
+	container.renumber();
+    }
+    container.set_is_empty(ol.empty());
 }
 
 void PluginDict::unit_order_changed(bool stereo) {
@@ -1448,10 +1466,6 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
 }
 
 void RackBox::display(bool v, bool animate) {
-    // this function hides the rackbox. It could also destroy it (or
-    // some other function could do it, e.g. when unloading a module),
-    // but currently there are too many memory leaks in the stack based
-    // builder.
     if (v) {
 	if (animate) {
 	    animate_insert();
@@ -1459,11 +1473,7 @@ void RackBox::display(bool v, bool animate) {
 	    show();
 	}
     } else {
-	if (animate) {
-	    plugin.animate_remove();
-	} else {
-	    suicide();
-	}
+	plugin.remove(animate);
     }
 }
 
@@ -1555,7 +1565,7 @@ void RackBox::on_my_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context) {
     int x, y;
     get_pointer(x, y);
     drag_icon = new DragIcon(plugin, context, plugin_dict.get_options(), x);
-    plugin.animate_remove();
+    plugin.remove(true);
 }
 
 bool RackBox::animate_create() {
@@ -1648,11 +1658,21 @@ void RackBox::set_config_mode(bool mode) {
     enable_drag(mode);
 }
 
-void RackBox::setOrder(int pos, int post_pre) {
+void RackBox::set_position(int pos, int post_pre) {
     plugin.plugin->set_position(pos);
     if (plugin.get_type() == PLUGIN_TYPE_MONO) {
 	plugin.plugin->set_effect_post_pre(post_pre);
     }
+}
+
+bool RackBox::compare_position(int pos, int post_pre) {
+    if (plugin.plugin->get_position() != pos) {
+	return false;
+    }
+    if (plugin.get_type() == PLUGIN_TYPE_MONO && plugin.plugin->get_effect_post_pre() != post_pre) {
+	return false;
+    }
+    return true;
 }
 
 void RackBox::do_expand() {
@@ -2047,6 +2067,6 @@ void RackContainer::renumber() {
 	    post_pre = 0;
 	    continue;
 	}
-	(*c)->setOrder(pos, post_pre);
+	(*c)->set_position(pos, post_pre);
     }
 }

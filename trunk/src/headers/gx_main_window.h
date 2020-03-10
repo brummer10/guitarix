@@ -253,7 +253,8 @@ public:
     void pack(Gtk::Widget *mainbox, Gtk::Widget *minibox);
     void animate_insert();
     static Gtk::Widget *create_icon_widget(const PluginUI& plugin, gx_system::CmdlineOptions& options);
-    void setOrder(int pos, int post_pre);
+    void set_position(int pos, int post_pre);
+    bool compare_position(int pos, int post_pre);
     void display(bool v, bool animate);
     bool get_plug_visible();
 };
@@ -270,11 +271,12 @@ private:
     bool on_my_leave_out(GdkEventCrossing *focus);
     bool on_my_enter_in(GdkEventCrossing *focus);
     gx_gui::uiToggle<bool> toggle_on_off;
+    sigc::connection evbox_button;
 private:
     Gtk::Widget *make_delete_button(RackBox& rb);
 public:
     MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options);
-    void set_config_mode(bool mode);
+    void set_config_mode(bool mode, PluginUI& plugin);
     void pack(Gtk::Widget *w);
 };
 
@@ -414,7 +416,8 @@ public:
     bool get_update_cond();
     void set_update_state(bool state);
     void on_state_change();
-    void animate_remove();
+    void remove(bool animate);
+    void dispose_rackbox();
     bool on_rack_handle_press(GdkEventButton* ev);
     Glib::ustring get_displayname(bool useshort) const;
 };
