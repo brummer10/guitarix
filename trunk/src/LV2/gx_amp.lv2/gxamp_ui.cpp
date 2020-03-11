@@ -38,10 +38,8 @@ typedef struct {
 // draw the window
 static void draw_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width;
-    int height = attrs.height;
+    int width = w->width;
+    int height = w->height;
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
     cairo_paint (w->crb);
 
@@ -69,10 +67,8 @@ static void draw_window(void *w_, void* user_data) {
 // draw the knobs
 static void draw_my_knob(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
+    int width = w->width-2;
+    int height = w->height-2;
 
     const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
     int arc_offset = 2;
