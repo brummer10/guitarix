@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
+import os, os.path 
 
 
 def options(opt):
@@ -7,7 +8,7 @@ def options(opt):
 
 def configure(conf):
     if not conf.env.LV2GUI:
-        return
+        return None
     opt = conf.options
     env = conf.env
     conf.check_cfg(package='cairo', args='--cflags --libs', uselib_store='CAIRO', mandatory=1)
@@ -16,20 +17,27 @@ def configure(conf):
 
 def build(bld):
     if not (bld.env.LV2GUI):
-        return
+        return None
+
+    images = bld.path.ant_glob('resources/*.png')
+    targ = (''.join([' ./resources/%s.o'% os.path.splitext(v.name)[0] for v in images]))
+    resources = targ.split()
 
     sources = bld.path.ant_glob('*.cpp')
     sources += bld.path.ant_glob('widgets/*.cpp')
     sources += bld.path.ant_glob('dialogs/*.cpp')
+    sources += resources
+    
     prog = bld(
         features=['cxx', 'cxxstlib'],
         name = 'xcairo',
         includes = ['.','./header','./header/widgets','./header/dialogs','./resources','./xdgmime'],
         export_includes = ['..'],
-        source = sources+['./resources/resources.o'],
+        source = sources,
         uselib = ['X11', 'CAIRO'],
         cxxflags='-fPIC',
         target = 'xcairo',
+        use = 're_sources',
         )
     prog.install_path = None
 

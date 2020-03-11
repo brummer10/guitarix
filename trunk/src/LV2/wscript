@@ -115,7 +115,9 @@ def build(bld):
 
     bld.recurse('faust')
     bld.recurse('xputty/resources')
+    bld.add_group()
     bld.recurse('xputty')
+    bld.add_group()
     bld.objects(name='GX_CONVOLVER',
                 source='DSP/gx_convolver.cc',
                 includes='DSP',
