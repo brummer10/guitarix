@@ -1775,19 +1775,6 @@ bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
     }
 }
 
-void GxSettingsBase::load_online_presets() {
-    PresetFile *p = get_current_bank_file();
-    JsonParser *jp = 0;
-    jp = p->create_reader(0);
-    try {
-	    preset_io->read_online(*jp);
-    } catch(JsonException& e) {
-	    gx_print_error(
-		_("load online preset"),
-		boost::format(_("error loading online presets")) );
-	}
-}
-
 void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
     PresetFile *p = get_current_bank_file();
     if (p && p->has_entry(current_name) && p->get_type() == gx_system::PresetFile::PRESET_SCRATCH) {

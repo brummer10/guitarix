@@ -1072,10 +1072,6 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	serv.save_state();
     }
 
-    PROCEDURE(set_online_presets) {
-	serv.settings.load_online_presets();
-    }
-
     PROCEDURE(create_default_scratch_preset) {
 	serv.settings.create_default_scratch_preset();
     }
