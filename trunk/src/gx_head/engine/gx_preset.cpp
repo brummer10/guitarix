@@ -96,13 +96,13 @@ void PresetIO::fixup_parameters(const gx_system::SettingsFileHeader& head) {
     }
 }
 
-static std::string replaced_id(const std::string& s) {
+static std::string replaced_id(const std::string& s, bool& warn) {
     const char *old_new[][2] = {
-	{ "beat_detector.stepper", "midi_out.beat_detector.stepper" },
-	{ "beat_detector.note_off", "midi_out.beat_detector.note_off" },
-	{ "beat_detector.atack_gain", "midi_out.beat_detector.atack_gain" },
-	{ "beat_detector.beat_gain", "midi_out.beat_detector.beat_gain" },
-	{ "beat_detector.midi_gain", "midi_out.beat_detector.midi_gain" },
+	{ "beat_detector.stepper", nullptr },
+	{ "beat_detector.note_off", nullptr },
+	{ "beat_detector.atack_gain", nullptr },
+	{ "beat_detector.beat_gain", nullptr },
+	{ "beat_detector.midi_gain", nullptr },
 	// begin ui.*
 	// ui.<name> -> ui.<id> (rack unit visible)
 	{ "ui.3 Band EQ", "ui.tonemodul" },
@@ -121,7 +121,7 @@ static std::string replaced_id(const std::string& s) {
 	{ "ui.Flanger Mono", "ui.flanger_mono" },
 	{ "ui.Freeverb", "ui.freeverb" },
 	{ "ui.ImpulseResponse", "ui.IR" },
-	{ "ui.Midi Out", "ui.midi_out" },
+	{ "ui.Midi Out", nullptr },
 	{ "ui.Moog Filter", "ui.moog" },
 	{ "ui.Multi Band Distortion", "ui.gx_distortion" },
 	{ "ui.Oscilloscope", "ui.oscilloscope" },
@@ -144,11 +144,51 @@ static std::string replaced_id(const std::string& s) {
 	{ "Rev.Rocket.position", "rev_rocket.position"},
 	{ "Rev.Rocket.pp", "rev_rocket.pp"},
 	{ "ui.Rev.Rocket", "ui.rev_rocket"},
+        // removed audio -> midi convert plugin
+        { "midi_out.beat_detector.atack_gain", nullptr },
+        { "midi_out.beat_detector.beat_gain", nullptr },
+        { "midi_out.beat_detector.midi_gain", nullptr },
+        { "midi_out.beat_detector.note_off", nullptr },
+        { "midi_out.beat_detector.stepper", nullptr },
+        { "midi_out.channel_1.auto_pitch", nullptr },
+        { "midi_out.channel_1.autogain", nullptr },
+        { "midi_out.channel_1.channel", nullptr },
+        { "midi_out.channel_1.oktave", nullptr },
+        { "midi_out.channel_1.program", nullptr },
+        { "midi_out.channel_1.sensity", nullptr },
+        { "midi_out.channel_1.velocity", nullptr },
+        { "midi_out.channel_1.volume", nullptr },
+        { "midi_out.channel_2.auto_pitch", nullptr },
+        { "midi_out.channel_2.autogain", nullptr },
+        { "midi_out.channel_2.channel", nullptr },
+        { "midi_out.channel_2.oktave", nullptr },
+        { "midi_out.channel_2.on_off", nullptr },
+        { "midi_out.channel_2.program", nullptr },
+        { "midi_out.channel_2.sensity", nullptr },
+        { "midi_out.channel_2.velocity", nullptr },
+        { "midi_out.channel_2.volume", nullptr },
+        { "midi_out.channel_3.auto_pitch", nullptr },
+        { "midi_out.channel_3.autogain", nullptr },
+        { "midi_out.channel_3.channel", nullptr },
+        { "midi_out.channel_3.oktave", nullptr },
+        { "midi_out.channel_3.on_off", nullptr },
+        { "midi_out.channel_3.program", nullptr },
+        { "midi_out.channel_3.sensity", nullptr },
+        { "midi_out.channel_3.velocity", nullptr },
+        { "midi_out.channel_3.volume", nullptr },
+        { "midi_out.on_off", nullptr },
+        { "ui.midi_out", nullptr },
 	{0}
     };
+    warn = true;
     for (const char *(*p)[2] = old_new; (*p)[0]; ++p) {
 	if (s == (*p)[0]) {
-	    return (*p)[1];
+            if ((*p)[1]) {
+                return (*p)[1];
+            } else {
+                warn = false; // suppress warning for removed midi plugin (future additions might need to modify this)
+                break;
+            }
 	}
     }
     return "";
@@ -370,12 +410,18 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
 	    if (convert_old(jp)) {
 		continue;
 	    }
-	    std::string s = replaced_id(jp.current_value());
+            bool warn;
+	    std::string s = replaced_id(jp.current_value(), warn);
 	    if (s.empty()) {
-		gx_print_warning(
-		    _("recall settings"),
-		    _("unknown parameter: ")+jp.current_value());
-		jp.skip_object();
+#ifndef NDEBUG
+                warn = true;
+#endif
+                if (warn) {
+                    gx_print_warning(
+                        _("recall settings"),
+                        _("unknown parameter: ")+jp.current_value());
+                }
+                jp.skip_object();
 		continue;
 	    }
 	    p = &param[s];
