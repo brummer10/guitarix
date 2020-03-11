@@ -135,7 +135,7 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
     DIR *dirp;
     struct dirent *dp;
     if((dirp = opendir(path)) == NULL) {
-        path =PATH_SEPARATOR;
+        path =(char*)PATH_SEPARATOR;
         dirp = opendir(PATH_SEPARATOR);
         assert(dirp);
     }
@@ -164,7 +164,7 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
               (filepicker->dir_counter + 1) * sizeof(char *));
             assert(filepicker->dir_names != NULL);
             asprintf(&filepicker->dir_names[filepicker->dir_counter++], (strcmp(path, PATH_SEPARATOR) != 0) ?
-              "%s"PATH_SEPARATOR"%s" : "%s%s" , path,dp->d_name);
+              "%s" PATH_SEPARATOR "%s" : "%s%s" , path,dp->d_name);
             assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
         }
     }
