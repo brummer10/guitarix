@@ -184,6 +184,14 @@ dialog {
 
 
 /****************************************************************
+ * Ladspa / LV2 plugin window
+ */
+
+.pldef-changed {
+    color: red; // mark changed values (only text field, table and combobox are hardcoded)
+}
+
+/****************************************************************
  * Main Window
  */
 

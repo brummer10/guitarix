@@ -193,10 +193,9 @@ void PluginUI::update_rackbox() {
     }
     hide(false);
     delete rackbox;
-    rackbox = 0;
+    rackbox = plugin_dict.add_rackbox(*this, plugin->get_plug_visible(), -1, false);
     show(false);
     container->reorder(get_id(), before);
-    //rackbox = main.add_rackbox(*this, plugin->get_plug_visible(), n, false);
 }
 
 bool plugins_by_name_less(PluginUI *a, PluginUI *b) {

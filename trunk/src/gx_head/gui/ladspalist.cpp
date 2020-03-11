@@ -798,11 +798,11 @@ void PluginDisplay::selection_changed() {
 	}
     }
     master_slider_idx->set_active(p->MasterIdx+1);
-    gtk_widget_override_color(GTK_WIDGET(master_slider_name->gobj()), GTK_STATE_FLAG_NORMAL, nullptr);
+    master_slider_name->get_style_context()->remove_class("pldef-changed");
     if (!p->MasterLabel.empty()) {
 	master_slider_name->set_text(p->MasterLabel);
 	if (p->MasterLabel != ml) {
-	    master_slider_name->override_color(Gdk::RGBA("red"), Gtk::STATE_FLAG_NORMAL);
+	    master_slider_name->get_style_context()->add_class("pldef-changed");
 	}
     }
     dry_wet_button->set_active(current_plugin->add_wet_dry);

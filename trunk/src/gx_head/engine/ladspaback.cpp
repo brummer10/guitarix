@@ -1133,9 +1133,6 @@ void PluginDesc::output(JsonWriter& jw) {
 	    ++idx;
 	    if ((*p)->pos == MasterIdx) {
 		sm = MasterLabel;
-		if (sm == (*p)->get_name()) {
-		    sm = "";
-		}
 		break;
 	    }
 	}
