@@ -592,7 +592,9 @@ void MainWindow::on_show_tuner() {
     bool v = actions.tuner->get_active();
     on_livetuner_toggled();
     bld.tunerbox->set_visible(v);
-    update_scrolled_window(*bld.vrack_scrolledbox);
+    if (!v && !is_variable_size()) {
+        bld.window->set_size_request(-1, 1);
+    }
 }
 
 void MainWindowBuilder::load_widget_pointers() {
@@ -732,6 +734,7 @@ void MainWindow::maybe_change_resizable() {
 	return;
     }
     if (!is_variable_size() && bld.window->get_resizable()) {
+        bld.window->set_size_request(-1, 1);
 	bld.window->set_resizable(false);
     } else if (!bld.window->get_resizable()) {
 	bld.window->set_resizable(true);
@@ -800,6 +803,7 @@ void MainWindow::on_show_rack() {
 		freezer.set_slot(sigc::mem_fun(this, &MainWindow::set_vpaned_handle));
 	    }
 	}
+        bld.window->resize(1, options.window_height);
     } else {
 	// show only amp (and maybe presets), hide rack
 	pool_act = actions.show_plugin_bar->get_active();
@@ -824,6 +828,7 @@ void MainWindow::on_show_rack() {
 	if (actions.presets->get_active()) {
 	    maybe_shrink_horizontally(true);
 	} else {
+            bld.window->set_default_size(1, 1);
 	    maybe_shrink_horizontally();
 	}
     }
@@ -907,8 +912,6 @@ void MainWindow::on_show_plugin_bar() {
     }
     bld.effects_frame_paintbox->set_visible(v);
     if (!v) {
-	//update_scrolled_window(*bld.vrack_scrolledbox);
-	//update_scrolled_window(*bld.stereorackbox);
 	maybe_shrink_horizontally();
     }
 }
@@ -928,12 +931,8 @@ int MainWindow::rackbox_stacked_vertical() const {
 }
 
 void MainWindow::change_expand(Gtk::Widget& w, bool value) {
-    Gtk::Box *p = dynamic_cast<Gtk::Box*>(w.get_parent());
-    int expand, fill;
-    unsigned int padding;
-    GtkPackType pack_type;
-    gtk_box_query_child_packing(p->gobj(), w.gobj(), &expand, &fill, &padding, &pack_type);
-    gtk_box_set_child_packing(p->gobj(), w.gobj(), value, value, padding, pack_type);
+    w.set_vexpand(value);
+    dynamic_cast<Gtk::Box*>(w.get_parent())->child_property_expand(w) = value;
 }
 
 void MainWindow::on_dir_changed() {
@@ -980,13 +979,15 @@ void MainWindow::on_preset_action() {
     maybe_change_resizable();
     if (v && !actions.show_rack->get_active()) {
 	Glib::RefPtr<Gdk::Window> win = bld.window->get_window();
+        int min_width, natural_width;
+        int min_height, natural_height;
+        bld.window->get_preferred_width(min_width, natural_width);
+        bld.window->get_preferred_height(min_height, natural_height);
 	if (!win || win->get_state() == 0) {
-	    int min_width, natural_width;
-	    int min_height, natural_height;
-	    bld.window->get_preferred_width(min_width, natural_width);
-	    bld.window->get_preferred_height(min_height, natural_height);
 	    freezer.freeze_and_size_request(bld.window, min_width, min_height+options.preset_window_height);
-	}
+	} else {
+            bld.window->resize(min_width, min_height+options.preset_window_height);
+        }
     }
     bld.preset_box_no_rack->set_visible(v);
     preset_window->on_preset_select(v, use_animations() && actions.show_rack->get_active(), options.preset_window_height);
