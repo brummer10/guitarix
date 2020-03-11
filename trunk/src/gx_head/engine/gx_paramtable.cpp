@@ -1382,10 +1382,17 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.check_expect(gx_system::JsonParser::value_string);
     float n = idx_from_id(jp.current_value());
     if (n < 0) {
-        gx_print_warning(
-            _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
-                               % _id % jp.current_value()).str());
-        n = lower;
+        bool found;
+        string v_id = gx_preset::PresetIO::try_replace_param_value(id(), jp.current_value(), found);
+        if (found) {
+            n = idx_from_id(v_id);
+        }
+        if (n < 0) {
+            gx_print_warning(
+                _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
+                                      % _id % jp.current_value()).str());
+            n = lower;
+        }
     }
     json_value = n;
 }

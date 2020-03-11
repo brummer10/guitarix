@@ -89,6 +89,7 @@ public:
     void commit_preset();
     void write_preset(gx_system::JsonWriter& jw);
     void copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&, gx_system::JsonWriter &jw);
+    static string try_replace_param_value(const std::string& id, const std::string& v_id, bool& found);
 };
 
 class StateIO: public gx_system::AbstractStateIO, private PresetIO {

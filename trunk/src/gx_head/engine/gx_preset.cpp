@@ -154,6 +154,29 @@ static std::string replaced_id(const std::string& s) {
     return "";
 }
 
+//static
+string PresetIO::try_replace_param_value(const std::string& id, const std::string& v_id, bool& found) {
+    found = false;
+    string res;
+    if (id == "tremolo.SINE") {
+        if (v_id == "os.triangle") {
+            found = true;
+            res = "triangle";
+        } else if (v_id == "os.square") {
+            found = true;
+            res = "square";
+        }
+    }
+#ifndef NDEBUG
+    if (found) {
+        gx_print_warning(
+            _("recall settings"),
+            boost::format("Parameter %1%: value %2% -> %3%") % id % v_id % res);
+    }
+#endif
+    return res;
+}
+
 class UnitPositionID: public UnitPosition {
 public:
     std::string id;
