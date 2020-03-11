@@ -25,17 +25,26 @@ $ GUITARIX_MEASURE=1 taskset -c 0 guitarix
 2. Formatting of source code
 ----------------------------------------------------------------
 
-We use emacs c++ style "linux" (other formatters like astyle have
+We use emacs c++ style "cc-mode" (other formatters like astyle have
 similar styles under this name) with following modifications:
 
  - namespaces do not increase indentation
-   in .emacs: (setq c-offsets-alist '((innamespace . 0)))
+ - spaces preferred to tabs for indentation
 
- - tabs at the beginning of lines, but not for aligning indentation
-   ("smart tabs", http://www.emacswiki.org/emacs/SmartTabs). Should
-   look correct with any tab width (though for tab width 8 you need
-   a wide screen..).
-
+If you use the Emacs editor:
+In ~/.emacs:
+------
+(defconst my-cc-style
+  '("cc-mode"
+    (indent-tabs-mode . nil)
+    (c-offsets-alist . ((innamespace . [0])))))
+(c-add-style "guitarix-cc-mode" guitarix-cc-style)
+--
+In trunk/.dir-locals.el:
+------
+((c++-mode . ((c-file-style . "guitarix-cc-mode") (tab-width . 4)))
+ (c-mode   . ((c-file-style . "guitarix-cc-mode") (tab-width . 4))))
+--
 
 3. Thread architecture
 ----------------------------------------------------------------
