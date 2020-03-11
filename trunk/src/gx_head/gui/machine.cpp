@@ -171,8 +171,8 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 #ifdef HAVE_AVAHI
     avahi_service(0),
 #endif
-    pmap(engine.get_param()) {
-    engine.set_jack(&jack);
+    pmap(engine.get_param()),
+    switch_bank() {
 
     /*
     ** setup parameters
@@ -271,14 +271,11 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 	sigc::mem_fun(this, &GxMachine::do_bank_change));
     pmap["ui.live_play_switcher"].signal_changed_bool().connect(
 	sigc::mem_fun(this, &GxMachine::edge_toggle_tuner));
-    engine.midiaudiobuffer.signal_jack_load_change().connect(
-	sigc::mem_fun(this, &GxMachine::on_jack_load_change));
     switch_bank = settings.get_current_bank();
     pmap["engine.next_preset"].signal_changed_bool().connect(
 	sigc::mem_fun(this, &GxMachine::process_next_preset_switch));
     pmap["engine.previus_preset"].signal_changed_bool().connect(
 	sigc::mem_fun(this, &GxMachine::process_previus_preset_switch));
-
 }
 
 GxMachine::~GxMachine() {
@@ -300,14 +297,6 @@ void GxMachine::insert_param(Glib::ustring group, Glib::ustring name) {
     sp.setSavable(false);
     sp.signal_changed().connect(sigc::hide(
       sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(this, &GxMachine::plugin_preset_list_set_on_idle), name), false),pluginlist_lookup_plugin("seq")->get_pdef())));
-}
-
-void GxMachine::on_jack_load_change() {
-    gx_engine::MidiAudioBuffer::Load l = engine.midiaudiobuffer.jack_load_status();
-    if (l == gx_engine::MidiAudioBuffer::load_low && !engine.midiaudiobuffer.get_midistat()) {
-	l = gx_engine::MidiAudioBuffer::load_high;
-    }
-    jack_load_change(l);
 }
 
 void GxMachine::edge_toggle_tuner(bool v) {
@@ -1066,7 +1055,6 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     jw->write("logger");
     jw->write("midi");
     jw->write("oscilloscope");
-    jw->write("jack_load");
     jw->write("param");
     jw->write("plugins_changed");
     jw->write("misc");
@@ -1367,9 +1355,6 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	impresp_list(path, l);
     } else if (method == "plugins_changed") {
 	update_plugins(jp);
-    } else if (method == "jack_load_changed") {
-	jp->next(gx_system::JsonParser::value_number);
-	jack_load_change(static_cast<gx_engine::MidiAudioBuffer::Load>(jp->current_value_int()));
     } else if (method == "server_shutdown") {
 	Gtk::Main::quit();
     } else {

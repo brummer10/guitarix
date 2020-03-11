@@ -54,7 +54,6 @@ struct CmdConnection::methodnames;
 "getstate", true
 "setstate", false
 "jack_cpu_load", true
-"get_jack_load_status", true
 "set_jack_insert", false
 
 /* Parameter, ParamMap */

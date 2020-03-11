@@ -17,8 +17,8 @@ def build(bld):
         'insert_off.png',
         'gx_bypass.png',
         'gx_head.png',
-        'gx_head-midi.png',
-        'gx_head-warn.png',
+        #'gx_head-midi.png', # no currently used
+        #'gx_head-warn.png',
         'gx_log_grey.png',
         'gx_log_yellow.png',
         'gx_log_red.png',

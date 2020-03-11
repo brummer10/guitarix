@@ -132,7 +132,9 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       shutdown(),
       connection(),
       single_client(false) {
-	for(int i = 0;i<5;i++) mmessage.send_cc[i] = false;
+    for (int i = 0; i<5; i++) {
+        mmessage.send_cc[i] = false;
+    }
     connection_queue.new_data.connect(sigc::mem_fun(*this, &GxJack::fetch_connection_data));
     client_change_rt.connect(client_change);
     GxExit::get_instance().signal_exit().connect(

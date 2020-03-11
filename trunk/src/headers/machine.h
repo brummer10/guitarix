@@ -57,7 +57,6 @@ private:
     sigc::connection update_timeout;
 protected:
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> > impresp_list;
-    sigc::signal<void, MidiAudioBuffer::Load> jack_load_change;
     output_listen_map update_map;
 private:
     virtual int _get_parameter_value_int(const std::string& id) = 0;
@@ -97,7 +96,6 @@ public:
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port) = 0;
     virtual void stop_socket() = 0;
     virtual sigc::signal<void,GxEngineState>& signal_state_change() = 0;
-    sigc::signal<void,MidiAudioBuffer::Load>& signal_jack_load_change() { return jack_load_change; }
     virtual void tuner_used_for_display(bool on) = 0;
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type) = 0;
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed() = 0;
@@ -255,7 +253,6 @@ private:
     void edge_toggle_tuner(bool v);
     void on_impresp(const std::string& path);
     void exit_handler(bool otherthread);
-    void on_jack_load_change();
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);

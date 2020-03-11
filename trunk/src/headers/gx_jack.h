@@ -164,6 +164,7 @@ class GxJack: public sigc::trackable {
     void                gx_jack_callbacks();
     void                gx_jack_cleanup();
     inline void         check_overload();
+    void                process_midi_cc(void *buf, jack_nframes_t nframes);
 
  public:
     JackPorts           ports;
@@ -194,7 +195,6 @@ public:
     float               get_last_xrun() { return last_xrun; }
     void*               get_midi_buffer(jack_nframes_t nframes);
     void                send_midi_cc(int cc_num, int pgm_num, int bgn, int num);
-    void                process_midi_cc(void *buf, jack_nframes_t nframes);
 
     void                read_connections(gx_system::JsonParser& jp);
     void                write_connections(gx_system::JsonWriter& w);

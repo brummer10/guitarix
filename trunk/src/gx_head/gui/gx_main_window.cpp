@@ -642,19 +642,6 @@ void MainWindowBuilder::load_widget_pointers() {
     get()->find_widget("fastmeterL", fastmeter[0]);
     get()->find_widget("fastmeterR", fastmeter[1]);
     get()->find_widget("preset_status", preset_status);
-    get()->find_widget("midi_out_box", midi_out_box);
-    get()->find_widget("midi_out_normal", midi_out_normal);
-    get()->find_widget("midi_out_mini", midi_out_mini);
-    get()->find_widget("midi_out_compress:effect_reset", midi_out_compress);
-    get()->find_widget("midi_out_expand:effect_reset", midi_out_expand);
-    get()->find_widget("midi_out_presets_mini", midi_out_presets_mini);
-    get()->find_widget("midi_out_presets_normal", midi_out_presets_normal);
-    get()->find_widget("channel1_button", channel1_button);
-    get()->find_widget("channel1_box", channel1_box);
-    get()->find_widget("channel2_button", channel2_button);
-    get()->find_widget("channel2_box", channel2_box);
-    get()->find_widget("channel3_button", channel3_button);
-    get()->find_widget("channel3_box", channel3_box);
 }
 
 
@@ -781,7 +768,6 @@ void MainWindow::on_show_rack() {
     }
     if (v) {
 	// show rack
-	bld.midi_out_box->set_visible(actions.midi_out->get_active());
 	if (pool_act) {
 	    actions.show_plugin_bar->set_active(true);
 	}
@@ -816,9 +802,6 @@ void MainWindow::on_show_rack() {
 	}
     } else {
 	// show only amp (and maybe presets), hide rack
-	if (actions.midi_out->get_active()) {
-	    bld.midi_out_box->set_visible(false);
-	}
 	pool_act = actions.show_plugin_bar->get_active();
 	if (pool_act) {
 	    actions.show_plugin_bar->set_active(false);
@@ -850,7 +833,6 @@ void MainWindow::on_show_rack() {
 void MainWindow::on_compress_all() {
     plugin_dict.compress(true);
     on_ampdetail_switch(true, true);
-    actions.midi_out_plug->set_active(true);
     machine.set_parameter_value("ui.all_s_h", true);
     bld.compress_button->set_visible(false);
     bld.expand_button->set_visible(true);
@@ -859,7 +841,6 @@ void MainWindow::on_compress_all() {
 void MainWindow::on_expand_all() {
     plugin_dict.compress(false);
     on_ampdetail_switch(false, true);
-    actions.midi_out_plug->set_active(false);
     machine.set_parameter_value("ui.all_s_h", false);
     bld.compress_button->set_visible(true);
     bld.expand_button->set_visible(false);
@@ -1401,32 +1382,6 @@ void MainWindow::set_bypass_controller() {
     }
 }
 
-void MainWindow::on_show_midi_out() {
-#ifdef USE_MIDI_OUT
-    if (actions.midi_out->get_active()) {
-	actions.show_rack->set_active(true);
-	bld.midi_out_box->set_visible(true);
-    } else {
-	bld.midi_out_box->set_visible(false);
-	machine.pluginlist_lookup_plugin("midi_out")->set_on_off(false);
-    }
-#endif
-}
-
-void MainWindow::on_show_midi_out_plug() {
-    if (actions.midi_out_plug->get_active()) {
-	bld.midi_out_normal->hide();
-	bld.midi_out_mini->show();
-    } else {
-	bld.midi_out_mini->hide();
-	bld.midi_out_normal->show();
-    }
-}
-
-void MainWindow::on_midi_out_channel_toggled(Gtk::RadioButton *rb, Gtk::Container *c) {
-    c->set_visible(rb->get_active());
-}
-
 void MainWindow::on_livetuner_toggled() {
     if (actions.livetuner->get_active()) {
 	if (actions.live_play->get_active()) {
@@ -1560,18 +1515,6 @@ void MainWindow::create_actions() {
     actions.group->add(actions.livetuner);
     actions.livetuner->signal_toggled().connect(
 	sigc::mem_fun(this, &MainWindow::on_livetuner_toggled));
-
-    actions.midi_out = UiBoolToggleAction::create(
-	machine, "ui.midi_out", "MidiOut", _("M_idi Out"));
-    actions.group->add(
-	actions.midi_out,
-	sigc::mem_fun(this, &MainWindow::on_show_midi_out));
-
-    actions.midi_out_plug = UiBoolToggleAction::create(
-	machine, "midi_out.s_h", "MidiOutSH", "??");
-    actions.group->add(
-	actions.midi_out_plug,
-	sigc::mem_fun(this, &MainWindow::on_show_midi_out_plug));
 
     /*
     ** rack actions
@@ -2262,23 +2205,6 @@ void MainWindow::systray_menu(guint button, guint32 activate_time) {
     menu->popup(2, gtk_get_current_event_time());
 }
 
-void MainWindow::overload_status_changed(gx_engine::MidiAudioBuffer::Load l) {
-    switch (l) {
-    case gx_engine::MidiAudioBuffer::load_low:
-	status_icon->set(gx_head_midi);
-	break;
-    case gx_engine::MidiAudioBuffer::load_off:
-    case gx_engine::MidiAudioBuffer::load_high:
-	status_icon->set(gx_head_icon);
-	break;
-    case gx_engine::MidiAudioBuffer::load_over:
-	status_icon->set(gx_head_warn);
-	break;
-    default:
-	assert(false);
-    }
-}
-
 bool MainWindow::on_window_state_changed(GdkEventWindowState* event) {
     if (event->changed_mask & event->new_window_state & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) {
 	bld.window->get_window()->get_root_origin(options.mainwin_x, options.mainwin_y);
@@ -2420,8 +2346,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       pixbuf_log_red(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_log_red.png"))),
       in_session(false),
       status_icon(Gtk::StatusIcon::create(gx_head_icon)),
-      gx_head_midi(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-midi.png"))),
-      gx_head_warn(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head-warn.png"))),
       keyswitch(machine, sigc::mem_fun(this, &MainWindow::display_preset_msg)),
       ladspalist_window() {
 
@@ -2516,8 +2440,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 
     machine.signal_state_change().connect(
 	sigc::mem_fun(*this, &MainWindow::on_engine_state_change));
-    machine.signal_jack_load_change().connect(
-	sigc::mem_fun(*this, &MainWindow::overload_status_changed));
+
     /*
     ** GxSettings signal connections
     */
@@ -2594,38 +2517,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), false, true));
     machine.signal_parameter_value<bool>("ui.mp_s_h").connect(
 	sigc::bind(sigc::mem_fun(*this, &MainWindow::on_ampdetail_switch), false));
-
-    /*
-    ** midi out signal connections
-    */
-    bld.midi_out_compress->signal_clicked().connect(
-	sigc::bind(
-	    sigc::mem_fun(actions.midi_out_plug.operator->(), &Gtk::ToggleAction::set_active),
-	    true));
-    bld.midi_out_expand->signal_clicked().connect(
-	sigc::bind(
-	    sigc::mem_fun(actions.midi_out_plug.operator->(), &Gtk::ToggleAction::set_active),
-	    false));
-    bld.midi_out_presets_mini->signal_clicked().connect(
-	sigc::bind(
-	    sigc::mem_fun1(plugin_dict, &PluginDict::plugin_preset_popup),
-	    machine.pluginlist_lookup_plugin("midi_out")->get_pdef()));
-    bld.midi_out_presets_normal->signal_clicked().connect(
-	sigc::bind(
-	    sigc::mem_fun1(plugin_dict, &PluginDict::plugin_preset_popup),
-	    machine.pluginlist_lookup_plugin("midi_out")->get_pdef()));
-    bld.channel1_button->signal_toggled().connect(
-	sigc::bind(
-	    sigc::mem_fun(this, &MainWindow::on_midi_out_channel_toggled),
-	    bld.channel1_button, bld.channel1_box));
-    bld.channel2_button->signal_toggled().connect(
-	sigc::bind(
-	    sigc::mem_fun(this, &MainWindow::on_midi_out_channel_toggled),
-	    bld.channel2_button, bld.channel2_box));
-    bld.channel3_button->signal_toggled().connect(
-	sigc::bind(
-	    sigc::mem_fun(this, &MainWindow::on_midi_out_channel_toggled),
-	    bld.channel3_button, bld.channel3_box));
 
     /*
     ** init status image widget

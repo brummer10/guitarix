@@ -84,7 +84,6 @@ public:
     MonoMute monomute;
     StereoMute stereomute;
     TunerAdapter tuner;
-    MidiAudioBuffer midiaudiobuffer;
     Drumout drumout;
     Directout directout;
     MaxLevel maxlevel;
@@ -105,7 +104,6 @@ public:
 public:
     GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options);
     ~GxEngine();
-    void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
     void ladspaloader_update_plugins();
     sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed() { return plugin_changed; }
 };

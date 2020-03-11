@@ -273,7 +273,6 @@ static struct {
     { "logger", CmdConnection::f_log_message, CmdConnection::f_log_message },
     { "midi", CmdConnection::f_midi_changed, CmdConnection::f_midi_value_changed },
     { "oscilloscope", CmdConnection::f_osc_size_changed, CmdConnection::f_osc_activation },
-    { "jack_load", CmdConnection::f_jack_load_changed, CmdConnection::f_jack_load_changed },
     { "param", CmdConnection::f_parameter_change_notify, CmdConnection::f_parameter_change_notify },
     { "plugins_changed", CmdConnection::f_plugins_changed, CmdConnection::f_plugins_changed },
     { "misc", CmdConnection::f_misc_msg, CmdConnection::f_misc_msg },
@@ -677,10 +676,6 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     FUNCTION(jack_cpu_load) {
 	jw.write(serv.jack.get_jcpu_load());
-    }
-
-    FUNCTION(get_jack_load_status) {
-	jw.write(serv.jack.get_engine().midiaudiobuffer.jack_load_status());
     }
 
     FUNCTION(load_impresp_dirs) {
@@ -1758,8 +1753,6 @@ GxService::GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
 	sigc::mem_fun(this, &GxService::on_osc_size_changed));
     jack.get_engine().oscilloscope.activation.connect(
 	sigc::mem_fun(this, &GxService::on_osc_activation));
-    jack.get_engine().midiaudiobuffer.signal_jack_load_change().connect(
-	sigc::mem_fun(this, &GxService::on_jack_load_changed));
     settings.signal_rack_unit_order_changed().connect(
 	sigc::mem_fun(this, &GxService::on_rack_unit_changed));
     gx_engine::ParamMap& pmap = settings.get_param();
@@ -1978,20 +1971,6 @@ void GxService::on_param_value_changed(gx_engine::Parameter *p) {
     if (!jwc) {
 	broadcast(jwp, CmdConnection::f_parameter_change_notify);
     }
-}
-
-void GxService::on_jack_load_changed() {
-    if (!broadcast_listeners(CmdConnection::f_jack_load_changed)) {
-	return;
-    }
-    gx_system::JsonStringWriter jw;
-    jw.send_notify_begin("jack_load_changed");
-    gx_engine::MidiAudioBuffer::Load l = jack.get_engine().midiaudiobuffer.jack_load_status();
-    if (l == gx_engine::MidiAudioBuffer::load_low && !jack.get_engine().midiaudiobuffer.get_midistat()) {
-	l = gx_engine::MidiAudioBuffer::load_high;
-    }
-    jw.write(l);
-    broadcast(jw, CmdConnection::f_jack_load_changed);
 }
 
 void GxService::on_osc_size_changed(unsigned int sz) {

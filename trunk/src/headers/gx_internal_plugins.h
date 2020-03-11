@@ -28,7 +28,7 @@ namespace gx_jack { class GxJack; }
 namespace gx_engine {
 
 /****************************************************************
- ** MonoMute, StereoMute, MaxLevel, MidiAudioBuffer
+ ** MonoMute, StereoMute, MaxLevel
  */
 
 class MonoMute: public PluginDef {
@@ -94,107 +94,6 @@ public:
     Glib::Dispatcher& signal_freq_changed() { return pitch_tracker.new_freq; }
     float get_freq() { return pitch_tracker.get_estimated_freq(); }
     float get_note() { return pitch_tracker.get_estimated_note(); }
-};
-
-
-/****************************************************************
- ** class MidiAudioBuffer
- */
-
-class MidiVariables {
-private:
-    float fslider45;
-    float fslider38;
-    float fslider31;
-    float fslider27;
-    float fslider29;
-    float fslider30;
-    float fslider26;
-    float fslider33;
-    float fslider34;
-    float fslider35;
-    float fslider36;
-    float fslider42;
-    float fslider43;
-    float fslider40;
-    float fslider41;
-    float fslider44;
-    float fslider37;
-    float fslider39;
-    float fslider46;
-    float fslider47;
-    float fslider48;
-    float fConstlog;
-    float fConstlog2;
-    float beat0;
-    float midi_gain;
-    float fConstun0;
-    float fslider32;
-    float BeatFilter1;
-    float BeatFilter2;
-    float BeatFilterk;
-    bool fautogain;
-    bool fpitch;
-    bool fautogain1;
-    bool fpitch1;
-    bool fpitch2;
-    bool fautogain2;
-    bool  midistat;
-    bool  midistat1;
-    bool  midistat2;
-    bool  midistat3;
-
-    int   weg;
-    int   program;
-    int   program2;
-    int   volume2;
-    int   Beat_is;
-    int   send;
-    int   volume;
-    int   noten;
-    int   program1;
-    int   send1;
-    int   noten1;
-    int   volume1;
-    int   send2;
-    int   noten2;
-
-    bool  fcheckbox10;
-    bool  fcheckbox11;
-
-    unsigned char* midi_send;
-    unsigned char* midi_send1;
-    unsigned char* midi_send2;
-
-public:
-    void register_parameter(const ParamReg& reg);
-    void init(int samplingFreq);
-    void process_midi(int len, float *audiodata, void *midi_port_buf, float jcpu_load,
-		      float fConsta4, float fConsta1t);
-    bool get_midistat() { return midistat; }
-};
-
-
-class MidiAudioBuffer: PluginDef {
-public:
-    enum Load { load_off = -1, load_low = 0, load_high = 1, load_over = 2 };
-private:
-    MidiVariables midi;
-    gx_engine::TunerAdapter& tuner;
-    gx_jack::GxJack* jack;
-    Load jack_overload;
-    Glib::Dispatcher overload_change;
-    static void fill_buffer(int count, float *input0, float *output0, PluginDef*);
-    static int regparam(const ParamReg& reg);
-    static void init(unsigned int samplingFreq, PluginDef *plugin);
-    static int activate(bool start, PluginDef *plugin);
-public:
-    Plugin plugin;
-    MidiAudioBuffer(TunerAdapter& t);
-    void set_jack(gx_jack::GxJack* jack_) { jack = jack_; }
-    bool get_midistat() { return midi.get_midistat(); }
-    Load jack_load_status() { return jack_overload; }
-    Glib::Dispatcher& signal_jack_load_change() { return overload_change; }
 };
 
 

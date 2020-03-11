@@ -84,10 +84,8 @@ def build(bld):
         './engine/gx_jack.cpp',
         './engine/gx_preset.cpp',
         './engine/gx_internal_ui_plugins.cpp',
-        './engine/gx_midi_plugin.cpp',
         './engine/gx_pitch_tracker.cpp',
         './engine/gx_engine.cpp',
-        './engine/gx_engine_midi.cpp',
         './engine/jsonrpc_methods.gperf_tmpl',
         ]
 

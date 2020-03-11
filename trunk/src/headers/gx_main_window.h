@@ -636,8 +636,6 @@ public:
     Glib::RefPtr<UiBoolToggleAction> tuner;
     Glib::RefPtr<UiBoolToggleAction> tunermove;
     Glib::RefPtr<UiBoolToggleAction> livetuner;
-    Glib::RefPtr<UiBoolToggleAction> midi_out;
-    Glib::RefPtr<UiBoolToggleAction> midi_out_plug;
     Glib::RefPtr<Gtk::ToggleAction> show_values;
     Glib::RefPtr<Gtk::ToggleAction> tooltips;
     Glib::RefPtr<UiSwitchToggleAction> midi_in_presets;
@@ -730,20 +728,6 @@ public:
     Gtk::Widget *ampdetail_normal;
     Gxw::FastMeter *fastmeter[2];
     Gtk::Entry *preset_status;
-    Gtk::Container *midi_out_box;
-    Gtk::Container *midi_out_normal;
-    Gtk::Container *midi_out_mini;
-    Gtk::Button *midi_out_compress;
-    Gtk::Button *midi_out_expand;
-    Gtk::Button *midi_out_presets_mini;
-    Gtk::Button *midi_out_presets_normal;
-    Gtk::RadioButton *channel1_button;
-    Gtk::Container *channel1_box;
-    Gtk::RadioButton *channel2_button;
-    Gtk::Container *channel2_box;
-    Gtk::RadioButton *channel3_button;
-    Gtk::Container *channel3_box;
-    Gtk::Alignment *vbam;
 private:
     void load_widget_pointers();
 public:
@@ -792,8 +776,6 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> pixbuf_log_red;
     bool in_session;
     Glib::RefPtr<Gtk::StatusIcon> status_icon;
-    Glib::RefPtr<Gdk::Pixbuf> gx_head_midi;
-    Glib::RefPtr<Gdk::Pixbuf> gx_head_warn;
     KeySwitcher keyswitch;
     ladspa::PluginDisplay *ladspalist_window;
 
@@ -878,7 +860,6 @@ private:
     void set_in_session();
     void hide_extended_settings();
     void systray_menu(guint button, guint32 activate_time);
-    void overload_status_changed(gx_engine::MidiAudioBuffer::Load l);
     bool on_window_state_changed(GdkEventWindowState* event);
     bool on_meter_button_release(GdkEventButton* ev);
     void show_selected_preset();
@@ -893,9 +874,6 @@ private:
     void rebuild_preset_menu();
     bool on_key_press_event(GdkEventKey *event);
     void display_preset_msg(const Glib::ustring& bank, const Glib::ustring& preset);
-    void on_show_midi_out();
-    void on_show_midi_out_plug();
-    void on_midi_out_channel_toggled(Gtk::RadioButton *rb, Gtk::Container *c);
     void on_livetuner_toggled();
     void on_ladspa_finished(bool reload, bool quit);
     bool delete_ladspalist_window();
