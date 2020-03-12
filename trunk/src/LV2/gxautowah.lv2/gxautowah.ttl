@@ -122,7 +122,11 @@ All other trademarks are the property of their respective holders.'
 
 
 <http://guitarix.sourceforge.net/plugins/gxautowah#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gxautowah_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
-  
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  

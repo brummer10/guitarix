@@ -135,7 +135,7 @@ void Gxautowah::init_dsp_mono(uint32_t rate, const LV2_Descriptor* descriptor)
 
 void Gxautowah::connect_mono(uint32_t port,void* data)
 {
-  switch ((EffectPortIndex)port)
+  switch ((PortIndex)port)
     {
     case AUTOWAH_OUTPUT:
       output = static_cast<float*>(data);

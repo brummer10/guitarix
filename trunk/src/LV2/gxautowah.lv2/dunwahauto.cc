@@ -151,7 +151,7 @@ inline void dunwah::clear_state_fd()
 
 void dunwah::connect_d(uint32_t port,void* data)
 {
-  switch ((EffectPortIndex)port)
+  switch ((PortIndex)port)
     {
     case WAH:
       fslider0_ = (float*)data;
