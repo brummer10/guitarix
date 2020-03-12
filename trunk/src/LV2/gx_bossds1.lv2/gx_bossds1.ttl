@@ -78,7 +78,7 @@ rdfs:comment """
         lv2:symbol "LEVEL" ;
         lv2:name "LEVEL" ;
         lv2:default -2.0 ;
-        lv2:minimum -2e+01 ;
+        lv2:minimum -20.0 ;
         lv2:maximum 12.0 ;
     ]      , [
         a lv2:InputPort ,
@@ -101,7 +101,11 @@ rdfs:comment """
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_bossds1_gui#_bossds1_>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_bossds1_gui.so>;
-  guiext:requiredFeature guiext:makeResident;
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
   .
