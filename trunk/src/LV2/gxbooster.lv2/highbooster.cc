@@ -54,7 +54,7 @@ HighBooster::~HighBooster() {
 
 void HighBooster::connect(uint32_t port,void* data)
 {
-  switch ((EffectPortIndex)port)
+  switch ((PortIndex)port)
     {
     case T_LEVEL:
       fslider0_ = (float*)data;

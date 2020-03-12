@@ -46,7 +46,7 @@ public:
 
 void BassBooster::connect(uint32_t port,void* data)
 {
-  switch ((EffectPortIndex)port)
+  switch ((PortIndex)port)
     {
     case B_LEVEL:
       fslider1_ = (float*)data;
