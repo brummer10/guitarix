@@ -29,6 +29,7 @@ typedef struct {
     Widget_t *win;
     Widget_t *widget[CONTROLS];
     int block_event;
+    float schedule;
 
     void *controller;
     LV2UI_Write_Function write_function;
@@ -224,6 +225,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     ui->parentXwindow = 0;
     LV2UI_Resize* resize = NULL;
     ui->block_event = -1;
+    ui->schedule = 0.0;
 
     int i = 0;
     for (; features[i]; ++i) {
@@ -317,6 +319,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 
 // disable presence and cabinet controlls when worker threads not been supported
 static void set_sensitive_state(X11_UI* ui, float state) {
+    if (fabs(state - ui->schedule)<0.1) return;
     if ( state > 0) {
         ui->widget[10]->state = INSENSITIVE_;
         ui->widget[10]->childlist->childs[0]->state = INSENSITIVE_;
