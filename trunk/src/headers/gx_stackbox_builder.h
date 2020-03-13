@@ -45,23 +45,17 @@ class StackBoxBuilder {
 private:
     WidgetStack          fBox;
     gx_engine::GxMachineBase& machine;
-    Gxw::WaveView&       fWaveView;
-    Gtk::Label           convolver_filename_label;
-    Gtk::Label           convolver_mono_filename_label;
     Gtk::HBox           *widget;
     Glib::RefPtr<Gtk::AccelGroup> accels;
     Glib::RefPtr<Gdk::Pixbuf> window_icon;
     int next_flags;
-    sigc::signal<void(bool)> *output_widget_state;
+    PluginUI *current_plugin;
 
     static const          gboolean homogene = false;
     void loadRackFromGladeData(const char *xmldesc);
     void loadRackFromGladeFile(const char *fname);
-    void set_convolver_filename(const gx_engine::GxJConvSettings *jcs);
-    void set_convolver_mono_filename(const gx_engine::GxJConvSettings *jcs);
 private:
     void loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld);
-    void openVerticalMidiBox(const char* label = "");
     // functions used in interfaces
     void create_master_slider(const std::string& id, const char *label) {
 	UiMasterReglerWithCaption<Gxw::HSlider> *w = new UiMasterReglerWithCaption<Gxw::HSlider>(machine, id);
@@ -84,7 +78,6 @@ private:
     void openVerticalBox(const char* label = "");
     void openFrameBox(const char* label);
     void openHorizontalBox(const char* label = "");
-    void addLiveWaveDisplay(const char* label);
     void openVerticalHideBox(const char* label = "");
     void openHorizontalhideBox(const char* label = "");
     void openHorizontalTableBox(const char* label);
@@ -134,13 +127,6 @@ private:
     void openTabBox(const char* label = 0);
     void addCheckButton(const std::string& id, const char* label = 0);
     void addNumEntry(const std::string& id, const char* label = 0);
-    void addMToggleButton(const std::string& id, const char* label = 0);
-    void openSetLabelBox();
-    void openSetMonoLabelBox();
-    void addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw);
-    void addJConvButton(const char* label, gx_jconv::IRWindow *irw);
-    void addSmallSeqButton(const char* label, gx_seq::SEQWindow *seqw);
-    void addSeqButton(const char* label, gx_seq::SEQWindow *seqw);
     void set_next_flags(int flags);
 private:
     // functions used indirectly
@@ -148,22 +134,15 @@ private:
     friend class UiBuilderImpl;
 public:
     StackBoxBuilder(
-	gx_engine::GxMachineBase& machine_, Gxw::WaveView &fWaveView_, Glib::RefPtr<Gdk::Pixbuf> window_icon);
+	gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gdk::Pixbuf> window_icon);
     ~StackBoxBuilder();
     void set_accelgroup(Glib::RefPtr<Gtk::AccelGroup> accels_) { accels = accels_; }
-    void get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
     void prepare();
     void fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
-    void set_output_state_signal(sigc::signal<void(bool)>  *output_controls) {
-	output_widget_state = output_controls; }
-
-    // mono
-    void make_rackbox_oscilloscope();
-    void make_rackbox_jconv_mono();
-    void make_rackbox_midi_out();
-    void make_rackbox_sequencer();
-    // stereo
-    void make_rackbox_jconv();
+    void set_current_plugin(PluginUI *p) { current_plugin = p; }
+    PluginUI *get_current_plugin() { return current_plugin; }
+    void connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::RefPtr<Glib::Object> object,
+                         const char *signal_name, const char *handler_name);
 };
 
 } // end namespace gx_gui

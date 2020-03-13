@@ -81,7 +81,7 @@ class PluginPresetConnectWindow: public Gtk::Window {
  */
 
 class SEQWindow: public sigc::trackable {
- private:
+private:
     gx_engine::GxMachineBase& machine;
     Glib::RefPtr<gx_gui::GxBuilder> builder;
     std::vector<Drums> drums;
@@ -145,14 +145,14 @@ class SEQWindow: public sigc::trackable {
     void init_connect();
     void init_sequences(gx_engine::SeqParameter *p, Gtk::Box* _box);
     SEQWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::SeqParameter *tomp_,
-         gx_engine::SeqParameter *tomp1_, gx_engine::SeqParameter *tomp2_,
-         gx_engine::SeqParameter *kickp_, gx_engine::SeqParameter *snarep_,
-         gx_engine::SeqParameter *hatp_, gx_engine::GxMachineBase& machine_);
-    ~SEQWindow();
+              gx_engine::SeqParameter *tomp1_, gx_engine::SeqParameter *tomp2_,
+              gx_engine::SeqParameter *kickp_, gx_engine::SeqParameter *snarep_,
+              gx_engine::SeqParameter *hatp_, gx_engine::GxMachineBase& machine_);
 
 public:
     void reload_and_show();
     static SEQWindow *create(const std::string& unit_id, gx_engine::GxMachineBase& machine);
+    ~SEQWindow();
 };
 
 } /* end of gx_seq namespace*/

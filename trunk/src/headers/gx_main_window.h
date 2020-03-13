@@ -422,6 +422,7 @@ public:
     void dispose_rackbox();
     bool on_rack_handle_press(GdkEventButton* ev);
     Glib::ustring get_displayname(bool useshort) const;
+    sigc::signal<void(bool)> *get_output_widget_state() { return &output_widget_state; }
 };
 
 bool plugins_by_name_less(PluginUI *a, PluginUI *b);
@@ -745,7 +746,6 @@ private:
     MainWindowBuilder bld;
     Freezer freezer;
     Glib::RefPtr<Gdk::Pixbuf> gx_head_icon;
-    Gxw::WaveView fWaveView;
     gx_gui::StackBoxBuilder boxbuilder;
     Glib::RefPtr<Gtk::UIManager> uimanager;
     GxActions actions;
@@ -849,11 +849,6 @@ private:
     bool on_jackserverconnection_scroll(GdkEventScroll* ev);
     void on_msg_level_changed();
     void on_ampdetail_switch(bool compress, bool setparam);
-    void on_show_oscilloscope(bool v);
-    void set_waveview_buffer(unsigned int size);
-    void on_oscilloscope_post_pre(int post_pre);
-    int on_oscilloscope_activate(bool start);
-    bool on_refresh_oscilloscope();
     bool refresh_meter_level(float falloff);
     bool survive_jack_shutdown();
     void gx_jack_is_down();

@@ -255,7 +255,7 @@ protected:
     static void load_glade_file_(const char *fname);
     virtual bool load(gx_engine::Plugin *p);
 public:
-    UiBuilderImpl(PluginDict *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl, sigc::signal<void(bool)> *out_ctr);
+    UiBuilderImpl(PluginDict *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl, PluginUI *pluginui);
     ~UiBuilderImpl();
     bool load_unit(PluginDef *pl);
     friend class gx_engine::GxMachineRemote;

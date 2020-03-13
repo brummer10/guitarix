@@ -59,10 +59,10 @@ GtkWidget *load_toplevel(GtkBuilder *builder, const char* filename, const char* 
 
 StackBoxBuilder *UiBuilderImpl::intf = 0;
 
-UiBuilderImpl::UiBuilderImpl(PluginDict *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl, sigc::signal<void(bool)> *out_ctr)
+UiBuilderImpl::UiBuilderImpl(PluginDict *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl, PluginUI *pluginui)
       : UiBuilderBase(), plugin_dict(*i), pluginlist(pl) {
     intf = b;
-    intf->set_output_state_signal(out_ctr);
+    intf->set_current_plugin(pluginui);
     openTabBox = openTabBox_;
     openVerticalBox = openVerticalBox_;
     openVerticalBox1 = openVerticalBox1_;
@@ -101,7 +101,7 @@ UiBuilderImpl::UiBuilderImpl(PluginDict *i, StackBoxBuilder *b, std::vector<Plug
 };
 
 UiBuilderImpl::~UiBuilderImpl() {
-    intf->set_output_state_signal(nullptr);
+    intf->set_current_plugin(nullptr);
 }
 
 bool UiBuilderImpl::load_unit(PluginDef *pd) {

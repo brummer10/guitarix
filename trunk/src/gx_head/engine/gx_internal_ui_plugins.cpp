@@ -194,6 +194,7 @@ OscilloscopeAdapter::OscilloscopeAdapter(ModuleSequencer& engine)
     category = N_("Misc");
     mono_audio = fill_buffer;
     activate_plugin = activate;
+    load_ui = osc_load_ui;
     plugin.set_pdef(this);
     engine.signal_buffersize_change().connect(
 	sigc::mem_fun(*this, &OscilloscopeAdapter::change_buffersize));
@@ -238,6 +239,37 @@ int OscilloscopeAdapter::activate(bool start, PluginDef *plugin) {
 
 void OscilloscopeAdapter::clear_buffer() {
     memset(buffer, 0, size*sizeof(float));
+}
+
+//static
+int OscilloscopeAdapter::osc_load_ui(const UiBuilder& builder, int format) {
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("oscilloscope_ui.glade");
+        return 0;
+    } else if (format & UI_FORM_STACK) {
+        builder.openHorizontalhideBox("");
+        builder.closeBox();
+        builder.openVerticalBox("");
+        {
+            builder.openFrameBox("");
+            builder.closeBox();
+            builder.openHorizontalBox("");
+            {
+                builder.openFrameBox("");
+                builder.closeBox();
+                //builder.addLiveWaveDisplay(" ");
+                builder.openFrameBox("");
+                builder.closeBox();
+            }
+            builder.closeBox();
+            builder.openFrameBox("");
+            builder.closeBox();
+        }
+        builder.closeBox();
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 } // namespace gx_engine

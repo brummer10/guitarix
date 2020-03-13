@@ -575,6 +575,7 @@ ConvolverStereoAdapter::ConvolverStereoAdapter(
     register_params = convolver_register;
     set_samplerate = convolver_init;
     activate_plugin = activate;
+    load_ui = jconv_load_ui;
     stereo_audio = convolver;
 }
 
@@ -656,6 +657,57 @@ int ConvolverStereoAdapter::activate(bool start, PluginDef *p) {
     return 0;
 }
 
+//static
+int ConvolverStereoAdapter::jconv_load_ui(const UiBuilder& builder, int format) {
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("jconv_st_ui.glade");
+        return 0;
+    } else if (format & UI_FORM_STACK) {
+        //static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create("jconv", window_icon, machine, accels, 2);
+        builder.openHorizontalhideBox("");
+        {
+            builder.create_master_slider("jconv.wet_dry", _("Dry/Wet"));
+            builder.insertSpacer();
+            builder.insertSpacer();
+            //builder.addSmallJConvFavButton(C_("Setup", "S"), irw);
+        }
+        builder.closeBox();
+        builder.openVerticalBox("");
+        {
+            //builder.openSetLabelBox();
+            //builder.closeBox();
+            builder.insertSpacer();
+            builder.openHorizontalBox("");
+            {
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.create_mid_rackknob("jconv.gain", _("Gain"));
+                builder.create_small_rackknobr("jconv.diff_delay", _("Delta Delay"));
+                builder.create_small_rackknobr("jconv.balance", _("Balance"));
+                builder.create_small_rackknobr("jconv.wet_dry", _("Dry/Wet"));
+                builder.openVerticalBox("");
+                {
+                    builder.insertSpacer();
+                    builder.insertSpacer();
+                    //builder.addJConvButton(_("Setup"), irw);
+                    builder.insertSpacer();
+                }
+                builder.closeBox();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+            }
+            builder.closeBox();
+        }
+        builder.closeBox();
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 
 /****************************************************************
  ** class ConvolverMonoAdapter
@@ -669,6 +721,7 @@ ConvolverMonoAdapter::ConvolverMonoAdapter(
     register_params = convolver_register;
     set_samplerate = convolver_init;
     activate_plugin = activate;
+    load_ui = jconv_load_ui;
     mono_audio = convolver;
 }
 
@@ -735,6 +788,57 @@ int ConvolverMonoAdapter::activate(bool start, PluginDef *p) {
 	self.conv.stop_process();
     }
     return 0;
+}
+
+//static
+int ConvolverMonoAdapter::jconv_load_ui(const UiBuilder& builder, int format) {
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("jconv_ui.glade");
+        return 0;
+    } else if (format & UI_FORM_STACK) {
+        //static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(
+        //    "jconv_mono", b->window_icon, b->machine, b->accels, 1);
+        builder.openHorizontalhideBox("");
+        builder.create_master_slider("jconv_mono.wet_dry", _("Dry/Wet"));
+        builder.insertSpacer();
+        builder.insertSpacer();
+        //builder.addSmallJConvFavButton(C_("Setup", "S"), irw);
+        builder.closeBox();
+        builder.openVerticalBox("");
+        {
+            //builder.openSetMonoLabelBox();
+            //builder.closeBox();
+            builder.insertSpacer();
+            builder.openHorizontalBox("");
+            {
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.create_mid_rackknob("jconv_mono.gain", _("Gain"));
+                builder.create_small_rackknobr("jconv_mono.wet_dry", _("Dry/Wet"));
+                builder.openVerticalBox("");
+                builder.insertSpacer();
+                builder.insertSpacer();
+                //builder.addJConvButton(_("Setup"), irw);
+                builder.insertSpacer();
+                builder.closeBox();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+                builder.insertSpacer();
+            }
+            builder.closeBox();
+        }
+        builder.closeBox();
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 /****************************************************************
@@ -1079,7 +1183,7 @@ bool CabinetConvolver::start(bool force) {
 void CabinetConvolver::check_update() {
     if (cabinet_changed() || sum_changed()) {
 	do_update();
-    } 
+    }
 }
 
 void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, PluginDef *p) {
@@ -1218,7 +1322,7 @@ bool CabinetStereoConvolver::start(bool force) {
 void CabinetStereoConvolver::check_update() {
     if (cabinet_changed() || sum_changed()) {
 	do_update();
-    } 
+    }
 }
 
 void CabinetStereoConvolver::run_cab_conf(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p) {
@@ -1541,7 +1645,7 @@ bool PreampStereoConvolver::start(bool force) {
 void PreampStereoConvolver::check_update() {
     if (preamp_changed() || sum_changed()) {
 	do_update();
-    } 
+    }
 }
 
 void PreampStereoConvolver::run_pre_conf(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p) {
@@ -1656,7 +1760,6 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
 	self.engine.overload(EngineControl::ov_Convolver, "contrast");
     }
 	self.smp.down(buf, output0);
-    
 }
 
 /****************************************************************
@@ -1664,8 +1767,8 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
  */
 Plugin Directout::directoutput = Plugin();
 
-Directout::Directout(EngineControl& engine_, sigc::slot<void> sync_) 
-	: PluginDef(), 
+Directout::Directout(EngineControl& engine_, sigc::slot<void> sync_)
+	: PluginDef(),
       outdata(0),
 	  engine(engine_),
 	  sync(sync_),
@@ -1820,47 +1923,48 @@ static const char* seq_groups[] = {
 };
 
 DrumSequencer::DrumSequencer(ParamMap& param_, EngineControl& engine_, sigc::slot<void> sync_)
-	: PluginDef(), 
-	  Vectom(0),
-	  Vectom1(0),
-	  Vectom2(0),
-	  Veckick(0),
-	  Vecsnare(0),
-	  Vechat(0),
-	  engine(engine_),
-	  mem_allocated(false),
-	  sync(sync_),
-	  ready(false),
-	  outdata(0),
-	  param(param_),
-	  tomset(),
-	  tomp(0),
-	  tomset1(),
-	  tomp1(0),
-	  tomset2(),
-	  tomp2(0),
-	  snareset(),
-	  snarep(0),
-	  hatset(),
-	  hatp(0),
-	  kickset(),
-	  kickp(0),
-	  plugin() {
-	version = PLUGINDEF_VERSION;
-	flags = 0;
-	id = "seq";
-	name = N_("DrumSequencer");
-	groups = seq_groups;
-	description = N_("Simple Drum Step Sequencer"); // description (tooltip)
-	category = N_("Misc");       // category
-	shortname = N_("Drum");     // shortname
-	mono_audio = compute_static;
-	stereo_audio = 0;
-	set_samplerate = init_static;
-	activate_plugin = 0;
-	register_params = register_params_static;
-	delete_instance = del_instance;
-	plugin = this;
+    : PluginDef(),
+      Vectom(0),
+      Vectom1(0),
+      Vectom2(0),
+      Veckick(0),
+      Vecsnare(0),
+      Vechat(0),
+      engine(engine_),
+      mem_allocated(false),
+      sync(sync_),
+      ready(false),
+      outdata(0),
+      param(param_),
+      tomset(),
+      tomp(0),
+      tomset1(),
+      tomp1(0),
+      tomset2(),
+      tomp2(0),
+      snareset(),
+      snarep(0),
+      hatset(),
+      hatp(0),
+      kickset(),
+      kickp(0),
+      plugin() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "seq";
+    name = N_("DrumSequencer");
+    groups = seq_groups;
+    description = N_("Simple Drum Step Sequencer"); // description (tooltip)
+    category = N_("Misc");       // category
+    shortname = N_("Drum");     // shortname
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    load_ui = drum_load_ui;
+    register_params = register_params_static;
+    delete_instance = del_instance;
+    plugin = this;
     engine.signal_buffersize_change().connect(
     sigc::mem_fun(*this, &DrumSequencer::change_buffersize));
 }
@@ -2098,27 +2202,63 @@ void DrumSequencer::del_instance(PluginDef *p)
 	delete static_cast<DrumSequencer*>(p);
 }
 
+//static
+int DrumSequencer::drum_load_ui(const UiBuilder& builder, int format) {
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("drumsequencer_ui.glade");
+        return 0;
+    } else if (format & UI_FORM_STACK) {
+        //static gx_seq::SEQWindow *seqw = gx_seq::SEQWindow::create("seq", machine);
+        builder.openHorizontalhideBox("");
+        builder.create_master_slider("seq.gain", _("Gain"));
+        builder.insertSpacer();
+        builder.insertSpacer();
+        //builder.addSmallSeqButton(C_("Setup", "S"), seqw);
+        builder.closeBox();
+        builder.openVerticalBox("");
+        {
+            builder.openFrameBox("");
+            builder.closeBox();
+            builder.openHorizontalBox("");
+            {
+                builder.openFrameBox("");
+                builder.closeBox();
+                builder.openFrameBox("");
+                //builder.addSeqButton(_("Setup"), seqw);
+                builder.closeBox();
+            }
+            builder.closeBox();
+            builder.openFrameBox("");
+            builder.closeBox();
+        }
+        builder.closeBox();
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 /****************************************************************************
 *
 * NAME: smbPitchShift.cpp
 * VERSION: 1.2
 * HOME URL: http://www.dspdimension.com
 * KNOWN BUGS: none
-* 
+*
 *
 * COPYRIGHT 1999-2009 Stephan M. Bernsee <smb [AT] dspdimension [DOT] com>
-* 
+*
 * Modified for guitarix by Hermann Meyer 2014
 *
 * 						The Wide Open License (WOL)
 *
 * Permission to use, copy, modify, distribute and sell this software and its
 * documentation for any purpose is hereby granted without fee, provided that
-* the above copyright notice and this license appear in all source copies. 
+* the above copyright notice and this license appear in all source copies.
 * THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT EXPRESS OR IMPLIED WARRANTY OF
 * ANY KIND. See http://www.dspguru.com/wol.htm for more information.
 *
-*****************************************************************************/ 
+*****************************************************************************/
 
 bool smbPitchShift::setParameters(int sampleRate_)
 {
@@ -2131,8 +2271,8 @@ bool smbPitchShift::setParameters(int sampleRate_)
     osamp2 = 2.*M_PI*osamp1;
     mpi = (1./(2.*M_PI)) * osamp;
     mpi1 = 1./M_PI;
-    fpb = 0; 
-    expect = 0; 
+    fpb = 0;
+    expect = 0;
     hanning = 0; 
     hanningd = 0;
     resampin = 0;

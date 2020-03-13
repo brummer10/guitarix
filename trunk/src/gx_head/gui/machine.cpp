@@ -444,14 +444,6 @@ bool GxMachine::oscilloscope_plugin_box_visible() {
     return engine.oscilloscope.plugin.get_box_visible();
 }
 
-sigc::signal<void, int>& GxMachine::signal_oscilloscope_post_pre() {
-    return pmap[engine.oscilloscope.plugin.id_effect_post_pre()].signal_changed_int();
-}
-
-sigc::signal<void, bool>& GxMachine::signal_oscilloscope_visible() {
-    return pmap[engine.oscilloscope.plugin.id_box_visible()].signal_changed_bool();
-}
-
 sigc::signal<int, bool>& GxMachine::signal_oscilloscope_activation() {
     return engine.oscilloscope.activation;
 }
@@ -1691,11 +1683,6 @@ static const std::string next_string(gx_system::JsonParser *jp) {
     return jp->current_value();
 }
 
-int GxMachineRemote::load_remote_ui_static (const UiBuilder& builder, int form) {
-    GxMachineRemote *m = dynamic_cast<GxMachineRemote*>(&static_cast<const gx_gui::UiBuilderImpl*>(&builder)->plugin_dict.get_machine());
-    return m->load_remote_ui(builder, form);
-}
-
 int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
     START_CALL(plugin_load_ui);
     jw->write(builder.plugin->id);
@@ -1827,7 +1814,12 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 }
 
 bool GxMachineRemote::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) {
-    pdef->load_ui = load_remote_ui_static;
+    pdef->load_ui = [](const UiBuilder& builder, int form) {
+                        GxMachineRemote *m = dynamic_cast<GxMachineRemote*>(
+                            &static_cast<const gx_gui::UiBuilderImpl*>(
+                                &builder)->plugin_dict.get_machine());
+                        return m->load_remote_ui(builder, form);
+                    };
     return builder.load_unit(pdef);
 }
 
@@ -1860,14 +1852,6 @@ void GxMachineRemote::clear_oscilloscope_buffer() {
 
 bool GxMachineRemote::oscilloscope_plugin_box_visible() {
     return pluginlist.lookup_plugin("oscilloscope")->get_box_visible();
-}
-
-sigc::signal<void, int>& GxMachineRemote::signal_oscilloscope_post_pre() {
-    return pmap["oscilloscope.pp"].signal_changed_int();
-}
-
-sigc::signal<void, bool>& GxMachineRemote::signal_oscilloscope_visible() {
-    return pmap["ui.oscilloscope"].signal_changed_bool();
 }
 
 sigc::signal<int, bool>& GxMachineRemote::signal_oscilloscope_activation() {

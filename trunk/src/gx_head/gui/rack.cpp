@@ -612,15 +612,11 @@ RackBox *PluginDict::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwid
 }
 
 RackBox *PluginDict::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate) {
+    gx_gui::UiBuilderImpl builder(this, &boxbuilder, nullptr, &pl);
     Gtk::Widget *mainwidget = 0;
     Gtk::Widget *miniwidget = 0;
-    boxbuilder.get_box(pl.get_id(), mainwidget, miniwidget);
-    if (!mainwidget) {
-	gx_gui::UiBuilderImpl builder(this, &boxbuilder, nullptr, &pl.output_widget_state);
-	boxbuilder.set_output_state_signal(&pl.output_widget_state);
-	if (machine.load_unit(builder, pl.plugin->get_pdef())) {
-	    boxbuilder.fetch(mainwidget, miniwidget);
-	}
+    if (machine.load_unit(builder, pl.plugin->get_pdef())) {
+        boxbuilder.fetch(mainwidget, miniwidget);
     }
     return add_rackbox_internal(pl, mainwidget, miniwidget, mini, pos, animate);
 }

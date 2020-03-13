@@ -1216,8 +1216,7 @@ void MainWindow::set_latency() {
     if (n > 0) {
 	actions.latency->set_current_value(n);
     }
-    if (n > 1023) actions.osc_buffer_menu->set_sensitive(false);
-    else actions.osc_buffer_menu->set_sensitive(true);
+    actions.osc_buffer_menu->set_sensitive(n < 1024);
 }
 
 void MainWindow::show_forum_help() {
@@ -2009,9 +2008,7 @@ void MainWindow::change_osc_buffer(Glib::RefPtr<Gtk::RadioAction> action) {
     gx_jack::GxJack *jack = machine.get_jack();
     if (!jack || jack->client) {
 	options.mul_buffer = action->get_current_value();
-	on_oscilloscope_activate(false);
 	machine.set_oscilloscope_mul_buffer(options.mul_buffer);
-	on_oscilloscope_activate(true);
     } else {
 	set_osc_size();
     }
@@ -2022,87 +2019,21 @@ void MainWindow::add_osc_size_menu() {
     Gtk::RadioButtonGroup group;
     int osc_buffer_size = 1;
     for (int i = 1; i <= 6; ++i) {
-	Glib::ustring name = "*" + gx_system::to_string(osc_buffer_size);
-	Glib::ustring actname = Glib::ustring::compose("buffer size %1", name);
-	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
-	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(group, actname, name);
-	actions.group->add(action);
-	if (i == 1) {
-	    action->signal_changed().connect(
-		sigc::mem_fun(*this, &MainWindow::change_osc_buffer));
-	    actions.osc_buffer_size = action;
-	}
-	action->property_value().set_value(osc_buffer_size);
-    osc_buffer_size++;
+        Glib::ustring name = "*" + gx_system::to_string(osc_buffer_size);
+        Glib::ustring actname = Glib::ustring::compose("buffer size %1", name);
+        s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
+        Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(group, actname, name);
+        actions.group->add(action);
+        if (i == 1) {
+            action->signal_changed().connect(
+                sigc::mem_fun(*this, &MainWindow::change_osc_buffer));
+            actions.osc_buffer_size = action;
+        }
+        action->property_value().set_value(osc_buffer_size);
+        osc_buffer_size++;
     }
     s.append("</menu></menu></menubar>");
     uimanager->add_ui_from_string(s);
-}
-
-void MainWindow::on_show_oscilloscope(bool v) {
-    if (v) {
-	// FIXME G_PRIORITY_DEFAULT_IDLE??
-	Glib::signal_timeout().connect(
-	    sigc::mem_fun(*this, &MainWindow::on_refresh_oscilloscope), 60);
-    }
-}
-
-void MainWindow::set_waveview_buffer(unsigned int size) {
-    fWaveView.set_frame(machine.get_oscilloscope_buffer(), size);
-}
-
-void MainWindow::on_oscilloscope_post_pre(int post_pre) {
-   // if (post_pre) {
-   //     fWaveView.set_multiplicator(150.,250.);
-   // } else {
-        fWaveView.set_multiplicator(20.,60.);
-   // }
-}
-
-int MainWindow::on_oscilloscope_activate(bool start) {
-    if (!start) {
-	machine.clear_oscilloscope_buffer();
-	fWaveView.queue_draw();
-    }
-    return 0;
-}
-
-bool MainWindow::on_refresh_oscilloscope() {
-    int load, frames;
-    bool is_rt;
-    jack_nframes_t bsize;
-    machine.get_oscilloscope_info(load, frames, is_rt, bsize);
-    static struct  {
-        int load, frames;
-        jack_nframes_t bsize;
-        bool rt;
-    } oc;
-    if (!oc.bsize || oc.load != load) {
-        oc.load = load;
-        fWaveView.set_text(
-            (boost::format(_("DSP Load  %1% %%")) % oc.load).str().c_str(),
-            Gtk::CORNER_TOP_LEFT);
-    }
-    if (!oc.bsize || oc.frames != frames) {
-        oc.frames = frames;
-        fWaveView.set_text(
-            (boost::format(_("HT Frames %1%")) % oc.frames).str().c_str(),
-            Gtk::CORNER_BOTTOM_LEFT);
-    }
-    if (!oc.bsize || oc.rt != is_rt) {
-        oc.rt = is_rt;
-        fWaveView.set_text(
-            oc.rt ? _("RT Mode  YES ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
-            Gtk::CORNER_BOTTOM_RIGHT);
-    }
-    if (!oc.bsize || oc.bsize != bsize) {
-	oc.bsize = bsize;
-        fWaveView.set_text(
-            (boost::format(_("Latency    %1%")) % oc.bsize).str().c_str(),
-            Gtk::CORNER_TOP_RIGHT);
-    }
-    fWaveView.queue_draw();
-    return machine.oscilloscope_plugin_box_visible();
 }
 
 bool MainWindow::survive_jack_shutdown() {
@@ -2315,8 +2246,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       bld(options_, machine_),
       freezer(),
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
-      fWaveView(),
-      boxbuilder(machine_, fWaveView, gx_head_icon),
+      boxbuilder(machine_, gx_head_icon),
       uimanager(Gtk::UIManager::create()),
       actions(uimanager, options_),
       plugin_dict(machine_, options_, *bld.effects_toolpalette, boxbuilder, uimanager, actions.group),
@@ -2488,18 +2418,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 	    sigc::mem_fun(*bld.tuner_on_off, &Gxw::Switch::get_active)));
     bld.racktuner->signal_poll_status_changed().connect(
 	sigc::mem_fun(machine, &gx_engine::GxMachineBase::tuner_used_for_display));
-
-    /*
-    ** oscilloscope signal connections
-    */
-    machine.signal_oscilloscope_post_pre().connect(
-	sigc::mem_fun(*this, &MainWindow::on_oscilloscope_post_pre));
-    machine.signal_oscilloscope_visible().connect(
-	sigc::mem_fun(*this, &MainWindow::on_show_oscilloscope));
-    machine.signal_oscilloscope_activation().connect(
-	sigc::mem_fun(*this, &MainWindow::on_oscilloscope_activate));
-    machine.signal_oscilloscope_size_change().connect(
-	sigc::mem_fun(*this, &MainWindow::set_waveview_buffer));
 
     /*
     ** fastmeter initialization and signal connections

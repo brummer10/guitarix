@@ -129,6 +129,7 @@ private:
     static void fill_buffer(int count, float *input0, float *output0, PluginDef*);
     static int osc_register(const ParamReg& reg);
     static int activate(bool start, PluginDef *p);
+    static int osc_load_ui(const UiBuilder& builder, int format);
     void change_buffersize(unsigned int);
     int mul_buffer;
 public:
@@ -325,6 +326,7 @@ private:
     static void convolver(int count, float *input0, float *input1,
 			  float *output0, float *output1, PluginDef*);
     static int convolver_register(const ParamReg& reg);
+    static int jconv_load_ui(const UiBuilder& builder, int format);
 public:
     ConvolverStereoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
     ~ConvolverStereoAdapter();
@@ -343,6 +345,7 @@ private:
     static int activate(bool start, PluginDef *pdef);
     static void convolver(int count, float *input, float *output, PluginDef*);
     static int convolver_register(const ParamReg& reg);
+    static int jconv_load_ui(const UiBuilder& builder, int format);
 public:
     ConvolverMonoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
     ~ConvolverMonoAdapter();
@@ -988,40 +991,40 @@ public:
 
 class DrumSequencer: public PluginDef {
 private:
-	int fSamplingFreq;
-	FAUSTFLOAT 	position;
-	FAUSTFLOAT 	ftact;
-	FAUSTFLOAT 	fsec;
-	FAUSTFLOAT 	fsliderbpm;
-	FAUSTFLOAT 	fsliderhum;
+    int fSamplingFreq;
+    FAUSTFLOAT 	position;
+    FAUSTFLOAT 	ftact;
+    FAUSTFLOAT 	fsec;
+    FAUSTFLOAT 	fsliderbpm;
+    FAUSTFLOAT 	fsliderhum;
     drumseq::Dsp drums;
 
-	int 	counter;
-	int 	seq_size;
+    int 	counter;
+    int 	seq_size;
     int 	bsize;
-	FAUSTFLOAT 	step;
-	FAUSTFLOAT 	step_orig;
-	FAUSTFLOAT 	fSlow1;
-	FAUSTFLOAT 	fSlow3;
-	FAUSTFLOAT 	fSlow5;
-	FAUSTFLOAT 	fSlow7;
-	FAUSTFLOAT 	fSlow12;
-	FAUSTFLOAT 	fSlow14;
-	FAUSTFLOAT 	fSlow16;
-	FAUSTFLOAT 	fSlow18;
-	FAUSTFLOAT 	fSlow20;
-	FAUSTFLOAT 	fSlow22;
-	std::vector<int> Vectom;
-	std::vector<int> Vectom1;
-	std::vector<int> Vectom2;
-	std::vector<int> Veckick;
-	std::vector<int> Vecsnare;
-	std::vector<int> Vechat;
+    FAUSTFLOAT 	step;
+    FAUSTFLOAT 	step_orig;
+    FAUSTFLOAT 	fSlow1;
+    FAUSTFLOAT 	fSlow3;
+    FAUSTFLOAT 	fSlow5;
+    FAUSTFLOAT 	fSlow7;
+    FAUSTFLOAT 	fSlow12;
+    FAUSTFLOAT 	fSlow14;
+    FAUSTFLOAT 	fSlow16;
+    FAUSTFLOAT 	fSlow18;
+    FAUSTFLOAT 	fSlow20;
+    FAUSTFLOAT 	fSlow22;
+    std::vector<int> Vectom;
+    std::vector<int> Vectom1;
+    std::vector<int> Vectom2;
+    std::vector<int> Veckick;
+    std::vector<int> Vecsnare;
+    std::vector<int> Vechat;
 
     EngineControl&  engine;
-	bool            mem_allocated;
+    bool            mem_allocated;
     sigc::slot<void> sync;
-	volatile bool ready;
+    volatile bool ready;
     float *outdata;
     ParamMap& param;
     GxSeqSettings tomset;
@@ -1038,13 +1041,13 @@ private:
     SeqParameter *kickp;
 
     void mem_alloc();
-	void mem_free();
-	void init(unsigned int samplingFreq);
-	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
+    void mem_free();
+    void init(unsigned int samplingFreq);
+    void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
     void change_buffersize(unsigned int size);
-	int register_par(const ParamReg& reg);
+    int register_par(const ParamReg& reg);
 
-	int min_seq_size();
+    int min_seq_size();
     void reset_tom();
     void reset_tom1();
     void reset_tom2();
@@ -1052,14 +1055,15 @@ private:
     void reset_hat();
     void reset_snare();
 
-	static void init_static(unsigned int samplingFreq, PluginDef*);
-	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
-	static int register_params_static(const ParamReg& reg);
-	static void del_instance(PluginDef *p);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+    static int drum_load_ui(const UiBuilder& builder, int format);
 public:
     Plugin plugin;
-	DrumSequencer(ParamMap& param_, EngineControl& engine, sigc::slot<void> sync);
-	~DrumSequencer();
+    DrumSequencer(ParamMap& param_, EngineControl& engine, sigc::slot<void> sync);
+    ~DrumSequencer();
 };
 
 /****************************************************************************

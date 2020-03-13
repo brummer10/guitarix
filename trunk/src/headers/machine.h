@@ -87,8 +87,6 @@ public:
     virtual const float *get_oscilloscope_buffer() = 0;
     virtual void clear_oscilloscope_buffer() = 0;
     virtual bool oscilloscope_plugin_box_visible() = 0;
-    virtual sigc::signal<void, int>& signal_oscilloscope_post_pre() = 0;
-    virtual sigc::signal<void, bool>& signal_oscilloscope_visible() = 0;
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation() = 0;
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change() = 0;
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) = 0;
@@ -278,8 +276,6 @@ public:
     virtual const float *get_oscilloscope_buffer();
     virtual void clear_oscilloscope_buffer();
     virtual bool oscilloscope_plugin_box_visible();
-    virtual sigc::signal<void, int>& signal_oscilloscope_post_pre();
-    virtual sigc::signal<void, bool>& signal_oscilloscope_visible();
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
@@ -432,7 +428,6 @@ private:
     bool idle_notify_handler();
     void handle_notify(gx_system::JsonStringParser *jp);
     void parameter_changed(gx_system::JsonStringParser *jp);
-    static int load_remote_ui_static(const UiBuilder& builder, int form);
     int load_remote_ui(const UiBuilder& builder, int form);
     void report_rpc_error(gx_system::JsonStringParser *jp,
 			  const gx_system::JsonException& e, const char *method=0);
@@ -468,8 +463,6 @@ public:
     virtual const float *get_oscilloscope_buffer();
     virtual void clear_oscilloscope_buffer();
     virtual bool oscilloscope_plugin_box_visible();
-    virtual sigc::signal<void, int>& signal_oscilloscope_post_pre();
-    virtual sigc::signal<void, bool>& signal_oscilloscope_visible();
     virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
     virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
     virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);

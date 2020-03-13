@@ -86,22 +86,15 @@ Gtk::Widget *WidgetStack::add(Gtk::Widget *w, const Glib::ustring& label) {
 
 /****************************************************************
  ** class StackBoxBuilder
- */
+ ****************************************************************/
 
 StackBoxBuilder::StackBoxBuilder(
-    gx_engine::GxMachineBase& machine_, Gxw::WaveView &fWaveView_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
-    : fBox(), machine(machine_), fWaveView(fWaveView_), convolver_filename_label(), convolver_mono_filename_label(),
-      widget(), accels(), window_icon(window_icon_), next_flags(0), output_widget_state() {
-    convolver_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
-    convolver_mono_filename_label.set_ellipsize(Pango::ELLIPSIZE_END);
-
+    gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gdk::Pixbuf> window_icon_)
+    : fBox(), machine(machine_), widget(), accels(), window_icon(window_icon_),
+      next_flags(0), current_plugin(nullptr) {
 }
 
 StackBoxBuilder::~StackBoxBuilder() {
-}
-
-void StackBoxBuilder::openVerticalMidiBox(const char* label) {
-    openVerticalBox(label);
 }
 
 void StackBoxBuilder::prepare() {
@@ -138,26 +131,186 @@ void StackBoxBuilder::fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox) {
     }
 }
 
-void StackBoxBuilder::get_box(const std::string& name, Gtk::Widget*& mainbox, Gtk::Widget*& minibox) {
-    struct {
-	const char *name;
-	void (StackBoxBuilder::*func)();
-    } mapping[] = {
-	// mono
-	{ "oscilloscope", &StackBoxBuilder::make_rackbox_oscilloscope },
-	{ "jconv_mono", &StackBoxBuilder::make_rackbox_jconv_mono },
-	{ "midi_out", &StackBoxBuilder::make_rackbox_midi_out },
-	{ "seq", &StackBoxBuilder::make_rackbox_sequencer },
-	// stereo
-	{ "jconv", &StackBoxBuilder::make_rackbox_jconv },
-    };
-    mainbox = minibox = 0;
-    for (unsigned int i = 0; i < sizeof(mapping) / sizeof(mapping[0]); ++i) {
-	if (name == mapping[i].name) {
-	    prepare();
-	    (this->*mapping[i].func)();
-	    fetch(mainbox, minibox);
-	}
+/****************************************************************
+ * Support for loading from glade files
+ *
+ * The feature for defining signal connections in the glade file is
+ * misused a bit; only the signal handler name is looked at, and its
+ * taken as a symbol defining what sort of signal wiring and
+ * additional processing is requestet.
+ */
+
+static bool on_refresh_oscilloscope(Gxw::WaveView& fWaveView, gx_engine::GxMachineBase& machine) {
+    int load, frames;
+    bool is_rt;
+    jack_nframes_t bsize;
+    machine.get_oscilloscope_info(load, frames, is_rt, bsize);
+    static struct  {
+        int load, frames;
+        jack_nframes_t bsize;
+        bool rt;
+    } oc;
+    if (!oc.bsize || oc.load != load) {
+        oc.load = load;
+        fWaveView.set_text(
+            (boost::format(_("DSP Load  %1% %%")) % oc.load).str().c_str(),
+            Gtk::CORNER_TOP_LEFT);
+    }
+    if (!oc.bsize || oc.frames != frames) {
+        oc.frames = frames;
+        fWaveView.set_text(
+            (boost::format(_("HT Frames %1%")) % oc.frames).str().c_str(),
+            Gtk::CORNER_BOTTOM_LEFT);
+    }
+    if (!oc.bsize || oc.rt != is_rt) {
+        oc.rt = is_rt;
+        fWaveView.set_text(
+            oc.rt ? _("RT Mode  YES ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
+            Gtk::CORNER_BOTTOM_RIGHT);
+    }
+    if (!oc.bsize || oc.bsize != bsize) {
+	oc.bsize = bsize;
+        fWaveView.set_text(
+            (boost::format(_("Latency    %1%")) % oc.bsize).str().c_str(),
+            Gtk::CORNER_TOP_RIGHT);
+    }
+    fWaveView.queue_draw();
+    return machine.oscilloscope_plugin_box_visible();
+}
+
+/*
+ * JConvolver
+ */
+static void jconv_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine, bool stereo) {
+    gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(
+        &machine.get_parameter(stereo ? "jconv.convolver" : "jconv_mono.convolver"));
+    assert(jcp);
+    Gtk::Label *label = dynamic_cast<Gtk::Label*>(object.get());
+    assert(label);
+    auto set_convolver_filename = [=](const gx_engine::GxJConvSettings *jcs) { label->set_label(jcs->getIRFile()); };
+    set_convolver_filename(&jcp->get_value());
+    sigc::connection conn = jcp->signal_changed().connect(set_convolver_filename);
+    label->add_destroy_notify_callback(
+        new sigc::connection(conn),
+        [](void *p) {
+            sigc::connection *conn = static_cast<sigc::connection*>(p);
+            conn->disconnect();
+            delete conn;
+            return p;
+        });
+}
+
+static void jconv_button(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine,
+                         Glib::RefPtr<Gtk::AccelGroup>& accels, Glib::RefPtr<Gdk::Pixbuf>& window_icon,
+                         bool stereo) {
+    auto *button = dynamic_cast<Gtk::Button*>(object.get());
+    assert(button);
+    static gx_jconv::IRWindow* ir_windows[2] = { nullptr, nullptr };
+    gx_jconv::IRWindow*& irw = ir_windows[stereo ? 1 : 0];
+    if (!irw) {
+        irw = gx_jconv::IRWindow::create(
+            (stereo ? "jconv" : "jconv_mono"), window_icon, machine, accels, (stereo ? 2 : 1));
+        button->add_destroy_notify_callback(
+            &irw,
+            [](void *p) {
+                gx_jconv::IRWindow*& irw = *static_cast<gx_jconv::IRWindow**>(p);
+                delete irw;
+                irw = 0;
+                return p;
+            });
+    }
+    button->signal_clicked().connect(
+        sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
+}
+
+/*
+ * Drum Sequencer
+ */
+static void seq_button(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine) {
+    auto *button = dynamic_cast<Gtk::Button*>(object.get());
+    assert(button);
+    static gx_seq::SEQWindow *seqw = nullptr;
+    if (!seqw) {
+        seqw = gx_seq::SEQWindow::create("seq", machine);
+        button->add_destroy_notify_callback(
+            &seqw,
+            [](void *p) {
+                gx_seq::SEQWindow*& seqw = *static_cast<gx_seq::SEQWindow**>(p);
+                delete seqw;
+                seqw = 0;
+                return p;
+            });
+    }
+    button->signal_clicked().connect(
+        sigc::mem_fun(*seqw, &gx_seq::SEQWindow::reload_and_show));
+}
+
+/*
+ * Oscilloscope
+ */
+static void connect_waveview(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine,
+                             gx_engine::Plugin& plugin) {
+    auto w = dynamic_cast<Gxw::WaveView*>(object.get());
+    assert(w);
+    w->set_multiplicator(20, 60);
+    const int conn_len = 4;
+    auto conn = new sigc::connection[conn_len];
+    auto on_show_oscilloscope =
+        [=, &machine](bool v){
+            if (v) {
+                conn[0] = Glib::signal_timeout().connect(
+                    [=, &machine](){ return on_refresh_oscilloscope(*w, machine); },
+                    60);
+            }
+        };
+    on_show_oscilloscope(plugin.get_box_visible());
+    conn[1] = machine.signal_parameter_value<bool>(plugin.id_box_visible()).connect(
+        on_show_oscilloscope);
+    conn[2] = machine.signal_oscilloscope_activation().connect(
+        [=,&machine](bool start){
+            if (!start) {
+                machine.clear_oscilloscope_buffer();
+                w->queue_draw();
+            }
+            return 0;
+        });
+    conn[3] = machine.signal_oscilloscope_size_change().connect(
+        [=,&machine](unsigned int size){
+            w->set_frame(machine.get_oscilloscope_buffer(), size);
+        });
+    w->add_destroy_notify_callback(
+        conn,
+        [](void*p) {
+            sigc::connection *conn = static_cast<sigc::connection*>(p);
+            for (int i = 0; i < conn_len; i++) {
+                conn->disconnect();
+            }
+            delete[] conn;
+            return p;
+        });
+}
+
+void StackBoxBuilder::connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::RefPtr<Glib::Object> object,
+                                      const char *signal_name, const char *handler_name) {
+    /*
+     * call function for handler_name
+     */
+    if (!strcmp(handler_name, "ir_mono_window_reload_and_show")) {
+        jconv_button(object, machine, accels, window_icon, false);
+    } else if (!strcmp(handler_name, "ir_stereo_window_reload_and_show")) {
+        jconv_button(object, machine, accels, window_icon, true);
+    } else if (!strcmp(handler_name, "SEQWindow_reload_and_show")) {
+        seq_button(object, machine);
+    } else if (!strcmp(handler_name, "connect_oscilloscope")) {
+        connect_waveview(object, machine, *current_plugin->plugin);
+    } else if (!strcmp(handler_name, "jconv_mono.convolver:IRFile")) {
+        jconv_filelabel(object, machine, false);
+    } else if (!strcmp(handler_name, "jconv.convolver:IRFile")) {
+        jconv_filelabel(object, machine, true);
+    } else {
+        gx_print_error(
+            "StackBoxBuilder::connect_signals",
+            boost::format("glade connect: signal / handler not found: %1% / %2%") % signal_name % handler_name);
     }
 }
 
@@ -166,6 +319,15 @@ void StackBoxBuilder::loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld) {
         gx_print_error("load_ui Error", "can't find widget 'rackbox'");
 	return;
     }
+    gtk_builder_connect_signals_full(
+        bld.get()->gobj(),
+        [](GtkBuilder *builder, GObject *object, const gchar *signal_name, const gchar *handler_name,
+           GObject *connect_object, GConnectFlags flags, gpointer user_data) {
+            static_cast<StackBoxBuilder*>(user_data)->connect_signals(
+                Glib::RefPtr<GxBuilder>::cast_dynamic(Glib::wrap(builder, true)),
+                Glib::wrap(object, true), signal_name, handler_name);
+        },
+        this);
     Gtk::Widget* w;
     if (bld->has_object("minibox")) {
 	bld->find_widget("minibox", w);
@@ -180,116 +342,24 @@ static const char *rackbox_ids[] = { "rackbox", "minibox", 0 };
 void StackBoxBuilder::loadRackFromGladeFile(const char *fname) {
     loadRackFromBuilder(
 	GxBuilder::create_from_file(
-	    machine.get_options().get_builder_filepath(fname), &machine, rackbox_ids, output_widget_state));
+	    machine.get_options().get_builder_filepath(fname), &machine, rackbox_ids,
+            current_plugin->get_output_widget_state()));
 }
 
 void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
-    loadRackFromBuilder(GxBuilder::create_from_string(xmldesc, &machine, rackbox_ids, output_widget_state));
+    loadRackFromBuilder(GxBuilder::create_from_string(xmldesc, &machine, rackbox_ids,
+                                                      current_plugin->get_output_widget_state()));
 }
+
+/****************************************************************
+ * stack based building of Rackboxes
+ */
 
 void StackBoxBuilder::addwidget(Gtk::Widget *widget) {
     if (widget) {
 	fBox.container_add(manage(widget));
     }
     next_flags = 0;
-}
-
-void StackBoxBuilder::addSmallJConvFavButton(const char* label, gx_jconv::IRWindow *irw) {
-    Gtk::Button *button = new Gtk::Button();
-    button->get_style_context()->add_class("gx_rack_small_button");
-    button->set_name("smallbutton");
-    Gtk::Label *lab = new Gtk::Label(label);
-    button->add(*manage(lab));
-    lab->set_padding(5,0);
-    fBox.add(manage(button), label);
-    lab->show();
-    button->signal_clicked().connect(
-	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
-}
-
-void StackBoxBuilder::set_convolver_filename(const gx_engine::GxJConvSettings *jcs) {
-    convolver_filename_label.set_label(jcs->getIRFile());
-}
-
-void StackBoxBuilder::set_convolver_mono_filename(const gx_engine::GxJConvSettings *jcs) {
-    convolver_mono_filename_label.set_label(jcs->getIRFile());
-}
-
-void StackBoxBuilder::openSetLabelBox() {
-    Gtk::VBox *box =  new Gtk::VBox();
-    box->set_homogeneous(false);
-    box->set_spacing(0);
-    box->set_border_width(0);
-    convolver_filename_label.set_name("rack_label");
-    convolver_filename_label.get_style_context()->add_class("gx_rack_box_label");
-    box->pack_start(convolver_filename_label, false, false, 0);
-    box->show_all();
-    gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter("jconv.convolver"));
-    assert(jcp);
-    convolver_filename_label.set_label(jcp->get_value().getIRFile());
-    jcp->signal_changed().connect(
-	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_filename));
-    fBox.box_pack_start(manage(box), false);
-    fBox.push(box);
-}
-
-void StackBoxBuilder::openSetMonoLabelBox() {
-    Gtk::VBox *box =  new Gtk::VBox();
-    box->set_homogeneous(false);
-    box->set_spacing(0);
-    box->set_border_width(0);
-    convolver_mono_filename_label.set_name("rack_label");
-    convolver_mono_filename_label.get_style_context()->add_class("gx_rack_box_label");
-    box->pack_start(convolver_mono_filename_label, true, false, 0);
-    box->show_all();
-    gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(&machine.get_parameter("jconv_mono.convolver"));
-    assert(jcp);
-    convolver_mono_filename_label.set_label(jcp->get_value().getIRFile());
-    jcp->signal_changed().connect(
-	sigc::mem_fun(*this, &StackBoxBuilder::set_convolver_mono_filename));
-    fBox.box_pack_start(manage(box));
-    fBox.push(box);
-}
-
-void StackBoxBuilder::addJConvButton(const char* label, gx_jconv::IRWindow *irw) {
-    Gtk::Button *button = new Gtk::Button();
-    button->set_can_default(false);
-    button->set_can_focus(false);
-    Gtk::Label *lab = new Gtk::Label(label);
-    button->add(*manage(lab));
-    Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
-    al->add(*manage(button));
-    al->show_all();
-    fBox.box_pack_start(manage(al), false);
-    button->signal_clicked().connect(
-	sigc::mem_fun(*irw, &gx_jconv::IRWindow::reload_and_show));
-}
-
-void StackBoxBuilder::addSmallSeqButton(const char* label, gx_seq::SEQWindow *seqw) {
-    Gtk::Button *button = new Gtk::Button();
-    button->set_name("smallbutton");
-    button->get_style_context()->add_class("gx_rack_small_button");
-    Gtk::Label *lab = new Gtk::Label(label);
-    button->add(*manage(lab));
-    lab->set_padding(5,0);
-    fBox.add(manage(button), label);
-    lab->show();
-    button->signal_clicked().connect(
-	sigc::mem_fun(*seqw, &gx_seq::SEQWindow::reload_and_show));
-}
-
-void StackBoxBuilder::addSeqButton(const char* label, gx_seq::SEQWindow *seqw) {
-    Gtk::Button *button = new Gtk::Button();
-    button->set_can_default(false);
-    button->set_can_focus(false);
-    Gtk::Label *lab = new Gtk::Label(label);
-    button->add(*manage(lab));
-    Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.5, 0.0, 0.0);
-    al->add(*manage(button));
-    al->show_all();
-    fBox.box_pack_start(manage(al), false);
-    button->signal_clicked().connect(
-	sigc::mem_fun(*seqw, &gx_seq::SEQWindow::reload_and_show));
 }
 
 void StackBoxBuilder::set_next_flags(int flags) {
@@ -358,7 +428,8 @@ void UiPortDisplayWithCaption::activate_output(bool state) {
 
 void StackBoxBuilder::create_port_display(const std::string& id, const char *label) {
     UiPortDisplayWithCaption *w = new UiPortDisplayWithCaption(machine, id);
-    output_widget_state->connect(sigc::mem_fun(w, &UiPortDisplayWithCaption::activate_output));
+    current_plugin->get_output_widget_state()->connect(
+        sigc::mem_fun(w, &UiPortDisplayWithCaption::activate_output));
     if (next_flags & UI_LABEL_INVERSE) {
 	w->set_rack_label_inverse(label);
     } else {
@@ -406,7 +477,8 @@ void StackBoxBuilder::create_p_display(const std::string& id, const std::string&
     w->get_style_context()->add_class("playhead");
     w->show_all();
     addwidget(w);
-    output_widget_state->connect(sigc::mem_fun(w, &UiPDisplay::activate_output));
+    current_plugin->get_output_widget_state()->connect(
+        sigc::mem_fun(w, &UiPDisplay::activate_output));
 }
 
 class UiFeedbackSwitch: public UiSwitchFloat {
@@ -426,7 +498,8 @@ void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::str
 	//sw->set_relief(Gtk::RELIEF_NONE);
 	sw->set_name("effect_on_off");
 	addwidget(sw);
-	output_widget_state->connect(sigc::mem_fun(sw, &UiFeedbackSwitch::activate_output));
+	current_plugin->get_output_widget_state()->connect(
+            sigc::mem_fun(sw, &UiFeedbackSwitch::activate_output));
 }
 
 void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
@@ -586,7 +659,8 @@ void StackBoxBuilder::create_feedback_slider(const std::string& id, const char *
     UiFeedbackSlider *w = new UiFeedbackSlider(machine, id);
 	w->set_label(label);
 	addwidget(w);
-	output_widget_state->connect(sigc::mem_fun(w, &UiFeedbackSlider::activate_output));
+	current_plugin->get_output_widget_state()->connect(
+            sigc::mem_fun(w, &UiFeedbackSlider::activate_output));
 }
 
 void StackBoxBuilder::create_selector(const std::string& id, const char *widget_name) {
@@ -695,21 +769,6 @@ void StackBoxBuilder::create_big_rackknob(const std::string& id, const char *lab
     }
     check_set_flags(w->get_regler());
     addwidget(w);
-}
-
-void StackBoxBuilder::addLiveWaveDisplay(const char* label) {
-    Gtk::HBox * box      = new Gtk::HBox(false, 4);
-    Gtk::VBox * box1     = new Gtk::VBox(false, 0);
-    Gtk::VBox * box2     = new Gtk::VBox(false, 0);
-    box->pack_start(*manage(box1), true, true, 0);
-    box->pack_start(fWaveView, false, false, 0);
-    box->pack_start(*manage(box2), true, true, 0);
-    fBox.add(manage(box), label);
-    fWaveView.hide(); // was show()'n by addWidget
-    fWaveView.property_text_pos_left() = 1.5;
-    fWaveView.property_text_pos_right() = 77;
-    // multiplicator is already set by signal handler
-    box->show_all();
 }
 
 void StackBoxBuilder::openVerticalBox1(const char* label) {
@@ -844,48 +903,6 @@ uiToggleButton::uiToggleButton(gx_engine::GxMachineBase& machine_, const std::st
 
 void uiToggleButton::toggled() {
     machine.set_parameter_value(id, get_active());
-}
-
-void StackBoxBuilder::addMToggleButton(const std::string& id, const char* label_) {
-    Glib::ustring label(label_);
-    if (!machine.parameter_hasId(id)) {
-        return;
-    }
-    const gx_engine::BoolParameter &p = machine.get_parameter(id).getBool();
-    if (label.empty()) {
-        label = p.l_name();
-    }
-    Gdk::RGBA colorRed("#58b45e");
-    Gdk::RGBA colorOwn("#7f7f7f");
-    Gdk::RGBA colorwn("#000000");
-    uiToggleButton* button = new uiToggleButton(machine, id);
-    Gtk::Label* lab = new Gtk::Label(label);
-    Pango::FontDescription font = lab->get_style_context()->get_font();
-    font.set_weight(Pango::WEIGHT_BOLD);
-    lab->override_font(font);
-    button->add(*manage(lab));
-    button->set_size_request(70, 20);
-    Gtk::Box* box = new Gtk::HBox(homogene, 4);
-    Gtk::Box* box1 = new Gtk::VBox(homogene, 4);
-    box->set_border_width(0);
-    box1->set_border_width(0);
-    box->add(*manage(box1));
-    Gtk::Box* box2 = new Gtk::VBox(homogene, 4);
-    box2->set_border_width(0);
-    box2->set_size_request(6, 20);
-    box->add(*manage(button));
-    box->add(*manage(box2));
-    box1->set_size_request(6, 20);
-    button->show();
-    box1->show();
-    box2->show();
-    lab->show();
-    box->show();
-    fBox.container_add(manage(box));
-    button->override_background_color(colorOwn, Gtk::STATE_FLAG_NORMAL);
-    button->override_background_color(colorRed, Gtk::STATE_FLAG_ACTIVE);
-    lab->set_name("rack_label");
-    connect_midi_controller(button, id, machine);
 }
 
 class uiCheckButton: public Gtk::CheckButton {
