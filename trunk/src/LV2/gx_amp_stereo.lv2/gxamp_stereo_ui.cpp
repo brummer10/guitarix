@@ -28,6 +28,7 @@ typedef struct {
     Xputty main;
     Widget_t *win;
     Widget_t *widget[CONTROLS];
+    cairo_surface_t *screw;
     int block_event;
     float schedule;
 
@@ -73,6 +74,7 @@ static void set_my_theme(Xputty *main) {
 // draw the window
 static void draw_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
+    X11_UI* ui = (X11_UI*)w->parent_struct;
     int width = w->width;
     int height = w->height;
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
@@ -89,11 +91,23 @@ static void draw_window(void *w_, void* user_data) {
     double tw = extents.width/2.0;
 
     widget_set_scale(w);
+
+    cairo_set_source_surface (w->crb, ui->screw,5,5);
+    cairo_paint (w->crb);
+    cairo_set_source_surface (w->crb, ui->screw,5,w->scale.init_height-29);
+    cairo_paint (w->crb);
+    cairo_set_source_surface (w->crb, ui->screw,w->scale.init_width-29,w->scale.init_height-29);
+    cairo_paint (w->crb);
+    cairo_set_source_surface (w->crb, ui->screw,w->scale.init_width-29,5);
+    cairo_paint (w->crb);
+    cairo_new_path (w->crb);
+
+    cairo_set_source_rgb (w->crb,0.45, 0.45, 0.45);
     cairo_move_to (w->crb, 395-tw, 177 );
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
     cairo_scale (w->crb, 0.95, 0.95);
-    cairo_set_source_surface (w->crb, w->image,720,5);
+    cairo_set_source_surface (w->crb, w->image,710,5);
     cairo_paint (w->crb);
     cairo_scale (w->crb, 1.05, 1.05);
     widget_reset_scale(w);
@@ -285,8 +299,10 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     set_my_theme(&ui->main);
     // create the toplevel Window on the parentXwindow provided by the host
     ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, 790, 186);
+    ui->win->parent_struct = ui;
     ui->win->label = "GxAmplifier-Stereo-X";
     widget_get_png(ui->win, LDVAR(guitarix_png));
+    ui->screw = surface_get_png(ui->win, ui->screw, LDVAR(screwhead_png));
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
     // create knob widgets
@@ -371,6 +387,7 @@ static void set_sensitive_state(X11_UI* ui, float state) {
 // cleanup after usage
 static void cleanup(LV2UI_Handle handle) {
     X11_UI* ui = (X11_UI*)handle;
+    cairo_surface_destroy(ui->screw);
     // Xputty free all memory used
     main_quit(&ui->main);
     free(ui);

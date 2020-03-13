@@ -352,6 +352,7 @@ static void set_sensitive_state(X11_UI* ui, float state) {
 // cleanup after usage
 static void cleanup(LV2UI_Handle handle) {
     X11_UI* ui = (X11_UI*)handle;
+    cairo_surface_destroy(ui->screw);
     // Xputty free all memory used
     main_quit(&ui->main);
     free(ui);
