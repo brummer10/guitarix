@@ -316,11 +316,15 @@ void PluginUI::on_state_change() {
 }
 
 void PluginUI::dispose_rackbox() {
-    // too many memory leaks in the stack based builder
-    rackbox->hide();
-    //RackBox *p = rackbox;
-    //rackbox = nullptr;
-    //delete p;
+    if (plugin->get_box_visible()) {
+        rackbox->hide(); // dnd operation, just hide
+    } else {
+        // too many memory leaks in the stack based builder
+        rackbox->hide();
+        //RackBox *p = rackbox;
+        //rackbox = nullptr;
+        //delete p;
+    }
 }
 
 bool PluginUI::animate_vanish() {
@@ -331,11 +335,7 @@ bool PluginUI::animate_vanish() {
     }
     rackbox->set_visibility(true);
     rackbox->set_size_request(-1,-1);
-    if (plugin->get_box_visible()) {
-	rackbox->hide(); // dnd operation, just hide
-    } else {
-	dispose_rackbox();
-    }
+    dispose_rackbox();
     return false;
 }
 
@@ -345,7 +345,7 @@ bool PluginUI::animate_vanish() {
 
 void PluginUI::remove(bool animate) {
     if (!animate || !plugin_dict.use_animations()) {
-	dispose_rackbox();
+        dispose_rackbox();
     } else {
 	if (rackbox->anim_tag.connected()) {
 	    rackbox->anim_tag.disconnect();
@@ -666,7 +666,7 @@ void PluginDict::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChang
     } else {
 	assert(c == gx_engine::PluginChange::update || c == gx_engine::PluginChange::update_category);
         bool state =  pui->plugin->get_on_off();
-	pui->update_rackbox(); //FIXME
+	pui->update_rackbox();
         pui->plugin->set_on_off(state);
 	if (c == gx_engine::PluginChange::update_category) {
 	    pui->unset_ui_merge_id(uimanager);
