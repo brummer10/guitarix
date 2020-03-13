@@ -317,7 +317,8 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 
 /* Buttons */
 
-#rackbox {
+#rackbox,
+.rackbox {
     checkbutton.gx_sw_switch_mid {
 	&#effect_on_off,
 	&.gx_effect_on_off {
@@ -582,6 +583,7 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 }
 
 #rack_label,
+.rack_label,
 #Value, /* *Value */
 #ampbox label,
 #beffekt_label,
