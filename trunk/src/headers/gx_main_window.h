@@ -233,6 +233,7 @@ private:
     bool on_my_leave_out(GdkEventCrossing *focus);
     bool on_my_enter_in(GdkEventCrossing *focus);
     void on_my_drag_end(const Glib::RefPtr<Gdk::DragContext>& context);
+    bool on_my_drag_failed(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::DragResult result);
     void on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp);
     void vis_switch(Gtk::Widget& a, Gtk::Widget& b);
     void set_visibility(bool v);
@@ -290,7 +291,7 @@ class RackContainer: public Gtk::VBox {
 private:
     PluginDict& plugin_dict;
     int in_drag;
-    bool empty;  		///< contains no visible children
+    int count;                  ///< count of visible children
     std::vector<std::string> targets;
     std::vector<std::string> othertargets;
     sigc::connection highlight_connection;
@@ -328,7 +329,8 @@ public:
     void set_list_targets(const std::vector<Gtk::TargetEntry>& listTargets,
 			  const std::vector<std::string>& targets_,
 			  const std::vector<std::string>& othertargets_);
-    void set_is_empty(bool empty);
+    void set_child_count(int n);
+    void change_child_count(int n) { set_child_count(count + n); }
     inline void reorder(const std::string& name, const std::string& before);
 };
 

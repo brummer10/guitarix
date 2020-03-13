@@ -504,7 +504,7 @@ void PluginDict::check_order(PluginType tp, bool animate) {
     if (!in_order || need_renumber) {
 	container.renumber();
     }
-    container.set_is_empty(ol.empty());
+    container.set_child_count(ol.size());
 }
 
 void PluginDict::unit_order_changed(bool stereo) {
@@ -1427,6 +1427,7 @@ Gtk::Widget *RackBox::wrap_bar(int left, int right, bool sens) {
     ev->signal_button_press_event().connect(sigc::mem_fun(plugin, &PluginUI::on_rack_handle_press));
     ev->signal_drag_begin().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_begin));
     ev->signal_drag_end().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_end));
+    ev->signal_drag_failed().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_failed));
     ev->signal_drag_data_get().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_data_get));
     std::vector<Gtk::TargetEntry> listTargets;
     listTargets.push_back(Gtk::TargetEntry(target, Gtk::TARGET_SAME_APP, 0));
@@ -1543,6 +1544,7 @@ void RackBox::init_dnd() {
     }
     mbox.signal_drag_begin().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_begin));
     mbox.signal_drag_end().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_end));
+    mbox.signal_drag_failed().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_failed));
     mbox.signal_drag_data_get().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_data_get));
 }
 
@@ -1565,6 +1567,7 @@ void RackBox::on_my_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context) {
     get_pointer(x, y);
     drag_icon = new DragIcon(plugin, context, plugin_dict.get_options(), x);
     plugin.remove(true);
+    get_parent()->change_child_count(-1);
 }
 
 bool RackBox::animate_create() {
@@ -1611,6 +1614,11 @@ void RackBox::on_my_drag_end(const Glib::RefPtr<Gdk::DragContext>& context) {
     if (plugin.plugin->get_box_visible()) {
 	animate_insert();
     }
+}
+
+bool RackBox::on_my_drag_failed(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::DragResult result) {
+    get_parent()->change_child_count(1);
+    return false;
 }
 
 void RackBox::on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp) {
@@ -1785,7 +1793,7 @@ RackContainer::RackContainer(PluginDict& plugin_dict_)
     : Gtk::VBox(),
       plugin_dict(plugin_dict_),
       in_drag(-2),
-      empty(true),
+      count(0),
       targets(),
       othertargets(),
       highlight_connection(),
@@ -2044,12 +2052,12 @@ void RackContainer::add(RackBox& r, int pos) {
     }
 }
 
-void RackContainer::set_is_empty(bool empty_) {
-    if (empty_ == empty) {
+void RackContainer::set_child_count(int n) {
+    if (n == count) {
 	return;
     }
-    empty = empty_;
-    if (empty) {
+    count = n;
+    if (!count) {
 	set_size_request(-1, min_containersize);
     } else {
 	set_size_request(-1, -1);
