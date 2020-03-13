@@ -52,6 +52,21 @@ void widget_get_png(Widget_t *w, const unsigned char* name) {
     cairo_destroy(cri);
 }
 
+cairo_surface_t * surface_get_png(Widget_t *w, cairo_surface_t *sf, const unsigned char* name) {
+    cairo_surface_t *getpng = cairo_image_surface_create_from_stream (name);
+    int width = cairo_image_surface_get_width(getpng);
+    int height = cairo_image_surface_get_height(getpng);
+    
+    sf = cairo_surface_create_similar (w->surface, 
+                        CAIRO_CONTENT_COLOR_ALPHA, width, height);
+    cairo_t *cri = cairo_create (sf);
+    cairo_set_source_surface (cri, getpng,0,0);
+    cairo_paint (cri);
+    cairo_surface_destroy(getpng);
+    cairo_destroy(cri);
+    return sf;
+}
+
 void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *image) {
     int width = cairo_xlib_surface_get_width(image);
     int height = cairo_xlib_surface_get_height(image);

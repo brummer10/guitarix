@@ -113,6 +113,17 @@ cairo_surface_t *cairo_image_surface_create_from_stream ( const unsigned char* n
 
 void widget_get_png(Widget_t *w, const unsigned char* name);
 
+
+/**
+ * @brief surface_get_png            - read png into Widget_t xlib surface
+ * @param *w                         - pointer to the Widget_t which should use the png
+ * @param *sf                        - pointer to the cairo_surface_t which should hold the png
+ * @param *name                      - pointer to the binary image data LDVAR(name)
+ * @return cairo_surface_t           - the cairo_xlib_surface, you need to free it by yourself
+ */
+
+cairo_surface_t * surface_get_png(Widget_t *w, cairo_surface_t *sf, const unsigned char* name);
+
 /**
  * @brief widget_set_icon_from_surface - set icon image from cairo surface for Widget_t
  * those icon will be used in the Window decoration and the toolbar (depending on the Widnow manager)
