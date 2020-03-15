@@ -1,11 +1,58 @@
 Documentation for Guitarix Developers
 
+0. Tips for debugging Guitarix
 1. Measurement of DSP processing times
 2. Formatting of source code
 3. Thread architecture
 4. Parameters (for DSP algorithms etc.)
 5. Integration of faust code
 6. LADSPA
+
+0. Tips for debugging Guitarix
+------------------------------
+
+ - waf build dependency computation is a lot faster with python3
+   than with python2
+
+ - recommended build configuration: python3 waf configure --glade
+   --debug --debug enables a lot of extra checks (by not setting
+   -DNDEBUG)
+
+ - if you make changes to libgxw, add --generate-cpp
+
+ - when using gdb it's easier to debug without optimization:
+   --cxxflags-debug '-O0 -g'
+
+ - valgrind can be used when starting guitarix without the jackd
+   server, or when jackd runs with the dummy driver (jackd -ddummy),
+   e.g.: valgrind --leak-check=full guitarix
+
+ - when only working at the user interface (or the backend), another
+   possibility is to separate both parts by starting Guitarix in
+   headless mode and another instance as user interface:
+   terminal 1: guitarix -N
+   terminal 2: guitarix -G -H localhost
+
+ - if glade can't find the gxw support, use tools/gxglade (or do
+   sudo waf install)
+
+ - changes to scss files will be reflected instantly if you start the
+   script tools/run-scss-watch
+
+ - to inspect the internal state of the Gtk widget, use
+   "gsettings set org.gtk.Settings.Debug enable-inspector-keybinding true"
+   and start the inspector window with "Ctrl Shift I" while the mouse
+   pointer is over a widget.
+
+ - there are a lot of Gtk debug options (-> Gtk documentation), which
+   might be available in your Gtk build (like --gtk-debug=icontheme).
+
+ - if you don't find a signal source for testing, one possibility is
+   to build the osci executable from osci.dsp with faust2jack (both in
+   the Faust distribution, Debian packet faust-common). This can be
+   used together with jackd -ddummy to test the software in a
+   virtualized environment (container etc.).
+
 
 1. Measurement of DSP processing times
 ----------------------------------------------------------------
@@ -42,8 +89,8 @@ In ~/.emacs:
 --
 In trunk/.dir-locals.el:
 ------
-((c++-mode . ((c-file-style . "guitarix-cc-mode") (tab-width . 4)))
- (c-mode   . ((c-file-style . "guitarix-cc-mode") (tab-width . 4))))
+((c++-mode . ((c-file-style . "guitarix-cc-mode") (tab-width . 8)))
+ (c-mode   . ((c-file-style . "guitarix-cc-mode") (tab-width . 8))))
 --
 
 3. Thread architecture
