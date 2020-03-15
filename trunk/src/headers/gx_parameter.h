@@ -271,7 +271,10 @@ public:
 	       float *v, float sv, float lv, float uv, float tv, bool ctrl, bool no_init):
 	Parameter(id, name, tp_float, ctp, preset, ctrl),
 	value(v ? v : &value_storage), std_value(sv),lower(lv),upper(uv),step(tv) {
-	set(no_init ? *value : sv);
+        assert(lv <= sv && sv <= uv);
+        if (!no_init) {
+            *value = sv;
+        }
     }
 #ifndef NDEBUG
     friend void compare_parameter(const char* title, Parameter* p1,

@@ -1609,7 +1609,7 @@ void MainWindow::create_actions() {
 void MainWindow::clear_box(Gtk::Container& box) {
     std::vector<Gtk::Widget*> l = box.get_children();
     for (std::vector<Gtk::Widget*>::iterator p = l.begin(); p != l.end(); ++p) {
-	box.remove(**p);
+        delete *p;
     }
 }
 

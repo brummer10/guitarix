@@ -1685,7 +1685,8 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std:
                 if (lib_is_blacklisted(nm)) {
                     continue;
                 }
-                lrdf_read_file(("file://"+Glib::build_filename(file->get_path(), nm)).c_str());
+                Glib::ustring path = "file://"+Glib::build_filename(file->get_path(), nm);
+                lrdf_read_file(path.c_str());
             }
         }
     }

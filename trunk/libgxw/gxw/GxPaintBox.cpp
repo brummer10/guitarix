@@ -231,24 +231,24 @@ static void gx_paint_box_init (GxPaintBox *paint_box)
 
 static void gx_paint_box_destroy(GtkWidget *object)
 {
-	GxPaintBox *paint_box = GX_PAINT_BOX(object);
-	if (paint_box->priv->paint_func) {
-		g_free(paint_box->priv->paint_func);
-		paint_box->priv->paint_func = NULL;
-	}
-	while (G_IS_OBJECT(paint_box->priv->gxh_image)) {
+    GxPaintBox *paint_box = GX_PAINT_BOX(object);
+    if (paint_box->priv->paint_func) {
+        g_free(paint_box->priv->paint_func);
+        paint_box->priv->paint_func = NULL;
+    }
+    if (paint_box->priv->gxh_image) {
         g_object_unref(paint_box->priv->gxh_image);
-	}
-	paint_box->priv->gxh_image = NULL;
-	while (G_IS_OBJECT(paint_box->priv->gxr_image)) {
+    }
+    paint_box->priv->gxh_image = NULL;
+    if (paint_box->priv->gxr_image) {
         g_object_unref(paint_box->priv->gxr_image);
-	}
-	paint_box->priv->gxr_image = NULL;
-	while (G_IS_OBJECT(paint_box->priv->logo_image)) {
+    }
+    paint_box->priv->gxr_image = NULL;
+    if (paint_box->priv->logo_image) {
         g_object_unref(paint_box->priv->logo_image);
-	}
-	paint_box->priv->logo_image = NULL;
-	GTK_WIDGET_CLASS(gx_paint_box_parent_class)->destroy(object);
+    }
+    paint_box->priv->logo_image = NULL;
+    GTK_WIDGET_CLASS(gx_paint_box_parent_class)->destroy(object);
 }
 
 static gboolean gx_paint_box_draw(GtkWidget *widget, cairo_t *cr)
@@ -389,11 +389,11 @@ static void draw_skin (GtkWidget *wi, cairo_t *cr)
     double h_ = h - 4;
     
     gint inverse;
-    GtkBorder * alt;
+    GtkBorder *alt;
     float bevel;
     float left, right, top, bottom;
     left = right = top = bottom = 0;
-    
+
     gtk_widget_style_get(wi, "inverse", &inverse, "alternate_box", &alt, "bevel", &bevel, NULL);
 
     if (h > 64 and alt) {
@@ -403,6 +403,7 @@ static void draw_skin (GtkWidget *wi, cairo_t *cr)
         top    = alt->top / 100.;
         bottom = alt->bottom / 100.;
     }
+    gtk_border_free(alt);
 
     // draw main color
     GdkPixbuf * bg = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),

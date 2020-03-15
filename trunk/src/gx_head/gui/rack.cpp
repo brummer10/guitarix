@@ -315,15 +315,19 @@ void PluginUI::on_state_change() {
     }
 }
 
+// define if memory leaks in atk, pango, etc. are closed (valgrind --leak-check=full guitarix)
+//#define LEAKS_OK
+
 void PluginUI::dispose_rackbox() {
     if (plugin->get_box_visible()) {
         rackbox->hide(); // dnd operation, just hide
     } else {
-        // too many memory leaks in the stack based builder
+#ifdef LEAKS_OK
+        delete rackbox;
+        rackbox = nullptr;
+#else
         rackbox->hide();
-        //RackBox *p = rackbox;
-        //rackbox = nullptr;
-        //delete p;
+#endif
     }
 }
 
@@ -530,6 +534,9 @@ void PluginDict::cleanup() {
     for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
 	delete i->second;
     }
+    for (std::map<Glib::ustring, Gtk::ToolItemGroup*>::iterator i = groupmap.begin(); i != groupmap.end(); ++i) {
+        delete i->second;
+    }
     clear();
 }
 
@@ -644,12 +651,12 @@ void PluginDict::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChang
     }
     PluginUI *pui = at(pl->get_pdef()->id);
     if (c == gx_engine::PluginChange::remove) {
-	remove(pui);
 	pui->unset_ui_merge_id(uimanager);
 	uimanager->ensure_update();
 	actiongroup->remove(pui->get_action());
 	machine.remove_rack_unit(pui->get_id(), pui->get_type());
 	std::string group_id = pui->get_category();
+	remove(pui);
 	delete pui;
 	Gtk::ToolItemGroup * group = groupmap[group_id];
 	if (group->get_n_items() == 0) {

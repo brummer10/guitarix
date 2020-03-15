@@ -867,7 +867,7 @@ static void request_meter(GtkWidget *widget)
     cairo_pattern_add_color_stop_rgb(pat, midpos, rgb[1]->red, rgb[1]->green, rgb[1]->blue);
     cairo_pattern_add_color_stop_rgb(pat, lpos, rgb[2]->red, rgb[2]->green, rgb[2]->blue);
     cairo_pattern_add_color_stop_rgb(pat, lpos + 0.0001, rgb[3]->red, rgb[3]->green, rgb[3]->blue);
-    
+
     cairo_rectangle(cr, x + lb, y + lb, width - 2*lb, height - 2*lb);
     cairo_set_source(cr, pat);
     cairo_fill(cr);
@@ -922,6 +922,9 @@ static void request_meter(GtkWidget *widget)
     cairo_set_source_rgba(cr, 0., 0., 0., 0.8);
     cairo_fill(cr);
 
+	for (i = 0; i < sizeof(rgb)/sizeof(rgb[0]); i++) {
+        gdk_rgba_free(rgb[i]);
+	}
     g_object_unref(entry_context);
     cairo_destroy(cr);
     cairo_destroy(co);

@@ -554,7 +554,7 @@ public:
     }
     ~CheckResample() {
 	if (vec) {
-	    delete vec;
+	    delete[] vec;
 	}
     }
 };

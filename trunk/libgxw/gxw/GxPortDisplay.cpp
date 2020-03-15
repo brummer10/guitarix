@@ -59,14 +59,14 @@ static void gx_port_display_class_init(GxPortDisplayClass *klass)
 
 static const char *get_stock_id(GtkWidget *widget)
 {
-	gchar *icon;
-	gtk_widget_style_get(widget, "icon-name", &icon, NULL);
-	if (icon) {
-		return icon;
-	} else {
-		return GX_PORT_DISPLAY_CLASS(
-			GTK_WIDGET_GET_CLASS(widget))->parent_class.stock_id;
-	}
+    gchar *icon;
+    gtk_widget_style_get(widget, "icon-name", &icon, NULL);
+    if (icon) {
+        return icon;
+    } else {
+        return g_strdup(GX_PORT_DISPLAY_CLASS(
+                            GTK_WIDGET_GET_CLASS(widget))->parent_class.stock_id);
+    }
 }
 
 static void gx_port_display_get_preferred_width (GtkWidget *widget, gint *min_width, gint *natural_width)
@@ -97,16 +97,18 @@ static void gx_port_display_get_preferred_height (GtkWidget *widget, gint *min_h
 
 static void gx_port_display_size_request (GtkWidget *widget, gint *width, gint *height)
 {
-	g_assert(GX_IS_PORT_DISPLAY(widget));
-	gint display_width;
-	gtk_widget_style_get(widget, "display-width", &display_width, NULL);
-	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
-											 get_stock_id(widget), -1,
-											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
-	*height = 2+gdk_pixbuf_get_height(pb);
-	*width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
-	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, FALSE);
-	g_object_unref(pb);
+    g_assert(GX_IS_PORT_DISPLAY(widget));
+    gint display_width;
+    gtk_widget_style_get(widget, "display-width", &display_width, NULL);
+    const gchar *stock_id = get_stock_id(widget);
+    GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+                                             stock_id, -1,
+                                             GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
+    g_free((gpointer)stock_id);
+    *height = 2+gdk_pixbuf_get_height(pb);
+    *width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
+    _gx_regler_calc_size_request(GX_REGLER(widget), width, height, FALSE);
+    g_object_unref(pb);
 }
 
 static void gx_port_display_state_flags_changed(GtkWidget *widget, GtkStateFlags previous_state_flags)
@@ -149,22 +151,24 @@ static void port_display_expose(cairo_t *cr,
 static gboolean gx_port_display_draw(GtkWidget *widget, cairo_t *cr)
 {
     if (GDK_IS_WINDOW (gtk_widget_get_window(widget))) {
-	  g_assert(GX_IS_PORT_DISPLAY(widget));
-	  gint display_width;
-	  GdkRectangle image_rect, value_rect;
-	  GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
-											   get_stock_id(widget), -1,
-											   GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
-	  gtk_widget_style_get(widget, "display-width", &display_width, NULL);
-	  image_rect.height = gdk_pixbuf_get_height(pb);
-	  image_rect.width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
-	  gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.width-display_width);
-	  _gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
-	  port_display_expose(cr, widget, &image_rect, sliderstate, pb);
-	  _gx_regler_simple_display_value(GX_REGLER(widget), cr, &value_rect);
-	  g_object_unref(pb);
+        g_assert(GX_IS_PORT_DISPLAY(widget));
+        gint display_width;
+        GdkRectangle image_rect, value_rect;
+        const gchar *stock_id = get_stock_id(widget);
+        GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+                                                 stock_id, -1,
+                                                 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
+        g_free((gpointer)stock_id);
+        gtk_widget_style_get(widget, "display-width", &display_width, NULL);
+        image_rect.height = gdk_pixbuf_get_height(pb);
+        image_rect.width = (gdk_pixbuf_get_width(pb) + display_width) / 2;
+        gdouble sliderstate = _gx_regler_get_step_pos(GX_REGLER(widget), image_rect.width-display_width);
+        _gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
+        port_display_expose(cr, widget, &image_rect, sliderstate, pb);
+        _gx_regler_simple_display_value(GX_REGLER(widget), cr, &value_rect);
+        g_object_unref(pb);
     }
-	return FALSE;
+    return FALSE;
 }
 
 static void gx_port_display_init(GxPortDisplay *port_display)

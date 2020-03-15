@@ -43,6 +43,8 @@ private:
     Plugin* current_plugin;
     PluginDef **modules;
     unsigned int size;
+    value_pair *values;
+
     static int static_register(const ParamReg& reg);
     int register_parameter(const ParamReg& reg);
 public:

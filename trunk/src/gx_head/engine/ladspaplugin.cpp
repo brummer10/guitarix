@@ -1380,10 +1380,15 @@ LadspaLoader::LadspaLoader(const gx_system::CmdlineOptions& options_,ParamMap& p
     load(plugins);
 }
 
-LadspaLoader::~LadspaLoader() {
+void LadspaLoader::clear_list() {
     for (pluginarray::iterator i = plugins.begin(); i != plugins.end(); ++i) {
 	delete *i;
     }
+    plugins.clear();
+}
+
+LadspaLoader::~LadspaLoader() {
+    clear_list();
     lilv_node_free(lv2_OutputPort);
     lilv_node_free(lv2_InputPort);
     lilv_node_free(lv2_ControlPort);
@@ -1401,17 +1406,8 @@ bool LadspaLoader::load(pluginarray& ml) {
     return true;
 }
 
-void LadspaLoader::change_plugins(pluginarray& new_plugins) {
-    for (pluginarray::iterator i = plugins.begin(); i != plugins.end(); ++i) {
-	delete *i;
-    }
-    plugins = new_plugins;
-}
-
 void LadspaLoader::set_plugins(pluginarray& new_plugins) {
-    //for (pluginarray::iterator i = plugins.begin(); i != plugins.end(); ++i) {
-	//delete *i;
-    //}
+    clear_list();
     plugins = new_plugins;
 }
 

@@ -1822,7 +1822,10 @@ void Directout::mem_alloc()
 void Directout::mem_free()
 {
     mem_allocated = false;
-    if (outdata) { delete outdata; outdata = 0; }
+    if (outdata) {
+        delete[] outdata;
+        outdata = 0;
+    }
 }
 
 void Directout::change_buffersize(unsigned int size)
@@ -2018,7 +2021,10 @@ void DrumSequencer::mem_free()
     ready = false;
     mem_allocated = false;
     Drumout::set_data(0, mem_allocated, 0);
-    if (outdata) { delete outdata; outdata = 0; }
+    if (outdata) {
+        delete[] outdata;
+        outdata = 0;
+    }
 }
 
 void DrumSequencer::change_buffersize(unsigned int size)

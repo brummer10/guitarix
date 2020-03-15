@@ -361,6 +361,7 @@ static void draw_background(GxTuner *tuner)
 	cairo_line_to(cr, x0+98, y0+3);
 	cairo_stroke(cr);
 
+        cairo_pattern_destroy(pat);
 	pat = cairo_pattern_create_linear (x0+50, y0,x0, y0);
 	cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
 	cairo_pattern_add_color_stop_rgb (pat, 0, 0.1, 0.8, 0.1);
@@ -390,6 +391,7 @@ static void draw_background(GxTuner *tuner)
 	cairo_set_line_width(cr, 2.0);
 	cairo_stroke(cr);
 
+        cairo_pattern_destroy(pat);
 	cairo_destroy(cr);
 }
 

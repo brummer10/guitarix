@@ -115,6 +115,7 @@ gint gx_nchoice_dialog_without_entry(
     GtkWidget* text_label = gtk_label_new("");
     GdkPixbuf *pb         = gdk_pixbuf_scale_simple(gw_ib->gobj(), 64, 64, GDK_INTERP_BILINEAR);
     GtkWidget* image      = gtk_image_new_from_pixbuf(pb);
+    g_object_unref(pb);
     
     gtk_label_set_markup(GTK_LABEL(text_label), msg);
     GtkWidget * al = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
