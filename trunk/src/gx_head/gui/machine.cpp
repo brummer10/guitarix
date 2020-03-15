@@ -173,6 +173,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 #endif
     pmap(engine.get_param()),
     switch_bank() {
+    engine.oscilloscope.set_jack(jack);
 
     /*
     ** setup parameters
@@ -430,33 +431,6 @@ void GxMachine::set_oscilloscope_mul_buffer(int a) {
 
 int GxMachine::get_oscilloscope_mul_buffer() {
     return engine.oscilloscope.get_mul_buffer();
-}
-
-const float *GxMachine::get_oscilloscope_buffer() {
-    return engine.oscilloscope.get_buffer();
-}
-
-void GxMachine::clear_oscilloscope_buffer() {
-    engine.oscilloscope.clear_buffer();
-}
-
-bool GxMachine::oscilloscope_plugin_box_visible() {
-    return engine.oscilloscope.plugin.get_box_visible();
-}
-
-sigc::signal<int, bool>& GxMachine::signal_oscilloscope_activation() {
-    return engine.oscilloscope.activation;
-}
-
-sigc::signal<void, unsigned int>& GxMachine::signal_oscilloscope_size_change() {
-    return engine.oscilloscope.size_change;
-}
-
-void GxMachine::get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) {
-    load = static_cast<int>(round(jack.get_jcpu_load()));
-    frames = jack.get_time_is()/100000;
-    is_rt = jack.get_is_rt();
-    bsize = jack.get_jack_bs();
 }
 
 gx_system::CmdlineOptions& GxMachine::get_options() const {
@@ -993,10 +967,6 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       current_preset(),
       bank_drag_get_counter(),
       bank_drag_get_path(),
-      oscilloscope_activation(),
-      oscilloscope_size_change(),
-      oscilloscope_buffer(0),
-      oscilloscope_buffer_size(0),
       tuner_switcher_display(),
       tuner_switcher_set_state(),
       tuner_switcher_selection_done() {
@@ -1042,7 +1012,6 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     jw->write("presetlist_changed");
     jw->write("logger");
     jw->write("midi");
-    jw->write("oscilloscope");
     jw->write("param");
     jw->write("plugins_changed");
     jw->write("misc");
@@ -1226,6 +1195,10 @@ void GxMachineRemote::parameter_changed(gx_system::JsonStringParser *jp) {
 	SeqParameter* pj = dynamic_cast<SeqParameter*>(&p);
 	pj->readJSON_value(*jp);
 	pj->setJSON_value();
+    } else if (dynamic_cast<OscParameter*>(&p) != 0) {
+	OscParameter* po = dynamic_cast<OscParameter*>(&p);
+	po->readJSON_value(*jp);
+	po->setJSON_value();
     } else {
 	cerr << "change special type parameter " << p.id() << endl;
     }
@@ -1293,18 +1266,6 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	int value = jp->current_value_int();
 	jp->next(gx_system::JsonParser::end_array);
 	midi_value_changed(ctl, value);
-    } else if (method == "osc_activation") {
-	jp->next(gx_system::JsonParser::value_number);
-	oscilloscope_activation(jp->current_value_int());
-    } else if (method == "osc_size_changed") {
-	jp->next(gx_system::JsonParser::value_number);
-	unsigned int sz = jp->current_value_int();
-	if (oscilloscope_buffer_size != sz) {
-	    delete oscilloscope_buffer;
-	    oscilloscope_buffer = new float[sz];
-	    oscilloscope_buffer_size = sz;
-	}
-	oscilloscope_size_change(sz);
     } else if (method == "show_tuner") {
 	jp->next(gx_system::JsonParser::value_number);
 	tuner_switcher_selection_done(jp->current_value_int());
@@ -1841,64 +1802,12 @@ int GxMachineRemote::get_oscilloscope_mul_buffer() {
     END_RECEIVE(return 1);
 }
 
-const float *GxMachineRemote::get_oscilloscope_buffer() {
-    return oscilloscope_buffer;
-}
-
-void GxMachineRemote::clear_oscilloscope_buffer() {
-    START_NOTIFY(clear_oscilloscope_buffer);
-    SEND();
-}
-
-bool GxMachineRemote::oscilloscope_plugin_box_visible() {
-    return pluginlist.lookup_plugin("oscilloscope")->get_box_visible();
-}
-
-sigc::signal<int, bool>& GxMachineRemote::signal_oscilloscope_activation() {
-    return oscilloscope_activation;
-}
-
-sigc::signal<void, unsigned int>& GxMachineRemote::signal_oscilloscope_size_change() {
-    return oscilloscope_size_change;
-}
-
 float GxMachineRemote::get_tuner_freq() {
     START_CALL(get_tuner_freq);
     START_RECEIVE(0);
     jp->next(gx_system::JsonParser::value_number);
     return jp->current_value_float();
     END_RECEIVE(return 0);
-}
-
-void GxMachineRemote::get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) {
-    START_CALL(get_oscilloscope_info);
-    START_RECEIVE();
-    jp->next(gx_system::JsonParser::begin_array);
-    jp->next(gx_system::JsonParser::value_number);
-    load = jp->current_value_int();
-    jp->next(gx_system::JsonParser::value_number);
-    frames = jp->current_value_int();
-    jp->next(gx_system::JsonParser::value_number);
-    is_rt = jp->current_value_int();
-    jp->next(gx_system::JsonParser::value_number);
-    bsize = jp->current_value_int();
-    jp->next(gx_system::JsonParser::value_number);
-    unsigned int sz = jp->current_value_int();
-    if (oscilloscope_buffer_size != sz) {
-	delete oscilloscope_buffer;
-	oscilloscope_buffer = new float[sz];
-	oscilloscope_buffer_size = sz;
-	oscilloscope_size_change(sz);
-    }
-    jp->next(gx_system::JsonParser::begin_array);
-    float *p = oscilloscope_buffer;
-    while (jp->peek() != gx_system::JsonParser::end_array) {
-	jp->next(gx_system::JsonParser::value_number);
-	*p++ = jp->current_value_float();
-    }
-    jp->next(gx_system::JsonParser::end_array);
-    jp->next(gx_system::JsonParser::end_array);
-    END_RECEIVE();
 }
 
 gx_system::CmdlineOptions& GxMachineRemote::get_options() const {

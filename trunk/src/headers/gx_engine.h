@@ -25,8 +25,6 @@
 #ifndef SRC_HEADERS_GX_ENGINE_H_
 #define SRC_HEADERS_GX_ENGINE_H_
 
-namespace gx_jack { class GxJack; }
-
 namespace gx_engine {
 
 /* -- guitarix main engine -- */

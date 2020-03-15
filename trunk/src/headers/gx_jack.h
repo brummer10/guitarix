@@ -33,6 +33,10 @@
 #include <jack/session.h>
 #endif
 
+namespace gx_engine {
+class GxEngine;
+}
+
 namespace gx_jack {
 
 /****************************************************************

@@ -144,8 +144,6 @@ struct CmdConnection::methodnames;
 
 "set_oscilloscope_mul_buffer", false
 "get_oscilloscope_mul_buffer", true
-"clear_oscilloscope_buffer", false
-"get_oscilloscope_info", true
 
 
 /* Convolver */

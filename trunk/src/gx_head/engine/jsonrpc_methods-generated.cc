@@ -31,7 +31,7 @@
 #error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gperf@gnu.org>."
 #endif
 
-/* maximum key range = 188, duplicates = 0 */
+/* maximum key range = 152, duplicates = 0 */
 
 class Perfect_Hash
 {
@@ -46,19 +46,19 @@ Perfect_Hash::hash (const char *str, size_t len)
 {
   static const unsigned char asso_values[] =
     {
-      196, 196, 196, 196, 196, 196, 196, 196, 196, 196,
-      196, 196, 196, 196, 196, 196, 196, 196, 196, 196,
-      196, 196, 196, 196, 196, 196, 196, 196, 196, 196,
-      196, 196, 196, 196, 196, 196, 196, 196, 196, 196,
-      196, 196, 196, 196, 196, 196, 196, 196, 196, 196,
-      196, 196, 196, 196, 196, 196, 196, 196, 196, 196,
-      196, 196, 196, 196, 196, 196, 196, 196, 196, 196,
-      196, 196, 196, 196, 196, 196, 196, 196, 196, 196,
-      196, 196, 196, 196, 196, 196, 196, 196, 196, 196,
-      196, 196, 196, 196, 196, 105, 196,  25,  30,  60,
-       40,   0, 196,  10,   0,  25,   5,  20,  45,  70,
+      160, 160, 160, 160, 160, 160, 160, 160, 160, 160,
+      160, 160, 160, 160, 160, 160, 160, 160, 160, 160,
+      160, 160, 160, 160, 160, 160, 160, 160, 160, 160,
+      160, 160, 160, 160, 160, 160, 160, 160, 160, 160,
+      160, 160, 160, 160, 160, 160, 160, 160, 160, 160,
+      160, 160, 160, 160, 160, 160, 160, 160, 160, 160,
+      160, 160, 160, 160, 160, 160, 160, 160, 160, 160,
+      160, 160, 160, 160, 160, 160, 160, 160, 160, 160,
+      160, 160, 160, 160, 160, 160, 160, 160, 160, 160,
+      160, 160, 160, 160, 160, 105, 160,  25,  30,  60,
+       40,   0, 160,  10,   0,  25,   5,  20,  45,  70,
         5,  70,  55,  65,   5,   5,   0,  20,  10,   5,
-      196,   0, 196, 196, 196, 196, 196, 196
+      160,   0, 160, 160, 160, 160, 160, 160
     };
   unsigned int hval = len;
 
@@ -83,11 +83,11 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 81,
+      TOTAL_KEYWORDS = 79,
       MIN_WORD_LENGTH = 3,
       MAX_WORD_LENGTH = 29,
       MIN_HASH_VALUE = 8,
-      MAX_HASH_VALUE = 195
+      MAX_HASH_VALUE = 159
     };
 
   static const struct CmdConnection::methodnames wordlist[] =
@@ -177,7 +177,7 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
       {""},
       {"desc", RPCM_desc},
       {"load_ladspalist", RPCM_load_ladspalist},
-      {"get_oscilloscope_info", RPCM_get_oscilloscope_info},
+      {""},
       {"insert_param", RPNM_insert_param},
       {"bank_check_reparse", RPCM_bank_check_reparse},
       {"get_tuner_freq", RPCM_get_tuner_freq},
@@ -203,12 +203,7 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""},
       {"midi_modifyCurrent", RPNM_midi_modifyCurrent},
-      {"pf_append", RPNM_pf_append},
-      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
-      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
-      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
-      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
-      {"clear_oscilloscope_buffer", RPNM_clear_oscilloscope_buffer}
+      {"pf_append", RPNM_pf_append}
     };
 
   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
@@ -297,8 +292,6 @@ const jsonrpc_method_def jsonrpc_method_list[] = {
 	{ "tuner_used_for_display", false },
 	{ "set_oscilloscope_mul_buffer", false },
 	{ "get_oscilloscope_mul_buffer", true },
-	{ "clear_oscilloscope_buffer", false },
-	{ "get_oscilloscope_info", true },
 	{ "reload_impresp_list", false },
 	{ "load_impresp_dirs", true },
 	{ "read_audio", true },

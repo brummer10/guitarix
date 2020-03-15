@@ -122,26 +122,76 @@ public:
  ** class OscilloscopeAdapter
  */
 
-class OscilloscopeAdapter: PluginDef {
+class OscilloscopeInfo {
 private:
-    static float* buffer;
-    static unsigned int size;
+    gx_jack::GxJack *jack;
+    sigc::signal<void(unsigned int, float*)> size_change;
+    float *buffer;
+    unsigned int buffer_size;
+    friend class OscilloscopeAdapter;
+public:
+    int load;
+    int frames;
+    bool is_rt;
+    jack_nframes_t bsize;
+
+ public:
+    OscilloscopeInfo():
+        jack(nullptr), size_change(), buffer(nullptr), buffer_size(0),
+        load(0), frames(0), is_rt(false), bsize(0) {}
+    void readJSON(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& w) const;
+    void update();
+    float *get_buffer() const { return buffer; }
+    unsigned int get_buffer_size() const { return buffer_size; }
+    sigc::signal<void(unsigned int, float*)> signal_size_change() { return size_change; }
+};
+
+template<>
+class ParameterV<OscilloscopeInfo>: public Parameter {
+private:
+    OscilloscopeInfo value_storage;
+    OscilloscopeInfo *value;
+    sigc::signal<void, const OscilloscopeInfo&> changed;
+    void trigger_changed(); // override;
+public:
+    ParameterV(const string& id, OscilloscopeInfo *v);
+    ParameterV(gx_system::JsonParser& jp);
+    ~ParameterV();
+    virtual void serializeJSON(gx_system::JsonWriter& jw);
+    sigc::signal<void, const OscilloscopeInfo&>& signal_changed() { return changed; }
+    static ParameterV<OscilloscopeInfo> *insert_param(
+        ParamMap &pmap, const string& id, OscilloscopeInfo *v);
+    OscilloscopeInfo& get_value() const { return *value; }
+    virtual void stdJSON_value();
+    virtual bool on_off_value();
+    virtual void writeJSON(gx_system::JsonWriter& jw) const;
+    virtual bool compareJSON_value();
+    virtual void setJSON_value();
+    virtual void readJSON_value(gx_system::JsonParser& jp);
+};
+
+typedef ParameterV<OscilloscopeInfo> OscParameter;
+
+class OscilloscopeAdapter: PluginDef {
+public:
+    OscilloscopeInfo info;
+private:
+    ParamMap &pmap;
     static void fill_buffer(int count, float *input0, float *output0, PluginDef*);
     static int osc_register(const ParamReg& reg);
-    static int activate(bool start, PluginDef *p);
     static int osc_load_ui(const UiBuilder& builder, int format);
     void change_buffersize(unsigned int);
     int mul_buffer;
 public:
     Plugin plugin;
-    sigc::signal<int, bool>          activation;
-    sigc::signal<void, unsigned int> size_change;
     void clear_buffer();
-    unsigned int get_size() { return size; }
-    inline float *get_buffer() { return buffer; }
+    unsigned int get_size() const { return info.buffer_size; }
+    inline float *get_buffer() const { return info.buffer; }
     int get_mul_buffer() { return mul_buffer; }
     void set_mul_buffer(int a, unsigned int b) { mul_buffer = a; change_buffersize(b); }
     OscilloscopeAdapter(ModuleSequencer& engine);
+    void set_jack(gx_jack::GxJack& jack) { info.jack = &jack; }
 };
 
 

@@ -129,42 +129,37 @@ void StackBoxBuilder::fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox) {
  * additional processing is requestet.
  */
 
-static bool on_refresh_oscilloscope(Gxw::WaveView& fWaveView, gx_engine::GxMachineBase& machine) {
-    int load, frames;
-    bool is_rt;
-    jack_nframes_t bsize;
-    machine.get_oscilloscope_info(load, frames, is_rt, bsize);
+static void on_refresh_oscilloscope(Gxw::WaveView& fWaveView, const gx_engine::OscilloscopeInfo& info) {
     static struct  {
         int load, frames;
         jack_nframes_t bsize;
         bool rt;
     } oc;
-    if (!oc.bsize || oc.load != load) {
-        oc.load = load;
+    if (!oc.bsize || oc.load != info.load) {
+        oc.load = info.load;
         fWaveView.set_text(
             (boost::format(_("DSP Load  %1% %%")) % oc.load).str().c_str(),
             Gtk::CORNER_TOP_LEFT);
     }
-    if (!oc.bsize || oc.frames != frames) {
-        oc.frames = frames;
+    if (!oc.bsize || oc.frames != info.frames) {
+        oc.frames = info.frames;
         fWaveView.set_text(
             (boost::format(_("HT Frames %1%")) % oc.frames).str().c_str(),
             Gtk::CORNER_BOTTOM_LEFT);
     }
-    if (!oc.bsize || oc.rt != is_rt) {
-        oc.rt = is_rt;
+    if (!oc.bsize || oc.rt != info.is_rt) {
+        oc.rt = info.is_rt;
         fWaveView.set_text(
             oc.rt ? _("RT Mode  YES ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
             Gtk::CORNER_BOTTOM_RIGHT);
     }
-    if (!oc.bsize || oc.bsize != bsize) {
-	oc.bsize = bsize;
+    if (!oc.bsize || oc.bsize != info.bsize) {
+	oc.bsize = info.bsize;
         fWaveView.set_text(
             (boost::format(_("Latency    %1%")) % oc.bsize).str().c_str(),
             Gtk::CORNER_TOP_RIGHT);
     }
     fWaveView.queue_draw();
-    return machine.oscilloscope_plugin_box_visible();
 }
 
 /*
@@ -238,35 +233,25 @@ static void seq_button(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineB
  * Oscilloscope
  */
 static void connect_waveview(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine,
-                             gx_engine::Plugin& plugin) {
+                             PluginUI& plugin) {
     auto w = dynamic_cast<Gxw::WaveView*>(object.get());
     assert(w);
     w->set_multiplicator(20, 60);
-    const int conn_len = 4;
+    const int conn_len = 3;
+    const char *p_id = "oscilloscope.info";
     auto conn = new sigc::connection[conn_len];
-    auto on_show_oscilloscope =
-        [=, &machine](bool v){
-            if (v) {
-                conn[0] = Glib::signal_timeout().connect(
-                    [=, &machine](){ return on_refresh_oscilloscope(*w, machine); },
-                    60);
-            }
-        };
-    on_show_oscilloscope(plugin.get_box_visible());
-    conn[1] = machine.signal_parameter_value<bool>(plugin.id_box_visible()).connect(
-        on_show_oscilloscope);
-    conn[2] = machine.signal_oscilloscope_activation().connect(
-        [=,&machine](bool start){
-            if (!start) {
-                machine.clear_oscilloscope_buffer();
-                w->queue_draw();
-            }
-            return 0;
+    conn[0] = plugin.get_output_widget_state()->connect(
+        [=,&machine](bool state) {
+            machine.set_update_parameter(w, p_id, state);
+            w->set_sensitive(state);
         });
-    conn[3] = machine.signal_oscilloscope_size_change().connect(
-        [=,&machine](unsigned int size){
-            w->set_frame(machine.get_oscilloscope_buffer(), size);
-        });
+    auto osc = dynamic_cast<gx_engine::OscParameter*>(&machine.get_parameter(p_id));
+    conn[1] = osc->signal_changed().connect(
+        [w](const gx_engine::OscilloscopeInfo& info) { on_refresh_oscilloscope(*w, info); });
+    gx_engine::OscilloscopeInfo& info = osc->get_value();
+    w->set_frame(info.get_buffer(), info.get_buffer_size());
+    conn[2] = info.signal_size_change().connect(
+        [=](unsigned int size, float *buffer){ w->set_frame(buffer, size); });
     w->add_destroy_notify_callback(
         conn,
         [](void*p) {
@@ -291,7 +276,7 @@ void StackBoxBuilder::connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::Ref
     } else if (!strcmp(handler_name, "SEQWindow_reload_and_show")) {
         seq_button(object, machine);
     } else if (!strcmp(handler_name, "connect_oscilloscope")) {
-        connect_waveview(object, machine, *current_plugin->plugin);
+        connect_waveview(object, machine, *current_plugin);
     } else if (!strcmp(handler_name, "jconv_mono.convolver:IRFile")) {
         jconv_filelabel(object, machine, false);
     } else if (!strcmp(handler_name, "jconv.convolver:IRFile")) {

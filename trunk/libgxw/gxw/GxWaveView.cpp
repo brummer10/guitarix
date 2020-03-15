@@ -200,7 +200,10 @@ static gboolean gx_wave_view_draw (GtkWidget *widget, cairo_t *cr)
     }
     cairo_set_source(cr, waveview->priv->liveview_image);
     cairo_paint(cr);
-
+    if (!gtk_widget_get_sensitive(widget)) {
+        cairo_pattern_destroy (linpat);
+        return FALSE;
+    }
 	cairo_set_source_rgb(cr, 1, 1, 1);
 	draw_text(widget, cr, waveview->priv->text_top_left, liveviewx + (int)(background_width * waveview->priv->text_pos_left / 100),
 	          liveviewy, GTK_CORNER_TOP_LEFT);

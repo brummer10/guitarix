@@ -272,7 +272,6 @@ static struct {
     { "presetlist_changed", CmdConnection::f_presetlist_changed, CmdConnection::f_presetlist_changed },
     { "logger", CmdConnection::f_log_message, CmdConnection::f_log_message },
     { "midi", CmdConnection::f_midi_changed, CmdConnection::f_midi_value_changed },
-    { "oscilloscope", CmdConnection::f_osc_size_changed, CmdConnection::f_osc_activation },
     { "param", CmdConnection::f_parameter_change_notify, CmdConnection::f_parameter_change_notify },
     { "plugins_changed", CmdConnection::f_plugins_changed, CmdConnection::f_plugins_changed },
     { "misc", CmdConnection::f_misc_msg, CmdConnection::f_misc_msg },
@@ -647,23 +646,6 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     FUNCTION(get_tuner_freq) {
 	jw.write(serv.jack.get_engine().tuner.get_freq());
-    }
-
-    FUNCTION(get_oscilloscope_info) {
-	jw.begin_array();
-	jw.write(static_cast<int>(round(serv.jack.get_jcpu_load())));
-	jw.write(serv.jack.get_time_is()/100000);
-	jw.write(serv.jack.get_is_rt());
-	jw.write(serv.jack.get_jack_bs());
-	unsigned int sz = serv.jack.get_engine().oscilloscope.get_size();
-	float *p = serv.jack.get_engine().oscilloscope.get_buffer();
-	jw.write(sz);
-	jw.begin_array();
-	for (unsigned int i = 0; i < sz; i++) {
-	    jw.write(*p++);
-	}
-	jw.end_array();
-	jw.end_array();
     }
 
     FUNCTION(get_oscilloscope_mul_buffer) {
@@ -1052,15 +1034,19 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	send_notify_begin(jw, "set");
 	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
 	    gx_engine::Parameter& p = param[(*i)->getString()];
-	    jw.write(p.id());
+            jw.write(p.id());
 	    if (p.isMaxlevel()) {
 		serv.update_maxlevel(p.id());
 		float& f = maxlevel[p.id()];
 		jw.write(f);
 		f = 0;
-	    } else {
-		jw.write(p.getFloat().get_value());
-	    }
+            } else if (p.isFloat()) {
+                jw.write(p.getFloat().get_value());
+            } else {
+                auto o = dynamic_cast<gx_engine::OscParameter*>(&p);
+                assert(o);
+                o->get_value().writeJSON(jw);
+            }
 	}
 	serv.jwc = 0;
 	serv.broadcast(jw, f_parameter_change_notify);
@@ -1158,10 +1144,6 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(tuner_used_for_display) {
 	serv.jack.get_engine().tuner.used_for_display(params[0]->getInt());
-    }
-
-    PROCEDURE(clear_oscilloscope_buffer) {
-	serv.jack.get_engine().oscilloscope.clear_buffer();
     }
 
     PROCEDURE(set_oscilloscope_mul_buffer) {
@@ -1745,10 +1727,6 @@ GxService::GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
 	sigc::mem_fun(this, &GxService::on_midi_changed));
     jack.get_engine().controller_map.signal_midi_value_changed().connect(
 	sigc::mem_fun(this, &GxService::on_midi_value_changed));
-    jack.get_engine().oscilloscope.size_change.connect(
-	sigc::mem_fun(this, &GxService::on_osc_size_changed));
-    jack.get_engine().oscilloscope.activation.connect(
-	sigc::mem_fun(this, &GxService::on_osc_activation));
     settings.signal_rack_unit_order_changed().connect(
 	sigc::mem_fun(this, &GxService::on_rack_unit_changed));
     gx_engine::ParamMap& pmap = settings.get_param();
@@ -1967,27 +1945,6 @@ void GxService::on_param_value_changed(gx_engine::Parameter *p) {
     if (!jwc) {
 	broadcast(jwp, CmdConnection::f_parameter_change_notify);
     }
-}
-
-void GxService::on_osc_size_changed(unsigned int sz) {
-    if (!broadcast_listeners(CmdConnection::f_osc_size_changed)) {
-	return;
-    }
-    gx_system::JsonStringWriter jw;
-    jw.send_notify_begin("osc_size_changed");
-    jw.write(sz);
-    broadcast(jw, CmdConnection::f_osc_size_changed);
-}
-
-int GxService::on_osc_activation(bool start) {
-    if (!broadcast_listeners(CmdConnection::f_osc_activation)) {
-	return 0;
-    }
-    gx_system::JsonStringWriter jw;
-    jw.send_notify_begin("osc_activation");
-    jw.write(start);
-    broadcast(jw, CmdConnection::f_osc_activation);
-    return 0;
 }
 
 void GxService::on_midi_changed() {

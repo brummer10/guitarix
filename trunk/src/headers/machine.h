@@ -84,12 +84,6 @@ public:
     virtual float get_tuner_freq() = 0;
     virtual void set_oscilloscope_mul_buffer(int a) = 0;
     virtual int get_oscilloscope_mul_buffer() = 0;
-    virtual const float *get_oscilloscope_buffer() = 0;
-    virtual void clear_oscilloscope_buffer() = 0;
-    virtual bool oscilloscope_plugin_box_visible() = 0;
-    virtual sigc::signal<int, bool>& signal_oscilloscope_activation() = 0;
-    virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change() = 0;
-    virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) = 0;
     virtual gx_system::CmdlineOptions& get_options() const = 0;
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port) = 0;
     virtual void stop_socket() = 0;
@@ -228,6 +222,7 @@ template <> inline sigc::signal<void, bool>& GxMachineBase::signal_parameter_val
     return _signal_parameter_value_bool(id);
 }
 
+
 class GxMachine: public GxMachineBase {
 private:
     gx_system::CmdlineOptions& options;
@@ -273,12 +268,6 @@ public:
     virtual float get_tuner_freq();
     virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
-    virtual const float *get_oscilloscope_buffer();
-    virtual void clear_oscilloscope_buffer();
-    virtual bool oscilloscope_plugin_box_visible();
-    virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
-    virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
-    virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port);
     virtual void stop_socket();
@@ -409,10 +398,6 @@ private:
     Glib::ustring current_preset;
     int bank_drag_get_counter;
     std::string bank_drag_get_path;
-    sigc::signal<int, bool> oscilloscope_activation;
-    sigc::signal<void, unsigned int> oscilloscope_size_change;
-    float *oscilloscope_buffer;
-    unsigned int oscilloscope_buffer_size;
     sigc::signal<void,const Glib::ustring&,const Glib::ustring&> tuner_switcher_display;
     sigc::signal<void,TunerSwitcher::SwitcherState> tuner_switcher_set_state;
     sigc::signal<void, bool> tuner_switcher_selection_done;
@@ -460,12 +445,6 @@ public:
     virtual float get_tuner_freq();
     virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
-    virtual const float *get_oscilloscope_buffer();
-    virtual void clear_oscilloscope_buffer();
-    virtual bool oscilloscope_plugin_box_visible();
-    virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
-    virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
-    virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port);
     virtual void stop_socket();

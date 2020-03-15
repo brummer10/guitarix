@@ -96,11 +96,11 @@ using namespace std;
 #include "gx_modulesequencer.h"
 #include "gx_json.h"
 
+#include "gx_jack.h"
 #include "gx_internal_plugins.h"
 #include "gx_preset.h"
 #include "gx_engine.h"
 
-#include "gx_jack.h"
 #include "tunerswitcher.h"
 #include "ladspaback.h"
 

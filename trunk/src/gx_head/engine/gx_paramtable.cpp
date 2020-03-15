@@ -1937,6 +1937,8 @@ void ParamMap::writeJSON_one(gx_system::JsonWriter& jw, Parameter *p) {
 	jw.write("JConv");
     } else if (dynamic_cast<SeqParameter*>(p) != 0) {
 	jw.write("Seq");
+    } else if (dynamic_cast<OscParameter*>(p) != 0) {
+	jw.write("Osc");
     } else {
 #ifndef NDEBUG
 	cerr << "skipping " << p->id() << endl;
@@ -1974,6 +1976,8 @@ Parameter *ParamMap::readJSON_one(gx_system::JsonParser& jp) {
 	return insert(new JConvParameter(jp));
     } else if (jp.current_value() == "Seq") {
 	return insert(new SeqParameter(jp));
+    } else if (jp.current_value() == "Osc") {
+	return insert(new OscParameter(jp));
     } else {
 	gx_print_warning(
 	    "ParamMap", Glib::ustring::compose("unknown parameter type: %1", jp.current_value()));

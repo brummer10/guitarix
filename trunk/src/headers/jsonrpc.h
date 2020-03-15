@@ -67,8 +67,6 @@ public:
 	f_log_message,
 	f_midi_changed,
 	f_midi_value_changed,
-	f_osc_activation,
-	f_osc_size_changed,
 	f_parameter_change_notify,
 	f_plugins_changed,
 	f_misc_msg,
@@ -157,8 +155,6 @@ private:
     void on_log_message(const string& msg, GxLogger::MsgType tp, bool plugged);
     void on_midi_changed();
     void on_midi_value_changed(int ctl, int value);
-    void on_osc_size_changed(unsigned int sz);
-    int on_osc_activation(bool v);
     void on_rack_unit_changed(bool stereo);
     static void add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v,
 				   std::vector<ChangedPlugin>& vec);

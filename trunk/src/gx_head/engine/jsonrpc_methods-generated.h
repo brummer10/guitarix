@@ -75,8 +75,6 @@ enum jsonrpc_method {
 	RPNM_tuner_used_for_display,
 	RPNM_set_oscilloscope_mul_buffer,
 	RPCM_get_oscilloscope_mul_buffer,
-	RPNM_clear_oscilloscope_buffer,
-	RPCM_get_oscilloscope_info,
 	RPNM_reload_impresp_list,
 	RPCM_load_impresp_dirs,
 	RPCM_read_audio,
