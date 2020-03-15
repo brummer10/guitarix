@@ -7,17 +7,6 @@
 
 namespace gx_gui {
 
-// Paint Functions for Gxw::PaintBox
-
-const char *pb_gx_rack_amp_expose =          "gx_rack_amp_expose";
-const char *pb_rectangle_skin_color_expose = "rectangle_skin_color_expose";
-const char *pb_zac_expose =                  "zac_expose";
-const char *pb_gxhead_expose =               "gxhead_expose";
-const char *pb_RackBox_expose =              "RackBox_expose";
-const char *pb_gxrack_expose =               "gxrack_expose";
-const char *pb_level_meter_expose =          "level_meter_expose";
-
-
 int precision(double n) {
     if (n < 0.009999)
         return 3;
@@ -622,17 +611,6 @@ void StackBoxBuilder::create_fload_switch(const char *sw_type, const std::string
 	}
 }
 
-void StackBoxBuilder::create_h_switch(const char *sw_type, const std::string& id, const char *label) {
-    Gtk::Widget* sw = UiHSwitchWithCaption::create(machine, sw_type, id, label);
-    UiHSwitchWithCaption *w = static_cast<UiHSwitchWithCaption*>(sw);
-	//w->get_regler()->set_relief(Gtk::RELIEF_NONE);
-	w->get_regler()->set_name("effect_on_off");
-    if (next_flags & UI_LABEL_INVERSE) {
-        w->set_rack_label_inverse();
-    }
-    addwidget(sw);
-}
-
 void StackBoxBuilder::create_v_switch(const char *sw_type, const std::string& id, const char *label) {
     Gtk::Widget* sw = UiVSwitchWithCaption::create(machine, sw_type, id, label);
     UiVSwitchWithCaption *w = static_cast<UiVSwitchWithCaption*>(sw);
@@ -861,28 +839,6 @@ public:
     }
 };
 
-void StackBoxBuilder::addNumEntry(const std::string& id, const char* label_) {
-    Glib::ustring label(label_);
-    if (!machine.parameter_hasId(id)) {
-        return;
-    }
-    const gx_engine::FloatParameter &p = machine.get_parameter(id).getFloat();
-    if (label.empty()) {
-        label = p.l_name();
-    }
-    float step = p.getStepAsFloat();
-    uiSpinner* spinner = new uiSpinner(step, machine, id);
-    spinner->get_adjustment()->configure(
-	machine.get_parameter_value<float>(id), p.getLowerAsFloat(), p.getUpperAsFloat(), step, 10*step, 0);
-    connect_midi_controller(spinner, id, machine);
-    Gtk::HBox *box = new Gtk::HBox(homogene, 0);
-    Gtk::Label *lab = new Gtk::Label(label);
-    box->add(*manage(lab));
-    lab->set_name("rack_label");
-    fBox.add(manage(box), label);
-    fBox.add(manage(spinner), label);
-}
-
 class uiToggleButton: public Gtk::ToggleButton {
 private:
     gx_engine::GxMachineBase& machine;
@@ -922,36 +878,6 @@ public:
     }
 };
 
-void StackBoxBuilder::addCheckButton(const std::string& id, const char* label_) {
-    if (!machine.parameter_hasId(id)) {
-        return;
-    }
-    Glib::ustring label;
-    if (label_ && label_[0]) {
-	label = label_;
-    } else {
-        label = machine.get_parameter(id).getBool().l_name();
-    }
-    Gdk::RGBA colorRed("#000000");
-    Gdk::RGBA colorOwn("#4c5159");
-    Gdk::RGBA colorba("#c4c0c0");
-    Gtk::Label *lab = new Gtk::Label(label);
-    uiCheckButton *button = new uiCheckButton(machine, id);
-    button->add(*manage(lab));
-    fBox.add(manage(button), label);
-    button->override_background_color(colorOwn, Gtk::STATE_FLAG_PRELIGHT);
-    button->override_color(colorRed, Gtk::STATE_FLAG_PRELIGHT);
-    button->override_color(colorRed, Gtk::STATE_FLAG_NORMAL);
-//    button->modify_base(Gtk::STATE_NORMAL, colorba);
-    Glib::RefPtr<Gtk::StyleContext> style = lab->get_style_context();
-    Pango::FontDescription font = style->get_font();
-    font.set_size(8*Pango::SCALE);
-    font.set_weight(Pango::WEIGHT_NORMAL);
-    lab->override_font(font);
-    connect_midi_controller(button, id, machine);
-    lab->show();
-}
-
 void StackBoxBuilder::openHorizontalhideBox(const char* label) {
     GxHBox * box =  new GxHBox();
     box->set_homogeneous(false);
@@ -984,17 +910,6 @@ void StackBoxBuilder::openHorizontalTableBox(const char* label) {
     box->set_homogeneous(false);
     box->set_spacing(1);
     box->set_border_width(0);
-}
-
-void StackBoxBuilder::openPaintBox2(const char* label) {
-    GxEventBox *box =  new GxEventBox();
-    box->m_eventbox.set_name(label);
-    box->set_homogeneous(false);
-    box->set_spacing(0);
-    box->set_border_width(0);
-    fBox.box_pack_start(manage(box), false, false);
-    box->show_all();
-    fBox.push(&box->m_hbox);
 }
 
 void StackBoxBuilder::openTabBox(const char* label) {

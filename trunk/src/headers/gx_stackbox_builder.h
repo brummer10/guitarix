@@ -51,7 +51,6 @@ private:
     int next_flags;
     PluginUI *current_plugin;
 
-    static const          gboolean homogene = false;
     void loadRackFromGladeData(const char *xmldesc);
     void loadRackFromGladeFile(const char *fname);
 private:
@@ -71,20 +70,17 @@ private:
     void create_simple_c_meter(const std::string& id, const std::string& idl, const char *label);
     void create_mid_rackknob(const std::string& id, const char *label);
     void create_small_rackknob(const std::string& id, const char *label);
-    void create_small_rackknobr(const std::string& id);
     void create_small_rackknobr(const std::string& id, const char *label);
     void create_big_rackknob(const std::string& id, const char *label);
     
     void openVerticalBox(const char* label = "");
     void openFrameBox(const char* label);
     void openHorizontalBox(const char* label = "");
-    void openVerticalHideBox(const char* label = "");
     void openHorizontalhideBox(const char* label = "");
     void openHorizontalTableBox(const char* label);
     void create_switch_no_caption(const char *sw_type, const std::string& id) {
 	addwidget(UiSwitch::create(machine, sw_type, id));
     }
-    void create_h_switch(const char *sw_type, const std::string& id, const char *label);
     void create_v_switch(const char *sw_type, const std::string& id, const char *label);
     void openpaintampBox(const char* label = "");
     void create_wheel(const std::string& id, const char *label=0) {
@@ -123,10 +119,7 @@ private:
     void openFlipLabelBox(const char* = 0);
     void openVerticalBox1(const char* label = 0);
     void openVerticalBox2(const char* label = 0);
-    void openPaintBox2(const char* label = 0);
     void openTabBox(const char* label = 0);
-    void addCheckButton(const std::string& id, const char* label = 0);
-    void addNumEntry(const std::string& id, const char* label = 0);
     void set_next_flags(int flags);
 private:
     // functions used indirectly
@@ -140,7 +133,6 @@ public:
     void prepare();
     void fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox);
     void set_current_plugin(PluginUI *p) { current_plugin = p; }
-    PluginUI *get_current_plugin() { return current_plugin; }
     void connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::RefPtr<Glib::Object> object,
                          const char *signal_name, const char *handler_name);
 };
