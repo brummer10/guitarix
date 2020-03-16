@@ -470,13 +470,12 @@ void JConvParameter::setJSON_value() {
 #include "faust/jconv_post_mono.cc"
 
 ConvolverAdapter::ConvolverAdapter(
-    EngineControl& engine_, sigc::slot<void> sync_, ParamMap& param_)
+    EngineControl& engine_, sigc::slot<void> sync_)
     : PluginDef(),
       conv(),
       activate_mutex(),
       engine(engine_),
       sync(sync_),
-      param(param_),
       activated(false),
       jcset(),
       jcp(0),
@@ -568,8 +567,8 @@ bool ConvolverAdapter::conv_start() {
  */
 
 ConvolverStereoAdapter::ConvolverStereoAdapter(
-    EngineControl& engine_, sigc::slot<void> sync_, ParamMap& param_)
-    : ConvolverAdapter(engine_, sync_, param_) {
+    EngineControl& engine_, sigc::slot<void> sync_)
+    : ConvolverAdapter(engine_, sync_) {
     id = "jconv";
     name = N_("Convolver");
     register_params = convolver_register;
@@ -605,7 +604,7 @@ void ConvolverStereoAdapter::convolver(int count, float *input0, float *input1,
 
 int ConvolverStereoAdapter::convolver_register(const ParamReg& reg) {
     ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(reg.plugin);
-    self.jcp = JConvParameter::insert_param(self.param, "jconv.convolver", self, &self.jcset);
+    self.jcp = JConvParameter::insert_param(self.get_parameter_map(), "jconv.convolver", self, &self.jcset);
     self.jcp->signal_changed().connect(
 	sigc::hide(
 	    sigc::mem_fun(self, &ConvolverStereoAdapter::restart)));
@@ -714,8 +713,8 @@ int ConvolverStereoAdapter::jconv_load_ui(const UiBuilder& builder, int format) 
  */
 
 ConvolverMonoAdapter::ConvolverMonoAdapter(
-    EngineControl& engine_, sigc::slot<void> sync_, ParamMap& param_)
-    : ConvolverAdapter(engine_, sync_, param_) {
+    EngineControl& engine_, sigc::slot<void> sync_)
+    : ConvolverAdapter(engine_, sync_) {
     id = "jconv_mono";
     name = N_("Convolver");
     register_params = convolver_register;
@@ -745,7 +744,7 @@ void ConvolverMonoAdapter::convolver(int count, float *input, float *output, Plu
 
 int ConvolverMonoAdapter::convolver_register(const ParamReg& reg) {
     ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(reg.plugin);
-    self.jcp = JConvParameter::insert_param(self.param, "jconv_mono.convolver", self, &self.jcset);
+    self.jcp = JConvParameter::insert_param(self.get_parameter_map(), "jconv_mono.convolver", self, &self.jcset);
     self.jcp->signal_changed().connect(
 	sigc::hide(
 	    sigc::mem_fun(self, &ConvolverMonoAdapter::restart)));
@@ -1925,7 +1924,7 @@ static const char* seq_groups[] = {
 	0
 };
 
-DrumSequencer::DrumSequencer(ParamMap& param_, EngineControl& engine_, sigc::slot<void> sync_)
+DrumSequencer::DrumSequencer(EngineControl& engine_, sigc::slot<void> sync_)
     : PluginDef(),
       Vectom(0),
       Vectom1(0),
@@ -1938,7 +1937,6 @@ DrumSequencer::DrumSequencer(ParamMap& param_, EngineControl& engine_, sigc::slo
       sync(sync_),
       ready(false),
       outdata(0),
-      param(param_),
       tomset(),
       tomp(0),
       tomset1(),
@@ -2169,6 +2167,7 @@ int DrumSequencer::register_par(const ParamReg& reg)
 	for (int i=0; i<24; i++) Vechat.push_back(0);
 	for (int i=0; i<24; i++) Vecsnare.push_back(0);
 	seq_size = min_seq_size();
+        ParamMap& param = engine.get_param();
 	tomp = SeqParameter::insert_param(param, "seq.sequencer.tom", &tomset);
 	tomp1 = SeqParameter::insert_param(param, "seq.sequencer.tom1", &tomset1);
 	tomp2 = SeqParameter::insert_param(param, "seq.sequencer.tom2", &tomset2);
@@ -2289,13 +2288,12 @@ bool smbPitchShift::setParameters(int sampleRate_)
     return true;
 }
 
-smbPitchShift::smbPitchShift(ParamMap& param_, EngineControl& engine_, sigc::slot<void> sync_):
+smbPitchShift::smbPitchShift(EngineControl& engine_, sigc::slot<void> sync_):
   PluginDef(),
   engine(engine_),
   mem_allocated(false),
   sync(sync_),
   ready(false),
-  param(param_),
   ftPlanForward(0),
   ftPlanInverse(0),
   plugin() {
@@ -2686,7 +2684,7 @@ int smbPitchShift::register_par(const ParamReg& reg)
     reg.registerFloatVar("smbPitchShift.b", N_("middle low"), "S", N_("Low"), &b, 1.0, 0.0, 2.0, 0.01, 0);
     reg.registerFloatVar("smbPitchShift.c", N_("middle treble"), "S", N_("Mid"), &c, 1.0, 0.0, 2.0, 0.01, 0);
     reg.registerFloatVar("smbPitchShift.d", N_("treble"), "S", N_("Hi"), &d, 1.0, 0.0, 2.0, 0.01, 0);
-    param["smbPitchShift.latency"].signal_changed_int().connect(
+    engine.get_param()["smbPitchShift.latency"].signal_changed_int().connect(
         sigc::hide(sigc::mem_fun(this, &smbPitchShift::change_latency)));
     return 0;
 }

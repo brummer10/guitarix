@@ -191,7 +191,6 @@ void OscilloscopeInfo::readJSON(gx_system::JsonParser& jp) {
     bsize = jp.current_value_int();
     jp.next(gx_system::JsonParser::value_number);
     unsigned int sz = jp.current_value_int();
-    cerr << buffer_size << ", " << sz << ", " << buffer << endl;
     if (buffer_size != sz) {
 	delete[] buffer;
 	buffer = new float[sz];

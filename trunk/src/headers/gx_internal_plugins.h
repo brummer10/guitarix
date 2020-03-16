@@ -337,7 +337,6 @@ protected:
     boost::mutex activate_mutex;
     EngineControl& engine;
     sigc::slot<void> sync;
-    ParamMap& param;
     bool activated;
     // wrapper for the rack order function pointers
     void change_buffersize(unsigned int size);
@@ -346,7 +345,7 @@ protected:
 public:
     Plugin plugin;
 public:
-    ConvolverAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
+    ConvolverAdapter(EngineControl& engine, sigc::slot<void> sync);
     ~ConvolverAdapter();
     void restart();
     bool conv_start();
@@ -356,7 +355,7 @@ public:
     inline const std::string& getIRDir() const { return jcset.getIRDir(); }
     bool set(const GxJConvSettings& jcset) const { return jcp->set(jcset); }
     const GxJConvSettings& get_jcset() const { return jcset; }
-    ParamMap& get_parameter_map() const { return param; }
+    ParamMap& get_parameter_map() const { return engine.get_param(); }
 };
 
 
@@ -378,7 +377,7 @@ private:
     static int convolver_register(const ParamReg& reg);
     static int jconv_load_ui(const UiBuilder& builder, int format);
 public:
-    ConvolverStereoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
+    ConvolverStereoAdapter(EngineControl& engine, sigc::slot<void> sync);
     ~ConvolverStereoAdapter();
 };
 
@@ -397,7 +396,7 @@ private:
     static int convolver_register(const ParamReg& reg);
     static int jconv_load_ui(const UiBuilder& builder, int format);
 public:
-    ConvolverMonoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
+    ConvolverMonoAdapter(EngineControl& engine, sigc::slot<void> sync);
     ~ConvolverMonoAdapter();
 };
 
@@ -1076,7 +1075,6 @@ private:
     sigc::slot<void> sync;
     volatile bool ready;
     float *outdata;
-    ParamMap& param;
     GxSeqSettings tomset;
     SeqParameter *tomp;
     GxSeqSettings tomset1;
@@ -1112,7 +1110,7 @@ private:
     static int drum_load_ui(const UiBuilder& builder, int format);
 public:
     Plugin plugin;
-    DrumSequencer(ParamMap& param_, EngineControl& engine, sigc::slot<void> sync);
+    DrumSequencer(EngineControl& engine, sigc::slot<void> sync);
     ~DrumSequencer();
 };
 
@@ -1149,7 +1147,6 @@ private:
 	bool            mem_allocated;
     sigc::slot<void> sync;
 	volatile bool ready;
-    ParamMap& param;
 	float gInFIFO[MAX_FRAME_LENGTH];
 	float gOutFIFO[MAX_FRAME_LENGTH];
     float *fpb;
@@ -1209,7 +1206,7 @@ private:
 
 public:
     Plugin plugin;
-	smbPitchShift(ParamMap& param_, EngineControl& engine, sigc::slot<void> sync);
+	smbPitchShift(EngineControl& engine, sigc::slot<void> sync);
 	~smbPitchShift();
 };
 
