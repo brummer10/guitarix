@@ -5,7 +5,7 @@
 // xwidgets.h includes xputty.h and all defined widgets from Xputty
 #include "xwidgets.h"
 
-#include "gx_compressor.h"
+#include "gx_flanger.h"
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -13,7 +13,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 5
+#define CONTROLS 6
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -61,7 +61,7 @@ static void set_my_theme(Xputty *main) {
 
     main->color_scheme->selected = (Colors) {
         .fg =       { 0.9, 0.9, 0.9, 1.0},
-        .bg =       { 0.00, 0.18, 0.24, 1.00},
+        .bg =       { 0.00, 0.25, 0.32, 1.00},
         .base =     { 0.00, 0.18, 0.28, 1.00},
         .text =     { 1.0, 1.0, 1.0, 1.0},
         .shadow =   { 0.18, 0.18, 0.18, 0.2},
@@ -102,11 +102,11 @@ static void draw_window(void *w_, void* user_data) {
     double tw = extents.width/2.0;
 
     widget_set_scale(w);
-    cairo_move_to (w->crb, 310-tw, 170 );
+    cairo_move_to (w->crb, 365-tw, 170 );
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
     cairo_scale (w->crb, 0.95, 0.95);
-    cairo_set_source_surface (w->crb, w->image,520,10);
+    cairo_set_source_surface (w->crb, w->image,630,10);
     cairo_paint (w->crb);
     cairo_scale (w->crb, 1.05, 1.05);
     widget_reset_scale(w);
@@ -147,9 +147,9 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_new_path (w->crb);
 
     pat = cairo_pattern_create_linear (0, 0, 0, knob_y);
-    cairo_pattern_add_color_stop_rgba (pat, 1,  0.00, 0.18, 0.28, 1.00);
-    cairo_pattern_add_color_stop_rgba (pat, 0.75,  0.00, 0.18, 0.24, 1.00);
-    cairo_pattern_add_color_stop_rgba (pat, 0.5,  0.15, 0.15, 0.15, 1.0);
+    cairo_pattern_add_color_stop_rgba (pat, 1,  0.0, 0.16, 0.24, 1.00);
+    cairo_pattern_add_color_stop_rgba (pat, 0.85,  0.0, 0.12, 0.19, 1.00);
+    cairo_pattern_add_color_stop_rgba (pat, 0.5,  0.0, 0.15, 0.15, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0.25,  0.1, 0.1, 0.1, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0,  0.05, 0.05, 0.05, 1.0);
 
@@ -167,7 +167,7 @@ static void draw_my_knob(void *w_, void* user_data) {
 
     pat = cairo_pattern_create_linear (0, 0, 0, knob_y);
     cairo_pattern_add_color_stop_rgba (pat, 0,  0.00, 0.18, 0.24, 1.00);
-    cairo_pattern_add_color_stop_rgba (pat, 0.25,  0.00, 0.18, 0.28, 1.00);
+    cairo_pattern_add_color_stop_rgba (pat, 0.25,  0.2, 0.2, 0.2, 1.00);
     cairo_pattern_add_color_stop_rgba (pat, 0.5,  0.15, 0.15, 0.15, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0.75,  0.1, 0.1, 0.1, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 1,  0.05, 0.05, 0.05, 1.0);
@@ -279,28 +279,32 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     main_init(&ui->main);
     set_my_theme(&ui->main);
     // create the toplevel Window on the parentXwindow provided by the host
-    ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, 620, 180);
+    ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, 730, 180);
     ui->win->parent_struct = ui;
-    ui->win->label = "GxCompressor";
+    ui->win->label = "GxFlanger";
     widget_get_png(ui->win, LDVAR(guitarix_png));
     ui->screw = surface_get_png(ui->win, ui->screw, LDVAR(screw_png));
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
     // create knob widgets
-    ui->widget[0] = add_my_knob(ui->widget[0], RATIO,"Ratio", ui,40, 25, 100, 125);
-    set_adjustment(ui->widget[0]->adj,2.0, 2.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
+    ui->widget[0] = add_my_knob(ui->widget[0], DEPTH,"Depth", ui,40, 25, 100, 125);
+    set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 5.0, 0.01, CL_CONTINUOS);
+    adj_set_scale(ui->widget[0]->adj, 2.0);
 
-    ui->widget[1] = add_my_knob(ui->widget[1], KNEE,"Knee", ui,150, 25, 100, 125);
-    set_adjustment(ui->widget[1]->adj,3.0, 3.0, 0.0, 20.0, 0.1, CL_CONTINUOS);
+    ui->widget[1] = add_my_knob(ui->widget[1], WIDTH,"Width", ui,150, 25, 100, 125);
+    set_adjustment(ui->widget[1]->adj,0.5, 0.5, 0.0, 10.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[2] = add_my_knob(ui->widget[2], THRESHOLD,"Threshold", ui,260, 25, 100, 125);
-    set_adjustment(ui->widget[2]->adj,-20.0, -20.0, -96.0, 10.0, 1.0, CL_CONTINUOS);
+    ui->widget[2] = add_my_knob(ui->widget[2], FREQ,"Freq", ui,260, 25, 100, 125);
+    set_adjustment(ui->widget[2]->adj,0.2, 0.2, 0.05, 10.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[3] = add_my_knob(ui->widget[3], RELEASE,"Release", ui,370, 25, 100, 125);
-    set_adjustment(ui->widget[3]->adj,0.5, 0.5, 0.0, 10.0, 0.1, CL_CONTINUOS);
+    ui->widget[3] = add_my_knob(ui->widget[3], FEEDBACK,"Feedback", ui,370, 25, 100, 125);
+    set_adjustment(ui->widget[3]->adj,-0.707, -0.707, -0.99, 0.99, 0.01, CL_CONTINUOS);
 
-    ui->widget[4] = add_my_knob(ui->widget[4], ATTACK,"Attack", ui,480, 25, 100, 125);
-    set_adjustment(ui->widget[4]->adj,0.002, 0.0, 0.0, 1.0, 0.001, CL_CONTINUOS);
+    ui->widget[4] = add_my_knob(ui->widget[4], WET,"Dry/Wet", ui,480, 25, 100, 125);
+    set_adjustment(ui->widget[4]->adj,100.0, 100.0, 0.0, 100.0, 1.0, CL_CONTINUOS);
+
+    ui->widget[5] = add_my_knob(ui->widget[5], MIX,"Mix", ui,590, 25, 100, 125);
+    set_adjustment(ui->widget[5]->adj,0.0, 0.0, -1.0, 1.0, 0.01, CL_CONTINUOS);
 
     // map all widgets into the toplevel Widget_t
     widget_show_all(ui->win);
@@ -309,7 +313,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     // request to resize the parentXwindow to the size of the toplevel Widget_t
     if (resize){
         ui->resize = resize;
-        resize->ui_resize(resize->handle, 620, 180);
+        resize->ui_resize(resize->handle, 730, 180);
     }
     // store pointer to the host controller
     ui->controller = controller;
