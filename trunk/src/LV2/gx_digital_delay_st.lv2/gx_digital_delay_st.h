@@ -23,9 +23,27 @@
 #define SRC_HEADERS_GXEFFECTS_H_
 
 #include <lv2.h>
+#include "lv2/lv2plug.in/ns/ext/atom/atom.h"
+#include "lv2/lv2plug.in/ns/ext/atom/util.h"
+#include "lv2/lv2plug.in/ns/ext/time/time.h"
+#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
+#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_digital_delay_st_"
 #define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_digital_delay_st_#gui"
+
+typedef struct {
+        LV2_URID atom_Blank;
+        LV2_URID atom_Float;
+        LV2_URID atom_Object;
+        LV2_URID atom_Path;
+        LV2_URID atom_Resource;
+        LV2_URID atom_Sequence;
+        LV2_URID time_Position;
+        LV2_URID time_barBeat;
+        LV2_URID time_beatsPerMinute;
+        LV2_URID time_speed;
+} GxDDURIs;
 
 
 typedef enum
@@ -42,6 +60,11 @@ typedef enum
    LEVEL, 
    MODE, 
    NOTES, 
+   DD_CONTROL,
+   DD_NOTIFY,
+   SYNC,
+   //SPEED,
+   HOSTBPM, 
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

@@ -31,7 +31,7 @@ void _draw_label(void *w_, void* user_data) {
 
     cairo_text_extents_t extents;
     use_text_color_scheme(w, get_color_state(w));
-    float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.6)/3);
+    float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3);
     cairo_set_font_size (w->crb, font_size);
     cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                CAIRO_FONT_WEIGHT_BOLD);

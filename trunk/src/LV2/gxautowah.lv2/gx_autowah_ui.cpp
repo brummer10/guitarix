@@ -74,6 +74,10 @@ static void draw_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
     cairo_paint (w->crb);
+    set_pattern(w,&w->app->color_scheme->normal,&w->app->color_scheme->selected,BACKGROUND_);
+    cairo_rectangle (w->crb,4,4,w->width-8,w->height-8);
+    cairo_set_line_width(w->crb,4);
+    cairo_stroke(w->crb);
 
     cairo_text_extents_t extents;
     use_text_color_scheme(w, get_color_state(w));

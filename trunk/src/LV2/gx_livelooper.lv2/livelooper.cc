@@ -438,7 +438,9 @@ void LiveLooper::set_p_state() {
 void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 {
     if (!ready) {
-        memcpy(output0, input0, count * sizeof(float));
+        if (input0 != output0) {
+            memcpy(output0, input0, count * sizeof(float));
+        }
         return;
     }
 #define fclip1 (*fclip1_)

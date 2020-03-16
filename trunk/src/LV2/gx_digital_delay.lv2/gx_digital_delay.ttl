@@ -81,9 +81,9 @@ rdfs:comment """
         lv2:index 2 ;
         lv2:symbol "BPM" ;
         lv2:name "BPM" ;
-        lv2:default 1.2e+02 ;
+        lv2:default 120.0 ;
         lv2:minimum 24.0 ;
-        lv2:maximum 3.6e+02 ;
+        lv2:maximum 360.0 ;
         lv2:portProperty log:notOnGUI ;
     ]      , [
         a lv2:InputPort ,
@@ -91,18 +91,18 @@ rdfs:comment """
         lv2:index 3 ;
         lv2:symbol "FEEDBACK" ;
         lv2:name "FEEDBACK" ;
-        lv2:default 5e+01 ;
+        lv2:default 50.0 ;
         lv2:minimum 1.0 ;
-        lv2:maximum 1e+02 ;
+        lv2:maximum 100.0 ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 4 ;
         lv2:symbol "GAIN" ;
         lv2:name "GAIN" ;
-        lv2:default 1e+02 ;
+        lv2:default 100.0 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 1.2e+02 ;
+        lv2:maximum 120.0 ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -110,9 +110,9 @@ rdfs:comment """
         lv2:portProperty log:logarithmic ;
         lv2:symbol "HIGHPASS" ;
         lv2:name "HIGHPASS" ;
-        lv2:default 1.2e+02 ;
-        lv2:minimum 2e+01 ;
-        lv2:maximum 2e+04 ;
+        lv2:default 120.0 ;
+        lv2:minimum 20.0 ;
+        lv2:maximum 20000.0 ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -120,18 +120,18 @@ rdfs:comment """
         lv2:portProperty log:logarithmic ;
         lv2:symbol "HOWPASS" ;
         lv2:name "HOWPASS" ;
-        lv2:default 1.2e+04 ;
-        lv2:minimum 2e+01 ;
-        lv2:maximum 2e+04 ;
+        lv2:default 12000.0 ;
+        lv2:minimum 20.0 ;
+        lv2:maximum 20000.0 ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 7 ;
         lv2:symbol "LEVEL" ;
         lv2:name "LEVEL" ;
-        lv2:default 5e+01 ;
+        lv2:default 50.0 ;
         lv2:minimum 1.0 ;
-        lv2:maximum 1e+02 ;
+        lv2:maximum 100.0 ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -154,29 +154,29 @@ rdfs:comment """
         lv2:index 9 ;
         lv2:symbol "NOTES" ;
         lv2:name "NOTES" ;
-        lv2:default 5.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 18.0 ;
+        lv2:default 4.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 17.0 ;
         lv2:portProperty lv2:integer;
         lv2:portProperty lv2:enumeration ; 
-        lv2:scalePoint [rdfs:label "Dotted1/2note"; rdf:value 1];
-        lv2:scalePoint [rdfs:label "1/2note"; rdf:value 2];
-        lv2:scalePoint [rdfs:label "1/2notetriplets"; rdf:value 3];
-        lv2:scalePoint [rdfs:label "Dotted1/4note"; rdf:value 4];
-        lv2:scalePoint [rdfs:label "1/4note"; rdf:value 5];
-        lv2:scalePoint [rdfs:label "1/4notetriplets"; rdf:value 6];
-        lv2:scalePoint [rdfs:label "Dotted1/8note"; rdf:value 7];
-        lv2:scalePoint [rdfs:label "1/8note"; rdf:value 8];
-        lv2:scalePoint [rdfs:label "1/8notetriplets"; rdf:value 9];
-        lv2:scalePoint [rdfs:label "Dotted1/16note"; rdf:value 10];
-        lv2:scalePoint [rdfs:label "1/16note"; rdf:value 11];
-        lv2:scalePoint [rdfs:label "1/16notetriplets"; rdf:value 12];
-        lv2:scalePoint [rdfs:label "Dotted1/32note"; rdf:value 13];
-        lv2:scalePoint [rdfs:label "1/32note"; rdf:value 14];
-        lv2:scalePoint [rdfs:label "1/32notetriplets"; rdf:value 15];
-        lv2:scalePoint [rdfs:label "Dotted1/64note"; rdf:value 16];
-        lv2:scalePoint [rdfs:label "1/64note"; rdf:value 17];
-        lv2:scalePoint [rdfs:label "1/64notetriplets"; rdf:value 18];
+        lv2:scalePoint [rdfs:label "Dotted1/2note"; rdf:value 0];
+        lv2:scalePoint [rdfs:label "1/2note"; rdf:value 1];
+        lv2:scalePoint [rdfs:label "1/2notetriplets"; rdf:value 2];
+        lv2:scalePoint [rdfs:label "Dotted1/4note"; rdf:value 3];
+        lv2:scalePoint [rdfs:label "1/4note"; rdf:value 4];
+        lv2:scalePoint [rdfs:label "1/4notetriplets"; rdf:value 5];
+        lv2:scalePoint [rdfs:label "Dotted1/8note"; rdf:value 6];
+        lv2:scalePoint [rdfs:label "1/8note"; rdf:value 7];
+        lv2:scalePoint [rdfs:label "1/8notetriplets"; rdf:value 8];
+        lv2:scalePoint [rdfs:label "Dotted1/16note"; rdf:value 9];
+        lv2:scalePoint [rdfs:label "1/16note"; rdf:value 10];
+        lv2:scalePoint [rdfs:label "1/16notetriplets"; rdf:value 11];
+        lv2:scalePoint [rdfs:label "Dotted1/32note"; rdf:value 12];
+        lv2:scalePoint [rdfs:label "1/32note"; rdf:value 13];
+        lv2:scalePoint [rdfs:label "1/32notetriplets"; rdf:value 14];
+        lv2:scalePoint [rdfs:label "Dotted1/64note"; rdf:value 15];
+        lv2:scalePoint [rdfs:label "1/64note"; rdf:value 16];
+        lv2:scalePoint [rdfs:label "1/64notetriplets"; rdf:value 17];
 
     ] , [
         a lv2:InputPort ,
@@ -213,13 +213,18 @@ rdfs:comment """
         lv2:index 13 ;
         lv2:symbol "HOSTBPM" ;
         lv2:name "HOSTBPM" ;
-        lv2:default 1.2e+02 ;
+        lv2:default 120.0 ;
         lv2:minimum 24.0 ;
-        lv2:maximum 3.6e+02 ;
+        lv2:maximum 360.0 ;
         lv2:designation time:beatsPerMinute;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_digital_delay_#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_digital_delay_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  

@@ -5,7 +5,7 @@
 // xwidgets.h includes xputty.h and all defined widgets from Xputty
 #include "xwidgets.h"
 
-#include "gx_bossds1.h"
+#include "gx_digital_delay_st.h"
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -13,7 +13,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 3
+#define CONTROLS 9
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -28,6 +28,7 @@ typedef struct {
     Xputty main;
     Widget_t *win;
     Widget_t *widget[CONTROLS];
+    cairo_surface_t *screw;
     int block_event;
 
     void *controller;
@@ -39,20 +40,20 @@ typedef struct {
 static void set_my_theme(Xputty *main) {
     main->color_scheme->normal = (Colors) {
          /* cairo    / r  / g  / b  / a  /  */
-        .fg =       { 0.85, 0.85, 0.85, 1.0},
-        .bg =       { 0.58, 0.2, 0.01, 1.0},
-        .base =     { 0.1, 0.1, 0.2, 1.0},
-        .text =     { 0.9, 0.9, 0.9, 1.0},
+        .fg =       { 0.45, 0.45, 0.45, 1.0},
+        .bg =       { 0.00, 0.24, 0.06, 1.00},
+        .base =     { 0.00, 0.24, 0.06, 1.00},
+        .text =     { 0.45, 0.45, 0.45, 1.0},
         .shadow =   { 0.0, 0.0, 0.0, 0.2},
         .frame =    { 0.0, 0.0, 0.0, 1.0},
-        .light =    { 0.1, 0.1, 0.2, 1.0}
+        .light =    { 0.1, 0.1, 0.1, 1.0}
     };
 
     main->color_scheme->prelight = (Colors) {
-        .fg =       { 1.0, 0.0, 1.0, 1.0},
-        .bg =       { 0.25, 0.25, 0.35, 1.0},
-        .base =     { 0.2, 0.2, 0.3, 1.0},
-        .text =     { 1.0, 1.0, 1.0, 1.0},
+        .fg =       { 1.0, 1.0, 1.0, 1.0},
+        .bg =       { 0.00, 0.24, 0.21, 1.00},
+        .base =     { 0.00, 0.24, 0.21, 1.00},
+        .text =     { 0.7, 0.7, 0.7, 1.0},
         .shadow =   { 0.1, 0.1, 0.1, 0.4},
         .frame =    { 0.3, 0.3, 0.3, 1.0},
         .light =    { 0.3, 0.3, 0.3, 1.0}
@@ -60,18 +61,19 @@ static void set_my_theme(Xputty *main) {
 
     main->color_scheme->selected = (Colors) {
         .fg =       { 0.9, 0.9, 0.9, 1.0},
-        .bg =       { 0.85, 0.31, 0.05, 1.0},
-        .base =     { 0.18, 0.18, 0.28, 1.0},
+        .bg =       { 0.00, 0.24, 0.21, 1.00},
+        .base =     { 0.00, 0.24, 0.21, 1.00},
         .text =     { 1.0, 1.0, 1.0, 1.0},
         .shadow =   { 0.18, 0.18, 0.18, 0.2},
         .frame =    { 0.18, 0.18, 0.18, 1.0},
-        .light =    { 0.18, 0.18, 0.28, 1.0}
+        .light =    { 0.18, 0.18, 0.18, 1.0}
     };
 }
 
 // draw the window
 static void draw_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
+    X11_UI* ui = (X11_UI*)w->parent_struct;
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
     cairo_paint (w->crb);
     set_pattern(w,&w->app->color_scheme->normal,&w->app->color_scheme->selected,BACKGROUND_);
@@ -79,10 +81,20 @@ static void draw_window(void *w_, void* user_data) {
     cairo_set_line_width(w->crb,4);
     cairo_stroke(w->crb);
 
+    cairo_set_source_surface (w->crb, ui->screw,5,5);
+    cairo_paint (w->crb);
+    cairo_set_source_surface (w->crb, ui->screw,5,w->height-37);
+    cairo_paint (w->crb);
+    cairo_set_source_surface (w->crb, ui->screw,w->width-37,w->height-37);
+    cairo_paint (w->crb);
+    cairo_set_source_surface (w->crb, ui->screw,w->width-37,5);
+    cairo_paint (w->crb);
+    cairo_new_path (w->crb);
+
     cairo_text_extents_t extents;
     use_text_color_scheme(w, get_color_state(w));
     cairo_set_source_rgb (w->crb,0.45, 0.45, 0.45);
-    float font_size = min(26.0,((w->height/2.2 < (w->width*0.5)/3) ? w->height/2.2 : (w->width*0.5)/3));
+    float font_size = min(20.0,((w->height/2.2 < (w->width*0.5)/3) ? w->height/2.2 : (w->width*0.5)/3));
     cairo_set_font_size (w->crb, font_size);
     cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                CAIRO_FONT_WEIGHT_BOLD);
@@ -90,11 +102,11 @@ static void draw_window(void *w_, void* user_data) {
     double tw = extents.width/2.0;
 
     widget_set_scale(w);
-    cairo_move_to (w->crb, 175-tw, 347 );
+    cairo_move_to (w->crb, 470-tw, 170 );
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
     cairo_scale (w->crb, 0.95, 0.95);
-    cairo_set_source_surface (w->crb, w->image,260,10);
+    cairo_set_source_surface (w->crb, w->image,680,10);
     cairo_paint (w->crb);
     cairo_scale (w->crb, 1.05, 1.05);
     widget_reset_scale(w);
@@ -135,9 +147,9 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_new_path (w->crb);
 
     pat = cairo_pattern_create_linear (0, 0, 0, knob_y);
-    cairo_pattern_add_color_stop_rgba (pat, 1,  0.85, 0.31, 0.05, 1.0);
-    cairo_pattern_add_color_stop_rgba (pat, 0.75,  0.58, 0.2, 0.01, 1.0);
-    cairo_pattern_add_color_stop_rgba (pat, 0.5,  0.15, 0.15, 0.15, 1.0);
+    cairo_pattern_add_color_stop_rgba (pat, 1,  0.15, 0.25, 0.15, 1.00);
+    cairo_pattern_add_color_stop_rgba (pat, 0.75,  0.12, 0.2, 0.12, 1.00);
+    cairo_pattern_add_color_stop_rgba (pat, 0.5,  0.1, 0.1, 0.15, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0.25,  0.1, 0.1, 0.1, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0,  0.05, 0.05, 0.05, 1.0);
 
@@ -154,8 +166,8 @@ static void draw_my_knob(void *w_, void* user_data) {
     pat = NULL;
 
     pat = cairo_pattern_create_linear (0, 0, 0, knob_y);
-    cairo_pattern_add_color_stop_rgba (pat, 0,  0.85, 0.31, 0.05, 1.0);
-    cairo_pattern_add_color_stop_rgba (pat, 0.25,  0.58, 0.2, 0.01, 1.0);
+    cairo_pattern_add_color_stop_rgba (pat, 0,  0.00, 0.14, 0.0, 1.00);
+    cairo_pattern_add_color_stop_rgba (pat, 0.25,  0.2, 0.24, 0.2, 1.00);
     cairo_pattern_add_color_stop_rgba (pat, 0.5,  0.15, 0.15, 0.15, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0.75,  0.1, 0.1, 0.1, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 1,  0.05, 0.05, 0.05, 1.0);
@@ -169,13 +181,14 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_new_path (w->crb);
     cairo_pattern_destroy (pat);
 
+    use_text_color_scheme(w, get_color_state(w));
+
     /** create a rotating pointer on the kob**/
     cairo_set_line_cap(w->crb, CAIRO_LINE_CAP_ROUND); 
     cairo_set_line_join(w->crb, CAIRO_LINE_JOIN_BEVEL);
     cairo_move_to(w->crb, radius_x, radius_y);
     cairo_line_to(w->crb,lengh_x,lengh_y);
     cairo_set_line_width(w->crb,3);
-    cairo_set_source_rgb (w->crb,0.63,0.63,0.63);
     cairo_stroke(w->crb);
     cairo_new_path (w->crb);
 
@@ -184,8 +197,13 @@ static void draw_my_knob(void *w_, void* user_data) {
     if (w->state>0.0 && w->state<4.0) {
         char s[64];
         const char* format[] = {"%.1f", "%.2f", "%.3f"};
-        snprintf(s, 63, format[2-1], w->adj_y->value);
-        cairo_set_source_rgb (w->crb, 0.6, 0.6, 0.6);
+        if (fabs(w->adj_y->value)>9.99) {
+            snprintf(s, 63,"%d",  (int) w->adj_y->value);
+        } else if (fabs(w->adj_y->value)>0.99) {
+            snprintf(s, 63, format[1-1], w->adj_y->value);
+        } else {
+            snprintf(s, 63, format[2-1], w->adj_y->value);
+        }
         cairo_set_font_size (w->crb, min(11.0,knobx1/3));
         cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                    CAIRO_FONT_WEIGHT_BOLD);
@@ -196,7 +214,6 @@ static void draw_my_knob(void *w_, void* user_data) {
     }
 
     /** show label below the knob**/
-    use_text_color_scheme(w, get_color_state(w));
     float font_size = min(11.0,((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3));
     cairo_set_font_size (w->crb, font_size);
     cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
@@ -224,6 +241,21 @@ Widget_t* add_my_knob(Widget_t *w, PortIndex index, const char * label,
     w->func.expose_callback = draw_my_knob;    
     w->parent_struct = ui;
     w->data = index;
+    w->func.value_changed_callback = value_changed;
+    return w;
+}
+
+// shortcut to create comboboxes with portindex binding
+Widget_t* add_my_combobox(Widget_t *w, PortIndex index, const char * label, const char** items,
+                                size_t len, int active, X11_UI* ui, int x, int y, int width, int height) {
+    w = add_combobox(ui->win, label, x, y, width, height);
+    size_t st = 0;
+    for(st = 0; st < len; st++) {
+        combobox_add_entry(w,items[st]);
+    }
+    w->parent_struct = ui;
+    w->data = index;
+    combobox_set_active_entry(w, active);
     w->func.value_changed_callback = value_changed;
     return w;
 }
@@ -264,20 +296,51 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     main_init(&ui->main);
     set_my_theme(&ui->main);
     // create the toplevel Window on the parentXwindow provided by the host
-    ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, 350, 366);
-    ui->win->label = "GxBoss Ds1";
+    ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, 780, 180);
+    ui->win->parent_struct = ui;
+    ui->win->label = "GxDigitalDelay-stereo";
     widget_get_png(ui->win, LDVAR(guitarix_png));
+    ui->screw = surface_get_png(ui->win, ui->screw, LDVAR(screw_png));
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
     // create knob widgets
-    ui->widget[0] = add_my_knob(ui->widget[0], DRIVE,"Drive", ui,20, 30, 100, 125);
-    set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    ui->widget[0] = add_my_knob(ui->widget[0], BPM,"BPM", ui,220, 25, 100, 125);
+    set_adjustment(ui->widget[0]->adj,120.0, 120.0, 24.0, 360.0, 1.0, CL_CONTINUOS);
 
-    ui->widget[1] = add_my_knob(ui->widget[1], TONE,"Tone", ui,135, 35, 80, 105);
-    set_adjustment(ui->widget[1]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    ui->widget[1] = add_my_knob(ui->widget[1], FEEDBACK,"Feedback", ui,480, 25, 60, 75);
+    set_adjustment(ui->widget[1]->adj,50.0, 50.0, 1.0, 100.0, 1.0, CL_CONTINUOS);
 
-    ui->widget[2] = add_my_knob(ui->widget[2], LEVEL,"Level", ui,230, 30, 100, 125);
-    set_adjustment(ui->widget[2]->adj,-2.0, -2.0, -20.0, 12.0, 0.1, CL_CONTINUOS);
+    ui->widget[2] = add_my_knob(ui->widget[2], GAIN,"Gain", ui,620, 25, 100, 125);
+    set_adjustment(ui->widget[2]->adj,100.0, 100.0, 0.0, 120.0, 1.0, CL_CONTINUOS);
+
+    ui->widget[3] = add_my_knob(ui->widget[3], HIGHPASS,"HighPass", ui,330, 25, 60, 75);
+    set_adjustment(ui->widget[3]->adj,120.0, 120.0, 20.0, 20000.0, 5.0, CL_CONTINUOS);
+    adj_set_scale(ui->widget[3]->adj, pow(10,1.08));
+
+    ui->widget[4] = add_my_knob(ui->widget[4], HOWPASS,"LowPass", ui,410, 25, 60, 75);
+    set_adjustment(ui->widget[4]->adj,12000.0, 12000.0, 20.0, 20000.0, 5.0, CL_CONTINUOS);
+    adj_set_scale(ui->widget[4]->adj, pow(10,1.08));
+
+    ui->widget[5] = add_my_knob(ui->widget[5], LEVEL,"Level", ui,550, 25, 60, 75);
+    set_adjustment(ui->widget[5]->adj,50.0, 50.0, 1.0, 100.0, 1.0, CL_CONTINUOS);
+
+    // create combobox widgets
+    const char* model[] = {"plain","presence","tape","tape2"};
+    size_t len = sizeof(model) / sizeof(model[0]);
+    ui->widget[6] = add_my_combobox(ui->widget[6], MODE, "Mode", model, len, 0, ui, 390, 110, 160, 30);
+
+    const char* notes[] = {"Dotted 1/2 note","1/2 note","1/2 note triplets", 
+                          "Dotted 1/4 note","1/4 note","1/4 note triplets", 
+                          "Dotted 1/8 note","1/8 note","1/8 note triplets", 
+                          "Dotted 1/16 note","1/16 note","1/16 note triplets", 
+                          "Dotted 1/32 note","1/32 note","1/32 note triplets", 
+                          "Dotted 1/64 note","1/64 note","1/64 note triplets"};
+    len = sizeof(notes) / sizeof(notes[0]);
+    ui->widget[7] = add_my_combobox(ui->widget[7], NOTES, "Notes",notes, len, 0, ui, 40, 50, 160, 30);
+
+    const char* mode[] = {"BPM free scale","BPM host sync"};
+    len = sizeof(mode) / sizeof(mode[0]);
+    ui->widget[8] = add_my_combobox(ui->widget[8], SYNC, "BPM SYNC",mode, len, 0, ui, 40, 90, 160, 30);
 
     // map all widgets into the toplevel Widget_t
     widget_show_all(ui->win);
@@ -286,7 +349,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     // request to resize the parentXwindow to the size of the toplevel Widget_t
     if (resize){
         ui->resize = resize;
-        resize->ui_resize(resize->handle, 350, 366);
+        resize->ui_resize(resize->handle, 780, 180);
     }
     // store pointer to the host controller
     ui->controller = controller;
@@ -299,6 +362,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 // cleanup after usage
 static void cleanup(LV2UI_Handle handle) {
     X11_UI* ui = (X11_UI*)handle;
+    cairo_surface_destroy(ui->screw);
     // Xputty free all memory used
     main_quit(&ui->main);
     free(ui);
@@ -325,7 +389,12 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
             // and set new one, when needed
             check_value_changed(ui->widget[i]->adj, &value);
         }
-   }
+    }
+    if (port_index == DD_NOTIFY) {
+        if(adj_get_value(ui->widget[8]->adj)>0.1) {
+            check_value_changed(ui->widget[0]->adj, &value);
+        }
+    }
 }
 
 // LV2 idle interface to host

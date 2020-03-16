@@ -4,8 +4,9 @@
 
 // xwidgets.h includes xputty.h and all defined widgets from Xputty
 #include "xwidgets.h"
+#include "xslider_private.h"
 
-#include "gx_bossds1.h"
+#include "gx_detune.h"
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -13,7 +14,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 3
+#define CONTROLS 10
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -28,7 +29,9 @@ typedef struct {
     Xputty main;
     Widget_t *win;
     Widget_t *widget[CONTROLS];
+    cairo_surface_t *screw;
     int block_event;
+    float latency;
 
     void *controller;
     LV2UI_Write_Function write_function;
@@ -39,20 +42,20 @@ typedef struct {
 static void set_my_theme(Xputty *main) {
     main->color_scheme->normal = (Colors) {
          /* cairo    / r  / g  / b  / a  /  */
-        .fg =       { 0.85, 0.85, 0.85, 1.0},
-        .bg =       { 0.58, 0.2, 0.01, 1.0},
-        .base =     { 0.1, 0.1, 0.2, 1.0},
-        .text =     { 0.9, 0.9, 0.9, 1.0},
+        .fg =       { 0.45, 0.45, 0.45, 1.0},
+        .bg =       { 0.10, 0.19, 0.33, 1.00},
+        .base =     { 0.10, 0.19, 0.33, 1.00},
+        .text =     { 0.45, 0.45, 0.45, 1.0},
         .shadow =   { 0.0, 0.0, 0.0, 0.2},
         .frame =    { 0.0, 0.0, 0.0, 1.0},
-        .light =    { 0.1, 0.1, 0.2, 1.0}
+        .light =    { 0.1, 0.1, 0.1, 1.0}
     };
 
     main->color_scheme->prelight = (Colors) {
-        .fg =       { 1.0, 0.0, 1.0, 1.0},
-        .bg =       { 0.25, 0.25, 0.35, 1.0},
-        .base =     { 0.2, 0.2, 0.3, 1.0},
-        .text =     { 1.0, 1.0, 1.0, 1.0},
+        .fg =       { 1.0, 1.0, 1.0, 1.0},
+        .bg =       { 0.16, 0.19, 0.27, 1.00},
+        .base =     { 0.16, 0.19, 0.27, 1.00},
+        .text =     { 0.7, 0.7, 0.7, 1.0},
         .shadow =   { 0.1, 0.1, 0.1, 0.4},
         .frame =    { 0.3, 0.3, 0.3, 1.0},
         .light =    { 0.3, 0.3, 0.3, 1.0}
@@ -60,18 +63,19 @@ static void set_my_theme(Xputty *main) {
 
     main->color_scheme->selected = (Colors) {
         .fg =       { 0.9, 0.9, 0.9, 1.0},
-        .bg =       { 0.85, 0.31, 0.05, 1.0},
-        .base =     { 0.18, 0.18, 0.28, 1.0},
+        .bg =       { 0.16, 0.19, 0.27, 1.00},
+        .base =     { 0.16, 0.19, 0.27, 1.00},
         .text =     { 1.0, 1.0, 1.0, 1.0},
         .shadow =   { 0.18, 0.18, 0.18, 0.2},
         .frame =    { 0.18, 0.18, 0.18, 1.0},
-        .light =    { 0.18, 0.18, 0.28, 1.0}
+        .light =    { 0.18, 0.18, 0.18, 1.0}
     };
 }
 
 // draw the window
 static void draw_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
+    X11_UI* ui = (X11_UI*)w->parent_struct;
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
     cairo_paint (w->crb);
     set_pattern(w,&w->app->color_scheme->normal,&w->app->color_scheme->selected,BACKGROUND_);
@@ -79,10 +83,20 @@ static void draw_window(void *w_, void* user_data) {
     cairo_set_line_width(w->crb,4);
     cairo_stroke(w->crb);
 
+    cairo_set_source_surface (w->crb, ui->screw,5,5);
+    cairo_paint (w->crb);
+    cairo_set_source_surface (w->crb, ui->screw,5,w->height-37);
+    cairo_paint (w->crb);
+    cairo_set_source_surface (w->crb, ui->screw,w->width-37,w->height-37);
+    cairo_paint (w->crb);
+    cairo_set_source_surface (w->crb, ui->screw,w->width-37,5);
+    cairo_paint (w->crb);
+    cairo_new_path (w->crb);
+
     cairo_text_extents_t extents;
     use_text_color_scheme(w, get_color_state(w));
     cairo_set_source_rgb (w->crb,0.45, 0.45, 0.45);
-    float font_size = min(26.0,((w->height/2.2 < (w->width*0.5)/3) ? w->height/2.2 : (w->width*0.5)/3));
+    float font_size = min(20.0,((w->height/2.2 < (w->width*0.5)/3) ? w->height/2.2 : (w->width*0.5)/3));
     cairo_set_font_size (w->crb, font_size);
     cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                CAIRO_FONT_WEIGHT_BOLD);
@@ -90,14 +104,94 @@ static void draw_window(void *w_, void* user_data) {
     double tw = extents.width/2.0;
 
     widget_set_scale(w);
-    cairo_move_to (w->crb, 175-tw, 347 );
+    cairo_move_to (w->crb, 390-tw, 170 );
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
+    if (strlen(w->input_label)) {
+    cairo_set_font_size (w->crb, 11);
+        cairo_move_to (w->crb, 100, 160 );
+        cairo_show_text(w->crb, w->input_label);
+        cairo_new_path (w->crb);
+    }
+    
     cairo_scale (w->crb, 0.95, 0.95);
-    cairo_set_source_surface (w->crb, w->image,260,10);
+    cairo_set_source_surface (w->crb, w->image,680,10);
     cairo_paint (w->crb);
     cairo_scale (w->crb, 1.05, 1.05);
     widget_reset_scale(w);
+}
+
+void draw_my_vslider(void *w_, void* user_data) {
+    Widget_t *w = (Widget_t*)w_;
+    XWindowAttributes attrs;
+    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
+    int width = attrs.width-2;
+    int height = attrs.height-2;
+    float center = (float)width/2;
+    float upcenter = (float)width;
+    
+    if (attrs.map_state != IsViewable) return;
+
+    float sliderstate = adj_get_state(w->adj_y);
+
+    _pattern_vslider(w, get_color_state(w), width);
+    cairo_move_to (w->crb, center, center);
+    cairo_line_to(w->crb,center,height-center-10);
+    cairo_set_line_cap (w->crb,CAIRO_LINE_CAP_ROUND);
+    cairo_set_line_width(w->crb,center);
+    cairo_stroke(w->crb);
+
+    use_shadow_color_scheme(w, get_color_state(w));
+    cairo_move_to (w->crb, center, center);
+    cairo_line_to(w->crb,center,height-center-10);
+    cairo_set_line_width(w->crb,center/10);
+    cairo_stroke(w->crb);
+
+    use_shadow_color_scheme(w, get_color_state(w));
+    cairo_arc(w->crb,center, (height-center-10) -
+        ((height-10-upcenter) * sliderstate), center/2, 0, 2 * M_PI );
+    cairo_fill_preserve(w->crb);
+    cairo_set_line_width(w->crb,1);
+    cairo_stroke(w->crb);
+
+
+    //use_bg_color_scheme(w, get_color_state(w));
+
+    cairo_set_source_rgb (w->crb, 0.1, 0.1, 0.1); 
+    cairo_arc(w->crb,center, (height-center-10) -
+        ((height-10-upcenter) * sliderstate), center/3, 0, 2 * M_PI );
+    cairo_fill_preserve(w->crb);
+    cairo_set_source_rgb (w->crb, 0.349, 0.235, 0.011);
+    cairo_set_line_width(w->crb,center/15);
+    cairo_stroke(w->crb);
+    cairo_new_path (w->crb);
+
+    cairo_text_extents_t extents;
+
+
+    use_text_color_scheme(w, get_color_state(w));
+    cairo_set_font_size (w->crb, center/2.1);
+    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_BOLD);
+    cairo_text_extents(w->crb,w->label , &extents);
+
+    cairo_move_to (w->crb, center-extents.width/2, height-center/2.1);
+    cairo_show_text(w->crb, w->label);
+    cairo_new_path (w->crb);
+
+    char s[64];
+    const char* format[] = {"%.1f", "%.2f", "%.3f"};
+    if (fabs(w->adj_y->value)>9.99) {
+        snprintf(s, 63,"%d",  (int) w->adj->value);
+    } else if (fabs(w->adj_y->value)>0.99) {
+        snprintf(s, 63, format[1-1], w->adj->value);
+    } else {
+        snprintf(s, 63, format[2-1], w->adj->value);
+    }
+    cairo_text_extents(w->crb,s , &extents);
+    cairo_move_to (w->crb, center-extents.width/2, extents.height );
+    cairo_show_text(w->crb, s);
+    cairo_new_path (w->crb);
 }
 
 // draw the knobs
@@ -135,8 +229,8 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_new_path (w->crb);
 
     pat = cairo_pattern_create_linear (0, 0, 0, knob_y);
-    cairo_pattern_add_color_stop_rgba (pat, 1,  0.85, 0.31, 0.05, 1.0);
-    cairo_pattern_add_color_stop_rgba (pat, 0.75,  0.58, 0.2, 0.01, 1.0);
+    cairo_pattern_add_color_stop_rgba (pat, 1,  0.349, 0.313, 0.243, 1.0);
+    cairo_pattern_add_color_stop_rgba (pat, 0.75,  0.349, 0.235, 0.011, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0.5,  0.15, 0.15, 0.15, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0.25,  0.1, 0.1, 0.1, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0,  0.05, 0.05, 0.05, 1.0);
@@ -154,8 +248,8 @@ static void draw_my_knob(void *w_, void* user_data) {
     pat = NULL;
 
     pat = cairo_pattern_create_linear (0, 0, 0, knob_y);
-    cairo_pattern_add_color_stop_rgba (pat, 0,  0.85, 0.31, 0.05, 1.0);
-    cairo_pattern_add_color_stop_rgba (pat, 0.25,  0.58, 0.2, 0.01, 1.0);
+    cairo_pattern_add_color_stop_rgba (pat, 0,  0.349, 0.213, 0.143, 1.0);
+    cairo_pattern_add_color_stop_rgba (pat, 0.25,  0.349, 0.235, 0.011, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0.5,  0.15, 0.15, 0.15, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 0.75,  0.1, 0.1, 0.1, 1.0);
     cairo_pattern_add_color_stop_rgba (pat, 1,  0.05, 0.05, 0.05, 1.0);
@@ -169,13 +263,14 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_new_path (w->crb);
     cairo_pattern_destroy (pat);
 
+    use_text_color_scheme(w, get_color_state(w));
+
     /** create a rotating pointer on the kob**/
     cairo_set_line_cap(w->crb, CAIRO_LINE_CAP_ROUND); 
     cairo_set_line_join(w->crb, CAIRO_LINE_JOIN_BEVEL);
     cairo_move_to(w->crb, radius_x, radius_y);
     cairo_line_to(w->crb,lengh_x,lengh_y);
     cairo_set_line_width(w->crb,3);
-    cairo_set_source_rgb (w->crb,0.63,0.63,0.63);
     cairo_stroke(w->crb);
     cairo_new_path (w->crb);
 
@@ -185,7 +280,6 @@ static void draw_my_knob(void *w_, void* user_data) {
         char s[64];
         const char* format[] = {"%.1f", "%.2f", "%.3f"};
         snprintf(s, 63, format[2-1], w->adj_y->value);
-        cairo_set_source_rgb (w->crb, 0.6, 0.6, 0.6);
         cairo_set_font_size (w->crb, min(11.0,knobx1/3));
         cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                    CAIRO_FONT_WEIGHT_BOLD);
@@ -196,7 +290,6 @@ static void draw_my_knob(void *w_, void* user_data) {
     }
 
     /** show label below the knob**/
-    use_text_color_scheme(w, get_color_state(w));
     float font_size = min(11.0,((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3));
     cairo_set_font_size (w->crb, font_size);
     cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
@@ -228,6 +321,32 @@ Widget_t* add_my_knob(Widget_t *w, PortIndex index, const char * label,
     return w;
 }
 
+// shortcut to create knobs with portindex binding
+Widget_t* add_my_slider(Widget_t *w, PortIndex index, const char * label,
+                                X11_UI* ui, int x, int y, int width, int height) {
+    w = add_vslider(ui->win, label, x, y, width, height);
+    w->func.expose_callback = draw_my_vslider;    
+    w->parent_struct = ui;
+    w->data = index;
+    w->func.value_changed_callback = value_changed;
+    return w;
+}
+
+// shortcut to create comboboxes with portindex binding
+Widget_t* add_my_combobox(Widget_t *w, PortIndex index, const char * label, const char** items,
+                                size_t len, int active, X11_UI* ui, int x, int y, int width, int height) {
+    w = add_combobox(ui->win, label, x, y, width, height);
+    size_t st = 0;
+    for(st = 0; st < len; st++) {
+        combobox_add_entry(w,items[st]);
+    }
+    w->parent_struct = ui;
+    w->data = index;
+    combobox_set_active_entry(w, active);
+    w->func.value_changed_callback = value_changed;
+    return w;
+}
+
 // init the xwindow and return the LV2UI handle
 static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
             const char * plugin_uri, const char * bundle_path,
@@ -245,6 +364,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     ui->parentXwindow = 0;
     LV2UI_Resize* resize = NULL;
     ui->block_event = -1;
+    ui->latency = 0.0;
 
     int i = 0;
     for (; features[i]; ++i) {
@@ -264,20 +384,48 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     main_init(&ui->main);
     set_my_theme(&ui->main);
     // create the toplevel Window on the parentXwindow provided by the host
-    ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, 350, 366);
-    ui->win->label = "GxBoss Ds1";
+    ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, 780, 180);
+    ui->win->parent_struct = ui;
+    ui->win->label = "GxDetune";
+    memset(ui->win->input_label, 0, 32 * (sizeof ui->win->input_label[0]));
     widget_get_png(ui->win, LDVAR(guitarix_png));
+    ui->screw = surface_get_png(ui->win, ui->screw, LDVAR(screw_png));
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
     // create knob widgets
-    ui->widget[0] = add_my_knob(ui->widget[0], DRIVE,"Drive", ui,20, 30, 100, 125);
-    set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    ui->widget[0] = add_my_knob(ui->widget[0], DETUNE,"Detune", ui,250, 25, 100, 125);
+    set_adjustment(ui->widget[0]->adj,0.0, 0.0, -12.0, 12.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[1] = add_my_knob(ui->widget[1], TONE,"Tone", ui,135, 35, 80, 105);
-    set_adjustment(ui->widget[1]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    ui->widget[1] = add_my_knob(ui->widget[1], WET,"Wet", ui,360, 35, 80, 105);
+    set_adjustment(ui->widget[1]->adj,50.0, 50.0, 0.0, 100.0, 1.0, CL_CONTINUOS);
 
-    ui->widget[2] = add_my_knob(ui->widget[2], LEVEL,"Level", ui,230, 30, 100, 125);
-    set_adjustment(ui->widget[2]->adj,-2.0, -2.0, -20.0, 12.0, 0.1, CL_CONTINUOS);
+    ui->widget[2] = add_my_knob(ui->widget[2], DRY,"Dry", ui,450, 35, 80, 105);
+    set_adjustment(ui->widget[2]->adj,50.0, 50.0, 0.0, 100.0, 1.0, CL_CONTINUOS);
+
+    ui->widget[3] = add_my_slider(ui->widget[3], LOW,"Low", ui,550, 35, 40, 130);
+    set_adjustment(ui->widget[3]->adj,1.0, 1.0, 0.0, 2.0, 0.01, CL_CONTINUOS);
+
+    ui->widget[4] = add_my_slider(ui->widget[4], MIDDLELOW,"Lo Mid", ui,590, 35, 40, 130);
+    set_adjustment(ui->widget[4]->adj,1.0, 1.0, 0.0, 2.0, 0.01, CL_CONTINUOS);
+
+    ui->widget[5] = add_my_slider(ui->widget[5], MIDDLETREBLE,"Hi MID", ui,630, 35, 40, 130);
+    set_adjustment(ui->widget[5]->adj,1.0, 1.0, 0.0, 2.0, 0.01, CL_CONTINUOS);
+
+    ui->widget[6] = add_my_slider(ui->widget[6], TREBLE,"High", ui,670, 35, 40, 130);
+    set_adjustment(ui->widget[6]->adj,1.0, 1.0, 0.0, 2.0, 0.01, CL_CONTINUOS);
+
+    const char* model[] = {"no shift","octave up","octave down"};
+    size_t len = sizeof(model) / sizeof(model[0]);
+    ui->widget[7] = add_my_combobox(ui->widget[7], OCTAVE, "Octave", model, len, 0, ui, 80, 30, 140, 30);
+
+
+    const char* comp[] = {"delay ","compensate"};
+    len = sizeof(comp) / sizeof(comp[0]);
+    ui->widget[8] = add_my_combobox(ui->widget[8], COMPENSATE, "Compensate", comp, len, 0, ui, 80, 70, 140, 30);
+
+    const char* lat[] = {"high quality","low quality","realtime"};
+    len = sizeof(lat) / sizeof(lat[0]);
+    ui->widget[9] = add_my_combobox(ui->widget[9], LATENCY, "Latency", lat, len, 0, ui, 80, 110, 140, 30);
 
     // map all widgets into the toplevel Widget_t
     widget_show_all(ui->win);
@@ -286,7 +434,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     // request to resize the parentXwindow to the size of the toplevel Widget_t
     if (resize){
         ui->resize = resize;
-        resize->ui_resize(resize->handle, 350, 366);
+        resize->ui_resize(resize->handle, 780, 180);
     }
     // store pointer to the host controller
     ui->controller = controller;
@@ -299,6 +447,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 // cleanup after usage
 static void cleanup(LV2UI_Handle handle) {
     X11_UI* ui = (X11_UI*)handle;
+    cairo_surface_destroy(ui->screw);
     // Xputty free all memory used
     main_quit(&ui->main);
     free(ui);
@@ -326,6 +475,14 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
             check_value_changed(ui->widget[i]->adj, &value);
         }
    }
+    if (port_index == LATENCYREPORT) {
+        if (fabs(ui->latency-value)>0.9) {
+            memset(ui->win->input_label, 0, 32 * (sizeof ui->win->input_label[0]));
+            snprintf(ui->win->input_label, 32, "Latency: %.0f", value);
+            expose_widget(ui->win);
+            ui->latency = value;
+        }
+    }
 }
 
 // LV2 idle interface to host

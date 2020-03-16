@@ -95,13 +95,17 @@ rdfs:comment """
         lv2:index 4 ;
         lv2:symbol "WET_DRY" ;
         lv2:name "WET_DRY" ;
-        lv2:default 1e+02 ;
+        lv2:default 50.0 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 1e+02 ;
+        lv2:maximum 100.0 ;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_cstb_gui#_cstb_>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_cstb_gui.so>;
-  guiext:requiredFeature guiext:makeResident;
-  .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  

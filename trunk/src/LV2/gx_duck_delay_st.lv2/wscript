@@ -7,57 +7,19 @@ def configure(conf):
     pass
 
 def build(bld):
-    bundle = 'gx_duck_delay_st.lv2'
+    lv2_base = 'gx_duck_delay_st'
 
-    src = ['gx_duck_delay_st.cpp'
-           ]
-    incl = ['../faust','./', '../DSP']
-    lib = []
-    if sys.platform.startswith("linux"):
-        lib.append('dl')
-    uselib = ['LV2CORE']
-    cxxflag =[]
-    if not bld.env['OPT'] and bld.env['SSE2']:
-        cxxflag = [ "-msse2", "-mfpmath=sse"]
-    lv2_effects = bld.shlib(
-        includes = incl,
-        lib = lib,
-        uselib = uselib,
-        obj_ext  = '_5.o',
-        cxxflags = cxxflag,
-        defines  = ["LV2_SO"],
-        target   = 'gx_duck_delay_st',
-        source   = src,
-        install_path = '${LV2DIR}/%s' % bundle,
-        chmod = 0o755,
+    bld.lv2(
+        lv2_base = lv2_base,
+        source   = ['gx_duck_delay_st.cpp'],
+        includes = ['../faust','./', '../DSP'],
+        cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
+        use = ['LV2CORE','FFTW3'],
         )
-    lv2_effects.env['cxxshlib_PATTERN'] = '%s.so'
-
-    if bld.env['LV2GUI']:
-        libpath5 = []
-        lib5 = []
-        incl5 = ['../']
-        if sys.platform.startswith("linux"):
-            lib5.append('dl')
-
-        lv2_effetcs_gui = bld.shlib(
-            includes = incl5,
-            lib = lib5,
-            libpath = libpath5,
-            use = ['gxwmm','LV2CORE','GTKMM'],
-            linkflags = '-Wl,-z,nodelete',
-            defines  = ["LV2_GUI"],
-            target   = 'gx_duck_delay_st_gui',
-            source   = 'widget.cpp gx_duck_delay_st_gui.cpp',
-            install_path = '${LV2DIR}/%s' % bundle,
-            chmod = 0o755,
-            )
-        lv2_effetcs_gui.env['cxxshlib_PATTERN'] = '%s.so'
-
-
-    install_path = '${LV2DIR}/%s' % bundle,
-    if bld.env['MODGUI']:
-        bld.install_files('${LV2DIR}/gx_duck_delay_st.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
-        bld.install_files('${LV2DIR}/gx_duck_delay_st.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
-    else:
-        bld.install_files('${LV2DIR}/gx_duck_delay_st.lv2', bld.path.ant_glob('*.ttl', excl=['modgui.ttl']), relative_trick=True)
+    bld.lv2_gui(
+        lv2_base = lv2_base,
+        source   = ' gx_duck_delay_st_ui.cpp',
+        includes = ['../xputty/header','../xputty/header/widgets','../xputty/resources',],
+        cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
+        use = ['xcairo','X11', 'CAIRO','LV2CORE'],
+        )
