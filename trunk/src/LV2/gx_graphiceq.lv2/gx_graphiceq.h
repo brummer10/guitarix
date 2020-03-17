@@ -30,8 +30,6 @@
 
 typedef enum
 {
-   G10, 
-   G11, 
    G1, 
    G2, 
    G3, 
@@ -41,8 +39,8 @@ typedef enum
    G7, 
    G8, 
    G9, 
-   V10, 
-   V11, 
+   G10, 
+   G11, 
    V1, 
    V2, 
    V3, 
@@ -52,6 +50,8 @@ typedef enum
    V7, 
    V8, 
    V9, 
+   V10, 
+   V11, 
    EFFECTS_OUTPUT,
    EFFECTS_INPUT,
 } PortIndex;

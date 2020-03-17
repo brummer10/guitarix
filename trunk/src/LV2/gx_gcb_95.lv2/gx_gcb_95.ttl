@@ -78,7 +78,7 @@ rdfs:comment """
         lv2:symbol "VOLUME" ;
         lv2:name "VOLUME" ;
         lv2:default 0.0 ;
-        lv2:minimum -2e+01 ;
+        lv2:minimum -20.0 ;
         lv2:maximum 4.0 ;
     ]      , [
         a lv2:InputPort ,
@@ -92,7 +92,11 @@ rdfs:comment """
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_gcb_95_gui#_gcb_95_>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_gcb_95_gui.so>;
-  guiext:requiredFeature guiext:makeResident;
-  .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  

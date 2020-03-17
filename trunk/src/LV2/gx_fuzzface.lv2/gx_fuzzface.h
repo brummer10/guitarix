@@ -25,7 +25,7 @@
 #include <lv2.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_fuzzface_"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_fuzzface_gui"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_fuzzface_gui#_fuzzface_"
 
 typedef enum
 {
