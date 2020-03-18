@@ -135,7 +135,11 @@ rdfs:comment """
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_jcm800pre_#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_jcm800pre_gui.so>;
-  guiext:requiredFeature guiext:makeResident;
-    .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  

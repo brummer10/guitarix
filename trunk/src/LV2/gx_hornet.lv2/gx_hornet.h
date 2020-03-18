@@ -25,7 +25,7 @@
 #include <lv2.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_hornet_"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_hornet_gui"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_hornet_gui#_hornet_"
 
 
 typedef enum
