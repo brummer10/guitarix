@@ -338,16 +338,16 @@ inline void LiveLooper::load_array(std::string name)
     std::string pPath = getenv("HOME");
     pPath += loop_dir;
     RecSize1[1] = load_from_wave(pPath+name+"1.wav", tape1);
-    IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
+    IOTAR1= fmax(0.0f,RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01));
     
     RecSize2[1] = load_from_wave(pPath+name+"2.wav", tape2);
-    IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
+    IOTAR2= fmax(0.0f,RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01));
     
     RecSize3[1] = load_from_wave(pPath+name+"3.wav", tape3);
-    IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
+    IOTAR3= fmax(0.0f,RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01));
     
     RecSize4[1] = load_from_wave(pPath+name+"4.wav", tape4);
-    IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
+    IOTAR4= fmax(0.0f,RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01));
     
     cur_name = pfreset_name;
 }
@@ -639,7 +639,11 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		fRec17[0] = fmax(0.0f, fmin(1.0f, (fRec17[1] + fTemp16)));
 		iRec18[0] = ((int(((fRec17[1] >= 1.0f) & (iRec19[1] != iTemp15))))?iTemp15:iRec18[1]);
 		iRec19[0] = ((int(((fRec17[1] <= 0.0f) & (iRec18[1] != iTemp15))))?iTemp15:iRec19[1]);
-		output0[i] = (float)((fSlow15 * ((fSlow14 * ((fRec17[0] * tape4[int(IOTAR4)]) + ((1.0f - fRec17[0]) * tape4[int(IOTAR4)]))) + ((fSlow11 * ((fRec12[0] * tape3[int(IOTAR3)]) + ((1.0f - fRec12[0]) * tape3[int(IOTAR3)]))) + ((fSlow8 * ((fRec7[0] * tape2[int(IOTAR2)]) + ((1.0f - fRec7[0]) * tape2[int(IOTAR2)]))) + (fSlow5 * ((fRec2[0] * tape1[int(IOTAR1)]) + ((1.0f - fRec2[0]) * tape1[int(IOTAR1)]))))))) + (fTemp0));
+        float fTemp17 = (fSlow14 * ((fRec17[0] * tape4[int(IOTAR4)]) + ((1.0f - fRec17[0]) * tape4[int(IOTAR4)])));
+        float fTemp18 = (fSlow11 * ((fRec12[0] * tape3[int(IOTAR3)]) + ((1.0f - fRec12[0]) * tape3[int(IOTAR3)])));
+        float fTemp19 = (fSlow8 * ((fRec7[0] * tape2[int(IOTAR2)]) + ((1.0f - fRec7[0]) * tape2[int(IOTAR2)])));
+        float fTemp20 = (fSlow5 * ((fRec2[0] * tape1[int(IOTAR1)]) + ((1.0f - fRec2[0]) * tape1[int(IOTAR1)])));
+		output0[i] = (float)((fSlow15 * (fTemp17 + (fTemp18 + (fTemp19 + fTemp20)))) + (fTemp0));
 		// post processing
 		iRec19[1] = iRec19[0];
 		iRec18[1] = iRec18[0];
