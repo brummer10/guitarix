@@ -103,7 +103,7 @@ Widget_t* add_check_button(Widget_t *parent, const char * label,
 }
 
 int get_width(const char *label) {
-    return max(1, strlen(label)*24);    
+    return max(1, strlen(label)*12);    
 }
 
 Widget_t* add_check_box(Widget_t *parent, const char * label,

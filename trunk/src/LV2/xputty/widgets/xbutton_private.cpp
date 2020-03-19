@@ -159,27 +159,27 @@ void _draw_button(void *w_, void* user_data) {
     int width = attrs.width-2;
     int height = attrs.height-2;
     if (attrs.map_state != IsViewable) return;
+    _draw_button_base(w, width, height);
+
+    float offset = 0.0;
+    if(w->state==1 && ! (int)w->adj_y->value) {
+        offset = 1.0;
+    } else if(w->state==1) {
+        offset = 2.0;
+    } else if(w->state==2) {
+        offset = 2.0;
+    } else if(w->state==3) {
+        offset = 1.0;
+    }
     if (w->image) {
         if(strlen(w->label)) {
             _draw_image_button_with_label(w, width, height);
         } else {
-            _draw_image_button(w, width, height,0.0);
+            _draw_image_button(w, width, height,offset);
         }
     } else {
-        _draw_button_base(w, width, height);
 
-        float offset = 0.0;
         cairo_text_extents_t extents;
-        if(w->state==1 && ! (int)w->adj_y->value) {
-            offset = 1.0;
-        } else if(w->state==1) {
-            offset = 2.0;
-        } else if(w->state==2) {
-            offset = 2.0;
-        } else if(w->state==3) {
-            offset = 1.0;
-        }
-
         use_text_color_scheme(w, get_color_state(w));
         float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3);
         cairo_set_font_size (w->crb, font_size);
@@ -315,7 +315,7 @@ void _draw_check_box(void *w_, void* user_data) {
     } else {
         _draw_button_base(w, height, height);
 
-        if(w->state==3) {
+        if(adj_get_value(w->adj)) {
             use_fg_color_scheme(w, ACTIVE_);
             float offset = 1.0;
             int wa = height/1.3;
@@ -335,7 +335,7 @@ void _draw_check_box(void *w_, void* user_data) {
 
         cairo_text_extents_t extents;
         use_text_color_scheme(w, get_color_state(w));
-        float font_size = ((height/1.2 < (width*0.5)/3) ? height/1.2 : (width*0.6)/3);
+        float font_size = ((height/1.2 < (width*0.25)/3) ? height/1.2 : (width*0.25)/3);
         cairo_set_font_size (w->crb, font_size);
         cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                    CAIRO_FONT_WEIGHT_BOLD);
