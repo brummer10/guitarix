@@ -126,6 +126,7 @@ protected:
     bool midi_blocked      : 1;
     bool output            : 1;
     bool maxlevel          : 1;
+    bool nowarn            : 1;
     bool used              : 1; // debug
 protected:
     void range_warning(float value, float lower, float upper);
@@ -178,6 +179,8 @@ public:
     void setOutput(bool v) { output = v; }
     bool isMaxlevel() const { return maxlevel; }
     void setMaxlevel(bool v) { maxlevel = v; }
+    bool isNoWarning() const { return nowarn; }
+    void setNoWarning(bool v) { nowarn = v; }
     const string& id() const { return _id; }
     const string& group() const { return _group; }
     string l_group() const { return gettext(_group.c_str()); }
