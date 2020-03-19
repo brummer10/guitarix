@@ -14,6 +14,14 @@ Documentation for Guitarix Developers
  - waf build dependency computation is a lot faster with python3
    than with python2
 
+ - building documentation:
+     "RUN_DOXYGEN=run python3 waf"         for fast results
+     "RUN_DOXYGEN=clang,run python3 waf"   yields precise "referenced by" information
+
+     omitting "run" creates build/documentation/Doxyfile, then run with
+     "cd build && doxygen documentation/Doxyfile"
+     View with e.g. "firefox $PWD/html/index.html"
+
  - recommended build configuration: python3 waf configure --glade
    --debug --debug enables a lot of extra checks (by not setting
    -DNDEBUG)
@@ -89,8 +97,8 @@ In ~/.emacs:
 --
 In trunk/.dir-locals.el:
 ------
-((c++-mode . ((c-file-style . "guitarix-cc-mode") (tab-width . 8)))
- (c-mode   . ((c-file-style . "guitarix-cc-mode") (tab-width . 8))))
+((c++-mode . ((c-file-style . "guitarix-cc-mode") (tab-width . 4)))
+ (c-mode   . ((c-file-style . "guitarix-cc-mode") (tab-width . 4))))
 --
 
 3. Thread architecture
