@@ -153,22 +153,22 @@ private:
     OscilloscopeInfo value_storage;
     OscilloscopeInfo *value;
     sigc::signal<void, const OscilloscopeInfo&> changed;
-    void trigger_changed(); // override;
+    void trigger_changed() override;
 public:
     ParameterV(const string& id, OscilloscopeInfo *v);
     ParameterV(gx_system::JsonParser& jp);
     ~ParameterV();
-    virtual void serializeJSON(gx_system::JsonWriter& jw);
+    virtual void serializeJSON(gx_system::JsonWriter& jw) override;
     sigc::signal<void, const OscilloscopeInfo&>& signal_changed() { return changed; }
     static ParameterV<OscilloscopeInfo> *insert_param(
         ParamMap &pmap, const string& id, OscilloscopeInfo *v);
     OscilloscopeInfo& get_value() const { return *value; }
-    virtual void stdJSON_value();
-    virtual bool on_off_value();
-    virtual void writeJSON(gx_system::JsonWriter& jw) const;
-    virtual bool compareJSON_value();
-    virtual void setJSON_value();
-    virtual void readJSON_value(gx_system::JsonParser& jp);
+    virtual void stdJSON_value() override;
+    virtual bool on_off_value() override;
+    virtual void writeJSON(gx_system::JsonWriter& jw) const override;
+    virtual bool compareJSON_value() override;
+    virtual void setJSON_value() override;
+    virtual void readJSON_value(gx_system::JsonParser& jp) override;
 };
 
 typedef ParameterV<OscilloscopeInfo> OscParameter;
@@ -804,10 +804,6 @@ private:
 	float 	rplay2;
 	float 	rplay3;
 	float 	rplay4;
-	float 	load1;
-	float 	load2;
-	float 	load3;
-	float 	load4;
 	float 	od1;
 	float 	od2;
 	float 	od3;

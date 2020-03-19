@@ -42,29 +42,35 @@ struct param_opts {
     bool log;
     bool nomidi;
     bool output;
+    bool nosavable;
     bool maxlevel;
     string name;
+    param_opts(const char* tp, const char *id, const char *name);
 };
 
-void get_param_opts(param_opts& opts, const char* tp, const char *id, const char *name) {
-    if (!name[0]) {
+param_opts::param_opts(const char* tp, const char *id, const char *name_)
+    : shared(false), log(false), nomidi(false), output(false),
+      nosavable(false), maxlevel(false), name() {
+    if (!name_[0]) {
 	assert(strrchr(id, '.'));
-	opts.name = strrchr(id, '.')+1;
-	if (!opts.name.empty()) {
-	    opts.name[0] = toupper(opts.name[0]);
+	name = strrchr(id, '.')+1;
+	if (!name.empty()) {
+	    name[0] = toupper(name[0]);
 	}
     } else {
-	opts.name = name;
+	name = name_;
     }
     assert(tp[0] == 'S' || tp[0] == 'B');
 
     for (const char *p = tp+1; *p; p++) {
 	switch (*p) {
-	case 'A': opts.shared = true; break;
-	case 'L': opts.log = true; assert(tp[0] == 'S'); break;
-	case 'N': opts.nomidi = true; break;
-	case 'O': opts.output = true; opts.nomidi = true; break;
-	case 'M': opts.maxlevel = true; break;
+	case 'A': shared = true; break;
+	case 'L': log = true; assert(tp[0] == 'S'); break;
+	case 'N': nomidi = true; break;
+	case 'O': output = true; nomidi = true; nosavable = true; break;
+        case 'o': output = true; break;
+        case 's': nosavable = true; break;
+	case 'M': maxlevel = true; break;
 	default:
 	    cerr << id << ": unknown type char: " << *p << endl;
 	    assert(false);
@@ -76,8 +82,7 @@ void get_param_opts(param_opts& opts, const char* tp, const char *id, const char
 float *ParamRegImpl::registerFloatVar_(const char* id, const char* name, const char* tp,
 				       const char* tooltip, float* var, float val,
 				       float low, float up, float step, const value_pair* values) {
-    param_opts opts = { 0 };
-    get_param_opts(opts, tp, id, name);
+    param_opts opts(tp, id, name);
     if (opts.shared) {
 	if (pmap->hasId(id)) {
 	    gx_engine::Parameter& p = (*pmap)[id];
@@ -111,7 +116,9 @@ float *ParamRegImpl::registerFloatVar_(const char* id, const char* name, const c
     }
     if (opts.output) {
 	p->setOutput(true);
-	p->setSavable(false);
+    }
+    if (opts.nosavable) {
+        p->setSavable(false);
     }
     if (tooltip && tooltip[0]) {
         p->set_desc(tooltip);
@@ -123,8 +130,7 @@ int *ParamRegImpl::registerIntVar_(const char* id, const char* name, const char*
 				   const char* tooltip, int* var, int val,
 				   int low, int up, const value_pair* values) {
     assert(up > low || values);
-    param_opts opts = { 0 };
-    get_param_opts(opts, tp, id, name);
+    param_opts opts(tp, id, name);
     assert(!opts.log);
     if (opts.shared) {
 	if (pmap->hasId(id)) {
@@ -153,6 +159,8 @@ int *ParamRegImpl::registerIntVar_(const char* id, const char* name, const char*
     }
     if (opts.output) {
 	p->setOutput(true);
+    }
+    if (opts.nosavable) {
 	p->setSavable(false);
     }
     if (tooltip && tooltip[0]) {
@@ -163,8 +171,7 @@ int *ParamRegImpl::registerIntVar_(const char* id, const char* name, const char*
 
 bool *ParamRegImpl::registerBoolVar_(const char* id, const char* name, const char* tp,
 				     const char* tooltip, bool* var, bool val) {
-    param_opts opts = { 0 };
-    get_param_opts(opts, tp, id, name);
+    param_opts opts(tp, id, name);
     assert(!opts.log);
     if (opts.shared) {
 	if (pmap->hasId(id)) {
@@ -187,6 +194,8 @@ bool *ParamRegImpl::registerBoolVar_(const char* id, const char* name, const cha
     }
     if (opts.output) {
 	p->setOutput(true);
+    }
+    if (opts.nosavable) {
 	p->setSavable(false);
     }
     if (tooltip && tooltip[0]) {

@@ -69,14 +69,7 @@ namespace gx_gui {
 
 class CpBase {
 public:
-    gx_engine::GxMachineBase& machine;
-    std::string id;
-    bool log_display;
-    bool blocked;
-    void on_cp_value_changed(Gxw::ControlParameter& c);
-    void set_cp_value(float v, Gxw::ControlParameter& c);
-public:
-    CpBase(gx_engine::GxMachineBase& machine, const std::string& id);
+    CpBase();
     ~CpBase();
     void init(Gxw::Regler& regler, bool show_value);
 };
@@ -86,7 +79,7 @@ protected:
     CpBase base;
     Gtk::Label m_label;
 public:
-    CpBaseCaption(gx_engine::GxMachineBase& machine, const std::string& id);
+    CpBaseCaption();
     ~CpBaseCaption();
     void init(Gxw::Regler& regler, bool show_value);
     void set_effect_label(const char *label);
@@ -99,7 +92,7 @@ protected:
     CpBase base;
     Gtk::Label m_label;
 public:
-    CpMasterCaption(gx_engine::GxMachineBase& machine, const std::string& id);
+    CpMasterCaption();
     ~CpMasterCaption();
     void init(Gxw::Regler& regler);
     void set_label(const char *label);
@@ -111,7 +104,7 @@ protected:
     Gtk::HBox h_box;
     Gtk::Label m_label;
 public:
-    CpBaseCaptionBoxed(gx_engine::GxMachineBase& machine, const std::string& id);
+    CpBaseCaptionBoxed();
     ~CpBaseCaptionBoxed();
     void init(Gxw::Regler& regler, bool show_value);
     void set_rack_label(const char *label);
@@ -123,8 +116,8 @@ class UiRegler: public T {
 protected:
     CpBase base;
 public:
-    UiRegler(gx_engine::GxMachineBase& machine, const std::string& id, bool show_value = true)
-	: T(), base(machine, id) { base.init(*this, show_value); }
+    UiRegler(bool show_value = true)
+	: T(), base() { base.init(*this, show_value); }
 };
 
 template <class T>
@@ -132,9 +125,8 @@ class UiReglerWithCaption: public CpBaseCaption {
 protected:
     T regler;
 public:
-    UiReglerWithCaption(gx_engine::GxMachineBase& machine, const std::string& id)
-	: CpBaseCaption(machine, id), regler() { init(regler, true); }
-    void set_label(const Glib::ustring& label);
+    UiReglerWithCaption()
+	: CpBaseCaption(), regler() { init(regler, true); }
     T *get_regler() { return &regler; }
 };
 
@@ -143,8 +135,8 @@ class UiMasterReglerWithCaption: public CpMasterCaption {
 protected:
     T regler;
 public:
-    UiMasterReglerWithCaption(gx_engine::GxMachineBase& machine, const std::string& id)
-	: CpMasterCaption(machine, id), regler() { init(regler); }
+    UiMasterReglerWithCaption()
+	: CpMasterCaption(), regler() { init(regler); }
     T *get_regler() { return &regler; }
 };
 
@@ -153,104 +145,26 @@ class UiDisplayWithCaption: public CpBaseCaptionBoxed {
 protected:
     T regler;
 public:
-    UiDisplayWithCaption(gx_engine::GxMachineBase& machine, const std::string& id)
-	: CpBaseCaptionBoxed(machine, id), regler() { init(regler, true); }
+    UiDisplayWithCaption()
+	: CpBaseCaptionBoxed(), regler() { init(regler, true); }
     T *get_regler() { return &regler; }
 };
 
 
 /****************************************************************/
 
-class CpSelectorBase {
-public:
-    gx_engine::GxMachineBase& machine;
-    const std::string id;
-public:
-    CpSelectorBase(Gxw::Selector& selector, gx_engine::GxMachineBase& machine, const std::string& id);
-};
-
-template <class T>
-class UiSelector: public Gxw::Selector {
-private:
-    CpSelectorBase base;
-    void set_selector_value(T v);
-    void on_value_changed();
-public:
-    UiSelector(gx_engine::GxMachineBase& machine, const std::string& id);
-    ~UiSelector();
-    void set_name(const Glib::ustring& n) { set_name(n); }
-};
-
-template <class T>
-UiSelector<T>::~UiSelector() {
-}
-
-template <class T>
 class UiSelectorWithCaption: public Gtk::VBox {
 private:
-    UiSelector<T> m_selector;
+    Gxw::Selector m_selector;
     Gtk::Label m_label;
 public:
-    UiSelectorWithCaption(gx_engine::GxMachineBase& machine, const std::string& id, const char *label);
-    ~UiSelectorWithCaption();
+    UiSelectorWithCaption(const char *label);
     void set_name(const Glib::ustring& n) { m_selector.set_name(n); }
     void set_rack_label_inverse() {m_label.set_name("rack_label_inverse"); }
-};
-
-template <class T>
-UiSelectorWithCaption<T>::UiSelectorWithCaption(gx_engine::GxMachineBase& machine, const std::string& id, const char *label)
-    : Gtk::VBox(), m_selector(machine, id), m_label() {
-    if (label) {
-	m_label.set_text(label);
-    } else {
-	m_label.set_text(machine.get_parameter(id).l_name());
-    }
-    m_label.set_name("rack_label");
-    m_label.set_justify(Gtk::JUSTIFY_CENTER);
-    Gtk::VBox::set_name(id);
-    pack_start(m_label, Gtk::PACK_SHRINK);
-    pack_start(m_selector, Gtk::PACK_EXPAND_PADDING);
-    set_accessible(m_selector, m_label);
-    show_all();
-}
-
-template <class T>
-UiSelectorWithCaption<T>::~UiSelectorWithCaption() {
-}
-
-/****************************************************************/
-
-struct uiAdjustment: public uiElement {
-    gx_engine::GxMachineBase& machine;
-    const std::string id;
-    Glib::RefPtr<Gtk::Adjustment> fAdj;
-    bool blocked;
-    uiAdjustment(gx_engine::GxMachineBase& machine_, const std::string& id_, const Glib::RefPtr<Gtk::Adjustment>& adj)
-	: uiElement(), machine(machine_), id(id_), fAdj(adj), blocked(false) {
-	fAdj->set_value(machine.get_parameter_value<float>(id));
-	machine.signal_parameter_value<float>(id).connect(sigc::mem_fun(this, &uiAdjustment::on_parameter_changed));
-    }
-    void changed() {
-	if (!blocked) {
-	    machine.set_parameter_value(id, fAdj->get_value());
-	}
-    }
-    void on_parameter_changed(float v) {
-	blocked = true;
-	fAdj->set_value(v);
-	blocked = false;
-    }
+    Gxw::Selector *get_selector() { return &m_selector; }
 };
 
 /****************************************************************/
-
-extern const char *pb_gx_rack_amp_expose;
-extern const char *pb_rectangle_skin_color_expose;
-extern const char *pb_zac_expose;
-extern const char *pb_gxhead_expose;
-extern const char *pb_RackBox_expose;
-extern const char *pb_gxrack_expose;
-extern const char *pb_level_meter_expose;
 
 bool button_press_cb(GdkEventButton *event, gx_engine::GxMachineBase& machine, const std::string& id);
 int precision(double n);

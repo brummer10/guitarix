@@ -48,27 +48,6 @@ GxPaintBox::~GxPaintBox() {}
 
 /****************************************************************/
 
-GxEventBox::GxEventBox():
-    Gtk::HBox(),
-    m_hbox(),
-    m_pbox(),
-    m_tbox(),
-    m_eventbox(),
-    m_fbox(),
-    m_fixedbox(),
-    m_label() {
-    m_eventbox.add(m_hbox);
-    m_fixedbox.add(m_eventbox);
-    add(m_pbox);
-    pack_start(m_fbox, false, false);
-    m_fbox.pack_start(m_fixedbox, false, false);
-    add(m_tbox);
-}
-
-GxEventBox::~GxEventBox() {}
-
-/****************************************************************/
-
 GxNotebookBox::GxNotebookBox() {
     get_style_context()->add_class("tab_rack");
 }

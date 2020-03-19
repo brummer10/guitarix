@@ -110,7 +110,13 @@ bool UiBuilderImpl::load_unit(PluginDef *pd) {
     }
     intf->prepare();
     plugin = pd;
-    pd->load_ui(*this, UI_FORM_GLADE|UI_FORM_STACK);
+    int form = UI_FORM_GLADE|UI_FORM_STACK;
+#ifndef NDEBUG
+    if (getenv("GUITARIX_FORM_STACK")) {
+        form = UI_FORM_STACK;
+    }
+#endif
+    pd->load_ui(*this, form);
     return true;
 }
 
@@ -155,8 +161,7 @@ void UiBuilderImpl::openpaintampBox_(const char* label) {
 }
 
 void UiBuilderImpl::insertSpacer_() {
-    intf->openSpaceBox("");
-    intf->closeBox();
+    intf->insertSpacer();
 }
 
 void UiBuilderImpl::set_next_flags_(int flags) {
@@ -379,43 +384,160 @@ GObject* GxBuilder::get_cobject(const Glib::ustring& name)
 	g_critical("gtkmm: object `%s' not found in GtkBuilder file.", name.c_str());
 	return 0;
     }
-
-#if 0
-    if (!GTK_IS_WIDGET(cobject))  {
-	g_critical("gtkmm: object `%s' (type=`%s') (in GtkBuilder file) is not a widget type.",
-		   name.c_str(), G_OBJECT_TYPE_NAME(cobject));
-	/* TODO: Unref/sink it? */
-	return 0;
-    }
-#endif
-
-  return cobject;
+    return cobject;
 }
 
 /*
  ** GxBuilder::fixup_controlparameters + helper classes
  */
 
-template <class T>
-class uiSelector: public uiElement {
+gx_engine::Parameter *check_get_parameter(
+    gx_engine::GxMachineBase& machine, const std::string& id, Gtk::Widget *w) {
+    if (!machine.parameter_hasId(id)) {
+        if (w) {
+            w->set_sensitive(0);
+            w->set_tooltip_text(id); // always shown
+        }
+        gx_print_warning(
+            "load dialog",
+            (boost::format("Parameter variable %1% not found") % id).str());
+        return nullptr;
+    }
+    return &machine.get_parameter(id);
+}
+
+gx_engine::FloatParameter *check_get_float_parameter(
+    gx_engine::GxMachineBase& machine, const std::string& id, Gtk::Widget *w) {
+    gx_engine::Parameter *p = check_get_parameter(machine, id, w);
+    if (p) {
+        if (p->isFloat()) {
+            return &machine.get_parameter(id).getFloat();
+        }
+        gx_print_error(
+            "load dialog",
+            Glib::ustring::compose(
+                "Continuous Parameter variable %1: type not handled", id));
+    }
+    return nullptr;
+}
+
+/**
+ * uiElement: base class for adding signal connections to
+ * sigc::trackable derived objects
+ *
+ * uiElement derived class instances must be allocated with new() and
+ * will be deleted when the destructor of the sigc::trackable object
+ * is called. This removes all signal connections to member functions
+ * of the derived class instance (by uiElement itself being a
+ * sigc::trackable).
+ */
+class uiElement: public sigc::trackable {
+private:
+    static void *destroy(void *p);
+protected:
+    uiElement(sigc::trackable *obj) { obj->add_destroy_notify_callback(this, destroy); }
+    virtual ~uiElement() {}
+};
+
+//static
+void *uiElement::destroy(void *p) {
+    delete static_cast<uiElement*>(p);
+    return nullptr;
+}
+
+/**
+ * uiConnector: abstract base class
+ *
+ * does midi controller connection and output variable activation
+ *
+ * derived classes do signal connections to parameter variables
+ */
+class uiConnector: public uiElement {
 protected:
     gx_engine::GxMachineBase& machine;
     const std::string id;
+    void activate_output(bool state, Gtk::Widget *w);
+    void activate_enable_output(bool state, Gtk::Widget *w);
+    uiConnector(gx_engine::GxMachineBase& machine_, const gx_engine::Parameter& p,
+                Gtk::Widget *w, sigc::signal<void(bool)> *out_ctr, bool disable);
+};
+
+uiConnector::uiConnector(gx_engine::GxMachineBase& machine_, const gx_engine::Parameter& p,
+                         Gtk::Widget *w, sigc::signal<void(bool)> *out_ctr, bool disable)
+    : uiElement(w), machine(machine_), id(p.id()) {
+    if (p.isControllable()) {
+        connect_midi_controller(w, id, machine);
+    }
+    if (p.isOutput()) {
+        if (out_ctr) {
+            if (disable) {
+                out_ctr->connect(
+                    sigc::bind(
+                        sigc::mem_fun(this, &uiConnector::activate_enable_output),
+                        w));
+            } else {
+                out_ctr->connect(
+                    sigc::bind(
+                        sigc::mem_fun(this, &uiConnector::activate_output),
+                        w));
+            }
+        }
+    }
+}
+
+void uiConnector::activate_output(bool state, Gtk::Widget *w) {
+    machine.set_update_parameter(w, id, state);
+}
+
+void uiConnector::activate_enable_output(bool state, Gtk::Widget *w) {
+    machine.set_update_parameter(w, id, state);
+    w->set_sensitive(state);
+}
+
+/**
+ * uiSelector: signal connections for Gxw::Selector widgets
+ */
+template <class T>
+class uiSelector: public uiConnector {
+protected:
     Gtk::Range *rng;
     void on_value_changed();
     void set_value(T v);
+    uiSelector(gx_engine::GxMachineBase& machine, Gtk::Range *rng, const gx_engine::Parameter& p,
+               sigc::signal<void(bool)> *out_ctr, bool disable);
 public:
-    uiSelector(gx_engine::GxMachineBase& machine, Gtk::Range *rng, const std::string& id);
+    static uiSelector *create(
+        gx_engine::GxMachineBase& machine, Gtk::Range *rng, const gx_engine::Parameter& p,
+        sigc::signal<void(bool)> *out_ctr, bool disable) {
+        return new uiSelector(machine, rng, p, out_ctr, disable);
+    }
+    static uiSelector *create(
+        gx_engine::GxMachineBase& machine, Gtk::Range *rng, const std::string& id,
+        sigc::signal<void(bool)> *out_ctr, bool disable);
 };
 
 template <class T>
-uiSelector<T>::uiSelector(gx_engine::GxMachineBase& machine_, Gtk::Range *rng_, const std::string& id_)
-    : uiElement(), machine(machine_), id(id_), rng(rng_) {
+uiSelector<T>::uiSelector(gx_engine::GxMachineBase& machine_, Gtk::Range *rng_,
+                          const gx_engine::Parameter& p, sigc::signal<void(bool)> *out_ctr,
+                          bool disable)
+    : uiConnector(machine_, p, rng_, out_ctr, disable), rng(rng_) {
     set_value(machine.get_parameter_value<T>(id));
     rng->signal_value_changed().connect(
 	sigc::mem_fun(*this, &uiSelector::on_value_changed));
     machine.signal_parameter_value<T>(id).connect(
 	sigc::mem_fun(this, &uiSelector::set_value));
+}
+
+//static
+template <class T>
+uiSelector<T> *uiSelector<T>::create(
+    gx_engine::GxMachineBase& machine_, Gtk::Range *rng_, const std::string& id_,
+    sigc::signal<void(bool)> *out_ctr, bool disable) {
+    auto p = check_get_parameter(machine_, id_, rng_);
+    if (!p) {
+        return nullptr;
+    }
+    return new uiSelector<T>(machine_, rng_, p, out_ctr, disable);
 }
 
 template <class T>
@@ -428,113 +550,167 @@ void uiSelector<T>::on_value_changed() {
     machine.set_parameter_value(id, static_cast<T>(rng->get_value()));
 }
 
-class uiController: public uiElement {
+/**
+ * uiToggle: signal connections for Gxw::Switch and Gtk::ToggleButton widgets
+ */
+template<class T>
+class uiToggle: public uiConnector {
 protected:
-    gx_engine::GxMachineBase& machine;
-    const std::string id;
-    Glib::RefPtr<Gxw::ControlParameter> elem;
+    Gtk::ToggleButton* button;
+    void on_button_toggled();
+    void on_parameter_changed(T v);
+    uiToggle(gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b,
+             const gx_engine::Parameter& p, sigc::signal<void(bool)> *out_ctr, bool disable);
 public:
-    uiController(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gxw::ControlParameter>& elem, const std::string& id);
-    void activate_output(bool state);
+    static uiToggle *create(gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b,
+                            const gx_engine::Parameter& p, sigc::signal<void(bool)> *out_ctr,
+                            bool disable) {
+        return new uiToggle(machine, b, p, out_ctr, disable);
+    }
+    static uiToggle *create(gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b,
+                            const string& id, sigc::signal<void(bool)> *out_ctr, bool disable);
 };
 
-uiController::uiController(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gxw::ControlParameter>& elem_, const std::string& id_)
-    : uiElement(), machine(machine_), id(id_), elem(elem_) {
+template<class T>
+uiToggle<T>::uiToggle(gx_engine::GxMachineBase& machine_, Gtk::ToggleButton *b,
+                      const gx_engine::Parameter& p, sigc::signal<void(bool)> *out_ctr, bool disable)
+    : uiConnector(machine_, p, b, out_ctr, disable), button(b) {
+    button->set_active(machine.get_parameter_value<T>(id));
+    button->signal_toggled().connect(sigc::mem_fun(this, &uiToggle<T>::on_button_toggled));
+    machine.signal_parameter_value<T>(id).connect(
+        sigc::mem_fun(this, &uiToggle<T>::on_parameter_changed));
+}
+
+//static
+template<class T>
+uiToggle<T> *create(gx_engine::GxMachineBase& machine_, Gtk::ToggleButton *b,
+                    const string& id_, sigc::signal<void(bool)> *out_ctr, bool disable) {
+    auto p = check_get_parameter(machine_, id_, b);
+    if (!p) {
+        return nullptr;
+    }
+    return new uiToggle<T>(machine_, b, p, out_ctr, disable);
+}
+
+template<>
+inline void uiToggle<float>::on_button_toggled() {
+    machine.set_parameter_value(id, static_cast<float>(button->get_active()));
+}
+
+template<>
+inline void uiToggle<bool>::on_button_toggled() {
+    machine.set_parameter_value(id, button->get_active());
+}
+
+template<>
+inline void uiToggle<float>::on_parameter_changed(float v) {
+    button->set_active(v != 0.0);
+}
+
+template<>
+inline void uiToggle<bool>::on_parameter_changed(bool v) {
+    button->set_active(v);
+}
+
+/**
+ * uiController: signal connections for output widgets (Gxw::Fastmeter, Gxw::PortDisplay)
+ */
+class uiController: public uiConnector {
+protected:
+    Gxw::ControlParameter *elem;
+    uiController(gx_engine::GxMachineBase& machine, const gx_engine::FloatParameter& p,
+                 Gtk::Widget *w, sigc::signal<void(bool)> *out_ctr, bool disable);
+public:
+    static uiController *create(
+        gx_engine::GxMachineBase& machine, const gx_engine::FloatParameter& p,
+        Gtk::Widget *w, sigc::signal<void(bool)> *out_ctr, bool disable) {
+        return new uiController(machine, p, w, out_ctr, disable);
+    }
+    static uiController *create(
+        gx_engine::GxMachineBase& machine, const std::string& id,
+        Gtk::Widget *w, sigc::signal<void(bool)> *out_ctr, bool disable);
+};
+
+uiController::uiController(gx_engine::GxMachineBase& machine_, const gx_engine::FloatParameter& p,
+                           Gtk::Widget *w, sigc::signal<void(bool)> *out_ctr, bool disable)
+    : uiConnector(machine_, p, w, out_ctr, disable),
+      elem(dynamic_cast<Gxw::ControlParameter*>(w)) {
+    elem->cp_configure(p.l_group(), p.l_name(), p.getLowerAsFloat(),
+                       p.getUpperAsFloat(), p.is_log_display());
     elem->cp_set_value(machine.get_parameter_value<float>(id));
     machine.signal_parameter_value<float>(id).connect(
-	sigc::mem_fun(elem.operator->(), &Gxw::ControlParameter::cp_set_value));
+	sigc::mem_fun(elem, &Gxw::ControlParameter::cp_set_value));
 }
 
-void uiController::activate_output(bool state) {
-    Gtk::Widget *w = dynamic_cast<Gtk::Widget*>(elem.get());
-    machine.set_update_parameter(w, elem->cp_get_var(), state);
-    w->set_sensitive(state);
+//static
+uiController *uiController::create(
+    gx_engine::GxMachineBase& machine_, const std::string& id_,
+    Gtk::Widget *w, sigc::signal<void(bool)> *out_ctr, bool disable) {
+    gx_engine::FloatParameter *p = check_get_float_parameter(machine_, id_, w);
+    if (!p) {
+        return nullptr;
+    }
+    return new uiController(machine_, *p, w, out_ctr, disable);
 }
 
-static void widget_destroyed(gpointer data) {
-    delete static_cast<uiElement*>(data);
-}
-
-static void destroy_with_widget(Glib::Object *t, uiElement *p) {
-    t->set_data("uiElement", p, widget_destroyed);
-}
-
-static void make_output_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p, sigc::signal<void(bool)> *out_ctr) {
-    if (!p.isFloat()) {
-	gx_print_warning(
-	    "load dialog",
-	    Glib::ustring::compose("Output Parameter variable %1: type not handled", p.id()));
-	return;
+/**
+ * uiAdjustment: signal connections to Gxw::Regler derived widgets
+ */
+class uiAdjustment: public uiConnector {
+private:
+    Gtk::Adjustment *adj;
+    bool log;
+    bool blocked;
+private:
+    void changed();
+    void on_parameter_changed(float v);
+protected:
+    uiAdjustment(gx_engine::GxMachineBase& machine_, const gx_engine::FloatParameter& p,
+                 Gxw::Regler *regler, sigc::signal<void(bool)> *out_ctr, bool disable);
+public:
+    static uiAdjustment *create(
+        gx_engine::GxMachineBase& machine_, const gx_engine::FloatParameter& p,
+        Gxw::Regler *regler, sigc::signal<void(bool)> *out_ctr, bool disable) {
+        return new uiAdjustment(machine_, p, regler, out_ctr, disable);
     }
-    gx_engine::FloatParameter &fp = p.getFloat();
-    w->cp_configure(p.l_group(), p.l_name(), fp.getLowerAsFloat(), fp.getUpperAsFloat(), fp.is_log_display());
-    w->cp_set_value(machine.get_parameter_value<float>(p.id()));
-    uiController *ctr = new uiController(machine, w, p.id());
-    destroy_with_widget(dynamic_cast<Glib::Object*>(w.operator->()), ctr);
-    if (out_ctr) {
-	out_ctr->connect(sigc::mem_fun(ctr, &uiController::activate_output));
-    } else {
-	machine.set_update_parameter(w.get(), p.id());
-    }
-}
-
-static void make_switch_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p, sigc::signal<void(bool)> *out_ctr) {
-    w->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
-    Gtk::ToggleButton *t = dynamic_cast<Gtk::ToggleButton*>(w.operator->());
-    if (p.isFloat()) {
-	w->cp_set_value(machine.get_parameter_value<float>(p.id()));
-	if (t) {
-	    destroy_with_widget(t, new uiToggle<float>(machine, t, p.id()));
-	}
-    } else if (p.isBool()) {
-	w->cp_set_value(machine.get_parameter_value<bool>(p.id()));
-	if (t) {
-	    destroy_with_widget(t, new uiToggle<bool>(machine, t, p.id()));
-	}
-    } else {
-	gx_print_warning(
-	    "load dialog",
-	    Glib::ustring::compose("Switch Parameter variable %1: type not handled", p.id()));
-    }
-}
-
-struct uiAdjustmentLog: public uiElement {
-    gx_engine::GxMachineBase& machine;
-    const std::string id;
-    Glib::RefPtr<Gtk::Adjustment> fAdj;
-    uiAdjustmentLog(gx_engine::GxMachineBase& machine_, const std::string& id_, Glib::RefPtr<Gtk::Adjustment> adj) :
-	uiElement(), machine(machine_), id(id_), fAdj(adj) {
-	fAdj->set_value(log10(machine.get_parameter_value<float>(id)));
-	machine.signal_parameter_value<float>(id).connect(sigc::mem_fun(this, &uiAdjustmentLog::on_parameter_changed));
-    }
-    void changed() {
-	machine.set_parameter_value(id, pow(10.0,fAdj->get_value()));
-    }
-    void on_parameter_changed(float v) {
-	fAdj->set_value(log10(v));
-    }
+    static uiAdjustment *create(
+        gx_engine::GxMachineBase& machine_, const std::string& id,
+        Gxw::Regler *regler, sigc::signal<void(bool)> *out_ctr, bool disable);
 };
 
-static void make_continuous_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p, sigc::signal<void(bool)> *out_ctr) {
-    Glib::RefPtr<Gxw::Regler> r = Glib::RefPtr<Gxw::Regler>::cast_dynamic(w);
-    if (!r) {
-	make_switch_controller(machine, w, p, out_ctr);
-	return;
+void uiAdjustment::changed() {
+    if (!blocked) {
+        float v = adj->get_value();
+        if (log) {
+            v = pow(10.0, v);
+        }
+        machine.set_parameter_value(id, v);
     }
-    if (!p.isFloat()) {
-	gx_print_warning(
-	    "load dialog",
-	    Glib::ustring::compose("Continuous Parameter variable %1: type not handled", p.id()));
-	return;
+}
+
+void uiAdjustment::on_parameter_changed(float v) {
+    blocked = true;
+    if (log) {
+        v = log10(v);
     }
-    Glib::RefPtr<Gtk::Adjustment> adj = r->get_adjustment();
-    gx_engine::FloatParameter &fp = p.getFloat();
-    if (fp.is_log_display()) {
-	double up = log10(fp.getUpperAsFloat());
-	double step = log10(fp.getStepAsFloat());
-	w->cp_configure(fp.l_group(), fp.l_name(), log10(fp.getLowerAsFloat()), up, step);
+    adj->set_value(v);
+    blocked = false;
+}
+
+uiAdjustment::uiAdjustment(gx_engine::GxMachineBase& machine_, const gx_engine::FloatParameter& p,
+                           Gxw::Regler *regler, sigc::signal<void(bool)> *out_ctr,
+                           bool disable)
+    : uiConnector(machine_, p, regler, out_ctr, disable), adj(regler->get_adjustment().get()),
+      log(false), blocked(false) {
+    log = p.is_log_display();
+    float v = machine.get_parameter_value<float>(id);
+    if (log) {
+        v = log10(v);
+	double up = log10(p.getUpperAsFloat());
+	double step = log10(p.getStepAsFloat());
+	regler->cp_configure(p.l_group(), p.l_name(), log10(p.getLowerAsFloat()), up, step);
 	int prec = 0;
-	float d = log10((fp.getStepAsFloat()-1)*fp.getUpperAsFloat());
+	float d = log10((p.getStepAsFloat()-1)*p.getUpperAsFloat());
 	if (up > 0) {
 	    prec = up;
 	    if (d < 0) {
@@ -543,29 +719,127 @@ static void make_continuous_controller(gx_engine::GxMachineBase& machine, Glib::
 	} else if (d < 0) {
 	    prec = -floor(d);
 	}
-	r->signal_format_value().connect(
+	regler->signal_format_value().connect(
 	    sigc::bind(
 		sigc::ptr_fun(logarithmic_format_value),
 		prec));
-	r->signal_input_value().connect(
+	regler->signal_input_value().connect(
 	    sigc::ptr_fun(logarithmic_input_value));
-	w->cp_set_value(log10(machine.get_parameter_value<float>(p.id())));
-	uiAdjustmentLog* c = new uiAdjustmentLog(machine, p.id(), adj);
-	adj->signal_value_changed().connect(sigc::mem_fun(c, &uiAdjustmentLog::changed));
-	destroy_with_widget(r.operator->(), c);
+	regler->cp_set_value(log10(machine.get_parameter_value<float>(id)));
     } else {
-	w->cp_configure(p.l_group(), p.l_name(), fp.getLowerAsFloat(), fp.getUpperAsFloat(), fp.getStepAsFloat());
-	w->cp_set_value(machine.get_parameter_value<float>(p.id()));
-	uiAdjustment* c = new uiAdjustment(machine, p.id(), adj);
-	adj->signal_value_changed().connect(
-	    sigc::mem_fun(c, &uiAdjustment::changed));
-	destroy_with_widget(r.operator->(), c);
+	regler->cp_configure(p.l_group(), p.l_name(), p.getLowerAsFloat(),
+                          p.getUpperAsFloat(), p.getStepAsFloat());
+	regler->cp_set_value(machine.get_parameter_value<float>(id));
+    }
+    adj->set_value(v);
+    machine.signal_parameter_value<float>(id).connect(
+        sigc::mem_fun(this, &uiAdjustment::on_parameter_changed));
+    adj->signal_value_changed().connect(
+        sigc::mem_fun(this, &uiAdjustment::changed));
+}
+
+//static
+uiAdjustment *uiAdjustment::create(
+    gx_engine::GxMachineBase& machine_, const std::string& id_, Gxw::Regler *regler,
+    sigc::signal<void(bool)> *out_ctr, bool disable) {
+    gx_engine::FloatParameter *p = check_get_float_parameter(machine_, id_, regler);
+    if (!p) {
+        return nullptr;
+    }
+    return new uiAdjustment(machine_, *p, regler, out_ctr, disable);
+}
+
+void ui_connect_switch(
+    gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b,
+    const gx_engine::Parameter& p, sigc::signal<void(bool)> *out_ctr, bool disable) {
+    auto cp = dynamic_cast<Gxw::ControlParameter*>(b);
+    if (cp) {
+        cp->cp_configure(p.l_group(), p.l_name(), 0, 0, 0);
+    }
+    if (p.isFloat()) {
+	b->set_active(machine.get_parameter_value<float>(p.id()));
+        uiToggle<float>::create(machine, b, p, out_ctr, false);
+    } else if (p.isBool()) {
+	b->set_active(machine.get_parameter_value<bool>(p.id()));
+        uiToggle<bool>::create(machine, b, p, out_ctr, false);
+    } else {
+	gx_print_error(
+	    "load dialog",
+	    Glib::ustring::compose("Switch Parameter variable %1: type not handled", p.id()));
     }
 }
 
-static void make_enum_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gxw::ControlParameter>& w, gx_engine::Parameter& p, sigc::signal<void(bool)> *out_ctr) {
-    Gxw::Selector *t = dynamic_cast<Gxw::Selector*>(w.operator->());
+/**
+ * parameter signal connections for Gxw::Switch and Gtk::ToggleButton
+ */
+bool ui_connect_switch(
+    gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b,
+    const std::string& id, sigc::signal<void(bool)> *out_ctr, bool disable) {
+    gx_engine::Parameter *p = check_get_parameter(machine, id, b);
+    if (!p) {
+        return false;
+    }
+    ui_connect_switch(machine, b, *p, out_ctr, disable);
+    return true;
+}
+
+static void make_switch_controller(gx_engine::GxMachineBase& machine,
+                                   Gtk::Widget *w,
+                                   const gx_engine::Parameter& p,
+                                   sigc::signal<void(bool)> *out_ctr) {
+    Gtk::ToggleButton *t = dynamic_cast<Gtk::ToggleButton*>(w);
     if (!t) {
+	gx_print_error(
+	    "load dialog",
+	    Glib::ustring::compose(
+                "Switch Parameter variable %1: Widget must be ToggleButton based", p.id()));
+        return;
+    }
+    ui_connect_switch(machine, t, p, out_ctr, false);
+}
+
+static void make_continuous_controller(gx_engine::GxMachineBase& machine,
+                                       Gtk::Widget* w,
+                                       gx_engine::Parameter& p,
+                                       sigc::signal<void(bool)> *out_ctr) {
+    std::string var_id = p.id();
+    if (!p.isFloat()) {
+        // show error message
+        check_get_float_parameter(machine, var_id, w);
+	return;
+    }
+    gx_engine::FloatParameter &fp = p.getFloat();
+    if (dynamic_cast<Gxw::FastMeter*>(w) || dynamic_cast<Gxw::PortDisplay*>(w)) {
+        if (!p.isOutput()) {
+            gx_print_error(
+                "load dialog",
+                Glib::ustring::compose(
+                    "Parameter variable %1: no output (register with o or O)", var_id));
+            return;
+        }
+        uiController::create(machine, fp, w, out_ctr, true);
+        return;
+    }
+    Gxw::Regler* r = dynamic_cast<Gxw::Regler*>(w);
+    if (!r) {
+	gx_print_error(
+	    "load dialog",
+	    Glib::ustring::compose(
+                "Continuous Parameter variable %1: Widget must be Regler based", var_id));
+	return;
+    }
+    uiAdjustment::create(machine, fp, r, out_ctr, false);
+}
+
+static void make_enum_controller(gx_engine::GxMachineBase& machine,
+                                 Gtk::Widget *w,
+                                 gx_engine::Parameter& p,
+                                 sigc::signal<void(bool)> *out_ctr) {
+    Gxw::Selector *t = dynamic_cast<Gxw::Selector*>(w);
+    if (!t) {
+	gx_print_warning(
+	    "load dialog",
+	    Glib::ustring::compose("Enum Parameter variable %1: no Selector widget", p.id()));
 	make_continuous_controller(machine, w, p, out_ctr);
 	return;
     }
@@ -577,15 +851,13 @@ static void make_enum_controller(gx_engine::GxMachineBase& machine, Glib::RefPtr
 	ls->append()->set_value(0, Glib::ustring(p.value_label(*vp)));
     }
     t->set_model(ls);
-    w->cp_configure(p.l_group(), p.l_name(), p.getLowerAsFloat(), p.getUpperAsFloat(), 1.0);
+    t->cp_configure(p.l_group(), p.l_name(), p.getLowerAsFloat(), p.getUpperAsFloat(), 1.0);
     if (p.isInt()) {
-	destroy_with_widget(t, new uiSelector<int>(machine, t, p.id()));
-	t->cp_set_value(machine.get_parameter_value<int>(p.id()));
+	uiSelector<int>::create(machine, t, p, out_ctr, false);
     } else if (p.isFloat()) {
-	destroy_with_widget(t, new uiSelector<float>(machine, t, p.id()));
-	t->cp_set_value(machine.get_parameter_value<float>(p.id()));
+	uiSelector<float>::create(machine, t, p, out_ctr, false);
     } else {
-	gx_print_warning(
+	gx_print_error(
 	    "load dialog",
 	    Glib::ustring::compose("Enum Parameter variable %1: type not handled", p.id()));
     }
@@ -609,7 +881,56 @@ void GxBuilder::set_tooltip_text_connect_handler(GtkWidget *widget, const char *
     connect_gx_tooltip_handler(widget);
 }
 
-void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine, sigc::signal<void(bool)> *out_ctr) {
+/**
+ * connect a widget w to the parameter id.
+ */
+bool ui_connect(gx_engine::GxMachineBase& machine, Gtk::Widget *w, const std::string& id,
+                sigc::signal<void(bool)> *out_ctr) {
+    auto wname = w->get_name();
+    if (wname.empty() || wname.substr(0,7) == "gtkmm__") {
+        string id_css = id;
+        boost::replace_all(id_css, ".", "-");
+        w->set_name(id_css);
+    }
+    gx_engine::Parameter *p = check_get_parameter(machine, id, w);
+    if (!p) {
+        return false;
+    }
+    if (!p->desc().empty()) {
+        GxBuilder::set_tooltip_text_connect_handler(*w, p->l_desc());
+    }
+    auto acc = w->get_accessible();
+    if (acc->get_description().empty()) {
+        acc->set_description(id);
+    }
+    if (acc->get_name().empty()) {
+        Glib::ustring nm = p->l_name();
+        if (nm.empty()) {
+            nm = id.substr(id.find_last_of(".")+1);
+        }
+        acc->set_name(nm);
+    }
+    switch (p->getControlType()) {
+    case gx_engine::Parameter::Continuous:
+        make_continuous_controller(machine, w, *p, out_ctr);
+        break;
+    case gx_engine::Parameter::Switch:
+        make_switch_controller(machine, w, *p, out_ctr);
+        break;
+    case gx_engine::Parameter::Enum:
+        make_enum_controller(machine, w, *p, out_ctr);
+        break;
+    default:
+	gx_print_error(
+	    "load dialog",
+	    Glib::ustring::compose("Parameter variable %1: type not handled", p->id()));
+        break;
+    }
+    return true;
+}
+
+void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine,
+                                        sigc::signal<void(bool)> *out_ctr) {
     Glib::SListHandle<GObject*> objs = Glib::SListHandle<GObject*>(
         gtk_builder_get_objects(gobj()), Glib::OWNERSHIP_DEEP);
     for (Glib::SListHandle<GObject*>::iterator i = objs.begin(); i != objs.end(); ++i) {
@@ -629,48 +950,13 @@ void GxBuilder::fixup_controlparameters(gx_engine::GxMachineBase& machine, sigc:
         if (!g_type_is_a(G_OBJECT_TYPE(*i), GX_TYPE_CONTROL_PARAMETER)) {
             continue;
         }
-        Glib::RefPtr<Gxw::ControlParameter> w = Glib::wrap(GX_CONTROL_PARAMETER(*i), true);
-        Glib::ustring v = w->cp_get_var();
+        assert(widget);
+        auto w = Glib::wrap(widget);
+        std::string v = dynamic_cast<Gxw::ControlParameter*>(w)->cp_get_var();
         if (v.empty()) {
             continue;
         }
-	if (!wname) {
-	    wname = gtk_widget_get_name(widget);
-	}
-	if (!wname || !wname[0]) {
-	    string v_css = v;
-	    boost::replace_all(v_css, ".", "-");
-	    Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_name(v_css);
-	}
-        if (!machine.parameter_hasId(v)) {
-	    Glib::RefPtr<Gtk::Widget> wd = Glib::RefPtr<Gtk::Widget>::cast_dynamic(w);
-	    wd->set_sensitive(0);
-            wd->set_tooltip_text(v); // always shown
-            gx_print_warning(
-		"load dialog",
-		(boost::format("Parameter variable %1% not found") % v).str());
-            continue;
-        }
-        gx_engine::Parameter& p = machine.get_parameter(v);
-        if (!p.desc().empty()) {
-            Glib::RefPtr<Gtk::Widget>::cast_dynamic(w)->set_tooltip_text(
-		gettext(p.desc().c_str()));
-	    connect_gx_tooltip_handler(widget);
-        }
-	if (p.isOutput() || Glib::RefPtr<Gxw::FastMeter>::cast_dynamic(w)) {
-	    make_output_controller(machine, w, p, out_ctr);
-	} else {
-	    switch (p.getControlType()) {
-	    case gx_engine::Parameter::None:       assert(false); break;
-	    case gx_engine::Parameter::Continuous: make_continuous_controller(machine, w, p, out_ctr); break;
-	    case gx_engine::Parameter::Switch:     make_switch_controller(machine, w, p, out_ctr); break;
-	    case gx_engine::Parameter::Enum:       make_enum_controller(machine, w, p, out_ctr); break;
-	    default:         assert(false); break;
-	    }
-	}
-	if (p.isControllable()) {
-	    connect_midi_controller(Glib::RefPtr<Gtk::Widget>::cast_dynamic(w).operator->(), v.c_str(), machine);
-	}
+        ui_connect(machine, w, v, out_ctr);
     }
 }
 

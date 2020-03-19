@@ -26,81 +26,47 @@
 #define SRC_HEADERS_GX_UI_BUILDER_H_
 
 #include <gxwmm/controlparameter.h>
+#include <gxwmm/regler.h>
 
 class PluginUI;
 class PluginDict;
 
 namespace gx_gui {
 
-class uiElement {
-public:
-    virtual ~uiElement() {}
-};
+gx_engine::Parameter *check_get_parameter(
+    gx_engine::GxMachineBase& machine, const std::string& id, Gtk::Widget *w);
 
-template<class T>
-class uiToggle: public uiElement {
-protected:
-    gx_engine::GxMachineBase& machine;
-    const std::string id;
-    Gtk::ToggleButton* button;
-    void on_button_toggled();
-    void on_parameter_changed(T v);
-public:
-    uiToggle(gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b, const std::string& id);
-};
+gx_engine::FloatParameter *check_get_float_parameter(
+    gx_engine::GxMachineBase& machine, const std::string& id, Gtk::Widget *w);
 
-template<class T>
-uiToggle<T>::uiToggle(gx_engine::GxMachineBase& machine_, Gtk::ToggleButton *b, const std::string& id_)
-    : uiElement(), machine(machine_), id(id_), button(b) {
-    if (!machine.parameter_hasId(id)) {
-	return;
-    }
-    button->set_active(machine.get_parameter_value<T>(id));
-    button->signal_toggled().connect(sigc::mem_fun(this, &uiToggle<T>::on_button_toggled));
-    machine.signal_parameter_value<T>(id).connect(sigc::mem_fun(this, &uiToggle<T>::on_parameter_changed));
-}
+bool ui_connect_switch(
+    gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b,
+    const string& id, sigc::signal<void(bool)> *out_ctr, bool disable);
 
-template<>
-inline void uiToggle<float>::on_button_toggled() {
-    machine.set_parameter_value(id, static_cast<float>(button->get_active()));
-}
+bool ui_connect(gx_engine::GxMachineBase& machine, Gtk::Widget *w, const std::string& id,
+                sigc::signal<void(bool)> *out_ctr);
 
-template<>
-inline void uiToggle<bool>::on_button_toggled() {
-    machine.set_parameter_value(id, button->get_active());
-}
-
-template<>
-inline void uiToggle<float>::on_parameter_changed(float v) {
-    button->set_active(v != 0.0);
-}
-
-template<>
-inline void uiToggle<bool>::on_parameter_changed(bool v) {
-    button->set_active(v);
-}
-
-/****************************************************************
- ** class GxBuilder
- **
- ** Attempts to correct the mismatch between GtkBuilder and
- ** Gtk::Builder wrt. reference counting.
- **
- ** Use get_toplevel or get_toplevel_derived to become the owner of a
- ** toplevel widget of the loaded builder widget tree (specifying
- ** object id's for the loader means that only part of the defined
- ** widget tree is loaded). These pointers must be delete'd to destroy
- ** the widget (and its child widgets). If you loaded a window
- ** (GtkWindow or derived) you must use one of the get_toplevel
- ** functions and delete the instance to avoid a memory leak.
- **
- ** Use find_widget for getting a pointer to a widget (but you don't
- ** become owner of that widget, don't use delete). If you want to add
- ** the loaded widget tree to a container, use this function (the
- ** container will ref the widget and manage its lifetime).
- **
- ** template function code mostly copied from Gtk::Builder, look
- ** there for comments.
+/**************************************************************//**
+ * class GxBuilder
+ *
+ * Attempts to correct the mismatch between GtkBuilder and
+ * Gtk::Builder wrt. reference counting.
+ *
+ * Use get_toplevel or get_toplevel_derived to become the owner of a
+ * toplevel widget of the loaded builder widget tree (specifying
+ * object id's for the loader means that only part of the defined
+ * widget tree is loaded). These pointers must be delete'd to destroy
+ * the widget (and its child widgets). If you loaded a window
+ * (GtkWindow or derived) you must use one of the get_toplevel
+ * functions and delete the instance to avoid a memory leak.
+ *
+ * Use find_widget for getting a pointer to a widget (but you don't
+ * become owner of that widget, don't use delete). If you want to add
+ * the loaded widget tree to a container, use this function (the
+ * container will ref the widget and manage its lifetime).
+ *
+ * template function code mostly copied from Gtk::Builder, look
+ * there for comments.
  */
 
 class GxBuilder: public Gtk::Builder {

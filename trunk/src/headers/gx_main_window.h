@@ -218,7 +218,6 @@ private:
     int target_height;
     Gxw::PaintBox box;
     Gxw::Switch on_off_switch;
-    gx_gui::uiToggle<bool> toggle_on_off;
 private:
     static void set_paintbox(Gxw::PaintBox& pb, PluginType tp);
     static void set_paintbox_unit(Gxw::PaintBox& pb, const PluginUI& plugin);
@@ -271,7 +270,6 @@ private:
     Gxw::Switch on_off_switch;
     bool on_my_leave_out(GdkEventCrossing *focus);
     bool on_my_enter_in(GdkEventCrossing *focus);
-    gx_gui::uiToggle<bool> toggle_on_off;
     sigc::connection evbox_button;
 private:
     Gtk::Widget *make_delete_button(RackBox& rb);

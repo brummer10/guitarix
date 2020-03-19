@@ -2,6 +2,7 @@
 #include "guitarix.h"        // NOLINT
 
 #include <glibmm/i18n.h>     // NOLINT
+#include <boost/algorithm/string.hpp>
 
 // -------- the gx_head user interface build instruktions
 
@@ -264,27 +265,149 @@ static void connect_waveview(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMa
         });
 }
 
+/*
+ * Livelooper
+ */
+static void on_file_chooser_response(int response_id, Gxw::Switch *button, Gtk::FileChooserDialog* d,
+                                     gx_engine::GxMachineBase& machine, const std::string& id)
+{
+    if (response_id == Gtk::RESPONSE_OK) {
+        Glib::ustring hostname = "localhost";
+        Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
+        Gtk::RecentManager::Data data;
+        bool result_uncertain;
+        data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);
+        data.app_name = "guitarix";
+        data.groups.push_back("loopfiles");
+        Gtk::RecentManager::get_default()->add_item(d->get_uri(), data);
+        machine.set_parameter_value(id, filename);
+    }
+    button->set_active(false);
+}
+
+static Gtk::FileChooserDialog* create_looper_filedialog(Gxw::Switch* button,
+                                                        gx_engine::GxMachineBase& machine,
+                                                        const std::string& id) {
+    auto d = new Gtk::FileChooserDialog("Select loop file");
+    d->set_local_only(false);
+    d->property_destroy_with_parent().set_value(true);
+    d->add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+    d->add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
+    Glib::RefPtr<Gtk::FileFilter> wav = Gtk::FileFilter::create();
+    wav->set_name("WAV Files");
+    wav->add_mime_type("audio/x-vorbis+ogg");
+    wav->add_mime_type("audio/x-wav");
+    wav->add_pattern("*.ogg");
+    wav->add_pattern("*.wav");
+    wav->add_pattern("*.WAV");
+    wav->add_pattern("*.Wav");
+    d->add_filter(wav);
+    Glib::RefPtr<Gtk::FileFilter> audio = Gtk::FileFilter::create();
+    audio->set_name("Audio Files");
+    audio->add_mime_type("audio/*");
+    d->add_filter(audio);
+    Glib::RefPtr<Gtk::FileFilter> all = Gtk::FileFilter::create();
+    all->add_pattern("*");
+    all->set_name("All Files");
+    d->add_filter(all);
+    d->signal_response().connect(
+        [=,&machine](int response) {
+            on_file_chooser_response(response, button, d, machine, id); });
+    d->add_shortcut_folder_uri(
+        Glib::filename_to_uri(machine.get_options().get_loop_dir(), "localhost"));
+    return d;
+}
+
+static void select_looper_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, const string& id) {
+    assert(w);
+    if (!machine.get_jack()) {
+        w->hide();
+        return;
+    }
+    gx_engine::Parameter *p = check_get_parameter(machine, id, w);
+    if (!p) {
+        return;
+    }
+    if (!p->desc().empty()) {
+        GxBuilder::set_tooltip_text_connect_handler(*w, p->l_desc());
+    }
+    static std::map<std::string, Gtk::FileChooserDialog*> sel_windows;
+    Gtk::FileChooserDialog*& sel = sel_windows[id];
+    if (!sel) {
+        sel = create_looper_filedialog(w, machine, id);
+        w->add_destroy_notify_callback(
+            &sel,
+            [](void *p) {
+                Gtk::FileChooserDialog*& sel = *static_cast<Gtk::FileChooserDialog**>(p);
+                delete sel;
+                sel = 0;
+                return p;
+            });
+    }
+    auto on_toggled =
+        [=,&machine]() {
+            if (!w->get_active()) {
+                sel->hide();
+                return;
+            }
+            static Glib::ustring recent_filename = "";
+            static Glib::ustring hostname = "localhost";
+            Glib::ustring filename = machine.get_parameter_value<string>(id);
+            Glib::ustring loop_dir = machine.get_options().get_loop_dir();
+            if (!recent_filename.empty()) {
+                sel->set_uri(Glib::filename_to_uri (recent_filename, hostname));
+            } else if ((filename.find("tape") != Glib::ustring::npos) && (!filename.empty())) {
+                sel->set_uri(Glib::filename_to_uri(loop_dir + filename + string(".wav"), hostname));
+            } else {
+                sel->set_current_folder_uri(Glib::filename_to_uri (loop_dir, hostname));
+            }
+            sel->show();
+        };
+    on_toggled();
+    w->signal_toggled().connect(on_toggled);
+}
+
+static void portdisplay_clip(Gxw::PortDisplay* w, gx_engine::GxMachineBase& machine,
+                             const string& idl, const string& idh) {
+    assert(w);
+    const auto reversed_slider = [](int v){ return 100 - v; };
+    w->set_cutoff_low(machine.get_parameter_value<float>(idl));
+    w->set_cutoff_high(reversed_slider(machine.get_parameter_value<float>(idh)));
+    machine.signal_parameter_value<float>(idl).connect(
+        sigc::mem_fun(w, &Gxw::PortDisplay::set_cutoff_low));
+    machine.signal_parameter_value<float>(idh).connect(
+        sigc::compose(
+            sigc::mem_fun(w, &Gxw::PortDisplay::set_cutoff_high),
+            reversed_slider));
+}
+
 void StackBoxBuilder::connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::RefPtr<Glib::Object> object,
                                       const char *signal_name, const char *handler_name) {
     /*
      * call function for handler_name
      */
-    if (!strcmp(handler_name, "ir_mono_window_reload_and_show")) {
+    std::vector<string> token;
+    boost::split(token, handler_name, [](char c){return c == ' ';}, boost::token_compress_on);
+    if (token[0] == "ir_mono_window_reload_and_show") {
         jconv_button(object, machine, accels, window_icon, false);
-    } else if (!strcmp(handler_name, "ir_stereo_window_reload_and_show")) {
+    } else if (token[0] == "ir_stereo_window_reload_and_show") {
         jconv_button(object, machine, accels, window_icon, true);
-    } else if (!strcmp(handler_name, "SEQWindow_reload_and_show")) {
+    } else if (token[0] == "SEQWindow_reload_and_show") {
         seq_button(object, machine);
-    } else if (!strcmp(handler_name, "connect_oscilloscope")) {
+    } else if (token[0] == "connect_oscilloscope") {
         connect_waveview(object, machine, *current_plugin);
-    } else if (!strcmp(handler_name, "jconv_mono.convolver:IRFile")) {
+    } else if (token[0] == "jconv_mono.convolver:IRFile") {
         jconv_filelabel(object, machine, false);
-    } else if (!strcmp(handler_name, "jconv.convolver:IRFile")) {
+    } else if (token[0] == "jconv.convolver:IRFile") {
         jconv_filelabel(object, machine, true);
+    } else if (token[0] == "dubber:load_loop_file") {
+        select_looper_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
+    } else if (token[0] == "portdisplay:clip") {
+        portdisplay_clip(dynamic_cast<Gxw::PortDisplay*>(object.get()), machine, token[1], token[2]);
     } else {
         gx_print_error(
             "StackBoxBuilder::connect_signals",
-            boost::format("glade connect: signal / handler not found: %1% / %2%") % signal_name % handler_name);
+            boost::format("glade connect: handler not found: %1% [%2%]") % token[0] % signal_name);
     }
 }
 
@@ -329,6 +452,10 @@ void StackBoxBuilder::loadRackFromGladeData(const char *xmldesc) {
  * stack based building of Rackboxes
  */
 
+bool StackBoxBuilder::ui_connect(Gtk::Widget *widget, const std::string& id) {
+    return gx_gui::ui_connect(machine, widget, id, current_plugin->get_output_widget_state());
+}
+
 void StackBoxBuilder::addwidget(Gtk::Widget *widget) {
     if (widget) {
 	fBox.container_add(manage(widget));
@@ -348,10 +475,10 @@ void StackBoxBuilder::create_simple_meter(const std::string& id) {
     fastmeter->property_falloff() = true;
     fastmeter->property_power() = true;
     fastmeter->set_sensitive(false);
-    machine.set_update_parameter(fastmeter, id);
+    ui_connect(fastmeter, id);
     Gtk::HBox *box =  new Gtk::HBox();
     box->set_border_width(2);
-    box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
+    box->pack_start(*Gtk::manage(fastmeter), Gtk::PACK_SHRINK);
     box->show_all();
     fBox.box_pack_start(manage(box),false);
 }
@@ -362,317 +489,168 @@ void StackBoxBuilder::create_simple_c_meter(const std::string& id, const std::st
     fastmeter->property_dimen() = 2;
     fastmeter->property_power() = true;
     fastmeter->property_falloff() = true;
+    fastmeter->property_orientation() = Gtk::ORIENTATION_VERTICAL;
     fastmeter->set_name("simplemeter");
-    Gxw::LevelSlider *w = new UiRegler<Gxw::LevelSlider>(machine, idm);
-    w->set_name("lmw");
+    ui_connect(fastmeter, id);
+    Gxw::LevelSlider *w = new Gxw::LevelSlider();
+    w->get_style_context()->add_class("lmw");
+    w->property_show_value() = false;
+    ui_connect(w, idm);
     GxPaintBox *box =  new GxPaintBox("simple_level_meter_expose");
     box->set_border_width(2);
-    box->pack_start(*Gtk::manage(static_cast<Gtk::Widget*>(fastmeter)),Gtk::PACK_SHRINK);
-    box->add(*Gtk::manage(static_cast<Gtk::Widget*>(w)));
+    box->pack_start(*Gtk::manage(fastmeter), Gtk::PACK_SHRINK);
+    box->add(*Gtk::manage(w));
     if (label && label[0]) {
-    Gtk::VBox *boxv =  new Gtk::VBox();
-    //boxv->property_orientation() = Gtk::ORIENTATION_VERTICAL;
-    boxv->set_homogeneous(false);
-    boxv->set_spacing(0);
-   // boxv->set_border_width(4);
-    Gtk::Label *lab = new Gtk::Label(label);
-    lab->get_style_context()->add_class("gx_simple_c_meter_label");
-    lab->set_name("beffekt_label");
-    boxv->add(*manage(lab));
-    boxv->add(*manage(box));
-    boxv->show_all();
-    fBox.box_pack_start(manage(boxv),false);
+        Gtk::VBox *boxv =  new Gtk::VBox();
+        //boxv->property_orientation() = Gtk::ORIENTATION_VERTICAL;
+        boxv->set_homogeneous(false);
+        boxv->set_spacing(0);
+        // boxv->set_border_width(4);
+        Gtk::Label *lab = new Gtk::Label(label);
+        lab->get_style_context()->add_class("gx_simple_c_meter_label");
+        lab->set_name("beffekt_label");
+        boxv->add(*manage(lab));
+        boxv->add(*manage(box));
+        boxv->show_all();
+        fBox.box_pack_start(manage(boxv),false);
     } else {
-    box->show_all();
-    fBox.box_pack_start(manage(box),false);
+        box->show_all();
+        fBox.box_pack_start(manage(box),false);
     }
 }
 
-class UiPortDisplayWithCaption: public UiReglerWithCaption<Gxw::PortDisplay> {
-public:
-    UiPortDisplayWithCaption(gx_engine::GxMachineBase& machine, const std::string& id)
-	: UiReglerWithCaption(machine, id) {}
-    void activate_output(bool state);
-};
-
-void UiPortDisplayWithCaption::activate_output(bool state) {
-    base.machine.set_update_parameter(&regler, regler.cp_get_var(), state);
-    regler.set_sensitive(state);
-}
-
 void StackBoxBuilder::create_port_display(const std::string& id, const char *label) {
-    UiPortDisplayWithCaption *w = new UiPortDisplayWithCaption(machine, id);
-    current_plugin->get_output_widget_state()->connect(
-        sigc::mem_fun(w, &UiPortDisplayWithCaption::activate_output));
+    auto w = new UiReglerWithCaption<Gxw::PortDisplay>();
     if (next_flags & UI_LABEL_INVERSE) {
 	w->set_rack_label_inverse(label);
     } else {
 	w->set_rack_label(label);
     }
+    ui_connect(w->get_regler(), id);
     addwidget(w);
-}
-
-class UiPDisplay: private CpBase, public Gxw::PortDisplay {
-private:
-    string idl;
-    string idh;
-    static int reversed_slider(int v) { return 100 - v; }
-public:
-    UiPDisplay(gx_engine::GxMachineBase& machine, const std::string& id,
-	       const string& idl_, const string& idh_);
-    void activate_output(bool state);
-};
-
-UiPDisplay::UiPDisplay(gx_engine::GxMachineBase& machine, const std::string& id,
-		       const string& idl_, const string& idh_)
-    : CpBase(machine, id),
-      Gxw::PortDisplay(),
-      idl(idl_), idh(idh_) {
-    init(*this, false);
-    set_cutoff_low(machine.get_parameter_value<float>(idl));
-    set_cutoff_high(reversed_slider(machine.get_parameter_value<float>(idh)));
-    machine.signal_parameter_value<float>(idl).connect(
-	sigc::mem_fun(this, &Gxw::PortDisplay::set_cutoff_low));
-    machine.signal_parameter_value<float>(idh).connect(
-	sigc::compose(
-	    sigc::mem_fun(this, &Gxw::PortDisplay::set_cutoff_high),
-	    sigc::ptr_fun(reversed_slider)));
-}
-
-void UiPDisplay::activate_output(bool state) {
-    machine.set_update_parameter(this, UiPDisplay::cp_get_var(), state);
-    machine.set_update_parameter(this, idl, state);
-    machine.set_update_parameter(this, idh, state);
-    set_sensitive(state);
 }
 
 void StackBoxBuilder::create_p_display(const std::string& id, const std::string& idl, const std::string& idh) {
-    UiPDisplay *w = new UiPDisplay(machine, id, idl, idh);
+    auto w = new UiRegler<Gxw::PortDisplay>();
     w->get_style_context()->add_class("playhead");
     w->show_all();
+    ui_connect(w, id);
+    portdisplay_clip(w, machine, idl, idh);
     addwidget(w);
-    current_plugin->get_output_widget_state()->connect(
-        sigc::mem_fun(w, &UiPDisplay::activate_output));
-}
-
-class UiFeedbackSwitch: public UiSwitchFloat {
-public:
-    UiFeedbackSwitch(gx_engine::GxMachineBase& machine, const char *sw_type,
-		     gx_engine::FloatParameter &param):
-	UiSwitchFloat(machine, sw_type, param) {}
-    void activate_output(bool state);
-};
-
-void UiFeedbackSwitch::activate_output(bool state) {
-    machine.set_update_parameter(this, param.id(), state);
 }
 
 void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::string& id) {
-    UiFeedbackSwitch *sw = new UiFeedbackSwitch(machine, sw_type, machine.get_parameter(id).getFloat());
-	//sw->set_relief(Gtk::RELIEF_NONE);
-	sw->set_name("effect_on_off");
-	addwidget(sw);
-	current_plugin->get_output_widget_state()->connect(
-            sigc::mem_fun(sw, &UiFeedbackSwitch::activate_output));
-}
-
-void StackBoxBuilder::load_file(const std::string& id, const std::string& idf) {
-	static Glib::ustring recent_filename = "";
-	static Glib::ustring hostname = "localhost";
-	if (! machine.get_jack()) {
-		hostname = Gio::Resolver::get_default()->lookup_by_address
-				(Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
-	}
-    if (machine.parameter_hasId(id)) {
-		if (machine.get_parameter_value<bool>(id.substr(0,id.find_last_of(".")+1)+"on_off")) {
-			if (machine.get_parameter_value<float>(id)>0) {
-				Glib::ustring filename = machine.get_parameter_value<string>(idf);
-				Glib::ustring title = hostname + ": Select loop file";
-				Gtk::FileChooserDialog d( title);
-				d.set_local_only(false);
-				d.property_destroy_with_parent().set_value(true);
-				d.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-				d.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
-				Glib::ustring loop_dir = machine.get_options().get_loop_dir();
-				d.add_shortcut_folder_uri(Glib::filename_to_uri(loop_dir, hostname));
-				Glib::RefPtr<Gtk::FileFilter> wav = Gtk::FileFilter::create();
-				wav->set_name("WAV Files");
-				wav->add_mime_type("audio/x-vorbis+ogg");
-				wav->add_mime_type("audio/x-wav");
-				wav->add_pattern("*.ogg");
-				wav->add_pattern("*.wav");
-				wav->add_pattern("*.WAV");
-				wav->add_pattern("*.Wav");
-				d.add_filter(wav);
-				Glib::RefPtr<Gtk::FileFilter> audio = Gtk::FileFilter::create();
-				audio->set_name("Audio Files");
-				audio->add_mime_type("audio/*");
-				d.add_filter(audio);
-				Glib::RefPtr<Gtk::FileFilter> all = Gtk::FileFilter::create();
-				all->add_pattern("*");
-				all->set_name("All Files");
-				d.add_filter(all);
-				if (!recent_filename.empty()) {
-					d.set_uri(Glib::filename_to_uri (recent_filename, hostname));
-				} else if ((filename.find("tape") != Glib::ustring::npos) && (!filename.empty())) {
-					d.set_uri(Glib::filename_to_uri (loop_dir + filename + string(".wav"), hostname));
-				} else {
-					d.set_current_folder_uri(Glib::filename_to_uri (loop_dir, hostname));
-				}
-				d.signal_response().connect(sigc::bind<Gtk::FileChooserDialog*>(sigc::bind<const std::string>(
-					sigc::bind<const std::string>(sigc::mem_fun(*this, &StackBoxBuilder::on_file_chooser_response),idf),id), &d) );
-				d.show();
-				while(machine.get_parameter_value<float>(id)>0) {
-				    //g_main_context_iteration (NULL, true);
-					if (Gtk::Main::iteration(false)) {
-						machine.set_parameter_value(id,0.0);
-						machine.signal_parameter_value<float>(id)(0.0);	
-					}
-				}
-				
-			//	if (d.run() != Gtk::RESPONSE_OK) {
-			//		machine.set_parameter_value(id,0.0);
-			//		machine.signal_parameter_value<float>(id)(0.0);
-			//		return;
-			//	}
-			//	filename = Glib::filename_from_uri(d.get_uri(), hostname);
-			//	recent_filename = filename;
-			//	Gtk::RecentManager::Data data;
-			//	bool result_uncertain;
-			//	data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);
-			//	data.app_name = "guitarix";
-			//	data.groups.push_back("loopfiles");
-			//	Gtk::RecentManager::get_default()->add_item(d.get_uri(), data);
-			//	machine.set_parameter_value(idf,filename);
-			//	machine.set_parameter_value(id,0.0);
-			//	machine.signal_parameter_value<float>(id)(0.0);
-			}
-		}
-	}
-}
-
-void StackBoxBuilder::on_file_chooser_response(int response_id, Gtk::FileChooserDialog *d, const std::string& id, const std::string& idf)
-{
-	if( response_id == Gtk::RESPONSE_OK) {
-		static Glib::ustring hostname = "localhost";
-		if (! machine.get_jack()) {
-			hostname = Gio::Resolver::get_default()->lookup_by_address
-					(Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
-		}
-		Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
-		Glib::ustring recent_filename = filename;
-		Gtk::RecentManager::Data data;
-		bool result_uncertain;
-		data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);
-		data.app_name = "guitarix";
-		data.groups.push_back("loopfiles");
-		Gtk::RecentManager::get_default()->add_item(d->get_uri(), data);
-		d->hide();
-		machine.set_parameter_value(idf,filename);
-		machine.set_parameter_value(id,0.0);
-		machine.signal_parameter_value<float>(id)(0.0);	
-	} else {
-		d->hide();
-		machine.set_parameter_value(id,0.0);
-		machine.signal_parameter_value<float>(id)(0.0);
-	}
- }
-
-void StackBoxBuilder::load_file_f(const std::string& id, const std::string& idf) {
-    Glib::signal_timeout().connect_once(
-			sigc::bind<const std::string>(sigc::bind<const std::string>(sigc::mem_fun(this, &StackBoxBuilder::load_file), idf), id),100);
-}
-
-void StackBoxBuilder::create_fload_switch(const char *sw_type, const std::string& id, const std::string& idf) {
-	if (machine.get_jack()) {
-		Gtk::Widget *sw = UiSwitch::create(machine, sw_type, id);
-		Gxw::Switch *regler = static_cast<Gxw::Switch*>(sw);
-		//regler->set_relief(Gtk::RELIEF_NONE);
-		regler->set_name("effect_on_off");
-		addwidget(sw);
-		gx_engine::Parameter& p = machine.get_parameter(id);
-		p.signal_changed_float().connect(sigc::hide(
-			sigc::bind<const std::string>(sigc::bind<const std::string>(sigc::mem_fun(this, &StackBoxBuilder::load_file_f), idf), id)));
-	}
-}
-
-void StackBoxBuilder::create_v_switch(const char *sw_type, const std::string& id, const char *label) {
-    Gtk::Widget* sw = UiVSwitchWithCaption::create(machine, sw_type, id, label);
-    UiVSwitchWithCaption *w = static_cast<UiVSwitchWithCaption*>(sw);
-	//w->get_regler()->set_relief(Gtk::RELIEF_NONE);
-	w->get_regler()->set_name("effect_on_off");
-    if (next_flags & UI_LABEL_INVERSE) {
-        w->set_rack_label_inverse();
-    }
+    auto sw = new Gxw::Switch(sw_type);
+    sw->set_name("effect_on_off");
+    sw->show();
+    ui_connect(sw, id);
     addwidget(sw);
 }
 
-class UiFeedbackSlider: public UiMasterReglerWithCaption<Gxw::HSlider> {
-public:
-    UiFeedbackSlider(gx_engine::GxMachineBase& machine, const std::string& id):
-	UiMasterReglerWithCaption(machine, id) {}
-    void activate_output(bool state);
-};
+void StackBoxBuilder::create_fload_switch(const char *sw_type, const char *id, const std::string& idf) {
+    if (!machine.get_jack()) {
+        return;
+    }
+    auto sw = new Gxw::Switch(sw_type);
+    sw->set_name("effect_on_off");
+    sw->show();
+    select_looper_file(sw, machine, idf);
+    addwidget(sw);
+}
 
-void UiFeedbackSlider::activate_output(bool state) {
-    base.machine.set_update_parameter(&regler, regler.cp_get_var(), state);
+void StackBoxBuilder::create_switch_no_caption(const char *sw_type, const std::string& id) {
+    auto sw = new Gxw::Switch(sw_type);
+    sw->show();
+    ui_connect(sw, id);
+    addwidget(sw);
+}
+
+void StackBoxBuilder::create_v_switch(const char *sw_type, const std::string& id, const char *label) {
+    gx_engine::Parameter *p = check_get_parameter(machine, id, nullptr);
+    if (!p) {
+        return;
+    }
+    auto sw = new UiVSwitchWithCaption(sw_type, *p, label);
+    sw->get_regler()->set_name("effect_on_off");
+    if (next_flags & UI_LABEL_INVERSE) {
+        sw->set_rack_label_inverse();
+    }
+    ui_connect(sw->get_regler(), id);
+    addwidget(sw);
+}
+
+void StackBoxBuilder::create_master_slider(const std::string& id, const char *label) {
+    auto w = new UiMasterReglerWithCaption<Gxw::HSlider>();
+    w->set_label(label);
+    ui_connect(w->get_regler(), id);
+    addwidget(w);
 }
 
 void StackBoxBuilder::create_feedback_slider(const std::string& id, const char *label) {
-    UiFeedbackSlider *w = new UiFeedbackSlider(machine, id);
-	w->set_label(label);
-	addwidget(w);
-	current_plugin->get_output_widget_state()->connect(
-            sigc::mem_fun(w, &UiFeedbackSlider::activate_output));
+    auto w = new UiMasterReglerWithCaption<Gxw::HSlider>();
+    w->set_label(label);
+    ui_connect(w->get_regler(), id);
+    addwidget(w);
 }
 
 void StackBoxBuilder::create_selector(const std::string& id, const char *widget_name) {
-    gx_engine::Parameter& p = machine.get_parameter(id);
-    Gxw::Selector *s;
-    if (p.isFloat()) {
-        s = new UiSelector<float>(machine, id);
-    } else {
-        s = new UiSelector<int>(machine, id);
-    }
+    auto w = new Gxw::Selector();
     if (widget_name) {
-	s->set_name(widget_name);
+	w->set_name(widget_name);
     }
-    addwidget(s);
+    ui_connect(w, id);
+    addwidget(w);
 }
 
 void StackBoxBuilder::create_selector_with_caption(const std::string& id, const char *label) {
-    gx_engine::Parameter& p = machine.get_parameter(id);
-    Gtk::VBox *s;
-    if (p.isFloat()) {
-        UiSelectorWithCaption<float> *sel;
-        s = new UiSelectorWithCaption<float>(machine, id, label);
-        sel = static_cast<UiSelectorWithCaption<float>*>(s);
-        if (next_flags & UI_LABEL_INVERSE) {
-            sel->set_rack_label_inverse();
-        }
-    } else {
-        UiSelectorWithCaption<int> *sel;
-        s = new UiSelectorWithCaption<int>(machine, id, label);
-        sel = static_cast<UiSelectorWithCaption<int>*>(s);
-        if (next_flags & UI_LABEL_INVERSE) {
-            sel->set_rack_label_inverse();
-        }
+    auto s = new UiSelectorWithCaption(label);
+    if (next_flags & UI_LABEL_INVERSE) {
+        s->set_rack_label_inverse();
     }
+    ui_connect(s->get_selector(), id);
     addwidget(s);
 }
 
-void StackBoxBuilder::openSpaceBox(const char* label) {
+void StackBoxBuilder::create_wheel(const std::string& id, const char *label) {
+    auto w = new UiReglerWithCaption<Gxw::Wheel>();
+    w->set_rack_label(label);
+    ui_connect(w->get_regler(), id);
+    addwidget(w);
+}
+
+void StackBoxBuilder::create_spin_value(const std::string& id, const char *label) {
+    auto w = new UiDisplayWithCaption<Gxw::ValueDisplay>();
+    if (next_flags & UI_LABEL_INVERSE) {
+        w->set_rack_label_inverse(label);
+    } else {
+        w->set_rack_label(label);
+    }
+    w->get_regler()->set_name("show_always");
+    ui_connect(w->get_regler(), id);
+    addwidget(w);
+}
+
+void StackBoxBuilder::create_simple_spin_value(const std::string& id) {
+    auto w = new UiRegler<Gxw::SimpleValueDisplay>();
+    w->set_name("show_always");
+    ui_connect(w, id);
+    addwidget(w);
+}
+
+void StackBoxBuilder::create_eq_rackslider_no_caption(const std::string& id) {
+    auto w = new UiRegler<Gxw::EqSlider>(true);
+    ui_connect(w, id);
+    addwidget(w);
+}
+
+void StackBoxBuilder::insertSpacer() {
     GxVBox * box =  new GxVBox();
     box->set_homogeneous(true);
     box->set_spacing(1);
     box->set_border_width(4);
     box->show_all();
-    if (!fBox.top_is_notebook() && label && label[0]) {
-        fBox.box_pack_start(manage(box));
-        fBox.push(box);
-    } else {
-        fBox.push(fBox.add(manage(box), label));
-    }
+    fBox.push(fBox.add(manage(box), ""));
+    fBox.pop();
 }
 
 void StackBoxBuilder::check_set_flags(Gxw::Regler *r) {
@@ -690,48 +668,35 @@ void StackBoxBuilder::check_set_flags(Gxw::Regler *r) {
     }
 }
 
-void StackBoxBuilder::create_mid_rackknob(const std::string& id, const char *label) {
-    UiReglerWithCaption<Gxw::MidKnob> *w = new UiReglerWithCaption<Gxw::MidKnob>(machine, id);
+void StackBoxBuilder::add_regler(CpBaseCaption *w, Gxw::Regler *r, const std::string& id, const char *label) {
     if (next_flags & UI_LABEL_INVERSE) {
         w->set_rack_label_inverse(label);
     } else {
         w->set_rack_label(label);
     }
-    check_set_flags(w->get_regler());
+    check_set_flags(r);
+    ui_connect(r, id);
     addwidget(w);
+}
+
+void StackBoxBuilder::create_mid_rackknob(const std::string& id, const char *label) {
+    auto w = new UiReglerWithCaption<Gxw::MidKnob>();
+    add_regler(w, w->get_regler(), id, label);
 }
 
 void StackBoxBuilder::create_small_rackknob(const std::string& id, const char *label) {
-    UiReglerWithCaption<Gxw::SmallKnob> *w = new UiReglerWithCaption<Gxw::SmallKnob>(machine, id);
-    if (next_flags & UI_LABEL_INVERSE) {
-        w->set_rack_label_inverse(label);
-    } else {
-        w->set_rack_label(label);
-    }
-    check_set_flags(w->get_regler());
-    addwidget(w);
+    auto w = new UiReglerWithCaption<Gxw::SmallKnob>();
+    add_regler(w, w->get_regler(), id, label);
 }
 
 void StackBoxBuilder::create_small_rackknobr(const std::string& id, const char *label) {
-    UiReglerWithCaption<Gxw::SmallKnobR> *w = new UiReglerWithCaption<Gxw::SmallKnobR>(machine, id);
-    if (next_flags & UI_LABEL_INVERSE) {
-        w->set_rack_label_inverse(label);
-    } else {
-        w->set_rack_label(label);
-    }
-    check_set_flags(w->get_regler());
-    addwidget(w);
+    auto w = new UiReglerWithCaption<Gxw::SmallKnobR>();
+    add_regler(w, w->get_regler(), id, label);
 }
 
 void StackBoxBuilder::create_big_rackknob(const std::string& id, const char *label) {
-    UiReglerWithCaption<Gxw::BigKnob> *w = new UiReglerWithCaption<Gxw::BigKnob>(machine, id);
-    if (next_flags & UI_LABEL_INVERSE) {
-        w->set_rack_label_inverse(label);
-    } else {
-        w->set_rack_label(label);
-    }
-    check_set_flags(w->get_regler());
-    addwidget(w);
+    auto w = new UiReglerWithCaption<Gxw::BigKnob>();
+    add_regler(w, w->get_regler(), id, label);
 }
 
 void StackBoxBuilder::openVerticalBox1(const char* label) {
@@ -812,56 +777,6 @@ void StackBoxBuilder::openFlipLabelBox(const char* label) {
         fBox.push(fBox.add(manage(box), label));
     }
 }
-
-class uiSpinner: public Gtk::SpinButton {
-private:
-    uiAdjustment adj;
-public:
-    uiSpinner(float step, gx_engine::GxMachineBase& machine, const std::string& id)
-	: Gtk::SpinButton(step, precision(step)), adj(machine, id, get_adjustment()) {
-	get_adjustment()->signal_value_changed().connect(
-	    sigc::mem_fun(adj, &uiAdjustment::changed));
-    }
-};
-
-class uiToggleButton: public Gtk::ToggleButton {
-private:
-    gx_engine::GxMachineBase& machine;
-    const std::string id;
-public:
-    uiToggleButton(gx_engine::GxMachineBase& machine_, const std::string& id_);
-    void toggled();
-    void set_value(bool v);
-};
-
-uiToggleButton::uiToggleButton(gx_engine::GxMachineBase& machine_, const std::string& id_)
-    : Gtk::ToggleButton(), machine(machine_), id(id_) {
-    machine.signal_parameter_value<bool>(id).connect(
-	sigc::mem_fun(this, &Gtk::ToggleButton::set_active));
-    signal_toggled().connect(
-	sigc::mem_fun(this, &uiToggleButton::toggled));
-}
-
-void uiToggleButton::toggled() {
-    machine.set_parameter_value(id, get_active());
-}
-
-class uiCheckButton: public Gtk::CheckButton {
-private:
-    gx_engine::GxMachineBase& machine;
-    const std::string& id;
-public:
-    uiCheckButton(gx_engine::GxMachineBase& machine_, const std::string& id_)
-	: Gtk::CheckButton(), machine(machine_), id(id_) {
-	set_active(machine.get_parameter_value<bool>(id));
-	machine.signal_parameter_value<bool>(id).connect(sigc::mem_fun(this, &Gtk::CheckButton::set_active));
-	signal_toggled().connect(
-	    sigc::mem_fun(this, &uiCheckButton::toggled));
-    }
-    void toggled() {
-	machine.set_parameter_value(id, get_active());
-    }
-};
 
 void StackBoxBuilder::openHorizontalhideBox(const char* label) {
     GxHBox * box =  new GxHBox();

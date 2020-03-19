@@ -187,11 +187,11 @@ public:
     void set_desc(const string& desc) { _desc = desc; }
     string l_desc() const { return gettext(_desc.c_str()); }
     void set_log_display() { d_flags |= dtp_log; }
-    bool is_log_display() { return d_flags & dtp_log; }
+    bool is_log_display() const { return d_flags & dtp_log; }
     void set_blocked(bool v) { blocked = v; }
-    bool get_blocked() { return blocked; }
+    bool get_blocked() const { return blocked; }
     void set_midi_blocked(bool v) { midi_blocked = v; }
-    bool get_midi_blocked() { return midi_blocked; }
+    bool get_midi_blocked() const { return midi_blocked; }
     bool operator==(const Parameter& p) const { return &p == this; }
     virtual void stdJSON_value() = 0;
     virtual bool on_off_value() = 0; //RT

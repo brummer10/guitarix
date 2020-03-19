@@ -140,6 +140,7 @@ def build(bld):
         './builder/jconv_st_ui.glade',
         './builder/oscilloscope_ui.glade',
         './builder/drumsequencer_ui.glade',
+        './builder/dubber_ui.glade',
         './builder/metronome_ui.glade',
         './builder/tremolo_ui.glade',
         './builder/pluginpreset_inputwindow.glade',

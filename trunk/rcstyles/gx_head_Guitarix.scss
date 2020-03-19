@@ -656,6 +656,27 @@ frame, #frame_inversed, frame border, #frame_inversed border {
     min-height: 48px;
 }
 
+/* Live Looper */
+
+#PLUI-dubber {
+    gx-small-knob-r ~ label { // some space for the 2 labels above the knobs
+	margin-top: 20px;
+	margin-bottom: 4px;
+    }
+    notebook {
+	header {
+	    margin-bottom: 4px;
+	    label {
+		margin-bottom: -12px;
+	    }
+	}
+	margin-bottom: 4px;
+    }
+    #buffer_label {
+	margin-top: 10px;
+    }
+}
+
 /****************************************************************/
 /* to check */
 

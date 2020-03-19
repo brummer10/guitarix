@@ -943,11 +943,10 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       mb_expand_button(),
       mb_delete_button(),
       preset_button(),
-      on_off_switch("switchit"),
-      toggle_on_off(rb.plugin_dict.get_machine(), &on_off_switch, rb.plugin.plugin->id_on_off()) {
+      on_off_switch("switchit") {
+    gx_gui::ui_connect_switch(rb.plugin_dict.get_machine(), &on_off_switch,
+                              rb.plugin.plugin->id_on_off(), nullptr, false);
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
-        gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off().c_str(), rb.plugin_dict.get_machine());
-
         if (!szg_label) {
             szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
         }
@@ -1496,11 +1495,9 @@ RackBox::RackBox(PluginUI& plugin_, PluginDict& tl, Gtk::Widget* bare)
       drag_icon(),
       target_height(0),
       box(Gtk::ORIENTATION_HORIZONTAL, 2),
-      on_off_switch("switchit"),
-      toggle_on_off(tl.get_machine(), &on_off_switch, plugin.plugin->id_on_off()) {
-    if (strcmp(plugin.get_id(), "ampstack") != 0) { // FIXME
-	gx_gui::connect_midi_controller(&on_off_switch, plugin.plugin->id_on_off().c_str(), plugin_dict.get_machine());
-    }
+      on_off_switch("switchit") {
+    gx_gui::ui_connect_switch(tl.get_machine(), &on_off_switch,
+                              plugin.plugin->id_on_off(), nullptr, false);
     if (bare) {
 	compress = false;
 	delete_button = false;

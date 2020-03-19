@@ -790,56 +790,52 @@ void __rt_func LiveLooper::compute_static(int count, float *input0, float *outpu
 
 int LiveLooper::register_par(const ParamReg& reg)
 {
-    reg.registerFloatVar("dubber.clip1","","S",N_("percentage clip at the delay length "),&fclip1, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
-    reg.registerFloatVar("dubber.clip2","","S",N_("percentage clip at the delay length "),&fclip2, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
-    reg.registerFloatVar("dubber.clip3","","S",N_("percentage clip at the delay length "),&fclip3, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
-    reg.registerFloatVar("dubber.clip4","","S",N_("percentage clip at the delay length "),&fclip4, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
-    reg.registerFloatVar("dubber.clips1","","S",N_("percentage cut on the delay start "),&fclips1, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
-    reg.registerFloatVar("dubber.clips2","","S",N_("percentage cut on the delay start "),&fclips2, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
-    reg.registerFloatVar("dubber.clips3","","S",N_("percentage cut on the delay start "),&fclips3, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
-    reg.registerFloatVar("dubber.clips4","","S",N_("percentage cut on the delay start "),&fclips4, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber.clip1","","So",N_("percentage clip at the delay length "),&fclip1, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber.clip2","","So",N_("percentage clip at the delay length "),&fclip2, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber.clip3","","So",N_("percentage clip at the delay length "),&fclip3, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber.clip4","","So",N_("percentage clip at the delay length "),&fclip4, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber.clips1","","So",N_("percentage cut on the delay start "),&fclips1, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber.clips2","","So",N_("percentage cut on the delay start "),&fclips2, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber.clips3","","So",N_("percentage cut on the delay start "),&fclips3, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber.clips4","","So",N_("percentage cut on the delay start "),&fclips4, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
     reg.registerFloatVar("dubber.speed1","","S",N_("playback speed "),&fspeed1, 0.0f, -0.9f, 0.9f, 0.01f, 0);
     reg.registerFloatVar("dubber.speed2","","S",N_("playback speed "),&fspeed2, 0.0f, -0.9f, 0.9f, 0.01f, 0);
     reg.registerFloatVar("dubber.speed3","","S",N_("playback speed "),&fspeed3, 0.0f, -0.9f, 0.9f, 0.01f, 0);
     reg.registerFloatVar("dubber.speed4","","S",N_("playback speed "),&fspeed4, 0.0f, -0.9f, 0.9f, 0.01f, 0);
-    reg.registerFloatVar("dubber.bar1","","SN","",&rectime0, 0.0, 0.0, 96.0, 1.0, 0);
-    reg.registerFloatVar("dubber.bar2","","SN","",&rectime1, 0.0, 0.0, 96.0, 1.0, 0);
-    reg.registerFloatVar("dubber.bar3","","SN","",&rectime2, 0.0, 0.0, 96.0, 1.0, 0);
-    reg.registerFloatVar("dubber.bar4","","SN","",&rectime3, 0.0, 0.0, 96.0, 1.0, 0);
+    reg.registerFloatVar("dubber.bar1","","SO","",&rectime0, 0.0, 0.0, 96.0, 1.0, 0);
+    reg.registerFloatVar("dubber.bar2","","SO","",&rectime1, 0.0, 0.0, 96.0, 1.0, 0);
+    reg.registerFloatVar("dubber.bar3","","SO","",&rectime2, 0.0, 0.0, 96.0, 1.0, 0);
+    reg.registerFloatVar("dubber.bar4","","SO","",&rectime3, 0.0, 0.0, 96.0, 1.0, 0);
     reg.registerFloatVar("dubber.gain","","S",N_("overall gain of the input"),&gain, 0.0f, -2e+01f, 12.0f, 0.1f, 0);
     reg.registerFloatVar("dubber.level1","","S",N_("percentage of the delay gain level"),&gain1, 5e+01f, 0.0f, 1e+02f, 1.0f, 0);
     reg.registerFloatVar("dubber.level2","","S",N_("percentage of the delay gain level"),&gain2, 5e+01f, 0.0f, 1e+02f, 1.0f, 0);
     reg.registerFloatVar("dubber.level3","","S",N_("percentage of the delay gain level"),&gain3, 5e+01f, 0.0f, 1e+02f, 1.0f, 0);
     reg.registerFloatVar("dubber.level4","","S",N_("percentage of the delay gain level"),&gain4, 5e+01f, 0.0f, 1e+02f, 1.0f, 0);
     reg.registerFloatVar("dubber.mix","","S",N_("overall gain_out of the delay line in percent"),&gain_out, 1e+02f, 0.0f, 1.5e+02f, 1.0f, 0);
-    reg.registerFloatVar("dubber.play1","","B",N_("play tape 1"),&play1, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.play2","","B",N_("play tape 2"),&play2, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.play3","","B",N_("play tape 3"),&play3, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.play4","","B",N_("play tape 4"),&play4, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.rplay1","","B",N_("play reverse"),&rplay1, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.rplay2","","B",N_("play reverse"),&rplay2, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.rplay3","","B",N_("play reverse"),&rplay3, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.rplay4","","B",N_("play reverse"),&rplay4, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.playh1","","SN","",&playh1, 0.0, 0.0, 1000.0, 1.0, 0);
-    reg.registerFloatVar("dubber.playh2","","SN","",&playh2, 0.0, 0.0, 1000.0, 1.0, 0);
-    reg.registerFloatVar("dubber.playh3","","SN","",&playh3, 0.0, 0.0, 1000.0, 1.0, 0);
-    reg.registerFloatVar("dubber.playh4","","SN","",&playh4, 0.0, 0.0, 1000.0, 1.0, 0);
-    reg.registerFloatVar("dubber.rec1","","B",N_("record"),&record1, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.rec2","","B",N_("record"),&record2, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.rec3","","B",N_("record"),&record3, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.rec4","","B",N_("record"),&record4, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.reset1","","B",N_("erase"),&reset1, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.reset2","","B",N_("erase"),&reset2, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.reset3","","B",N_("erase"),&reset3, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.reset4","","B",N_("erase"),&reset4, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.load1","","B",N_("import file"),&load1, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.load2","","B",N_("import file"),&load2, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.load3","","B",N_("import file"),&load3, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.load4","","B",N_("import file"),&load4, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.od1","","B",N_("overdub"),&od1, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.od2","","B",N_("overdub"),&od2, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.od3","","B",N_("overdub"),&od3, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.od4","","B",N_("overdub"),&od4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.play1","","Bo",N_("play tape 1"),&play1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.play2","","Bo",N_("play tape 2"),&play2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.play3","","Bo",N_("play tape 3"),&play3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.play4","","Bo",N_("play tape 4"),&play4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.rplay1","","Bo",N_("play reverse"),&rplay1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.rplay2","","Bo",N_("play reverse"),&rplay2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.rplay3","","Bo",N_("play reverse"),&rplay3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.rplay4","","Bo",N_("play reverse"),&rplay4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.playh1","","SO","",&playh1, 0.0, 0.0, 1000.0, 1.0, 0);
+    reg.registerFloatVar("dubber.playh2","","SO","",&playh2, 0.0, 0.0, 1000.0, 1.0, 0);
+    reg.registerFloatVar("dubber.playh3","","SO","",&playh3, 0.0, 0.0, 1000.0, 1.0, 0);
+    reg.registerFloatVar("dubber.playh4","","SO","",&playh4, 0.0, 0.0, 1000.0, 1.0, 0);
+    reg.registerFloatVar("dubber.rec1","","Bos",N_("record"),&record1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.rec2","","Bos",N_("record"),&record2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.rec3","","Bos",N_("record"),&record3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.rec4","","Bos",N_("record"),&record4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.reset1","","Bos",N_("erase"),&reset1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.reset2","","Bos",N_("erase"),&reset2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.reset3","","Bos",N_("erase"),&reset3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.reset4","","Bos",N_("erase"),&reset4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.od1","","Bos",N_("overdub"),&od1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.od2","","Bos",N_("overdub"),&od2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.od3","","Bos",N_("overdub"),&od3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.od4","","Bos",N_("overdub"),&od4, 0.0, 0.0, 1.0, 1.0, 0);
     reg.registerFloatVar("dubber.playall","","B",N_("play all tapes "),&play_all, 0.0, 0.0, 1.0, 1.0, 0);
     reg.registerFloatVar("dubber.dout","","B",N_("bypass the rack for direct output"),&dout, 0.0, 0.0, 1.0, 1.0, 0);
     param["dubber.playall"].signal_changed_float().connect(
@@ -848,10 +844,11 @@ int LiveLooper::register_par(const ParamReg& reg)
     param.reg_preset_string("dubber.filename", "", &preset_name, "tape");
     param["dubber.filename"].signal_changed_string().connect(
         sigc::hide(sigc::mem_fun(this, &LiveLooper::set_p_state)));
-    param.reg_string("dubber.loadfile1", "", &load_file1, "tape1");
-    param.reg_string("dubber.loadfile2", "", &load_file2, "tape2");
-    param.reg_string("dubber.loadfile3", "", &load_file3, "tape3");
-    param.reg_string("dubber.loadfile4", "", &load_file4, "tape4");
+    param.reg_string("dubber.loadfile1", "", &load_file1, "tape1")->set_desc(N_("import file"));
+    param.reg_string("dubber.loadfile2", "", &load_file2, "tape2")->set_desc(N_("import file"));
+    param.reg_string("dubber.loadfile3", "", &load_file3, "tape3")->set_desc(N_("import file"));
+    param.reg_string("dubber.loadfile4", "", &load_file4, "tape4")->set_desc(N_("import file"));
+
     param["dubber.loadfile1"].signal_changed_string().connect(
         sigc::hide(sigc::mem_fun(this, &LiveLooper::load_tape1)));
     param["dubber.loadfile2"].signal_changed_string().connect(
@@ -870,6 +867,12 @@ int LiveLooper::register_params_static(const ParamReg& reg)
 
 inline int LiveLooper::load_ui_f(const UiBuilder& b, int form)
 {
+    if (form & UI_FORM_GLADE) {
+        if (getenv("DUB")) {
+            b.load_glade_file("dubber_ui.glade");
+            return 0;
+        }
+    }
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("dubber" "." p)
 b.openHorizontalhideBox("");
@@ -899,7 +902,7 @@ b.openHorizontalBox("");
                         b.create_feedback_switch(sw_pbutton,PARAM("play1"));
                         b.create_feedback_switch(sw_prbutton,PARAM("rplay1"));
                         b.create_feedback_switch(sw_button,PARAM("reset1"));
-                        b.create_fload_switch(sw_fbutton,PARAM("load1"),PARAM("loadfile1"));
+                        b.create_fload_switch(sw_fbutton,nullptr,PARAM("loadfile1"));
                         b.create_feedback_switch("overdub",PARAM("od1"));
                         b.closeBox();
                         b.closeBox();
@@ -946,7 +949,7 @@ b.openHorizontalBox("");
                         b.create_feedback_switch(sw_pbutton,PARAM("play2"));
                         b.create_feedback_switch(sw_prbutton,PARAM("rplay2"));
                         b.create_feedback_switch(sw_button,PARAM("reset2"));
-                        b.create_fload_switch(sw_fbutton,PARAM("load2"),PARAM("loadfile2"));
+                        b.create_fload_switch(sw_fbutton,nullptr,PARAM("loadfile2"));
                         b.create_feedback_switch("overdub",PARAM("od2"));
                         b.closeBox();
                         b.closeBox();
@@ -990,7 +993,7 @@ b.openHorizontalBox("");
                         b.create_feedback_switch(sw_pbutton,PARAM("play3"));
                         b.create_feedback_switch(sw_prbutton,PARAM("rplay3"));
                         b.create_feedback_switch(sw_button,PARAM("reset3"));
-                        b.create_fload_switch(sw_fbutton,PARAM("load3"),PARAM("loadfile3"));
+                        b.create_fload_switch(sw_fbutton,nullptr,PARAM("loadfile3"));
                         b.create_feedback_switch("overdub",PARAM("od3"));
                         b.closeBox();
                         b.closeBox();
@@ -1033,7 +1036,7 @@ b.openHorizontalBox("");
                         b.create_feedback_switch(sw_pbutton,PARAM("play4"));
                         b.create_feedback_switch(sw_prbutton,PARAM("rplay4"));
                         b.create_feedback_switch(sw_button,PARAM("reset4"));
-                        b.create_fload_switch(sw_fbutton,PARAM("load4"),PARAM("loadfile4"));
+                        b.create_fload_switch(sw_fbutton,nullptr,PARAM("loadfile4"));
                         b.create_feedback_switch("overdub",PARAM("od4"));
                         b.closeBox();
                         b.closeBox();

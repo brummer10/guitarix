@@ -51,19 +51,13 @@ private:
     int next_flags;
     PluginUI *current_plugin;
 
-    void loadRackFromGladeData(const char *xmldesc);
-    void loadRackFromGladeFile(const char *fname);
 private:
     void loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld);
     // functions used in interfaces
-    void create_master_slider(const std::string& id, const char *label) {
-	UiMasterReglerWithCaption<Gxw::HSlider> *w = new UiMasterReglerWithCaption<Gxw::HSlider>(machine, id);
-	w->set_label(label);
-	addwidget(w);
-    }
+    void create_master_slider(const std::string& id, const char *label);
 
     void closeBox();
-    void openSpaceBox(const char* label = "");
+    void insertSpacer();
 
     void check_set_flags(Gxw::Regler *r);
     void create_simple_meter(const std::string& id);
@@ -78,42 +72,18 @@ private:
     void openHorizontalBox(const char* label = "");
     void openHorizontalhideBox(const char* label = "");
     void openHorizontalTableBox(const char* label);
-    void create_switch_no_caption(const char *sw_type, const std::string& id) {
-	addwidget(UiSwitch::create(machine, sw_type, id));
-    }
+    void create_switch_no_caption(const char *sw_type, const std::string& id);
     void create_v_switch(const char *sw_type, const std::string& id, const char *label);
     void openpaintampBox(const char* label = "");
-    void create_wheel(const std::string& id, const char *label=0) {
-	UiReglerWithCaption<Gxw::Wheel> *w = new UiReglerWithCaption<Gxw::Wheel>(machine, id);
-	w->set_rack_label(label);
-	addwidget(w);
-    }
-    void create_spin_value(const std::string& id, const char *label) {
-	UiDisplayWithCaption<Gxw::ValueDisplay> *w = new UiDisplayWithCaption<Gxw::ValueDisplay>(machine, id);
-    if (next_flags & UI_LABEL_INVERSE) {
-        w->set_rack_label_inverse(label);
-    } else {
-        w->set_rack_label(label);
-    }
-	w->get_regler()->set_name("show_always");
-	addwidget(w);
-    }
-    void create_simple_spin_value(const std::string& id) {
-	Gxw::SimpleValueDisplay *w = new UiRegler<Gxw::SimpleValueDisplay>(machine, id);
-	w->set_name("show_always");
-	addwidget(w);
-    }
-    void create_eq_rackslider_no_caption(const std::string& id) {
-	addwidget(new UiRegler<Gxw::EqSlider>(machine, id, true));
-    }
-    void load_file(const std::string& id, const std::string& idf);
-    void on_file_chooser_response(int response_id, Gtk::FileChooserDialog *d, const std::string& id, const std::string& idf);
-    void load_file_f(const std::string& id, const std::string& idf);
+    void create_wheel(const std::string& id, const char *label=0);
+    void create_spin_value(const std::string& id, const char *label);
+    void create_simple_spin_value(const std::string& id);
+    void create_eq_rackslider_no_caption(const std::string& id);
     void create_port_display(const std::string& id, const char *label);
     void create_p_display(const std::string& id, const std::string& idl, const std::string& idh);
     void create_feedback_switch(const char *sw_type, const std::string& id);
     void create_feedback_slider(const std::string& id, const char *label);
-    void create_fload_switch(const char *sw_type, const std::string& id, const std::string& idf);
+    void create_fload_switch(const char *sw_type, const char *id, const std::string& idf);
     void create_selector(const std::string& id, const char *widget_name=0);
     void create_selector_with_caption(const std::string& id, const char *label);
     void openFlipLabelBox(const char* = 0);
@@ -124,7 +94,16 @@ private:
 private:
     // functions used indirectly
     void addwidget(Gtk::Widget *widget);
+    bool ui_connect(Gtk::Widget *widget, const std::string& id);
+    void add_regler(CpBaseCaption *w, Gxw::Regler *r, const std::string& id, const char *label);
+    void load_file(const std::string& id, const std::string& idf);
+    void on_file_chooser_response(int response_id, Gtk::FileChooserDialog *d,
+                                  const std::string& id, const std::string& idf);
+    void load_file_f(const std::string& id, const std::string& idf);
+    void loadRackFromGladeData(const char *xmldesc);
+    void loadRackFromGladeFile(const char *fname);
     friend class UiBuilderImpl;
+
 public:
     StackBoxBuilder(
 	gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gdk::Pixbuf> window_icon);
