@@ -24,7 +24,7 @@
                 <property name="can_focus">False</property>
                 <property name="spacing">8</property>
                 <child>
-                  <object class="GtkNotebook" id="notebook:tab_rack">
+                  <object class="GtkNotebook" id="notebook">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <child>
@@ -1380,6 +1380,9 @@
                         <property name="tab_fill">False</property>
                       </packing>
                     </child>
+                    <style>
+                      <class name="tab_rack"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1413,11 +1416,11 @@
                           <object class="GxFastMeter" id="gxfastmeter1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbc.v1</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1429,11 +1432,11 @@
                           <object class="GxFastMeter" id="gxfastmeter2">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbc.v2</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1445,11 +1448,11 @@
                           <object class="GxFastMeter" id="gxfastmeter3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbc.v3</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1461,11 +1464,11 @@
                           <object class="GxFastMeter" id="gxfastmeter4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbc.v4</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1477,11 +1480,11 @@
                           <object class="GxFastMeter" id="gxfastmeter5">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbc.v5</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>

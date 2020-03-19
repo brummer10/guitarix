@@ -70,7 +70,7 @@ GxEventBox::~GxEventBox() {}
 /****************************************************************/
 
 GxNotebookBox::GxNotebookBox() {
-    set_name("tab_rack");
+    get_style_context()->add_class("tab_rack");
 }
 
 /****************************************************************/

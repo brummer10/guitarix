@@ -24,7 +24,7 @@
                 <property name="can_focus">False</property>
                 <property name="spacing">8</property>
                 <child>
-                  <object class="GtkNotebook" id="notebook:tab_rack">
+                  <object class="GtkNotebook" id="notebook">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <child>
@@ -1380,6 +1380,9 @@
                         <property name="tab_fill">False</property>
                       </packing>
                     </child>
+                    <style>
+                      <class name="tab_rack"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -1414,11 +1417,11 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="tooltip_text" translatable="yes">Sum of Band1 </property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v1</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1431,11 +1434,11 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="tooltip_text" translatable="yes">Sum of Band2</property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v2</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1448,11 +1451,11 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="tooltip_text" translatable="yes">Sum of Band3</property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v3</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1465,11 +1468,11 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="tooltip_text" translatable="yes">Sum of Band4</property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v4</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -1482,11 +1485,11 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="tooltip_text" translatable="yes">Sum of Band5</property>
+                            <property name="orientation">vertical</property>
                             <property name="hold">0</property>
                             <property name="dimen">0</property>
-			    <property name="orientation">vertical</property>
-                            <property name="falloff">True</property>
                             <property name="var_id">mbcs.v5</property>
+                            <property name="falloff">True</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>

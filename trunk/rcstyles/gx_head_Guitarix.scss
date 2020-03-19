@@ -587,7 +587,7 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 #Value, /* *Value */
 #ampbox label,
 #beffekt_label,
-#tab_rack label,
+.tab_rack label,
 #rack_effect_label {
     font: condensed 8pt "Roboto";
     color: #222222; /* #dadfe1 # #c9d5b9  # #ffffff */
@@ -608,24 +608,24 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 }
 
 
-#tab_rack {
+.tab_rack {
     padding: 5px;
     background-color: rgb(25.5, 25.5, 25.5); /* { 0.10, 0.10, 0.10 } */
 }
 
-#tab_rack:active {
+.tab_rack:active {
     background-color: rgb(25.5, 25.5, 25.5); /* { 0.10, 0.10, 0.10 } */
 }
 
-#tab_rack label {
+.tab_rack label {
     color: #ff9000;
 }
 
-#tab_rack label:active {
+.tab_rack label:active {
     color: #555555;
 }
 
-#tab_rack #label {
+.tab_rack .label {
     color: #aaaaaa;
 }
 
