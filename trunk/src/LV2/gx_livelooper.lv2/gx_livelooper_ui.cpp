@@ -13,7 +13,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 41
+#define CONTROLS 43
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -27,6 +27,7 @@ typedef struct {
     void *parentXwindow;
     Xputty main;
     Widget_t *win;
+    Widget_t *tool;
     Widget_t *widget[CONTROLS];
     cairo_surface_t *screw;
     int block_event;
@@ -40,11 +41,11 @@ typedef struct {
 static void set_my_theme(Xputty *main) {
     main->color_scheme->normal = (Colors) {
          /* cairo    / r  / g  / b  / a  /  */
-        .fg =       { 0.45, 0.45, 0.45, 1.0},
-        .bg =       { 0.349, 0.235, 0.011, 1.0},
-        .base =     { 0.1, 0.1, 0.2, 1.0},
-        .text =     { 0.45, 0.45, 0.45, 1.0},
-        .shadow =   { 0.0, 0.0, 0.0, 0.2},
+        .fg =       { 0.68, 0.44, 0.00, 1.00},
+        .bg =       { 0.1, 0.1, 0.1, 1.0},
+        .base =     { 0.1, 0.1, 0.1, 1.0},
+        .text =     { 0.85, 0.52, 0.00, 1.00},
+        .shadow =   { 0.85, 0.52, 0.00, 0.2},
         .frame =    { 0.0, 0.0, 0.0, 1.0},
         .light =    { 0.1, 0.1, 0.2, 1.0}
     };
@@ -61,8 +62,8 @@ static void set_my_theme(Xputty *main) {
 
     main->color_scheme->selected = (Colors) {
         .fg =       { 0.9, 0.9, 0.9, 1.0},
-        .bg =       { 0.349, 0.313, 0.243, 1.0},
-        .base =     { 0.18, 0.18, 0.28, 1.0},
+        .bg =       { 0.2, 0.2, 0.2, 1.0},
+        .base =     { 0.1, 0.1, 0.1, 1.0},
         .text =     { 1.0, 1.0, 1.0, 1.0},
         .shadow =   { 0.18, 0.18, 0.18, 0.2},
         .frame =    { 0.18, 0.18, 0.18, 1.0},
@@ -76,6 +77,10 @@ static void draw_window(void *w_, void* user_data) {
     X11_UI* ui = (X11_UI*)w->parent_struct;
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
     cairo_paint (w->crb);
+    set_pattern(w,&w->app->color_scheme->normal,&w->app->color_scheme->selected,BACKGROUND_);
+    cairo_rectangle (w->crb,4,4,w->width-8,w->height-8);
+    cairo_set_line_width(w->crb,4);
+    cairo_stroke(w->crb);
 
     cairo_set_source_surface (w->crb, ui->screw,5,5);
     cairo_paint (w->crb);
@@ -89,7 +94,7 @@ static void draw_window(void *w_, void* user_data) {
 
     cairo_text_extents_t extents;
     use_text_color_scheme(w, get_color_state(w));
-    cairo_set_source_rgb (w->crb,0.45, 0.45, 0.45);
+    //cairo_set_source_rgb (w->crb,0.45, 0.45, 0.45);
     float font_size = min(20.0,((w->height/2.2 < (w->width*0.5)/3) ? w->height/2.2 : (w->width*0.5)/3));
     cairo_set_font_size (w->crb, font_size);
     cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
@@ -98,11 +103,11 @@ static void draw_window(void *w_, void* user_data) {
     double tw = extents.width/2.0;
 
     widget_set_scale(w);
-    cairo_move_to (w->crb, 290-tw, 170 );
+    cairo_move_to (w->crb, 462-tw, 170 );
     cairo_show_text(w->crb, w->label);
     cairo_new_path (w->crb);
     cairo_scale (w->crb, 0.95, 0.95);
-    cairo_set_source_surface (w->crb, w->image,480,10);
+    cairo_set_source_surface (w->crb, w->image,825,10);
     cairo_paint (w->crb);
     cairo_scale (w->crb, 1.05, 1.05);
     widget_reset_scale(w);
@@ -215,13 +220,203 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_new_path (w->crb);
 }
 
+void draw_my_hslider(void *w_, void* user_data) {
+    Widget_t *w = (Widget_t*)w_;
+
+    int width = w->width-2;
+    int height = w->height-2;
+    float center = (float)height/2;
+
+    float sliderstate = adj_get_state(w->adj_x);
+
+    use_text_color_scheme(w, get_color_state(w));
+    cairo_move_to (w->crb, 0.0, center);
+    cairo_line_to(w->crb,width,center);
+    cairo_set_line_width(w->crb,center/10);
+    cairo_stroke(w->crb);
+
+    use_bg_color_scheme(w, NORMAL_);
+    cairo_rectangle(w->crb, (width-height)*sliderstate,0,height, height);
+    cairo_fill(w->crb);
+    cairo_new_path (w->crb);
+
+    use_text_color_scheme(w, NORMAL_);
+    cairo_set_line_width(w->crb,3);
+    cairo_move_to (w->crb,((width-height)*sliderstate)+center, 0.0);
+    cairo_line_to(w->crb,((width-height)*sliderstate)+center,height);
+    cairo_stroke(w->crb);
+
+    /** show value on the kob**/
+    if (w->state>0.0 && w->state<4.0) {
+        use_fg_color_scheme(w, PRELIGHT_);
+        cairo_text_extents_t extents;
+        char s[64];
+        char l[64];
+        snprintf(l,63,"%s ", w->label);
+        const char* format[] = {"%.1f", "%.2f", "%.3f"};
+        snprintf(s, 63, format[2-1], w->adj->value);
+        strcat(l,s);
+        cairo_set_font_size (w->crb, min(11.0,height));
+        cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
+                                   CAIRO_FONT_WEIGHT_BOLD);
+        cairo_text_extents(w->crb, l, &extents);
+        cairo_move_to (w->crb, min(width-extents.width ,(width-height)*sliderstate), height);
+        cairo_show_text(w->crb, l);
+        cairo_new_path (w->crb);
+    }
+}
+
+static void check_radio(X11_UI* ui, uint32_t port_index, float*value) {
+    if(!(int)(*value)) return;
+    float v = 0.0;
+    switch ((PortIndex)port_index)
+        {
+        case play1:
+            check_value_changed(ui->widget[8]->adj, &v);
+        break;
+        case play2:
+            check_value_changed(ui->widget[9]->adj, &v);
+        break;
+        case play3:
+            check_value_changed(ui->widget[10]->adj, &v);
+        break;
+        case play4:
+            check_value_changed(ui->widget[11]->adj, &v);
+        break;
+        case rplay1:
+            check_value_changed(ui->widget[4]->adj, &v);
+        break;
+        case rplay2:
+            check_value_changed(ui->widget[5]->adj, &v);
+        break;
+        case rplay3:
+            check_value_changed(ui->widget[6]->adj, &v);
+        break;
+        case rplay4:
+            check_value_changed(ui->widget[7]->adj, &v);
+        break;
+        default:
+        break;
+    }
+}
+
+static void check_clip(X11_UI* ui, uint32_t port_index) {
+    switch ((PortIndex)port_index)
+        {
+        case clip1:
+        case clips1:
+            expose_widget(ui->widget[16]);
+        break;
+        case clip2:
+        case clips2:
+            expose_widget(ui->widget[17]);
+        break;
+        case clip3:
+        case clips3:
+            expose_widget(ui->widget[18]);
+        break;
+        case clip4:
+        case clips4:
+            expose_widget(ui->widget[19]);
+        break;
+        default:
+        break;
+    }
+}
+
+static void check_reset(X11_UI* ui, uint32_t port_index, float*value) {
+    if(!(int)(*value)) return;
+    float v = 0.0;
+    float vi = 100.0;
+    switch ((PortIndex)port_index)
+        {
+        case reset1:
+            check_value_changed(ui->widget[20]->adj, &v);
+            check_value_changed(ui->widget[24]->adj, &vi);
+        break;
+        case reset2:
+            check_value_changed(ui->widget[21]->adj, &v);
+            check_value_changed(ui->widget[25]->adj, &vi);
+        break;
+        case reset3:
+            check_value_changed(ui->widget[22]->adj, &v);
+            check_value_changed(ui->widget[26]->adj, &vi);
+        break;
+        case reset4:
+            check_value_changed(ui->widget[23]->adj, &v);
+            check_value_changed(ui->widget[27]->adj, &vi);
+        break;
+
+        default:
+        break;
+    }
+}
+
+static void check_sync(X11_UI* ui, uint32_t port_index, float*value) {
+    if (!adj_get_value(ui->widget[42]->adj)) return;
+    switch ((PortIndex)port_index)
+        {
+        case play1:
+            check_value_changed(ui->widget[5]->adj, value);
+            check_value_changed(ui->widget[6]->adj, value);
+            check_value_changed(ui->widget[7]->adj, value);
+        break;
+        case rplay1:
+            check_value_changed(ui->widget[9]->adj, value);
+            check_value_changed(ui->widget[10]->adj, value);
+            check_value_changed(ui->widget[11]->adj, value);
+        break;
+        case rback1:
+            check_value_changed(ui->widget[39]->adj, value);
+            check_value_changed(ui->widget[40]->adj, value);
+            check_value_changed(ui->widget[41]->adj, value);
+        break;
+        case clips1:
+            check_value_changed(ui->widget[21]->adj, value);
+            check_value_changed(ui->widget[22]->adj, value);
+            check_value_changed(ui->widget[23]->adj, value);
+        break;
+        case clip1:
+            check_value_changed(ui->widget[25]->adj, value);
+            check_value_changed(ui->widget[26]->adj, value);
+            check_value_changed(ui->widget[27]->adj, value);
+        break;
+        case speed1:
+            check_value_changed(ui->widget[29]->adj, value);
+            check_value_changed(ui->widget[30]->adj, value);
+            check_value_changed(ui->widget[31]->adj, value);
+        break;
+
+        default:
+        break;
+    }
+}
+
 // if controller value changed send notify to host
 static void value_changed(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     X11_UI* ui = (X11_UI*)w->parent_struct;
-    if (ui->block_event != w->data) 
+    if (ui->block_event != w->data) {
         ui->write_function(ui->controller,w->data,sizeof(float),0,&w->adj->value);
+        check_radio(ui, (uint32_t)w->data, &w->adj->value);
+        check_clip(ui, (uint32_t)w->data);
+        check_reset(ui, (uint32_t)w->data, &w->adj->value);
+        check_sync(ui, (uint32_t)w->data, &w->adj->value);
+    }
     ui->block_event = -1;
+}
+
+static void tool_changed(void *w_, void* user_data) {
+    Widget_t *w = (Widget_t*)w_;
+    X11_UI* ui = (X11_UI*)w->parent_struct;
+    
+    int i = 20;
+    for(;i<36;i++) {
+        if(w->adj->value) ui->widget[i]->flags |= HAS_TOOLTIP;
+        else ui->widget[i]->flags &= ~HAS_TOOLTIP;
+    }
+    if(w->adj->value) ui->widget[42]->flags |= HAS_TOOLTIP;
+    else ui->widget[42]->flags &= ~HAS_TOOLTIP;
 }
 
 // shortcut to create knobs with portindex binding
@@ -229,6 +424,38 @@ Widget_t* add_my_knob(Widget_t *w, PortIndex index, const char * label,
                                 X11_UI* ui, int x, int y, int width, int height) {
     w = add_knob(ui->win, label, x, y, width, height);
     w->func.expose_callback = draw_my_knob;    
+    w->parent_struct = ui;
+    w->data = index;
+    w->func.value_changed_callback = value_changed;
+    return w;
+}
+
+// shortcut to create buttons with portindex binding
+Widget_t* add_my_toggle_button(Widget_t *w, PortIndex index, const char * label,
+                                X11_UI* ui, int x, int y, int width, int height) {
+    w = add_image_toggle_button(ui->win, label, x, y, width, height);
+    w->parent_struct = ui;
+    w->data = index;
+    w->func.value_changed_callback = value_changed;
+    return w;
+}
+
+// shortcut to create buttons with portindex binding
+Widget_t* add_my_button(Widget_t *w, PortIndex index, const char * label,
+                                X11_UI* ui, int x, int y, int width, int height) {
+    w = add_button(ui->win, label, x, y, width, height);
+    w->parent_struct = ui;
+    w->data = index;
+    w->func.value_changed_callback = value_changed;
+    return w;
+}
+
+// shortcut to create knobs with portindex binding
+Widget_t* add_my_slider(Widget_t *w, PortIndex index, const char * label,
+                                X11_UI* ui, int x, int y, int width, int height) {
+    w = add_hslider(ui->win, label, x, y, width, height);
+    set_adjustment(w->adj,0.0, 0.0, 0.0, 100.0, 0.1, CL_CONTINUOS);
+    w->func.expose_callback = draw_my_hslider;    
     w->parent_struct = ui;
     w->data = index;
     w->func.value_changed_callback = value_changed;
@@ -286,26 +513,167 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     main_init(&ui->main);
     set_my_theme(&ui->main);
     // create the toplevel Window on the parentXwindow provided by the host
-    ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, 580, 180);
+    ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, 925, 180);
     ui->win->parent_struct = ui;
-    ui->win->label = "GxChorus-Stereo";
-    widget_get_png(ui->win, LDVAR(guitarix_png));
+    ui->win->label = "Gxlivelooper";
+    widget_get_png(ui->win, LDVAR(guitarix_orange_png));
     ui->screw = surface_get_png(ui->win, ui->screw, LDVAR(screw_png));
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
+    
+    ui->tool = add_check_box(ui->win, "Show tooltips", 40, 10, 80, 15);
+    ui->tool->parent_struct = ui;
+    adj_set_value(ui->tool->adj,1.0);
+    ui->tool->func.value_changed_callback = tool_changed;
+    
     // create knob widgets
-    ui->widget[0] = add_my_knob(ui->widget[0], LEVEL,"Level", ui,40, 25, 100, 125);
-    set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    ui->widget[0] = add_my_toggle_button(ui->widget[0], rec1,"", ui,140, 85, 30, 30);
+    widget_get_png(ui->widget[0], LDVAR(record_png));
 
-    ui->widget[1] = add_my_knob(ui->widget[1], DELAY,"Delay", ui,175, 25, 100, 125);
-    set_adjustment(ui->widget[1]->adj,0.02, 0.02, 0.0, 0.2, 0.001, CL_CONTINUOS);
+    ui->widget[1] = add_my_toggle_button(ui->widget[1], rec2,"", ui,305, 85, 30, 30);
+    widget_get_png(ui->widget[1], LDVAR(record_png));
 
-    ui->widget[2] = add_my_knob(ui->widget[2], DEPTH,"Depth", ui,310, 25, 100, 125);
-    set_adjustment(ui->widget[2]->adj,0.02, 0.02, 0.0, 1.0, 0.005, CL_CONTINUOS);
+    ui->widget[2] = add_my_toggle_button(ui->widget[2], rec3,"", ui,470, 85, 30, 30);
+    widget_get_png(ui->widget[2], LDVAR(record_png));
 
-    ui->widget[3] = add_my_knob(ui->widget[3], FREQ,"Freq", ui,440, 25, 100, 125);
-    set_adjustment(ui->widget[3]->adj,3.0, 3.0, 0.1, 10.0, 0.05, CL_CONTINUOS);
+    ui->widget[3] = add_my_toggle_button(ui->widget[3], rec4,"", ui,635, 85, 30, 30);
+    widget_get_png(ui->widget[3], LDVAR(record_png));
 
+
+    ui->widget[4] = add_my_toggle_button(ui->widget[4], play1,"", ui,170, 85, 30, 30);
+    widget_get_png(ui->widget[4], LDVAR(play_png));
+
+    ui->widget[5] = add_my_toggle_button(ui->widget[5], play2,"", ui,335, 85, 30, 30);
+    widget_get_png(ui->widget[5], LDVAR(play_png));
+
+    ui->widget[6] = add_my_toggle_button(ui->widget[6], play3,"", ui,500, 85, 30, 30);
+    widget_get_png(ui->widget[6], LDVAR(play_png));
+
+    ui->widget[7] = add_my_toggle_button(ui->widget[7], play4,"", ui,665, 85, 30, 30);
+    widget_get_png(ui->widget[7], LDVAR(play_png));
+
+
+    ui->widget[8] = add_my_toggle_button(ui->widget[8], rplay1,"", ui,200, 85, 30, 30);
+    widget_get_png(ui->widget[8], LDVAR(playreverse_png));
+
+    ui->widget[9] = add_my_toggle_button(ui->widget[9], rplay2,"", ui,365, 85, 30, 30);
+    widget_get_png(ui->widget[9], LDVAR(playreverse_png));
+
+    ui->widget[10] = add_my_toggle_button(ui->widget[10], rplay3,"", ui,530, 85, 30, 30);
+    widget_get_png(ui->widget[10], LDVAR(playreverse_png));
+
+    ui->widget[11] = add_my_toggle_button(ui->widget[11], rplay4,"", ui,695, 85, 30, 30);
+    widget_get_png(ui->widget[11], LDVAR(playreverse_png));
+
+
+    ui->widget[38] = add_my_button(ui->widget[38], rback1,"", ui,230, 85, 30, 30);
+    widget_get_png(ui->widget[38], LDVAR(back_png));
+
+    ui->widget[39] = add_my_button(ui->widget[39], rback2,"", ui,395, 85, 30, 30);
+    widget_get_png(ui->widget[39], LDVAR(back_png));
+
+    ui->widget[40] = add_my_button(ui->widget[40], rback3,"", ui,560, 85, 30, 30);
+    widget_get_png(ui->widget[40], LDVAR(back_png));
+
+    ui->widget[41] = add_my_button(ui->widget[41], rback4,"", ui,725, 85, 30, 30);
+    widget_get_png(ui->widget[41], LDVAR(back_png));
+
+
+    ui->widget[12] = add_my_button(ui->widget[12], reset1,"", ui,260, 85, 30, 30);
+    widget_get_png(ui->widget[12], LDVAR(close_png));
+
+    ui->widget[13] = add_my_button(ui->widget[13], reset2,"", ui,425, 85, 30, 30);
+    widget_get_png(ui->widget[13], LDVAR(close_png));
+
+    ui->widget[14] = add_my_button(ui->widget[14], reset3,"", ui,590, 85, 30, 30);
+    widget_get_png(ui->widget[14], LDVAR(close_png));
+
+    ui->widget[15] = add_my_button(ui->widget[15], reset4,"", ui,755, 85, 30, 30);
+    widget_get_png(ui->widget[15], LDVAR(close_png));
+
+
+    ui->widget[20] = add_my_slider(ui->widget[20], clips1,"clip", ui,140, 115, 150, 12);
+    add_tooltip(ui->widget[20],"clip loop at start");
+    ui->widget[21] = add_my_slider(ui->widget[21], clips2,"clip", ui,305, 115, 150, 12);
+    add_tooltip(ui->widget[21],"clip loop at start");
+    ui->widget[22] = add_my_slider(ui->widget[22], clips3,"clip", ui,470, 115, 150, 12);
+    add_tooltip(ui->widget[22],"clip loop at start");
+    ui->widget[23] = add_my_slider(ui->widget[23], clips4,"clip", ui,635, 115, 150, 12);
+    add_tooltip(ui->widget[23],"clip loop at start");
+
+    ui->widget[24] = add_my_slider(ui->widget[24], clip1,"cut", ui,140, 127, 150, 12);
+    add_tooltip(ui->widget[24],"cut loop at end");
+    ui->widget[25] = add_my_slider(ui->widget[25], clip2,"cut", ui,305, 127, 150, 12);
+    add_tooltip(ui->widget[25],"cut loop at end");
+    ui->widget[26] = add_my_slider(ui->widget[26], clip3,"cut", ui,470, 127, 150, 12);
+    add_tooltip(ui->widget[26],"cut loop at end");
+    ui->widget[27] = add_my_slider(ui->widget[27], clip4,"cut", ui,635, 127, 150, 12);
+    add_tooltip(ui->widget[27],"cut loop at end");
+
+    ui->widget[16] = add_playhead(ui->win,"", ui->widget[20]->adj, ui->widget[24]->adj, 140,75,150,10);
+    ui->widget[16]->parent_struct = ui;
+    ui->widget[16]->data = playh1;
+
+    ui->widget[17] = add_playhead(ui->win,"", ui->widget[21]->adj, ui->widget[25]->adj, 305,75,150,10);
+    ui->widget[17]->parent_struct = ui;
+    ui->widget[17]->data = playh2;
+
+    ui->widget[18] = add_playhead(ui->win,"", ui->widget[22]->adj, ui->widget[26]->adj, 470,75,150,10);
+    ui->widget[18]->parent_struct = ui;
+    ui->widget[18]->data = playh3;
+
+    ui->widget[19] = add_playhead(ui->win,"", ui->widget[23]->adj, ui->widget[27]->adj, 635,75,150,10);
+    ui->widget[19]->parent_struct = ui;
+    ui->widget[19]->data = playh4;
+
+    ui->widget[28] = add_my_slider(ui->widget[28], speed1,"speed", ui,140, 63, 150, 12);
+    set_adjustment(ui->widget[28]->adj,0.0, 0.0, -0.9, 0.9, 0.01, CL_CONTINUOS);
+    add_tooltip(ui->widget[28],"playback speed");
+
+    ui->widget[29] = add_my_slider(ui->widget[29], speed2,"speed", ui,305, 63, 150, 12);
+    set_adjustment(ui->widget[29]->adj,0.0, 0.0, -0.9, 0.9, 0.01, CL_CONTINUOS);
+    add_tooltip(ui->widget[29],"playback speed");
+
+    ui->widget[30] = add_my_slider(ui->widget[30], speed3,"speed", ui,470, 63, 150, 12);
+    set_adjustment(ui->widget[30]->adj,0.0, 0.0, -0.9, 0.9, 0.01, CL_CONTINUOS);
+    add_tooltip(ui->widget[30],"playback speed");
+
+    ui->widget[31] = add_my_slider(ui->widget[31], speed4,"speed", ui,635, 63, 150, 12);
+    set_adjustment(ui->widget[31]->adj,0.0, 0.0, -0.9, 0.9, 0.01, CL_CONTINUOS);
+    add_tooltip(ui->widget[31],"playback speed");
+
+
+    ui->widget[32] = add_my_slider(ui->widget[32], level1,"level", ui,140, 43, 150, 12);
+    set_adjustment(ui->widget[32]->adj,50.0, 50.0, 0.0, 100., 1.0, CL_CONTINUOS);
+    add_tooltip(ui->widget[32],"loop1 playback level");
+
+    ui->widget[33] = add_my_slider(ui->widget[33], level2,"level", ui,305, 43, 150, 12);
+    set_adjustment(ui->widget[33]->adj,50.0, 50.0, 0.0, 100., 1.0, CL_CONTINUOS);
+    add_tooltip(ui->widget[33],"loop2 playback level");
+
+    ui->widget[34] = add_my_slider(ui->widget[34], level3,"level", ui,470, 43, 150, 12);
+    set_adjustment(ui->widget[34]->adj,50.0, 50.0, 0.0, 100., 1.0, CL_CONTINUOS);
+    add_tooltip(ui->widget[34],"loop3 playback level");
+
+    ui->widget[35] = add_my_slider(ui->widget[35], level4,"level", ui,635, 43, 150, 12);
+    set_adjustment(ui->widget[35]->adj,50.0, 50.0, 0.0, 100., 1.0, CL_CONTINUOS);
+    add_tooltip(ui->widget[35],"loop4 playback level");
+
+
+    ui->widget[36] = add_my_knob(ui->widget[36], gain,"Gain", ui,40, 35, 80, 105);
+    set_adjustment(ui->widget[36]->adj,0.0, 0.0, -20.0, 12.0, 0.1, CL_CONTINUOS);
+
+    ui->widget[37] = add_my_knob(ui->widget[37], mix,"Mix", ui,805, 35, 80, 105);
+    set_adjustment(ui->widget[37]->adj,100.0, 100.0, 0.0, 150.0, 1.0, CL_CONTINUOS);
+
+    
+    ui->widget[42] = add_check_box(ui->win, "sync tapes", 140, 150, 80, 15);
+    ui->widget[42]->parent_struct = ui;
+    ui->widget[42]->data = synct;
+    ui->widget[42]->func.value_changed_callback = value_changed;
+    add_tooltip(ui->widget[42],"loop1 becomes the master");
+
+    adj_set_value(ui->tool->adj,0.0);
     // map all widgets into the toplevel Widget_t
     widget_show_all(ui->win);
     // set the widget pointer to the X11 Window from the toplevel Widget_t
@@ -313,7 +681,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     // request to resize the parentXwindow to the size of the toplevel Widget_t
     if (resize){
         ui->resize = resize;
-        resize->ui_resize(resize->handle, 580, 180);
+        resize->ui_resize(resize->handle, 925, 180);
     }
     // store pointer to the host controller
     ui->controller = controller;
@@ -353,7 +721,11 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
             // and set new one, when needed
             check_value_changed(ui->widget[i]->adj, &value);
         }
-   }
+    }
+    check_radio(ui, port_index, &value);
+    check_clip(ui, port_index);
+    check_reset(ui, port_index, &value);
+    check_sync(ui, port_index, &value);
 }
 
 // LV2 idle interface to host

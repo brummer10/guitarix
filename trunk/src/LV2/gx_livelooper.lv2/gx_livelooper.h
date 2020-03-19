@@ -74,6 +74,11 @@ typedef enum
     reset2,
     reset3,
     reset4,
+    rback1,
+    rback2,
+    rback3,
+    rback4,
+    synct,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

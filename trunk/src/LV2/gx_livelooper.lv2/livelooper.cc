@@ -158,6 +158,16 @@ private:
 	float 	*fplay4_;
 	float 	*fplayh4_;
 	float 	*gain4_;
+	float 	*back1_;
+	float 	*back2_;
+	float 	*back3_;
+	float 	*back4_;
+	float 	back1;
+	float 	back2;
+	float 	back3;
+	float 	back4;
+	float 	*sync_tapes_;
+	float 	sync_tapes;
 	bool save1;
 	bool save2;
 	bool save3;
@@ -294,10 +304,10 @@ void LiveLooper::init_static(unsigned int samplingFreq, PluginLV2 *p)
 void LiveLooper::mem_alloc()
 {
     try {
-        if (!tape1) tape1 = new float[4194304];
-        if (!tape2) tape2 = new float[4194304];
-        if (!tape3) tape3 = new float[4194304];
-        if (!tape4) tape4 = new float[4194304];
+        if (!tape1) tape1 = new float[4194304]{};
+        if (!tape2) tape2 = new float[4194304]{};
+        if (!tape3) tape3 = new float[4194304]{};
+        if (!tape4) tape4 = new float[4194304]{};
         } catch(...) {
             fprintf(stderr, "livelooper out of memory");
             return;
@@ -485,6 +495,11 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 #define freset2 (*freset2_)
 #define freset3 (*freset3_)
 #define freset4 (*freset4_)
+#define back1 (*back1_)
+#define back2 (*back2_)
+#define back3 (*back3_)
+#define back4 (*back4_)
+#define sync_tapes (*sync_tapes_)
     // trigger save array on exit
 	if(record1 || freset1) save1 = true;
     if(record2 || freset2) save2 = true;
@@ -505,17 +520,16 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 	record3     = rectime2? record3 : 0.0;
 	record4     = rectime3? record4 : 0.0;
     // freset clip when freset is pressed
-    if (freset1) {fclip1=100.0;fclips1=0.0;}
-    if (freset2) {fclip2=100.0;fclips2=0.0;}
-    if (freset3) {fclip3=100.0;fclips3=0.0;}
-    if (freset4) {fclip4=100.0;fclips4=0.0;}
+    if (freset1) {fclip1=100.0;fclips1=0.0;memset(tape1,0,4194304*sizeof(float));}
+    if (freset2) {fclip2=100.0;fclips2=0.0;memset(tape2,0,4194304*sizeof(float));}
+    if (freset3) {fclip3=100.0;fclips3=0.0;memset(tape3,0,4194304*sizeof(float));}
+    if (freset4) {fclip4=100.0;fclips4=0.0;memset(tape4,0,4194304*sizeof(float));}
     // switch off freset button when buffer is empty 
     freset1     = (rectime0 < 4194304*fConst2)? freset1 : 0.0;
 	freset2     = (rectime1 < 4194304*fConst2)? freset2 : 0.0;
 	freset3     = (rectime2 < 4194304*fConst2)? freset3 : 0.0;
 	freset4     = (rectime3 < 4194304*fConst2)? freset4 : 0.0;
     // set fplay head position
-    
     float ph1      = RecSize1[0] ? 1.0/(RecSize1[0] * 0.001) : 0.0;
     fplayh1 = (1-iVec0[0]) * fmin(1000,fmax(0,float(IOTAR1*ph1)));
     float ph2      = RecSize2[0] ? 1.0/(RecSize2[0] * 0.001) : 0.0;
@@ -553,6 +567,21 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 	float   iClips2  = (100-fclips2)*0.01;
 	float   iClips3  = (100-fclips3)*0.01;
 	float   iClips4  = (100-fclips4)*0.01;
+    if(sync_tapes) {
+        fplayh4 = fplayh3 = fplayh2 = fplayh1;
+        IOTAR4 = IOTAR3 =IOTAR2 = IOTAR1;
+        IOTA4 = iSlow12 ? IOTA4 : IOTA1;
+        IOTA3 = iSlow9 ? IOTA3 : IOTA1;
+        IOTA2 = iSlow6 ? IOTA2 : IOTA1;
+        fplay4 = fplay3 = fplay2 = fplay1;
+        rfplay4 = rfplay3 = rfplay2 = rfplay1;
+        iClip4 = iClip3 = iClip2 = iClip1;
+        iClips4 = iClips3 = iClips2 = iClips1;
+        RecSize4[0] = RecSize3[0] = RecSize2[0] = RecSize1[0];
+        RecSize4[1] = RecSize3[1] = RecSize2[1] = RecSize1[1];
+        speed4 = speed3 = speed2 = speed1;
+        rectime3 = rectime2 = rectime1 = rectime0;
+    }
     // run loop
 	for (int i=0; i<count; i++) {
 		fRec0[0] = (fSlow0 + (0.999f * fRec0[1]));
@@ -571,7 +600,8 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         IOTAR1 = IOTAR1-speed1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):(IOTAR1-speed1)-1;
         } else if (fplay1) {
         IOTAR1 = IOTAR1+speed1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):(IOTAR1+speed1)+1;
-        } 
+        }
+        if(back1) IOTAR1 = iTemp3 - int(iTemp3*iClips1);
 		
         float fTemp4 = ((int((fRec1[1] != 0.0f)))?((int(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))))?fRec1[1]:0):((int(((fRec2[1] == 0.0f) & (iTemp3 != iRec3[1]))))?fConst0:((int(((fRec2[1] == 1.0f) & (iTemp3 != iRec4[1]))))?fConst1:0)));
 		fRec1[0] = fTemp4;
@@ -593,7 +623,8 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         } else if (fplay2) {
         IOTAR2 = IOTAR2+speed2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):(IOTAR2+speed2)+1;
         }
-        
+        if(back2) IOTAR2 = iTemp7 - int(iTemp7*iClips2);
+       
         float fTemp8 = ((int((fRec6[1] != 0.0f)))?((int(((fRec7[1] > 0.0f) & (fRec7[1] < 1.0f))))?fRec6[1]:0):((int(((fRec7[1] == 0.0f) & (iTemp7 != iRec8[1]))))?fConst0:((int(((fRec7[1] == 1.0f) & (iTemp7 != iRec9[1]))))?fConst1:0)));
 		fRec6[0] = fTemp8;
 		fRec7[0] = fmax(0.0f, fmin(1.0f, (fRec7[1] + fTemp8)));
@@ -614,6 +645,8 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         } else if (fplay3) {
         IOTAR3 = IOTAR3+speed3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):(IOTAR3+speed3)+1;
         }
+        if(back3) IOTAR3 = iTemp11 - int(iTemp11*iClips3);
+
         float fTemp12 = ((int((fRec11[1] != 0.0f)))?((int(((fRec12[1] > 0.0f) & (fRec12[1] < 1.0f))))?fRec11[1]:0):((int(((fRec12[1] == 0.0f) & (iTemp11 != iRec13[1]))))?fConst0:((int(((fRec12[1] == 1.0f) & (iTemp11 != iRec14[1]))))?fConst1:0)));
 		fRec11[0] = fTemp12;
 		fRec12[0] = fmax(0.0f, fmin(1.0f, (fRec12[1] + fTemp12)));
@@ -634,6 +667,8 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
         } else if (fplay4) {
         IOTAR4 = IOTAR4+speed4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):(IOTAR4+speed4)+1;
         }
+        if(back4) IOTAR4 = iTemp15 - int(iTemp15*iClips4);
+
         float fTemp16 = ((int((fRec16[1] != 0.0f)))?((int(((fRec17[1] > 0.0f) & (fRec17[1] < 1.0f))))?fRec16[1]:0):((int(((fRec17[1] == 0.0f) & (iTemp15 != iRec18[1]))))?fConst0:((int(((fRec17[1] == 1.0f) & (iTemp15 != iRec19[1]))))?fConst1:0)));
 		fRec16[0] = fTemp16;
 		fRec17[0] = fmax(0.0f, fmin(1.0f, (fRec17[1] + fTemp16)));
@@ -709,6 +744,10 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 #undef freset2
 #undef freset3
 #undef freset4
+#undef back1
+#undef back2
+#undef back3
+#undef back4
 }
 
 void __rt_func LiveLooper::compute_static(int count, float *input0, float *output0, PluginLV2 *p)
@@ -845,6 +884,21 @@ void LiveLooper::connect(uint32_t port,void* data)
 		break;
 	case reset4: 
 		freset4_ = (float*)data; // ,  0.0, 0.0, 1.0, 1.0
+		break;
+	case rback1: 
+		back1_ = (float*)data; // ,  0.0, 0.0, 1.0, 1.0
+		break;
+	case rback2: 
+		back2_ = (float*)data; // ,  0.0, 0.0, 1.0, 1.0
+		break;
+	case rback3: 
+		back3_ = (float*)data; // ,  0.0, 0.0, 1.0, 1.0
+		break;
+	case rback4: 
+		back4_ = (float*)data; // ,  0.0, 0.0, 1.0, 1.0
+		break;
+	case synct: 
+		sync_tapes_ = (float*)data; // ,  0.0, 0.0, 1.0, 1.0
 		break;
 	default:
 		break;
