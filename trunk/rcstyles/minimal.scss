@@ -344,3 +344,9 @@ gx-level-slider.lmw {
     -GxRegler-value-border: 5 8 6 8;
     font-size: 7pt;
 }
+
+// alway show bpm value (Digital Delay)
+#dide-bpm,
+#didest-bpm {
+    @extend %show-value-always;
+}
