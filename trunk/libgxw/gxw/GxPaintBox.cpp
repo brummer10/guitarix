@@ -1588,6 +1588,10 @@ static void simple_level_meter_expose(GtkWidget *wi, cairo_t *cr)
 	char  buf[32];
 
 	int rad = 6;
+	cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+	cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.0);
+	cairo_paint(cr);
+	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 	gx_draw_inset(cr, x0, y0, rect_width,rect_height, rad, 1);
 
 	gx_draw_glass(cr, x0, y0, rect_width,rect_height, rad);
