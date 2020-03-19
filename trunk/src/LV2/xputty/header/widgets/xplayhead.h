@@ -20,27 +20,30 @@
 
 #pragma once
 
-#ifndef XWIDGETS_H_
-#define XWIDGETS_H_
+#ifndef XPLAYHEAD_H_
+#define XPLAYHEAD_H_
+
+#include "xputty.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-/** xwidgets.h include some predefined widgets for libxputty, include this to use them 
- * if you would only use libxputty and define your own widgets, include xputt.h 
- * instead this one in your project.
+/**
+ * @brief add_playhead        - add a playhead to a Widget_t
+ * connect to func.value_changed_callback to implement your actions
+ * @param *parent             - pointer to the Widget_t request the vumeter
+ * @param *label              - Label to show on the vumeter
+ * @param x,y,width,height    - the position/geometry to create the vumeter
+ * @return Widget_t*          - pointer to the Widget_t meter struct
  */
 
-// widget header
-#include "xbutton.h"
-#include "xslider.h"
-#include "xknob.h"
-#include "xmenu.h"
-#include "xcombobox.h"
-#include "xtooltip.h"
-#include "xmeter.h"
-#include "xlabel.h"
-#include "xlistbox.h"
-#include "xlistview.h"
-#include "xplayhead.h"
+Widget_t* add_playhead(Widget_t *parent, const char * label, Adjustment_t *clip,
+                Adjustment_t *cut, int x, int y, int width, int height);
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif //XWIDGETS_H_
+#endif //XPLAYHEAD_H_
