@@ -84,8 +84,6 @@ static void draw_window(void *w_, void* user_data) {
     cairo_set_source_rgb (w->crb,0.45, 0.45, 0.45);
     float font_size = min(26.0,((w->height/2.2 < (w->width*0.5)/3) ? w->height/2.2 : (w->width*0.5)/3));
     cairo_set_font_size (w->crb, font_size);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
     double tw = extents.width/2.0;
 
@@ -187,8 +185,6 @@ static void draw_my_knob(void *w_, void* user_data) {
         snprintf(s, 63, format[2-1], w->adj_y->value);
         cairo_set_source_rgb (w->crb, 0.6, 0.6, 0.6);
         cairo_set_font_size (w->crb, min(11.0,knobx1/3));
-        cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                                   CAIRO_FONT_WEIGHT_BOLD);
         cairo_text_extents(w->crb, s, &extents);
         cairo_move_to (w->crb, knobx1-extents.width/2, knoby1+extents.height/2);
         cairo_show_text(w->crb, s);
@@ -197,10 +193,8 @@ static void draw_my_knob(void *w_, void* user_data) {
 
     /** show label below the knob**/
     use_text_color_scheme(w, get_color_state(w));
-    float font_size = min(11.0,((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3));
+    float font_size = min(12.0,((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3));
     cairo_set_font_size (w->crb, font_size);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, knobx1-extents.width/2, height );

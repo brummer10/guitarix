@@ -98,8 +98,6 @@ static void draw_window(void *w_, void* user_data) {
     cairo_set_source_rgb (w->crb,0.45, 0.45, 0.45);
     float font_size = min(20.0,((w->height/2.2 < (w->width*0.5)/3) ? w->height/2.2 : (w->width*0.5)/3));
     cairo_set_font_size (w->crb, font_size);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
     double tw = extents.width/2.0;
 

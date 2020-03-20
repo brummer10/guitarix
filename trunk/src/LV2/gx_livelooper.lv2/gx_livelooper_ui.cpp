@@ -69,6 +69,17 @@ static void set_my_theme(Xputty *main) {
         .frame =    { 0.18, 0.18, 0.18, 1.0},
         .light =    { 0.18, 0.18, 0.28, 1.0}
     };
+
+    main->color_scheme->active = (Colors) {
+         /* cairo    / r  / g  / b  / a  /  */
+        .fg =       { 0.68, 0.44, 0.00, 1.00},
+        .bg =       { 0.1, 0.1, 0.1, 1.0},
+        .base =     { 0.1, 0.1, 0.1, 1.0},
+        .text =     { 0.85, 0.52, 0.00, 1.00},
+        .shadow =   { 0.85, 0.52, 0.00, 0.2},
+        .frame =    { 0.0, 0.0, 0.0, 1.0},
+        .light =    { 0.1, 0.1, 0.2, 1.0}
+    };
 }
 
 // draw the window
@@ -97,8 +108,6 @@ static void draw_window(void *w_, void* user_data) {
     //cairo_set_source_rgb (w->crb,0.45, 0.45, 0.45);
     float font_size = min(20.0,((w->height/2.2 < (w->width*0.5)/3) ? w->height/2.2 : (w->width*0.5)/3));
     cairo_set_font_size (w->crb, font_size);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
     double tw = extents.width/2.0;
 
@@ -200,19 +209,15 @@ static void draw_my_knob(void *w_, void* user_data) {
         const char* format[] = {"%.1f", "%.2f", "%.3f"};
         snprintf(s, 63, format[2-1], w->adj_y->value);
         cairo_set_font_size (w->crb, min(11.0,knobx1/3));
-        cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                                   CAIRO_FONT_WEIGHT_BOLD);
-        cairo_text_extents(w->crb, s, &extents);
+       cairo_text_extents(w->crb, s, &extents);
         cairo_move_to (w->crb, knobx1-extents.width/2, knoby1+extents.height/2);
         cairo_show_text(w->crb, s);
         cairo_new_path (w->crb);
     }
 
     /** show label below the knob**/
-    float font_size = min(11.0,((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3));
+    float font_size = min(12.0,((height/2.2 < (width*0.6)/3) ? height/2.2 : (width*0.6)/3));
     cairo_set_font_size (w->crb, font_size);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, knobx1-extents.width/2, height );
@@ -257,8 +262,6 @@ void draw_my_hslider(void *w_, void* user_data) {
         snprintf(s, 63, format[2-1], w->adj->value);
         strcat(l,s);
         cairo_set_font_size (w->crb, min(11.0,height));
-        cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                                   CAIRO_FONT_WEIGHT_BOLD);
         cairo_text_extents(w->crb, l, &extents);
         cairo_move_to (w->crb, min(width-extents.width ,(width-height)*sliderstate), height);
         cairo_show_text(w->crb, l);
@@ -385,6 +388,11 @@ static void check_sync(X11_UI* ui, uint32_t port_index, float*value) {
             check_value_changed(ui->widget[29]->adj, value);
             check_value_changed(ui->widget[30]->adj, value);
             check_value_changed(ui->widget[31]->adj, value);
+        break;
+        case reset1:
+            check_value_changed(ui->widget[13]->adj, value);
+            check_value_changed(ui->widget[14]->adj, value);
+            check_value_changed(ui->widget[15]->adj, value);
         break;
 
         default:
