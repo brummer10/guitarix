@@ -629,8 +629,13 @@ static void gx_fast_meter_size_request (GtkWidget* wd, gint *width, gint *height
 
 inline int calc_top(float level, bool hrz, GdkRectangle& b, int lh, int lb)
 {
-	int top = (int)floor((hrz ? b.width : b.height) * level);
-    return top - top % (lh + lb);
+    // number of led positions (add missing first led border)
+    int sz = ((hrz ? b.width : b.height) + lb) / (lh+lb);
+	int pos = (int)round(sz * level);
+    if (pos == 0) {
+        return 0;
+    }
+    return pos * (lh + lb) - lb; // substract missing first led border
 }
 
 void queue_redraw (GxFastMeter* fm)
