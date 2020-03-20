@@ -25,7 +25,8 @@ Options.OptionsContext.gxload = \
         Build.BuildContext.gxload = \
             lambda ctx, tool: ctx.load(tool, tooldir='waftools')
 
-good_faust_versions = ['2.15.11']
+check_in_faust_version = '2.20.2'  # this Faust should be used for checked in generated files
+other_faust_versions = ['2.15.11'] # other Faust versions known to work
 
 g_maxlen = 40 # maximum width of message for 2-column display
 
