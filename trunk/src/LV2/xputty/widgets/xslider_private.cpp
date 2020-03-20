@@ -92,8 +92,6 @@ void _draw_vslider(void *w_, void* user_data) {
 
     use_text_color_scheme(w, get_color_state(w));
     cairo_set_font_size (w->crb, center/2.1);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, center-extents.width/2, height-center/2.1);
@@ -162,8 +160,6 @@ void _draw_hslider(void *w_, void* user_data) {
 
     use_text_color_scheme(w, get_color_state(w));
     cairo_set_font_size (w->crb, center/2);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, width/2-extents.width/2, height );

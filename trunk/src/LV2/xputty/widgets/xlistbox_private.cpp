@@ -61,8 +61,6 @@ void _draw_listbox_item(void *w_, void* user_data) {
     /** show label **/
     use_text_color_scheme(w, get_color_state(w));
     cairo_set_font_size (w->crb, height/2);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, (width-extents.width)/2., height - extents.height );

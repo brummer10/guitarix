@@ -315,8 +315,6 @@ void mk_draw_knob(void *w_, void* user_data) {
         snprintf(s, 63,"%d",  (int) w->adj_y->value);
         cairo_set_source_rgb (w->crb, 0.6, 0.6, 0.6);
         cairo_set_font_size (w->crb, knobx1/3);
-        cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                                   CAIRO_FONT_WEIGHT_BOLD);
         cairo_text_extents(w->crb, s, &extents);
         cairo_move_to (w->crb, knobx1-extents.width/2, knoby1+extents.height/2);
         cairo_show_text(w->crb, s);
@@ -327,8 +325,6 @@ void mk_draw_knob(void *w_, void* user_data) {
     use_text_color_scheme(w, get_color_state(w));
     float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3);
     cairo_set_font_size (w->crb, font_size);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, knobx1-extents.width/2, height );

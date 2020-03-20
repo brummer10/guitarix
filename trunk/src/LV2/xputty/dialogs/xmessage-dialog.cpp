@@ -26,8 +26,6 @@ static void draw_message_label(Widget_t *w, int width, int height) {
     cairo_text_extents_t extents;
     use_fg_color_scheme(w, NORMAL_);
     cairo_set_font_size (w->crb, 12.0);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     int i = 0;
     for(;i<(int)mb->lin;i++) {
         cairo_text_extents(w->crb,mb->message[i] , &extents);
@@ -83,8 +81,6 @@ static void draw_entry(void *w_, void* user_data) {
     cairo_stroke(w->cr);
 
     cairo_set_font_size (w->cr, 9.0);
-    cairo_select_font_face (w->cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
 
     cairo_move_to (w->cr, 2, 9);
     cairo_show_text(w->cr, " ");
@@ -110,8 +106,6 @@ static void entry_add_text(void  *w_, void *label_) {
     w->label = w->input_label;
     strcat( w->input_label, "|");
     cairo_set_font_size (w->cr, 12.0);
-    cairo_select_font_face (w->cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->cr, w->input_label , &extents);
 
     cairo_move_to (w->cr, 2, 12.0+extents.height);
@@ -144,8 +138,6 @@ static void entry_clip(Widget_t *w) {
         strcat( w->input_label, "|");
     }
     cairo_set_font_size (w->cr, 12.0);
-    cairo_select_font_face (w->cr, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->cr, w->input_label , &extents);
 
     cairo_move_to (w->cr, 2, 12.0+extents.height);

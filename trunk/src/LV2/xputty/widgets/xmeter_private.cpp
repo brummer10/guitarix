@@ -36,8 +36,6 @@ void _draw_vmeter_scale(void *w_, void* user_data) {
     char  buf[32];
 
     cairo_set_font_size (w->crb, (float)rect_width/2);
-    cairo_select_font_face(w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_source_rgb(w->crb, 0.8, 0.8, 0.8);
 
     for (unsigned int i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i)
@@ -74,40 +72,38 @@ void _draw_hmeter_scale(void *w_, void* user_data) {
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
     int rect_width = attrs.width;
     int rect_height = attrs.height;
-	double x0      = 0;
-	double y0      = 0;
+    double x0      = 0;
+    double y0      = 0;
 
     int  db_points[] = { -50, -40, -30, -20, -15, -10, -6, -3, 0, 3 };
-	char  buf[32];
+    char  buf[32];
 
-	cairo_set_font_size (w->crb, (float)rect_height/2);
-	cairo_select_font_face(w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-							   CAIRO_FONT_WEIGHT_BOLD);
+    cairo_set_font_size (w->crb, (float)rect_height/2);
     cairo_set_source_rgba(w->crb, 0.6, 0.6, 0.6, 0.6);
 
-	for (unsigned int i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i)
-	{
-		float fraction = _log_meter(db_points[i]);
-		//cairo_set_source_rgb (w->crb,0.32 + 0.22*i/2,0.5 +  0.1*i/2, 0.1);
+    for (unsigned int i = 0; i < sizeof (db_points)/sizeof (db_points[0]); ++i)
+    {
+        float fraction = _log_meter(db_points[i]);
+        //cairo_set_source_rgb (w->crb,0.32 + 0.22*i/2,0.5 +  0.1*i/2, 0.1);
 
-		cairo_move_to (w->crb, x0+(rect_width * fraction),y0+rect_height*0.1);
-		cairo_line_to (w->crb, x0+(rect_width * fraction) ,y0+rect_height*0.6);
-		if (i<6)
-		{
-			snprintf (buf, sizeof (buf), "%d", db_points[i]);
-			cairo_move_to (w->crb, x0+(rect_width * fraction)+3,y0+rect_height);
-		}
-		else
-		{
-			snprintf (buf, sizeof (buf), " %d", db_points[i]);
-			cairo_move_to (w->crb, x0+(rect_width * fraction)+3,y0+rect_height );
-		}
-		cairo_show_text (w->crb, buf);
-	}
+        cairo_move_to (w->crb, x0+(rect_width * fraction),y0+rect_height*0.1);
+        cairo_line_to (w->crb, x0+(rect_width * fraction) ,y0+rect_height*0.6);
+        if (i<6)
+        {
+            snprintf (buf, sizeof (buf), "%d", db_points[i]);
+            cairo_move_to (w->crb, x0+(rect_width * fraction)+3,y0+rect_height);
+        }
+        else
+        {
+            snprintf (buf, sizeof (buf), " %d", db_points[i]);
+            cairo_move_to (w->crb, x0+(rect_width * fraction)+3,y0+rect_height );
+        }
+        cairo_show_text (w->crb, buf);
+    }
 
-	cairo_set_source_rgba(w->crb, 0.6, 0.6, 0.6, 0.6);
-	cairo_set_line_width(w->crb, 1.5);
-	cairo_stroke(w->crb);
+    cairo_set_source_rgba(w->crb, 0.6, 0.6, 0.6, 0.6);
+    cairo_set_line_width(w->crb, 1.5);
+    cairo_stroke(w->crb);
 }
 
 float _log_meter (float db) {

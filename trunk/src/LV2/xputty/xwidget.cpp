@@ -186,10 +186,14 @@ Widget_t *create_window(Xputty *app, Window win,
                   DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
 
     w->cr = cairo_create(w->surface);
+    cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_NORMAL);
 
     w->buffer = cairo_surface_create_similar (w->surface, 
                         CAIRO_CONTENT_COLOR_ALPHA, width, height);
     w->crb = cairo_create (w->buffer);
+    cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_NORMAL);
 
     w->image = NULL;
 
@@ -289,11 +293,15 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
                   DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
 
     w->cr = cairo_create(w->surface);
+    cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_NORMAL);
 
     w->buffer = cairo_surface_create_similar (w->surface, 
                         CAIRO_CONTENT_COLOR_ALPHA, width, height);
     
     w->crb = cairo_create (w->buffer);
+    cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_NORMAL);
 
     w->image = NULL;
     

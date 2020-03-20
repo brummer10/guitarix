@@ -99,8 +99,6 @@ void _draw_image_button_with_label(Widget_t *w, int width_t, int height_t) {
 
     use_text_color_scheme(w, get_color_state(w));
     cairo_set_font_size (w->crb, (width_t*0.5)/3);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, (width_t*0.5)-(extents.width/2), height_t);
@@ -183,8 +181,6 @@ void _draw_button(void *w_, void* user_data) {
         use_text_color_scheme(w, get_color_state(w));
         float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3);
         cairo_set_font_size (w->crb, font_size);
-        cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                                   CAIRO_FONT_WEIGHT_BOLD);
         cairo_text_extents(w->crb,w->label , &extents);
         if(IS_UTF8(w->label[0])) {
             font_size = ((height/1.5 < (width)/1.5) ? height/1.5 : (width)/1.5);
@@ -229,8 +225,6 @@ void _draw_on_off_button(void *w_, void* user_data) {
     use_text_color_scheme(w, get_color_state(w));
     float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.6)/3);
     cairo_set_font_size (w->crb, font_size);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
     cairo_text_extents(w->crb,w->label , &extents);
     if(IS_UTF8(w->label[0])) {
         font_size = ((height/1.5 < (width)/1.5) ? height/1.5 : (width)/1.5);
@@ -283,7 +277,7 @@ void _draw_check_button(void *w_, void* user_data) {
         _draw_button_base(w, width, height);
 
         if(w->state==3) {
-            use_fg_color_scheme(w, ACTIVE_);
+            use_fg_color_scheme(w, get_color_state(w));
             float offset = 1.0;
             int wa = width/1.3;
             int h = height/2.2;
@@ -316,7 +310,7 @@ void _draw_check_box(void *w_, void* user_data) {
         _draw_button_base(w, height, height);
 
         if(adj_get_value(w->adj)) {
-            use_fg_color_scheme(w, ACTIVE_);
+            use_fg_color_scheme(w, get_color_state(w));
             float offset = 1.0;
             int wa = height/1.3;
             int h = height/2.2;
@@ -335,10 +329,8 @@ void _draw_check_box(void *w_, void* user_data) {
 
         cairo_text_extents_t extents;
         use_text_color_scheme(w, get_color_state(w));
-        float font_size = ((height/1.2 < (width*0.25)/3) ? height/1.2 : (width*0.25)/3);
+        float font_size = (min(12,(height/1.2 < (width*0.35)/3) ? height/1.2 : (width*0.35)/3));
         cairo_set_font_size (w->crb, font_size);
-        cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                                   CAIRO_FONT_WEIGHT_BOLD);
         cairo_text_extents(w->crb,w->label , &extents);
         cairo_move_to (w->crb, height+5 , (height+extents.height)*0.5 );
         cairo_show_text(w->crb, w->label);

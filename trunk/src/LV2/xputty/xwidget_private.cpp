@@ -249,6 +249,8 @@ void _resize_surface(Widget_t *wid, int width, int height) {
     wid->buffer = cairo_surface_create_similar (wid->surface, 
                         CAIRO_CONTENT_COLOR_ALPHA, width, height);
     wid->crb = cairo_create (wid->buffer);
+    cairo_select_font_face (wid->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_NORMAL);
 }
 
 void _resize_childs(Widget_t *wid) {

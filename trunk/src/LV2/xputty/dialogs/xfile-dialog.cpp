@@ -52,9 +52,6 @@ static void draw_window(void *w_, void* user_data) {
     widget_set_scale(w);
     use_fg_color_scheme(w, NORMAL_);
     cairo_set_font_size (w->crb, 12.0);
-    cairo_select_font_face (w->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_BOLD);
-
     cairo_move_to (w->crb, 20, 35);
     cairo_show_text(w->crb, "Directory");
     cairo_move_to (w->crb, 20, 85);
