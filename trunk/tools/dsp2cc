@@ -1889,6 +1889,29 @@ class Output(object):
             fp.write(plugin_standalone_header)
         self.parser.write(fp, "includes")
 
+    def scan_params(self, ccdef, plugin_id):
+        previous = ""
+        for line in ccdef:
+            if re.match('\s*//', line):
+                continue
+            line = previous + line
+            previous = ""
+            m = re.search(r'\.create_[a-zA-Z0-9_]+\s*\((.*)', line)
+            if not m:
+                continue
+            rest = m.group(1).strip()
+            if not rest.endswith(');'):
+                previous = line[:-1]
+                continue
+            m = re.search(r'(?:[a-z_0-9]+\s*,\s*)?(.*)', rest)
+            rest = m.group(1)
+            m = re.match(r'"([^"]*)', rest)
+            if m:
+                yield m.group(1)
+                continue
+            for v in re.findall(r'PARAM\(\s*"([^"]+)"\s*\)', rest):
+                yield plugin_id + "." + v
+
     def write_load_ui(self, fps, fpg, plugin_id, wrap=True):
         load_ui = 0
         ui_name = self.fname.replace(".dsp", "_ui.glade")
@@ -1904,13 +1927,9 @@ class Output(object):
         ui_name = self.fname.replace(".dsp", "_ui.cc")
         ccdef = ""
         if os.path.exists(ui_name):
-            ccdef = open(ui_name).read()
-            re_func_name = r'.*\.create_[a-zA-Z0-9_]+'
-            re_str = r'"([^"]*)'
-            re_param = r'PARAM\(\s*' + re_str
-            re_expr = r'\s*(//)?'+re_func_name+r'\s*\(\s*(?:[a-z_0-9]+\s*,\s*)?(?:'+re_param+'|'+re_str+')'
-            found_params = [v[2] if v[2] else plugin_id + "." + v[1]
-                            for v in re.findall(re_expr,ccdef) if not v[0]]
+            with open(ui_name) as ccfd:
+                ccdef = ccfd.read()
+            found_params = list(self.scan_params(StringIO(ccdef), plugin_id))
             if not self.parser.has_drywetbox and not self.parser.has_volume_p:
                 if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
                     raise SystemExit(1)
