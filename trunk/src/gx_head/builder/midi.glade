@@ -90,6 +90,7 @@
         </child>
         <child>
           <object class="GtkLabel" id="zone_name">
+            <property name="name">midi-zone-name-header</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
           </object>

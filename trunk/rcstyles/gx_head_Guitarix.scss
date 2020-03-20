@@ -182,6 +182,14 @@ dialog {
     checkbutton check { color: black; }
 }
 
+/****************************************************************
+ * midi connect window
+ */
+
+#midi-zone-name-header {
+    font-size: 12pt; // 12*PANGO_SCALE
+    font-weight: bold;
+}
 
 /****************************************************************
  * Ladspa / LV2 plugin window
