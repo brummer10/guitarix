@@ -526,12 +526,13 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
     if (freset2) {fclip2=100.0;fclips2=0.0;}
     if (freset3) {fclip3=100.0;fclips3=0.0;}
     if (freset4) {fclip4=100.0;fclips4=0.0;}
-    if(sync_tapes && freset1) {
+    if(sync_tapes || clear_buffers) {
         if (clear_buffers ==3) {memset(tape4,0,4194304*sizeof(float)); clear_buffers =0;}
         if (clear_buffers ==2) {memset(tape3,0,4194304*sizeof(float)); clear_buffers =3;}
         if (clear_buffers ==1) {memset(tape2,0,4194304*sizeof(float)); clear_buffers =2;}
         if (freset1) {memset(tape1,0,4194304*sizeof(float)); clear_buffers =1;}
-    } else {
+    } 
+    if (!clear_buffers) {
         if (freset1) {memset(tape1,0,4194304*sizeof(float));}
         if (freset2) {memset(tape2,0,4194304*sizeof(float));}
         if (freset3) {memset(tape3,0,4194304*sizeof(float));}
@@ -621,13 +622,13 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		iRec4[0] = ((int(((fRec2[1] <= 0.0f) & (iRec3[1] != iTemp3))))?iTemp3:iRec4[1]);
 		iVec2[0] = iSlow6;
 		float fTemp5 = (iSlow6 * fTemp0);
-		RecSize2[0] = fmin(4194304, (int)(iSlow7 * (((iSlow6 - iVec2[1]) <= 0) * (iSlow6 + RecSize2[1]))));
+		if (!sync_tapes) RecSize2[0] = fmin(4194304, (int)(iSlow7 * (((iSlow6 - iVec2[1]) <= 0) * (iSlow6 + RecSize2[1]))));
 		int iTemp6 = (4194304 - RecSize2[0]);
 		rectime1 = iTemp6*fConst2;
 		int iTemp7 = fmin(4194304-1, (int)(4194304 - iTemp6));
-		if (iSlow6 == 1) {
+		if ((sync_tapes && (rfplay1 ||fplay1)) || iSlow6 == 1) {
 		IOTA2 = IOTA2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTA2+1;
-		tape2[IOTA2] = fTemp5;
+		if (iSlow6 == 1) tape2[IOTA2] = fTemp5;
         }
 		if (rfplay2) {
         IOTAR2 = IOTAR2-speed2< (iTemp7 - int(iTemp7*iClips2))? int(iTemp7*iClip2):(IOTAR2-speed2)-1;
@@ -643,13 +644,13 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		iRec9[0] = ((int(((fRec7[1] <= 0.0f) & (iRec8[1] != iTemp7))))?iTemp7:iRec9[1]);
 		iVec4[0] = iSlow9;
 		float fTemp9 = (iSlow9 * fTemp0);
-		RecSize3[0] = fmin(4194304, (int)(iSlow10 * (((iSlow9 - iVec4[1]) <= 0) * (iSlow9 + RecSize3[1]))));
+		if (!sync_tapes) RecSize3[0] = fmin(4194304, (int)(iSlow10 * (((iSlow9 - iVec4[1]) <= 0) * (iSlow9 + RecSize3[1]))));
 		int iTemp10 = (4194304 - RecSize3[0]);
 		rectime2 = iTemp10*fConst2;
 		int iTemp11 = fmin(4194304-1, (int)(4194304 - iTemp10));
-		if (iSlow9 == 1) {
+		if ((sync_tapes && (rfplay1 ||fplay1)) || iSlow9 == 1) {
 		IOTA3 = IOTA3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTA3+1;
-		tape3[IOTA3] = fTemp9;
+		if (iSlow9 == 1) tape3[IOTA3] = fTemp9;
         }
 		if (rfplay3) {
         IOTAR3 = IOTAR3-speed3< (iTemp11 - int(iTemp11*iClips3))? int(iTemp11*iClip3):(IOTAR3-speed3)-1;
@@ -665,13 +666,13 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		iRec14[0] = ((int(((fRec12[1] <= 0.0f) & (iRec13[1] != iTemp11))))?iTemp11:iRec14[1]);
 		iVec6[0] = iSlow12;
 		float fTemp13 = (iSlow12 * fTemp0);
-		RecSize4[0] = fmin(4194304, (int)(iSlow13 * (((iSlow12 - iVec6[1]) <= 0) * (iSlow12 + RecSize4[1]))));
+		if (!sync_tapes) RecSize4[0] = fmin(4194304, (int)(iSlow13 * (((iSlow12 - iVec6[1]) <= 0) * (iSlow12 + RecSize4[1]))));
 		int iTemp14 = (4194304 - RecSize4[0]);
 		rectime3 = iTemp14*fConst2;
 		int iTemp15 = fmin(4194304-1, (int)(4194304 - iTemp14));
-		if (iSlow12 == 1) {
+		if ((sync_tapes && (rfplay1 ||fplay1)) || iSlow12 == 1) {
 		IOTA4 = IOTA4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTA4+1;
-		tape4[IOTA4] = fTemp13;
+		if (iSlow12 == 1) tape4[IOTA4] = fTemp13;
         }
 		if (rfplay4) {
         IOTAR4 = IOTAR4-speed4< (iTemp15 - int(iTemp15*iClips4))? int(iTemp15*iClip4):(IOTAR4-speed4)-1;

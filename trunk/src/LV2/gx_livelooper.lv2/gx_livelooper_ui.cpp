@@ -360,34 +360,70 @@ static void check_sync(X11_UI* ui, uint32_t port_index, float*value) {
     switch ((PortIndex)port_index)
         {
         case play1:
-            check_value_changed(ui->widget[5]->adj, value);
-            check_value_changed(ui->widget[6]->adj, value);
-            check_value_changed(ui->widget[7]->adj, value);
+        case play2:
+        case play3:
+        case play4:
+            {
+            float v = adj_get_value(ui->widget[4]->adj);
+            check_value_changed(ui->widget[5]->adj, &v);
+            check_value_changed(ui->widget[6]->adj, &v);
+            check_value_changed(ui->widget[7]->adj, &v);
+            }
         break;
         case rplay1:
-            check_value_changed(ui->widget[9]->adj, value);
-            check_value_changed(ui->widget[10]->adj, value);
-            check_value_changed(ui->widget[11]->adj, value);
+        case rplay2:
+        case rplay3:
+        case rplay4:
+            {
+            float v = adj_get_value(ui->widget[8]->adj);
+            check_value_changed(ui->widget[9]->adj, &v);
+            check_value_changed(ui->widget[10]->adj, &v);
+            check_value_changed(ui->widget[11]->adj, &v);
+            }
         break;
         case rback1:
-            check_value_changed(ui->widget[39]->adj, value);
-            check_value_changed(ui->widget[40]->adj, value);
-            check_value_changed(ui->widget[41]->adj, value);
+        case rback2:
+        case rback3:
+        case rback4:
+            {
+            float v = adj_get_value(ui->widget[38]->adj);
+            check_value_changed(ui->widget[39]->adj, &v);
+            check_value_changed(ui->widget[40]->adj, &v);
+            check_value_changed(ui->widget[41]->adj, &v);
+            }
         break;
         case clips1:
-            check_value_changed(ui->widget[21]->adj, value);
-            check_value_changed(ui->widget[22]->adj, value);
-            check_value_changed(ui->widget[23]->adj, value);
+        case clips2:
+        case clips3:
+        case clips4:
+            {
+            float v = adj_get_value(ui->widget[20]->adj);
+            check_value_changed(ui->widget[21]->adj, &v);
+            check_value_changed(ui->widget[22]->adj, &v);
+            check_value_changed(ui->widget[23]->adj, &v);
+            }
         break;
         case clip1:
-            check_value_changed(ui->widget[25]->adj, value);
-            check_value_changed(ui->widget[26]->adj, value);
-            check_value_changed(ui->widget[27]->adj, value);
+        case clip2:
+        case clip3:
+        case clip4:
+            {
+            float v = adj_get_value(ui->widget[24]->adj);
+            check_value_changed(ui->widget[25]->adj, &v);
+            check_value_changed(ui->widget[26]->adj, &v);
+            check_value_changed(ui->widget[27]->adj, &v);
+            }
         break;
         case speed1:
-            check_value_changed(ui->widget[29]->adj, value);
-            check_value_changed(ui->widget[30]->adj, value);
-            check_value_changed(ui->widget[31]->adj, value);
+        case speed2:
+        case speed3:
+        case speed4:
+            {
+            float v = adj_get_value(ui->widget[28]->adj);
+            check_value_changed(ui->widget[29]->adj, &v);
+            check_value_changed(ui->widget[30]->adj, &v);
+            check_value_changed(ui->widget[31]->adj, &v);
+            }
         break;
         case reset1:
             check_value_changed(ui->widget[13]->adj, value);
