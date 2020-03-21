@@ -168,6 +168,7 @@ private:
 	float 	back4;
 	float 	*sync_tapes_;
 	float 	sync_tapes;
+	int 	clear_buffers;
 	bool save1;
 	bool save2;
 	bool save3;
@@ -294,6 +295,7 @@ inline void LiveLooper::init(unsigned int samplingFreq)
 	fConst0 = (1e+01f / float(fmin(192000, fmax(1, fSamplingFreq))));
 	fConst1 = (0 - fConst0);
     fConst2 = (1.0 / float(fmin(192000, fmax(1, fSamplingFreq))));
+    clear_buffers = 0;
 }
 
 void LiveLooper::init_static(unsigned int samplingFreq, PluginLV2 *p)
@@ -520,10 +522,21 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 	record3     = rectime2? record3 : 0.0;
 	record4     = rectime3? record4 : 0.0;
     // freset clip when freset is pressed
-    if (freset1) {fclip1=100.0;fclips1=0.0;memset(tape1,0,4194304*sizeof(float));}
-    if (freset2) {fclip2=100.0;fclips2=0.0;memset(tape2,0,4194304*sizeof(float));}
-    if (freset3) {fclip3=100.0;fclips3=0.0;memset(tape3,0,4194304*sizeof(float));}
-    if (freset4) {fclip4=100.0;fclips4=0.0;memset(tape4,0,4194304*sizeof(float));}
+    if (freset1) {fclip1=100.0;fclips1=0.0;}
+    if (freset2) {fclip2=100.0;fclips2=0.0;}
+    if (freset3) {fclip3=100.0;fclips3=0.0;}
+    if (freset4) {fclip4=100.0;fclips4=0.0;}
+    if(sync_tapes && freset1) {
+        if (clear_buffers ==3) {memset(tape4,0,4194304*sizeof(float)); clear_buffers =0;}
+        if (clear_buffers ==2) {memset(tape3,0,4194304*sizeof(float)); clear_buffers =3;}
+        if (clear_buffers ==1) {memset(tape2,0,4194304*sizeof(float)); clear_buffers =2;}
+        if (freset1) {memset(tape1,0,4194304*sizeof(float)); clear_buffers =1;}
+    } else {
+        if (freset1) {memset(tape1,0,4194304*sizeof(float));}
+        if (freset2) {memset(tape2,0,4194304*sizeof(float));}
+        if (freset3) {memset(tape3,0,4194304*sizeof(float));}
+        if (freset4) {memset(tape4,0,4194304*sizeof(float));}
+    }
     // switch off freset button when buffer is empty 
     freset1     = (rectime0 < 4194304*fConst2)? freset1 : 0.0;
 	freset2     = (rectime1 < 4194304*fConst2)? freset2 : 0.0;
@@ -570,9 +583,7 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
     if(sync_tapes) {
         fplayh4 = fplayh3 = fplayh2 = fplayh1;
         IOTAR4 = IOTAR3 =IOTAR2 = IOTAR1;
-        IOTA4 = iSlow12 ? IOTA4 : IOTA1;
-        IOTA3 = iSlow9 ? IOTA3 : IOTA1;
-        IOTA2 = iSlow6 ? IOTA2 : IOTA1;
+        IOTA4 = IOTA3 =IOTA2 = IOTA1;
         fplay4 = fplay3 = fplay2 = fplay1;
         rfplay4 = rfplay3 = rfplay2 = rfplay1;
         iClip4 = iClip3 = iClip2 = iClip1;
@@ -592,9 +603,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		int iTemp2 = (4194304 - RecSize1[0]);
 		rectime0 = iTemp2*fConst2;
         int iTemp3 = fmin(4194304-1, (int)(4194304 - iTemp2));
-		if (iSlow3 == 1) {
+		if ((sync_tapes && (rfplay1 ||fplay1)) || iSlow3 == 1) {
         IOTA1 = IOTA1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTA1+1;
-		tape1[IOTA1] = fTemp1;
+		if (iSlow3 == 1) tape1[IOTA1] = fTemp1;
         }
         if (rfplay1) {
         IOTAR1 = IOTAR1-speed1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):(IOTAR1-speed1)-1;
