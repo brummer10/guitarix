@@ -71,7 +71,7 @@ static void fp_sort_buffers(FilePicker *filepicker, int get_dirs) {
 }
 
 static void fp_clear_filebuffer(FilePicker *filepicker) {
-    int j = 0;
+    unsigned int j = 0;
     for(; j<filepicker->file_counter;j++) {
         free(filepicker->file_names[j]);
         filepicker->file_names[j] = NULL;
@@ -84,7 +84,7 @@ static void fp_clear_filebuffer(FilePicker *filepicker) {
 }
 
 static void fp_clear_dirbuffer(FilePicker *filepicker) {
-    int j = 0;
+    unsigned int j = 0;
     for(; j<filepicker->dir_counter;j++) {
         free(filepicker->dir_names[j]);
         filepicker->dir_names[j] = NULL;

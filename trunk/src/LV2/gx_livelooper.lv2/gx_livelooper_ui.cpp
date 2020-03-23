@@ -269,6 +269,28 @@ void draw_my_hslider(void *w_, void* user_data) {
     }
 }
 
+static void check_bar(X11_UI* ui, uint32_t port_index, float*value) {
+    if((int)(*value)) return;
+    float v = 0.0;
+    switch ((PortIndex)port_index)
+        {
+        case bar1:
+            check_value_changed(ui->widget[0]->adj, &v);
+        break;
+        case bar2:
+            check_value_changed(ui->widget[1]->adj, &v);
+        break;
+        case bar3:
+            check_value_changed(ui->widget[2]->adj, &v);
+        break;
+        case bar4:
+            check_value_changed(ui->widget[3]->adj, &v);
+        break;
+        default:
+        break;
+    }
+}
+
 static void check_radio(X11_UI* ui, uint32_t port_index, float*value) {
     if(!(int)(*value)) return;
     float v = 0.0;
@@ -766,6 +788,7 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
             check_value_changed(ui->widget[i]->adj, &value);
         }
     }
+    check_bar(ui, port_index, &value);
     check_radio(ui, port_index, &value);
     check_clip(ui, port_index);
     check_reset(ui, port_index, &value);

@@ -31,7 +31,7 @@
 namespace livelooper {
 
 
-class LiveLooper: public PluginLV2 {
+class LiveLooper {
 private:
 	int fSamplingFreq;
 	float 	fgain;
@@ -194,15 +194,16 @@ private:
     void load_array(std::string name);
     void save_to_wave(std::string fname, float *tape, float fSize);
     int load_from_wave(std::string fname, float *tape);
-    void set_p_state();
+    void set_p_state(Glib::ustring preset_file_name, bool save_file);
     
-	static void clear_state_f_static(PluginLV2*);
-	static int activate_static(bool start, PluginLV2*);
-	static void init_static(unsigned int samplingFreq, PluginLV2*);
-	static void compute_static(int count, float *input0, float *output0, PluginLV2*);
-	static void del_instance(PluginLV2 *p);
-	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
 public:
+	static void clear_state_f_static(LiveLooper*);
+	static int activate_static(bool start, LiveLooper*);
+	static void init_static(unsigned int samplingFreq, LiveLooper*);
+	static void compute_static(int count, float *input0, float *output0, LiveLooper*);
+	static void del_instance(LiveLooper *p);
+	static void connect_static(uint32_t port,void* data, LiveLooper *p);
+    static void set_preset_state(Glib::ustring preset_file_name, bool save_file, LiveLooper*);
 	LiveLooper();
 	~LiveLooper();
 };
@@ -210,8 +211,7 @@ public:
 
 
 LiveLooper::LiveLooper()
-	: PluginLV2(),
-	  tape1(0),
+	: tape1(0),
 	  tape2(0),
 	  tape3(0),
 	  tape4(0),
@@ -228,16 +228,7 @@ LiveLooper::LiveLooper()
       loop_dir("/gxloops/"),
       save_p(false),
 	  mem_allocated(false),
-      ready(false) {
-	id = "dubber";
-	name = N_("Dubber");
-	mono_audio = compute_static;
-	stereo_audio = 0;
-	set_samplerate = init_static;
-	activate_plugin = activate_static;
-    connect_ports = connect_static;
-	delete_instance = del_instance;
-}
+      ready(false) { }
 
 LiveLooper::~LiveLooper() {
     activate(false);
@@ -276,9 +267,9 @@ inline void LiveLooper::clear_state_f()
 	for (int i=0; i<2; i++) iRec19[i] = 0;
 }
 
-void LiveLooper::clear_state_f_static(PluginLV2 *p)
+void LiveLooper::clear_state_f_static(LiveLooper *p)
 {
-	static_cast<LiveLooper*>(p)->clear_state_f();
+	(p)->clear_state_f();
 }
 
 inline void LiveLooper::init(unsigned int samplingFreq)
@@ -298,9 +289,9 @@ inline void LiveLooper::init(unsigned int samplingFreq)
     clear_buffers = 0;
 }
 
-void LiveLooper::init_static(unsigned int samplingFreq, PluginLV2 *p)
+void LiveLooper::init_static(unsigned int samplingFreq, LiveLooper *p)
 {
-	static_cast<LiveLooper*>(p)->init(samplingFreq);
+	(p)->init(samplingFreq);
 }
 
 void LiveLooper::mem_alloc()
@@ -424,13 +415,15 @@ int LiveLooper::activate(bool start)
 	return 0;
 }
 
-int LiveLooper::activate_static(bool start, PluginLV2 *p)
+int LiveLooper::activate_static(bool start, LiveLooper *p)
 {
-	return static_cast<LiveLooper*>(p)->activate(start);
+	return (p)->activate(start);
 }
 
-void LiveLooper::set_p_state() {
-    if (!pfreset_name.empty()) {
+void LiveLooper::set_p_state(Glib::ustring preset_file_name, bool save_file) {
+    if (!preset_file_name.empty()) {
+        pfreset_name = preset_file_name;
+        save_p = save_file;
         ready = false;
         activate(true);
         if(save_p) {
@@ -445,6 +438,10 @@ void LiveLooper::set_p_state() {
         ready = true;
         save_p = false;
     }
+}
+
+void LiveLooper::set_preset_state(Glib::ustring preset_file_name, bool save_file,LiveLooper* p) {
+	(p)->set_p_state(preset_file_name, save_file);
 }
 
 void always_inline LiveLooper::compute(int count, float *input0, float *output0)
@@ -762,9 +759,9 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 #undef back4
 }
 
-void __rt_func LiveLooper::compute_static(int count, float *input0, float *output0, PluginLV2 *p)
+void __rt_func LiveLooper::compute_static(int count, float *input0, float *output0, LiveLooper *p)
 {
-	static_cast<LiveLooper*>(p)->compute(count, input0, output0);
+	(p)->compute(count, input0, output0);
 }
 
 void LiveLooper::connect(uint32_t port,void* data)
@@ -917,18 +914,18 @@ void LiveLooper::connect(uint32_t port,void* data)
 	}
 }
 
-void LiveLooper::connect_static(uint32_t port,void* data, PluginLV2 *p)
+void LiveLooper::connect_static(uint32_t port,void* data, LiveLooper *p)
 {
-	static_cast<LiveLooper*>(p)->connect(port, data);
+	(p)->connect(port, data);
 }
 
-PluginLV2 *plugin() {
+LiveLooper *plugin() {
 	return new LiveLooper();
 }
 
-void LiveLooper::del_instance(PluginLV2 *p)
+void LiveLooper::del_instance(LiveLooper *p)
 {
-	delete static_cast<LiveLooper*>(p);
+	delete (p);
 }
 
 /*

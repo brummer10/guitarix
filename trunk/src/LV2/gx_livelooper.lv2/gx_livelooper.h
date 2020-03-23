@@ -23,6 +23,9 @@
 #define SRC_HEADERS_GXEFFECTS_H_
 
 #include <lv2.h>
+#include "lv2/state/state.h"
+#include <lv2/atom/atom.h>
+#include <lv2/urid/urid.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_livelooper_"
 #define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_livelooper_#gui"
