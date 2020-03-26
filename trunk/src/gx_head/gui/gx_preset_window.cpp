@@ -599,19 +599,21 @@ void PresetWindow::set_cell_text(Gtk::Widget *widget, Gtk::CellRenderer *cell, c
 void PresetWindow::highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter) {
     Glib::ustring t = iter->get_value(bank_col.name);
     if (t.empty()) {
-	return;
+        return;
     }
     bool selected = (machine.setting_is_preset() && t == machine.get_current_bank());
-    int n = machine.bank_size() - *bank_treeview->get_model()->get_path(iter).begin();
     if (!organize_presets->get_active()) {
-	if (!(machine.get_bank_file(t)->get_type() & gx_system::PresetFile::PRESET_FACTORY)) {
-	    n -= 1;
-	}
-	if (n > 26) {
-	    t = "    " + t;
-	} else {
-	    t = Glib::ustring::compose("%1:  %2", char('A'+n), t);
-	}
+        int idx = *bank_treeview->get_model()->get_path(iter).begin();
+        if (machine.get_bank_file(t)->get_type() & gx_system::PresetFile::PRESET_FACTORY) {
+            // correction for separator before factory rows
+            idx -= 1;
+        }
+        char c = KeySwitcher::bank_idx_to_char(idx, machine.bank_size());
+        if (c) {
+            t = Glib::ustring::compose("%1:  %2", c, t);
+        } else {
+            t = "    " + t;
+        }
     }
     set_cell_text(bank_treeview, cell, t, selected);
 }
@@ -844,7 +846,7 @@ void PresetWindow::create_preset_menu() {
         item->set_tooltip_text(get<2>(*it));
         std::string f = get<1>(*it);
         item->signal_activate().connect(
-	    sigc::bind(sigc::mem_fun(*this, &PresetWindow::downloadPreset),
+            sigc::bind(sigc::mem_fun(*this, &PresetWindow::downloadPreset),
 		       presetMenu, f));
         presetMenu->append(*item);
     }
@@ -1086,14 +1088,14 @@ void PresetWindow::text_func(Gtk::CellRenderer *cell, const Gtk::TreeModel::iter
     Glib::ustring val = iter->get_value(pstore->col.name);
     Glib::ustring t = val;
     if (t.empty() && !cell->property_editing().get_value()) {
-	t = "<new>";
+        t = "<new>";
     } else if (in_current_preset && !organize_presets->get_active()) {
-	int n = *pstore->get_path(iter).begin();
-	if (n > 9) {
-	    t = "    " + t;
-	} else {
-	    t = Glib::ustring::compose("%1:  %2", n, t);
-	}
+        char c = KeySwitcher::idx_to_char(*pstore->get_path(iter).begin());
+        if (c) {
+            t = Glib::ustring::compose("%1:  %2", c, t);
+        } else {
+            t = "    " + t;
+        }
     }
     bool selected = (in_current_preset && machine.setting_is_preset() && val == machine.get_current_name());
     set_cell_text(preset_treeview, cell, t, selected);

@@ -96,10 +96,15 @@ public:
     KeySwitcher(gx_engine::GxMachineBase& machine_,
 		sigc::slot<void, const Glib::ustring&, const Glib::ustring&> display_)
 	: machine(machine_), display(display_) {}
-    bool process_bank_key(int idx);
-    bool process_preset_key(int idx);
+    bool process_bank_key(int key);
+    bool process_preset_key(int key);
     void display_key_error();
     void deactivate();
+    static char idx_to_char(int idx);
+    static int key_offset_to_idx(int offset);
+    static char bank_idx_to_char(int idx, int bank_size);
+    static int key_offset_to_bank_idx(int offset, int bank_size);
+    static int next_idx(int idx = -1);
 };
 
 

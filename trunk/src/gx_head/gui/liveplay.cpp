@@ -35,6 +35,49 @@ void KeySwitcher::deactivate() {
     }
 }
 
+//static
+char KeySwitcher::idx_to_char(int idx) {
+    if (0 <= idx && idx <= 9) {
+        return '0' + idx;
+    }
+    return 0;
+}
+
+//static
+int KeySwitcher::next_idx(int idx) {
+    assert(idx >= -1);
+    if (++idx <= 9) {
+        return idx;
+    }
+    return -2;
+}
+
+//static
+int KeySwitcher::key_offset_to_idx(int offset) {
+    if (0 <= offset && offset <= 9) {
+        return offset;
+    }
+    return -1;
+}
+
+//static
+char KeySwitcher::bank_idx_to_char(int idx, int bank_size) {
+    if (0 <= idx && idx < bank_size) {
+        int offset = (bank_size - 1) - idx;
+        return 'A' + offset;
+    }
+    return 0;
+}
+
+//static
+int KeySwitcher::key_offset_to_bank_idx(int offset, int bank_size) {
+    int idx = (bank_size - 1) - offset;
+    if (0 <= idx && idx < bank_size) {
+        return idx;
+    }
+    return -1;
+}
+
 void KeySwitcher::display_key_error() {
     display_empty("??", "??");
 }
@@ -68,19 +111,20 @@ bool KeySwitcher::display_current() {
     return false;
 }
 
-bool KeySwitcher::process_preset_key(int idx) {
+bool KeySwitcher::process_preset_key(int offset) {
+    int idx = key_offset_to_idx(offset);
     key_timeout.disconnect();
     Glib::ustring bank = last_bank_key;
     if (bank.empty()) {
         if (!machine.setting_is_preset()) {
-            display_empty("??", gx_system::to_string(idx+1));
+            display_empty("??", Glib::ustring::compose("%1", idx_to_char(idx)));
             return false;
         }
         bank = machine.get_current_bank();
     }
     gx_system::PresetFileGui *f = machine.get_bank_file(bank);
     if (idx >= f->size()) {
-        display_empty(bank, gx_system::to_string(idx+1)+"?");
+        display_empty(bank, Glib::ustring::compose("%1?", idx_to_char(idx)));
         return false;
     } else {
         machine.load_preset(f, f->get_name(idx));
@@ -88,9 +132,10 @@ bool KeySwitcher::process_preset_key(int idx) {
     }
 }
 
-bool KeySwitcher::process_bank_key(int idx) {
+bool KeySwitcher::process_bank_key(int offset) {
+    int idx = key_offset_to_bank_idx(offset, machine.bank_size());
     key_timeout.disconnect();
-    Glib::ustring bank = machine.get_bank_name(machine.bank_size() - idx - 1);
+    Glib::ustring bank = machine.get_bank_name(idx);
     if (bank.empty()) {
         display_empty("--", "--");
         return false;
