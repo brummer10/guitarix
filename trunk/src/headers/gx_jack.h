@@ -108,14 +108,14 @@ extern "C" {
 class MidiCC {
 private:
     static const int max_midi_cc_cnt = 5;
-    bool send_cc[max_midi_cc_cnt];
+    std::atomic<bool> send_cc[max_midi_cc_cnt];
     int cc_num[max_midi_cc_cnt];
     int pg_num[max_midi_cc_cnt];
     int bg_num[max_midi_cc_cnt];
     int me_num[max_midi_cc_cnt];
 public:
     MidiCC();
-    void send_midi_cc(int _cc, int _pg, int _bgn, int _num);
+    bool send_midi_cc(int _cc, int _pg, int _bgn, int _num);
     inline int next(int i = -1) const;
     inline int size(int i)  const { return me_num[i]; }
     inline void fill(unsigned char *midi_send, int i);
@@ -123,7 +123,7 @@ public:
 
 inline int MidiCC::next(int i) const {
     while (++i < max_midi_cc_cnt) {
-        if (send_cc[i]) {
+        if (send_cc[i].load(std::memory_order_acquire)) {
             return i;
         }
     }
@@ -136,7 +136,7 @@ inline void MidiCC::fill(unsigned char *midi_send, int i) {
     }
     midi_send[1] = pg_num[i];    // program value
     midi_send[0] = cc_num[i];    // controller+ channel
-    send_cc[i] = false;
+    send_cc[i].store(false, std::memory_order_release);
 }
 
 class GxJack: public sigc::trackable {
@@ -225,7 +225,7 @@ public:
 					   int wait_after_connect, const gx_system::CmdlineOptions& opt);
     float               get_last_xrun() { return last_xrun; }
     void*               get_midi_buffer(jack_nframes_t nframes);
-    void                send_midi_cc(int cc_num, int pgm_num, int bgn, int num) { mmessage.send_midi_cc(cc_num, pgm_num, bgn, num); }
+    bool                send_midi_cc(int cc_num, int pgm_num, int bgn, int num);
 
     void                read_connections(gx_system::JsonParser& jp);
     void                write_connections(gx_system::JsonWriter& w);
@@ -259,6 +259,13 @@ public:
     gx_engine::GxEngine& get_engine() { return engine; }
 #endif
 };
+
+inline bool GxJack::send_midi_cc(int cc_num, int pgm_num, int bgn, int num) {
+    if (!client) {
+        return false;
+    }
+    return mmessage.send_midi_cc(cc_num, pgm_num, bgn, num);
+}
 
 } /* end of jack namespace */
 

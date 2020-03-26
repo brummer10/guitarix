@@ -565,18 +565,21 @@ int GxMachine::get_bank_num(Glib::ustring num) {
 	return bank_size() -i -1;
 }
 
-void GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
-	jack.send_midi_cc(cc, pgn, bgn, num);
+bool GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
+	return jack.send_midi_cc(cc, pgn, bgn, num);
 }
 
 void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
     int n = get_bank_index(get_current_bank());
     settings.load_preset(pf, name);
 #ifdef USE_MIDI_CC_OUT
+    bool cc_ok = true;
     if (get_bank_index(pf->get_name()) != n) {
-        msend_midi_cc(0xB0, 32, get_bank_index(pf->get_name()),3);
+        cc_ok = msend_midi_cc(0xB0, 32, get_bank_index(pf->get_name()),3);
     }
-    msend_midi_cc(0xC0, pf->get_index(name),0,2);
+    if (cc_ok) { // don't send program change if bank switch failed
+        msend_midi_cc(0xC0, pf->get_index(name),0,2);
+    }
 #endif
 }
 
@@ -776,7 +779,6 @@ bool GxMachine::update_parameter() {
 		*f = sock->update_maxlevel(i->first, true);
 		}
 	    p.trigger_changed();
-	    //cout << p.id() << " " << f << endl;
 	    *f = 0.0;
 	} else {
 	    p.trigger_changed();
@@ -1970,13 +1972,14 @@ Glib::ustring GxMachineRemote::get_bank_name(int n) {
     return banks.get_name(n);
 }
 
-void GxMachineRemote::msend_midi_cc(int cc, int pgn, int bgn, int num) {
+bool GxMachineRemote::msend_midi_cc(int cc, int pgn, int bgn, int num) {
 	START_NOTIFY(sendcc);
     jw->write(cc);
     jw->write(pgn);
     jw->write(bgn);
     jw->write(num);
     SEND();
+    return true;
 }
 
 void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {

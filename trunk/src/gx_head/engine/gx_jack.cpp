@@ -105,21 +105,22 @@ MidiCC::MidiCC() {
     }
 }
 
-void MidiCC::send_midi_cc(int _cc, int _pg, int _bgn, int _num) {
+bool MidiCC::send_midi_cc(int _cc, int _pg, int _bgn, int _num) {
     for(int i = 0; i < max_midi_cc_cnt; i++) {
-        if (!send_cc[i]) {
-            send_cc[i] = true;
+        if (!send_cc[i].load(std::memory_order_acquire)) {
             cc_num[i] = _cc;
             pg_num[i] = _pg;
             bg_num[i] = _bgn;
             me_num[i] = _num;
-            return;
+            send_cc[i].store(true, std::memory_order_release);
+            return true;
         }
     }
 #ifndef NDEBUG
     cerr << "Internal error: MidiCC overflow" << endl;
     assert(false);
 #endif
+    return false;
 }
 
 /****************************************************************
