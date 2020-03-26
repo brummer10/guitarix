@@ -71,6 +71,7 @@ public:
 };
 
 class GxActions;
+class UIManager;
 
 class PresetWindow: public sigc::trackable {
 private:
@@ -81,6 +82,7 @@ private:
     };
     gx_engine::GxMachineBase& machine;
     GxActions& actions;
+    Glib::RefPtr<Gtk::AccelGroup> accelgroup;
     CURL *curl;
     bool in_edit;
     Gtk::TreeModel::iterator edit_iter;
@@ -183,7 +185,7 @@ private:
     void on_presetlist_changed();
 public:
     PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine,
-		 const gx_system::CmdlineOptions& options, GxActions& actions);
+                 const gx_system::CmdlineOptions& options, GxActions& actions, UIManager& uimanager);
     ~PresetWindow();
     void on_preset_select(bool v, bool animated, int preset_window_height);
 };

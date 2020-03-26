@@ -62,10 +62,12 @@ bool PresetStore::row_draggable_vfunc(const TreeModel::Path& path) const {
 }
 
 PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMachineBase& machine_,
-			   const gx_system::CmdlineOptions& options_, GxActions& actions_)
+                           const gx_system::CmdlineOptions& options_, GxActions& actions_,
+                           UIManager& uimanager)
     : sigc::trackable(),
       machine(machine_),
       actions(actions_),
+      accelgroup(uimanager.get_accel_group()),
       in_edit(false),
       edit_iter(),
       pb_edit(),
@@ -89,18 +91,19 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     gx_gui::GxBuilder::connect_gx_tooltip_handler(GTK_WIDGET(bank_treeview->gobj()));
 
     // create actions
-    actions.new_bank = Gtk::Action::create("NewBank");
-    actions.group->add(actions.new_bank, sigc::mem_fun(*this, &PresetWindow::on_new_bank));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(new_preset_bank->gobj()), actions.new_bank->gobj());
-    actions.save_changes = Gtk::Action::create("Save", _("_Save changes"));
-    actions.group->add(actions.save_changes, sigc::mem_fun(*this, &PresetWindow::on_preset_save));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(save_preset->gobj()), actions.save_changes->gobj());
-    actions.organize = Gtk::ToggleAction::create("Organize", _("_Organize"));
-    actions.group->add(actions.organize, sigc::mem_fun(*this, &PresetWindow::on_organize));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(organize_presets->gobj()), GTK_ACTION(actions.organize->gobj()));
-    actions.online_preset_bank = Gtk::Action::create("OnlineBank");
-    actions.group->add(actions.online_preset_bank, sigc::mem_fun(*this, &PresetWindow::on_online_preset));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(online_preset->gobj()), actions.online_preset_bank->gobj());
+    actions.new_bank = uimanager.add_action(
+        "NewBank", sigc::mem_fun(*this, &PresetWindow::on_new_bank));
+    UIManager::set_widget_action(new_preset_bank, actions.new_bank);
+    actions.save_changes = uimanager.add_action(
+        "Save", sigc::mem_fun(*this, &PresetWindow::on_preset_save));
+    UIManager::set_widget_action(save_preset, actions.save_changes);
+    actions.organize = uimanager.add_toggle_action("Organize");
+    actions.organize->signal_toggled().connect(
+        sigc::mem_fun(*this, &PresetWindow::on_organize));
+    UIManager::set_widget_action(organize_presets, actions.organize);
+    actions.online_preset_bank = uimanager.add_action(
+        "OnlineBank", sigc::mem_fun(*this, &PresetWindow::on_online_preset));
+    UIManager::set_widget_action(online_preset, actions.online_preset_bank);
 
     // bank treeview
     bank_treeview->set_model(Gtk::ListStore::create(bank_col));
@@ -207,7 +210,7 @@ void PresetWindow::on_selection_changed() {
 	    savable = true;
 	}
     }
-    actions.save_changes->set_sensitive(savable);
+    actions.save_changes->set_enabled(savable);
 }
 
 /**
@@ -550,7 +553,7 @@ void PresetWindow::on_editing_started(const Gtk::CellEditable* edit, const Glib:
     } else {
 	dynamic_cast<Gtk::Entry*>(const_cast<Gtk::CellEditable*>(edit))->set_text(s);
     }
-    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->remove_accel_group(actions.accels);
+    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->remove_accel_group(accelgroup);
 }
 
 void PresetWindow::reset_edit(Gtk::TreeViewColumn& col) {
@@ -564,7 +567,7 @@ void PresetWindow::reset_edit(Gtk::TreeViewColumn& col) {
     col.set_min_width(0);
     col.queue_resize();
     in_edit = false;
-    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->add_accel_group(actions.accels);
+    dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->add_accel_group(accelgroup);
 }
 
 void PresetWindow::on_edit_canceled(Gtk::TreeViewColumn *col) {
@@ -1248,14 +1251,14 @@ void PresetWindow::on_organize() {
 	banks_combobox->set_active(-1);
 	banks_combobox->show();
 	presets_target_scrolledbox->show();
-	actions.save_changes->set_sensitive(false);
+	actions.save_changes->set_enabled(false);
     } else {
 	sel->set_mode(Gtk::SELECTION_SINGLE);
 	banks_combobox->hide();
 	presets_target_scrolledbox->hide();
 	if (machine.setting_is_preset()) {
 	    if (machine.get_bank_file(machine.get_current_bank())->is_mutable()) {
-		actions.save_changes->set_sensitive(true);
+		actions.save_changes->set_enabled(true);
 	    }
 	}
     }

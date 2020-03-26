@@ -132,7 +132,7 @@ void MidiControllerTable::load() {
     }
 }
 
-void MidiControllerTable::toggle(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gtk::ToggleAction> item) {
+void MidiControllerTable::toggle(gx_engine::GxMachineBase& machine, Glib::RefPtr<ToggleAction> item) {
     if (!item->get_active()) {
         if (window) {
             gtk_widget_destroy(window);
@@ -148,7 +148,7 @@ MidiControllerTable::~MidiControllerTable() {
     window = NULL;
 }
 
-MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gtk::ToggleAction> item)
+MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Glib::RefPtr<ToggleAction> item)
     : menuaction(item),
       machine(machine_),
       midi_conn() {

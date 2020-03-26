@@ -76,9 +76,9 @@ PluginUI::~PluginUI() {
     plugin->get_pdef()->flags &= ~gx_engine::PGNI_UI_REG;
 }
 
-void PluginUI::unset_ui_merge_id(Glib::RefPtr<Gtk::UIManager> uimanager) {
+void PluginUI::unset_ui_merge_id(UIManager& uimanager) {
     if (merge_id) {
-	uimanager->remove_ui(merge_id);
+	uimanager.remove_ui(merge_id);
 	merge_id = 0;
     }
 }
@@ -100,7 +100,7 @@ void PluginUI::compress(bool state) {
     }
 }
 
-void PluginUI::set_action(Glib::RefPtr<Gtk::ToggleAction>& act)
+void PluginUI::set_action(Glib::RefPtr<ToggleAction>& act)
 {
     action = act;
     action->signal_toggled().connect(sigc::mem_fun(*this, &PluginUI::on_action_toggled));
@@ -316,7 +316,7 @@ void PluginUI::on_state_change() {
 }
 
 // define if memory leaks in atk, pango, etc. are closed (valgrind --leak-check=full guitarix)
-//#define LEAKS_OK
+#define LEAKS_OK
 
 void PluginUI::dispose_rackbox() {
     if (plugin->get_box_visible()) {
@@ -375,8 +375,7 @@ void PluginUI::remove(bool animate) {
 
 PluginDict::PluginDict(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
 		       Gtk::ToolPalette& toolpalette_, gx_gui::StackBoxBuilder& boxbuilder_,
-		       Glib::RefPtr<Gtk::UIManager>& uimanager_,
-		       Glib::RefPtr<Gtk::ActionGroup>& actiongroup_)
+		       UIManager& uimanager_)
     : monorackcontainer(*this),
       stereorackcontainer(*this),
       groupmap(),
@@ -387,7 +386,6 @@ PluginDict::PluginDict(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       options(options_),
       toolpalette(toolpalette_),
       uimanager(uimanager_),
-      actiongroup(actiongroup_),
       config_mode(false),
       plugins_hidden(false),
       drag_icon(0) {
@@ -643,87 +641,58 @@ void PluginDict::pluginlist_append(std::vector<PluginUI*>& p) {
 
 void PluginDict::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c) {
     if (!pl) { // end of update sequence
-	return;
+        return;
     }
     if (c == gx_engine::PluginChange::add) {
-	register_plugin(new PluginUI(*this, pl->get_pdef()->id, ""));
-	return;
+        register_plugin(new PluginUI(*this, pl->get_pdef()->id, ""));
+        return;
     }
     PluginUI *pui = at(pl->get_pdef()->id);
     if (c == gx_engine::PluginChange::remove) {
-	pui->unset_ui_merge_id(uimanager);
-	uimanager->ensure_update();
-	actiongroup->remove(pui->get_action());
-	machine.remove_rack_unit(pui->get_id(), pui->get_type());
-	std::string group_id = pui->get_category();
-	remove(pui);
-	delete pui;
-	Gtk::ToolItemGroup * group = groupmap[group_id];
-	if (group->get_n_items() == 0) {
-	    Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group_id);
-	    Glib::RefPtr<Gtk::Action> act = actiongroup->get_action(groupname);
-	    actiongroup->remove(actiongroup->get_action(groupname));
-	    groupmap.erase(group_id);
-	    delete group;
-	}
+        pui->unset_ui_merge_id(uimanager);
+        //uimanager->ensure_update(); FIXME
+        //actiongroup->remove(pui->get_action());
+        machine.remove_rack_unit(pui->get_id(), pui->get_type());
+        std::string group_id = pui->get_category();
+        remove(pui);
+        delete pui;
+        Gtk::ToolItemGroup * group = groupmap[group_id];
+        if (group->get_n_items() == 0) {
+            Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group_id);
+            //Glib::RefPtr<Gtk::Action> act = actiongroup->get_action(groupname); FIXME
+            //actiongroup->remove(actiongroup->get_action(groupname));
+            groupmap.erase(group_id);
+            delete group;
+        }
     } else {
-	assert(c == gx_engine::PluginChange::update || c == gx_engine::PluginChange::update_category);
+        assert(c == gx_engine::PluginChange::update || c == gx_engine::PluginChange::update_category);
         bool state =  pui->plugin->get_on_off();
-	pui->update_rackbox();
+        pui->update_rackbox();
         pui->plugin->set_on_off(state);
-	if (c == gx_engine::PluginChange::update_category) {
-	    pui->unset_ui_merge_id(uimanager);
-	    pui->group = add_plugin_category(pui->get_category());
-	    pui->toolitem->reparent(*pui->group);
-	    add_plugin_menu_entry(pui);
-	}
+        if (c == gx_engine::PluginChange::update_category) {
+            pui->unset_ui_merge_id(uimanager);
+            pui->group = add_plugin_category(pui->get_category());
+            pui->toolitem->reparent(*pui->group);
+            add_plugin_menu_entry(pui);
+        }
     }
 }
-
-#ifdef accel_keys_for_plugins
-struct accel_search {
-    unsigned int key;
-    bool res;
-};
-
-static void accel_search_callback(gpointer data, const gchar *accel_path, guint accel_key, GdkModifierType accel_mods, gboolean changed) {
-    accel_search *s = static_cast<accel_search*>(data);
-    if (accel_key == s->key && accel_mods == 0) {
-	s->res = true;
-    }
-}
-
-static bool accel_map_has_key(unsigned int accel_key) {
-    accel_search s;
-    s.key = accel_key;
-    s.res = false;
-    gtk_accel_map_foreach_unfiltered(gpointer(&s), accel_search_callback);
-    return s.res;
-}
-
-static bool accel_map_next_key(unsigned int *accel_key) {
-    while (*accel_key <= GDK_z) {
-	if (!accel_map_has_key(*accel_key)) {
-	    return true;
-	}
-	*accel_key += 1;
-    }
-    return false;
-}
-#endif
 
 Gtk::ToolItemGroup *PluginDict::add_plugin_category(const char *group, bool collapse) {
     std::map<Glib::ustring, Gtk::ToolItemGroup*>::iterator it = groupmap.find(group);
     if (it != groupmap.end()) {
-	return it->second;
+        return it->second;
     }
-    Glib::ustring ui_template =
-	"<menubar><menu action=\"PluginsMenu\"><menu action=\"%1Plugins\"><menu action=\"%2\">"
-	"</menu></menu></menu></menubar>";
-    Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group);
-    uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, "Mono", groupname));
-    uimanager->add_ui_from_string(Glib::ustring::compose(ui_template, "Stereo", groupname));
-    actiongroup->add(Gtk::Action::create(groupname, gettext(group)));
+    Glib::ustring display = gettext(group);
+    Glib::RefPtr<Gio::MenuItem> item;
+    std::string group_id = group;
+    boost::replace_all(group_id, " ", ""); // FIXME
+    item = Gio::MenuItem::create(display, Glib::ustring::compose("PluginMonoCategory_%1", group_id));
+    item->set_submenu(Gio::Menu::create());
+    uimanager.get_linked_menu("MonoPlugins")->append_item(item);
+    item = Gio::MenuItem::create(display, Glib::ustring::compose("PluginStereoCategory_%1", group_id));
+    item->set_submenu(Gio::Menu::create());
+    uimanager.get_linked_menu("StereoPlugins")->append_item(item);
     Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup(gettext(group));
     groupmap[group] = gw;
     gw->set_collapsed(collapse);
@@ -736,18 +705,15 @@ Gtk::ToolItemGroup *PluginDict::add_plugin_category(const char *group, bool coll
 }
 
 Glib::ustring PluginDict::add_plugin_menu_entry(PluginUI *pui) {
-    Glib::ustring ui_template =
-	"<menubar><menu action=\"PluginsMenu\"><menu action=\"%1Plugins\"><menu action=\"%2\">"
-	"<menuitem action=\"%3\"/>"
-	"</menu></menu></menu></menubar>";
-    const char *group = pui->get_category();
-    Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group);
-    Glib::ustring actionname = Glib::ustring::compose("Plugin_%1", pui->get_id());
+    std::string group_id = pui->get_category();
+    boost::replace_all(group_id, " ", ""); // FIXME
     const char *tp = (pui->get_type() == PLUGIN_TYPE_MONO ? "Mono" : "Stereo");
-    pui->set_ui_merge_id(
-	uimanager->add_ui_from_string(
-	    Glib::ustring::compose(ui_template, tp, groupname, actionname)));
-    return actionname;
+    Glib::RefPtr<Gio::Menu> menu = uimanager.get_linked_menu(
+        Glib::ustring::compose("Plugin%1Category_%2", tp, group_id));
+    Glib::ustring actname = Glib::ustring::compose("Plugin_%1", pui->get_id());
+    auto a = Gio::MenuItem::create(pui->get_name(), actname);
+    menu->append_item(a);
+    return actname;
 }
 
 void PluginDict::register_plugin(PluginUI *pui) {
@@ -755,19 +721,11 @@ void PluginDict::register_plugin(PluginUI *pui) {
     Gtk::ToolItemGroup *gw = add_plugin_category(pui->get_category());
     Glib::ustring actionname = add_plugin_menu_entry(pui);
     pui->add_toolitem(gw);
-    Glib::RefPtr<Gtk::ToggleAction> act = Gtk::ToggleAction::create(actionname, pui->get_name());
-    actiongroup->add(act);
-#ifdef accel_keys_for_plugins
-    unsigned int key = GDK_a;
-    if (accel_map_next_key(&key)) {
-	Gtk::AccelMap::add_entry(act->get_accel_path(), key, Gdk::ModifierType(0));
-	++key;
-    }
-#endif
-    act->set_active(pui->plugin->get_box_visible());
+    Glib::RefPtr<ToggleAction> act = uimanager.add_toggle_action(
+        actionname, pui->plugin->get_box_visible());
     pui->set_action(act);
     if (pui->plugin->get_box_visible()) {
-	act->set_active(true);
+        act->set_active(true);
     }
 }
 

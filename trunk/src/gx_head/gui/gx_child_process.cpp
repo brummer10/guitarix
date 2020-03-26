@@ -354,7 +354,7 @@ void JackCapture::start_stop(GtkWidget *widget, gpointer data) {
 
 //-------------------- meterbridge --------------------------
 
-Meterbridge::Meterbridge(GxChild *p, Glib::RefPtr<Gtk::ToggleAction>& a)
+Meterbridge::Meterbridge(GxChild *p, Glib::RefPtr<ToggleAction>& a)
     : action(a) {
     p->terminated.connect(sigc::mem_fun(*this, &Meterbridge::terminated));
 }
@@ -377,7 +377,7 @@ void Meterbridge::stop() {
     childprocs.kill("meterbridge");
 }
 
-void Meterbridge::start_stop(Glib::RefPtr<Gtk::ToggleAction>& action, gx_jack::GxJack& jack) {
+void Meterbridge::start_stop(Glib::RefPtr<ToggleAction>& action, gx_jack::GxJack& jack) {
     // no need to do all this if jack is not running
     if (!jack.client) {
         (void)gx_gui::gx_message_popup(

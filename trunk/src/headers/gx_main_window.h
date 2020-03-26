@@ -48,35 +48,100 @@ public:
 #endif
 };
 
-
 /****************************************************************
+ ** Actions:
+ ** class ToggleAction
+ ** class RadioAction
  ** template class UiToggleAction
  */
 
+class ToggleAction: public Gio::SimpleAction {
+private:
+    void on_activate_toggle(const Glib::VariantBase& value);
+protected:
+    ToggleAction(const Glib::ustring& name, bool state=false);
+public:
+    static Glib::RefPtr<ToggleAction> create(const Glib::ustring& name, bool state=false) {
+        return Glib::RefPtr<ToggleAction>(new ToggleAction(name, state)); }
+    Glib::SignalProxyProperty signal_toggled() { return property_state().signal_changed(); }
+    bool get_active() const { bool v; get_state(v); return v; }
+    void set_active(bool v);
+};
+
+class RadioAction: public Gio::SimpleAction {
+protected:
+    RadioAction(const Glib::ustring& name);
+public:
+    static Glib::RefPtr<RadioAction> create(const Glib::ustring& name) {
+        return Glib::RefPtr<RadioAction>(new RadioAction(name)); }
+
+    bool get_current_value() const { int v; get_state(v); return v; }
+    void set_current_value(int v) { change_state(v); }
+};
+
 template <class T>
-class UiToggleAction: public Gtk::ToggleAction {
+class UiToggleAction: public ToggleAction {
 private:
     gx_engine::GxMachineBase& machine;
     std::string id;
     void on_toggled();
 protected:
     UiToggleAction(
-	gx_engine::GxMachineBase& machine_, const std::string& id, const Glib::ustring& name, const Glib::ustring& icon_name,
-	const Glib::ustring& label=Glib::ustring(), const Glib::ustring& tooltip=Glib::ustring(),
-	bool is_active=false);
+        gx_engine::GxMachineBase& machine_, const std::string& id,
+        const Glib::ustring& name, bool is_active=false);
     ~UiToggleAction();
 public:
     static Glib::RefPtr<UiToggleAction> create(
-	gx_engine::GxMachineBase& machine, const std::string& id, const Glib::ustring& name, const Glib::ustring& label=Glib::ustring(),
-	const Glib::ustring& tooltip=Glib::ustring(), bool is_active=false) {
-	return Glib::RefPtr<UiToggleAction>(
-	    new UiToggleAction(machine, id, name, Glib::ustring(), label, tooltip, is_active));
+        gx_engine::GxMachineBase& machine, const std::string& id,
+        const Glib::ustring& name, bool is_active=false) {
+        return Glib::RefPtr<UiToggleAction>(
+            new UiToggleAction(machine, id, name, is_active));
     }
 };
 
 typedef UiToggleAction<bool> UiBoolToggleAction;
-typedef UiBoolToggleAction UiSwitchToggleAction;
 
+
+/****************************************************************
+ ** class UIManager
+ */
+
+class UIManager {
+public:
+    typedef std::function<bool(const Glib::ustring&, Glib::RefPtr<Gio::Menu>&, int)> search_func;
+private:
+    Glib::RefPtr<Gio::Menu> menu;
+    Glib::RefPtr<Gtk::AccelGroup> accelgroup;
+    Glib::RefPtr<Gio::SimpleActionGroup> actiongroup;
+    Gtk::MenuBar *menubar;
+    void set_accelerator_from_menu(Glib::RefPtr<Gio::Menu>& menu);
+    bool foreach_menu_(Glib::RefPtr<Gio::Menu>& menu, search_func& func);
+public:
+    UIManager(const std::string& file, Gtk::MenuBar *bar);
+    typedef int ui_merge_id;
+    Glib::RefPtr<Gtk::AccelGroup>& get_accel_group() { return accelgroup; }
+    Glib::RefPtr<Gio::SimpleActionGroup>& get_action_group() { return actiongroup; }
+    void insert_action_group(Glib::RefPtr<Gio::SimpleActionGroup>& group);
+    void remove_ui(ui_merge_id merge_id);
+    void setup_menu();
+    bool foreach_menu(search_func func) { return foreach_menu_(menu, func); }
+    Glib::RefPtr<Gio::SimpleAction> add_action(const Glib::ustring& action);
+    Glib::RefPtr<Gio::SimpleAction> add_action(const Glib::ustring& action, sigc::slot<void()> slot);
+    Glib::RefPtr<ToggleAction> add_toggle_action(const Glib::ustring& action, bool state = false);
+    Glib::RefPtr<RadioAction> add_radio_action(const Glib::ustring& action);
+    Glib::RefPtr<UiBoolToggleAction> add_ui_bool_action(
+        gx_engine::GxMachineBase& machine, const std::string& id,
+        const Glib::ustring& name, bool is_active=false);
+    static void add_accelerator(Glib::RefPtr<Gtk::AccelGroup>& group,
+                                Glib::RefPtr<Gio::Action> action,
+                                const Glib::ustring& accelerator,
+                                Glib::VariantBase& target);
+    void add_accelerator(Glib::RefPtr<Gio::Action> action, Glib::VariantBase& target,
+                         const Glib::ustring& accelerator);
+    Glib::RefPtr<Gio::Menu> get_linked_menu(const Glib::ustring& action);
+    Gtk::MenuItem *find_item(const Glib::ustring& action);
+    static void set_widget_action(Gtk::Widget *w, Glib::RefPtr<Gio::Action> action);
+};
 
 /****************************************************************
  ** class KeySwitcher
@@ -170,9 +235,10 @@ private:
     void set_display_state(TunerSwitcher::SwitcherState s);
 public:
     Liveplay(const gx_system::CmdlineOptions& options, gx_engine::GxMachineBase& machine,
-	     const std::string& fname, const GxActions& actions);
+             const std::string& fname, const GxActions& actions,
+             Glib::RefPtr<Gio::SimpleActionGroup>& group);
     ~Liveplay();
-    void on_live_play(Glib::RefPtr<Gtk::ToggleAction> act);
+    void on_live_play(Glib::RefPtr<ToggleAction> act);
     void display_tuner(bool v);
     Gxw::RackTuner& get_tuner() { return *tuner; }
 };
@@ -346,8 +412,8 @@ class PluginUI: public sigc::trackable {
     friend class PluginDict;
     friend class RackContainer;
 private:
-    Gtk::UIManager::ui_merge_id merge_id;
-    Glib::RefPtr<Gtk::ToggleAction> action;
+    UIManager::ui_merge_id merge_id;
+    Glib::RefPtr<ToggleAction> action;
     // data for ToolPalette entry
     Gtk::ToolItemGroup *group;
     Gtk::ToolItem *toolitem;
@@ -381,11 +447,11 @@ public:
     const char *get_name() const { return plugin->get_pdef()->name; }
     void activate(bool animate);
     void decativate(bool animate);
-    void set_ui_merge_id(Gtk::UIManager::ui_merge_id id) { merge_id = id; }
-    void unset_ui_merge_id(Glib::RefPtr<Gtk::UIManager> uimanager);
-    void set_action(Glib::RefPtr<Gtk::ToggleAction>& act);
+    void set_ui_merge_id(UIManager::ui_merge_id id) { merge_id = id; }
+    void unset_ui_merge_id(UIManager& uimanager);
+    void set_action(Glib::RefPtr<ToggleAction>& act);
     void set_active(bool v) { if (action) action->set_active(v); }
-    Glib::RefPtr<Gtk::ToggleAction> get_action() { return action; }
+    Glib::RefPtr<ToggleAction> get_action() { return action; }
     static bool is_registered(gx_engine::GxMachineBase& m, const char *name);
     virtual void on_plugin_preset_popup();
     inline const char *get_category() {
@@ -448,8 +514,7 @@ private:
     gx_engine::GxMachineBase& machine;
     gx_system::CmdlineOptions& options;
     Gtk::ToolPalette& toolpalette;
-    Glib::RefPtr<Gtk::UIManager> uimanager;
-    Glib::RefPtr<Gtk::ActionGroup> actiongroup;
+    UIManager& uimanager;
     bool config_mode;
     bool plugins_hidden;
 public:
@@ -464,7 +529,7 @@ public:
     typedef std::map<std::string, PluginUI*>::iterator iterator;
     PluginDict(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options,
 	       Gtk::ToolPalette& toolpalette, gx_gui::StackBoxBuilder& boxbuilder,
-	       Glib::RefPtr<Gtk::UIManager>& uimanager, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
+	       UIManager& uimanager);
     ~PluginDict();
     void cleanup();
     void add_bare(const char * id, Gtk::Container *box);
@@ -591,78 +656,66 @@ public:
 
 /****************************************************************
  ** GxUiRadioMenu
- ** adds the values of an EnumParameter as Gtk::RadioMenuItem's
- ** to a Gtk::MenuShell
+ ** adds the values of an EnumParameter as Gio::MenuItem's
+ ** to a Gio::Menu
  */
 
 class GxUiRadioMenu {
 private:
     gx_engine::GxMachineBase& machine;
     const std::string id;
-    Glib::RefPtr<Gtk::RadioAction> action;
-    void set_value(unsigned int v);
-    void on_changed(Glib::RefPtr<Gtk::RadioAction> act);
+    Glib::RefPtr<Gio::SimpleAction> action;
+    void set_value(int v);
+    void on_changed(const Glib::VariantBase& value);
 public:
     GxUiRadioMenu(gx_engine::GxMachineBase& machine, const std::string& id);
-    void setup(const Glib::ustring& prefix, const Glib::ustring& postfix,
-	       Glib::RefPtr<Gtk::UIManager>& uimanager, Glib::RefPtr<Gtk::ActionGroup>& actiongroup);
+    void setup(UIManager& uimanager);
 };
 
 
 class GxActions {
 public:
     // Main Window
-    Glib::RefPtr<Gtk::ActionGroup> group;
-    Glib::RefPtr<Gtk::AccelGroup> accels;
+    Glib::RefPtr<Gio::SimpleAction> quit;
+    Glib::RefPtr<Gio::SimpleAction> compress;
+    Glib::RefPtr<Gio::SimpleAction> expand;
+    Glib::RefPtr<Gio::SimpleAction> jackstartup;
+    Glib::RefPtr<Gio::SimpleAction> loadladspa;
 
-    Glib::RefPtr<Gtk::Action> quit;
-    Glib::RefPtr<Gtk::Action> compress;
-    Glib::RefPtr<Gtk::Action> expand;
-    Glib::RefPtr<Gtk::Action> jack_latency_menu;
-    Glib::RefPtr<Gtk::Action> osc_buffer_menu;
-    Glib::RefPtr<Gtk::Action> jackstartup;
-    Glib::RefPtr<Gtk::Action> loadladspa;
-
-    Glib::RefPtr<Gtk::ToggleAction> rack_config;
-    Glib::RefPtr<Gtk::ToggleAction> live_play;
-    Glib::RefPtr<Gtk::ToggleAction> engine_mute;
+    Glib::RefPtr<ToggleAction> rack_config;
+    Glib::RefPtr<ToggleAction> live_play;
+    Glib::RefPtr<ToggleAction> engine_mute;
     sigc::connection engine_mute_conn;
-    Glib::RefPtr<Gtk::ToggleAction> engine_bypass;
+    Glib::RefPtr<ToggleAction> engine_bypass;
     sigc::connection engine_bypass_conn;
-    Glib::RefPtr<Gtk::ToggleAction> jackserverconnection;
-    Glib::RefPtr<Gtk::ToggleAction> jackports;
-    Glib::RefPtr<Gtk::ToggleAction> midicontroller;
-    Glib::RefPtr<Gtk::ToggleAction> meterbridge;
-    Glib::RefPtr<Gtk::ToggleAction> loggingbox;
-    Glib::RefPtr<Gtk::ToggleAction> animations;
+    Glib::RefPtr<ToggleAction> jackserverconnection;
+    Glib::RefPtr<ToggleAction> jackports;
+    Glib::RefPtr<ToggleAction> midicontroller;
+    Glib::RefPtr<ToggleAction> meterbridge;
+    Glib::RefPtr<ToggleAction> loggingbox;
+    Glib::RefPtr<ToggleAction> animations;
 
-    Glib::RefPtr<Gtk::ToggleAction> show_plugin_bar;
-    Glib::RefPtr<Gtk::ToggleAction> presets;
-    Glib::RefPtr<Gtk::ToggleAction> show_rack;
+    Glib::RefPtr<ToggleAction> show_plugin_bar;
+    Glib::RefPtr<ToggleAction> presets;
+    Glib::RefPtr<ToggleAction> show_rack;
     Glib::RefPtr<UiBoolToggleAction> tuner;
     Glib::RefPtr<UiBoolToggleAction> tunermove;
     Glib::RefPtr<UiBoolToggleAction> livetuner;
-    Glib::RefPtr<Gtk::ToggleAction> show_values;
-    Glib::RefPtr<Gtk::ToggleAction> tooltips;
-    Glib::RefPtr<UiSwitchToggleAction> midi_in_presets;
-    Glib::RefPtr<Gtk::ToggleAction> rackh;
+    Glib::RefPtr<ToggleAction> show_values;
+    Glib::RefPtr<ToggleAction> tooltips;
+    Glib::RefPtr<UiBoolToggleAction> midi_in_presets;
+    Glib::RefPtr<ToggleAction> rackh;
 
-    Glib::RefPtr<Gtk::RadioAction> skin;
-    Glib::RefPtr<Gtk::RadioAction> latency;
-    Glib::RefPtr<Gtk::RadioAction> osc_buffer_size;
+    Glib::RefPtr<RadioAction> skin;
+    Glib::RefPtr<RadioAction> latency;
+    Glib::RefPtr<RadioAction> osc_buffer_size;
+    Glib::RefPtr<RadioAction> preset_list_menu;
 
     // preset window
-    Glib::RefPtr<Gtk::Action> new_bank;
-    Glib::RefPtr<Gtk::Action> save_changes;
-    Glib::RefPtr<Gtk::ToggleAction> organize;
-    Glib::RefPtr<Gtk::Action> online_preset_bank;
-public:
-    GxActions(Glib::RefPtr<Gtk::UIManager>& uimanager, const gx_system::CmdlineOptions& options)
-	: group(Gtk::ActionGroup::create("Main")),
-	  accels(uimanager->get_accel_group()) {
-	uimanager->insert_action_group(group);
-	uimanager->add_ui_from_file(options.get_builder_filepath("menudef.xml"));
-    }
+    Glib::RefPtr<Gio::SimpleAction> new_bank;
+    Glib::RefPtr<Gio::SimpleAction> save_changes;
+    Glib::RefPtr<ToggleAction> organize;
+    Glib::RefPtr<Gio::SimpleAction> online_preset_bank;
 };
 
 
@@ -710,7 +763,6 @@ public:
     Gtk::Image *jackd_image;
     Gtk::Image *logstate_image;
     Gtk::Window *window;
-    Gtk::Box *menubox;
     Gtk::ToggleButton *show_rack_button;
     Gtk::ToggleButton *rack_order_h_button;
     Gtk::ToggleButton *config_mode_button;
@@ -734,6 +786,7 @@ public:
     Gtk::Widget *ampdetail_normal;
     Gxw::FastMeter *fastmeter[2];
     Gtk::Entry *preset_status;
+    Gtk::MenuBar *menubar;
 private:
     void load_widget_pointers();
 public:
@@ -750,7 +803,7 @@ private:
     Freezer freezer;
     Glib::RefPtr<Gdk::Pixbuf> gx_head_icon;
     gx_gui::StackBoxBuilder boxbuilder;
-    Glib::RefPtr<Gtk::UIManager> uimanager;
+    UIManager uimanager;
     GxActions actions;
     PluginDict plugin_dict;
     int oldpos;
@@ -760,8 +813,7 @@ private:
     int pool_act;
     bool is_visible;
     Glib::ustring preset_list_menu_bank;
-    Gtk::UIManager::ui_merge_id preset_list_merge_id;
-    Glib::RefPtr<Gtk::ActionGroup> preset_list_actiongroup;
+    UIManager::ui_merge_id preset_list_merge_id;
     Liveplay *live_play;
     PresetWindow *preset_window;
     gx_portmap::PortMapWindow* portmap_window;
@@ -817,16 +869,16 @@ private:
     bool connect_jack(bool v, Gtk::Window *splash = 0);
     int start_jack();
     void add_skin_menu();
-    void change_skin(Glib::RefPtr<Gtk::RadioAction> action);
+    void change_skin(const Glib::VariantBase& value);
     void on_jack_client_changed();
     void add_latency_menu();
-    void change_latency(Glib::RefPtr<Gtk::RadioAction> action);
+    void change_latency(const Glib::VariantBase& value);
     void user_disable_latency_warn(Gtk::CheckButton* disable_warn);
     int gx_wait_latency_warn();
     void set_latency();
     void set_osc_size();
     void add_osc_size_menu();
-    void change_osc_buffer(Glib::RefPtr<Gtk::RadioAction> action);
+    void change_osc_buffer(const Glib::VariantBase& value);
     void on_select_jack_control();
     void on_load_ladspa();
     void delete_select_jack_control();
@@ -863,7 +915,7 @@ private:
     bool on_window_state_changed(GdkEventWindowState* event);
     bool on_meter_button_release(GdkEventButton* ev);
     void show_selected_preset();
-    void on_select_preset(int idx);
+    void on_select_preset(const Glib::VariantBase& value);
     void on_next_preset();
     void on_previus_preset();
     void set_next_preset_controller();
@@ -871,6 +923,7 @@ private:
     void set_switcher_controller();
     void set_bypass_controller();
     void set_vpaned_handle();
+    void add_preset_key_accelerators();
     void rebuild_preset_menu();
     bool on_key_press_event(GdkEventKey *event);
     void display_preset_msg(const Glib::ustring& bank, const Glib::ustring& preset);

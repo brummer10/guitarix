@@ -158,6 +158,7 @@ void Liveplay::display(const Glib::ustring& bank, const Glib::ustring& preset) {
 bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
                          guint keyval, GdkModifierType modifier,
                          GtkAction* act) {
+    //g_action_group_activate_action(act);
     gtk_action_activate(act);
     return true;
 }
@@ -276,7 +277,8 @@ bool MyPaintBox::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
 
 Liveplay::Liveplay(
     const gx_system::CmdlineOptions& options, gx_engine::GxMachineBase& machine_,
-    const std::string& fname, const GxActions& actions_)
+    const std::string& fname, const GxActions& actions_,
+    Glib::RefPtr<Gio::SimpleActionGroup>& group)
     : bld(),
       machine(machine_),
       actions(actions_),
@@ -290,6 +292,7 @@ Liveplay::Liveplay(
     const char *id_list[] = {"LivePlay", 0};
     bld = gx_gui::GxBuilder::create_from_file(fname, &machine, id_list);
     bld->get_toplevel("LivePlay", window);
+    window->insert_action_group("app", group);
 
     bld->find_widget("liveplay_bank", liveplay_bank);
     bld->find_widget("liveplay_preset", liveplay_preset);
@@ -354,20 +357,16 @@ Liveplay::Liveplay(
     window->signal_motion_notify_event().connect(
         sigc::mem_fun(*this, &Liveplay::pointer_motion));
 
-    gtk_activatable_set_related_action(
-        GTK_ACTIVATABLE(liveplay_exit->gobj()), GTK_ACTION(actions.live_play->gobj()));
     Glib::RefPtr<Gtk::AccelGroup> ag = Gtk::AccelGroup::create();
-    GClosure *cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.live_play->gobj()), 0);
-    gtk_accel_group_connect_by_path(ag->gobj(), actions.live_play->get_accel_path().c_str(), cl);
-    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.live_play->gobj()), 0);
-    gtk_accel_group_connect(ag->gobj(), GDK_KEY_Escape, (GdkModifierType)0, (GtkAccelFlags)0, cl);
-
-    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.livetuner->gobj()), 0);
-    gtk_accel_group_connect(ag->gobj(), GDK_KEY_Return, (GdkModifierType)0, (GtkAccelFlags)0, cl);
-
-    cl = g_cclosure_new(G_CALLBACK(do_action), (gpointer)(actions.quit->gobj()), 0);
-    gtk_accel_group_connect_by_path(ag->gobj(), actions.quit->get_accel_path().c_str(), cl);
-
+    UIManager::set_widget_action(liveplay_exit, actions.live_play);
+    Glib::VariantBase nulltarget;
+    UIManager::add_accelerator(ag, actions.live_play, "Escape", nulltarget);
+    UIManager::add_accelerator(ag, actions.livetuner, "Return", nulltarget);
+    UIManager::add_accelerator(ag, actions.quit, "<Control>q", nulltarget); // FIXME copy from main
+    //on_keyboard_toggle_mute:  "<Control>m"
+    //on_keyboard_toggle_bypass: "<Control>b"
+    //on_keyboard_arrows:        "<Control>left"
+    GClosure *cl;
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_toggle_mute), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_M, GDK_CONTROL_MASK, (GtkAccelFlags)0, cl);
 
@@ -398,6 +397,7 @@ Liveplay::Liveplay(
 
     cl = g_cclosure_new(G_CALLBACK(on_keyboard_mode_switch), (gpointer)this, 0);
     gtk_accel_group_connect(ag->gobj(), GDK_KEY_space, (GdkModifierType)0, (GtkAccelFlags)0, cl);
+
     machine.tuner_switcher_signal_display().connect(
         sigc::mem_fun(this, &Liveplay::display));
     machine.tuner_switcher_signal_set_state().connect(
@@ -467,7 +467,7 @@ void Liveplay::on_selection_changed() {
     }
 }
 
-void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
+void Liveplay::on_live_play(Glib::RefPtr<ToggleAction> act) {
     if (act->get_active()) {
         window->fullscreen();
         midi_conn = machine.signal_midi_changed().connect(
@@ -480,7 +480,7 @@ void Liveplay::on_live_play(Glib::RefPtr<Gtk::ToggleAction> act) {
         machine.tuner_switcher_deactivate();
         window->hide();
     }
-    actions.livetuner->toggled();
+    actions.livetuner->activate();
 }
 
 bool Liveplay::window_draw(const Cairo::RefPtr<Cairo::Context> &cr) {

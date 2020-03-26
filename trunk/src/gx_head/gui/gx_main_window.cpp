@@ -28,6 +28,250 @@
 #include <boost/algorithm/string/replace.hpp>
 
 /****************************************************************
+ * class UIManager
+ */
+UIManager::UIManager(const std::string& file, Gtk::MenuBar *bar):
+    menu(),
+    accelgroup(Gtk::AccelGroup::create()),
+    actiongroup(Gio::SimpleActionGroup::create()),
+    menubar(bar) {
+    auto b = Gtk::Builder::create_from_file(file);
+    menu = Glib::RefPtr<Gio::Menu>::cast_dynamic(b->get_object("menubar"));
+}
+
+void UIManager::insert_action_group(Glib::RefPtr<Gio::SimpleActionGroup>& group) {
+    actiongroup = group;
+}
+
+void UIManager::remove_ui(ui_merge_id merge_id) {
+}
+
+struct action_target {
+    Glib::RefPtr<Gio::Action> action;
+    Glib::VariantBase target;
+    action_target(Glib::RefPtr<Gio::Action>& action_, Glib::VariantBase& target_)
+        : action(action_), target(target_) {}
+};
+
+static bool do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
+                                     guint keyval, GdkModifierType modifier,
+                                     action_target* data) {
+    g_action_activate(data->action->gobj(), data->target.gobj());
+    return true;
+}
+
+static void destroy_action_target(void *p, GClosure *closure) {
+    delete static_cast<action_target*>(p);
+}
+
+//static
+void UIManager::add_accelerator(Glib::RefPtr<Gtk::AccelGroup>& group,
+                                Glib::RefPtr<Gio::Action> action,
+                                const Glib::ustring& accelerator,
+                                Glib::VariantBase& target) {
+    GClosure *cl = g_cclosure_new(
+        G_CALLBACK(do_action),
+        new action_target(action, target),
+        destroy_action_target);
+    guint accelerator_key;
+    GdkModifierType accelerator_mods;
+    gtk_accelerator_parse(accelerator.c_str(), &accelerator_key, &accelerator_mods);
+    gtk_accel_group_connect (
+        group->gobj(), accelerator_key, accelerator_mods, GTK_ACCEL_VISIBLE, cl);
+    g_closure_unref(cl);
+}
+
+void UIManager::add_accelerator(Glib::RefPtr<Gio::Action> action,
+                                Glib::VariantBase& target,
+                                const Glib::ustring& accelerator) {
+    add_accelerator(accelgroup, action, accelerator, target);
+}
+
+void UIManager::set_accelerator_from_menu(Glib::RefPtr<Gio::Menu>& menu) {
+    int n = menu->get_n_items();
+    auto stringtype = Glib::VARIANT_TYPE_STRING;
+    for (int i = 0; i < n; i++) {
+        auto it = menu->iterate_item_attributes(i);
+        Glib::ustring action;
+        Glib::ustring accel;
+        Glib::VariantBase target;
+        while (it->next()) {
+            Glib::ustring key = it->get_name();
+            if (key == "action") {
+                Glib::VariantBase value = it->get_value();
+                if (value.is_of_type(stringtype)) {
+                    action = static_cast<Glib::Variant<Glib::ustring>*>(&value)->get();
+                }
+            } else if (key == "accel") {
+                Glib::VariantBase value = it->get_value();
+                if (value.is_of_type(stringtype)) {
+                    accel = static_cast<Glib::Variant<Glib::ustring>*>(&value)->get();
+                }
+            } else if (key == "target") {
+                target = it->get_value();
+            }
+        }
+        if (!accel.empty()) {
+            Glib::RefPtr<Gio::Action> a = actiongroup->lookup(action);
+            assert(a);
+            add_accelerator(a, target, accel);
+        }
+        auto itl = menu->iterate_item_links(i);
+        while (itl->next()) {
+            auto m = Glib::RefPtr<Gio::Menu>::cast_dynamic(itl->get_value());
+            set_accelerator_from_menu(m);
+        }
+    }
+}
+
+void UIManager::setup_menu() {
+    menubar->bind_model(menu, "app", true);
+    set_accelerator_from_menu(menu);
+}
+
+Glib::RefPtr<Gio::SimpleAction> UIManager::add_action(const Glib::ustring& action) {
+    auto a = Gio::SimpleAction::create(action);
+    actiongroup->add_action(a);
+    return a;
+}
+
+Glib::RefPtr<Gio::SimpleAction> UIManager::add_action(const Glib::ustring& action,
+                                                      sigc::slot<void()> slot) {
+    auto a = add_action(action);
+    a->signal_activate().connect(sigc::hide(slot));
+    return a;
+}
+
+Glib::RefPtr<ToggleAction> UIManager::add_toggle_action(const Glib::ustring& action, bool state) {
+    auto a = ToggleAction::create(action, state);
+    actiongroup->add_action(a);
+    return a;
+}
+
+Glib::RefPtr<RadioAction> UIManager::add_radio_action(const Glib::ustring& action) {
+    auto a = RadioAction::create(action);
+    actiongroup->add_action(a);
+    return a;
+}
+
+Glib::RefPtr<UiBoolToggleAction> UIManager::add_ui_bool_action(
+    gx_engine::GxMachineBase& machine, const std::string& id, const Glib::ustring& name,
+    bool is_active) {
+    auto a = UiBoolToggleAction::create(machine, id, name, is_active);
+    actiongroup->add_action(a);
+    return a;
+}
+
+bool UIManager::foreach_menu_(
+    Glib::RefPtr<Gio::Menu>& menu, search_func& func) {
+    int n = menu->get_n_items();
+    for (int i = 0; i < n; i++) {
+        Glib::VariantBase v = menu->get_item_attribute(
+            i, Gio::MENU_ATTRIBUTE_ACTION, Glib::VARIANT_TYPE_STRING);
+        if (v && func(static_cast<Glib::Variant<Glib::ustring>*>(&v)->get(), menu, i)) {
+            return true;
+        }
+        auto it = menu->iterate_item_links(i);
+        while (it->next()) {
+            auto m = Glib::RefPtr<Gio::Menu>::cast_dynamic(it->get_value());
+            if (func(it->get_name(), m, -1) || foreach_menu_(m, func)) {
+                return true;
+            }
+            func(it->get_name(), m, -2);
+        }
+    }
+    return false;
+}
+
+Glib::RefPtr<Gio::Menu> UIManager::get_linked_menu(const Glib::ustring& action) {
+    Glib::RefPtr<Gio::Menu> found;
+    foreach_menu(
+        [&action, &found](const Glib::ustring& a, Glib::RefPtr<Gio::Menu>& m, int i) -> bool {
+            if (i == -2) {
+                return false;
+            }
+            if (a != action) {
+                return false;
+            }
+            if (i < 0) {
+                found = m;
+                return true;
+            }
+            auto it = m->iterate_item_links(i);
+            if (!it->next()) {
+                return false;
+            }
+            found = Glib::RefPtr<Gio::Menu>::cast_dynamic(it->get_value());
+            return true;
+        });
+    return found;
+}
+
+Gtk::MenuItem *UIManager::find_item(const Glib::ustring& action) {
+    std::vector<int> l;
+    l.push_back(-1);
+    if (!foreach_menu(
+            [&action, &l](const Glib::ustring& a, Glib::RefPtr<Gio::Menu>& m, int i) -> bool {
+                if (i == -1) {
+                    l.push_back(-1);
+                    return false;
+                }
+                if (i == -2) {
+                    l.pop_back();
+                    return false;
+                }
+                l.back() = i;
+                if (a != action) {
+                    return false;
+                }
+                return true;
+            })) {
+        return nullptr;
+    }
+    Gtk::MenuItem *item = nullptr;
+    for (std::vector<int>::iterator i = l.begin(); i != l.end(); ++i) {
+        if (*i != -1) {
+            Gtk::MenuShell *m;
+            if (item) {
+                m = item->get_submenu();
+            } else {
+                m = menubar;
+            }
+            item = dynamic_cast<Gtk::MenuItem*>(m->get_children()[*i]);
+        }
+    }
+    return item;
+}
+
+ToggleAction::ToggleAction(const Glib::ustring& name, bool state)
+    : Gio::SimpleAction(name, Glib::Variant<bool>::create(state)) {
+    //signal_activate().connect(sigc::mem_fun(this, &ToggleAction::on_activate_toggle));
+}
+
+void ToggleAction::on_activate_toggle(const Glib::VariantBase& value) {
+    bool v;
+    get_state(v);
+    change_state(!v);
+}
+
+void ToggleAction::set_active(bool v)
+{
+    change_state(v);
+}
+
+RadioAction::RadioAction(const Glib::ustring& name)
+
+    : Gio::SimpleAction(
+        name, Glib::VARIANT_TYPE_INT32, Glib::Variant<gint32>::create(0)) {
+}
+
+//static
+void UIManager::set_widget_action(Gtk::Widget *w, Glib::RefPtr<Gio::Action> action) {
+    Glib::ustring name = "app." + action->get_name();
+    gtk_actionable_set_action_name(GTK_ACTIONABLE(w->gobj()), name.c_str());
+}
+
+/****************************************************************
  ** class TextLoggingBox
  */
 
@@ -285,8 +529,8 @@ int KeyFinder::operator()() {
 
 /****************************************************************
  ** GxUiRadioMenu
- ** adds the values of an EnumParameter as Gtk::RadioMenuItem's
- ** to a Gtk::MenuShell
+ ** adds the values of an EnumParameter as Gio::MenuItem's
+ ** to a Gio::Menu
  */
 
 class TubeKeys {
@@ -308,58 +552,60 @@ unsigned int TubeKeys::keysep[] = {
 
 inline int TubeKeys::operator()() {
     if (ks < sizeof(keysep)/sizeof(keysep[0])) {
-	return keysep[ks++];
+        return keysep[ks++];
     }
     return -1;
 }
 
 GxUiRadioMenu::GxUiRadioMenu(gx_engine::GxMachineBase& machine_, const std::string& id_)
     : machine(machine_),
-      id(id_) {
+      id(id_),
+      action() {
     machine.signal_parameter_value<int>(id).connect(
 	sigc::mem_fun(this, &GxUiRadioMenu::set_value));
 }
 
-void GxUiRadioMenu::setup(const Glib::ustring& prefix, const Glib::ustring& postfix,
-			  Glib::RefPtr<Gtk::UIManager>& uimanager, Glib::RefPtr<Gtk::ActionGroup>& actiongroup) {
+void GxUiRadioMenu::setup(UIManager& uimanager) {
     int i, c;
     const value_pair *p;
     TubeKeys next_key;
-    Glib::ustring s = prefix;
-    Gtk::RadioButtonGroup group;
     gx_engine::IntParameter& param = machine.get_parameter(id).getInt();
+    Glib::ustring actname = Glib::ustring::compose("Enum_%1", param.id());
+    action = uimanager.add_radio_action(actname);
+    action->signal_activate().connect(
+        sigc::mem_fun(*this, &GxUiRadioMenu::on_changed));
+    Glib::RefPtr<Gio::Menu> menu = uimanager.get_linked_menu("TubeMenu");
+    auto section = Gio::Menu::create();
     for (p = param.getValueNames(), i = 0; p->value_id; p++, i++) {
-	c = next_key();
-	if (c == 0) {
-	    s += "<separator/>";
-	    c = next_key();
-	}
-	Glib::ustring actname = Glib::ustring::compose("Enum_%1.%2", param.id(), p->value_id);
-	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
-	Glib::RefPtr<Gtk::RadioAction> act = Gtk::RadioAction::create(group, actname, param.value_label(*p));
-	act->property_value().set_value(static_cast<int>(param.getLowerAsFloat())+i);
-	if (c > 0) {
-	    actiongroup->add(act, Gtk::AccelKey(Glib::ustring::compose("<shift>%1", (char)c)));
-	} else {
-	    actiongroup->add(act);
-	}
-	if (i == 0) {
-	    act->signal_changed().connect(
-		sigc::mem_fun(*this, &GxUiRadioMenu::on_changed));
-	    action = act;
-	}
-    //fprintf(stderr, "%s  \n", p->value_id);
+        c = next_key();
+        if (c == 0) {
+            menu->append_section(section);
+            section = Gio::Menu::create();
+            c = next_key();
+        }
+        auto a = Gio::MenuItem::create(param.value_label(*p), actname);
+        auto target = Glib::Variant<int>::create(i);
+        a->set_action_and_target(actname, target);
+        if (c > 0) {
+            auto accelstr = Glib::ustring::compose("<shift>%1", (char)c);
+            auto accel = Glib::Variant<Glib::ustring>::create(accelstr);
+            a->set_attribute("accel", accel);
+            uimanager.add_accelerator(action, target, accelstr);
+        }
+        section->append_item(a);
     }
-    s.append(postfix);
-    uimanager->add_ui_from_string(s);
+    menu->append_section("", section);
 }
 
-void GxUiRadioMenu::set_value(unsigned int v) {
-    action->set_current_value(v);
+void GxUiRadioMenu::set_value(int v) {
+    action->change_state(v);
 }
 
-void GxUiRadioMenu::on_changed(Glib::RefPtr<Gtk::RadioAction> act) {
-    machine.set_parameter_value(id, act->get_current_value());
+void GxUiRadioMenu::on_changed(const Glib::VariantBase& value) {
+    gint32 v;
+    action->get_state(v);
+    machine.set_parameter_value(
+        id, static_cast<const Glib::Variant<gint32>&>(value).get());
 }
 
 
@@ -509,15 +755,14 @@ MainWindowBuilder::~MainWindowBuilder() {
 
 template <class T>
 UiToggleAction<T>::UiToggleAction(
-    gx_engine::GxMachineBase& machine_, const std::string& id_, const Glib::ustring& name, const Glib::ustring& icon_name,
-    const Glib::ustring& label, const Glib::ustring& tooltip,
+    gx_engine::GxMachineBase& machine_, const std::string& id_, const Glib::ustring& name,
     bool is_active)
-    : Gtk::ToggleAction(name, icon_name, label, tooltip, is_active),
+    : ToggleAction(name, is_active),
       machine(machine_),
       id(id_) {
     set_active(machine.get_parameter_value<T>(id));
     machine.signal_parameter_value<T>(id).connect(
-	sigc::mem_fun(this, &UiToggleAction::set_active));
+        sigc::mem_fun(this, &UiToggleAction::set_active));
 }
 
 template <class T>
@@ -619,7 +864,6 @@ void MainWindowBuilder::load_widget_pointers() {
     get()->find_widget("status_image", status_image);
     get()->find_widget("jackd_image", jackd_image);
     get()->find_widget("logstate_image", logstate_image);
-    get()->find_widget("menubox", menubox);
     get()->find_widget("show_rack:barbutton", show_rack_button);
     get()->find_widget("rack_order_h:barbutton", rack_order_h_button);
     get()->find_widget("config_mode:barbutton", config_mode_button);
@@ -644,6 +888,7 @@ void MainWindowBuilder::load_widget_pointers() {
     get()->find_widget("fastmeterL", fastmeter[0]);
     get()->find_widget("fastmeterR", fastmeter[1]);
     get()->find_widget("preset_status", preset_status);
+    get()->find_widget("menubar", menubar);
 }
 
 
@@ -659,7 +904,8 @@ void MainWindow::set_previus_preset_controller() {
     }
 }
 
-void MainWindow::on_select_preset(int idx) {
+void MainWindow::on_select_preset(const Glib::VariantBase& value) {
+    int idx = static_cast<const Glib::Variant<gint32>*>(&value)->get();
     keyswitch.process_preset_key(idx);
 }
 
@@ -675,41 +921,54 @@ void MainWindow::on_previus_preset() {
     }
 }
 
-void MainWindow::rebuild_preset_menu() {
-    if (preset_list_merge_id) {
-	uimanager->remove_ui(preset_list_merge_id);
-	uimanager->remove_action_group(preset_list_actiongroup);
-	preset_list_menu_bank.clear();
-	preset_list_merge_id = 0;
-	preset_list_actiongroup.reset();
-	uimanager->ensure_update();
+void MainWindow::add_preset_key_accelerators() {
+    for (int idx = KeySwitcher::next_idx(); idx >= 0; idx = KeySwitcher::next_idx(idx)) {
+        auto accelstr = Glib::ustring::compose("%1", KeySwitcher::idx_to_char(idx));
+        auto target = Glib::Variant<gint32>::create(idx);
+        uimanager.add_accelerator(
+            actions.preset_list_menu, target, accelstr);
     }
+}
+
+void MainWindow::rebuild_preset_menu() {
+    Glib::ustring actname = "PresetListMenu";
+    Glib::RefPtr<Gio::Menu> menu = uimanager.get_linked_menu(actname);
+    if (menu->get_n_items()) {
+        menu->remove_all();
+        preset_list_menu_bank.clear();
+    }
+    Gtk::MenuItem *menuitem = uimanager.find_item("PresetListMenu");
     if (!machine.setting_is_preset()) {
-	return;
+        menuitem->hide();
+        return;
     }
     gx_system::PresetFileGui *pf = machine.get_current_bank_file();
     if (!pf) {
-	return;
+        menuitem->hide();
+        return;
     }
-    preset_list_actiongroup = Gtk::ActionGroup::create("PresetList");
     preset_list_menu_bank = machine.get_current_bank();
-    Glib::ustring s = "<menubar><menu action=\"PresetsMenu\"><menu action=\"PresetListMenu\">";
+    Glib::ustring current_preset = machine.get_current_name();
     int idx = 0;
-    for (gx_system::PresetFile::iterator i = pf->begin(); i != pf->end(); ++i, ++idx) {
-	Glib::ustring actname = Glib::ustring::compose("PresetList_%1", idx);
-	Glib::RefPtr<Gtk::Action> action = Gtk::Action::create(actname, i->name);
-	preset_list_actiongroup->add(
-	    action, sigc::bind(sigc::mem_fun(*this, &MainWindow::on_select_preset), idx));
-	if (idx <= 9) {
-	    char c = '0' + idx;
-	    Gtk::AccelMap::change_entry(action->get_accel_path(), c, Gdk::ModifierType(0), true);
-	}
-	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
+    for (gx_system::PresetFile::iterator i = pf->begin();
+         i != pf->end();
+         ++i, ++idx) {
+        auto a = Gio::MenuItem::create(
+            i->name, Glib::ustring::compose("%1(%2)", actname, idx));
+        char c = KeySwitcher::idx_to_char(idx);
+        if (c) {
+            auto accelstr = Glib::ustring::compose("%1", (char)c);
+            auto accel = Glib::Variant<Glib::ustring>::create(accelstr);
+            a->set_attribute("accel", accel);
+            auto target = Glib::Variant<gint32>::create(idx);
+        }
+        menu->append_item(a);
+        if (pf->get_name(idx) == current_preset) {
+            actions.preset_list_menu->set_current_value(idx);
+        }
     }
-    s += "</menu></menu></menubar>";
-    uimanager->insert_action_group(preset_list_actiongroup);
-    preset_list_merge_id = uimanager->add_ui_from_string(s);
-    dynamic_cast<Gtk::MenuItem*>(uimanager->get_widget("/menubar/PresetsMenu/PresetListMenu"))->set_label(_("_Bank: ")+preset_list_menu_bank);
+    menuitem->set_label(_("_Bank: ")+preset_list_menu_bank);
+    menuitem->show();
 }
 
 void MainWindow::show_selected_preset() {
@@ -755,7 +1014,7 @@ void MainWindow::on_show_rack() {
 	stereobox = bld.stereorackbox;
     }
     bool v = options.system_show_rack = actions.show_rack->get_active();
-    actions.rackh->set_sensitive(v);
+    actions.rackh->set_enabled(v);
     plugin_dict.get_stereorackcontainer().set_visible(v);
     bld.rack_order_h_button->set_visible(v);
     if (v) {
@@ -853,12 +1112,12 @@ void MainWindow::on_expand_all() {
 
 void MainWindow::on_rack_configuration() {
     bool v = actions.rack_config->get_active();
-    actions.show_plugin_bar->set_sensitive(!v);
-    actions.show_rack->set_sensitive(!v);
-    actions.tuner->set_sensitive(!v);
-    actions.compress->set_sensitive(!v);
-    actions.expand->set_sensitive(!v);
-    actions.live_play->set_sensitive(!v);
+    actions.show_plugin_bar->set_enabled(!v);
+    actions.show_rack->set_enabled(!v);
+    actions.tuner->set_enabled(!v);
+    actions.compress->set_enabled(!v);
+    actions.expand->set_enabled(!v);
+    actions.live_play->set_enabled(!v);
     int min_width, natural_width;
     bld.monobox->get_preferred_width(min_width, natural_width);;
     plugin_dict.set_config_mode(v);
@@ -966,9 +1225,9 @@ void MainWindow::update_width() {
 void MainWindow::on_show_values() {
     options.system_show_value = actions.show_values->get_active();
     gx_gui::WaitCursor wait(bld.window);
-    actions.show_values->set_sensitive(false);
+    actions.show_values->set_enabled(false);
     theme.update_show_values();
-    actions.show_values->set_sensitive(true);
+    actions.show_values->set_enabled(true);
 }
 
 void MainWindow::on_preset_action() {
@@ -1030,7 +1289,7 @@ void MainWindow::on_portmap_activate() {
 	if (portmap_window) {
 	    return;
 	}
-	portmap_window = gx_portmap::PortMapWindow::create(machine, actions.accels);
+	portmap_window = gx_portmap::PortMapWindow::create(machine, uimanager.get_accel_group());
 	portmap_window->signal_response().connect(
 	    sigc::mem_fun(*this, &MainWindow::on_portmap_response));
     } else {
@@ -1046,38 +1305,34 @@ void MainWindow::on_miditable_toggle() {
     gx_main_midi::MidiControllerTable::toggle(machine, actions.midicontroller);
 }
 
-void MainWindow::change_skin(Glib::RefPtr<Gtk::RadioAction> action) {
+void MainWindow::change_skin(const Glib::VariantBase& value) {
     gx_gui::WaitCursor wait(bld.window);
-    theme.set_new_skin(options.skin[action->get_current_value()]);
+    int idx = static_cast<const Glib::Variant<gint32>*>(&value)->get();
+    theme.set_new_skin(options.skin[idx]);
+    actions.skin->change_state(idx);
 }
 
 void MainWindow::add_skin_menu() {
-    Glib::ustring s = "<menubar><menu action=\"OptionsMenu\"><menu action=\"SkinMenu\">";
+    Glib::ustring actname = "ChangeSkin";
+    actions.skin = uimanager.add_radio_action(actname);
+    actions.skin->signal_activate().connect(
+        sigc::mem_fun(*this, &MainWindow::change_skin));
+    Glib::RefPtr<Gio::Menu> menu = uimanager.get_linked_menu("ChangeSkin");
     int idx = 0;
-    Gtk::RadioButtonGroup sg;
     for (vector<Glib::ustring>::iterator i = options.skin.skin_list.begin();
-	 i != options.skin.skin_list.end();
-	 ++i) {
-	Glib::ustring name = *i;
-	Glib::ustring actname = Glib::ustring::compose("ChangeSkin_%1", name);
-	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
-	std::string display = name;
-	boost::replace_all(display, "_", " ");
-	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(
-	    sg, actname, display);
-	if (name == options.skin.name) {
-	    action->set_active(true);
-	}
-	actions.group->add(action);
-	if (idx == 0) {
-	    actions.skin = action;
-	}
-	action->property_value().set_value(idx++);
+         i != options.skin.skin_list.end();
+         ++i, ++idx) {
+        Glib::ustring name = *i;
+        std::string display = name;
+        boost::replace_all(display, "_", " ");
+        auto a = Gio::MenuItem::create(display, actname);
+        auto target = Glib::Variant<gint32>::create(idx);
+        a->set_action_and_target(actname, target);
+        if (name == options.skin.name) {
+            actions.skin->change_state(idx);
+        }
+        menu->append_item(a);
     }
-    actions.skin->signal_changed().connect(
-	sigc::mem_fun(*this, &MainWindow::change_skin));
-    s.append("</menu></menu></menubar>");
-    uimanager->add_ui_from_string(s);
 }
 
 enum GxJackLatencyChange {
@@ -1152,11 +1407,11 @@ int MainWindow::gx_wait_latency_warn() {
     return warn_dialog.run();
 }
 
-void MainWindow::change_latency(Glib::RefPtr<Gtk::RadioAction> action) {
+void MainWindow::change_latency(const Glib::VariantBase& value) {
     // are we a proper jack gxjack.client ?
     gx_jack::GxJack *jack = machine.get_jack();
     if (!jack) {
-	return;
+        return;
     }
     if (!jack->client) {
         gx_print_error(
@@ -1165,58 +1420,55 @@ void MainWindow::change_latency(Glib::RefPtr<Gtk::RadioAction> action) {
             );
         return;
     }
-    jack_nframes_t buf_size = action->get_current_value();
+    jack_nframes_t buf_size = static_cast<const Glib::Variant<gint32>*>(&value)->get();
     if (buf_size == jack->get_jack_bs()) {
         return;
     }
+    actions.latency->set_current_value(buf_size);
     if (!options.no_warn_latency && gx_wait_latency_warn() != kChangeLatency) {
-	Glib::signal_idle().connect_once(
-	    sigc::bind(
-		sigc::mem_fun(action.operator->(), &Gtk::RadioAction::set_current_value), jack->get_jack_bs()));
+        Glib::signal_idle().connect_once(
+            sigc::bind(
+                sigc::mem_fun(*actions.latency.get(), &RadioAction::set_current_value),
+                jack->get_jack_bs()));
     } else {
         if (jack_set_buffer_size(jack->client, buf_size) != 0)
             gx_print_warning(_("Setting Jack Buffer Size"),
-					_("Could not change latency"));
+                             _("Could not change latency"));
     }
     gx_print_info(
-	_("Jack Buffer Size"),
-	boost::format(_("latency is %1%")) % jack_get_buffer_size(jack->client));
+        _("Jack Buffer Size"),
+        boost::format(_("latency is %1%")) % jack_get_buffer_size(jack->client));
 }
 
 void MainWindow::add_latency_menu() {
-    Glib::ustring s = "<menubar><menu action=\"EngineMenu\"><menu action=\"JackLatency\">";
-    Gtk::RadioButtonGroup group;
     const int min_pow = 4;  // 2**4  = 16
     const int max_pow = 13; // 2**13 = 8192
     int jack_buffer_size = 16;
+    Glib::ustring actname = "JackLatency";
+    actions.latency = uimanager.add_radio_action(actname);
+    actions.latency->signal_activate().connect(
+        sigc::mem_fun(*this, &MainWindow::change_latency));
+    Glib::RefPtr<Gio::Menu> menu = uimanager.get_linked_menu(actname);
     for (int i = 0; i <= max_pow-min_pow; ++i) {
-	Glib::ustring name = gx_system::to_string(jack_buffer_size);
-	Glib::ustring actname = Glib::ustring::compose("Latency_%1", name);
-	s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
-	Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(group, actname, name);
-	actions.group->add(action);
-	if (i == 0) {
-	    action->signal_changed().connect(
-		sigc::mem_fun(*this, &MainWindow::change_latency));
-	    actions.latency = action;
-	}
-	action->property_value().set_value(jack_buffer_size);
-	jack_buffer_size *= 2;
+        Glib::ustring name = gx_system::to_string(jack_buffer_size);
+        auto a = Gio::MenuItem::create(name, actname);
+        auto target = Glib::Variant<gint32>::create(jack_buffer_size);
+        a->set_action_and_target(actname, target);
+        menu->append_item(a);
+        jack_buffer_size *= 2;
     }
-    s.append("</menu></menu></menubar>");
-    uimanager->add_ui_from_string(s);
 }
 
 void MainWindow::set_latency() {
     gx_jack::GxJack *jack = machine.get_jack();
     if (!jack) {
-	return;
+        return;
     }
     jack_nframes_t n = jack->get_jack_bs();
     if (n > 0) {
-	actions.latency->set_current_value(n);
+        actions.latency->set_current_value(n);
     }
-    actions.osc_buffer_menu->set_sensitive(n < 1024);
+    actions.osc_buffer_size->set_enabled(n < 1024);
 }
 
 void MainWindow::show_forum_help() {
@@ -1405,205 +1657,158 @@ void MainWindow::on_livetuner_toggled() {
 }
 
 void MainWindow::create_actions() {
-    gx_jack::GxJack *jack = machine.get_jack();
     /*
     ** Menu actions
     */
-    actions.group->add(Gtk::Action::create("EngineMenu",_("_Engine")));
-    actions.jack_latency_menu = Gtk::Action::create("JackLatency",_("_Latency"));
-    actions.group->add(actions.jack_latency_menu);
-    actions.osc_buffer_menu = Gtk::Action::create("OscBuffer",_("Osc. Buffer-size"));
-    actions.group->add(actions.osc_buffer_menu);
+    uimanager.add_action("EngineMenu");
 
-    actions.group->add(Gtk::Action::create("PresetsMenu",_("_Presets")));
-    actions.group->add(Gtk::Action::create("NextPreset",_("Next Preset")),
-    sigc::mem_fun(*this, &MainWindow::on_next_preset));
-    actions.group->add(Gtk::Action::create("PreviusPreset",_("Previous Preset")),
-    sigc::mem_fun(*this, &MainWindow::on_previus_preset));
+    uimanager.add_action("PresetsMenu");
+    uimanager.add_action("NextPreset", sigc::mem_fun(*this, &MainWindow::on_next_preset));
+    uimanager.add_action("PreviusPreset", sigc::mem_fun(*this, &MainWindow::on_previus_preset));
 
-    actions.group->add(Gtk::Action::create("SetNextPresetSwitcher", _("Next Preset Midi Switch")),
-		     sigc::mem_fun(this, &MainWindow::set_next_preset_controller));
+    uimanager.add_action("SetNextPresetSwitcher",
+                              sigc::mem_fun(this, &MainWindow::set_next_preset_controller));
 
-    actions.group->add(Gtk::Action::create("SetPreviusPresetSwitcher", _("Previous Preset Midi Switch")),
-		     sigc::mem_fun(this, &MainWindow::set_previus_preset_controller));
+    uimanager.add_action("SetPreviusPresetSwitcher",
+                              sigc::mem_fun(this, &MainWindow::set_previus_preset_controller));
 
-    actions.group->add(Gtk::Action::create("PresetListMenu","--"));
-    actions.group->add(Gtk::Action::create("PluginsMenu",_("P_lugins")));
-    actions.group->add(Gtk::Action::create("MonoPlugins",_("_Mono Plugins")));
-    actions.group->add(Gtk::Action::create("StereoPlugins",_("_Stereo Plugins")));
-    actions.group->add(Gtk::Action::create("TubeMenu",_("_Tube")));
-    actions.group->add(Gtk::Action::create("OptionsMenu",_("_Options")));
-    actions.group->add(Gtk::Action::create("SkinMenu", _("_Skin...")));
-    actions.group->add(Gtk::Action::create("AboutMenu",_("_About")));
+    actions.preset_list_menu = uimanager.add_radio_action("PresetListMenu");
+    actions.preset_list_menu->signal_activate().connect(
+        sigc::mem_fun(*this, &MainWindow::on_select_preset));
+
+    uimanager.add_action("PluginsMenu");
+    uimanager.add_action("MonoPlugins");
+    uimanager.add_action("StereoPlugins");
+    uimanager.add_action("TubeMenu");
+    uimanager.add_action("OptionsMenu");
+    uimanager.add_action("AboutMenu");
 
     /*
     ** engine actions
     */
-    actions.jackserverconnection = Gtk::ToggleAction::create("JackServerConnection", _("Jack Server _Connection"));
-    actions.group->add(
-	actions.jackserverconnection,
-	sigc::mem_fun(*this, &MainWindow::jack_connection));
+    actions.jackserverconnection = uimanager.add_toggle_action("JackServerConnection");
+    actions.jackserverconnection->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::jack_connection));
 
-    actions.jackports = Gtk::ToggleAction::create("JackPorts", _("Jack _Ports"));
-    actions.group->add(
-	actions.jackports,
-	sigc::mem_fun(*this, &MainWindow::on_portmap_activate));
+    actions.jackports = uimanager.add_toggle_action("JackPorts");
+	actions.jackports->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_portmap_activate));
 
-    actions.midicontroller = Gtk::ToggleAction::create("MidiController", _("M_idi Controller"));
-    actions.group->add(
-	actions.midicontroller,
+    actions.midicontroller = uimanager.add_toggle_action("MidiController");
+    actions.midicontroller->signal_toggled().connect(
         sigc::mem_fun(*this, &MainWindow::on_miditable_toggle));
 
-    actions.engine_mute = Gtk::ToggleAction::create("EngineMute", _("Engine _Mute"));
-    actions.group->add(actions.engine_mute);
+    actions.engine_mute = uimanager.add_toggle_action("EngineMute");
     actions.engine_mute_conn = actions.engine_mute->signal_toggled().connect(
-	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
+        sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
 
-    actions.engine_bypass = Gtk::ToggleAction::create("EngineBypass", _("Engine _Bypass"));
-    actions.group->add(actions.engine_bypass);
+    actions.engine_bypass = uimanager.add_toggle_action("EngineBypass");
     actions.engine_bypass_conn = actions.engine_bypass->signal_toggled().connect(
-	sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
+        sigc::mem_fun(*this, &MainWindow::on_engine_toggled));
 
-    if (options.get_hideonquit()) {
-        actions.quit = Gtk::Action::create("Quit",_("Hide"));
-    } else {
-        actions.quit = Gtk::Action::create("Quit",_("_Quit"));
-    }
-    actions.group->add(
-	actions.quit,
-	sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_quit)));
+    actions.quit = uimanager.add_action(
+        "Quit", sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_quit)));
 
     /*
     ** actions to open other (sub)windows
     */
-    actions.presets = Gtk::ToggleAction::create(
-	"Presets",_("_Preset Selection"));
-    actions.group->add(actions.presets,
-		       sigc::mem_fun(*this, &MainWindow::on_preset_action));
+    actions.presets = uimanager.add_toggle_action("Presets");
+    actions.presets->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_preset_action));
 
-    actions.show_plugin_bar = Gtk::ToggleAction::create(
-	"ShowPluginBar",_("Show Plugin _Bar"));
-    actions.group->add(actions.show_plugin_bar,
-		       sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
+    actions.show_plugin_bar = uimanager.add_toggle_action("ShowPluginBar");
+    actions.show_plugin_bar->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_show_plugin_bar));
 
-    actions.show_rack = Gtk::ToggleAction::create(
-	"ShowRack",_("Show _Rack"), "", true);
-    actions.group->add(actions.show_rack,
-		       sigc::mem_fun(*this, &MainWindow::on_show_rack));
+    actions.show_rack = uimanager.add_toggle_action("ShowRack", true);
+    actions.show_rack->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_show_rack));
 
-    actions.loggingbox = Gtk::ToggleAction::create("LoggingBox", _("Show _Logging Box"));
-    actions.group->add(
-	actions.loggingbox,
+    actions.loggingbox = uimanager.add_toggle_action("LoggingBox");
+    actions.loggingbox->signal_toggled().connect(
         sigc::mem_fun(*this, &MainWindow::on_log_activate));
 
-    actions.live_play = Gtk::ToggleAction::create("Liveplay",_("Live _Display"));
-    actions.group->add(actions.live_play,
-		     sigc::mem_fun(*this, &MainWindow::on_live_play));
+    actions.live_play = uimanager.add_toggle_action("Liveplay");
+    actions.live_play->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_live_play));
 
-    actions.meterbridge = Gtk::ToggleAction::create("Meterbridge", _("_Meterbridge"));
+    actions.meterbridge = uimanager.add_toggle_action("Meterbridge");
+    gx_jack::GxJack *jack = machine.get_jack();
     if (jack) {
-	actions.group->add(
-	    actions.meterbridge,
-	    sigc::bind(sigc::ptr_fun(gx_child_process::Meterbridge::start_stop),
-		       sigc::ref(actions.meterbridge), sigc::ref(*jack)));
-    } else {
-	actions.group->add(actions.meterbridge);
+        actions.meterbridge->signal_toggled().connect(
+            sigc::bind(sigc::ptr_fun(gx_child_process::Meterbridge::start_stop),
+                       sigc::ref(actions.meterbridge), sigc::ref(*jack)));
     }
 
-    actions.livetuner = UiBoolToggleAction::create(
-	machine, "ui.racktuner", "LiveTuner", "??");
-    actions.group->add(actions.livetuner);
-    actions.livetuner->signal_toggled().connect(
-	sigc::mem_fun(this, &MainWindow::on_livetuner_toggled));
+    actions.livetuner = uimanager.add_ui_bool_action(machine, "ui.racktuner", "LiveTuner");
+    actions.livetuner->signal_activate().connect(
+        sigc::hide(sigc::mem_fun(this, &MainWindow::on_livetuner_toggled)));
 
     /*
     ** rack actions
     */
-    actions.tuner = UiBoolToggleAction::create(
-	machine, "system.show_tuner", "Tuner",_("_Tuner show"));
-    actions.group->add(actions.tuner,
-		     sigc::mem_fun(*this, &MainWindow::on_show_tuner));
-    actions.tunermove = UiBoolToggleAction::create(
-	machine, "system.stick_tuner", "Tunermove",_("Tuner stic_k "));
-    actions.group->add(actions.tunermove,
-		     sigc::mem_fun(*this, &MainWindow::on_move_tuner));
+    actions.tuner = uimanager.add_ui_bool_action(machine, "system.show_tuner", "Tuner");
+    actions.tuner->signal_activate().connect(
+        sigc::hide(sigc::mem_fun(*this, &MainWindow::on_show_tuner)));
+    actions.tunermove = uimanager.add_ui_bool_action(machine, "system.stick_tuner", "Tunermove");
+    actions.tunermove->signal_activate().connect(
+        sigc::hide(sigc::mem_fun(*this, &MainWindow::on_move_tuner)));
 
-    actions.rack_config = Gtk::ToggleAction::create("RackConfig", _("R_ack Configuration"));
-    actions.group->add(actions.rack_config,
-		     sigc::mem_fun(*this, &MainWindow::on_rack_configuration));
+    actions.rack_config = uimanager.add_toggle_action("RackConfig");
+    actions.rack_config->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_rack_configuration));
 
-    actions.compress = Gtk::Action::create("Compress",_("C_ompress all"));
-    actions.group->add(actions.compress,
-		     sigc::mem_fun(*this, &MainWindow::on_compress_all));
+    actions.compress = uimanager.add_action(
+        "Compress", sigc::mem_fun(*this, &MainWindow::on_compress_all));
 
-    actions.expand = Gtk::Action::create("Expand",_("E_xpand all"));
-    actions.group->add(actions.expand,
-		     sigc::mem_fun(*this, &MainWindow::on_expand_all));
+    actions.expand = uimanager.add_action(
+        "Expand", sigc::mem_fun(*this, &MainWindow::on_expand_all));
 
-    actions.rackh = Gtk::ToggleAction::create(
-	"RackH", _("Order Rack _Horizontally"));
-    actions.group->add(actions.rackh,
-		     sigc::mem_fun(*this, &MainWindow::on_dir_changed));
+    actions.rackh = uimanager.add_toggle_action("RackH");
+    actions.rackh->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_dir_changed));
 
     /*
     ** option actions
     */
-    actions.show_values = Gtk::ToggleAction::create(
-	"ShowValues",_("Show _Values"), "", true);
-    actions.group->add(actions.show_values,
-		       sigc::mem_fun(*this, &MainWindow::on_show_values));
+    actions.show_values = uimanager.add_toggle_action("ShowValues", true);
+    actions.show_values->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_show_values));
 
-    actions.tooltips = Gtk::ToggleAction::create(
-	"ShowTooltips", _("Show _Tooltips"), "", true);
-    actions.group->add(
-	actions.tooltips,
-	sigc::mem_fun(this, &MainWindow::set_tooltips));
+    actions.tooltips = uimanager.add_toggle_action("ShowTooltips", true);
+    actions.tooltips->signal_toggled().connect(
+        sigc::mem_fun(this, &MainWindow::set_tooltips));
 
-    actions.midi_in_presets = UiSwitchToggleAction::create(
-	machine, "system.midi_in_preset", "MidiInPresets", _("Include MIDI in _presets"));
-    actions.group->add(actions.midi_in_presets);
+    actions.midi_in_presets = uimanager.add_ui_bool_action(
+        machine, "system.midi_in_preset", "MidiInPresets", _("Include MIDI in _presets"));
 
-    actions.jackstartup = Gtk::Action::create("JackStartup", _("_Jack Startup Control"));
-    actions.group->add(
-	actions.jackstartup,
-	sigc::mem_fun(*this, &MainWindow::on_select_jack_control));
+    actions.jackstartup = uimanager.add_action(
+        "JackStartup", sigc::mem_fun(*this, &MainWindow::on_select_jack_control));
 
-    actions.loadladspa = Gtk::Action::create("LoadLADSPA", _("LADSPA/LV2 Pl_ugins"));
-    actions.group->add(
-	actions.loadladspa,
-	sigc::mem_fun(this, &MainWindow::on_load_ladspa));
+    actions.loadladspa = uimanager.add_action(
+        "LoadLADSPA", sigc::mem_fun(this, &MainWindow::on_load_ladspa));
 
-    actions.group->add(Gtk::Action::create("ResetAll", _("Reset _All Parameters")),
-		       sigc::mem_fun(machine, &gx_engine::GxMachineBase::set_init_values));
+    uimanager.add_action(
+        "ResetAll", sigc::mem_fun(machine, &gx_engine::GxMachineBase::set_init_values));
 
-    actions.animations = Gtk::ToggleAction::create(
-	"Animations", _("_Use Animations"),"",true);
-    actions.group->add(actions.animations,
-		       sigc::mem_fun(this, &MainWindow::set_animations));
+    actions.animations = uimanager.add_toggle_action("Animations", true);
+    actions.animations->signal_toggled().connect(
+        sigc::mem_fun(this, &MainWindow::set_animations));
 
-    actions.group->add(Gtk::Action::create("SetPresetSwitcher", _("L_iveplay Midi Switch")),
-		     sigc::mem_fun(this, &MainWindow::set_switcher_controller));
+    uimanager.add_action(
+        "SetPresetSwitcher", sigc::mem_fun(this, &MainWindow::set_switcher_controller));
 
-    actions.group->add(Gtk::Action::create("SetBypassSwitcher", _("B_ypass Midi Switch")),
-		     sigc::mem_fun(this, &MainWindow::set_bypass_controller));
+    uimanager.add_action(
+        "SetBypassSwitcher", sigc::mem_fun(this, &MainWindow::set_bypass_controller));
 
-    actions.group->add(Gtk::Action::create("SetMidiChannel", _("Set Midi Channel")),
-		     sigc::mem_fun(this, &MainWindow::on_select_midi_channel));
+    uimanager.add_action(
+        "SetMidiChannel", sigc::mem_fun(this, &MainWindow::on_select_midi_channel));
 
     /*
     ** Help and About
     */
-    actions.group->add(Gtk::Action::create("Help", _("_Help")),
-		       sigc::mem_fun(this, &MainWindow::gx_show_help));
-    actions.group->add(Gtk::Action::create("About", _("_About")),
-		     sigc::ptr_fun(gx_show_about));
-
-    if (!jack) {
-	actions.jack_latency_menu->set_visible(false);
-	actions.jackserverconnection->set_visible(false);
-	actions.jackports->set_visible(false);
-	actions.meterbridge->set_visible(false);
-    }
+    uimanager.add_action("Help", sigc::mem_fun(this, &MainWindow::gx_show_help));
+    uimanager.add_action("About", sigc::ptr_fun(gx_show_about));
 }
 
 void MainWindow::clear_box(Gtk::Container& box) {
@@ -1711,11 +1916,11 @@ bool MainWindow::connect_jack(bool v, Gtk::Window *splash) {
 
 void MainWindow::on_jack_client_changed() {
     if (!bld.window) {
-	return;
+        return;
     }
     gx_jack::GxJack *jack = machine.get_jack();
     if (!jack) {
-	return;
+        return;
     }
     bool v = (jack->client != 0);
     if (!v) {
@@ -1724,19 +1929,19 @@ void MainWindow::on_jack_client_changed() {
     actions.jackserverconnection->set_active(v);
     Glib::ustring s = "Guitarix: ";
     if (v) {
-	s += jack->get_instancename();
+        s += jack->get_instancename();
     } else {
-	s += "("+jack->get_instancename()+")";
+        s += "("+jack->get_instancename()+")";
     }
     bld.window->set_title(s);
-    actions.jack_latency_menu->set_sensitive(v);
-    actions.engine_mute->set_sensitive(v);
-    actions.engine_bypass->set_sensitive(v);
+    actions.latency->set_enabled(v);
+    actions.engine_mute->set_enabled(v);
+    actions.engine_bypass->set_enabled(v);
     bld.status_image->set_sensitive(v);
     if (!v) {
-	bld.jackd_image->set(pixbuf_jack_disconnected);
+        bld.jackd_image->set(pixbuf_jack_disconnected);
     } else {
-	bld.jackd_image->set(pixbuf_jack_connected);
+        bld.jackd_image->set(pixbuf_jack_connected);
     }
 }
 
@@ -1976,10 +2181,6 @@ void MainWindow::on_msg_level_changed() {
     }
 }
 
-//static void toggle_action(Glib::RefPtr<Gtk::ToggleAction> act) {
-//    act->set_active(!act->get_active());
-//}
-
 void MainWindow::on_ampdetail_switch(bool compress, bool setparam) {
     if (compress) {
 	bld.ampdetail_normal->hide();
@@ -1998,42 +2199,34 @@ void MainWindow::on_ampdetail_switch(bool compress, bool setparam) {
  */
 
 void MainWindow::set_osc_size() {
-    //int osc_size = engine.oscilloscope.get_mul_buffer();
     if (options.mul_buffer > 0) {
         actions.osc_buffer_size->set_current_value(options.mul_buffer);
     }
 }
 
-void MainWindow::change_osc_buffer(Glib::RefPtr<Gtk::RadioAction> action) {
+void MainWindow::change_osc_buffer(const Glib::VariantBase& value) {
     gx_jack::GxJack *jack = machine.get_jack();
+    options.mul_buffer = static_cast<const Glib::Variant<gint32>*>(&value)->get();
     if (!jack || jack->client) {
-	options.mul_buffer = action->get_current_value();
-	machine.set_oscilloscope_mul_buffer(options.mul_buffer);
-    } else {
-	set_osc_size();
+        machine.set_oscilloscope_mul_buffer(options.mul_buffer);
     }
+    set_osc_size();
 }
 
 void MainWindow::add_osc_size_menu() {
-    Glib::ustring s = "<menubar><menu action=\"OptionsMenu\"><menu action=\"OscBuffer\">";
-    Gtk::RadioButtonGroup group;
-    int osc_buffer_size = 1;
-    for (int i = 1; i <= 6; ++i) {
+    Glib::ustring actname = "OscBufferSize";
+    actions.osc_buffer_size = uimanager.add_radio_action(actname);
+    actions.osc_buffer_size->signal_activate().connect(
+        sigc::mem_fun(*this, &MainWindow::change_osc_buffer), true);
+    Glib::RefPtr<Gio::Menu> menu = uimanager.get_linked_menu(actname);
+    for (int osc_buffer_size = 1; osc_buffer_size <= 6; osc_buffer_size++) {
         Glib::ustring name = "*" + gx_system::to_string(osc_buffer_size);
-        Glib::ustring actname = Glib::ustring::compose("buffer size %1", name);
-        s += Glib::ustring::compose("<menuitem action=\"%1\"/>", actname);
-        Glib::RefPtr<Gtk::RadioAction> action = Gtk::RadioAction::create(group, actname, name);
-        actions.group->add(action);
-        if (i == 1) {
-            action->signal_changed().connect(
-                sigc::mem_fun(*this, &MainWindow::change_osc_buffer));
-            actions.osc_buffer_size = action;
-        }
-        action->property_value().set_value(osc_buffer_size);
-        osc_buffer_size++;
+        auto a = Gio::MenuItem::create(name, actname);
+        auto target = Glib::Variant<gint32>::create(osc_buffer_size);
+        a->set_action_and_target(actname, target);
+        menu->append_item(a);
     }
-    s.append("</menu></menu></menubar>");
-    uimanager->add_ui_from_string(s);
+    actions.osc_buffer_size->change_state(options.mul_buffer);
 }
 
 bool MainWindow::survive_jack_shutdown() {
@@ -2133,8 +2326,18 @@ void MainWindow::set_in_session() {
 }
 
 void MainWindow::systray_menu(guint button, guint32 activate_time) {
-    Gtk::Menu *menu = dynamic_cast<Gtk::MenuItem*>(uimanager->get_widget("/menubar/EngineMenu"))->get_submenu();
-    menu->popup(2, gtk_get_current_event_time());
+    if (!bld.window->get_window()) {
+        return;
+    }
+    Gtk::MenuItem *item = uimanager.find_item("EngineMenu");
+    if (item) {
+        Gtk::Menu *m = item->get_submenu();
+        if (m) {
+            m->popup(2, gtk_get_current_event_time());
+            return;
+        }
+    }
+    assert(false);
 }
 
 bool MainWindow::on_window_state_changed(GdkEventWindowState* event) {
@@ -2247,9 +2450,9 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       freezer(),
       gx_head_icon(Gdk::Pixbuf::create_from_file(options.get_pixmap_filepath("gx_head.png"))),
       boxbuilder(machine_, gx_head_icon),
-      uimanager(Gtk::UIManager::create()),
-      actions(uimanager, options_),
-      plugin_dict(machine_, options_, *bld.effects_toolpalette, boxbuilder, uimanager, actions.group),
+      uimanager(UIManager(options.get_builder_filepath("menu.ui"), bld.menubar)),
+      actions(),
+      plugin_dict(machine_, options_, *bld.effects_toolpalette, boxbuilder, uimanager),
       oldpos(0),
       scrl_size_x(-1),
       scrl_size_y(-1),
@@ -2257,7 +2460,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       is_visible(false),
       preset_list_menu_bank(),
       preset_list_merge_id(0),
-      preset_list_actiongroup(),
       live_play(),
       preset_window(),
       portmap_window(0),
@@ -2284,13 +2486,14 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     ** create actions and some parameters
     */
     create_actions();
+    bld.window->insert_action_group("app", uimanager.get_action_group());
 
     /*
     ** load key accelerator table and glade window definition
     **
     ** at this point all parameters that are used in the main window glade file must be defined
     */
-    Gtk::AccelMap::load(options.get_builder_filepath("accels_rc"));
+    //Gtk::AccelMap::load(options.get_builder_filepath("accels_rc"));
 
 #ifndef NDEBUG
     theme.set_window(bld.window);
@@ -2304,7 +2507,19 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     clear_box(*bld.preset_box_no_rack);
 
     // preset window also creates some actions
-    preset_window = new PresetWindow(bld, machine, options, actions);
+    preset_window = new PresetWindow(bld, machine, options, actions, uimanager);
+
+    uimanager.setup_menu();
+    if (!machine.get_jack()) {
+        uimanager.find_item("JackLatency")->set_visible(false);
+        uimanager.find_item("JackServerConnection")->set_visible(false);
+        uimanager.find_item("JackPorts")->set_visible(false);
+        uimanager.find_item("Meterbridge")->set_visible(false);
+        //actions.latency->set_visible(false);
+        //actions.jackserverconnection->set_visible(false);
+        //actions.jackports->set_visible(false);
+        //actions.meterbridge->set_visible(false);
+    }
 
     // add dynamic submenus
     if (!options.get_clear_rc()) {
@@ -2312,14 +2527,13 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     }
     add_latency_menu();
     add_osc_size_menu();
-    amp_radio_menu.setup("<menubar><menu action=\"TubeMenu\">","</menu></menubar>",uimanager,actions.group);
+    amp_radio_menu.setup(uimanager);
+    add_preset_key_accelerators();
 
     // add menubar, accelgroup and icon to main window
-    Gtk::Widget *menubar = uimanager->get_widget("/menubar");
-    bld.menubox->pack_start(*menubar);
-    bld.window->add_accel_group(actions.accels);
+    bld.window->add_accel_group(uimanager.get_accel_group());
     bld.window->set_icon(gx_head_icon);
-    boxbuilder.set_accelgroup(actions.accels);
+    boxbuilder.set_accelgroup(uimanager.get_accel_group());
 
     /*
     ** connect main window signals
@@ -2465,15 +2679,15 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     /*
     ** connect buttons with actions
     */
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(bld.show_rack_button->gobj()), GTK_ACTION(actions.show_rack->gobj()));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(bld.rack_order_h_button->gobj()), GTK_ACTION(actions.rackh->gobj()));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(bld.config_mode_button->gobj()), GTK_ACTION(actions.rack_config->gobj()));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(bld.liveplay_button->gobj()),GTK_ACTION(actions.live_play->gobj()));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(bld.tuner_button->gobj()),GTK_ACTION(actions.tuner->gobj()));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(bld.effects_button->gobj()), GTK_ACTION(actions.show_plugin_bar->gobj()));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(bld.presets_button->gobj()), GTK_ACTION(actions.presets->gobj()));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(bld.compress_button->gobj()), GTK_ACTION(actions.compress->gobj()));
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(bld.expand_button->gobj()), GTK_ACTION(actions.expand->gobj()));
+    UIManager::set_widget_action(bld.show_rack_button, actions.show_rack);
+    UIManager::set_widget_action(bld.rack_order_h_button, actions.rackh);
+    UIManager::set_widget_action(bld.config_mode_button, actions.rack_config);
+    UIManager::set_widget_action(bld.liveplay_button, actions.live_play);
+    UIManager::set_widget_action(bld.tuner_button, actions.tuner);
+    UIManager::set_widget_action(bld.effects_button, actions.show_plugin_bar);
+    UIManager::set_widget_action(bld.presets_button, actions.presets);
+    UIManager::set_widget_action(bld.compress_button, actions.compress);
+    UIManager::set_widget_action(bld.expand_button, actions.expand);
 
     /*
     ** setup window initial configuration
@@ -2485,7 +2699,8 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     /*
     ** create liveplay and setup liveplay racktuner
     */
-    live_play = new Liveplay(options, machine, options.get_builder_filepath("liveplay.glade"), actions);
+    live_play = new Liveplay(options, machine, options.get_builder_filepath("liveplay.glade"),
+                             actions, uimanager.get_action_group());
     setup_tuner(live_play->get_tuner());
     live_play->get_tuner().signal_poll_status_changed().connect(
 	sigc::mem_fun1(machine, &gx_engine::GxMachineBase::tuner_used_for_display));
@@ -2498,9 +2713,9 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     fLoggingWindow.signal_msg_level_changed().connect(
 	sigc::mem_fun(*this, &MainWindow::on_msg_level_changed));
     fLoggingWindow.signal_hide().connect(
-	sigc::bind(
-	    sigc::mem_fun(actions.loggingbox.operator->(), &Gtk::ToggleAction::set_active),
-	    false));
+        sigc::bind(
+            sigc::mem_fun(*actions.loggingbox.get(), &ToggleAction::set_active),
+            false));
     on_msg_level_changed();
     bld.logstate_image->get_parent()->add_events(Gdk::SCROLL_MASK);
     bld.logstate_image->get_parent()->signal_button_press_event().connect(
