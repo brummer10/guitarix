@@ -258,7 +258,7 @@ static void connect_waveview(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMa
         [](void*p) {
             sigc::connection *conn = static_cast<sigc::connection*>(p);
             for (int i = 0; i < conn_len; i++) {
-                conn->disconnect();
+                conn[i].disconnect();
             }
             delete[] conn;
             return p;
