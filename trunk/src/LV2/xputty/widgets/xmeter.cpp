@@ -52,6 +52,7 @@ Widget_t* add_vmeter(Widget_t *parent, const char * label, bool show_scale,
     wid->label = label;
     wid->adj_y = add_adjustment(wid,-70.0, -70.0, -70.0, 6.0,0.001, CL_METER);
     wid->adj = wid->adj_y;
+    wid->flags &= ~USE_TRANSPARENCY;
     wid->scale.gravity = ASPECT;
     wid->func.expose_callback = _draw_v_meter;
     if (show_scale) {
@@ -70,6 +71,7 @@ Widget_t* add_hmeter(Widget_t *parent, const char * label, bool show_scale,
     wid->label = label;
     wid->adj_x = add_adjustment(wid,-70.0, -70.0, -70.0, 6.0,0.001, CL_METER);
     wid->adj = wid->adj_x;
+    wid->flags &= ~USE_TRANSPARENCY;
     wid->scale.gravity = ASPECT;
     wid->func.expose_callback = _draw_h_meter;
     if (show_scale) {

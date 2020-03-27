@@ -99,6 +99,7 @@ def build(bld):
         'uniBar.dsp',
         'mbd.dsp',
         'mbc.dsp',
+        'mbreverb.dsp',
         'bmfp.dsp',
         'lowpass_up.dsp',
         'lowpass_down.dsp',

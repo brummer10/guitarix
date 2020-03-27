@@ -107,8 +107,8 @@ rdfs:comment """
         lv2:index 5 ;
         lv2:symbol "GAIN" ;
         lv2:name "GAIN";
-        lv2:default 0.0 ;
-        lv2:minimum -4e+01 ;
+        lv2:default -15.0 ;
+        lv2:minimum -40.0 ;
         lv2:maximum 4.0 ;
     ] , [
         a lv2:InputPort ,
@@ -246,7 +246,12 @@ rdfs:comment """
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_mbdistortion_#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_mbdistortion_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  
   

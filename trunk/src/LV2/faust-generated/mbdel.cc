@@ -297,7 +297,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fHslider8 = FAUSTFLOAT(30.0);
 	fVslider8 = FAUSTFLOAT(50.0);
 	fVslider9 = FAUSTFLOAT(-10.0);
-			IOTA = 0;
+	IOTA = 0;
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
@@ -466,9 +466,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec1[(IOTA & 524287)] = fTemp6;
 		fRec3[0] = (((1.0 - fRec5[0]) * fVec1[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec6[0])))) & 524287)]) + (fRec5[0] * fVec1[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec7[0])))) & 524287)]));
 		double fTemp7 = std::max<double>(fConst1, std::fabs(fRec3[0]));
-		fRec0[0] = (iTemp0?(fTemp7 + fRec0[1]):fTemp7);
+		fRec0[0] = (iTemp0?std::max<double>(fRec0[1], fTemp7):fTemp7);
 		iRec1[0] = (iTemp0?(iRec1[1] + 1):1);
-		fRec2[0] = (iTemp0?fRec2[1]:(0.000244140625 * fRec0[1]));
+		fRec2[0] = (iTemp0?fRec2[1]:fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
 		int iTemp8 = (iRec15[1] < 4096);
 		double fTemp9 = ((fRec18[1] != 0.0)?(((fRec19[1] > 0.0) & (fRec19[1] < 1.0))?fRec18[1]:0.0):(((fRec19[1] == 0.0) & (fSlow43 != fRec20[1]))?fConst3:(((fRec19[1] == 1.0) & (fSlow43 != fRec21[1]))?fConst4:0.0)));
@@ -492,9 +492,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec3[(IOTA & 524287)] = fTemp14;
 		fRec17[0] = (((1.0 - fRec19[0]) * fVec3[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec20[0])))) & 524287)]) + (fRec19[0] * fVec3[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec21[0])))) & 524287)]));
 		double fTemp15 = std::max<double>(fConst1, std::fabs(fRec17[0]));
-		fRec14[0] = (iTemp8?(fTemp15 + fRec14[1]):fTemp15);
+		fRec14[0] = (iTemp8?std::max<double>(fRec14[1], fTemp15):fTemp15);
 		iRec15[0] = (iTemp8?(iRec15[1] + 1):1);
-		fRec16[0] = (iTemp8?fRec16[1]:(0.000244140625 * fRec14[1]));
+		fRec16[0] = (iTemp8?fRec16[1]:fRec14[1]);
 		fVbargraph1 = FAUSTFLOAT(fRec16[0]);
 		int iTemp16 = (iRec30[1] < 4096);
 		double fTemp17 = ((fRec33[1] != 0.0)?(((fRec34[1] > 0.0) & (fRec34[1] < 1.0))?fRec33[1]:0.0):(((fRec34[1] == 0.0) & (fSlow53 != fRec35[1]))?fConst3:(((fRec34[1] == 1.0) & (fSlow53 != fRec36[1]))?fConst4:0.0)));
@@ -516,9 +516,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec5[(IOTA & 524287)] = fTemp21;
 		fRec32[0] = (((1.0 - fRec34[0]) * fVec5[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec35[0])))) & 524287)]) + (fRec34[0] * fVec5[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec36[0])))) & 524287)]));
 		double fTemp22 = std::max<double>(fConst1, std::fabs(fRec32[0]));
-		fRec29[0] = (iTemp16?(fTemp22 + fRec29[1]):fTemp22);
+		fRec29[0] = (iTemp16?std::max<double>(fRec29[1], fTemp22):fTemp22);
 		iRec30[0] = (iTemp16?(iRec30[1] + 1):1);
-		fRec31[0] = (iTemp16?fRec31[1]:(0.000244140625 * fRec29[1]));
+		fRec31[0] = (iTemp16?fRec31[1]:fRec29[1]);
 		fVbargraph2 = FAUSTFLOAT(fRec31[0]);
 		int iTemp23 = (iRec44[1] < 4096);
 		double fTemp24 = ((fRec47[1] != 0.0)?(((fRec48[1] > 0.0) & (fRec48[1] < 1.0))?fRec47[1]:0.0):(((fRec48[1] == 0.0) & (fSlow63 != fRec49[1]))?fConst3:(((fRec48[1] == 1.0) & (fSlow63 != fRec50[1]))?fConst4:0.0)));
@@ -538,9 +538,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec7[(IOTA & 524287)] = fTemp27;
 		fRec46[0] = (((1.0 - fRec48[0]) * fVec7[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec49[0])))) & 524287)]) + (fRec48[0] * fVec7[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec50[0])))) & 524287)]));
 		double fTemp28 = std::max<double>(fConst1, std::fabs(fRec46[0]));
-		fRec43[0] = (iTemp23?(fTemp28 + fRec43[1]):fTemp28);
+		fRec43[0] = (iTemp23?std::max<double>(fRec43[1], fTemp28):fTemp28);
 		iRec44[0] = (iTemp23?(iRec44[1] + 1):1);
-		fRec45[0] = (iTemp23?fRec45[1]:(0.000244140625 * fRec43[1]));
+		fRec45[0] = (iTemp23?fRec45[1]:fRec43[1]);
 		fVbargraph3 = FAUSTFLOAT(fRec45[0]);
 		int iTemp29 = (iRec57[1] < 4096);
 		double fTemp30 = ((fRec60[1] != 0.0)?(((fRec61[1] > 0.0) & (fRec61[1] < 1.0))?fRec60[1]:0.0):(((fRec61[1] == 0.0) & (fSlow72 != fRec62[1]))?fConst3:(((fRec61[1] == 1.0) & (fSlow72 != fRec63[1]))?fConst4:0.0)));
@@ -555,9 +555,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec8[(IOTA & 524287)] = fTemp31;
 		fRec59[0] = (((1.0 - fRec61[0]) * fVec8[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec62[0])))) & 524287)]) + (fRec61[0] * fVec8[((IOTA - int(std::min<double>(262144.0, std::max<double>(0.0, fRec63[0])))) & 524287)]));
 		double fTemp32 = std::max<double>(fConst1, std::fabs(fRec59[0]));
-		fRec56[0] = (iTemp29?(fTemp32 + fRec56[1]):fTemp32);
+		fRec56[0] = (iTemp29?std::max<double>(fRec56[1], fTemp32):fTemp32);
 		iRec57[0] = (iTemp29?(iRec57[1] + 1):1);
-		fRec58[0] = (iTemp29?fRec58[1]:(0.000244140625 * fRec56[1]));
+		fRec58[0] = (iTemp29?fRec58[1]:fRec56[1]);
 		fVbargraph4 = FAUSTFLOAT(fRec58[0]);
 		output0[i] = FAUSTFLOAT((((((fRec3[0] + fRec17[0]) + fRec32[0]) + fRec46[0]) + fRec59[0]) + fTemp2));
 		fRec4[1] = fRec4[0];

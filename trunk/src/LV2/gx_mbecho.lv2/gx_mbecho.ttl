@@ -62,18 +62,18 @@ rdfs:comment """
         lv2:index 0 ;
         lv2:symbol "PERCENT1" ;
         lv2:name "PERCENT1";
-        lv2:default 1e+01;
+        lv2:default 10.0;
         lv2:minimum 0.0 ;
-        lv2:maximum 1e+02 ;
+        lv2:maximum 100.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 1 ;
         lv2:symbol "PERCENT2" ;
         lv2:name "PERCENT2";
-        lv2:default 3e+01 ;
+        lv2:default 30.0 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 1e+02 ;
+        lv2:maximum 100.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -82,16 +82,16 @@ rdfs:comment """
         lv2:name "PERCENT3";
         lv2:default 45.0 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 1e+02 ;
+        lv2:maximum 100.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
         lv2:symbol "PERCENT4" ;
         lv2:name "PERCENT4";
-        lv2:default 2e+01 ;
+        lv2:default 20.0 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 1e+02 ;
+        lv2:maximum 100.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -100,88 +100,88 @@ rdfs:comment """
         lv2:name "PERCENT5";
         lv2:default 0.0 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 1e+02 ;
+        lv2:maximum 100.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 5 ;
         lv2:symbol "TIME1" ;
         lv2:name "TIME1";
-        lv2:default 3e+01;
+        lv2:default 30.0;
         lv2:minimum 24.0 ;
-        lv2:maximum 3.6e+02 ;
+        lv2:maximum 360.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 6 ;
         lv2:symbol "TIME2" ;
         lv2:name "TIME2";
-        lv2:default 6e+01 ;
+        lv2:default 60.0 ;
         lv2:minimum 24.0 ;
-        lv2:maximum 3.6e+02 ;
+        lv2:maximum 360.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 7 ;
         lv2:symbol "TIME3" ;
         lv2:name "TIME3";
-        lv2:default 1.2e+02 ;
+        lv2:default 120.0 ;
         lv2:minimum 24.0 ;
-        lv2:maximum 3.6e+02 ;
+        lv2:maximum 360.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 8 ;
         lv2:symbol "TIME4" ;
         lv2:name "TIME4";
-        lv2:default 1.5e+02 ;
+        lv2:default 150.0 ;
         lv2:minimum 24.0 ;
-        lv2:maximum 3.6e+02 ;
+        lv2:maximum 360.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 9 ;
         lv2:symbol "TIME5" ;
         lv2:name "TIME5";
-        lv2:default 2.4e+02 ;
+        lv2:default 240.0 ;
         lv2:minimum 24.0 ;
-        lv2:maximum 3.6e+02 ;
+        lv2:maximum 360.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 10 ;
         lv2:symbol "CROSSOVER_B1_B2" ;
         lv2:name "LOW SHELF";
-        lv2:default 8e+01 ;
-        lv2:minimum 2e+01 ;
-        lv2:maximum 2e+04 ;
+        lv2:default 80.0 ;
+        lv2:minimum 20.0 ;
+        lv2:maximum 20000.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 11 ;
         lv2:symbol "CROSSOVER_B2_B3" ;
         lv2:name "CROSSOVER_B2_B3";
-        lv2:default 2.1e+02 ;
-        lv2:minimum 2e+01 ;
-        lv2:maximum 2e+04 ;
+        lv2:default 210.0 ;
+        lv2:minimum 20.0 ;
+        lv2:maximum 20000.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 12 ;
         lv2:symbol "CROSSOVER_B3_B4" ;
         lv2:name "CROSSOVER_B3_B4";
-        lv2:default 1.7e+03 ;
-        lv2:minimum 2e+01 ;
-        lv2:maximum 2e+04 ;
+        lv2:default 1700.0 ;
+        lv2:minimum 20.0 ;
+        lv2:maximum 20000.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 13 ;
         lv2:symbol "CROSSOVER_B4_B5" ;
         lv2:name "CROSSOVER_B4_B5";
-        lv2:default 5e+03 ;
-        lv2:minimum 2e+01 ;
-        lv2:maximum 2e+04 ;
+        lv2:default 5000.0 ;
+        lv2:minimum 20.0 ;
+        lv2:maximum 20000.0 ;
     ] , [
         a  lv2:ControlPort, lv2:OutputPort ;
         lv2:index 14 ;
@@ -237,7 +237,12 @@ rdfs:comment """
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_mbecho_#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_mbecho_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  
   

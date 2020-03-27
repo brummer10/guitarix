@@ -5,7 +5,7 @@ declare category "Reverb";
 declare description "Multi Band Reverb";
 
 import("stdfaust.lib");
-import("reducemaps.lib");
+rd = library("reducemaps.lib");
 
 import("guitarix.lib");
 
@@ -22,7 +22,8 @@ vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
 vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
 vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
 
-envelop         = abs : max ~ (1.0/ma.SR) : mean(4096) ; // : max(ba.db2linear(-70)) : ba.linear2db;
+envelop         = abs : max ~ (1.0/ma.SR) : rd.maxn(4096) ;
+//envelop         = abs : max ~ (1.0/ma.SR) : mean(4096) ; // : max(ba.db2linear(-70)) : ba.linear2db;
 
 /*-----------------------------------------------
 		freeverb  by "Grame"
