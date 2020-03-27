@@ -59,7 +59,8 @@ class ToggleAction: public Gio::SimpleAction {
 private:
     void on_activate_toggle(const Glib::VariantBase& value);
 protected:
-    ToggleAction(const Glib::ustring& name, bool state=false);
+    ToggleAction(const Glib::ustring& name, bool state)
+        : Gio::SimpleAction(name, Glib::Variant<bool>::create(state)) {}
 public:
     static Glib::RefPtr<ToggleAction> create(const Glib::ustring& name, bool state=false) {
         return Glib::RefPtr<ToggleAction>(new ToggleAction(name, state)); }
@@ -108,23 +109,21 @@ typedef UiToggleAction<bool> UiBoolToggleAction;
 
 class UIManager {
 public:
-    typedef std::function<bool(const Glib::ustring&, Glib::RefPtr<Gio::Menu>&, int)> search_func;
+    typedef std::function<bool(const Glib::ustring&, Glib::RefPtr<Gio::Menu>&, int, int)> search_func;
 private:
     Glib::RefPtr<Gio::Menu> menu;
     Glib::RefPtr<Gtk::AccelGroup> accelgroup;
     Glib::RefPtr<Gio::SimpleActionGroup> actiongroup;
     Gtk::MenuBar *menubar;
-    void set_accelerator_from_menu(Glib::RefPtr<Gio::Menu>& menu);
-    bool foreach_menu_(Glib::RefPtr<Gio::Menu>& menu, search_func& func);
+    void set_accelerators_from_menu(Glib::RefPtr<Gio::Menu>& menu);
+    bool foreach_menu_(Glib::RefPtr<Gio::Menu>& menu, search_func& func, int& startpos);
 public:
     UIManager(const std::string& file, Gtk::MenuBar *bar);
-    typedef int ui_merge_id;
     Glib::RefPtr<Gtk::AccelGroup>& get_accel_group() { return accelgroup; }
     Glib::RefPtr<Gio::SimpleActionGroup>& get_action_group() { return actiongroup; }
     void insert_action_group(Glib::RefPtr<Gio::SimpleActionGroup>& group);
-    void remove_ui(ui_merge_id merge_id);
-    void setup_menu();
-    bool foreach_menu(search_func func) { return foreach_menu_(menu, func); }
+    void set_accelerators_from_menu() { set_accelerators_from_menu(menu); }
+    bool foreach_menu(search_func func) { int pos = 0; return foreach_menu_(menu, func, pos); }
     Glib::RefPtr<Gio::SimpleAction> add_action(const Glib::ustring& action);
     Glib::RefPtr<Gio::SimpleAction> add_action(const Glib::ustring& action, sigc::slot<void()> slot);
     Glib::RefPtr<ToggleAction> add_toggle_action(const Glib::ustring& action, bool state = false);
@@ -140,6 +139,7 @@ public:
                          const Glib::ustring& accelerator);
     Glib::RefPtr<Gio::Menu> get_linked_menu(const Glib::ustring& action);
     Gtk::MenuItem *find_item(const Glib::ustring& action);
+    bool remove_item(const Glib::ustring& action);
     static void set_widget_action(Gtk::Widget *w, Glib::RefPtr<Gio::Action> action);
 };
 
@@ -412,7 +412,6 @@ class PluginUI: public sigc::trackable {
     friend class PluginDict;
     friend class RackContainer;
 private:
-    UIManager::ui_merge_id merge_id;
     Glib::RefPtr<ToggleAction> action;
     // data for ToolPalette entry
     Gtk::ToolItemGroup *group;
@@ -447,8 +446,6 @@ public:
     const char *get_name() const { return plugin->get_pdef()->name; }
     void activate(bool animate);
     void decativate(bool animate);
-    void set_ui_merge_id(UIManager::ui_merge_id id) { merge_id = id; }
-    void unset_ui_merge_id(UIManager& uimanager);
     void set_action(Glib::RefPtr<ToggleAction>& act);
     void set_active(bool v) { if (action) action->set_active(v); }
     Glib::RefPtr<ToggleAction> get_action() { return action; }
@@ -520,9 +517,11 @@ private:
 public:
     DragIcon *drag_icon;
 private:
+    Glib::ustring category_id(const std::string& group, bool stereo);
     void on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c);
     Gtk::ToolItemGroup *add_plugin_category(const char *cat, bool collapse = true);
     Glib::ustring add_plugin_menu_entry(PluginUI *pui);
+    void remove_plugin_menu_entry(PluginUI *pui);
     void register_plugin(PluginUI *pui);
     void fill_pluginlist();
 public:
@@ -813,7 +812,6 @@ private:
     int pool_act;
     bool is_visible;
     Glib::ustring preset_list_menu_bank;
-    UIManager::ui_merge_id preset_list_merge_id;
     Liveplay *live_play;
     PresetWindow *preset_window;
     gx_portmap::PortMapWindow* portmap_window;

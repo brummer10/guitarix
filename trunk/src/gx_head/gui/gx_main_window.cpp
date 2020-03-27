@@ -37,13 +37,11 @@ UIManager::UIManager(const std::string& file, Gtk::MenuBar *bar):
     menubar(bar) {
     auto b = Gtk::Builder::create_from_file(file);
     menu = Glib::RefPtr<Gio::Menu>::cast_dynamic(b->get_object("menubar"));
+    menubar->bind_model(menu, "app", true);
 }
 
 void UIManager::insert_action_group(Glib::RefPtr<Gio::SimpleActionGroup>& group) {
     actiongroup = group;
-}
-
-void UIManager::remove_ui(ui_merge_id merge_id) {
 }
 
 struct action_target {
@@ -87,7 +85,7 @@ void UIManager::add_accelerator(Glib::RefPtr<Gio::Action> action,
     add_accelerator(accelgroup, action, accelerator, target);
 }
 
-void UIManager::set_accelerator_from_menu(Glib::RefPtr<Gio::Menu>& menu) {
+void UIManager::set_accelerators_from_menu(Glib::RefPtr<Gio::Menu>& menu) {
     int n = menu->get_n_items();
     auto stringtype = Glib::VARIANT_TYPE_STRING;
     for (int i = 0; i < n; i++) {
@@ -119,14 +117,9 @@ void UIManager::set_accelerator_from_menu(Glib::RefPtr<Gio::Menu>& menu) {
         auto itl = menu->iterate_item_links(i);
         while (itl->next()) {
             auto m = Glib::RefPtr<Gio::Menu>::cast_dynamic(itl->get_value());
-            set_accelerator_from_menu(m);
+            set_accelerators_from_menu(m);
         }
     }
-}
-
-void UIManager::setup_menu() {
-    menubar->bind_model(menu, "app", true);
-    set_accelerator_from_menu(menu);
 }
 
 Glib::RefPtr<Gio::SimpleAction> UIManager::add_action(const Glib::ustring& action) {
@@ -163,30 +156,41 @@ Glib::RefPtr<UiBoolToggleAction> UIManager::add_ui_bool_action(
 }
 
 bool UIManager::foreach_menu_(
-    Glib::RefPtr<Gio::Menu>& menu, search_func& func) {
+    Glib::RefPtr<Gio::Menu>& menu, search_func& func, int& startpos) {
     int n = menu->get_n_items();
     for (int i = 0; i < n; i++) {
         Glib::VariantBase v = menu->get_item_attribute(
             i, Gio::MENU_ATTRIBUTE_ACTION, Glib::VARIANT_TYPE_STRING);
-        if (v && func(static_cast<Glib::Variant<Glib::ustring>*>(&v)->get(), menu, i)) {
-            return true;
+        if (v) {
+            Glib::ustring action = static_cast<Glib::Variant<Glib::ustring>*>(&v)->get();
+            if (func(action, menu, i, startpos)) {
+                return true;
+            }
         }
         auto it = menu->iterate_item_links(i);
         while (it->next()) {
             auto m = Glib::RefPtr<Gio::Menu>::cast_dynamic(it->get_value());
-            if (func(it->get_name(), m, -1) || foreach_menu_(m, func)) {
+            Glib::ustring tp = it->get_name();
+            bool is_section = tp == "section";
+            int j = 0;
+            if (func(tp, m, -1, 0) || foreach_menu_(m, func, (is_section ? startpos : j))) {
                 return true;
             }
-            func(it->get_name(), m, -2);
+            func(tp, m, -2, 0);
+            if (is_section) {
+                // adjust for SeparatorMenuItem between sections
+                startpos += 1;
+            }
         }
     }
+    startpos += n;
     return false;
 }
 
 Glib::RefPtr<Gio::Menu> UIManager::get_linked_menu(const Glib::ustring& action) {
     Glib::RefPtr<Gio::Menu> found;
     foreach_menu(
-        [&action, &found](const Glib::ustring& a, Glib::RefPtr<Gio::Menu>& m, int i) -> bool {
+        [&action, &found](const Glib::ustring& a, Glib::RefPtr<Gio::Menu>& m, int i, int pos) -> bool {
             if (i == -2) {
                 return false;
             }
@@ -211,7 +215,8 @@ Gtk::MenuItem *UIManager::find_item(const Glib::ustring& action) {
     std::vector<int> l;
     l.push_back(-1);
     if (!foreach_menu(
-            [&action, &l](const Glib::ustring& a, Glib::RefPtr<Gio::Menu>& m, int i) -> bool {
+            [&action, &l](const Glib::ustring& a, Glib::RefPtr<Gio::Menu>& m,
+                          int i, int startpos) -> bool {
                 if (i == -1) {
                     l.push_back(-1);
                     return false;
@@ -220,7 +225,7 @@ Gtk::MenuItem *UIManager::find_item(const Glib::ustring& action) {
                     l.pop_back();
                     return false;
                 }
-                l.back() = i;
+                l.back() = startpos + i;
                 if (a != action) {
                     return false;
                 }
@@ -234,6 +239,9 @@ Gtk::MenuItem *UIManager::find_item(const Glib::ustring& action) {
             Gtk::MenuShell *m;
             if (item) {
                 m = item->get_submenu();
+                if (!m) {
+                    assert(false);
+                }
             } else {
                 m = menubar;
             }
@@ -243,15 +251,16 @@ Gtk::MenuItem *UIManager::find_item(const Glib::ustring& action) {
     return item;
 }
 
-ToggleAction::ToggleAction(const Glib::ustring& name, bool state)
-    : Gio::SimpleAction(name, Glib::Variant<bool>::create(state)) {
-    //signal_activate().connect(sigc::mem_fun(this, &ToggleAction::on_activate_toggle));
-}
-
-void ToggleAction::on_activate_toggle(const Glib::VariantBase& value) {
-    bool v;
-    get_state(v);
-    change_state(!v);
+bool UIManager::remove_item(const Glib::ustring& action) {
+    return foreach_menu(
+        [&action](const Glib::ustring& a, Glib::RefPtr<Gio::Menu>& m,
+                  int i, int pos) -> bool {
+            if (a == action && i >= 0) {
+                m->remove(i);
+                return true;
+            }
+            return false;
+        });
 }
 
 void ToggleAction::set_active(bool v)
@@ -2459,7 +2468,6 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       pre_act(false),
       is_visible(false),
       preset_list_menu_bank(),
-      preset_list_merge_id(0),
       live_play(),
       preset_window(),
       portmap_window(0),
@@ -2509,7 +2517,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     // preset window also creates some actions
     preset_window = new PresetWindow(bld, machine, options, actions, uimanager);
 
-    uimanager.setup_menu();
+    uimanager.set_accelerators_from_menu();
     if (!machine.get_jack()) {
         uimanager.find_item("JackLatency")->set_visible(false);
         uimanager.find_item("JackServerConnection")->set_visible(false);

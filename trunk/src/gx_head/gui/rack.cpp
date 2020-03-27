@@ -44,8 +44,7 @@
 
 PluginUI::PluginUI(PluginDict& plugin_dict_, const char *name,
 		   const Glib::ustring& tooltip_)
-    : merge_id(0),
-      action(),
+    : action(),
       group(),
       toolitem(),
       rackbox(),
@@ -74,13 +73,6 @@ PluginUI::~PluginUI() {
 	delete toolitem;
     }
     plugin->get_pdef()->flags &= ~gx_engine::PGNI_UI_REG;
-}
-
-void PluginUI::unset_ui_merge_id(UIManager& uimanager) {
-    if (merge_id) {
-	uimanager.remove_ui(merge_id);
-	merge_id = 0;
-    }
 }
 
 void PluginUI::on_plugin_preset_popup() {
@@ -649,33 +641,43 @@ void PluginDict::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChang
     }
     PluginUI *pui = at(pl->get_pdef()->id);
     if (c == gx_engine::PluginChange::remove) {
-        pui->unset_ui_merge_id(uimanager);
-        //uimanager->ensure_update(); FIXME
-        //actiongroup->remove(pui->get_action());
+        Glib::ustring actname = pui->get_action()->get_name();
+        remove_plugin_menu_entry(pui);
+        uimanager.get_action_group()->remove(actname);
         machine.remove_rack_unit(pui->get_id(), pui->get_type());
         std::string group_id = pui->get_category();
         remove(pui);
         delete pui;
         Gtk::ToolItemGroup * group = groupmap[group_id];
         if (group->get_n_items() == 0) {
-            Glib::ustring groupname = Glib::ustring::compose("PluginCategory_%1", group_id);
-            //Glib::RefPtr<Gtk::Action> act = actiongroup->get_action(groupname); FIXME
-            //actiongroup->remove(actiongroup->get_action(groupname));
+            // removal is optional since empty toolitem groups and
+            // menus are already hidden.
+            uimanager.remove_item(category_id(pui->get_category(), false));
+            uimanager.remove_item(category_id(pui->get_category(), true));
             groupmap.erase(group_id);
             delete group;
         }
     } else {
-        assert(c == gx_engine::PluginChange::update || c == gx_engine::PluginChange::update_category);
+        assert(c == gx_engine::PluginChange::update ||
+               c == gx_engine::PluginChange::update_category);
         bool state =  pui->plugin->get_on_off();
         pui->update_rackbox();
         pui->plugin->set_on_off(state);
         if (c == gx_engine::PluginChange::update_category) {
-            pui->unset_ui_merge_id(uimanager);
             pui->group = add_plugin_category(pui->get_category());
+            // if the toolitem group becomes empty, it will be hidden automatically
             pui->toolitem->reparent(*pui->group);
+            remove_plugin_menu_entry(pui);
             add_plugin_menu_entry(pui);
         }
     }
+}
+
+Glib::ustring PluginDict::category_id(const std::string& group, bool stereo) {
+    const char *tp = stereo ? "Stereo" : "Mono";
+    std::string group_id = group;
+    boost::replace_all(group_id, " ", ""); // FIXME: replace all invalid chars
+    return Glib::ustring::compose("Plugin%1Category_%2", tp, group_id);
 }
 
 Gtk::ToolItemGroup *PluginDict::add_plugin_category(const char *group, bool collapse) {
@@ -683,16 +685,21 @@ Gtk::ToolItemGroup *PluginDict::add_plugin_category(const char *group, bool coll
     if (it != groupmap.end()) {
         return it->second;
     }
+    // add category menus (mono and stereo)
     Glib::ustring display = gettext(group);
     Glib::RefPtr<Gio::MenuItem> item;
-    std::string group_id = group;
-    boost::replace_all(group_id, " ", ""); // FIXME
-    item = Gio::MenuItem::create(display, Glib::ustring::compose("PluginMonoCategory_%1", group_id));
+    Glib::ustring action;
+    action = category_id(group, false);
+    item = Gio::MenuItem::create(display, action);
     item->set_submenu(Gio::Menu::create());
     uimanager.get_linked_menu("MonoPlugins")->append_item(item);
-    item = Gio::MenuItem::create(display, Glib::ustring::compose("PluginStereoCategory_%1", group_id));
+    uimanager.find_item(action)->hide();
+    action = category_id(group, true);
+    item = Gio::MenuItem::create(display, action);
     item->set_submenu(Gio::Menu::create());
     uimanager.get_linked_menu("StereoPlugins")->append_item(item);
+    uimanager.find_item(action)->hide();
+    // toolitem group
     Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup(gettext(group));
     groupmap[group] = gw;
     gw->set_collapsed(collapse);
@@ -705,15 +712,23 @@ Gtk::ToolItemGroup *PluginDict::add_plugin_category(const char *group, bool coll
 }
 
 Glib::ustring PluginDict::add_plugin_menu_entry(PluginUI *pui) {
-    std::string group_id = pui->get_category();
-    boost::replace_all(group_id, " ", ""); // FIXME
-    const char *tp = (pui->get_type() == PLUGIN_TYPE_MONO ? "Mono" : "Stereo");
-    Glib::RefPtr<Gio::Menu> menu = uimanager.get_linked_menu(
-        Glib::ustring::compose("Plugin%1Category_%2", tp, group_id));
+    Glib::ustring cat_id = category_id(
+        pui->get_category(), pui->get_type() == PLUGIN_TYPE_STEREO);
+    Glib::RefPtr<Gio::Menu> menu = uimanager.get_linked_menu(cat_id);
+    uimanager.find_item(cat_id)->show();
     Glib::ustring actname = Glib::ustring::compose("Plugin_%1", pui->get_id());
     auto a = Gio::MenuItem::create(pui->get_name(), actname);
     menu->append_item(a);
     return actname;
+}
+
+void PluginDict::remove_plugin_menu_entry(PluginUI *pui) {
+    Glib::ustring action = pui->get_action()->get_name();
+    auto *menu = dynamic_cast<Gtk::Menu*>(uimanager.find_item(action)->get_parent());
+    uimanager.remove_item(action);
+    if (menu->get_children().size() == 0) {
+        menu->get_attach_widget()->hide();
+    }
 }
 
 void PluginDict::register_plugin(PluginUI *pui) {
