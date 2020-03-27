@@ -1382,11 +1382,13 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.check_expect(gx_system::JsonParser::value_string);
     float n = idx_from_id(jp.current_value());
     if (n < 0) {
+#ifndef NEW_LADSPA
         bool found;
         string v_id = gx_preset::PresetIO::try_replace_param_value(id(), jp.current_value(), found);
         if (found) {
             n = idx_from_id(v_id);
         }
+#endif
         if (n < 0) {
             gx_print_warning(
                 _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
@@ -1937,8 +1939,10 @@ void ParamMap::writeJSON_one(gx_system::JsonWriter& jw, Parameter *p) {
 	jw.write("JConv");
     } else if (dynamic_cast<SeqParameter*>(p) != 0) {
 	jw.write("Seq");
+#ifndef NEW_LADSPA
     } else if (dynamic_cast<OscParameter*>(p) != 0) {
 	jw.write("Osc");
+#endif
     } else {
 #ifndef NDEBUG
 	cerr << "skipping " << p->id() << endl;
@@ -1976,8 +1980,10 @@ Parameter *ParamMap::readJSON_one(gx_system::JsonParser& jp) {
 	return insert(new JConvParameter(jp));
     } else if (jp.current_value() == "Seq") {
 	return insert(new SeqParameter(jp));
+#ifndef NEW_LADSPA
     } else if (jp.current_value() == "Osc") {
 	return insert(new OscParameter(jp));
+#endif
     } else {
 	gx_print_warning(
 	    "ParamMap", Glib::ustring::compose("unknown parameter type: %1", jp.current_value()));

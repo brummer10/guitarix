@@ -925,12 +925,12 @@ MonoEngine::MonoEngine(const string& plugin_dir, const string& loop_dir, Paramet
 	  "tube.select", _("select"), 0, ampstack_groups),
       // internal audio modules
       noisegate(),
-      mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), get_param()),
+      mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
       cabinet(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       loop(get_param(), sigc::mem_fun(mono_chain, &MonoModuleChain::sync), loop_dir),
-      record(*this, 1), detune(get_param(), *this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
+      record(*this, 1), detune(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
 
     mono_convolver.set_sync(true);
     cabinet.set_sync(true);
@@ -1512,7 +1512,7 @@ void StereoEngine::set_samplerate(unsigned int samplerate) {
 StereoEngine::StereoEngine(const string& plugin_dir, ParameterGroups& groups)
     : EngineControl(),
       // internal audio modules
-      stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), get_param()),
+      stereo_convolver(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync)),
       record_st(*this, 2) {
 
     stereo_convolver.set_sync(true);
