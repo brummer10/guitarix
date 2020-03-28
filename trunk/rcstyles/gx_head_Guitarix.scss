@@ -182,6 +182,28 @@ dialog {
     checkbutton check { color: black; }
 }
 
+/* Jack start selection */
+#JackStart {
+    box {
+	margin: 4px;
+    }
+    button {
+	margin: {
+	    top: 8px;
+	    bottom: 8px;
+	    right: 6px;
+	}
+	outline-color: white;
+	box-shadow:
+	    1px 1px 0px 1px black,
+	    0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.1),
+	    -0.5px -0.5px 0px 0.5px rgba(200,200,200,0.4);
+	&.suggested-action {
+	    font-weight: bold;
+	}
+    }
+}
+
 /****************************************************************
  * midi connect window
  */

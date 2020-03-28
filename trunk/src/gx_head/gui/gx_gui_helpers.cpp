@@ -102,6 +102,7 @@ gint gx_nchoice_dialog_without_entry(
     const gint default_response,
     Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
     auto dialog = Gtk::Dialog(window_title);
+    dialog.set_name("JackStart");
     auto text_label = Gtk::Label();
     auto image = Gtk::Image(gw_ib->scale_simple(64, 64, Gdk::INTERP_BILINEAR));
     
@@ -115,7 +116,12 @@ gint gx_nchoice_dialog_without_entry(
     image.set_halign(Gtk::ALIGN_FILL);
     dialog.get_action_area()->add(image);
     for (guint i = 0; i < nchoice; i++) {
-        dialog.add_button(label[i], resp[i]);
+        Gtk::Button *b = dialog.add_button(label[i], resp[i]);
+        // strange behaviour: no vertical filling if the button is small
+        b->set_size_request(-1, 50);
+        if (resp[i] == default_response) {
+            b->get_style_context()->add_class("suggested-action");
+        }
     }
     dialog.set_default_response(default_response);
     //dialog.set_keep_above(true);
