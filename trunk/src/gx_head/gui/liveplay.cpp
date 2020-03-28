@@ -155,14 +155,6 @@ void Liveplay::display(const Glib::ustring& bank, const Glib::ustring& preset) {
     liveplay_preset->set_text(preset);
 }
 
-bool Liveplay::do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
-                         guint keyval, GdkModifierType modifier,
-                         GtkAction* act) {
-    //g_action_group_activate_action(act);
-    gtk_action_activate(act);
-    return true;
-}
-
 bool Liveplay::on_keyboard_preset_select(GtkAccelGroup *accel_group, GObject *acceleratable,
                                          guint keyval, GdkModifierType modifier, Liveplay& self) {
     if (keyval >= GDK_KEY_0 && keyval <= GDK_KEY_9) {

@@ -91,8 +91,7 @@ private:
     int old_state;
     Glib::RefPtr<gx_gui::GxBuilder> bld;
     int change_count;
-    Glib::RefPtr<Gtk::ActionGroup> actiongroup;
-    Glib::RefPtr<Gtk::UIManager> uimanager;
+    Glib::RefPtr<Gio::SimpleActionGroup> actiongroup;
     Glib::RefPtr<EnumListStore> enum_liststore;
     Glib::RefPtr<PortListStore> port_liststore;
     Glib::RefPtr<PluginListStore> plugin_liststore;
@@ -102,13 +101,8 @@ private:
     Glib::RefPtr<Gtk::ListStore> display_type_list_sr;
     Glib::RefPtr<Gtk::ListStore> output_type_list;
     sigc::slot<void,bool,bool> finished_callback;
-    //
-    Glib::RefPtr<Gtk::Action> quit_action;
-    Glib::RefPtr<Gtk::Action> save_action;
-    Glib::RefPtr<Gtk::Action> apply_action;
-    Glib::RefPtr<Gtk::Action> select_all_action;
-    Glib::RefPtr<Gtk::Action> select_none_action;
-    //
+    bool reload_plug;
+    // widget pointers, not initialized
     Gtk::Window *window;
     Gtk::TreeView *treeview1;
     Gtk::TreeView *treeview2;
@@ -150,7 +144,6 @@ private:
     void on_add_dry_wet_controller();
     void on_stereo_to_mono_controller();
     void on_stereo_to_mono();
-    bool reload_plug;
     void on_row_activated(const Gtk::TreePath& path, Gtk::TreeViewColumn* column);
     void on_label_edited(const Glib::ustring& path, const Glib::ustring& newtext);
     void on_parameter_selection_changed();

@@ -37,23 +37,6 @@ const char *display_type_names[] = { "Scale", "Log. Scale", "Toggle", "Enum", "D
  ** class PluginDisplay
  */
 
-static const char *menudef = "\
-<ui>\n\
-  <menubar name=\"ladspalist\">\n\
-    <menu action=\"FileMenuAction\">\n\
-      <menuitem action=\"SelectAllAction\" />\n\
-      <menuitem action=\"SelectNoneAction\" />\n\
-      <menuitem action=\"SaveAction\" />\n\
-      <menuitem action=\"ApplyAction\" />\n\
-      <menuitem action=\"QuitAction\" />\n\
-    </menu>\n\
-    <menu action=\"ViewMenuAction\">\n\
-      <menuitem action= \"FindAction\" />\n\
-    </menu>\n\
-  </menubar>\n\
-</ui>\n\
-";
-
 static void append_displaytype(Glib::RefPtr<Gtk::ListStore> ls, DisplayType tp) {
     Gtk::TreeIter it = ls->append();
     it->set_value(0, ustring(display_type_names[tp]));
@@ -71,12 +54,25 @@ public:
 };
 
 PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gdk::Pixbuf> icon, sigc::slot<void, bool, bool> finished_callback_)
-    : machine(machine_), pluginlist(), needs_reload(), current_plugin(0), old_state(0), bld(), change_count(0),
-      actiongroup(Gtk::ActionGroup::create("ladspa_window")), uimanager(),
-      enum_liststore(new EnumListStore), port_liststore(new PortListStore),
-      plugin_liststore(new PluginListStore), masteridx_liststore(new MasterIdxListStore),
-      on_reordered_conn(), display_type_list(), display_type_list_sr(), output_type_list(),
-      finished_callback(finished_callback_), reload_plug(false)
+    : machine(machine_),
+      pluginlist(),
+      needs_reload(),
+      current_plugin(0),
+      old_state(0),
+      bld(),
+      change_count(0),
+      actiongroup(Gio::SimpleActionGroup::create()),
+      enum_liststore(new EnumListStore),
+      port_liststore(new PortListStore),
+      plugin_liststore(new PluginListStore),
+      masteridx_liststore(new MasterIdxListStore),
+      on_reordered_conn(),
+      display_type_list(),
+      display_type_list_sr(),
+      output_type_list(),
+      finished_callback(finished_callback_),
+      reload_plug(false)
+      //widget pointers not initialized
 {
     std::vector<std::string> old_not_found;
     machine.load_ladspalist(old_not_found, pluginlist);
@@ -109,27 +105,26 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_object("cellrenderer_quirks", cellrenderer_quirks);
 
     set_title();
-    actiongroup->add(Gtk::Action::create("FileMenuAction",_("_File")));
-    save_action = Gtk::Action::create("SaveAction", _("_Ok"));
-    actiongroup->add(save_action, sigc::mem_fun(this, &PluginDisplay::on_save));
-    apply_action = Gtk::Action::create("ApplyAction", _("_Apply"));
-    actiongroup->add(apply_action, sigc::mem_fun(this, &PluginDisplay::on_apply));
-    quit_action = Gtk::Action::create("QuitAction", _("_Quit"));
-    actiongroup->add(quit_action, sigc::mem_fun(this, &PluginDisplay::on_quit));
-    select_all_action = Gtk::Action::create("SelectAllAction", _("_Select All"));
-    actiongroup->add(select_all_action, sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_select_all), true));
-    select_none_action = Gtk::Action::create("SelectNoneAction", _("Select _None"));
-    actiongroup->add(select_none_action, sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_select_all), false));
-    actiongroup->add(Gtk::Action::create("ViewMenuAction", _("_View")));
-    Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("FindAction", _("_Find"));
-    actiongroup->add(act, sigc::mem_fun(this, &PluginDisplay::on_find));
+    actiongroup->add_action("FileMenuAction");
+    auto save_action = actiongroup->add_action(
+        "SaveAction", sigc::mem_fun(this, &PluginDisplay::on_save));
+    auto apply_action = actiongroup->add_action(
+        "ApplyAction", sigc::mem_fun(this, &PluginDisplay::on_apply));
+    auto quit_action = actiongroup->add_action(
+        "QuitAction", sigc::mem_fun(this, &PluginDisplay::on_quit));
+    auto select_all_action = actiongroup->add_action(
+        "SelectAllAction",
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_select_all), true));
+    auto select_none_action = actiongroup->add_action(
+        "SelectNoneAction",
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_select_all), false));
+    actiongroup->add_action("ViewMenuAction");
+    auto find_action = actiongroup->add_action(
+        "FindAction", sigc::mem_fun(this, &PluginDisplay::on_find));
 
-    uimanager = Gtk::UIManager::create();
-    uimanager->insert_action_group(actiongroup, 0);
-    uimanager->add_ui_from_string(menudef);
-    //uimanager->get_widget("/ladspalist");
-    //Gtk::HBox *ww; bld->find_widget("menubox", ww); ww->pack_start(*uimanager->get_widget("/ladspalist"));
-    window->add_accel_group(uimanager->get_accel_group());
+    window->insert_action_group("app", actiongroup);
+    auto accelgroup = Gtk::AccelGroup::create();
+    window->add_accel_group(accelgroup);
 
     window->signal_delete_event().connect(sigc::mem_fun(this, &PluginDisplay::on_delete_event));
     bld->find_widget("show_details", show_details);
@@ -252,18 +247,24 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("plugin_quirks", cb);
     cb->set_cell_data_func(*cellrenderer_quirks, sigc::mem_fun(this, &PluginDisplay::display_quirks));
 
-    master_slider_idx->set_cell_data_func(*cellrenderer_master, sigc::mem_fun(this, &PluginDisplay::display_master_idx));
+    master_slider_idx->set_cell_data_func(
+        *cellrenderer_master, sigc::mem_fun(this, &PluginDisplay::display_master_idx));
     master_slider_idx->signal_changed().connect(sigc::mem_fun(this, &PluginDisplay::set_master_text));
 
-    selected_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), selected_only));
-    changed_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), changed_only));
-    ladspa_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), ladspa_only));
-    lv2_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), lv2_only));
-    show_all->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), show_all));
+    selected_only->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), selected_only));
+    changed_only->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), changed_only));
+    ladspa_only->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), ladspa_only));
+    lv2_only->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), lv2_only));
+    show_all->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), show_all));
 
     bld->find_widget("combobox_mono_stereo", cb);
     cb->signal_changed().connect(sigc::mem_fun(this, &PluginDisplay::on_mono_stereo_changed));
-    cb->set_active(0);
+    cb->set_active(false);
     Gtk::Button *b;
     bld->find_widget("reset_changes", b);
     b->signal_clicked().connect(sigc::mem_fun(this, &PluginDisplay::on_delete_changes));
@@ -271,16 +272,29 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("master_slider_idx", cb);
     cb->set_model(masteridx_liststore);
 
+    Glib::VariantBase nulltarget = Glib::VariantBase();
+
     bld->find_widget("button_cancel", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("QuitAction")->gobj());
+    UIManager::set_widget_action(b, quit_action);
+    UIManager::add_accelerator(accelgroup, quit_action, "<Control>q", nulltarget);
+
     bld->find_widget("button_apply", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("ApplyAction")->gobj());
+    UIManager::set_widget_action(b, apply_action);
+    UIManager::add_accelerator(accelgroup, apply_action, "<Control>s", nulltarget);
+
     bld->find_widget("button_save", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("SaveAction")->gobj());
+    UIManager::set_widget_action(b, save_action);
+    UIManager::add_accelerator(accelgroup, save_action, "<Control>o", nulltarget);
+
     bld->find_widget("select_all", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("SelectAllAction")->gobj());
+    UIManager::set_widget_action(b, select_all_action);
+    UIManager::add_accelerator(accelgroup, select_all_action, "<Control>a", nulltarget);
+
     bld->find_widget("select_none", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("SelectNoneAction")->gobj());
+    UIManager::set_widget_action(b, select_none_action);
+    UIManager::add_accelerator(accelgroup, select_none_action, "<Control>n", nulltarget);
+
+    UIManager::add_accelerator(accelgroup, find_action, "<Control>f", nulltarget);
 
     window->set_icon(icon);
     window->show();

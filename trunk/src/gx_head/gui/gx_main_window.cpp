@@ -40,10 +40,6 @@ UIManager::UIManager(const std::string& file, Gtk::MenuBar *bar):
     menubar->bind_model(menu, "app", true);
 }
 
-void UIManager::insert_action_group(Glib::RefPtr<Gio::SimpleActionGroup>& group) {
-    actiongroup = group;
-}
-
 struct action_target {
     Glib::RefPtr<Gio::Action> action;
     Glib::VariantBase target;
@@ -52,8 +48,8 @@ struct action_target {
 };
 
 static bool do_action(GtkAccelGroup *accel_group, GObject *acceleratable,
-                                     guint keyval, GdkModifierType modifier,
-                                     action_target* data) {
+                             guint keyval, GdkModifierType modifier,
+                             action_target* data) {
     g_action_activate(data->action->gobj(), data->target.gobj());
     return true;
 }
@@ -275,10 +271,17 @@ RadioAction::RadioAction(const Glib::ustring& name)
 }
 
 //static
-void UIManager::set_widget_action(Gtk::Widget *w, Glib::RefPtr<Gio::Action> action) {
-    Glib::ustring name = "app." + action->get_name();
+void UIManager::set_widget_action(Gtk::Widget *w, const Glib::ustring& action) {
+    Glib::ustring name = "app." + action;
     gtk_actionable_set_action_name(GTK_ACTIONABLE(w->gobj()), name.c_str());
 }
+
+//static
+void UIManager::set_widget_action(Gtk::Widget *w, const Glib::RefPtr<Gio::Action>& action) {
+    Glib::ustring name = action->get_name();
+    set_widget_action(w, name);
+}
+
 
 /****************************************************************
  ** class TextLoggingBox

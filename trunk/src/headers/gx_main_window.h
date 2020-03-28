@@ -121,7 +121,9 @@ public:
     UIManager(const std::string& file, Gtk::MenuBar *bar);
     Glib::RefPtr<Gtk::AccelGroup>& get_accel_group() { return accelgroup; }
     Glib::RefPtr<Gio::SimpleActionGroup>& get_action_group() { return actiongroup; }
-    void insert_action_group(Glib::RefPtr<Gio::SimpleActionGroup>& group);
+    void insert_action_group(Glib::RefPtr<Gio::SimpleActionGroup>& group) { actiongroup = group; }
+
+
     void set_accelerators_from_menu() { set_accelerators_from_menu(menu); }
     bool foreach_menu(search_func func) { int pos = 0; return foreach_menu_(menu, func, pos); }
     Glib::RefPtr<Gio::SimpleAction> add_action(const Glib::ustring& action);
@@ -140,7 +142,8 @@ public:
     Glib::RefPtr<Gio::Menu> get_linked_menu(const Glib::ustring& action);
     Gtk::MenuItem *find_item(const Glib::ustring& action);
     bool remove_item(const Glib::ustring& action);
-    static void set_widget_action(Gtk::Widget *w, Glib::RefPtr<Gio::Action> action);
+    static void set_widget_action(Gtk::Widget *w, const Glib::ustring& action);
+    static void set_widget_action(Gtk::Widget *w, const Glib::RefPtr<Gio::Action>& action);
 };
 
 /****************************************************************
@@ -212,9 +215,6 @@ private:
     void on_engine_state_change(gx_engine::GxEngineState state);
     void on_selection_done(bool v);
     void on_selection_changed();
-    static bool do_action(
-	GtkAccelGroup *accel_group, GObject *acceleratable,
-	guint keyval, GdkModifierType modifier, GtkAction* act);
     static bool on_keyboard_preset_select(
 	GtkAccelGroup *accel_group, GObject *acceleratable,
 	guint keyval, GdkModifierType modifier, Liveplay& self);
