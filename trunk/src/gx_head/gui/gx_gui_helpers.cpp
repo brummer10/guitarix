@@ -92,16 +92,6 @@ WaitCursor::~WaitCursor() {
  ** message boxes
  */
 
-static void on_gx_nchoice_map(GtkWidget *w, gpointer data) {
-    // since gx_nchoice_dialog_without_entry is only used for the
-    // jack starter dialog (FIXME: cleanup...):
-    // little hack to set the window non-modal
-    // after gtk_dialog_run() forced it to modal
-    // needed in case an error window is already open
-    // or gets opened by an background handler
-    gtk_window_set_modal(GTK_WINDOW(w), FALSE);
-}
-
 // ---- choice dialog without text entry
 gint gx_nchoice_dialog_without_entry(
     const char* window_title,
@@ -111,39 +101,38 @@ gint gx_nchoice_dialog_without_entry(
     const gint  resp[],
     const gint default_response,
     Glib::RefPtr<Gdk::Pixbuf> gw_ib) {
-    GtkWidget* dialog     = gtk_dialog_new();
-    GtkWidget* text_label = gtk_label_new("");
-    GdkPixbuf *pb         = gdk_pixbuf_scale_simple(gw_ib->gobj(), 64, 64, GDK_INTERP_BILINEAR);
-    GtkWidget* image      = gtk_image_new_from_pixbuf(pb);
-    g_object_unref(pb);
+    auto dialog = Gtk::Dialog(window_title);
+    auto text_label = Gtk::Label();
+    auto image = Gtk::Image(gw_ib->scale_simple(64, 64, Gdk::INTERP_BILINEAR));
     
-    gtk_label_set_markup(GTK_LABEL(text_label), msg);
-    GtkWidget * al = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
-    gtk_container_add(GTK_CONTAINER(al), text_label);
-    gtk_alignment_set_padding(GTK_ALIGNMENT(al), 10, 10, 10, 10);
-    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), al);
-    
-    GtkWidget * ial = gtk_alignment_new(1.0, 0.5, 0.0, 0.0);
-    gtk_container_add(GTK_CONTAINER(ial), image);
-    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(dialog))), ial);
-    for (guint i = 0; i < nchoice; i++)
-        gtk_dialog_add_button(GTK_DIALOG(dialog), label[i], resp[i]);
+    text_label.set_markup(msg);
+    text_label.set_margin_start(10);
+    text_label.set_margin_end(10);
+    text_label.set_margin_top(10);
+    text_label.set_margin_bottom(10);
+    dialog.get_content_area()->add(text_label);
 
-    // set default
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog), default_response);
-    gtk_window_set_title(GTK_WINDOW(dialog), window_title);
-    gtk_window_set_keep_above(GTK_WINDOW(dialog), TRUE);
+    image.set_halign(Gtk::ALIGN_FILL);
+    dialog.get_action_area()->add(image);
+    for (guint i = 0; i < nchoice; i++) {
+        dialog.add_button(label[i], resp[i]);
+    }
+    dialog.set_default_response(default_response);
+    //dialog.set_keep_above(true);
 
-    gtk_widget_show(text_label);
-    gtk_widget_show(image);
-    gtk_widget_show(al);
-    gtk_widget_show(ial);
-    g_signal_connect(dialog, "map", G_CALLBACK(on_gx_nchoice_map), NULL);
+    text_label.show();
+    image.show();
+
+    // since gx_nchoice_dialog_without_entry is only used for the
+    // jack starter dialog (FIXME: cleanup...):
+    // little hack to set the window non-modal
+    // after gtk_dialog_run() forced it to modal
+    // needed in case an error window is already open
+    // or gets opened by an background handler
+    dialog.signal_map().connect([&](){ dialog.set_modal(false); });
 
     // --- run dialog and check response
-    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
-    return response;
+    return dialog.run();
 }
 
 // ---- popup warning
@@ -156,28 +145,19 @@ int gx_message_popup(const char* msg) {
     }
 
     // build popup window
-    GtkWidget *about;
-    GtkWidget *label;
-    GtkWidget *ok_button;
-    about = gtk_dialog_new();
-    ok_button  = gtk_button_new_from_stock(GTK_STOCK_OK);
-    label = gtk_label_new("");
-    gtk_label_set_markup(GTK_LABEL(label), msg);
-    gtk_label_set_selectable(GTK_LABEL(label), TRUE);
-    GtkWidget * al = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
-    gtk_container_add(GTK_CONTAINER(al), label);
-    gtk_alignment_set_padding(GTK_ALIGNMENT(al), 10, 10, 10, 10);
-    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_content_area(GTK_DIALOG(about))), al);
-    gtk_container_add(GTK_CONTAINER(gtk_dialog_get_action_area(GTK_DIALOG(about))),
-                                      ok_button);
-    g_signal_connect_swapped(ok_button, "clicked",
-                              G_CALLBACK(gtk_widget_destroy), about);
-
-    //gtk_widget_set_redraw_on_allocate(GTK_WIDGET(GTK_DIALOG(about)->vbox),true);
-    gtk_widget_show(ok_button);
-    gtk_widget_show(label);
-    gtk_widget_show(al);
-    return gtk_dialog_run (GTK_DIALOG(about));
+    auto about = Gtk::Dialog();
+    about.set_name("MessagePopup");
+    auto label = Gtk::Label();
+    label.set_markup(msg);
+    label.set_selectable(true);
+    label.set_margin_start(10);
+    label.set_margin_end(10);
+    label.set_margin_top(10);
+    label.set_margin_bottom(10);
+    about.get_content_area()->add(label);
+    about.add_button(_("_OK"), Gtk::RESPONSE_ACCEPT);
+    label.show();
+    return about.run();
 }
 
 } // end namespace gx_gui

@@ -774,9 +774,9 @@ void PluginDisplay::selection_changed() {
     }
     set_old_state(p);
     if (p->shortname != p->Name) {
-	plugin_name->override_color(Gdk::RGBA("red"), Gtk::STATE_FLAG_NORMAL);
+        plugin_name->get_style_context()->add_class("pldef-changed");
     } else {
-	gtk_widget_override_color(GTK_WIDGET(plugin_name->gobj()), GTK_STATE_FLAG_NORMAL, nullptr);
+        plugin_name->get_style_context()->remove_class("pldef-changed");
     }
     plugin_name->set_text(p->shortname);
     Gtk::TreeNodeChildren ch = plugin_category->get_model()->children();
