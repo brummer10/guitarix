@@ -25,7 +25,7 @@
 #include <lv2.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_mxrdist_"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_mxrdist_gui"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_mxrdist_gui#_mxrdist_"
 
 
 typedef enum

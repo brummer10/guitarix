@@ -25,7 +25,7 @@
 #include <lv2.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_scream_"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_scream_gui"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_scream_gui#_scream_"
 
 
 typedef enum

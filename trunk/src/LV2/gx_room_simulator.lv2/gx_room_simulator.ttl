@@ -77,7 +77,7 @@ rdfs:comment """
         lv2:index 2 ;
         lv2:symbol "EFFECT" ;
         lv2:name "EFFECT" ;
-        lv2:default 0.0 ;
+        lv2:default 1.0 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
     ]      , [
@@ -86,9 +86,9 @@ rdfs:comment """
         lv2:index 3 ;
         lv2:symbol "PREDELAYMS" ;
         lv2:name "PREDELAYMS" ;
-        lv2:default 2e+01 ;
+        lv2:default 20.0 ;
         lv2:minimum 1.0 ;
-        lv2:maximum 2e+02 ;
+        lv2:maximum 200.0 ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -119,6 +119,11 @@ rdfs:comment """
     ] .
     
 <http://guitarix.sourceforge.net/plugins/gx_room_simulator_#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_room_simulator_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  

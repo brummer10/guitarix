@@ -25,7 +25,7 @@
 #include <lv2.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_rangem_"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_rangem_gui"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_rangem_gui#_rangem_"
 
 
 typedef enum
