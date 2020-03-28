@@ -529,27 +529,30 @@ static void ir_edit_configure_axes(GxIREdit *ir_edit)
 
 static void gx_ir_edit_init(GxIREdit *ir_edit)
 {
-	ir_edit->y_border_top = 5;
-	ir_edit->y_border_bottom = 10;
-	ir_edit->x_border = 5;
-	ir_edit->label_sep = 4;
-	ir_edit->dot_diameter = 5.0;
-	ir_edit->segment_distance = 2.0;
-	ir_edit->limit = 5.0;
-	ir_edit->max_scale_fact = 50.0;
-	ir_edit->min_scale = 0.02;
-	ir_edit->no_data_text = g_strdup("");
-	ir_edit->button = -1;
-	ir_edit_reset(ir_edit);
-	ir_edit_configure_axes(ir_edit);
-	gtk_widget_add_events(GTK_WIDGET(ir_edit), GDK_POINTER_MOTION_MASK|GDK_POINTER_MOTION_HINT_MASK|GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
-	GdkDisplay *disp = gtk_widget_get_display(GTK_WIDGET(ir_edit));
-	ir_edit->cursor[MODE_NONE] = NULL;
-	ir_edit->cursor[MODE_BODY] = NULL;
-	ir_edit->cursor[MODE_SCROLL] = NULL;
-	ir_edit->cursor[MODE_MARKER] = gdk_cursor_new_for_display(disp, GDK_FLEUR);
-	ir_edit->cursor[MODE_LINE] = gdk_cursor_new_for_display(disp, GDK_PLUS);
-	ir_edit->cursor[MODE_SHIFT] = gdk_cursor_new_for_display(disp, GDK_SB_H_DOUBLE_ARROW);
+    ir_edit->y_border_top = 5;
+    ir_edit->y_border_bottom = 10;
+    ir_edit->x_border = 5;
+    ir_edit->label_sep = 4;
+    ir_edit->dot_diameter = 5.0;
+    ir_edit->segment_distance = 2.0;
+    ir_edit->limit = 5.0;
+    ir_edit->max_scale_fact = 50.0;
+    ir_edit->min_scale = 0.02;
+    ir_edit->no_data_text = g_strdup("");
+    ir_edit->button = -1;
+    ir_edit_reset(ir_edit);
+    ir_edit_configure_axes(ir_edit);
+    gtk_widget_add_events(GTK_WIDGET(ir_edit),
+                          GDK_POINTER_MOTION_MASK|GDK_POINTER_MOTION_HINT_MASK|
+                          GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK|
+                          GDK_SCROLL_MASK);
+    GdkDisplay *disp = gtk_widget_get_display(GTK_WIDGET(ir_edit));
+    ir_edit->cursor[MODE_NONE] = NULL;
+    ir_edit->cursor[MODE_BODY] = NULL;
+    ir_edit->cursor[MODE_SCROLL] = NULL;
+    ir_edit->cursor[MODE_MARKER] = gdk_cursor_new_for_display(disp, GDK_FLEUR);
+    ir_edit->cursor[MODE_LINE] = gdk_cursor_new_for_display(disp, GDK_PLUS);
+    ir_edit->cursor[MODE_SHIFT] = gdk_cursor_new_for_display(disp, GDK_SB_H_DOUBLE_ARROW);
 }
 
 static void gx_ir_edit_destroy(GtkWidget* object)
@@ -731,11 +734,30 @@ static double text_width(cairo_t *c, const char *t)
 	return int(ceil(ext.width+ext.x_bearing));
 }
 
+static void ir_edit_shade_left(GxIREdit *ir_edit, cairo_t *c, GtkStyleContext *sc)
+{
+    double shade_alpha;
+    gtk_widget_style_get(GTK_WIDGET(ir_edit), "shade-alpha", &shade_alpha, NULL);
+    double scale = ir_edit->scale;
+    if (scale == 0.0) {
+        scale = 1.0;
+    }
+    cairo_push_group(c);
+    gtk_render_background(
+        sc, c, 0, 0,
+        floor(-ir_edit->offset/scale - ir_edit->current_offset)-0.5, ir_edit->graph_y);
+    cairo_set_source_rgba(c, 0, 0, 0, shade_alpha);
+    cairo_set_operator(c, CAIRO_OPERATOR_DEST_IN);
+    cairo_paint(c);
+    cairo_pattern_t *group = cairo_pop_group(c);
+    cairo_set_source(c, group);
+    cairo_pattern_destroy(group);
+    cairo_paint(c);
+}
+
 static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GtkStyleContext *sc)
 {
 	// vertical lines with labels
-	double shade_alpha;
-	gtk_widget_style_get(GTK_WIDGET(ir_edit), "shade-alpha", &shade_alpha, NULL);
 	GdkRGBA color;
 	gtk_style_context_get_color(sc, gtk_widget_get_state_flags(GTK_WIDGET(ir_edit)), &color);
 	cairo_save(c);
@@ -775,6 +797,7 @@ static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GtkStyleContex
 			break;
 		}
 		if (tt == 0) {
+            // line with time zero
 			gdk_cairo_set_source_rgba(c, &color);
 			color.alpha = 1.0;
 		} else {
@@ -782,7 +805,7 @@ static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GtkStyleContex
 			alpha_color.alpha = 0.4;
 			gdk_cairo_set_source_rgba(c, &alpha_color);
 		}
-		ttt = int(ttt)+0.5;
+		ttt = floor(ttt)+0.5;
 		cairo_move_to(c,ttt, 0.0);
 		cairo_line_to(c,ttt, ir_edit->scale_height*(ir_edit->min_y-ir_edit->max_y));
 		cairo_stroke(c);
@@ -798,17 +821,21 @@ static void ir_edit_vertical_ticks(GxIREdit *ir_edit, cairo_t *c, GtkStyleContex
 	cairo_save(c);
 	cairo_rectangle(c,0, 0, ir_edit->graph_x, ir_edit->graph_y);
 	cairo_clip(c);
+
+    // left cut off line
 	int s = int(round(ir_edit->cutoff_low/scale));
 	cairo_move_to(c,s - ir_edit->current_offset + 0.5, 0);
 	cairo_rel_line_to(c,0, ir_edit->graph_y);
 	gdk_cairo_set_source_rgba(c, &color);
 	cairo_stroke(c);
-	gtk_render_background(sc, c, 0, 0, -ir_edit->offset/scale - ir_edit->current_offset, ir_edit->graph_y);
+
+    // right cut off line
 	s = int(round(ir_edit->cutoff_high/scale));
 	cairo_move_to(c,s-ir_edit->current_offset+0.5, 0);
 	cairo_rel_line_to(c,0, ir_edit->graph_y);
 	gdk_cairo_set_source_rgba(c, &color);
 	cairo_stroke(c);
+
 	cairo_restore(c);
 }
 
@@ -932,16 +959,28 @@ static void ir_edit_gainline(GxIREdit *ir_edit, cairo_t *c, GtkStyleContext *sc)
 	cairo_restore(c);
 }
 
+typedef void (*cairo_paint_function)(GxIREdit*,cairo_t*,GtkStyleContext*);
+
 static const cairo_paint_function draw_funcs[] = {
 	ir_edit_draw,
 	ir_edit_vertical_ticks,
 	ir_edit_horizontal_ticks,
 	ir_edit_show_scroll_center,
 	ir_edit_gainline,
+    ir_edit_shade_left,
 	NULL,
 };
 
-static void ir_edit_paint_area(GxIREdit *ir_edit, cairo_t *c, cairo_paint_function excl)
+enum { // keep in sync with draw_funcs!
+    df_draw               = 1 << 0,
+    df_horizontal_ticks   = 1 << 1,
+    df_vertical_ticks     = 1 << 2,
+    df_show_scroll_center = 1 << 3,
+    df_gainline           = 1 << 4,
+    df_shade_left         = 1 << 5,
+};
+
+static void ir_edit_paint_area(GxIREdit *ir_edit, cairo_t *c, int excl)
 {
 	GtkStyleContext *sc = gtk_widget_get_style_context(GTK_WIDGET(ir_edit));
 	GtkAllocation allocation;
@@ -949,21 +988,24 @@ static void ir_edit_paint_area(GxIREdit *ir_edit, cairo_t *c, cairo_paint_functi
 	gtk_render_background(sc, c, 0, 0, allocation.width, allocation.height);
 	cairo_set_line_width(c, 1.0);
 	cairo_translate(c, ir_edit->x_off, ir_edit->y_off);
-	for (const cairo_paint_function *f = draw_funcs; *f; f++) {
-		if (*f != excl)
-			(*f)(ir_edit, c, sc);
-	}
+    for (int i = 0; draw_funcs[i]; i++) {
+        if ((1 << i) & excl) {
+            continue;
+        }
+        draw_funcs[i](ir_edit, c, sc);
+    }
 	if (!ir_edit->data) {
 		ir_edit_paint_no_data(ir_edit, c);
 	}
 }
 
-static void ir_edit_lock_surface(GxIREdit *ir_edit, cairo_paint_function excl)
+static void ir_edit_lock_surface(GxIREdit *ir_edit, int excl)
 {
 	if (ir_edit->surface) {
 		cairo_surface_destroy(ir_edit->surface);
 	}
-	ir_edit->surface = cairo_image_surface_create(CAIRO_FORMAT_A1, ir_edit->width, ir_edit->height);
+	ir_edit->surface = cairo_image_surface_create(
+        CAIRO_FORMAT_RGB24, ir_edit->width, ir_edit->height);
 	cairo_t *c = cairo_create(ir_edit->surface);
 	ir_edit_paint_area(ir_edit, c, excl);
 	cairo_destroy(c);
@@ -983,14 +1025,16 @@ static gboolean ir_edit_event_draw(GtkWidget *widget, cairo_t *c)
 			ir_edit_lock_surface(ir_edit, ir_edit->locked);
 		}
 		cairo_set_source_surface(c, ir_edit->surface, 0, 0);
-		cairo_set_operator(c, CAIRO_OPERATOR_SOURCE);
 		cairo_paint(c);
-		cairo_set_operator(c, CAIRO_OPERATOR_OVER);
 		cairo_set_line_width(c, 1.0);
 		cairo_translate(c, ir_edit->x_off, ir_edit->y_off);
-		ir_edit->locked(ir_edit, c, sc);
+        for (int i = 0; draw_funcs[i]; i++) {
+            if ((1 << i) & ir_edit->locked) {
+                draw_funcs[i](ir_edit, c, sc);
+            }
+        }
 	} else {
-		ir_edit_paint_area(ir_edit, c, NULL);
+		ir_edit_paint_area(ir_edit, c, 0);
 	}
 	cairo_restore(c);
 	return FALSE;
@@ -1222,12 +1266,12 @@ static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event)
 			gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(ir_edit)), ir_edit->cursor[MODE_MARKER]);
 			ir_edit->mode = MODE_MARKER;
 			ir_edit->mode_arg += 1;
-			ir_edit_lock_surface(ir_edit, ir_edit_gainline);
+			ir_edit_lock_surface(ir_edit, df_gainline);
 		}
 	} else if (r == MODE_MARKER) {
 		if (event->button == 1) {
 			ir_edit->mode = MODE_MARKER;
-			ir_edit_lock_surface(ir_edit, ir_edit_gainline);
+			ir_edit_lock_surface(ir_edit, df_gainline);
 		} else if (event->button == 3) {
 			int i = ir_edit->mode_arg;
 			if (i != 0 && i != ir_edit->gains_len-1) {
@@ -1239,7 +1283,7 @@ static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event)
 		if (event->button == 1) {
 			ir_edit->mode = MODE_SHIFT;
 			ir_edit->mode_arg = (int)(event->x + ir_edit->offset/ir_edit->scale);
-			ir_edit_lock_surface(ir_edit, ir_edit_vertical_ticks);
+			ir_edit_lock_surface(ir_edit, df_vertical_ticks|df_shade_left);
 		}
 	} else if (r == MODE_BODY) {
 		if (event->button == 1) {
@@ -1290,9 +1334,9 @@ static gboolean ir_edit_button_press(GtkWidget *widget, GdkEventButton *event)
 static void ir_edit_unlock_surface(GxIREdit *ir_edit)
 {
 	if (ir_edit->locked) {
-		ir_edit->locked = NULL;
+		ir_edit->locked = 0;
 		assert(ir_edit->surface);
-		g_object_unref(ir_edit->surface);
+		cairo_surface_destroy(ir_edit->surface);
 		ir_edit->surface = NULL;
 		gtk_widget_queue_draw(GTK_WIDGET(ir_edit));
 	}
