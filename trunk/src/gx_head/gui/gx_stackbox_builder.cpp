@@ -131,33 +131,41 @@ void StackBoxBuilder::fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox) {
  */
 
 static void on_refresh_oscilloscope(Gxw::WaveView& fWaveView, const gx_engine::OscilloscopeInfo& info) {
-    static struct  {
+    struct osc_info {
         int load, frames;
         jack_nframes_t bsize;
         bool rt;
-    } oc;
-    if (!oc.bsize || oc.load != info.load) {
-        oc.load = info.load;
+        osc_info(): bsize(0) {}
+    };
+    static const char *osc_info_key = "osc_info";
+    osc_info *oc = static_cast<osc_info*>(fWaveView.get_data(osc_info_key));
+    if (!oc) {
+        oc = new osc_info();
+        fWaveView.set_data(osc_info_key, oc,
+                           [](void *p){ delete static_cast<osc_info*>(p); });
+    }
+    if (!oc->bsize || oc->load != info.load) {
+        oc->load = info.load;
         fWaveView.set_text(
-            (boost::format(_("DSP Load  %1% %%")) % oc.load).str().c_str(),
+            (boost::format(_("DSP Load  %1% %%")) % oc->load).str().c_str(),
             Gtk::CORNER_TOP_LEFT);
     }
-    if (!oc.bsize || oc.frames != info.frames) {
-        oc.frames = info.frames;
+    if (!oc->bsize || oc->frames != info.frames) {
+        oc->frames = info.frames;
         fWaveView.set_text(
-            (boost::format(_("HT Frames %1%")) % oc.frames).str().c_str(),
+            (boost::format(_("HT Frames %1%")) % oc->frames).str().c_str(),
             Gtk::CORNER_BOTTOM_LEFT);
     }
-    if (!oc.bsize || oc.rt != info.is_rt) {
-        oc.rt = info.is_rt;
+    if (!oc->bsize || oc->rt != info.is_rt) {
+        oc->rt = info.is_rt;
         fWaveView.set_text(
-            oc.rt ? _("RT Mode  YES ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
+            oc->rt ? _("RT Mode  YES ") : _("RT mode  <span color=\"#cc1a1a\">NO</span>"),
             Gtk::CORNER_BOTTOM_RIGHT);
     }
-    if (!oc.bsize || oc.bsize != info.bsize) {
-	oc.bsize = info.bsize;
+    if (!oc->bsize || oc->bsize != info.bsize) {
+        oc->bsize = info.bsize;
         fWaveView.set_text(
-            (boost::format(_("Latency    %1%")) % oc.bsize).str().c_str(),
+            (boost::format(_("Latency    %1%")) % oc->bsize).str().c_str(),
             Gtk::CORNER_TOP_RIGHT);
     }
     fWaveView.queue_draw();
