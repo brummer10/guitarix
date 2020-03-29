@@ -1287,6 +1287,13 @@ void PresetWindow::on_organize() {
     }
     on_bank_changed(); // reload for DnD adjustment of readonly banks
     autosize();
+    // strange bug in Gtk (V3.24): preset treeview with apparently
+    // wrong internal sizes on first switch after program start
+    // a delayed resize operation seems to fix it
+    Gtk::Widget *toplevel = main_vpaned->get_toplevel();
+    Glib::signal_idle().connect_once(
+        sigc::mem_fun(toplevel, &Gtk::Widget::queue_resize),
+        Glib::PRIORITY_LOW);
 }
 
 /*
