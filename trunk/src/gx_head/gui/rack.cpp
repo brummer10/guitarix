@@ -308,7 +308,7 @@ void PluginUI::on_state_change() {
 }
 
 // define if memory leaks in atk, pango, etc. are closed (valgrind --leak-check=full guitarix)
-#define LEAKS_OK
+//#define LEAKS_OK
 
 void PluginUI::dispose_rackbox() {
     if (plugin->get_box_visible()) {

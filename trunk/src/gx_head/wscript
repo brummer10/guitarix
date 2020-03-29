@@ -166,7 +166,7 @@ def build(bld):
     if bld.env.NEW_LADSPA:
         bld(name = 'shared_engine',
             features='cxx',
-            cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-DNEW_LADSPA'],
+            cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-DNEW_LADSPA', '-fvisibility=hidden'],
             source = sources_engine_shared,
             includes = incl,
             use = ['GLIBMM','GIOMM','LILV','gxwmm_inc','ZITA_CONVOLVER','ZITA_RESAMPLER'],

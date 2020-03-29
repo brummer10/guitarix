@@ -33,7 +33,6 @@ namespace ladspa {
 //#define HARD_RT_ONLY
 
 static const unsigned long blacklist[] = {
-    4069, 4070,		      // ladspa_guitarix
     1912,                     // jamincont (crashes on unload?)
     //1044, 1045, 1046, 1047, // sine
 };
@@ -41,6 +40,7 @@ static const unsigned long blacklist[] = {
 static bool lib_is_blacklisted(const std::string& name) {
     static const char *blacklist[] = {
         "dssi-vst.so",
+        "ladspa_guitarix.so",
     };
     for (unsigned int i = 0; i < sizeof(blacklist) / sizeof(blacklist[0]); i++) {
         if (name == blacklist[i]) {
