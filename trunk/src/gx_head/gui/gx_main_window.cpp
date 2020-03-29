@@ -775,6 +775,7 @@ UiToggleAction<T>::UiToggleAction(
     set_active(machine.get_parameter_value<T>(id));
     machine.signal_parameter_value<T>(id).connect(
         sigc::mem_fun(this, &UiToggleAction::set_active));
+    signal_toggled().connect(sigc::mem_fun(this, &UiToggleAction::on_toggled));
 }
 
 template <class T>
@@ -1753,18 +1754,18 @@ void MainWindow::create_actions() {
     }
 
     actions.livetuner = uimanager.add_ui_bool_action(machine, "ui.racktuner", "LiveTuner");
-    actions.livetuner->signal_activate().connect(
-        sigc::hide(sigc::mem_fun(this, &MainWindow::on_livetuner_toggled)));
+    actions.livetuner->signal_toggled().connect(
+        sigc::mem_fun(this, &MainWindow::on_livetuner_toggled));
 
     /*
     ** rack actions
     */
     actions.tuner = uimanager.add_ui_bool_action(machine, "system.show_tuner", "Tuner");
-    actions.tuner->signal_activate().connect(
-        sigc::hide(sigc::mem_fun(*this, &MainWindow::on_show_tuner)));
+    actions.tuner->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_show_tuner));
     actions.tunermove = uimanager.add_ui_bool_action(machine, "system.stick_tuner", "Tunermove");
-    actions.tunermove->signal_activate().connect(
-        sigc::hide(sigc::mem_fun(*this, &MainWindow::on_move_tuner)));
+    actions.tunermove->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_move_tuner));
 
     actions.rack_config = uimanager.add_toggle_action("RackConfig");
     actions.rack_config->signal_toggled().connect(

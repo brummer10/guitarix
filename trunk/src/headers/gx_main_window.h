@@ -56,8 +56,6 @@ public:
  */
 
 class ToggleAction: public Gio::SimpleAction {
-private:
-    void on_activate_toggle(const Glib::VariantBase& value);
 protected:
     ToggleAction(const Glib::ustring& name, bool state)
         : Gio::SimpleAction(name, Glib::Variant<bool>::create(state)) {}
