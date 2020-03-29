@@ -201,14 +201,43 @@ PresetWindow::~PresetWindow() {
 void PresetWindow::on_selection_changed() {
     Glib::ustring bank = get_current_bank();
     in_current_preset = (!bank.empty() && bank == machine.get_current_bank());
+    Glib::RefPtr<Gtk::TreeModel> ls = bank_treeview->get_model();
+    // show active bank
+    Gtk::TreeNodeChildren ch = ls->children();
+    Glib::ustring active_bank = machine.get_current_bank();
+    for (Gtk::TreeIter it = ch.begin(); it != ch.end(); ++it) {
+        if (it->get_value(bank_col.name) == active_bank) {
+            if (!in_current_preset) {
+                bank_treeview->get_selection()->select(it);
+                // now in_current_preset == 1
+            }
+            // first time after program start sometimes does not work
+            // when using direct call (Gtk 3.24)
+            Glib::signal_idle().connect_once(
+                sigc::bind(
+                    sigc::mem_fun1(bank_treeview, &MyTreeView::scroll_to_row),
+                    ls->get_path(it)));
+            break;
+        }
+    }
+    if (in_current_preset) {
+        Glib::ustring active_preset = machine.get_current_name();
+        ch = pstore->children();
+        for (Gtk::TreeIter it = ch.begin(); it != ch.end(); ++it) {
+            if (it->get_value(pstore->col.name) == active_preset) {
+                preset_treeview->scroll_to_row(pstore->get_path(it));
+                break;
+            }
+        }
+    }
     bank_treeview->queue_draw();
     preset_treeview->queue_draw();
     bool savable = false;
     if (!organize_presets->get_active() && machine.setting_is_preset()) {
-	gx_system::PresetFileGui *pf = machine.get_current_bank_file();
-	if (pf && pf->is_mutable()) {
-	    savable = true;
-	}
+        gx_system::PresetFileGui *pf = machine.get_current_bank_file();
+        if (pf && pf->is_mutable()) {
+            savable = true;
+        }
     }
     actions.save_changes->set_enabled(savable);
 }
@@ -703,21 +732,15 @@ void PresetWindow::on_bank_edited(const Glib::ustring& path, const Glib::ustring
     Glib::ustring newname = newtext;
     gx_system::strip(newname);
     if (newname.empty() || newname == oldname) {
-	reset_edit(*bank_column_bank);
-	return;
+        reset_edit(*bank_column_bank);
+        return;
     }
     Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(banks_combobox->get_model());
     if (edit_iter) {
-	machine.bank_insert_new(newname);
+        edit_iter = Gtk::TreeIter();
+        machine.bank_insert_new(newname);
     } else {
-	machine.rename_bank(oldname, newname);
-	Gtk::TreeNodeChildren ch = ls->children();
-	for (Gtk::TreeIter it = ch.begin(); it != ch.end(); ++it) {
-	    if (it->get_value(bank_col.name) == oldname) {
-		it->set_value(bank_col.name, newname);
-	    }
-	}
-	w->get_model()->get_iter(path)->set_value(bank_col.name, newname);
+        machine.rename_bank(oldname, newname);
     }
     reset_edit(*bank_column_bank);
 }
