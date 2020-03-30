@@ -39,6 +39,7 @@ extern "C" {
  * @param CL_TOGGLE      - Widget_t request a toggle adjustment
  * @param CL_BUTTON      - Widget_t request a button adjustment
  * @param CL_ENUM        - Widget_t request a enum adjustment
+ * @param CL_LOGARITHMIC - Widget_t request a logarithmic adjustment
  */
 
 typedef enum {
@@ -56,6 +57,8 @@ typedef enum {
     CL_VIEWPORT     = 0x0032,
 /** Widget_t request a viewport adjustment */
     CL_METER        = 0x0064,
+/** Widget_t request a logarithmic adjustment */
+    CL_LOGARITHMIC  = 0x0128,
 }CL_type;
 
 /**

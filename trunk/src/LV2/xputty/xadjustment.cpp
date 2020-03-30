@@ -89,6 +89,7 @@ void adj_set_motion_state(void *w, float x, float y) {
     if(wid->adj_x) {
         float value= wid->adj_x->value;
         switch(wid->adj_x->type) {
+            case (CL_LOGARITHMIC):
             case (CL_CONTINUOS):
             {
                 float state = (wid->adj_x->start_value - wid->adj_x->min_value) / 
@@ -112,6 +113,7 @@ void adj_set_motion_state(void *w, float x, float y) {
     if(wid->adj_y) {
         float value = wid->adj_y->value;
         switch(wid->adj_y->type) {
+            case (CL_LOGARITHMIC):
             case (CL_CONTINUOS):
             {
                 float state = (wid->adj_y->start_value - wid->adj_y->min_value) / 

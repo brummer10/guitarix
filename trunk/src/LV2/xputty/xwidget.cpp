@@ -73,6 +73,9 @@ void destroy_widget(Widget_t * w, Xputty *main) {
     if (count == 0 && main->run == true) {
         quit(w);
     } else if(childlist_find_child(main->childlist, w)>=0) {
+        if(w->flags & REUSE_IMAGE) {
+            w->image = NULL;
+        }
         if(w->flags & HAS_MEM) {
             w->func.mem_free_callback(w, NULL);
         }
@@ -201,6 +204,7 @@ Widget_t *create_window(Xputty *app, Window win,
     w->flags &= ~NO_AUTOREPEAT;
     w->flags &= ~FAST_REDRAW;
     w->flags &= ~HIDE_ON_DELETE;
+    w->flags &= ~REUSE_IMAGE;
     w->app = app;
     w->parent = &win;
     w->parent_struct = NULL;
@@ -309,6 +313,7 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     w->flags &= ~NO_AUTOREPEAT;
     w->flags &= ~FAST_REDRAW;
     w->flags &= ~HIDE_ON_DELETE;
+    w->flags &= ~REUSE_IMAGE;
     w->app = app;
     w->parent = parent;
     w->parent_struct = NULL;

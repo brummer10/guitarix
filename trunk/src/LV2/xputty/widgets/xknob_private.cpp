@@ -98,6 +98,7 @@ void _draw_knob(void *w_, void* user_data) {
         cairo_stroke(w->crb);
         cairo_new_path (w->crb);
     }
+    use_text_color_scheme(w, get_color_state(w));
     cairo_text_extents_t extents;
     /** show value on the kob**/
     if (w->state) {
@@ -110,8 +111,7 @@ void _draw_knob(void *w_, void* user_data) {
         } else {
             snprintf(s, 63, format[2-1], w->adj_y->value);
         }
-        cairo_set_source_rgb (w->crb, 0.6, 0.6, 0.6);
-        cairo_set_font_size (w->crb, knobx1/4);
+        cairo_set_font_size (w->crb, min(11.0,knobx1/3));
         cairo_text_extents(w->crb, s, &extents);
         cairo_move_to (w->crb, knobx1-extents.width/2, knoby1+extents.height/2);
         cairo_show_text(w->crb, s);
@@ -119,8 +119,7 @@ void _draw_knob(void *w_, void* user_data) {
     }
 
     /** show label below the knob**/
-    use_text_color_scheme(w, get_color_state(w));
-    float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3);
+    float font_size = min(12.0,((height/2.2 < (width*0.6)/3) ? height/2.2 : (width*0.6)/3));
     cairo_set_font_size (w->crb, font_size);
     cairo_text_extents(w->crb,w->label , &extents);
 

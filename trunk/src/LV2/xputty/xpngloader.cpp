@@ -42,6 +42,8 @@ void widget_get_png(Widget_t *w, const unsigned char* name) {
     cairo_surface_t *getpng = cairo_image_surface_create_from_stream (name);
     int width = cairo_image_surface_get_width(getpng);
     int height = cairo_image_surface_get_height(getpng);
+    cairo_surface_destroy(w->image);
+    w->image = NULL;
     
     w->image = cairo_surface_create_similar (w->surface, 
                         CAIRO_CONTENT_COLOR_ALPHA, width, height);
@@ -50,6 +52,11 @@ void widget_get_png(Widget_t *w, const unsigned char* name) {
     cairo_paint (cri);
     cairo_surface_destroy(getpng);
     cairo_destroy(cri);
+}
+
+void widget_get_surface_ptr(Widget_t *w, Widget_t *wid) {
+    w->image = wid->image;
+    w->flags |= REUSE_IMAGE;
 }
 
 cairo_surface_t * surface_get_png(Widget_t *w, cairo_surface_t *sf, const unsigned char* name) {

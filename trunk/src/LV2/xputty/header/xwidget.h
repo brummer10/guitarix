@@ -253,6 +253,8 @@ enum {
     FAST_REDRAW       = 1<<11,
     /** Hide Widget_t instead delete on "WM_DELETE_WINDOW"  */
     HIDE_ON_DELETE    = 1<<12,
+    /** Widget_t reuse a surface from a other Widget_t  */
+    REUSE_IMAGE       = 1<<13,
 };
 
 /**
