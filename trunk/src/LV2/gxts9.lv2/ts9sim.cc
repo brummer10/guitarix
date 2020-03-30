@@ -86,7 +86,7 @@ inline void ts9sim::init(uint32_t samplingFreq)
 
 void ts9sim::connect(uint32_t port,void* data)
 {
-  switch ((EffectPortIndex)port)
+  switch ((PortIndex)port)
     {
     case TS9_LEVEL:
       fslider0_ = (float*)data;

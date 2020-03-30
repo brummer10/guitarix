@@ -93,17 +93,17 @@ rdfs:comment """
         lv2:symbol "EQ1_FREQ" ;
         lv2:name "EQ1_FREQ";
         lv2:default 315.0 ;
-        lv2:minimum 4e+01 ;
-        lv2:maximum 2.5e+03 ;
+        lv2:minimum 40.0 ;
+        lv2:maximum 2500.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 4 ;
         lv2:symbol "IN_DELAY" ;
         lv2:name "IN_DELAY";
-        lv2:default 6e+01 ;
-        lv2:minimum 2e+01 ;
-        lv2:maximum 1e+02 ;
+        lv2:default 60.0 ;
+        lv2:minimum 20.0 ;
+        lv2:maximum 100.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -121,9 +121,9 @@ rdfs:comment """
         lv2:portProperty log:logarithmic ;
         lv2:symbol "LF_X" ;
         lv2:name "LF_X";
-        lv2:default 2e+02 ;
-        lv2:minimum 5e+01 ;
-        lv2:maximum 1e+03 ;
+        lv2:default 200.0 ;
+        lv2:minimum 50.0 ;
+        lv2:maximum 1000.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -131,9 +131,9 @@ rdfs:comment """
         lv2:portProperty log:logarithmic ;
         lv2:symbol "HF_DAMPING" ;
         lv2:name "HF_DAMPING";
-        lv2:default 6e+03 ;
-        lv2:minimum 1.5e+03 ;
-        lv2:maximum 2.352e+04 ;
+        lv2:default 6000.0 ;
+        lv2:minimum 1500.0 ;
+        lv2:maximum 23520.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -189,7 +189,12 @@ rdfs:comment """
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_zita_rev1_stereo#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_zita_rev1_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  
   

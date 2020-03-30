@@ -34,16 +34,14 @@
 
 
 typedef enum
-{ DRIVE, 
-   GAIN, 
-   DELAY, 
-   FEEDBACK, 
-   LEVEL, 
-  	EFFECTS_OUTPUT,
-  	EFFECTS_INPUT,
-  	BPM_IN,
-  	BPM_SYNC,
-  	BPM_DIV
+{ 
+    DRIVE, 
+    DELAY, 
+    FEEDBACK, 
+    LEVEL, 
+    GAIN, 
+    EFFECTS_OUTPUT,
+    EFFECTS_INPUT,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

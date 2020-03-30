@@ -85,17 +85,17 @@ rdfs:comment """
         lv2:index 2 ;
         lv2:symbol "feedback" ;
         lv2:name "Feedback";
-        lv2:default 0.0 ;
+        lv2:default 0.35 ;
         lv2:minimum 0.01 ;
-        lv2:maximum 1.0 ;
+        lv2:maximum 0.7 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
         lv2:symbol "level" ;
         lv2:name "Level";
-        lv2:default 0 ;
-        lv2:minimum 0 ;
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
     ], [
         a lv2:InputPort ,
@@ -103,7 +103,7 @@ rdfs:comment """
         lv2:index 4 ;
         lv2:symbol "gain" ;
         lv2:name "Gain";
-        lv2:default 0.2 ;
+        lv2:default 0.5 ;
         lv2:minimum  0.0;
         lv2:maximum 1.0 ;
     ] ,  [
@@ -121,6 +121,11 @@ rdfs:comment """
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gxtubedelay#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gxtubedelay_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  

@@ -30,19 +30,13 @@
 
 typedef enum
 {
-DRIVE, 
-   GAIN, 
-   SINEWAVE, 
-   DEPTH, 
-   SPEED, 
-   /*
-	 SINEWAVE, 
-   DEPTH, 
-   DRIVE, 
-   GAIN, 
-   SPEED,*/ 
-  EFFECTS_OUTPUT,
-  EFFECTS_INPUT,
+    SINEWAVE, 
+    DEPTH, 
+    SPEED, 
+    DRIVE, 
+    GAIN, 
+    EFFECTS_OUTPUT,
+    EFFECTS_INPUT,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

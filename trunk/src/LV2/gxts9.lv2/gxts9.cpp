@@ -88,7 +88,7 @@ void Gxts9::init_dsp_mono(uint32_t rate)
 
 void Gxts9::connect_mono(uint32_t port,void* data)
 {
-  switch ((EffectPortIndex)port)
+  switch ((PortIndex)port)
     {
     case EFFECTS_OUTPUT:
       output = static_cast<float*>(data);

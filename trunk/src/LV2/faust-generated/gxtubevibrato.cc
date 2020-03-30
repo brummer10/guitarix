@@ -119,7 +119,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
 	fConst1 = (2.08237464507809e-05 * fConst0);
 	fConst2 = (fConst1 + 0.00046017036251682698);
-	fConst3 = (fConst0 / fConst2);
+	fConst3 = (0.10000000000000001 * (fConst0 / fConst2));
 	fConst4 = (2.08237299868718e-05 * fConst0);
 	fConst5 = (fConst4 + 0.000460960630154374);
 	fConst6 = (0.10000000000000001 * (fConst0 / fConst5));
@@ -135,7 +135,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fVslider1 = FAUSTFLOAT(5.0);
 	fVslider2 = FAUSTFLOAT(0.5);
 	fVslider3 = FAUSTFLOAT(0.5);
-			IOTA = 0;
+	IOTA = 0;
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
