@@ -21,6 +21,17 @@
 
 #include "xknob_private.h"
 
+static void _show_label(Widget_t *w, int width, int height) {
+    use_text_color_scheme(w, get_color_state(w));
+    cairo_text_extents_t extents;
+    /** show label below the knob**/
+    float font_size = min(12.0,((height/2.2 < (width*0.6)/3) ? height/2.2 : (width*0.6)/3));
+    cairo_set_font_size (w->crb, font_size);
+    cairo_text_extents(w->crb,w->label , &extents);
+    cairo_move_to (w->crb, (width*0.5)-extents.width/2, height );
+    cairo_show_text(w->crb, w->label);
+    cairo_new_path (w->crb);
+}
 
 void _draw_image_knob(Widget_t *w, int width_t, int height_t) {
     int width = cairo_xlib_surface_get_width(w->image);
@@ -36,6 +47,12 @@ void _draw_image_knob(Widget_t *w, int width_t, int height_t) {
     cairo_fill(w->crb);
     //widget_reset_scale(w);
     cairo_scale(w->crb, y,y);
+}
+
+void _draw_knob_image(void *w_, void* user_data) {
+    Widget_t *w = (Widget_t*)w_;
+    _draw_image_knob(w, w->width, w->height);
+    _show_label(w, w->width-2, w->height-2);
 }
 
 void _draw_knob(void *w_, void* user_data) {
@@ -118,14 +135,7 @@ void _draw_knob(void *w_, void* user_data) {
         cairo_new_path (w->crb);
     }
 
-    /** show label below the knob**/
-    float font_size = min(12.0,((height/2.2 < (width*0.6)/3) ? height/2.2 : (width*0.6)/3));
-    cairo_set_font_size (w->crb, font_size);
-    cairo_text_extents(w->crb,w->label , &extents);
-
-    cairo_move_to (w->crb, knobx1-extents.width/2, height );
-    cairo_show_text(w->crb, w->label);
-    cairo_new_path (w->crb);
+    _show_label(w, width, height);
 }
 
 void _knob_released(void *w_, void* button_, void* user_data) {

@@ -114,7 +114,17 @@ cairo_surface_t *cairo_image_surface_create_from_stream ( const unsigned char* n
 void widget_get_png(Widget_t *w, const unsigned char* name);
 
 /**
- * @brief widget_get_surface_ptr         - set pointer to a 2. Widget_t xlib surface
+ * @brief widget_get_scaled_png      - read scaled png into Widget_t xlib surface
+ * @param *w                         - pointer to the Widget_t which should use the png
+ * @param *name                      - pointer to the binary image data LDVAR(name)
+ * @return void
+ */
+
+
+void widget_get_scaled_png(Widget_t *w, const unsigned char* name);
+
+/**
+ * @brief widget_get_surface_ptr     - set pointer to a 2. Widget_t xlib surface
  * @param *w                         - pointer to the Widget_t which should use the surface
  * @param *wid                       - pointer to the Widget_t which hold the surface
  * @return void

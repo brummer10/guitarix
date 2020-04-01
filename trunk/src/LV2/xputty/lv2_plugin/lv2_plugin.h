@@ -45,6 +45,7 @@ typedef struct {
     Widget_t *win;
     Widget_t *widget[CONTROLS];
     KnobColors *kp;
+    void *private_ptr;
     cairo_surface_t *screw;
     int block_event;
 
@@ -71,6 +72,13 @@ Widget_t* add_my_knob(Widget_t *w, PortIndex index, const char * label,
 
 // add a image knob to the main window
 Widget_t* add_my_image_knob(Widget_t *w, PortIndex index, const char * label,
+                                X11_UI* ui, int x, int y, int width, int height);
+
+// add a image knob with value to the main window
+Widget_t* add_my_value_knob(Widget_t *w, PortIndex index, const char * label,
+                                X11_UI* ui, int x, int y, int width, int height);
+// add a image toggle button to the main window
+Widget_t* add_my_switch_image(Widget_t *w, PortIndex index, const char * label,
                                 X11_UI* ui, int x, int y, int width, int height);
 
 // add a combobox to the main window

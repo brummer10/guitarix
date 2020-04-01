@@ -253,7 +253,27 @@ Widget_t* add_my_knob(Widget_t *w, PortIndex index, const char * label,
 // shortcut to create image knobs with portindex binding
 Widget_t* add_my_image_knob(Widget_t *w, PortIndex index, const char * label,
                                 X11_UI* ui, int x, int y, int width, int height) {
+    w = add_image_knob(ui->win, label, x, y, width, height);
+    w->parent_struct = ui;
+    w->data = index;
+    w->func.value_changed_callback = value_changed;
+    return w;
+}
+
+// shortcut to create image knobs with portindex binding
+Widget_t* add_my_value_knob(Widget_t *w, PortIndex index, const char * label,
+                                X11_UI* ui, int x, int y, int width, int height) {
     w = add_knob(ui->win, label, x, y, width, height);
+    w->parent_struct = ui;
+    w->data = index;
+    w->func.value_changed_callback = value_changed;
+    return w;
+}
+
+// shortcut to create image knobs with portindex binding
+Widget_t* add_my_switch_image(Widget_t *w, PortIndex index, const char * label,
+                                X11_UI* ui, int x, int y, int width, int height) {
+    w = add_switch_image_button(ui->win, label, x, y, width, height);
     w->parent_struct = ui;
     w->data = index;
     w->func.value_changed_callback = value_changed;
@@ -292,6 +312,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     ui->parentXwindow = 0;
     LV2UI_Resize* resize = NULL;
     ui->block_event = -1;
+    ui->private_ptr = NULL;
 
     int i = 0;
     for (; features[i]; ++i) {

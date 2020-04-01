@@ -98,12 +98,32 @@ void _draw_image_button_with_label(Widget_t *w, int width_t, int height_t) {
     }
 
     use_text_color_scheme(w, get_color_state(w));
-    cairo_set_font_size (w->crb, (width_t*0.5)/3);
-    cairo_text_extents(w->crb,w->label , &extents);
-
-    cairo_move_to (w->crb, (width_t*0.5)-(extents.width/2), height_t);
-    cairo_show_text(w->crb, w->label);
+    cairo_set_font_size (w->crb, min(12.0,(width_t*0.5)/2.4));
+    if ((int)adj_get_value(w->adj) && strlen(w->input_label)) {
+        cairo_text_extents(w->crb,w->input_label , &extents);
+        cairo_move_to (w->crb, (width_t*0.5)-(extents.width/2), height_t-(extents.height/4));
+        cairo_show_text(w->crb, w->input_label);
+    } else {
+        cairo_text_extents(w->crb,w->label , &extents);
+        cairo_move_to (w->crb, (width_t*0.5)-(extents.width/2), height_t-(extents.height/4));
+        cairo_show_text(w->crb, w->label);
+    }
     cairo_new_path (w->crb);
+}
+
+void _draw_switch_image_button(void *w_, void* user_data) {
+    Widget_t *w = (Widget_t*)w_;
+    if (!w) return;
+    XWindowAttributes attrs;
+    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
+    int width = attrs.width-2;
+    int height = attrs.height-2;
+    if (attrs.map_state != IsViewable) return;    
+    if(strlen(w->label)) {
+        _draw_image_button_with_label(w, width, height);
+    } else {
+        _draw_image_button(w, width, height,0.0);
+    }
 }
 
 void _draw_button_base(Widget_t *w, int width, int height) {

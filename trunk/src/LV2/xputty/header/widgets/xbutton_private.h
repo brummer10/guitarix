@@ -60,6 +60,16 @@ void _pattern_out(Widget_t *w, Color_state st, int height);
  */
 
 void _pattern_in(Widget_t *w, Color_state st, int height);
+
+/**
+ * @brief _draw_ switch_image_button - internal draw the button to the buffer
+ * @param *w_                        - void pointer to the Widget_t button
+ * @param *user_data                 - void pointer to attached user_data
+ * @return void
+ */
+
+void _draw_switch_image_button(void *w_, void* user_data);
+
 /**
  * @brief _draw_button        - internal draw the button to the buffer
  * @param *w_                 - void pointer to the Widget_t button

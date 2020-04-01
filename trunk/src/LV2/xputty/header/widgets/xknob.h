@@ -43,6 +43,20 @@ extern "C" {
 Widget_t* add_knob(Widget_t *parent, const char * label,
                 int x, int y, int width, int height);
 
+/**
+ * @brief add_image_knob      - add a knob from image to a Widget_t
+ * without value display on the knob
+ * connect to func.value_changed_callback to implement your actions
+ * use set_adjustment(w->adj_y, . . ) to set the range you need
+ * @param *parent             - pointer to the Widget_t request the button
+ * @param *label              - Label to show on the button
+ * @param x,y,width,height    - the position/geometry to create the button
+ * @return Widget_t*          - pointer to the Widget_t button struct
+ */
+
+Widget_t* add_image_knob(Widget_t *parent, const char * label,
+                int x, int y, int width, int height);
+
 #ifdef __cplusplus
 }
 #endif

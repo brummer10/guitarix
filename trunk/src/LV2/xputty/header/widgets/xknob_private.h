@@ -39,6 +39,15 @@ extern "C" {
 void _draw_image_knob(Widget_t *w, int width_t, int height_t);
 
 /**
+ * @brief _draw_knob_image       - internal draw the knob to the buffer
+ * @param *w_                    - void pointer to the Widget_t button
+ * @param *user_data             - void pointer to attached user_data
+ * @return void
+ */
+
+void _draw_knob_image(void *w_, void* user_data);
+
+/**
  * @brief _draw_knob             - internal draw the knob to the buffer
  * @param *w_                    - void pointer to the Widget_t button
  * @param *user_data             - void pointer to attached user_data
