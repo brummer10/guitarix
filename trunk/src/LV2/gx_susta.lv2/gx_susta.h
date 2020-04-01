@@ -25,7 +25,7 @@
 #include <lv2.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_susta_"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_susta_gui"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_susta_gui#_susta_"
 
 
 typedef enum

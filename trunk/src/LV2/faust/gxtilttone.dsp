@@ -5,7 +5,7 @@ declare category "External";
 import("stdfaust.lib");
 import("redeye.lib");
 
-process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) with {
+process = *(2.0) : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : *(0.1) with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = ba.if(b, 1 - x, x);
     s = 0.993;
