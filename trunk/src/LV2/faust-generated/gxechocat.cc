@@ -212,7 +212,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fCheckbox1 = FAUSTFLOAT(0.0);
 	fCheckbox2 = FAUSTFLOAT(0.0);
 	fVslider4 = FAUSTFLOAT(0.5);
-			IOTA = 0;
+	IOTA = 0;
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)

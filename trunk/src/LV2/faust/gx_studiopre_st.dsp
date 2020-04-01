@@ -23,7 +23,7 @@ import("guitarix.lib");
 // So only reason to do is to eliminate low frequency rubbish
 
 //studiopre = stage1:*(10):tone:volume:*(0.1) with{
-studiopre( tone, gain ) = stage1:*(10):tone:gain:stage2 with{
+studiopre( tone, gain ) = stage1:*(10):tone:gain:stage2:*(0.3334) with{
 //studiopre = volume with{
 	stage1 = tubestage(TB_12AX7_68k,2.1,1500.0,1.204541) ; // Gain 2.9   2nd -29.8 3rd -26.24
 	stage2 = tubestage(TB_12AX7_250k,2.1,1500.0,1.204285) ; //  Gain 2.41 2nd -34.34 3rd -23.36

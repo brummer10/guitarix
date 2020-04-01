@@ -83,7 +83,7 @@ taperesponse = _<:select2( tapetype, taperesponse1, taperesponse2 ):tapehiss wit
 
 	// Sort this out so level is -XXdB no.noise floor
 	tapehiss = _<:_,(no.noise * level:hissfilter):>_ ;
-	level = vslider("tapehiss[style:knob]", 0.0, 0.0, 1.0, 0.01):*(0.0316):si.smooth( 0.9999) ;
+	level = vslider("tapehiss[style:knob]", 0.0, 0.0, 1.0, 0.01):*(0.0474):si.smooth( 0.9999) ;
 	scale = ( ( 1.0-speed) + 1.0 )/2.0 ;
 	// Might be able to simplify this once I get to grips with IIR and fi.fir....!
 	// Current value is pretty good approximation of actual tape hiss 
@@ -98,5 +98,5 @@ delaystage = component( "delaystage.dsp").delaystage ;
 iec_in = fi.lowpass( 1, 4500 );
 iec_out = ma.sub~fi.lowpass( 1, 4500 );
 
-channel = input12au7:*(0.1):BP(iec_in:machine:iec_out):output12au7:fi.lowpass( 2, 20000);
+channel = input12au7:*(0.1):BP(iec_in:machine:iec_out):output12au7:*(0.1):fi.lowpass( 2, 20000);
 //process = channel,channel;

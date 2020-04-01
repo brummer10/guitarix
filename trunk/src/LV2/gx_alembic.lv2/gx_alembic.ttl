@@ -120,7 +120,12 @@ This is an identical circuit apart from coupling caps whcih could do with filter
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_alembic#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_alembic_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+  .
   

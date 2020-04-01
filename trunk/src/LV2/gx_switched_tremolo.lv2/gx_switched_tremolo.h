@@ -38,7 +38,8 @@ typedef enum
    FREQ2, 
    FREQ3, 
    STEPS, 
-   SWITCHFREQ, 
+   SWITCHFREQ,
+   WET_DRY,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

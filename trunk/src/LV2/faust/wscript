@@ -132,6 +132,7 @@ def build(bld):
         'bossds1.dsp',
         'gx_alembic.dsp',
         'gx_w20.dsp',
+        'switched_tremolo.dsp',
 
         # tone stacks
         'tonestack_default.dsp',

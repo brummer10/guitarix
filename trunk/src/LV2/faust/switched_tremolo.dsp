@@ -25,11 +25,14 @@ freq2 = hslider("Freq 2", 1, 0.25, 15, 0.5);
 freq3 = hslider("Freq 3", 1, 0.25, 15, 0.5);
 depth = hslider("Depth", 0.5, 0, 1, 0.05);
 
+wet = vslider("wet_dry[name:wet/dry][tooltip:percentage of processed signal in output signal]",  100, 0, 100, 1) : /(100);
+dry = 1 - wet;
+
 in_range(min_val, max_val, x) = x>min_val,x<=max_val:*:_;
 
 N = 4;
 freqs = (freq0, freq1, freq2, freq3);
-process = (par(i,N,os.osc(ba.take(i+1,freqs))),
+process = _<:*(dry),(*(wet):(par(i,N,os.osc(ba.take(i+1,freqs))),
 	(os.lf_sawpos(sw_freq)<:par(i,N,in_range(i/steps,(i+1)/steps):
 	si.smooth(ba.tau2pole(0.05))))),_:
-	(si.dot(N):_*depth:_+1:_-depth),_:_*_:_;
+	(si.dot(N):_*depth:_+1:_-depth),_:_*_:_):>_;

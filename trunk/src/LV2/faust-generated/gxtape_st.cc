@@ -363,7 +363,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst3 = (1.0 / (((fConst2 + 1.4142135623730949) / fConst1) + 1.0));
 	fConst4 = (2.08237464507809e-05 * fConst0);
 	fConst5 = (fConst4 + 0.00046017036251682698);
-	fConst6 = (fConst0 / fConst5);
+	fConst6 = (0.10000000000000001 * (fConst0 / fConst5));
 	fConst7 = (2.08237299868718e-05 * fConst0);
 	fConst8 = (fConst7 + 0.000460960630154374);
 	fConst9 = (0.10000000000000001 * (fConst0 / fConst8));
@@ -461,7 +461,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fCheckbox1 = FAUSTFLOAT(0.0);
 	fVslider6 = FAUSTFLOAT(0.0);
 	fVslider7 = FAUSTFLOAT(0.5);
-			IOTA = 0;
+	IOTA = 0;
 }
 
 void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
@@ -529,7 +529,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow9 = std::tan((fConst81 * (2.0 - fSlow7)));
 	double fSlow10 = (1.0 / fSlow9);
 	double fSlow11 = (1.0 / (((fSlow10 + 1.4142135623730949) / fSlow9) + 1.0));
-	double fSlow12 = (3.1599999999996521e-06 * double(fVslider6));
+	double fSlow12 = (4.7399999999994777e-06 * double(fVslider6));
 	double fSlow13 = (((fSlow10 + -1.4142135623730949) / fSlow9) + 1.0);
 	double fSlow14 = (2.0 * (1.0 - (1.0 / mydsp_faustpower2_f(fSlow9))));
 	double fSlow15 = (0.004073836948085289 * (std::exp((1.0 - double(fVslider7))) + -1.0));
