@@ -298,7 +298,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec11[0] = (0.0 - (fConst9 * ((fConst10 * fRec11[1]) - (fTemp4 + fVec4[1]))));
 		fRec1[0] = (double(Ftube(int(TUBE_TABLE_12AX7_250k), double((((0.92544984225177063 * (fRec2[0] + fRec2[2])) + (fRec11[0] + (1.8508996845035413 * fRec2[1]))) + -1.204285)))) + -169.71433333333334);
 		fRec0[0] = ((0.025000000000000001 * ((fConst4 * fRec1[0]) + (fConst11 * fRec1[1]))) - (fConst12 * fRec0[1]));
-		output0[i] = FAUSTFLOAT(fRec0[0]);
+		output0[i] = FAUSTFLOAT((0.33339999999999997 * fRec0[0]));
 		double fTemp5 = (double(input1[i]) + 1.0000000000000001e-15);
 		fVec5[0] = fTemp5;
 		fRec21[0] = ((0.93028479253239138 * (fVec5[1] + fTemp5)) - (0.86056958506478287 * fRec21[1]));
@@ -321,7 +321,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec23[0] = (0.0 - (fConst9 * ((fConst10 * fRec23[1]) - (fTemp9 + fVec9[1]))));
 		fRec13[0] = (double(Ftube(int(TUBE_TABLE_12AX7_250k), double((((0.92544984225177063 * (fRec14[0] + fRec14[2])) + (fRec23[0] + (1.8508996845035413 * fRec14[1]))) + -1.204285)))) + -169.71433333333334);
 		fRec12[0] = ((0.025000000000000001 * ((fConst4 * fRec13[0]) + (fConst11 * fRec13[1]))) - (fConst12 * fRec12[1]));
-		output1[i] = FAUSTFLOAT(fRec12[0]);
+		output1[i] = FAUSTFLOAT((0.33339999999999997 * fRec12[0]));
 		fVec0[1] = fVec0[0];
 		fRec9[1] = fRec9[0];
 		fRec8[2] = fRec8[1];
