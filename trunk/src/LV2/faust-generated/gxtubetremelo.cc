@@ -101,7 +101,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
 	fConst1 = (2.08237464507809e-05 * fConst0);
 	fConst2 = (fConst1 + 0.00046017036251682698);
-	fConst3 = (fConst0 / fConst2);
+	fConst3 = (0.10000000000000001 * (fConst0 / fConst2));
 	fConst4 = (2.0823902452746101e-05 * fConst0);
 	fConst5 = (fConst4 + 0.00045268226818868002);
 	fConst6 = (270.0 * (fConst0 / fConst5));
