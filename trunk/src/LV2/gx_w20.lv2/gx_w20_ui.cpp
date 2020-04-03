@@ -94,7 +94,7 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
     // do special stuff when needed
 }
 
-void plugin_set_window_size(int *w,int *h) {
+void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
     (*w) = 340; //initial widht of main window
     (*h) = 300; //initial heigth of main window
 }
@@ -103,7 +103,7 @@ const char* plugin_set_name() {
     return "GxW20"; //plugin name to display on UI
 }
 
-void plugin_create_controller_widgets(X11_UI *ui) {
+void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_my_theme(&ui->main);
     widget_get_png(ui->win, LDVAR(w20_png));
     ui->win->func.expose_callback = draw_my_window;

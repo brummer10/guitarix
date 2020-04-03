@@ -42,14 +42,12 @@ typedef enum
   TONE,
   VOLUME,
   FEEDBACK,
-  SINEWAVE, 
-  INTENSITY, 
-  SPEED, 
   VIBE, 
+  SPEED, 
+  INTENSITY, 
+  SINEWAVE, 
   AMP_OUTPUT,
   AMP_INPUT,
-  AMP_OUTPUT1,
-  AMP_INPUT1,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXREDEYE_H_

@@ -51,7 +51,7 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
     // do special stuff when needed
 }
 
-void plugin_set_window_size(int *w,int *h) {
+void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
     (*w) = 340; //initial widht of main window
     (*h) = 380; //initial heigth of main window
 }
@@ -60,7 +60,7 @@ const char* plugin_set_name() {
     return "GxSwitchedTremolo"; //plugin name to display on UI
 }
 
-void plugin_create_controller_widgets(X11_UI *ui) {
+void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     ui->widget[0] = add_my_knob(ui->widget[0], DEPTH,"Depth", ui,30, 40, 80, 105);
     set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 

@@ -190,10 +190,6 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
       cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
 
       float cab_irdata_c[cabconv.cab_count];
-	
-      // Taken from Hermann's gx_amp code....
-      float adjust_1x8 = 0.25;
-//      if ( c_model_ == 17.0) adjust_1x8 = 0.5;
 
       // Here we are at present hard wiring the cab volume so need to experiment
       //impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, 10.0*adjust_1x8);

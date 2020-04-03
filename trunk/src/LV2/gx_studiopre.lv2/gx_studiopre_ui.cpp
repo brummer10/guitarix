@@ -113,7 +113,7 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
     // do special stuff when needed
 }
 
-void plugin_set_window_size(int *w,int *h) {
+void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
     (*w) = 800; //initial widht of main window
     (*h) = 100; //initial heigth of main window
 }
@@ -122,7 +122,7 @@ const char* plugin_set_name() {
     return "GxStudioPre"; //plugin name to display on UI
 }
 
-void plugin_create_controller_widgets(X11_UI *ui) {
+void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_my_theme(&ui->main);
     widget_get_scaled_png(ui->win, LDVAR(studiopre_png));
     X11_UI_Private_t *ps =(X11_UI_Private_t*)malloc(sizeof(X11_UI_Private_t));;

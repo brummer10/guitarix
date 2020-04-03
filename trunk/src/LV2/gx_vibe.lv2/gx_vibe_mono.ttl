@@ -102,7 +102,7 @@ rdfs:comment """
         lv2:name "TEMPO" ;
         lv2:default 4.4 ;
         lv2:minimum 0.1 ;
-        lv2:maximum 1e+01 ;
+        lv2:maximum 10.0 ;
     ] , [
         a lv2:AudioPort ,
             lv2:OutputPort ;
@@ -118,7 +118,11 @@ rdfs:comment """
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_vibe_gui#_vibe_mono>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_vibe_gui.so>;
-  guiext:requiredFeature guiext:makeResident;
-  .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  

@@ -25,7 +25,8 @@
 #include <lv2.h>
 
 #define GXPLUGIN_URI "http://guitarix.sourceforge.net/plugins/gx_vibe_"
-#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_vibe_gui"
+#define GXPLUGIN_UI_URI "http://guitarix.sourceforge.net/plugins/gx_vibe_gui#_vibe_mono"
+#define GXPLUGIN_UI_URI2 "http://guitarix.sourceforge.net/plugins/gx_vibe_gui#_vibe_"
 
 
 typedef enum

@@ -315,6 +315,10 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     ui->private_ptr = NULL;
 
     int i = 0;
+    for(;i<CONTROLS;i++)
+        ui->widget[i] = NULL;
+
+    i = 0;
     for (; features[i]; ++i) {
         if (!strcmp(features[i]->URI, LV2_UI__parent)) {
             ui->parentXwindow = features[i]->data;
@@ -335,7 +339,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     set_default_theme(&ui->main);
     int w = 1;
     int h = 1;
-    plugin_set_window_size(&w,&h);
+    plugin_set_window_size(&w,&h,plugin_uri);
     // create the toplevel Window on the parentXwindow provided by the host
     ui->win = create_window(&ui->main, (Window)ui->parentXwindow, 0, 0, w, h);
     ui->win->parent_struct = ui;
@@ -345,7 +349,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
     // create controller widgets
-    plugin_create_controller_widgets(ui);
+    plugin_create_controller_widgets(ui,plugin_uri);
     // map all widgets into the toplevel Widget_t
     widget_show_all(ui->win);
     // set the widget pointer to the X11 Window from the toplevel Widget_t
@@ -388,7 +392,7 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
     float value = *(float*)buffer;
     int i=0;
     for (;i<CONTROLS;i++) {
-        if (port_index == (uint32_t)ui->widget[i]->data) {
+        if (ui->widget[i] && port_index == (uint32_t)ui->widget[i]->data) {
             // prevent event loop between host and plugin
             ui->block_event = (int)port_index;
             // Xputty check if the new value differs from the old one
@@ -430,12 +434,11 @@ static const void* extension_data(const char* uri) {
     return NULL;
 }
 
-static const LV2UI_Descriptor descriptor = {
-    GXPLUGIN_UI_URI,
-    instantiate,
-    cleanup,
-    port_event,
-    extension_data
+static const LV2UI_Descriptor descriptors[] = {
+    {GXPLUGIN_UI_URI,instantiate,cleanup,port_event,extension_data},
+#ifdef GXPLUGIN_UI_URI2
+    {GXPLUGIN_UI_URI2,instantiate,cleanup,port_event,extension_data},
+#endif
 };
 
 
@@ -445,12 +448,10 @@ extern "C" {
 #endif
 LV2_SYMBOL_EXPORT
 const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index) {
-    switch (index) {
-        case 0:
-            return &descriptor;
-        default:
+    if (index >= sizeof(descriptors) / sizeof(descriptors[0])) {
         return NULL;
     }
+    return descriptors + index;
 }
 #ifdef __cplusplus
 }

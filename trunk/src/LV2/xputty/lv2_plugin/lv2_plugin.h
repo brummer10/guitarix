@@ -58,13 +58,13 @@ typedef struct {
 void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index);
 
 // set the plugin initial window size
-void plugin_set_window_size(int *w,int *h);
+void plugin_set_window_size(int *w,int *h,const char * plugin_uri);
 
 // set the plugin name
 const char* plugin_set_name();
 
 // create all needed controller 
-void plugin_create_controller_widgets(X11_UI *ui);
+void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri);
 
 // add a knob to the main window
 Widget_t* add_my_knob(Widget_t *w, PortIndex index, const char * label,

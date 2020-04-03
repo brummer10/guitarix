@@ -1,5 +1,8 @@
 EXTLD(back_png)
+EXTLD(champ_png)
 EXTLD(choice_png)
+EXTLD(chump_png)
+EXTLD(chumpknob_png)
 EXTLD(close_png)
 EXTLD(directory_png)
 EXTLD(directory_open_png)

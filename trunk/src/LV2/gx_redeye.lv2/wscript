@@ -1,63 +1,23 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import sys
-
 def configure(conf):
     pass
 
 def build(bld):
-    bundle = 'gx_redeye.lv2'
+    lv2_base = 'gx_redeye'
 
-    src = ['gxredeye.cpp',
-           ]
-    incl = ['../faust','./', '../DSP', '../DSP/tube_tables']
-    lib = []
-    if sys.platform.startswith("linux"):
-        lib.append('dl')
-    uselib = ['LV2CORE','GLIBMM','GX_CONVOLVER']
-    cxxflag =[]
-    if not bld.env['OPT'] and bld.env['SSE2']:
-        cxxflag = [ "-msse2", "-mfpmath=sse"]
-    lv2_plugin = bld.shlib(
-        includes = incl,
-        lib = lib,
-        use = uselib,
-        obj_ext  = '_11.o',
-        cxxflags = cxxflag,
-        defines  = ["LV2_SO"],
-        target   = 'gx_redeye',
-        source   = src,
-        install_path = '${LV2DIR}/%s' % bundle,
-        chmod = 0o755,
+    bld.lv2(
+        lv2_base = lv2_base,
+        source   = ['gxredeye.cpp'],
+        includes = ['../faust','./', '../DSP', '../DSP/tube_tables'],
+        cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
+        use = ['LV2CORE','GX_CONVOLVER','GX_RESAMPLER','GLIBMM'],
         )
-    lv2_plugin.env['cxxshlib_PATTERN'] = '%s.so'
-
-    if bld.env['LV2GUI']:
-        libpath1 = []
-        lib1 = []
-        incl = []
-        if sys.platform.startswith("linux"):
-            lib1.append('dl')
-
-        lv2_plugin_gui = bld.shlib(
-            includes = incl,
-            lib = lib1,
-            libpath = libpath1,
-            use = ['gxwmm','LV2CORE','GTKMM'],
-            linkflags = '-Wl,-z,nodelete',
-            defines  = ["LV2_GUI"],
-            target   = 'gx_redeye_gui',
-            source   = 'widget.cpp gxredeye_gui.cpp',
-            install_path = '${LV2DIR}/%s' % bundle,
-            chmod = 0o755,
-            )
-        lv2_plugin_gui.env['cxxshlib_PATTERN'] = '%s.so'
-
-
-    install_path = '${LV2DIR}/%s' % bundle,
-    if bld.env['MODGUI']:
-        bld.install_files('${LV2DIR}/gx_redeye.lv2', bld.path.ant_glob('*.ttl'), relative_trick=True)
-        bld.install_files('${LV2DIR}/gx_redeye.lv2', bld.path.ant_glob('modgui/**/*'), relative_trick=True)
-    else:
-        bld.install_files('${LV2DIR}/gx_redeye.lv2', bld.path.ant_glob('*.ttl', excl=['modguis.ttl']), relative_trick=True)
+    bld.lv2_gui(
+        lv2_base = lv2_base,
+        source   = ' gxredeye_ui.cpp',
+        includes = ['../xputty/header','../xputty/header/widgets','../xputty/resources','../xputty/lv2_plugin'],
+        cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
+        use = ['xcairo','X11', 'CAIRO','LV2CORE'],
+        )
