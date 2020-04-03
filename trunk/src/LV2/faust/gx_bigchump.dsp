@@ -10,7 +10,7 @@ trannie = coil1,coil2:>_ with {
 	coil2 = fi.lowpass( 1, 8925 ):fi.highpass( 1, 76) ;
 }; 
 
-process = chumpPreamp:*(0.1):*(volume):amp with {
+process = chumpPreamp:*(0.5):*(volume):amp:*(0.1) with {
 	
 	volume = vslider("Volume[2][alias][style:knob]",0.5, 0.0, 1.0,0.01) : smoothi(0.999);
 	// Look into these so we can more accurately copy PP 6V6 design
@@ -24,7 +24,7 @@ process = chumpPreamp:*(0.1):*(volume):amp with {
 	driver1 = fi.lowpass( 1, 6531):tubestage(TB_12AU7_250k,132.0,1525.0,1.214285);
 	driver2 = fi.lowpass( 1, 6531):tubestage(TB_12AU7_250k,132.0,1475.0,1.204285);
 
-	feedback = *(checkbox("feedback") ):*(0.5);
+	feedback = *(checkbox("feedback") ):fi.high_shelf( 3, 6531 ):*(-0.5);
 
 	// This is bodge for transformer simple low and high pass roll off
 

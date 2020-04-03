@@ -55,7 +55,7 @@ trianglewave(freq) = _ ~ (_ <: _ + hyst) : /(periodsamps) with {
     periodsamps = int(ma.SR / (2*float(freq)));
 };
 
-process = chumpPreamp:*(0.1):poweramp:transformer:*(volume) with{
+process = chumpPreamp:*(0.1):poweramp:transformer:*(0.5):*(volume) with{
 
 	volume =  hgroup( "Amp",vslider("Volume[alias][style:knob]",0.5,0,1,0.01):smoothi(0.999) );
 	poweramp = *(vibe):tubestage(TB_6V6_250k,120.0,820.0,1.130462) ;

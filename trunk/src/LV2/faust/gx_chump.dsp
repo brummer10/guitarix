@@ -19,7 +19,7 @@ import("redeye.lib");
 ** To do :
 */
 
-process = chumpPreamp:*(0.1):poweramp:transformer :*(volume) with{
+process = chumpPreamp:*(0.1):+(poweramp:transformer)~feedback :*(0.1):*(volume) with{
 	volume =  vslider("Volume[alias][style:knob]",0.5,0,1,0.01):smoothi(0.999);
 	poweramp = fi.lowpass(1,6531.0):tubestage(TB_6V6_250k,120.0,820.0,1.130462) ;
    transformer = fi.lowpass( 1, 6531 ):fi.highpass( 1, 80) ;
