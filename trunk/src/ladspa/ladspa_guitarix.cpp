@@ -477,8 +477,7 @@ private:
 	static void remove_instance(LadspaGuitarix* i);
 	static void preset_change();
     };
-protected:
-    friend class PresetLoader;
+public:
     friend class LibMonitor;
     pthread_t last_thread_id;
     int jack_bs;
@@ -1064,7 +1063,7 @@ void MonoEngine::load_static_plugins() {
  ** class LadspaGuitarixMono
  */
 
-class LadspaGuitarixMono: LadspaGuitarix {
+class LadspaGuitarixMono {
 private:
 
     enum {  // ladspa ports
@@ -1122,6 +1121,7 @@ private:
 
     MonoEngine engine;
     ControlParameter control_parameter;
+    LadspaGuitarix ladspa_guitarix;
     ReBuffer rebuffer;
     LADSPA_Data * volume_port;
     FloatParameter& volume_param;
@@ -1141,10 +1141,10 @@ public:
 };
 
 LadspaGuitarixMono::LadspaGuitarixMono(unsigned long sr)
-    : LadspaGuitarix(engine, 0, &engine.mono_convolver, control_parameter, "LADSPA_GUITARIX_MONO_PRESET"),
-      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"),
+    : engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"),
        Glib::build_filename(Glib::get_user_config_dir(), "guitarix/pluginpresets/loops/"), get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
+      ladspa_guitarix(engine, 0, &engine.mono_convolver, control_parameter, "LADSPA_GUITARIX_MONO_PRESET"),
       rebuffer(),
       volume_port(),
       volume_param(engine.get_param()["amp.out_ladspa"].getFloat()),
@@ -1165,7 +1165,7 @@ const LADSPA_Descriptor *LadspaGuitarixMono::ladspa_descriptor() {
 void LadspaGuitarixMono::activateGuitarix(LADSPA_Handle Instance) {
     LadspaGuitarixMono& self = *static_cast<LadspaGuitarixMono*>(Instance);
     int policy, prio, bufsize;
-    bufsize = self.activate(&policy, &prio);
+    bufsize = self.ladspa_guitarix.activate(&policy, &prio);
     self.rebuffer.set_bufsize(bufsize);
     self.engine.set_buffersize(bufsize);
     gx_print_info(
@@ -1174,14 +1174,14 @@ void LadspaGuitarixMono::activateGuitarix(LADSPA_Handle Instance) {
 	% Instance % self.engine.get_samplerate() % bufsize % prio);
     self.engine.init(self.engine.get_samplerate(), bufsize, policy, prio);
     self.engine.mono_chain.set_stopped(true);
-    self.load();
+    self.ladspa_guitarix.load();
     self.engine.mono_chain.set_stopped(false);
     self.engine.mono_chain.start_ramp_up();
 }
 
 void LadspaGuitarixMono::runGuitarix(LADSPA_Handle Instance, unsigned long SampleCount) {
     LadspaGuitarixMono& self = *static_cast<LadspaGuitarixMono*>(Instance);
-    self.prepare_run();
+    self.ladspa_guitarix.prepare_run();
     self.volume_param.set(*self.volume_port);
     if (self.rebuffer.get_bufsize()) {
 	self.rebuffer.set(SampleCount, self.input_buffer, self.output_buffer);
@@ -1208,26 +1208,26 @@ void LadspaGuitarixMono::connectPortToGuitarix(
 	self->output_buffer = DataLocation;
 	break;
     case GUITARIX_PRESET:
-	self->preset_num_port = DataLocation;
+	self->ladspa_guitarix.preset_num_port = DataLocation;
 	break;
     case GUITARIX_VOLUME:
 	self->volume_port = DataLocation;
 	break;
     case GUITARIX_NO_BUFFER:
-	self->no_buffer_port = DataLocation;
+	self->ladspa_guitarix.no_buffer_port = DataLocation;
 	break;
     case GUITARIX_BUFFERSIZE:
-	self->buffersize_port = DataLocation;
+	self->ladspa_guitarix.buffersize_port = DataLocation;
 	break;
     case GUITARIX_NO_RT_MODE:
-	self->no_rt_mode_port = DataLocation;
+	self->ladspa_guitarix.no_rt_mode_port = DataLocation;
 	break;
     case GUITARIX_PRIORITY:
-	self->priority_port = DataLocation;
+	self->ladspa_guitarix.priority_port = DataLocation;
 	break;
     case GUITARIX_LATENCY:
-	self->latency_port = DataLocation;
-	*self->latency_port = 0;
+	self->ladspa_guitarix.latency_port = DataLocation;
+	*self->ladspa_guitarix.latency_port = 0;
 	break;
     default:
 	self->control_parameter.set_port(Port-GUITARIX_PARAM, DataLocation);
@@ -1237,7 +1237,7 @@ void LadspaGuitarixMono::connectPortToGuitarix(
 
 LADSPA_Handle LadspaGuitarixMono::instantiateGuitarix(
     const LADSPA_Descriptor * Descriptor, unsigned long SampleRate) {
-    start_presetloader();
+    LadspaGuitarix::start_presetloader();
     return new LadspaGuitarixMono(SampleRate);
 }
 
@@ -1576,7 +1576,7 @@ void StereoEngine::load_static_plugins() {
  ** class LadspaGuitarixStereo
  */
 
-class LadspaGuitarixStereo: LadspaGuitarix {
+class LadspaGuitarixStereo {
 private:
 
     enum {  // ladspa ports
@@ -1645,6 +1645,7 @@ private:
 
     StereoEngine engine;
     ControlParameter control_parameter;
+    LadspaGuitarix ladspa_guitarix;
     ReBuffer rebuffer;
     LADSPA_Data * volume_port;
     FloatParameter& volume_param;
@@ -1666,9 +1667,9 @@ public:
 };
 
 LadspaGuitarixStereo::LadspaGuitarixStereo(unsigned long sr)
-    : LadspaGuitarix(engine, &engine.stereo_convolver, 0, control_parameter, "LADSPA_GUITARIX_STEREO_PRESET"),
-      engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"), get_group_table()),
+    : engine(Glib::build_filename(Glib::get_user_config_dir(), "guitarix/plugins/"), get_group_table()),
       control_parameter(GUITARIX_PARAM_COUNT),
+      ladspa_guitarix(engine, &engine.stereo_convolver, 0, control_parameter, "LADSPA_GUITARIX_STEREO_PRESET"),
       rebuffer(),
       volume_port(),
       volume_param(engine.get_param()["amp.out_master_ladspa"].getFloat()),
@@ -1691,7 +1692,7 @@ const LADSPA_Descriptor *LadspaGuitarixStereo::ladspa_descriptor() {
 void LadspaGuitarixStereo::activateGuitarix(LADSPA_Handle Instance) {
     LadspaGuitarixStereo& self = *static_cast<LadspaGuitarixStereo*>(Instance);
     int policy, prio, bufsize;
-    bufsize = self.activate(&policy, &prio);
+    bufsize = self.ladspa_guitarix.activate(&policy, &prio);
     self.rebuffer.set_bufsize(bufsize);
     self.engine.set_buffersize(bufsize);
     gx_print_info(
@@ -1700,14 +1701,14 @@ void LadspaGuitarixStereo::activateGuitarix(LADSPA_Handle Instance) {
 	% Instance % self.engine.get_samplerate() % bufsize % prio);
     self.engine.init(self.engine.get_samplerate(), bufsize, policy, prio);
     self.engine.stereo_chain.set_stopped(true);
-    self.load();
+    self.ladspa_guitarix.load();
     self.engine.stereo_chain.set_stopped(false);
     self.engine.stereo_chain.start_ramp_up();
 }
 
 void LadspaGuitarixStereo::runGuitarix(LADSPA_Handle Instance, unsigned long SampleCount) {
     LadspaGuitarixStereo& self = *static_cast<LadspaGuitarixStereo*>(Instance);
-    self.prepare_run();
+    self.ladspa_guitarix.prepare_run();
     self.volume_param.set(*self.volume_port);
     if (self.rebuffer.get_bufsize()) {
 	self.rebuffer.set(SampleCount, self.input_buffer1, self.input_buffer2,
@@ -1742,26 +1743,26 @@ void LadspaGuitarixStereo::connectPortToGuitarix(
 	self->output_buffer2 = DataLocation;
 	break;
     case GUITARIX_PRESET:
-	self->preset_num_port = DataLocation;
+	self->ladspa_guitarix.preset_num_port = DataLocation;
 	break;
     case GUITARIX_VOLUME:
 	self->volume_port = DataLocation;
 	break;
     case GUITARIX_NO_BUFFER:
-	self->no_buffer_port = DataLocation;
+	self->ladspa_guitarix.no_buffer_port = DataLocation;
 	break;
     case GUITARIX_BUFFERSIZE:
-	self->buffersize_port = DataLocation;
+	self->ladspa_guitarix.buffersize_port = DataLocation;
 	break;
     case GUITARIX_NO_RT_MODE:
-	self->no_rt_mode_port = DataLocation;
+	self->ladspa_guitarix.no_rt_mode_port = DataLocation;
 	break;
     case GUITARIX_PRIORITY:
-	self->priority_port = DataLocation;
+	self->ladspa_guitarix.priority_port = DataLocation;
 	break;
     case GUITARIX_LATENCY:
-	self->latency_port = DataLocation;
-	*self->latency_port = 0;
+	self->ladspa_guitarix.latency_port = DataLocation;
+	*self->ladspa_guitarix.latency_port = 0;
 	break;
     default:
 	self->control_parameter.set_port(Port-GUITARIX_PARAM, DataLocation);
@@ -1771,7 +1772,7 @@ void LadspaGuitarixStereo::connectPortToGuitarix(
 
 LADSPA_Handle LadspaGuitarixStereo::instantiateGuitarix(
     const LADSPA_Descriptor * Descriptor, unsigned long SampleRate) {
-    start_presetloader();
+    LadspaGuitarix::start_presetloader();
     return new LadspaGuitarixStereo(SampleRate);
 }
 
