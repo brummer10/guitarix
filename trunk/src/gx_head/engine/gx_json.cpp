@@ -1778,29 +1778,29 @@ bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
 void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
     PresetFile *p = get_current_bank_file();
     if (p && p->has_entry(current_name) && p->get_type() == gx_system::PresetFile::PRESET_SCRATCH) {
-	JsonWriter *jw = 0;
-	try {
-	    jw = p->create_writer(current_name);
-	    preset_io->write_preset(*jw);
-	} catch(JsonException& e) {
-	    gx_print_warning(
-		_("save preset"),
-		boost::format(_("parse error in %1%"))
-		% p->get_filename());
-	}
-	delete jw;
+        JsonWriter *jw = 0;
+        try {
+            jw = p->create_writer(current_name);
+            preset_io->write_preset(*jw);
+        } catch(JsonException& e) {
+            gx_print_warning(
+                _("save preset"),
+                boost::format(_("parse error in %1%"))
+                % p->get_filename());
+        }
+        delete jw;
     }
     if (!pf->has_entry(name)) {
-	gx_print_error(_("open preset"), Glib::ustring::compose("bank %1 does not contain preset %2", pf->get_name(), name));
-	pf = 0;
+        gx_print_error(_("open preset"), Glib::ustring::compose("bank %1 does not contain preset %2", pf->get_name(), name));
+        pf = 0;
     }
     if (!pf) {
-	if (setting_is_preset()) {
-	    current_bank = "";
-	    current_name = "";
-	    selection_changed();
-	}
-	return;
+        if (setting_is_preset()) {
+            current_bank = "";
+            current_name = "";
+            selection_changed();
+        }
+        return;
     }
     current_bank = pf->get_name();
     current_name = name;
@@ -1813,7 +1813,7 @@ void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
     // In that case there is still a rack change left to be
     // done
     if (modules_changed) {
-	seq.clear_rack_changed();
+        seq.clear_rack_changed();
     }
     selection_changed();
 }

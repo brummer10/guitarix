@@ -615,6 +615,10 @@ void StateIO::read_state(gx_system::JsonParser &jp, const gx_system::SettingsFil
 }
 
 void StateIO::commit_state() {
+    if (!opt.get_cmdline_bank().empty()) {
+        param["system.current_bank"].getString().get_json_value() = opt.get_cmdline_bank();
+        param["system.current_preset"].getString().get_json_value() = opt.get_cmdline_preset();
+    }
     commit_preset();
 }
 

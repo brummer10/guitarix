@@ -63,14 +63,14 @@ public:
 };
 
 class PresetIO: public gx_system::AbstractPresetIO {
-private:
+protected:
     gx_engine::MidiControllerList& mctrl;
     gx_engine::ParamMap& param;
     gx_system::CmdlineOptions& opt;
     gx_engine::paramlist plist;
     gx_engine::ControllerArray *m;
     UnitRacks& rack_units;
-private:
+protected:
     void read_parameters(gx_system::JsonParser &jp, bool preset);
     void write_parameters(gx_system::JsonWriter &w, bool preset);
     void clear();
@@ -85,10 +85,10 @@ public:
     PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ParamMap& param,
 	     gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
     ~PresetIO();
-    void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
-    void commit_preset();
-    void write_preset(gx_system::JsonWriter& jw);
-    void copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&, gx_system::JsonWriter &jw);
+    void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&) override;
+    void commit_preset() override;
+    void write_preset(gx_system::JsonWriter& jw) override;
+    void copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&, gx_system::JsonWriter &jw) override;
     static string try_replace_param_value(const std::string& id, const std::string& v_id, bool& found);
 };
 
@@ -101,9 +101,9 @@ public:
 	    gx_engine::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack,
 	    gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
     ~StateIO();
-    void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
-    void commit_state();
-    void write_state(gx_system::JsonWriter &jw, bool preserve_preset);
+    void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&) override;
+    void commit_state() override;
+    void write_state(gx_system::JsonWriter &jw, bool preserve_preset) override;
 };
 
 class PluginPresetList {

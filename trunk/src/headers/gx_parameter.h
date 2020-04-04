@@ -465,6 +465,7 @@ public:
     ParameterV(gx_system::JsonParser& jp);
     virtual void serializeJSON(gx_system::JsonWriter& jw);
     sigc::signal<void, const Glib::ustring&>& signal_changed() { return changed; }
+    Glib::ustring& get_json_value() { return json_value; }
 };
 
 

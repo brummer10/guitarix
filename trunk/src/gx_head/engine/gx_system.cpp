@@ -479,6 +479,8 @@ CmdlineOptions::CmdlineOptions()
       hideonquit(false),
       mute(false),
       setbank(),
+      cmdline_bank(),
+      cmdline_preset(),
       tuner_tet(),
       tuner_ref(),
       sporadic_overload(0),

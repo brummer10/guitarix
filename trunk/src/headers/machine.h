@@ -238,13 +238,13 @@ private:
     Glib::ustring switch_bank;
 private:
     void reset_switch_bank();
-    int get_bank_num(Glib::ustring num);
     void set_mute_state(int mute);
     void do_program_change(int pgm);
     void do_bank_change(int pgm);
     void edge_toggle_tuner(bool v);
     void on_impresp(const std::string& path);
     void exit_handler(bool otherthread);
+    void process_cmdline_bank_preset();
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);

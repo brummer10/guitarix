@@ -159,6 +159,23 @@ void on_engine_bypass_changed(bool s, GxEngine& engine) {
     }
 }
 
+void GxMachine::process_cmdline_bank_preset() {
+    Glib::ustring sbank = options.get_setbank();
+    if (sbank.empty()) {
+        return;
+    }
+    sbank = sbank.lowercase();
+    if (sbank.size() < 2) {
+        return;
+    }
+    Glib::ustring bank = settings.banks.get_name(
+        KeySwitcher::key_offset_to_bank_idx(sbank[0]-'a', bank_size()));
+    int i = (sbank[1] == ':' ? 2 : 1);
+    Glib::ustring preset = get_bank_file(bank)->get_name(
+        KeySwitcher::key_offset_to_idx(std::stoi(sbank.substr(i))));
+    options.set_bank_preset(bank, preset);
+}
+
 GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     GxMachineBase(),
     options(options_),
@@ -174,6 +191,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     pmap(engine.get_param()),
     switch_bank() {
     engine.oscilloscope.set_jack(jack);
+    process_cmdline_bank_preset();
 
     /*
     ** setup parameters
@@ -556,15 +574,6 @@ Glib::ustring GxMachine::get_bank_name(int n) {
     return settings.banks.get_name(n);
 }
 
-int GxMachine::get_bank_num(Glib::ustring num) {
-    Glib::ustring array = "abcdefghijklmnopqrstuvwxyz" ;
-    int i = 0;
-	for(i=0;i<26;i++) {
-		if(num.compare(array.substr(i,1))==0) break;
-	}
-	return bank_size() -i -1;
-}
-
 bool GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
 	return jack.send_midi_cc(cc, pgn, bgn, num);
 }
@@ -585,13 +594,6 @@ void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& n
 
 void GxMachine::loadstate() {
     settings.loadstate();
-	if (!options.get_setbank().empty()) {
-		Glib::ustring sbank = options.get_setbank();
-		int bl = get_bank_num(sbank.substr(0,1).lowercase());
-		int pgm = max(0,atoi(sbank.substr(2,Glib::ustring::npos).raw().c_str())-1);
-		switch_bank = settings.banks.get_name(bl);
-		do_program_change(pgm);
-    }
 }
 
 int GxMachine::bank_size() {

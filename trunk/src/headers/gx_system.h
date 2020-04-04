@@ -419,6 +419,8 @@ private:
     bool hideonquit;
     bool mute;
     Glib::ustring setbank;
+    Glib::ustring cmdline_bank;
+    Glib::ustring cmdline_preset;
     Glib::ustring tuner_tet;
     Glib::ustring tuner_ref;
     int sporadic_overload;
@@ -490,6 +492,10 @@ public:
     bool get_hideonquit() const { return hideonquit; }
     bool get_mute() const { return mute; }
     const Glib::ustring& get_setbank() { return setbank; }
+    void set_bank_preset(const Glib::ustring& bank, const Glib::ustring& preset) {
+        cmdline_bank = bank; cmdline_preset = preset; }
+    const Glib::ustring& get_cmdline_bank() { return cmdline_bank; }
+    const Glib::ustring& get_cmdline_preset() { return cmdline_preset; }
     const Glib::ustring& get_tuner_tet() { return tuner_tet; }
     const Glib::ustring& get_tuner_ref() { return tuner_ref; }
     int get_rpcport() const { return rpcport; }

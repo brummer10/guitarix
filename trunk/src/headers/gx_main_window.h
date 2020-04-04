@@ -883,7 +883,6 @@ private:
     void on_log_activate();
     bool on_log_activated(GdkEventButton* ev);
     bool on_log_scrolled(GdkEventScroll* ev);
-    void do_program_change(int pgm);
     void on_engine_toggled();
     void on_engine_state_change(gx_engine::GxEngineState state);
     void set_tuning(Gxw::RackTuner& tuner);
