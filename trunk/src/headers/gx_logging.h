@@ -48,7 +48,7 @@ private:
 	bool plugged;
 	logmsg(std::string m, MsgType t, bool p): msg(m), msgtype(t), plugged(p) {}
     };
-    std::list<logmsg> msglist;
+    std::list<logmsg*> msglist;
     boost::mutex msgmutex;
     Glib::Dispatcher* got_new_msg;
     pthread_t ui_thread;
