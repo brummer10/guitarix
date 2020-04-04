@@ -1241,6 +1241,16 @@ void GxSettings::loadstate() {
         }
     }
 #endif
+    if (setting_is_preset() && !banks.get_file(current_bank)) {
+        gx_print_error(
+            _("load state"),
+            Glib::ustring::compose(
+                _("bank '%1' not found (if it was a factory preset please check"
+                  " if it's moved to the online repository)"), current_bank));
+        current_bank.clear();
+        current_name.clear();
+        selection_changed();
+    }
     state_loaded = true;
 }
 
