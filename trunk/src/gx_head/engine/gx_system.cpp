@@ -760,64 +760,70 @@ CmdlineOptions::~CmdlineOptions() {
 void CmdlineOptions::read_ui_vars() {
     ifstream i(Glib::build_filename(get_user_dir(), "ui_rc").c_str());
     if (i.fail()) {
-	return;
+        return;
     }
     JsonParser jp(&i);
     try {
-	jp.next(JsonParser::begin_object);
-	while (jp.peek() != JsonParser::end_object) {
-	    jp.next(JsonParser::value_key);
-	    if (jp.current_value() == "system.mainwin_x") {
-		jp.next(JsonParser::value_number);
-		mainwin_x = jp.current_value_int();
-	    } else if (jp.current_value() == "system.mainwin_y") {
-		jp.next(JsonParser::value_number);
-		mainwin_y = jp.current_value_int();
-	    } else if (jp.current_value() == "system.mainwin_height") {
-		jp.next(JsonParser::value_number);
-		mainwin_height = jp.current_value_int();
-	    } else if (jp.current_value() == "system.mainwin_rack_height") {
-		jp.next(JsonParser::value_number);
-		window_height = jp.current_value_int();
-	    } else if (jp.current_value() == "system.preset_window_height") {
-		jp.next(JsonParser::value_number);
-		preset_window_height = jp.current_value_int();
-	    } else if (jp.current_value() == "system.mul_buffer") {
-		jp.next(JsonParser::value_number);
-		mul_buffer = jp.current_value_int();
-	    } else if (jp.current_value() == "ui.skin_name") {
-		jp.next(JsonParser::value_string);
-		skin.name = jp.current_value();
-	    } else if (jp.current_value() == "ui.latency_nowarn") {
-		jp.next(JsonParser::value_number);
-		no_warn_latency = jp.current_value_int();
-	    } else if (jp.current_value() == "system.order_rack_h") {
-		jp.next(JsonParser::value_number);
-		system_order_rack_h = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_value") {
-		jp.next(JsonParser::value_number);
-		system_show_value = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_tooltips") {
-		jp.next(JsonParser::value_number);
-		system_show_tooltips = jp.current_value_int();
-	    } else if (jp.current_value() == "system.animations") {
-		jp.next(JsonParser::value_number);
-		system_animations = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_presets") {
-		jp.next(JsonParser::value_number);
-		system_show_presets = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_toolbar") {
-		jp.next(JsonParser::value_number);
-		system_show_toolbar = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_rack") {
-		jp.next(JsonParser::value_number);
-		system_show_rack = jp.current_value_int();
-	    }
-	}
-	jp.next(JsonParser::end_object);
-	jp.close();
+        jp.next(JsonParser::begin_object);
+        while (jp.peek() != JsonParser::end_object) {
+            jp.next(JsonParser::value_key);
+            if (jp.current_value() == "system.mainwin_x") {
+                jp.next(JsonParser::value_number);
+                mainwin_x = jp.current_value_int();
+            } else if (jp.current_value() == "system.mainwin_y") {
+                jp.next(JsonParser::value_number);
+                mainwin_y = jp.current_value_int();
+            } else if (jp.current_value() == "system.mainwin_height") {
+                jp.next(JsonParser::value_number);
+                mainwin_height = jp.current_value_int();
+            } else if (jp.current_value() == "system.mainwin_rack_height") {
+                jp.next(JsonParser::value_number);
+                window_height = jp.current_value_int();
+            } else if (jp.current_value() == "system.preset_window_height") {
+                jp.next(JsonParser::value_number);
+                preset_window_height = jp.current_value_int();
+            } else if (jp.current_value() == "system.mul_buffer") {
+                jp.next(JsonParser::value_number);
+                mul_buffer = jp.current_value_int();
+            } else if (jp.current_value() == "ui.skin_name") {
+                jp.next(JsonParser::value_string);
+                if (skin.is_in_list(jp.current_value())) {
+                    skin.name = jp.current_value();
+                } else {
+                    gx_print_error(
+                        _("load state"),
+                        Glib::ustring::compose(_("Skin '%1' not found"), jp.current_value()));
+                }
+            } else if (jp.current_value() == "ui.latency_nowarn") {
+                jp.next(JsonParser::value_number);
+                no_warn_latency = jp.current_value_int();
+            } else if (jp.current_value() == "system.order_rack_h") {
+                jp.next(JsonParser::value_number);
+                system_order_rack_h = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_value") {
+                jp.next(JsonParser::value_number);
+                system_show_value = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_tooltips") {
+                jp.next(JsonParser::value_number);
+                system_show_tooltips = jp.current_value_int();
+            } else if (jp.current_value() == "system.animations") {
+                jp.next(JsonParser::value_number);
+                system_animations = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_presets") {
+                jp.next(JsonParser::value_number);
+                system_show_presets = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_toolbar") {
+                jp.next(JsonParser::value_number);
+                system_show_toolbar = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_rack") {
+                jp.next(JsonParser::value_number);
+                system_show_rack = jp.current_value_int();
+            }
+        }
+        jp.next(JsonParser::end_object);
+        jp.close();
     } catch (JsonException&) {
-	gx_print_warning("main", "can't read/parse ui_rc");
+        gx_print_warning("main", "can't read/parse ui_rc");
     }
     i.close();
 }
