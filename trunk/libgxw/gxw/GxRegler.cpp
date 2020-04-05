@@ -1190,6 +1190,14 @@ static void gx_regler_spinner_output(GtkSpinButton *spinner, GxRegler *regler) {
 	g_free(fmt);
 }
 
+static int gx_regler_get_nchars(GxRegler *regler, gdouble value)
+{
+    gchar *txt = _gx_regler_format_value(regler, value);
+    int nchars = strlen(txt);
+    g_free(txt);
+    return nchars;
+}
+
 static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event)
 {
 	if (event->type == GDK_2BUTTON_PRESS || event->type == GDK_3BUTTON_PRESS) {
@@ -1200,19 +1208,18 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 	GtkWidget *popover = gtk_popover_new(GTK_WIDGET(regler));
 	gtk_widget_add_events(popover, GDK_BUTTON_PRESS_MASK|GDK_BUTTON_MOTION_MASK);
 	ensure_digits(regler);
+    gdouble lower = gtk_adjustment_get_lower(dst_adj);
+    gdouble upper = gtk_adjustment_get_upper(dst_adj);
 	GtkAdjustment *src_adj = GTK_ADJUSTMENT(
 		gtk_adjustment_new(
-			gtk_adjustment_get_value(dst_adj), gtk_adjustment_get_lower(dst_adj),
-			gtk_adjustment_get_upper(dst_adj),
+			gtk_adjustment_get_value(dst_adj), lower, upper,
 			gtk_adjustment_get_step_increment(dst_adj),
 			gtk_adjustment_get_page_increment(dst_adj),
 			gtk_adjustment_get_page_size(dst_adj)));
-	int rd = gtk_range_get_round_digits(GTK_RANGE(regler));
-	if (rd < 0) {
-		rd = 0;
-	}
 	GtkWidget *spinner = gtk_spin_button_new(
-		src_adj, gtk_adjustment_get_step_increment(src_adj), rd);
+		src_adj, gtk_adjustment_get_step_increment(src_adj), 0);
+    gtk_entry_set_width_chars(GTK_ENTRY(spinner), max(gx_regler_get_nchars(regler, lower),
+                                                      gx_regler_get_nchars(regler, upper)));
 	g_signal_connect(spinner, "output", G_CALLBACK(gx_regler_spinner_output), regler);
 	g_signal_connect(spinner, "input", G_CALLBACK(gx_regler_spinner_input), regler);
 	g_signal_connect(src_adj, "value-changed", G_CALLBACK(gx_regler_relay_value), dst_adj);
