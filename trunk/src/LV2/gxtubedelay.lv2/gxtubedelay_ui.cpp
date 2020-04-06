@@ -68,7 +68,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_adjustment(ui->widget[1]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
     ui->widget[2] = add_my_knob(ui->widget[2], DELAY,"Delay", ui,30, 160, 60, 85);
-    set_adjustment(ui->widget[2]->adj,2.2, 2.2, 0.04, 3.4, 0.01, CL_LOGARITHMIC);
+    set_adjustment(ui->widget[2]->adj,160.0, 160.0, 1.0, 2500.0, 0.01, CL_LOGARITHMIC);
     adj_set_scale(ui->widget[2]->adj, 2.0);
 
     ui->widget[3] = add_my_knob(ui->widget[3], FEEDBACK,"Feedback", ui,100, 160, 60, 85);

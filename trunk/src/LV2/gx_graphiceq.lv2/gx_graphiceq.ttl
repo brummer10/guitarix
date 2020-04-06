@@ -67,8 +67,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G1" ;
         lv2:name "G1";
         lv2:default 0.0 ;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -76,8 +76,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G2" ;
         lv2:name "G2";
         lv2:default 0 ;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -85,8 +85,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G3" ;
         lv2:name "G3";
         lv2:default 0.0 ;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -94,8 +94,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G4" ;
         lv2:name "G4";
         lv2:default 0.0;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -103,8 +103,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G5" ;
         lv2:name "G5";
         lv2:default 0.0 ;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -112,8 +112,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G6" ;
         lv2:name "G6";
         lv2:default 0.0 ;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -121,8 +121,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G7" ;
         lv2:name "G7";
         lv2:default 0 ;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -130,8 +130,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G8" ;
         lv2:name "G8";
         lv2:default 0.0 ;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [        
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -139,8 +139,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G9" ;
         lv2:name "G9";
         lv2:default 0.0 ;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -148,8 +148,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G10" ;
         lv2:name "G10";
         lv2:default 0.0;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -157,8 +157,8 @@ source: http://en.wikipedia.org/wiki/Equalization_%28audio%29#Graphic_equalizer
         lv2:symbol "G11" ;
         lv2:name "G11";
         lv2:default 0.0 ;
-        lv2:minimum -3e+01 ;
-        lv2:maximum 2e+01 ;
+        lv2:minimum -30.0 ;
+        lv2:maximum 20.0 ;
     ] , [
         a  lv2:ControlPort, lv2:OutputPort ;
         lv2:index 11 ;

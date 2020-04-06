@@ -119,23 +119,23 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_adjustment(ui->widget[0]->adj,60.0, 60.0, 20.0, 100.0, 0.1, CL_CONTINUOS);
 
     ui->widget[1] = add_my_knob(ui->widget[1], LF_X,"Freq X", ui,140, 20, 60, 85);
-    set_adjustment(ui->widget[1]->adj,2.3, 2.3, 1.7, 3.0, 0.001, CL_LOGARITHMIC);
+    set_adjustment(ui->widget[1]->adj,200.0, 200.0, 50.0, 1000.0, 0.001, CL_LOGARITHMIC);
     adj_set_scale(ui->widget[1]->adj, 2.0);
 
     ui->widget[2] = add_my_knob(ui->widget[2], LOW_RT60,"Low", ui,210, 20, 60, 85);
-    set_adjustment(ui->widget[2]->adj,0.477, 0.477, 0.004, 0.9, 0.001, CL_LOGARITHMIC);
+    set_adjustment(ui->widget[2]->adj,3.0, 3.0, 1.0, 8.0, 0.001, CL_LOGARITHMIC);
     adj_set_scale(ui->widget[2]->adj, 2.0);
 
     ui->widget[3] = add_my_knob(ui->widget[3], MID_RT60,"Mid", ui,280, 20, 60, 85);
-    set_adjustment(ui->widget[3]->adj,0.477, 0.477, 0.004, 0.9, 0.001, CL_LOGARITHMIC);
+    set_adjustment(ui->widget[3]->adj,2.0, 2.0, 1.0, 8.0, 0.001, CL_LOGARITHMIC);
     adj_set_scale(ui->widget[3]->adj, 2.0);
 
     ui->widget[4] = add_my_knob(ui->widget[4], HF_DAMPING,"HF Damp", ui,350, 20, 60, 85);
-    set_adjustment(ui->widget[4]->adj,3.78, 3.78, 3.17, 4.37, 0.001, CL_LOGARITHMIC);
+    set_adjustment(ui->widget[4]->adj,6000.0, 6000.0, 1500.0, 23520.0, 0.001, CL_LOGARITHMIC);
     adj_set_scale(ui->widget[4]->adj, 2.0);
 
     ui->widget[5] = add_my_knob(ui->widget[5], EQ1_FREQ,"EQ1 Freq", ui,430, 60, 60, 85);
-    set_adjustment(ui->widget[5]->adj,2.5, 2.5, 1.6, 3.4, 0.001, CL_LOGARITHMIC);
+    set_adjustment(ui->widget[5]->adj,315.0, 315.0, 40.0, 2500.0, 0.001, CL_LOGARITHMIC);
     adj_set_scale(ui->widget[5]->adj, 3.0);
 
     ui->widget[6] = add_my_knob(ui->widget[6], EQ1_LEVEL,"Level", ui,500, 20, 60, 85);
@@ -143,7 +143,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     adj_set_scale(ui->widget[6]->adj, 5.0);
 
     ui->widget[7] = add_my_knob(ui->widget[7], EQ2_FREQ,"EQ2 Freq", ui,580, 60, 60, 85);
-    set_adjustment(ui->widget[7]->adj,3.17, 3.17, 2.2, 4.0, 0.001, CL_LOGARITHMIC);
+    set_adjustment(ui->widget[7]->adj,1500.0, 1500.0, 160.0, 10000.0, 0.001, CL_LOGARITHMIC);
     adj_set_scale(ui->widget[7]->adj, 3.0);
 
     ui->widget[8] = add_my_knob(ui->widget[8], EQ2_LEVEL,"Level", ui,650, 20, 60, 85);
@@ -154,7 +154,8 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_adjustment(ui->widget[9]->adj,0.0, 0.0, -1.0, 1.0, 0.01, CL_CONTINUOS);
 
     ui->widget[10] = add_my_knob(ui->widget[10], LEVEL,"Level", ui,800, 30, 60, 85);
-    set_adjustment(ui->widget[10]->adj,0.0, 0.0, -70.0, 40.0, 0.1, CL_CONTINUOS);
+    ui->widget[10]->adj->log_scale = 30.0;
+    set_adjustment(ui->widget[10]->adj,0.0, 0.0, -60.0, 4.0, 0.005, CL_LOGSCALE);
     adj_set_scale(ui->widget[7]->adj, 2.0);
 }
 

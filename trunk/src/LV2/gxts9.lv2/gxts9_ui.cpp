@@ -119,10 +119,10 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
     ui->widget[1] = add_my_knob(ui->widget[1], TS9_LEVEL,"Level", ui,150, 50, 80, 105);
-    set_adjustment(ui->widget[1]->adj,-16.0, -16.0, -20.0, 4.0, 0.1, CL_CONTINUOS);
+    set_adjustment(ui->widget[1]->adj,-16.0, -16.0, -20.0, 4.0, 0.01, CL_LOGSCALE);
 
     ui->widget[2] = add_my_knob(ui->widget[2], TS9_TONE,"Tone", ui,100, 120, 60, 85);
-    set_adjustment(ui->widget[2]->adj,2.6, 2.6, 2.0, 3.0, 0.001, CL_LOGARITHMIC);
+    set_adjustment(ui->widget[2]->adj,400.0, 400.0, 100.0, 1000.0, 0.001, CL_LOGARITHMIC);
     adj_set_scale(ui->widget[2]->adj, 2.0);
 }
 

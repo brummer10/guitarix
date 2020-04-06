@@ -483,7 +483,12 @@ A Graphic Equalizer with Bark frequency scale.
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_barkgraphiceq_#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_barkgraphiceq_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  
   

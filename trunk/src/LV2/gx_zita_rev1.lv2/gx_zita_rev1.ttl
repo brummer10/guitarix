@@ -61,11 +61,12 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 0 ;
+        lv2:portProperty log:logarithmic ;
         lv2:symbol "level" ;
         lv2:name "LEVEL";
         lv2:default 0.0 ;
-        lv2:minimum -70.0 ;
-        lv2:maximum 40.0 ;
+        lv2:minimum -60.0 ;
+        lv2:maximum 4.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -73,9 +74,9 @@ rdfs:comment """
         lv2:portProperty log:logarithmic ;
         lv2:symbol "EQ2_FREQ" ;
         lv2:name "EQ2_FREQ";
-        lv2:default 1500 ;
-        lv2:minimum 160 ;
-        lv2:maximum 10000 ;
+        lv2:default 1500.0 ;
+        lv2:minimum 160.0 ;
+        lv2:maximum 10000.0 ;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
