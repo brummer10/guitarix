@@ -91,7 +91,7 @@ void _draw_vslider(void *w_, void* user_data) {
 
 
     use_text_color_scheme(w, get_color_state(w));
-    cairo_set_font_size (w->crb, center/2.1);
+    cairo_set_font_size (w->crb, center/1.8);
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, center-extents.width/2, height-center/2.1);
@@ -100,12 +100,13 @@ void _draw_vslider(void *w_, void* user_data) {
 
     char s[64];
     const char* format[] = {"%.1f", "%.2f", "%.3f"};
-    if (fabs(w->adj_y->value)>9.99) {
-        snprintf(s, 63,"%d",  (int) w->adj->value);
+    float value = adj_get_value(w->adj);
+    if (fabs(value)>9.99) {
+        snprintf(s, 63,"%d",  (int) value);
     } else if (fabs(w->adj_y->value)>0.99) {
-        snprintf(s, 63, format[1-1], w->adj->value);
+        snprintf(s, 63, format[1-1], value);
     } else {
-        snprintf(s, 63, format[2-1], w->adj->value);
+        snprintf(s, 63, format[2-1], value);
     }
     cairo_text_extents(w->crb,s , &extents);
     cairo_move_to (w->crb, center-extents.width/2, extents.height );
@@ -168,12 +169,13 @@ void _draw_hslider(void *w_, void* user_data) {
 
     char s[64];
     const char* format[] = {"%.1f", "%.2f", "%.3f"};
-    if (fabs(w->adj->value)>9.99) {
-        snprintf(s, 63,"%d",  (int) w->adj->value);
+    float value = adj_get_value(w->adj);
+    if (fabs(value)>9.99) {
+        snprintf(s, 63,"%d",  (int) value);
     } else if (fabs(w->adj->value)>0.99) {
-        snprintf(s, 63, format[1-1], w->adj->value);
+        snprintf(s, 63, format[1-1], value);
     } else {
-        snprintf(s, 63, format[2-1], w->adj->value);
+        snprintf(s, 63, format[2-1], value);
     }
     cairo_text_extents(w->crb,s , &extents);
     cairo_move_to (w->crb, width/2-extents.width/2, extents.height );

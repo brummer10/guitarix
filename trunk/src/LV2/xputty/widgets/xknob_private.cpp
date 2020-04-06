@@ -121,12 +121,13 @@ void _draw_knob(void *w_, void* user_data) {
     if (w->state) {
         char s[64];
         const char* format[] = {"%.1f", "%.2f", "%.3f"};
-        if (fabs(w->adj_y->value)>9.99) {
-            snprintf(s, 63,"%d",  (int) w->adj_y->value);
+        float value = adj_get_value(w->adj);
+        if (fabs(value)>9.99) {
+            snprintf(s, 63,"%d",  (int) value);
         } else if (fabs(w->adj_y->value)>0.99) {
-            snprintf(s, 63, format[1-1], w->adj_y->value);
+            snprintf(s, 63, format[1-1], value);
         } else {
-            snprintf(s, 63, format[2-1], w->adj_y->value);
+            snprintf(s, 63, format[2-1], value);
         }
         cairo_set_font_size (w->crb, min(11.0,knobx1/3));
         cairo_text_extents(w->crb, s, &extents);

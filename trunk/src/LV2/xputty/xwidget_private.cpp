@@ -31,6 +31,7 @@ void _scroll_event(Widget_t * wid, int direction) {
     if (adj) {
         float value = adj->value;
         switch(adj->type) {
+            case (CL_LOGSCALE):
             case (CL_LOGARITHMIC):
             case (CL_CONTINUOS):
                 value = min(adj->max_value,max(adj->min_value, 

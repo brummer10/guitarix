@@ -23,6 +23,15 @@
 // xwidgets.h includes xputty.h and all defined widgets from Xputty
 #include "xwidgets.h"
 
+#pragma once
+
+#ifndef LV2_PLUGIN_H_
+#define LV2_PLUGIN_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // struct to define the knob pattern colors
 typedef struct {
     double p1f[4];
@@ -92,3 +101,8 @@ void plugin_cleanup(X11_UI *ui);
 void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
                         uint32_t buffer_size, uint32_t format,
                         const void * buffer);
+#ifdef __cplusplus
+}
+#endif
+
+#endif //LV2_PLUGIN_H_

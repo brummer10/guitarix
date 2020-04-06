@@ -199,10 +199,7 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_text_extents_t extents;
     /** show value on the kob**/
     if (w->state>0.0 && w->state<4.0) {
-        float v = w->adj_y->value;
-        if(w->adj->type == CL_LOGARITHMIC) {
-            v = pow(10,w->adj->value);
-        }
+        float v = adj_get_value(w->adj);
         char s[64];
         const char* format[] = {"%.1f", "%.2f", "%.3f"};
         snprintf(s, 63, format[2-1], v);
@@ -228,12 +225,8 @@ static void value_changed(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     X11_UI* ui = (X11_UI*)w->parent_struct;
     if (ui->block_event != w->data) {
-        if(w->adj->type == CL_LOGARITHMIC) {
-            float v = pow(10,w->adj->value);
-            ui->write_function(ui->controller,w->data,sizeof(float),0,&v);
-        } else {
-            ui->write_function(ui->controller,w->data,sizeof(float),0,&w->adj->value);
-        }
+        float v = adj_get_value(w->adj);
+        ui->write_function(ui->controller,w->data,sizeof(float),0,&v);
         plugin_value_changed(ui, w, (PortIndex)w->data);
     }
     ui->block_event = -1;
@@ -375,6 +368,7 @@ static void cleanup(LV2UI_Handle handle) {
     plugin_cleanup(ui);
     // Xputty free all memory used
     main_quit(&ui->main);
+    free(ui->private_ptr);
     free(ui);
 }
 
@@ -397,9 +391,7 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
             ui->block_event = (int)port_index;
             // Xputty check if the new value differs from the old one
             // and set new one, when needed
-            if(ui->widget[i]->adj->type == CL_LOGARITHMIC)
-                value = log10(value);
-            check_value_changed(ui->widget[i]->adj, &value);
+            adj_set_value(ui->widget[i]->adj, value);
         }
    }
    plugin_port_event(handle, port_index, buffer_size, format, buffer);
