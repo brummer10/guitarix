@@ -49,6 +49,8 @@
       
     lv2:minorVersion 34;
     lv2:microVersion 0;
+
+  guiext:ui <http://guitarix.sourceforge.net/plugins/gx_shimmizita_#gui>;
     
 rdfs:comment """
 
@@ -123,18 +125,18 @@ rdfs:comment """
         lv2:index 8 ;
         lv2:symbol "F1" ;
         lv2:name "F1" ;
-        lv2:default 2e+02 ;
-        lv2:minimum 5e+01 ;
-        lv2:maximum 1e+03 ;
+        lv2:default 200.0 ;
+        lv2:minimum 50.0 ;
+        lv2:maximum 1000.0 ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 9 ;
         lv2:symbol "F2" ;
         lv2:name "F2" ;
-        lv2:default 6e+03 ;
-        lv2:minimum 1.5e+03 ;
-        lv2:maximum 2.352e+04 ;
+        lv2:default 6000.0 ;
+        lv2:minimum 1500.0 ;
+        lv2:maximum 23520.0 ;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -190,3 +192,13 @@ rdfs:comment """
         lv2:minimum 1.0 ;
         lv2:maximum 8.0 ;
     ] .
+
+<http://guitarix.sourceforge.net/plugins/gx_shimmizita_#gui>
+  a guiext:X11UI;
+  guiext:binary <gx_shimmizita_gui.so>;
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  
