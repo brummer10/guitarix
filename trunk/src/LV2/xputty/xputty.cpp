@@ -32,6 +32,9 @@ void main_init(Xputty *main) {
     set_dark_theme(main);
     main->hold_grab = NULL;
     main->run = true;
+    main->small_font = 10;
+    main->normal_font = 12;
+    main->big_font = 16;
 }
 
 void main_run(Xputty *main) {

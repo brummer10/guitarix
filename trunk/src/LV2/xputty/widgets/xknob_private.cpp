@@ -25,8 +25,7 @@ static void _show_label(Widget_t *w, int width, int height) {
     use_text_color_scheme(w, get_color_state(w));
     cairo_text_extents_t extents;
     /** show label below the knob**/
-    float font_size = min(12.0,((height/2.2 < (width*0.6)/3) ? height/2.2 : (width*0.6)/3));
-    cairo_set_font_size (w->crb, font_size);
+    cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
     cairo_text_extents(w->crb,w->label , &extents);
     cairo_move_to (w->crb, (width*0.5)-extents.width/2, height );
     cairo_show_text(w->crb, w->label);
@@ -122,14 +121,14 @@ void _draw_knob(void *w_, void* user_data) {
         char s[64];
         const char* format[] = {"%.1f", "%.2f", "%.3f"};
         float value = adj_get_value(w->adj);
-        if (fabs(value)>9.99) {
+        if (fabs(w->adj->step)>0.99) {
             snprintf(s, 63,"%d",  (int) value);
-        } else if (fabs(w->adj_y->value)>0.99) {
+        } else if (fabs(w->adj->step)>0.09) {
             snprintf(s, 63, format[1-1], value);
         } else {
             snprintf(s, 63, format[2-1], value);
         }
-        cairo_set_font_size (w->crb, min(11.0,knobx1/3));
+        cairo_set_font_size (w->crb, w->app->small_font/w->scale.ascale);
         cairo_text_extents(w->crb, s, &extents);
         cairo_move_to (w->crb, knobx1-extents.width/2, knoby1+extents.height/2);
         cairo_show_text(w->crb, s);

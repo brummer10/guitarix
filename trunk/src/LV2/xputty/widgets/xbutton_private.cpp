@@ -98,7 +98,7 @@ void _draw_image_button_with_label(Widget_t *w, int width_t, int height_t) {
     }
 
     use_text_color_scheme(w, get_color_state(w));
-    cairo_set_font_size (w->crb, min(12.0,(width_t*0.5)/2.4));
+    cairo_set_font_size (w->crb,w->app->normal_font/w->scale.ascale);
     if ((int)adj_get_value(w->adj) && strlen(w->input_label)) {
         cairo_text_extents(w->crb,w->input_label , &extents);
         cairo_move_to (w->crb, (width_t*0.5)-(extents.width/2), height_t-(extents.height/4));
@@ -199,12 +199,10 @@ void _draw_button(void *w_, void* user_data) {
 
         cairo_text_extents_t extents;
         use_text_color_scheme(w, get_color_state(w));
-        float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3);
-        cairo_set_font_size (w->crb, font_size);
+        cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
         cairo_text_extents(w->crb,w->label , &extents);
         if(IS_UTF8(w->label[0])) {
-            font_size = ((height/1.5 < (width)/1.5) ? height/1.5 : (width)/1.5);
-            cairo_set_font_size (w->crb, font_size);
+            cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
             cairo_text_extents(w->crb,w->label , &extents);
         }
 
@@ -243,12 +241,10 @@ void _draw_on_off_button(void *w_, void* user_data) {
     }
 
     use_text_color_scheme(w, get_color_state(w));
-    float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.6)/3);
-    cairo_set_font_size (w->crb, font_size);
+    cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
     cairo_text_extents(w->crb,w->label , &extents);
     if(IS_UTF8(w->label[0])) {
-        font_size = ((height/1.5 < (width)/1.5) ? height/1.5 : (width)/1.5);
-        cairo_set_font_size (w->crb, font_size);
+        cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
         cairo_text_extents(w->crb,w->label , &extents);
     }
 
@@ -321,7 +317,6 @@ void _draw_check_box(void *w_, void* user_data) {
     if (!w) return;
     XWindowAttributes attrs;
     XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
     int height = attrs.height-2;
     if (attrs.map_state != IsViewable) return;
     if (w->image) {
@@ -349,8 +344,7 @@ void _draw_check_box(void *w_, void* user_data) {
 
         cairo_text_extents_t extents;
         use_text_color_scheme(w, get_color_state(w));
-        float font_size = (min(12,(height/1.2 < (width*0.35)/3) ? height/1.2 : (width*0.35)/3));
-        cairo_set_font_size (w->crb, font_size);
+        cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
         cairo_text_extents(w->crb,w->label , &extents);
         cairo_move_to (w->crb, height+5 , (height+extents.height)*0.5 );
         cairo_show_text(w->crb, w->label);

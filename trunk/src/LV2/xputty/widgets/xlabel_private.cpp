@@ -31,8 +31,7 @@ void _draw_label(void *w_, void* user_data) {
 
     cairo_text_extents_t extents;
     use_text_color_scheme(w, get_color_state(w));
-    float font_size = ((height/2.2 < (width*0.5)/3) ? height/2.2 : (width*0.5)/3);
-    cairo_set_font_size (w->crb, font_size);
+    cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, (width*0.5)-(extents.width/2), height);
