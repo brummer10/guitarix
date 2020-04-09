@@ -20,29 +20,29 @@
 
 #pragma once
 
-#ifndef XWIDGETS_H_
-#define XWIDGETS_H_
+#ifndef XVALUEDISPLAY_H_
+#define XVALUEDISPLAY_H_
+
+#include "xputty.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
-/** xwidgets.h include some predefined widgets for libxputty, include this to use them 
- * if you would only use libxputty and define your own widgets, include xputt.h 
- * instead this one in your project.
+/**
+ * @brief add_valuedisplay    - add a valuedisplay widget to a Widget_t
+ * @param *parent             - pointer to the Widget_t request the valuedisplay
+ * @param *label              - Label to show on the valuedisplay
+ * @param x,y,width,height    - the position/geometry to create the valuedisplay
+ * @return Widget_t*          - pointer to the Widget_t valuedisplay struct
  */
 
-// widget header
-#include "xbutton.h"
-#include "xslider.h"
-#include "xknob.h"
-#include "xmenu.h"
-#include "xcombobox.h"
-#include "xtooltip.h"
-#include "xmeter.h"
-#include "xlabel.h"
-#include "xlistbox.h"
-#include "xlistview.h"
-#include "xplayhead.h"
-#include "xtuner.h"
-#include "xvaluedisplay.h"
+Widget_t* add_valuedisplay(Widget_t *parent, const char * label,
+                int x, int y, int width, int height);
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif //XWIDGETS_H_
+#endif //XVALUEDISPLAY_H_

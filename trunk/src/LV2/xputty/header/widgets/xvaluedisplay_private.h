@@ -20,29 +20,26 @@
 
 #pragma once
 
-#ifndef XWIDGETS_H_
-#define XWIDGETS_H_
+#ifndef XVALUEDISPLAY_PRIVATE_H_
+#define XVALUEDISPLAY_PRIVATE_H_
 
-
-/** xwidgets.h include some predefined widgets for libxputty, include this to use them 
- * if you would only use libxputty and define your own widgets, include xputt.h 
- * instead this one in your project.
- */
-
-// widget header
-#include "xbutton.h"
-#include "xslider.h"
-#include "xknob.h"
-#include "xmenu.h"
-#include "xcombobox.h"
-#include "xtooltip.h"
-#include "xmeter.h"
-#include "xlabel.h"
-#include "xlistbox.h"
-#include "xlistview.h"
-#include "xplayhead.h"
-#include "xtuner.h"
 #include "xvaluedisplay.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#endif //XWIDGETS_H_
+/**
+ * @brief _draw_valuedisplay   - draw a valuedisplay on expose call
+ * @param *w_                  - The Widget_t contain the valuedisplay
+ * @param *user_data           - attached user_data
+ * @return void
+ */
+
+void _draw_valuedisplay(void *w_, void* user_data);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //XVALUEDISPLAY_PRIVATE_H_

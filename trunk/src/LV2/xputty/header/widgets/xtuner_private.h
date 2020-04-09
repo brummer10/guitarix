@@ -20,29 +20,26 @@
 
 #pragma once
 
-#ifndef XWIDGETS_H_
-#define XWIDGETS_H_
+#ifndef XTUNER_PRIVATE_H_
+#define XTUNER_PRIVATE_H_
 
+#include "xtuner.h"
 
-/** xwidgets.h include some predefined widgets for libxputty, include this to use them 
- * if you would only use libxputty and define your own widgets, include xputt.h 
- * instead this one in your project.
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @brief _draw_tuner          - draw the tuner on expose call
+ * @param *w_                  - The Widget_t contain the tuner
+ * @param *user_data           - attached user_data
+ * @return void
  */
 
-// widget header
-#include "xbutton.h"
-#include "xslider.h"
-#include "xknob.h"
-#include "xmenu.h"
-#include "xcombobox.h"
-#include "xtooltip.h"
-#include "xmeter.h"
-#include "xlabel.h"
-#include "xlistbox.h"
-#include "xlistview.h"
-#include "xplayhead.h"
-#include "xtuner.h"
-#include "xvaluedisplay.h"
+void _draw_tuner(void *w_, void* user_data);
 
+#ifdef __cplusplus
+}
+#endif
 
-#endif //XWIDGETS_H_
+#endif //XTUNER_PRIVATE_H_
