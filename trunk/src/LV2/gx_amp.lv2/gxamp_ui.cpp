@@ -92,7 +92,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     ui->widget[6] = add_my_knob(ui->widget[6], BASS,"Bass", ui,445, 72, 65, 90);
     set_adjustment(ui->widget[6]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[7] = add_my_knob(ui->widget[7], ALevel,"Presence", ui,520, 70, 70, 100);
+    ui->widget[7] = add_my_knob(ui->widget[7], ALevel,"Presence", ui,520, 70, 70, 95);
     set_adjustment(ui->widget[7]->adj,1.0, 1.0, 1.0, 10.0, 0.1, CL_CONTINUOS);
 
     ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,600, 67, 75, 100);
