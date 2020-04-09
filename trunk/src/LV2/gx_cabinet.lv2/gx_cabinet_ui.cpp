@@ -328,9 +328,9 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
 // disable presence and cabinet controlls when worker threads not been supported
 static void set_sensitive_state(X11_UI* ui, float state) {
     if (fabs(state - ui->schedule)<0.1) {
-        ui->schedule = state;
         return;
     }
+    ui->schedule = state;
     if ( state > 0) {
         ui->widget[3]->state = INSENSITIVE_;
         ui->widget[3]->childlist->childs[0]->state = INSENSITIVE_;

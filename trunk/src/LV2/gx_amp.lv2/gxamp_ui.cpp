@@ -131,9 +131,9 @@ void plugin_cleanup(X11_UI *ui) {
 static void set_sensitive_state(X11_UI* ui, float state) {
     X11_UI_Private_t *ps = (X11_UI_Private_t*)ui->private_ptr;
     if (fabs(state - ps->schedule)<0.1) {
-        ps->schedule = state;
         return;
     }
+    ps->schedule = state;
     if ( state > 0) {
         ui->widget[10]->state = INSENSITIVE_;
         ui->widget[10]->childlist->childs[0]->state = INSENSITIVE_;
