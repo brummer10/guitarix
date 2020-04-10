@@ -475,6 +475,7 @@ void plugin_cleanup(X11_UI *ui) {
     int i = 0;
     for(;i<10;i++)
         destroy_widget(ps->meter_widget[i],&ui->main);
+    i = 0;
     for(;i<5;i++)
         destroy_widget(ps->combo_widget[i],&ui->main);
     delete_adjustment(ps->adj[0]);
