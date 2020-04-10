@@ -137,7 +137,7 @@ source: http://en.wikipedia.org/wiki/Dynamic_range_compression#Multiband_compres
         lv2:index 5 ;
         lv2:symbol "MAKEUP1" ;
         lv2:name "MAKEUP1";
-        lv2:default 13.0 ;
+        lv2:default 10.0 ;
         lv2:minimum -5e+01 ;
         lv2:maximum 5e+01 ;
     ] , [
@@ -146,7 +146,7 @@ source: http://en.wikipedia.org/wiki/Dynamic_range_compression#Multiband_compres
         lv2:index 6 ;
         lv2:symbol "MAKEUP2" ;
         lv2:name "MAKEUP2";
-        lv2:default 13.0 ;
+        lv2:default 10.0 ;
         lv2:minimum -5e+01 ;
         lv2:maximum 5e+01 ;
     ] , [
@@ -155,7 +155,7 @@ source: http://en.wikipedia.org/wiki/Dynamic_range_compression#Multiband_compres
         lv2:index 7 ;
         lv2:symbol "MAKEUP3" ;
         lv2:name "MAKEUP3";
-        lv2:default 13.0 ;
+        lv2:default 10.0 ;
         lv2:minimum -5e+01 ;
         lv2:maximum 5e+01 ;
     ] , [
@@ -164,7 +164,7 @@ source: http://en.wikipedia.org/wiki/Dynamic_range_compression#Multiband_compres
         lv2:index 8 ;
         lv2:symbol "MAKEUP4" ;
         lv2:name "MAKEUP4";
-        lv2:default 13.0 ;
+        lv2:default 10.0 ;
         lv2:minimum -5e+01 ;
         lv2:maximum 5e+01 ;
     ] , [
@@ -173,7 +173,7 @@ source: http://en.wikipedia.org/wiki/Dynamic_range_compression#Multiband_compres
         lv2:index 9 ;
         lv2:symbol "MAKEUP5" ;
         lv2:name "MAKEUP5";
-        lv2:default 13.0 ;
+        lv2:default 10.0 ;
         lv2:minimum -5e+01 ;
         lv2:maximum 5e+01 ;
     ] , [
@@ -487,7 +487,12 @@ source: http://en.wikipedia.org/wiki/Dynamic_range_compression#Multiband_compres
     ].
 
 <http://guitarix.sourceforge.net/plugins/gx_mbcompressor_#gui>
-  a guiext:GtkUI;
+  a guiext:X11UI;
   guiext:binary <gx_mbcompressor_gui.so>;
-  guiext:requiredFeature guiext:makeResident .
+        lv2:extensionData guiext::idle ;
+        lv2:extensionData guiext:resize ;
+        lv2:extensionData guiext:idleInterface;
+        lv2:requiredFeature guiext:makeResident;
+        lv2:requiredFeature guiext:idleInterface;
+ .  
   

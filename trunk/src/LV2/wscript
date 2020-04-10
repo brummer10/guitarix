@@ -148,7 +148,7 @@ def build(bld):
         )
     bld.recurse(subdirs)
 
-    if bld.env['LV2GUI']:
-        gx_ampstyledir = bld.path.find_dir( 'GUI' )
-        bld.install_files(bld.env.GX_LV2_STYLE_DIR, gx_ampstyledir.ant_glob('**/*.png'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
-        bld.install_files(bld.env.GX_LV2_STYLE_DIR, gx_ampstyledir.ant_glob('**/*.rc'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
+   # if bld.env['LV2GUI']:
+   #     gx_ampstyledir = bld.path.find_dir( 'GUI' )
+   #     bld.install_files(bld.env.GX_LV2_STYLE_DIR, gx_ampstyledir.ant_glob('**/*.png'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)
+   #     bld.install_files(bld.env.GX_LV2_STYLE_DIR, gx_ampstyledir.ant_glob('**/*.rc'),cwd=gx_ampstyledir, chmod=0o644, relative_trick=True)

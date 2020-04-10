@@ -6,7 +6,7 @@ def configure(conf):
 
 def build(bld):
     env = bld.env
-    if not (env.STANDALONE or env.LV2GUI or env.NEW_LADSPA):
+    if not (env.STANDALONE or env.NEW_LADSPA):
         return
     bld.recurse('gxwmm')
     if env.NEW_LADSPA:
