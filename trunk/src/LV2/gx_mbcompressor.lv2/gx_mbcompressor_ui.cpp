@@ -49,6 +49,7 @@
 
 typedef struct {
     Widget_t *meter_widget[10];
+    Widget_t *combo_widget[5];
     Adjustment_t *adj[3];
     float db_zero;
 } X11_UI_Private_t;
@@ -232,7 +233,13 @@ static void draw_my_hslider(void *w_, void* user_data) {
 }
 
 void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
-    // do special stuff when needed
+    if (ui->block_event != w->data) {
+        if (index >= MODE1 && index <= MODE5) {
+            float value = adj_get_value(w->adj)+1.0;
+            ui->write_function(ui->controller,w->data,sizeof(float),0,&value);
+            ui->block_event = -1;
+        }
+    }
 }
 
 // check that bands didn't overlap
@@ -363,7 +370,7 @@ Widget_t* add_my_slider(Widget_t *w, PortIndex index, const char * label,
 
 void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
     (*w) = 780; //initial widht of main window
-    (*h) = 480; //initial heigth of main window
+    (*h) = 520; //initial heigth of main window
 }
 
 const char* plugin_set_name() {
@@ -382,6 +389,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     for (;iw<10;iw++) {
         ps->meter_widget[iw] = add_vmeter(ui->win, "Meter", false, w_pos, 60, 20, 340);
         ps->meter_widget[iw]->parent_struct = ui;
+        ps->meter_widget[iw]->scale.gravity = CENTER;
         ps->meter_widget[iw]->data = port;
         port +=1;
         w_pos +=20;
@@ -440,7 +448,19 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
         w_pos +=80;
     }
 
-    ui->widget[25] = add_my_slider(ui->widget[25], CROSSOVER_B1_B2,"Crossover ",ui, 160,430, 480, 20);
+    w_pos = 185;
+    port = (PortIndex) MODE1;
+    const char* model[] = {"Compress","Bypass","Mute"};
+    size_t len = sizeof(model) / sizeof(model[0]);
+    iw=0;
+    for (;iw<5;iw++) {
+        ps->combo_widget[iw] = add_my_combobox(ps->combo_widget[iw], (PortIndex)port,"Mode", model, len, 0, ui, w_pos, 425, 80, 25);
+        //adj_set_scale(ui->widget[iw]->adj, 2.0);
+        port +=1;
+        w_pos +=80;
+    }
+
+    ui->widget[25] = add_my_slider(ui->widget[25], CROSSOVER_B1_B2,"Crossover ",ui, 160,460, 480, 20);
 }
 
 // map power to db for meter widgets
@@ -455,6 +475,8 @@ void plugin_cleanup(X11_UI *ui) {
     int i = 0;
     for(;i<10;i++)
         destroy_widget(ps->meter_widget[i],&ui->main);
+    for(;i<5;i++)
+        destroy_widget(ps->combo_widget[i],&ui->main);
     delete_adjustment(ps->adj[0]);
     delete_adjustment(ps->adj[1]);
     delete_adjustment(ps->adj[2]);
@@ -481,6 +503,11 @@ void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
     else if (port_index == V10) set_meter_value(ui,ps->meter_widget[9],value);
     if (port_index >= CROSSOVER_B1_B2 && port_index <= CROSSOVER_B4_B5) {
         check_multi_controller(ui, port_index, value);
+        ui->block_event = (int)port_index;
+    }
+    if (port_index >= MODE1 && port_index <= MODE5) {
+        value -=1.0;
+        check_value_changed(ps->combo_widget[port_index]->adj, &value);
         ui->block_event = (int)port_index;
     }
 }
