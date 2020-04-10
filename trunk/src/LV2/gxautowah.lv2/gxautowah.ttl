@@ -85,7 +85,10 @@ All other trademarks are the property of their respective holders.'
     lv2:optionalFeature lv2:hardRTCapable ;
     
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxautowah#gui>;
-  
+
+    lv2:minorVersion 34;
+    lv2:microVersion 0;
+
 rdfs:comment """
 
 Analog wah emulation of the classic Dunlop Crybaby (*).

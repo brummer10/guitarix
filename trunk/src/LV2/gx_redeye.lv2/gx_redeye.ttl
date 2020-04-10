@@ -29,7 +29,7 @@
 @prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
 @prefix opt:  <http://lv2plug.in/ns/ext/options#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
-@prefix work:  <http://lv2plug.in/ns/ext/worker#> .
+@prefix pprop: <http://lv2plug.in/ns/ext/port-props#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -51,11 +51,9 @@
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_redeye> ;
     lv2:optionalFeature lv2:hardRTCapable ;
     lv2:requiredFeature urid:map ,
-        bufsz:boundedBlockLength ,
-        work:schedule ;
+        bufsz:boundedBlockLength ;
     bufsz:minBlockLength 64 ;
     bufsz:maxBlockLength 8192 ;
-    lv2:extensionData work:interface ;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_redeye#gui>;
   
@@ -110,7 +108,7 @@ rdfs:comment """
         lv2:index 4 ;
         lv2:symbol "Vibe" ;
         lv2:name "Vibe";
-        lv2:portProperty lv2:notOnGUI;
+        lv2:portProperty pprop:notOnGUI;
         lv2:default 0 ;
         lv2:minimum 0 ;
         lv2:maximum 1.0 ;
@@ -120,7 +118,7 @@ rdfs:comment """
         lv2:index 5 ;
         lv2:symbol "Speed" ;
         lv2:name "Speed";
-        lv2:portProperty lv2:notOnGUI;
+        lv2:portProperty pprop:notOnGUI;
         lv2:default 5 ;
         lv2:minimum 0.1 ;
         lv2:maximum 10.0 ;
@@ -130,7 +128,7 @@ rdfs:comment """
         lv2:index 6 ;
         lv2:symbol "Intensity" ;
         lv2:name "Intensity";
-        lv2:portProperty lv2:notOnGUI;
+        lv2:portProperty pprop:notOnGUI;
         lv2:default 0 ;
         lv2:minimum 0 ;
         lv2:maximum 10.0 ;
@@ -140,7 +138,7 @@ rdfs:comment """
         lv2:index 7 ;
         lv2:symbol "Sinewave" ;
         lv2:name "Sinewave";
-        lv2:portProperty lv2:notOnGUI;
+        lv2:portProperty pprop:notOnGUI;
         lv2:default 0 ;
         lv2:minimum 0 ;
         lv2:maximum 1.0 ;
@@ -167,14 +165,15 @@ rdfs:comment """
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_redeye> ;
     lv2:optionalFeature lv2:hardRTCapable ;
     lv2:requiredFeature urid:map ,
-        bufsz:boundedBlockLength ,
-        work:schedule ;
+        bufsz:boundedBlockLength ;
     bufsz:minBlockLength 64 ;
     bufsz:maxBlockLength 8192 ;
-    lv2:extensionData work:interface ;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_redeye#gui>;
-  
+
+    lv2:minorVersion 34;
+    lv2:microVersion 0;
+
     lv2:port [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -217,7 +216,7 @@ rdfs:comment """
         lv2:index 4 ;
         lv2:symbol "Vibe" ;
         lv2:name "Vibe";
-        lv2:portProperty lv2:notOnGUI;
+        lv2:portProperty pprop:notOnGUI;
         lv2:default 0.0 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
@@ -227,7 +226,7 @@ rdfs:comment """
         lv2:index 5 ;
         lv2:symbol "Speed" ;
         lv2:name "Speed";
-        lv2:portProperty lv2:notOnGUI;
+        lv2:portProperty pprop:notOnGUI;
         lv2:default 5.0 ;
         lv2:minimum 0.1 ;
         lv2:maximum 10.0 ;
@@ -237,7 +236,7 @@ rdfs:comment """
         lv2:index 6 ;
         lv2:symbol "Intensity" ;
         lv2:name "Intensity";
-        lv2:portProperty lv2:notOnGUI;
+        lv2:portProperty pprop:notOnGUI;
         lv2:default 0.0 ;
         lv2:minimum 0.0 ;
         lv2:maximum 10.0 ;
@@ -247,7 +246,7 @@ rdfs:comment """
         lv2:index 7 ;
         lv2:symbol "Sinewave" ;
         lv2:name "Sinewave";
-        lv2:portProperty lv2:notOnGUI;
+        lv2:portProperty pprop:notOnGUI;
         lv2:default 0.0 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
@@ -274,14 +273,15 @@ rdfs:comment """
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_redeye> ;
     lv2:optionalFeature lv2:hardRTCapable ;
     lv2:requiredFeature urid:map ,
-        bufsz:boundedBlockLength ,
-        work:schedule ;
+        bufsz:boundedBlockLength ;
     bufsz:minBlockLength 64 ;
     bufsz:maxBlockLength 8192 ;
-    lv2:extensionData work:interface ;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_redeye#gui>;
-  
+
+    lv2:minorVersion 34;
+    lv2:microVersion 0;
+
     lv2:port [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -315,7 +315,7 @@ rdfs:comment """
         lv2:index 3 ;
         lv2:symbol "Feedback" ;
         lv2:name "Feedback";
-        lv2:portProperty lv2:notOnGUI;
+        lv2:portProperty pprop:notOnGUI;
         lv2:default 0.0 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
