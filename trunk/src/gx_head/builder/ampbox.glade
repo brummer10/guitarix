@@ -144,6 +144,7 @@
                     <property name="name">labeldummy1:effekt_label</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="vexpand">True</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -169,6 +170,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="vexpand">True</property>
                     <property name="var_id">amp2.stage2.gain1</property>
                   </object>
                   <packing>

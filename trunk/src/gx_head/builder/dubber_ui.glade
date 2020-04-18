@@ -75,6 +75,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="valign">start</property>
                         <property name="hexpand">True</property>
                         <property name="var_id">dubber.bar1</property>
                         <property name="show_value">False</property>
@@ -339,9 +340,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Tape 1</property>
-                    <style>
-                      <class name="rack_label"/>
-                    </style>
                   </object>
                   <packing>
                     <property name="tab_fill">False</property>
@@ -400,6 +398,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="valign">start</property>
                         <property name="hexpand">True</property>
                         <property name="var_id">dubber.bar2</property>
                         <property name="show_value">False</property>
@@ -667,9 +666,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Tape 2</property>
-                    <style>
-                      <class name="rack_label"/>
-                    </style>
                   </object>
                   <packing>
                     <property name="position">1</property>
@@ -729,6 +725,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="valign">start</property>
                         <property name="hexpand">True</property>
                         <property name="var_id">dubber.bar3</property>
                         <property name="show_value">False</property>
@@ -996,9 +993,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Tape 3</property>
-                    <style>
-                      <class name="rack_label"/>
-                    </style>
                   </object>
                   <packing>
                     <property name="position">2</property>
@@ -1327,9 +1321,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Tape 4</property>
-                    <style>
-                      <class name="rack_label"/>
-                    </style>
                   </object>
                   <packing>
                     <property name="position">3</property>

@@ -868,10 +868,8 @@ int LiveLooper::register_params_static(const ParamReg& reg)
 inline int LiveLooper::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
-        if (getenv("DUB")) {
-            b.load_glade_file("dubber_ui.glade");
-            return 0;
-        }
+        b.load_glade_file("dubber_ui.glade");
+        return 0;
     }
     if (form & UI_FORM_STACK) {
 #define PARAM(p) ("dubber" "." p)

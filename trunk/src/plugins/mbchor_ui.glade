@@ -21,7 +21,6 @@
               <object class="GtkBox" id="hbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="spacing">8</property>
                 <child>
                   <object class="GtkNotebook" id="notebook">
                     <property name="visible">True</property>
@@ -198,12 +197,14 @@
                           <object class="GtkGrid" id="table1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="halign">center</property>
                             <property name="margin_left">4</property>
                             <property name="margin_right">4</property>
                             <property name="margin_top">4</property>
                             <property name="margin_bottom">4</property>
                             <property name="row_spacing">4</property>
                             <property name="column_spacing">4</property>
+                            <property name="row_homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label_141:rack_label">
                                 <property name="visible">True</property>
@@ -228,6 +229,19 @@
                                 <property name="left_attach">1</property>
                                 <property name="top_attach">0</property>
                               </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
                             </child>
                           </object>
                           <packing>
@@ -420,12 +434,14 @@
                           <object class="GtkGrid" id="table2">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="halign">center</property>
                             <property name="margin_left">4</property>
                             <property name="margin_right">4</property>
                             <property name="margin_top">4</property>
                             <property name="margin_bottom">4</property>
                             <property name="row_spacing">4</property>
                             <property name="column_spacing">4</property>
+                            <property name="row_homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label_13:rack_label">
                                 <property name="visible">True</property>
@@ -671,12 +687,14 @@
                           <object class="GtkGrid" id="table3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="halign">center</property>
                             <property name="margin_left">4</property>
                             <property name="margin_right">4</property>
                             <property name="margin_top">4</property>
                             <property name="margin_bottom">4</property>
                             <property name="row_spacing">4</property>
                             <property name="column_spacing">4</property>
+                            <property name="row_homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label_132:rack_label">
                                 <property name="visible">True</property>
@@ -922,12 +940,14 @@
                           <object class="GtkGrid" id="table4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="halign">center</property>
                             <property name="margin_left">4</property>
                             <property name="margin_right">4</property>
                             <property name="margin_top">4</property>
                             <property name="margin_bottom">4</property>
                             <property name="row_spacing">4</property>
                             <property name="column_spacing">4</property>
+                            <property name="row_homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label_133:rack_label">
                                 <property name="visible">True</property>
@@ -1173,12 +1193,14 @@
                           <object class="GtkGrid" id="table5">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="halign">center</property>
                             <property name="margin_left">4</property>
                             <property name="margin_right">4</property>
                             <property name="margin_top">4</property>
                             <property name="margin_bottom">4</property>
                             <property name="row_spacing">4</property>
                             <property name="column_spacing">4</property>
+                            <property name="row_homogeneous">True</property>
                             <child>
                               <object class="GtkLabel" id="label_134:rack_label">
                                 <property name="visible">True</property>
@@ -1205,7 +1227,14 @@
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">0</property>
+                                <property name="top_attach">0</property>
+                              </packing>
                             </child>
                             <child>
                               <placeholder/>
@@ -1247,6 +1276,7 @@
                   <object class="GtkBox" id="vbox2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="halign">center</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel" id="label5:rack_label">
@@ -1265,6 +1295,8 @@
                       <object class="GtkBox" id="hbox3">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="margin_bottom">4</property>
+                        <property name="spacing">10</property>
                         <child>
                           <object class="GxFastMeter" id="gxfastmeter1">
                             <property name="visible">True</property>

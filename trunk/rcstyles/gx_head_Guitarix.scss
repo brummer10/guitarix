@@ -373,6 +373,9 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 	font-size: 6pt;
 	font-weight: normal;
     }
+    gx-fast-meter {
+	border: solid black 1px;
+    }
 }
 
 /* specific parts */
@@ -623,6 +626,7 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     color: #222222; /* #dadfe1 # #c9d5b9  # #ffffff */
 }
 
+%rack-label-inverse,
 #rack_label_inverse {
     font: condensed 7pt "Roboto";
     color: #aaaaaa;
@@ -637,26 +641,33 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     padding: 1px 0px 1px 0px;
 }
 
-
 .tab_rack {
     padding: 5px;
+    margin: { left: 4px; right: 4px; bottom: 4px; }
+    box-shadow:
+	0.5px 0.5px 0px 0.5px black,
+	-0.5px -0.5px 0px 0.5px rgba(200,200,200,0.2);
     background-color: rgb(25.5, 25.5, 25.5); /* { 0.10, 0.10, 0.10 } */
-}
-
-.tab_rack:active {
-    background-color: rgb(25.5, 25.5, 25.5); /* { 0.10, 0.10, 0.10 } */
-}
-
-.tab_rack label {
-    color: #ff9000;
-}
-
-.tab_rack label:active {
-    color: #555555;
-}
-
-.tab_rack .label {
-    color: #aaaaaa;
+    header {
+	margin-bottom: 8px;
+	label {
+	    margin-bottom: -12px;
+	}
+    }
+    & label,
+    & .label {
+	color: darken(#ff9000, 20%);
+    }
+    & :checked label {
+	color: #ff9000;
+    }
+    & label:active {
+	color: #555555;
+    }
+    #rack_label,
+    .rack_label {
+	@extend %rack-label-inverse;
+    }
 }
 
 menu separator {
@@ -695,15 +706,6 @@ frame, #frame_inversed, frame border, #frame_inversed border {
 #PLUI-dubber {
     gx-small-knob-r ~ label { // some space for the 2 labels above the knobs
 	margin-top: 20px;
-	margin-bottom: 4px;
-    }
-    notebook {
-	header {
-	    margin-bottom: 4px;
-	    label {
-		margin-bottom: -12px;
-	    }
-	}
 	margin-bottom: 4px;
     }
     #buffer_label {
