@@ -51,6 +51,7 @@ private:
     IntParameter  *p_position; ///< Position in Rack / Audio Processing Chain
     IntParameter  *p_effect_post_pre; ///< pre/post amp position (post = 0)
     int pos_tmp;
+    void set_midi_on_off_blocked(bool v);
 public:
     PluginDef *get_pdef() { return pdef; }
     void set_pdef(PluginDef *p) { pdef = p; }

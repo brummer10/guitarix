@@ -323,19 +323,25 @@ void Plugin::writeJSON(gx_system::JsonWriter& jw) {
     jw.end_object();
 }
 
+void Plugin::set_midi_on_off_blocked(bool v) {
+    p_on_off->set_midi_blocked(!v);
+}
+
 void Plugin::register_vars(ParamMap& param, EngineControl& seq) {
     string s = pdef->id;
     p_on_off = param.reg_par(s+".on_off",N_("on/off"), (bool*)0, !(pdef->flags & (PGN_GUI|PGN_ALTERNATIVE)));
     if (!(pdef->load_ui || (pdef->flags & PGN_GUI))) {
         p_on_off->setSavable(false);
     }
-    p_on_off->set_midi_blocked(true);
     p_on_off->signal_changed_bool().connect(
         sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
     if ((pdef->load_ui || pdef->flags & PGN_GUI) &&
         (pdef->flags & PGNI_DYN_POSITION || !(pdef->flags & PGN_FIXED_GUI))) {
         p_box_visible = param.reg_non_midi_par("ui." + s, (bool*)0, true);
         p_plug_visible = param.reg_non_midi_par(s + ".s_h", (bool*)0, false);
+        p_box_visible->signal_changed_bool().connect(
+            sigc::mem_fun(this, &Plugin::set_midi_on_off_blocked));
+        p_on_off->set_midi_blocked(true);
     }
     p_position = param.reg_non_midi_par(s + ".position", (int*)0, true, pos_tmp, -9999, 9999);
     int pp = (pdef->flags & PGN_POST ? 0 : 1);
@@ -734,7 +740,6 @@ void PluginList::ordered_mono_list(list<Plugin*>& mono, int mode) {
         if (pl->get_on_off() && pl->get_pdef()->mono_audio && (pl->get_pdef()->flags & mode)) {
             mono.push_back(pl);
         }
-        pl->p_on_off->set_midi_blocked(!(pl->get_box_visible()));
     }
     mono.sort(plugin_order);
     
@@ -752,7 +757,6 @@ void PluginList::ordered_stereo_list(list<Plugin*>& stereo, int mode) {
         if (pl->get_on_off() && pl->get_pdef()->stereo_audio && (pl->get_pdef()->flags & mode)) {
             stereo.push_back(pl);
         }
-        pl->p_on_off->set_midi_blocked(!(pl->get_box_visible()));
     }
     stereo.sort(plugin_order);
 }
