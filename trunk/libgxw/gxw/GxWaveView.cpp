@@ -93,6 +93,7 @@ static cairo_pattern_t *set_box_color(GtkWidget *wi, cairo_t *cr, int x, int y, 
 static void wave_view_background(cairo_t *crp, GxWaveView *waveview, GtkWidget *widget, int liveviewx, int liveviewy)
 {
     cairo_push_group_with_content(crp, CAIRO_CONTENT_COLOR);
+    cairo_translate(crp, -liveviewx, -liveviewy);
 
     cairo_pattern_t *pat =
 	cairo_pattern_create_radial (-130.4, -270.4, 1.6, -1.4,  -4.4, 300.0);
@@ -100,7 +101,7 @@ static void wave_view_background(cairo_t *crp, GxWaveView *waveview, GtkWidget *
     cairo_pattern_add_color_stop_rgba (pat, 0, 0.2, 0.2, 0.3, 0);
     cairo_pattern_add_color_stop_rgba (pat, 1, 0.05, 0.05, 0.05, 1);
     cairo_set_source_rgb(crp, 0.05, 0.05, 0.05);
-    cairo_rectangle (crp, liveviewx, liveviewy, 282, 82);
+    cairo_rectangle (crp, 0, 0, 282, 82);
     cairo_set_source (crp, pat);
     cairo_fill (crp);
     cairo_pattern_destroy (pat);
@@ -108,18 +109,18 @@ static void wave_view_background(cairo_t *crp, GxWaveView *waveview, GtkWidget *
 	/*
 	cairo_set_line_width (cr, 10.0);
 	cairo_set_source_rgba (cr, 0, 0, 0,0.4);
-	cairo_rectangle (cr, liveviewx-5, liveviewy-5, 286, 60);
+	cairo_rectangle (cr, -5, -5, 286, 60);
 	cairo_stroke (cr);
 
 	cairo_set_line_width (cr, 1.0);
 	cairo_set_source_rgba (cr, 0.1, 0.1, 0.1,0.7);
-	cairo_rectangle (cr, liveviewx-6, liveviewy-6, 288, 62);
+	cairo_rectangle (cr, -6, -6, 288, 62);
 	cairo_stroke (cr);
 
 	cairo_set_line_width (cr, 1.0);
 	cairo_set_source_rgba (cr, 0.5, 0.5, 0.5,0.1);
-	cairo_rectangle (cr, liveviewx-12, liveviewy-12, 302, 74);
-	cairo_rectangle (cr, liveviewx-2, liveviewy-2, 302, 54);
+	cairo_rectangle (cr, -12, -12, 302, 74);
+	cairo_rectangle (cr, -2, -2, 302, 54);
 	cairo_stroke (cr);
 	*/
 
@@ -137,24 +138,22 @@ static void wave_view_background(cairo_t *crp, GxWaveView *waveview, GtkWidget *
 	for (int i=0; i<28; i++)
 	{
 		gitter += 10;
-		cairo_move_to (crp, gitter-5, liveviewy+2);
-		cairo_line_to (crp, gitter-5, liveviewy+background_height-1);
+		cairo_move_to (crp, gitter-5, 2);
+		cairo_line_to (crp, gitter-5, background_height-1);
 	}
 
 	gitter = 0.5;
 	for (int i=0; i<7; i++)
 	{
 		gitter += 10;
-		cairo_move_to (crp, liveviewx+2, gitter);
-		cairo_line_to (crp, liveviewx+background_width-1, gitter);
+		cairo_move_to (crp, 2, gitter);
+		cairo_line_to (crp, background_width-1, gitter);
 	}
 
 	cairo_set_source_rgba (crp,1, 1, 1, 0.1);
 	cairo_stroke (crp);
 
-	if (waveview->priv->liveview_image) {
-	    cairo_pattern_destroy(waveview->priv->liveview_image);
-	}
+	g_assert(!waveview->priv->liveview_image);
 	waveview->priv->liveview_image = cairo_pop_group(crp);
 }
 
@@ -191,17 +190,12 @@ static gboolean gx_wave_view_draw (GtkWidget *widget, cairo_t *cr)
 
     cairo_rectangle(cr, liveviewx-1, liveviewy-1, background_width, background_height);
     cairo_clip(cr);
-    cairo_pattern_t* linpat = set_box_color(widget, cr, liveviewx, liveviewy, FALSE);
     if (!waveview->priv->liveview_image) {
-	cairo_save(cr);
-	cairo_translate(cr, -liveviewx, -liveviewy);
-	wave_view_background(cr, waveview, widget, 0, 0);
-	cairo_restore(cr);
+	wave_view_background(cr, waveview, widget, liveviewx, liveviewy);
     }
     cairo_set_source(cr, waveview->priv->liveview_image);
     cairo_paint(cr);
     if (!gtk_widget_get_sensitive(widget)) {
-        cairo_pattern_destroy (linpat);
         return FALSE;
     }
 	cairo_set_source_rgb(cr, 1, 1, 1);
@@ -214,6 +208,7 @@ static gboolean gx_wave_view_draw (GtkWidget *widget, cairo_t *cr)
 	draw_text(widget, cr, waveview->priv->text_bottom_right, liveviewx + (int)(background_width * waveview->priv->text_pos_right / 100),
 	          liveviewy, GTK_CORNER_BOTTOM_RIGHT);
 
+	cairo_pattern_t* linpat = set_box_color(widget, cr, liveviewx, liveviewy, FALSE);
 	cairo_move_to (cr, liveviewx+280, liveviewy+40);
 
 	float wave_go = 0;
@@ -348,6 +343,7 @@ static void gx_wave_view_class_init (GxWaveViewClass *klass)
 static void gx_wave_view_init(GxWaveView *waveview)
 {
 	waveview->priv = (GxWaveViewPrivate*)gx_wave_view_get_instance_private(waveview);
+	waveview->priv->liveview_image = NULL;
 	waveview->priv->frame = NULL;
 	waveview->priv->frame_size = 0;
 	waveview->priv->text_top_left = NULL;
@@ -366,7 +362,7 @@ static void gx_wave_view_destroy (GtkWidget *obj)
 	GxWaveView *waveview = GX_WAVE_VIEW(obj);
 	if (waveview->priv->liveview_image) {
 		cairo_pattern_destroy(waveview->priv->liveview_image);
-		waveview->priv->liveview_image = 0;
+		waveview->priv->liveview_image = NULL;
 	}
 	GTK_WIDGET_CLASS(gx_wave_view_parent_class)->destroy(obj);
 }
