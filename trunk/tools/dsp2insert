@@ -110,11 +110,8 @@ class UIDefs(object):
     def has(self, element, key):
         return key in self.ui[element]
 
-    def var_filter(self, const=2):
-        s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in self.ui.keys()])
+    def var_filter(self, const):
         def filt(t):
-            if re.compile(r"\s*("+s+");").match(t):
-                return True
             if const == 1 and t.startswith("for "):
                 return True
             if const == 0 and not t.startswith("for "):
@@ -529,8 +526,6 @@ class Parser(object):
         self.skip_until(r"\s*static void classInit")
         s["var-init"] = self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void instanceConstants")
-        s["var-init"] += self.copy(r"\s*}$")
-        self.skip_until(r"\s*virtual void instanceResetUserInterface")
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void instanceClear")
         s["var-init"] += self.read_init(r'\t}')
