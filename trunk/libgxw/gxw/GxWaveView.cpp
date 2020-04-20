@@ -90,10 +90,15 @@ static cairo_pattern_t *set_box_color(GtkWidget *wi, cairo_t *cr, int x, int y, 
     return cairo_pop_group(cr);
 }
 
-static void wave_view_background(cairo_t *crp, GxWaveView *waveview, GtkWidget *widget, int liveviewx, int liveviewy)
+static cairo_pattern_t *wave_view_background()
 {
-    cairo_push_group_with_content(crp, CAIRO_CONTENT_COLOR);
-    cairo_translate(crp, -liveviewx, -liveviewy);
+    cairo_surface_t *surface = cairo_image_surface_create(
+        CAIRO_FORMAT_RGB24, liveview_x, liveview_y);
+    cairo_t *crp = cairo_create(surface);
+    gx_draw_inset(crp, -1, 0, 284,82, 0, 4);
+    gx_draw_glass(crp, 1, 0, 280,82, 0);
+    cairo_rectangle(crp, 0, 0, background_width, background_height);
+    cairo_clip(crp);
 
     cairo_pattern_t *pat =
 	cairo_pattern_create_radial (-130.4, -270.4, 1.6, -1.4,  -4.4, 300.0);
@@ -153,8 +158,10 @@ static void wave_view_background(cairo_t *crp, GxWaveView *waveview, GtkWidget *
 	cairo_set_source_rgba (crp,1, 1, 1, 0.1);
 	cairo_stroke (crp);
 
-	g_assert(!waveview->priv->liveview_image);
-	waveview->priv->liveview_image = cairo_pop_group(crp);
+    cairo_destroy(crp);
+    pat = cairo_pattern_create_for_surface(surface);
+    cairo_surface_destroy(surface);
+    return pat;
 }
 
 static void draw_text(GtkWidget *widget, cairo_t *cr, gchar *str,
@@ -185,19 +192,16 @@ static gboolean gx_wave_view_draw (GtkWidget *widget, cairo_t *cr)
 	int liveviewx = (allocation.width - liveview_x) / 2 + 1;
 	int liveviewy = (allocation.height - liveview_y) / 2 + 1;
 
-	gx_draw_inset(cr, liveviewx-2, liveviewy-1, 284,82, 0, 4);
-    gx_draw_glass(cr, liveviewx, liveviewy-1, 280,82, 0);
-
-    cairo_rectangle(cr, liveviewx-1, liveviewy-1, background_width, background_height);
-    cairo_clip(cr);
     if (!waveview->priv->liveview_image) {
-	wave_view_background(cr, waveview, widget, liveviewx, liveviewy);
+        waveview->priv->liveview_image = wave_view_background();
     }
     cairo_set_source(cr, waveview->priv->liveview_image);
     cairo_paint(cr);
     if (!gtk_widget_get_sensitive(widget)) {
         return FALSE;
     }
+    cairo_rectangle(cr, liveviewx-1, liveviewy-1, background_width, background_height);
+    cairo_clip(cr);
 	cairo_set_source_rgb(cr, 1, 1, 1);
 	draw_text(widget, cr, waveview->priv->text_top_left, liveviewx + (int)(background_width * waveview->priv->text_pos_left / 100),
 	          liveviewy, GTK_CORNER_TOP_LEFT);
