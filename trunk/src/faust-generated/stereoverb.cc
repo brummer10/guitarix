@@ -1,12 +1,12 @@
 // generated from file '../src/faust/stereoverb.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace stereoverb {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT fVslider2;
@@ -85,13 +85,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -201,22 +201,17 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (6.2831853071795862 / std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq))));
-	fVslider0 = FAUSTFLOAT(50.0);
-	fVslider1 = FAUSTFLOAT(0.5);
-	fVslider2 = FAUSTFLOAT(0.5);
-	fCheckbox0 = FAUSTFLOAT(0.0);
-	fHslider0 = FAUSTFLOAT(0.20000000000000001);
-			IOTA = 0;
+	fSampleRate = sample_rate;
+	fConst0 = (6.2831853071795862 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
@@ -227,7 +222,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow3 = ((0.28000000000000003 * double(fVslider1)) + 0.69999999999999996);
 	double fSlow4 = double(fVslider2);
 	double fSlow5 = (1.0 - fSlow4);
-	double fSlow6 = (((0.01 * fSlow1) + 0.00014999999999999999) * fSlow0);
+	double fSlow6 = (fSlow0 * ((0.01 * fSlow1) + 0.00014999999999999999));
 	double fSlow7 = double(fCheckbox0);
 	double fSlow8 = (fConst0 * double(fHslider0));
 	double fSlow9 = std::sin(fSlow8);
@@ -370,12 +365,12 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("stereoverb.LFO freq",N_("LFO Freq"),"S","",&fHslider0, 0.20000000000000001, 0.0, 5.0, 0.01);
-	reg.registerVar("stereoverb.RoomSize",N_("Room Size"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.025000000000000001);
-	reg.registerVar("stereoverb.damp",N_("Damp"),"S","",&fVslider2, 0.5, 0.0, 1.0, 0.025000000000000001);
+	reg.registerFloatVar("stereoverb.LFO freq",N_("LFO Freq"),"S","",&fHslider0, 0.20000000000000001, 0.0, 5.0, 0.01, 0);
+	reg.registerFloatVar("stereoverb.RoomSize",N_("Room Size"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.025000000000000001, 0);
+	reg.registerFloatVar("stereoverb.damp",N_("Damp"),"S","",&fVslider2, 0.5, 0.0, 1.0, 0.025000000000000001, 0);
 	static const value_pair fCheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
-	reg.registerEnumVar("stereoverb.invert","","B","",fCheckbox0_values,&fCheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("stereoverb.wet_dry",N_("Dry/Wet"),"S","",&fVslider0, 50.0, 0.0, 100.0, 1.0);
+	reg.registerFloatVar("stereoverb.invert","","B","",&fCheckbox0, 0.0, 0.0, 1.0, 1.0, fCheckbox0_values);
+	reg.registerFloatVar("stereoverb.wet_dry",N_("Dry/Wet"),"S","",&fVslider0, 50.0, 0.0, 100.0, 1.0, 0);
 	return 0;
 }
 

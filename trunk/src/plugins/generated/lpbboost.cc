@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/lpbboost.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -9,7 +9,7 @@ namespace lpbboost {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -25,13 +25,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -76,24 +76,23 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = mydsp_faustpower2_f(fConst0);
 	fConst2 = (4.3305440765089802e-10 * fConst0);
-	fConst3 = (((fConst2 + 4.6696250610376498e-08) * fConst0) + 1.2247430320174101e-06);
+	fConst3 = ((fConst0 * (fConst2 + 4.6696250610376498e-08)) + 1.2247430320174101e-06);
 	fConst4 = (fConst1 / fConst3);
 	fConst5 = (1.0 / fConst3);
 	fConst6 = (2.4494860640348201e-06 - (8.6610881530179697e-10 * fConst1));
-	fConst7 = (((fConst2 + -4.6696250610376498e-08) * fConst0) + 1.2247430320174101e-06);
-	fVslider0 = FAUSTFLOAT(0.5);
+	fConst7 = ((fConst0 * (fConst2 + -4.6696250610376498e-08)) + 1.2247430320174101e-06);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -117,7 +116,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("lpbboost.Boost",N_("Boost"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01);
+	reg.registerFloatVar("lpbboost.Boost",N_("Boost"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01, 0);
 	return 0;
 }
 

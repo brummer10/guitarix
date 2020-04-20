@@ -1,12 +1,12 @@
 // generated from file '../src/faust/phaser_mono.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 
 namespace phaser_mono {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	float fConst0;
 	float fConst1;
@@ -31,13 +31,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -88,10 +88,10 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = std::exp((0.0f - (3141.59277f / fConst0)));
 	fConst2 = mydsp_faustpower2_f(fConst1);
 	fConst3 = (0.0f - (2.0f * fConst1));
@@ -100,22 +100,19 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst6 = (4.0f / fConst0);
 	fConst7 = (8.0f / fConst0);
 	fConst8 = (16.0f / fConst0);
-	fVslider0 = FAUSTFLOAT(100.0f);
-	fHslider0 = FAUSTFLOAT(0.0f);
-	fHslider1 = FAUSTFLOAT(30.0f);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	float fSlow0 = float(fVslider0);
 	float fSlow1 = (1.0f - (0.00999999978f * fSlow0));
-	float fSlow2 = (0.00999999978f * (std::pow(10.0f, (0.0500000007f * float(fHslider0))) * fSlow0));
+	float fSlow2 = (0.00999999978f * (fSlow0 * std::pow(10.0f, (0.0500000007f * float(fHslider0)))));
 	float fSlow3 = (fConst5 * float(fHslider1));
 	float fSlow4 = std::sin(fSlow3);
 	float fSlow5 = std::cos(fSlow3);
@@ -157,9 +154,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("phaser_mono.level",N_("Level"),"S","",&fHslider0, 0.0f, -60.0f, 10.0f, 0.100000001f);
-	reg.registerVar("phaser_mono.lfobpm",N_("Speed (bpm)"),"S",N_("Speed in Beats per Minute"),&fHslider1, 30.0f, 24.0f, 360.0f, 1.0f);
-	reg.registerVar("phaser_mono.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0f, 0.0f, 100.0f, 1.0f);
+	reg.registerFloatVar("phaser_mono.level",N_("Level"),"S","",&fHslider0, 0.0f, -60.0f, 10.0f, 0.100000001f, 0);
+	reg.registerFloatVar("phaser_mono.lfobpm",N_("Speed (bpm)"),"S",N_("Speed in Beats per Minute"),&fHslider1, 30.0f, 24.0f, 360.0f, 1.0f, 0);
+	reg.registerFloatVar("phaser_mono.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0f, 0.0f, 100.0f, 1.0f, 0);
 	return 0;
 }
 

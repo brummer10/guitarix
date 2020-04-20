@@ -1,12 +1,12 @@
 // generated from file '../src/faust/duck_delay_st.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace duck_delay_st {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -91,13 +91,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -178,10 +178,10 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = std::exp((0.0 - (10.0 / fConst0)));
 	fConst2 = (1.0 - fConst1);
 	fConst3 = (1.0 / fConst0);
@@ -192,7 +192,7 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst8 = (1.0 / fConst7);
 	fConst9 = (1.0 / (((fConst5 + 1.6180339887498947) / fConst4) + 1.0));
 	fConst10 = (fConst5 + 1.0);
-	fConst11 = (0.0 - (1.0 / (fConst10 * fConst4)));
+	fConst11 = (0.0 - (1.0 / (fConst4 * fConst10)));
 	fConst12 = (0.001 * fConst0);
 	fConst13 = (1.0 / fConst10);
 	fConst14 = (1.0 - fConst5);
@@ -212,23 +212,15 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst28 = (1.0 / fConst27);
 	fConst29 = (2.0 * (1.0 - fConst28));
 	fConst30 = (((fConst20 + -0.61803398874989468) / fConst19) + 1.0);
-	fConst31 = (0.0 - (1.0 / (fConst23 * fConst19)));
+	fConst31 = (0.0 - (1.0 / (fConst19 * fConst23)));
 	fConst32 = (0.0 - (2.0 / fConst27));
-	fHslider0 = FAUSTFLOAT(0.5);
-	fHslider1 = FAUSTFLOAT(0.10000000000000001);
-	fHslider2 = FAUSTFLOAT(0.10000000000000001);
-	fHslider3 = FAUSTFLOAT(0.0);
-	fHslider4 = FAUSTFLOAT(0.0);
-	fHslider5 = FAUSTFLOAT(0.0);
-	fHslider6 = FAUSTFLOAT(500.0);
-	fHslider7 = FAUSTFLOAT(0.0);
-			IOTA = 0;
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
@@ -254,7 +246,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec1[0] = ((fSlow1 * fRec1[1]) + (fSlow2 * fRec2[0]));
 		fRec0[0] = ((fConst1 * fRec0[1]) + (fConst2 * double((1 - ((fSlow0 * fRec1[0]) > 1.0)))));
 		fRec3[0] = (fSlow5 + (0.999 * fRec3[1]));
-		double fTemp2 = ((fSlow6 * ((fSlow8 * fRec9[1]) + (fSlow7 * fRec8[1]))) + fTemp0);
+		double fTemp2 = (fTemp0 + (fSlow6 * ((fSlow8 * fRec9[1]) + (fSlow7 * fRec8[1]))));
 		fVec0[(IOTA & 524287)] = fTemp2;
 		fRec10[0] = (fSlow9 + (fConst1 * fRec10[1]));
 		double fTemp3 = (fConst12 * fRec10[0]);
@@ -284,7 +276,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec20[0] = ((fConst31 * fRec7[1]) - (fConst24 * ((fConst25 * fRec20[1]) - (fConst20 * fRec7[0]))));
 		fRec19[0] = (fRec20[0] - (fConst22 * ((fConst26 * fRec19[2]) + (fConst29 * fRec19[1]))));
 		fRec18[0] = ((fConst22 * (((fConst28 * fRec19[0]) + (fConst32 * fRec19[1])) + (fConst28 * fRec19[2]))) - (fConst21 * ((fConst30 * fRec18[2]) + (fConst29 * fRec18[1]))));
-		output0[i] = FAUSTFLOAT(((0.17782794100389229 * ((fRec0[0] * fRec3[0]) * ((fConst6 * ((((fConst8 * fRec4[0]) + (fConst17 * fRec4[1])) + (fConst8 * fRec4[2])) + (fSlow12 * (fRec12[2] + (fRec12[0] + (2.0 * fRec12[1])))))) + (fConst21 * ((fRec15[2] + (fRec15[0] + (2.0 * fRec15[1]))) + (fSlow13 * (((fConst28 * fRec18[0]) + (fConst32 * fRec18[1])) + (fConst28 * fRec18[2])))))))) + fTemp0));
+		output0[i] = FAUSTFLOAT((fTemp0 + (0.17782794100389229 * ((fRec0[0] * fRec3[0]) * ((fConst6 * ((((fConst8 * fRec4[0]) + (fConst17 * fRec4[1])) + (fConst8 * fRec4[2])) + (fSlow12 * (fRec12[2] + (fRec12[0] + (2.0 * fRec12[1])))))) + (fConst21 * ((fRec15[2] + (fRec15[0] + (2.0 * fRec15[1]))) + (fSlow13 * (((fConst28 * fRec18[0]) + (fConst32 * fRec18[1])) + (fConst28 * fRec18[2]))))))))));
 		double fTemp13 = std::fabs(fTemp10);
 		fRec23[0] = std::max<double>(fTemp13, ((fSlow3 * fRec23[1]) + (fSlow4 * fTemp13)));
 		fRec22[0] = ((fSlow1 * fRec22[1]) + (fSlow2 * fRec23[0]));
@@ -302,7 +294,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec35[0] = ((fConst31 * fRec8[1]) - (fConst24 * ((fConst25 * fRec35[1]) - (fConst20 * fRec8[0]))));
 		fRec34[0] = (fRec35[0] - (fConst22 * ((fConst26 * fRec34[2]) + (fConst29 * fRec34[1]))));
 		fRec33[0] = ((fConst22 * (((fConst28 * fRec34[0]) + (fConst32 * fRec34[1])) + (fConst28 * fRec34[2]))) - (fConst21 * ((fConst30 * fRec33[2]) + (fConst29 * fRec33[1]))));
-		output1[i] = FAUSTFLOAT(((0.17782794100389229 * ((fRec3[0] * fRec21[0]) * ((fConst6 * ((((fConst8 * fRec24[0]) + (fConst17 * fRec24[1])) + (fConst8 * fRec24[2])) + (fSlow12 * (fRec27[2] + (fRec27[0] + (2.0 * fRec27[1])))))) + (fConst21 * ((fRec30[2] + (fRec30[0] + (2.0 * fRec30[1]))) + (fSlow13 * (((fConst28 * fRec33[0]) + (fConst32 * fRec33[1])) + (fConst28 * fRec33[2])))))))) + fTemp10));
+		output1[i] = FAUSTFLOAT((fTemp10 + (0.17782794100389229 * ((fRec3[0] * fRec21[0]) * ((fConst6 * ((((fConst8 * fRec24[0]) + (fConst17 * fRec24[1])) + (fConst8 * fRec24[2])) + (fSlow12 * (fRec27[2] + (fRec27[0] + (2.0 * fRec27[1])))))) + (fConst21 * ((fRec30[2] + (fRec30[0] + (2.0 * fRec30[1]))) + (fSlow13 * (((fConst28 * fRec33[0]) + (fConst32 * fRec33[1])) + (fConst28 * fRec33[2]))))))))));
 		fRec2[1] = fRec2[0];
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];
@@ -366,14 +358,14 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("duckDelaySt.amount",N_("Amount"),"S","",&fHslider0, 0.5, 0.0, 56.0, 0.050000000000000003);
-	reg.registerVar("duckDelaySt.attack",N_("Attack"),"S","",&fHslider1, 0.10000000000000001, 0.050000000000000003, 0.5, 0.050000000000000003);
-	reg.registerVar("duckDelaySt.coloration",N_("Coloration"),"S","",&fHslider7, 0.0, -1.0, 1.0, 0.050000000000000003);
-	reg.registerVar("duckDelaySt.effect",N_("Effect"),"S","",&fHslider3, 0.0, -16.0, 4.0, 0.10000000000000001);
-	reg.registerVar("duckDelaySt.feedback",N_("Feedback"),"S","",&fHslider4, 0.0, 0.0, 1.0, 0.050000000000000003);
-	reg.registerVar("duckDelaySt.pingpong",N_("Ping Pong"),"S","",&fHslider5, 0.0, 0.0, 1.0, 0.050000000000000003);
-	reg.registerVar("duckDelaySt.release",N_("Release"),"S","",&fHslider2, 0.10000000000000001, 0.050000000000000003, 2.0, 0.050000000000000003);
-	reg.registerVar("duckDelaySt.time",N_("Delay"),"S","",&fHslider6, 500.0, 1.0, 2000.0, 1.0);
+	reg.registerFloatVar("duckDelaySt.amount",N_("Amount"),"S","",&fHslider0, 0.5, 0.0, 56.0, 0.050000000000000003, 0);
+	reg.registerFloatVar("duckDelaySt.attack",N_("Attack"),"S","",&fHslider1, 0.10000000000000001, 0.050000000000000003, 0.5, 0.050000000000000003, 0);
+	reg.registerFloatVar("duckDelaySt.coloration",N_("Coloration"),"S","",&fHslider7, 0.0, -1.0, 1.0, 0.050000000000000003, 0);
+	reg.registerFloatVar("duckDelaySt.effect",N_("Effect"),"S","",&fHslider3, 0.0, -16.0, 4.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("duckDelaySt.feedback",N_("Feedback"),"S","",&fHslider4, 0.0, 0.0, 1.0, 0.050000000000000003, 0);
+	reg.registerFloatVar("duckDelaySt.pingpong",N_("Ping Pong"),"S","",&fHslider5, 0.0, 0.0, 1.0, 0.050000000000000003, 0);
+	reg.registerFloatVar("duckDelaySt.release",N_("Release"),"S","",&fHslider2, 0.10000000000000001, 0.050000000000000003, 2.0, 0.050000000000000003, 0);
+	reg.registerFloatVar("duckDelaySt.time",N_("Delay"),"S","",&fHslider6, 500.0, 1.0, 2000.0, 1.0, 0);
 	return 0;
 }
 

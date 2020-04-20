@@ -1,12 +1,12 @@
 // generated from file '../src/faust/bass_enhancer.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace bass_enhancer {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
@@ -44,13 +44,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -119,22 +119,20 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (3.1415926535897931 / fConst0);
 	fConst2 = (62.831853071795862 / fConst0);
 	fConst3 = (1.0 / (fConst2 + 1.0));
 	fConst4 = (1.0 - fConst2);
-	fHslider0 = FAUSTFLOAT(100.0);
-	fHslider1 = FAUSTFLOAT(0.0);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
@@ -242,8 +240,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("bassEnhancer.Frequency","","S","",&fHslider0, 100.0, 60.0, 240.0, 5.0);
-	reg.registerVar("bassEnhancer.HarmonicsdB",N_("Harmonics"),"S","",&fHslider1, 0.0, -16.0, 32.0, 0.10000000000000001);
+	reg.registerFloatVar("bassEnhancer.Frequency","","S","",&fHslider0, 100.0, 60.0, 240.0, 5.0, 0);
+	reg.registerFloatVar("bassEnhancer.HarmonicsdB",N_("Harmonics"),"S","",&fHslider1, 0.0, -16.0, 32.0, 0.10000000000000001, 0);
 	return 0;
 }
 

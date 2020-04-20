@@ -1,5 +1,5 @@
 // generated from file '../src/faust/dattorros_progenitor.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace dattorros_progenitor {
@@ -13,27 +13,23 @@ class mydspSIG0 {
 	
 	int getNumInputsmydspSIG0() {
 		return 0;
-		
 	}
 	int getNumOutputsmydspSIG0() {
 		return 1;
-		
 	}
 	int getInputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			default: {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	int getOutputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			case 0: {
 				rate = 0;
 				break;
@@ -42,41 +38,35 @@ class mydspSIG0 {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	
-	void instanceInitmydspSIG0(int samplingFreq) {
+	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l15 = 0; (l15 < 2); l15 = (l15 + 1)) {
 			iRec22[l15] = 0;
-			
 		}
-		
 	}
 	
-	void fillmydspSIG0(int count, double* output) {
+	void fillmydspSIG0(int count, double* table) {
 		for (int i = 0; (i < count); i = (i + 1)) {
 			iRec22[0] = (iRec22[1] + 1);
-			output[i] = std::sin((9.5873799242852573e-05 * double((iRec22[0] + -1))));
+			table[i] = std::sin((9.5873799242852573e-05 * double((iRec22[0] + -1))));
 			iRec22[1] = iRec22[0];
-			
 		}
-		
 	}
 
 };
 
-mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
-void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
+static mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
+static void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
 
 static double ftbl0mydspSIG0[65536];
 
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fHslider1;
 	FAUSTFLOAT fHslider2;
@@ -140,13 +130,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -220,14 +210,14 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
 	mydspSIG0* sig0 = newmydspSIG0();
-	sig0->instanceInitmydspSIG0(samplingFreq);
+	sig0->instanceInitmydspSIG0(sample_rate);
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (0.001 * fConst0);
 	fConst2 = (10.0 / fConst0);
 	fConst3 = (0.0 - fConst2);
@@ -244,23 +234,13 @@ inline void Dsp::init(unsigned int samplingFreq)
 	iConst14 = int((0.14169550754342933 * fConst0));
 	iConst15 = int((0.089244313027116023 * fConst0));
 	iConst16 = int((0.10628003091293975 * fConst0));
-	fHslider0 = FAUSTFLOAT(0.5);
-	fHslider1 = FAUSTFLOAT(0.10000000000000001);
-	fHslider2 = FAUSTFLOAT(0.10000000000000001);
-	fHslider3 = FAUSTFLOAT(0.90000000000000002);
-	fHslider4 = FAUSTFLOAT(0.0);
-	fHslider5 = FAUSTFLOAT(0.10000000000000001);
-	fHslider6 = FAUSTFLOAT(0.10000000000000001);
-	fHslider7 = FAUSTFLOAT(0.10000000000000001);
-	fHslider8 = FAUSTFLOAT(0.0);
-	fHslider9 = FAUSTFLOAT(0.10000000000000001);
-			IOTA = 0;
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
@@ -281,11 +261,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow13 = double(fHslider9);
 	for (int i = 0; (i < count); i = (i + 1)) {
 		double fTemp0 = double(input0[i]);
-		double fTemp1 = ((fRec18[1] != 0.0)?(((fRec19[1] > 0.0) & (fRec19[1] < 1.0))?fRec18[1]:0.0):(((fRec19[1] == 0.0) & (fSlow8 != fRec20[1]))?fConst2:(((fRec19[1] == 1.0) & (fSlow8 != fRec21[1]))?fConst3:0.0)));
+		double fTemp1 = ((fRec18[1] != 0.0) ? (((fRec19[1] > 0.0) & (fRec19[1] < 1.0)) ? fRec18[1] : 0.0) : (((fRec19[1] == 0.0) & (fSlow8 != fRec20[1])) ? fConst2 : (((fRec19[1] == 1.0) & (fSlow8 != fRec21[1])) ? fConst3 : 0.0)));
 		fRec18[0] = fTemp1;
 		fRec19[0] = std::max<double>(0.0, std::min<double>(1.0, (fRec19[1] + fTemp1)));
-		fRec20[0] = (((fRec19[1] >= 1.0) & (fRec21[1] != fSlow8))?fSlow8:fRec20[1]);
-		fRec21[0] = (((fRec19[1] <= 0.0) & (fRec20[1] != fSlow8))?fSlow8:fRec21[1]);
+		fRec20[0] = (((fRec19[1] >= 1.0) & (fRec21[1] != fSlow8)) ? fSlow8 : fRec20[1]);
+		fRec21[0] = (((fRec19[1] <= 0.0) & (fRec20[1] != fSlow8)) ? fSlow8 : fRec21[1]);
 		double fTemp2 = double(input1[i]);
 		double fTemp3 = (fTemp0 + fTemp2);
 		fVec0[(IOTA & 524287)] = fTemp3;
@@ -375,16 +355,16 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("dattorros_progenitor.bandwidth",N_("Bandwidth"),"S","",&fHslider3, 0.90000000000000002, 0.10000000000000001, 0.94999999999999996, 0.00050000000000000001);
-	reg.registerVar("dattorros_progenitor.damping",N_("HF Damp"),"S","",&fHslider2, 0.10000000000000001, 0.10000000000000001, 0.94999999999999996, 0.00050000000000000001);
-	reg.registerVar("dattorros_progenitor.decay diff 1",N_("Decay 1"),"S","",&fHslider7, 0.10000000000000001, 0.0, 0.69999999999999996, 0.01);
-	reg.registerVar("dattorros_progenitor.decay diff 2",N_("Decay 2"),"S","",&fHslider9, 0.10000000000000001, 0.0, 0.5, 0.01);
-	reg.registerVar("dattorros_progenitor.decay",N_("Decay"),"S","",&fHslider1, 0.10000000000000001, 0.0, 0.5, 0.01);
-	reg.registerVar("dattorros_progenitor.dry/wet",N_("Dry/Wet"),"S","",&fHslider0, 0.5, 0.0, 1.0, 0.050000000000000003);
-	reg.registerVar("dattorros_progenitor.excursion",N_("Excursion"),"S","",&fHslider8, 0.0, 0.0, 16.0, 0.5);
-	reg.registerVar("dattorros_progenitor.input diff 1",N_("Input 1"),"S","",&fHslider5, 0.10000000000000001, 0.0, 0.75, 0.01);
-	reg.registerVar("dattorros_progenitor.input diff 2",N_("Input 2"),"S","",&fHslider6, 0.10000000000000001, 0.0, 0.625, 0.01);
-	reg.registerVar("dattorros_progenitor.predelay ms",N_("Predelay"),"S","",&fHslider4, 0.0, 0.0, 200.0, 10.0);
+	reg.registerFloatVar("dattorros_progenitor.bandwidth",N_("Bandwidth"),"S","",&fHslider3, 0.90000000000000002, 0.10000000000000001, 0.94999999999999996, 0.00050000000000000001, 0);
+	reg.registerFloatVar("dattorros_progenitor.damping",N_("HF Damp"),"S","",&fHslider2, 0.10000000000000001, 0.10000000000000001, 0.94999999999999996, 0.00050000000000000001, 0);
+	reg.registerFloatVar("dattorros_progenitor.decay diff 1",N_("Decay 1"),"S","",&fHslider7, 0.10000000000000001, 0.0, 0.69999999999999996, 0.01, 0);
+	reg.registerFloatVar("dattorros_progenitor.decay diff 2",N_("Decay 2"),"S","",&fHslider9, 0.10000000000000001, 0.0, 0.5, 0.01, 0);
+	reg.registerFloatVar("dattorros_progenitor.decay",N_("Decay"),"S","",&fHslider1, 0.10000000000000001, 0.0, 0.5, 0.01, 0);
+	reg.registerFloatVar("dattorros_progenitor.dry/wet",N_("Dry/Wet"),"S","",&fHslider0, 0.5, 0.0, 1.0, 0.050000000000000003, 0);
+	reg.registerFloatVar("dattorros_progenitor.excursion",N_("Excursion"),"S","",&fHslider8, 0.0, 0.0, 16.0, 0.5, 0);
+	reg.registerFloatVar("dattorros_progenitor.input diff 1",N_("Input 1"),"S","",&fHslider5, 0.10000000000000001, 0.0, 0.75, 0.01, 0);
+	reg.registerFloatVar("dattorros_progenitor.input diff 2",N_("Input 2"),"S","",&fHslider6, 0.10000000000000001, 0.0, 0.625, 0.01, 0);
+	reg.registerFloatVar("dattorros_progenitor.predelay ms",N_("Predelay"),"S","",&fHslider4, 0.0, 0.0, 200.0, 10.0, 0);
 	return 0;
 }
 

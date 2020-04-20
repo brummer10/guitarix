@@ -1,12 +1,12 @@
 // generated from file '../src/faust/selecteq.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 
 namespace selecteq {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	double fConst0;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT fVslider1;
@@ -62,13 +62,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -131,46 +131,16 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (3.1415926535897931 / std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq))));
-	fVslider0 = FAUSTFLOAT(16000.0);
-	fVslider1 = FAUSTFLOAT(8000.0);
-	fVslider2 = FAUSTFLOAT(4000.0);
-	fVslider3 = FAUSTFLOAT(2000.0);
-	fVslider4 = FAUSTFLOAT(1000.0);
-	fVslider5 = FAUSTFLOAT(500.0);
-	fVslider6 = FAUSTFLOAT(250.0);
-	fVslider7 = FAUSTFLOAT(125.0);
-	fVslider8 = FAUSTFLOAT(62.5);
-	fVslider9 = FAUSTFLOAT(31.25);
-	fVslider10 = FAUSTFLOAT(50.0);
-	fVslider11 = FAUSTFLOAT(0.0);
-	fVslider12 = FAUSTFLOAT(50.0);
-	fVslider13 = FAUSTFLOAT(0.0);
-	fVslider14 = FAUSTFLOAT(50.0);
-	fVslider15 = FAUSTFLOAT(0.0);
-	fVslider16 = FAUSTFLOAT(50.0);
-	fVslider17 = FAUSTFLOAT(0.0);
-	fVslider18 = FAUSTFLOAT(50.0);
-	fVslider19 = FAUSTFLOAT(0.0);
-	fVslider20 = FAUSTFLOAT(50.0);
-	fVslider21 = FAUSTFLOAT(0.0);
-	fVslider22 = FAUSTFLOAT(50.0);
-	fVslider23 = FAUSTFLOAT(0.0);
-	fVslider24 = FAUSTFLOAT(50.0);
-	fVslider25 = FAUSTFLOAT(0.0);
-	fVslider26 = FAUSTFLOAT(50.0);
-	fVslider27 = FAUSTFLOAT(0.0);
-	fVslider28 = FAUSTFLOAT(50.0);
-	fVslider29 = FAUSTFLOAT(0.0);
+	fSampleRate = sample_rate;
+	fConst0 = (3.1415926535897931 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -327,36 +297,36 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("eqs.Qs125","","S",N_("bandwidth"),&fVslider14, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.Qs16k","","S","",&fVslider28, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.Qs1k","","S",N_("bandwidth"),&fVslider20, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.Qs250","","S",N_("bandwidth"),&fVslider16, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.Qs2k","","S",N_("bandwidth"),&fVslider22, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.Qs31_25","","S",N_("bandwidth"),&fVslider10, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.Qs4k","","S","",&fVslider24, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.Qs500","","S",N_("bandwidth"),&fVslider18, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.Qs62_5","","S",N_("bandwidth"),&fVslider12, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.Qs8k","","S","",&fVslider26, 50.0, 1.0, 100.0, 1.0);
-	reg.registerVar("eqs.freq125","","S",N_("Hz"),&fVslider7, 125.0, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.freq16k","","S",N_("Hz"),&fVslider0, 16000.0, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.freq1k","","S",N_("Hz"),&fVslider4, 1000.0, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.freq250","","S",N_("Hz"),&fVslider6, 250.0, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.freq2k","","S",N_("Hz"),&fVslider3, 2000.0, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.freq31_25","","S",N_("Hz"),&fVslider9, 31.25, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.freq4k","","S",N_("Hz"),&fVslider2, 4000.0, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.freq500","","S",N_("Hz"),&fVslider5, 500.0, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.freq62_5","","S",N_("Hz"),&fVslider8, 62.5, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.freq8k","","S",N_("Hz"),&fVslider1, 8000.0, 20.0, 20000.0, 1.0);
-	reg.registerVar("eqs.fs125","","S",N_("gain (dB) at 125 Hz"),&fVslider15, 0.0, -40.0, 30.0, 0.10000000000000001);
-	reg.registerVar("eqs.fs16k","","S",N_("gain (dB) at 16 kHz"),&fVslider29, 0.0, -40.0, 30.0, 0.10000000000000001);
-	reg.registerVar("eqs.fs1k","","S",N_("gain (dB) at 1 kHz"),&fVslider21, 0.0, -40.0, 30.0, 0.10000000000000001);
-	reg.registerVar("eqs.fs250","","S",N_("gain (dB) at 250 Hz"),&fVslider17, 0.0, -40.0, 30.0, 0.10000000000000001);
-	reg.registerVar("eqs.fs2k","","S",N_("gain (dB) at 2 kHz"),&fVslider23, 0.0, -40.0, 30.0, 0.10000000000000001);
-	reg.registerVar("eqs.fs31_25","","S",N_("gain (dB) at 31.25 Hz"),&fVslider11, 0.0, -40.0, 30.0, 0.10000000000000001);
-	reg.registerVar("eqs.fs4k","","S",N_("gain (dB) at 4 kHz"),&fVslider25, 0.0, -40.0, 30.0, 0.10000000000000001);
-	reg.registerVar("eqs.fs500","","S",N_("gain (dB) at 500 Hz"),&fVslider19, 0.0, -40.0, 30.0, 0.10000000000000001);
-	reg.registerVar("eqs.fs62_5","","S",N_("gain (dB) at 62.5 Hz"),&fVslider13, 0.0, -40.0, 30.0, 0.10000000000000001);
-	reg.registerVar("eqs.fs8k","","S",N_("gain (dB) at 8 kHz"),&fVslider27, 0.0, -40.0, 30.0, 0.10000000000000001);
+	reg.registerFloatVar("eqs.Qs125","","S",N_("bandwidth"),&fVslider14, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.Qs16k","","S","",&fVslider28, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.Qs1k","","S",N_("bandwidth"),&fVslider20, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.Qs250","","S",N_("bandwidth"),&fVslider16, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.Qs2k","","S",N_("bandwidth"),&fVslider22, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.Qs31_25","","S",N_("bandwidth"),&fVslider10, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.Qs4k","","S","",&fVslider24, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.Qs500","","S",N_("bandwidth"),&fVslider18, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.Qs62_5","","S",N_("bandwidth"),&fVslider12, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.Qs8k","","S","",&fVslider26, 50.0, 1.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq125","","S",N_("Hz"),&fVslider7, 125.0, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq16k","","S",N_("Hz"),&fVslider0, 16000.0, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq1k","","S",N_("Hz"),&fVslider4, 1000.0, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq250","","S",N_("Hz"),&fVslider6, 250.0, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq2k","","S",N_("Hz"),&fVslider3, 2000.0, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq31_25","","S",N_("Hz"),&fVslider9, 31.25, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq4k","","S",N_("Hz"),&fVslider2, 4000.0, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq500","","S",N_("Hz"),&fVslider5, 500.0, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq62_5","","S",N_("Hz"),&fVslider8, 62.5, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.freq8k","","S",N_("Hz"),&fVslider1, 8000.0, 20.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eqs.fs125","","S",N_("gain (dB) at 125 Hz"),&fVslider15, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("eqs.fs16k","","S",N_("gain (dB) at 16 kHz"),&fVslider29, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("eqs.fs1k","","S",N_("gain (dB) at 1 kHz"),&fVslider21, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("eqs.fs250","","S",N_("gain (dB) at 250 Hz"),&fVslider17, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("eqs.fs2k","","S",N_("gain (dB) at 2 kHz"),&fVslider23, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("eqs.fs31_25","","S",N_("gain (dB) at 31.25 Hz"),&fVslider11, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("eqs.fs4k","","S",N_("gain (dB) at 4 kHz"),&fVslider25, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("eqs.fs500","","S",N_("gain (dB) at 500 Hz"),&fVslider19, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("eqs.fs62_5","","S",N_("gain (dB) at 62.5 Hz"),&fVslider13, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("eqs.fs8k","","S",N_("gain (dB) at 8 kHz"),&fVslider27, 0.0, -40.0, 30.0, 0.10000000000000001, 0);
 	return 0;
 }
 
@@ -385,14 +355,16 @@ const char *Dsp::glade_def = "\
           <object class=\"GxPaintBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
-            <property name=\"spacing\">4</property>\n\
+            <property name=\"margin_left\">4</property>\n\
+            <property name=\"margin_right\">5</property>\n\
             <property name=\"paint_func\">box_uni_2_expose</property>\n\
             <child>\n\
               <object class=\"GtkGrid\" id=\"table1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
+                <property name=\"margin_left\">10</property>\n\
+                <property name=\"margin_right\">10</property>\n\
                 <property name=\"row_spacing\">10</property>\n\
-                <property name=\"column_spacing\">3</property>\n\
                 <child>\n\
                   <object class=\"GtkBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
@@ -768,6 +740,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"hexpand\">True</property>\n\
                     <property name=\"var_id\">eqs.fs31_25</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -780,6 +753,9 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"margin_left\">8</property>\n\
+                    <property name=\"margin_right\">8</property>\n\
+                    <property name=\"hexpand\">True</property>\n\
                     <property name=\"var_id\">eqs.fs62_5</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -792,6 +768,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"hexpand\">True</property>\n\
                     <property name=\"var_id\">eqs.fs125</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -804,6 +781,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"hexpand\">True</property>\n\
                     <property name=\"var_id\">eqs.fs250</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -816,6 +794,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"hexpand\">True</property>\n\
                     <property name=\"var_id\">eqs.fs500</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -828,6 +807,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"hexpand\">True</property>\n\
                     <property name=\"var_id\">eqs.fs1k</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -840,6 +820,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"hexpand\">True</property>\n\
                     <property name=\"var_id\">eqs.fs2k</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -852,6 +833,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"hexpand\">False</property>\n\
                     <property name=\"var_id\">eqs.fs4k</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -864,6 +846,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"hexpand\">True</property>\n\
                     <property name=\"var_id\">eqs.fs8k</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -876,6 +859,7 @@ const char *Dsp::glade_def = "\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <property name=\"receives_default\">True</property>\n\
+                    <property name=\"hexpand\">True</property>\n\
                     <property name=\"var_id\">eqs.fs16k</property>\n\
                   </object>\n\
                   <packing>\n\
@@ -1012,7 +996,7 @@ const char *Dsp::glade_def = "\
             </child>\n\
           </object>\n\
           <packing>\n\
-            <property name=\"expand\">True</property>\n\
+            <property name=\"expand\">False</property>\n\
             <property name=\"fill\">False</property>\n\
             <property name=\"position\">0</property>\n\
           </packing>\n\
@@ -1022,9 +1006,6 @@ const char *Dsp::glade_def = "\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
-            <child>\n\
-              <placeholder/>\n\
-            </child>\n\
             <child>\n\
               <placeholder/>\n\
             </child>\n\

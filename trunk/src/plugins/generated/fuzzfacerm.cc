@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/fuzzfacerm.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -11,7 +11,7 @@ namespace fuzzfacerm {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fVslider0;
@@ -87,7 +87,6 @@ private:
 	double fConst67;
 
 
-	int samplingFreq;
 	gx_resample::FixedRateResampler smpCl;
 	double fConstCl0;
 	double fConstCl1;
@@ -114,13 +113,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -179,65 +178,65 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = mydsp_faustpower2_f(fConst0);
 	fConst2 = (2.0307859405637e-32 * fConst0);
-	fConst3 = ((((-8.8888620759015093e-30 - fConst2) * fConst0) + 2.8164416336467701e-27) * fConst0);
+	fConst3 = (fConst0 * ((fConst0 * (-8.8888620759015093e-30 - fConst2)) + 2.8164416336467701e-27));
 	fConst4 = (9.9508577426340807e-30 * fConst0);
-	fConst5 = (((((-8.2687471495045495e-28 - fConst4) * fConst0) + 5.0040645748528796e-25) * fConst0) + 1.0646926328610301e-27);
+	fConst5 = ((fConst0 * ((fConst0 * (-8.2687471495045495e-28 - fConst4)) + 5.0040645748528796e-25)) + 1.0646926328610301e-27);
 	fConst6 = (5.1856178516789402e-15 * fConst0);
-	fConst7 = (((-4.3274021590667601e-13 - fConst6) * fConst0) + 2.6123111187704002e-10);
+	fConst7 = ((fConst0 * (-4.3274021590667601e-13 - fConst6)) + 2.6123111187704002e-10);
 	fConst8 = (9.1535918071901097e-14 * fConst0);
-	fConst9 = (((-2.08816997599123e-11 - fConst8) * fConst0) + 2.2172653570876899e-11);
+	fConst9 = ((fConst0 * (-2.08816997599123e-11 - fConst8)) + 2.2172653570876899e-11);
 	fConst10 = (9.6721535923580095e-14 * fConst0);
-	fConst11 = (((fConst10 + 2.08898268350887e-11) * fConst0) + -2.2179341569602201e-11);
+	fConst11 = ((fConst0 * (fConst10 + 2.08898268350887e-11)) + -2.2179341569602201e-11);
 	fConst12 = (3.7877981162792101e-31 * fConst0);
-	fConst13 = (((fConst12 + 2.1599331719778501e-28) * fConst0) + -8.6887484106783095e-26);
+	fConst13 = ((fConst0 * (fConst12 + 2.1599331719778501e-28)) + -8.6887484106783095e-26);
 	fConst14 = (1.8560223143188301e-28 * fConst0);
-	fConst15 = (((fConst14 + 4.0020445737400903e-26) * fConst0) + -2.8383244808045302e-29);
+	fConst15 = ((fConst0 * (fConst14 + 4.0020445737400903e-26)) + -2.8383244808045302e-29);
 	fConst16 = (3.5847195222228401e-31 * fConst0);
-	fConst17 = (((-2.0876732041785599e-28 - fConst16) * fConst0) + 8.6861283897857698e-26);
+	fConst17 = ((fConst0 * (-2.0876732041785599e-28 - fConst16)) + 8.6861283897857698e-26);
 	fConst18 = (1.7565137368924901e-28 * fConst0);
-	fConst19 = (((-4.0008375560677603e-26 - fConst18) * fConst0) + 2.8374686073129699e-29);
-	fConst20 = ((((fConst2 + -8.8888620759015093e-30) * fConst0) + -2.8164416336467701e-27) * fConst0);
-	fConst21 = (((((fConst4 + -8.2687471495045495e-28) * fConst0) + -5.0040645748528796e-25) * fConst0) + 1.0646926328610301e-27);
-	fConst22 = (((fConst6 + -4.3274021590667601e-13) * fConst0) + -2.6123111187704002e-10);
-	fConst23 = (((fConst8 + -2.08816997599123e-11) * fConst0) + -2.2172653570876899e-11);
-	fConst24 = (((2.08898268350887e-11 - fConst10) * fConst0) + 2.2179341569602201e-11);
-	fConst25 = (((2.1599331719778501e-28 - fConst12) * fConst0) + 8.6887484106783095e-26);
-	fConst26 = (((4.0020445737400903e-26 - fConst14) * fConst0) + 2.8383244808045302e-29);
-	fConst27 = (((fConst16 + -2.0876732041785599e-28) * fConst0) + -8.6861283897857698e-26);
-	fConst28 = (((fConst18 + -4.0008375560677603e-26) * fConst0) + -2.8374686073129699e-29);
+	fConst19 = ((fConst0 * (-4.0008375560677603e-26 - fConst18)) + 2.8374686073129699e-29);
+	fConst20 = (fConst0 * ((fConst0 * (fConst2 + -8.8888620759015093e-30)) + -2.8164416336467701e-27));
+	fConst21 = ((fConst0 * ((fConst0 * (fConst4 + -8.2687471495045495e-28)) + -5.0040645748528796e-25)) + 1.0646926328610301e-27);
+	fConst22 = ((fConst0 * (fConst6 + -4.3274021590667601e-13)) + -2.6123111187704002e-10);
+	fConst23 = ((fConst0 * (fConst8 + -2.08816997599123e-11)) + -2.2172653570876899e-11);
+	fConst24 = ((fConst0 * (2.08898268350887e-11 - fConst10)) + 2.2179341569602201e-11);
+	fConst25 = ((fConst0 * (2.1599331719778501e-28 - fConst12)) + 8.6887484106783095e-26);
+	fConst26 = ((fConst0 * (4.0020445737400903e-26 - fConst14)) + 2.8383244808045302e-29);
+	fConst27 = ((fConst0 * (fConst16 + -2.0876732041785599e-28)) + -8.6861283897857698e-26);
+	fConst28 = ((fConst0 * (fConst18 + -4.0008375560677603e-26)) + -2.8374686073129699e-29);
 	fConst29 = (6.7692864685456698e-33 * fConst0);
-	fConst30 = ((((8.8888620759015093e-30 - fConst29) * fConst0) + -2.8164416336467701e-27) * fConst0);
+	fConst30 = (fConst0 * ((fConst0 * (8.8888620759015093e-30 - fConst29)) + -2.8164416336467701e-27));
 	fConst31 = (3.3169525808780299e-30 * fConst0);
-	fConst32 = (((((8.2687471495045495e-28 - fConst31) * fConst0) + -5.0040645748528796e-25) * fConst0) + 3.5489754428701101e-28);
+	fConst32 = ((fConst0 * ((fConst0 * (8.2687471495045495e-28 - fConst31)) + -5.0040645748528796e-25)) + 3.5489754428701101e-28);
 	fConst33 = (1.7285392838929801e-15 * fConst0);
-	fConst34 = (((4.3274021590667601e-13 - fConst33) * fConst0) + -2.6123111187704002e-10);
+	fConst34 = ((fConst0 * (4.3274021590667601e-13 - fConst33)) + -2.6123111187704002e-10);
 	fConst35 = (3.0511972690633699e-14 * fConst0);
-	fConst36 = (((2.08816997599123e-11 - fConst35) * fConst0) + -2.2172653570876899e-11);
+	fConst36 = ((fConst0 * (2.08816997599123e-11 - fConst35)) + -2.2172653570876899e-11);
 	fConst37 = (3.2240511974526703e-14 * fConst0);
-	fConst38 = (((fConst37 + -2.08898268350887e-11) * fConst0) + 2.2179341569602201e-11);
+	fConst38 = ((fConst0 * (fConst37 + -2.08898268350887e-11)) + 2.2179341569602201e-11);
 	fConst39 = (1.26259937209307e-31 * fConst0);
-	fConst40 = (((fConst39 + -2.1599331719778501e-28) * fConst0) + 8.6887484106783095e-26);
+	fConst40 = ((fConst0 * (fConst39 + -2.1599331719778501e-28)) + 8.6887484106783095e-26);
 	fConst41 = (6.1867410477294198e-29 * fConst0);
-	fConst42 = (((fConst41 + -4.0020445737400903e-26) * fConst0) + 2.8383244808045302e-29);
+	fConst42 = ((fConst0 * (fConst41 + -4.0020445737400903e-26)) + 2.8383244808045302e-29);
 	fConst43 = (1.1949065074076101e-31 * fConst0);
-	fConst44 = (((2.0876732041785599e-28 - fConst43) * fConst0) + -8.6861283897857698e-26);
+	fConst44 = ((fConst0 * (2.0876732041785599e-28 - fConst43)) + -8.6861283897857698e-26);
 	fConst45 = (5.8550457896416201e-29 * fConst0);
-	fConst46 = (((4.0008375560677603e-26 - fConst45) * fConst0) + -2.8374686073129699e-29);
-	fConst47 = ((((fConst29 + 8.8888620759015093e-30) * fConst0) + 2.8164416336467701e-27) * fConst0);
-	fConst48 = (((((fConst31 + 8.2687471495045495e-28) * fConst0) + 5.0040645748528796e-25) * fConst0) + 3.5489754428701101e-28);
-	fConst49 = (((fConst33 + 4.3274021590667601e-13) * fConst0) + 2.6123111187704002e-10);
-	fConst50 = (((fConst35 + 2.08816997599123e-11) * fConst0) + 2.2172653570876899e-11);
-	fConst51 = (((-2.08898268350887e-11 - fConst37) * fConst0) + -2.2179341569602201e-11);
-	fConst52 = (((-2.1599331719778501e-28 - fConst39) * fConst0) + -8.6887484106783095e-26);
-	fConst53 = (((-4.0020445737400903e-26 - fConst41) * fConst0) + -2.8383244808045302e-29);
-	fConst54 = (((fConst43 + 2.0876732041785599e-28) * fConst0) + 8.6861283897857698e-26);
-	fConst55 = (((fConst45 + 4.0008375560677603e-26) * fConst0) + 2.8374686073129699e-29);
+	fConst46 = ((fConst0 * (4.0008375560677603e-26 - fConst45)) + -2.8374686073129699e-29);
+	fConst47 = (fConst0 * ((fConst0 * (fConst29 + 8.8888620759015093e-30)) + 2.8164416336467701e-27));
+	fConst48 = ((fConst0 * ((fConst0 * (fConst31 + 8.2687471495045495e-28)) + 5.0040645748528796e-25)) + 3.5489754428701101e-28);
+	fConst49 = ((fConst0 * (fConst33 + 4.3274021590667601e-13)) + 2.6123111187704002e-10);
+	fConst50 = ((fConst0 * (fConst35 + 2.08816997599123e-11)) + 2.2172653570876899e-11);
+	fConst51 = ((fConst0 * (-2.08898268350887e-11 - fConst37)) + -2.2179341569602201e-11);
+	fConst52 = ((fConst0 * (-2.1599331719778501e-28 - fConst39)) + -8.6887484106783095e-26);
+	fConst53 = ((fConst0 * (-4.0020445737400903e-26 - fConst41)) + -2.8383244808045302e-29);
+	fConst54 = ((fConst0 * (fConst43 + 2.0876732041785599e-28)) + 8.6861283897857698e-26);
+	fConst55 = ((fConst0 * (fConst45 + 4.0008375560677603e-26)) + 2.8374686073129699e-29);
 	fConst56 = (2.2773411020084502e-12 * fConst0);
 	fConst57 = (fConst56 + 2.9038108503536499e-11);
 	fConst58 = (2.23179427996828e-12 * fConst0);
@@ -250,17 +249,15 @@ inline void Dsp::init(unsigned int samplingFreq)
 	fConst65 = (2.8457346333465799e-11 - fConst62);
 	fConst66 = (2.9038108503536499e-11 - fConst56);
 	fConst67 = (fConst58 + -2.8457346333465799e-11);
-	fVslider0 = FAUSTFLOAT(0.5);
-	fVslider1 = FAUSTFLOAT(0.5);
 
-	samplingFreq = 96000;
-	smpCl.setup(fSamplingFreq, samplingFreq);
-	fSamplingFreq = samplingFreq;
-	fConstCl0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	sample_rate = 96000;
+	smpCl.setup(fSampleRate, sample_rate);
+	fSampleRate = sample_rate;
+	fConstCl0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConstCl1 = std::tan((97.389372261283583 / fConstCl0));
 	fConstCl2 = (1.0 / fConstCl1);
 	fConstCl3 = (fConstCl2 + 1.0);
-	fConstCl4 = (1.0 / (fConstCl3 * fConstCl1));
+	fConstCl4 = (1.0 / (fConstCl1 * fConstCl3));
 	fConstCl5 = (1.0 / std::tan((270.1769682087222 / fConstCl0)));
 	fConstCl6 = (1.0 / (fConstCl5 + 1.0));
 	fConstCl7 = (1.0 - fConstCl5);
@@ -270,9 +267,9 @@ inline void Dsp::init(unsigned int samplingFreq)
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -301,7 +298,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i = 0; (i < ReCount); i = (i + 1)) {
 		double fTemp0 = double(bufCl[i]);
 		fVecCl0[0] = fTemp0;
-		fRecCl7[0] = ((0.93028479253239138 * (fVecCl0[1] + fTemp0)) - (0.86056958506478287 * fRecCl7[1]));
+		fRecCl7[0] = ((0.93028479253239138 * (fTemp0 + fVecCl0[1])) - (0.86056958506478287 * fRecCl7[1]));
 		fRecCl6[0] = (fRecCl7[0] - ((1.8405051250752198 * fRecCl6[1]) + (0.86129424393186271 * fRecCl6[2])));
 		fRecCl8[0] = (fConstCl6 * ((0.027 * (fRecCl5[1] + fRecCl5[2])) - (fConstCl7 * fRecCl8[1])));
 		fRecCl5[0] = (double(Ftrany(int(TRANY_TABLE_KT88_68k), double((((0.92544984225177063 * (fRecCl6[0] + fRecCl6[2])) + (fRecCl8[0] + (1.8508996845035413 * fRecCl6[1]))) + -5.5628950000000001)))) + -43.966851851851828);
@@ -339,8 +336,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("fuzzfacerm.Fuzz",N_("Fuzz"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("fuzzfacerm.Level",N_("Level"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01);
+	reg.registerFloatVar("fuzzfacerm.Fuzz",N_("Fuzz"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("fuzzfacerm.Level",N_("Level"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01, 0);
 	return 0;
 }
 

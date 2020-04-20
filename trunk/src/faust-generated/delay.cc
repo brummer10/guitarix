@@ -1,16 +1,16 @@
 // generated from file '../src/faust/delay.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 
 namespace delay {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
-	FAUSTFLOAT fVslider0;
-	float fRec0[2];
+	int fSampleRate;
 	int IOTA;
 	float *fVec0;
+	FAUSTFLOAT fVslider0;
+	float fRec0[2];
 	float fConst0;
 	float fConst1;
 	FAUSTFLOAT fHslider0;
@@ -28,14 +28,14 @@ private:
 	int activate(bool start);
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int activate_static(bool start, PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -73,8 +73,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec0[l0] = 0.0f;
-	for (int l1 = 0; (l1 < 1048576); l1 = (l1 + 1)) fVec0[l1] = 0.0f;
+	for (int l0 = 0; (l0 < 1048576); l0 = (l0 + 1)) fVec0[l0] = 0.0f;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0f;
 	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec1[l2] = 0.0f;
 	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec2[l3] = 0.0f;
 	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec3[l4] = 0.0f;
@@ -86,21 +86,19 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = (60.0f * fConst0);
 	fConst2 = (10.0f / fConst0);
 	fConst3 = (0.0f - fConst2);
-	fVslider0 = FAUSTFLOAT(0.0f);
-	fHslider0 = FAUSTFLOAT(120.0f);
-			IOTA = 0;
+	IOTA = 0;
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void Dsp::mem_alloc()
@@ -138,17 +136,17 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	float fSlow0 = (0.00100000005f * std::pow(10.0f, (0.0500000007f * float(fVslider0))));
 	float fSlow1 = (fConst1 / float(fHslider0));
 	for (int i = 0; (i < count); i = (i + 1)) {
-		fRec0[0] = (fSlow0 + (0.999000013f * fRec0[1]));
 		float fTemp0 = float(input0[i]);
 		fVec0[(IOTA & 1048575)] = fTemp0;
-		float fTemp1 = ((fRec1[1] != 0.0f)?(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))?fRec1[1]:0.0f):(((fRec2[1] == 0.0f) & (fSlow1 != fRec3[1]))?fConst2:(((fRec2[1] == 1.0f) & (fSlow1 != fRec4[1]))?fConst3:0.0f)));
+		fRec0[0] = (fSlow0 + (0.999000013f * fRec0[1]));
+		float fTemp1 = ((fRec1[1] != 0.0f) ? (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f) : (((fRec2[1] == 0.0f) & (fSlow1 != fRec3[1])) ? fConst2 : (((fRec2[1] == 1.0f) & (fSlow1 != fRec4[1])) ? fConst3 : 0.0f)));
 		fRec1[0] = fTemp1;
 		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec2[1] + fTemp1)));
-		fRec3[0] = (((fRec2[1] >= 1.0f) & (fRec4[1] != fSlow1))?fSlow1:fRec3[1]);
-		fRec4[0] = (((fRec2[1] <= 0.0f) & (fRec3[1] != fSlow1))?fSlow1:fRec4[1]);
-		output0[i] = FAUSTFLOAT(((fRec0[0] * ((fVec0[((IOTA - int(std::min<float>(524288.0f, std::max<float>(0.0f, fRec3[0])))) & 1048575)] * (1.0f - fRec2[0])) + (fRec2[0] * fVec0[((IOTA - int(std::min<float>(524288.0f, std::max<float>(0.0f, fRec4[0])))) & 1048575)]))) + fTemp0));
-		fRec0[1] = fRec0[0];
+		fRec3[0] = (((fRec2[1] >= 1.0f) & (fRec4[1] != fSlow1)) ? fSlow1 : fRec3[1]);
+		fRec4[0] = (((fRec2[1] <= 0.0f) & (fRec3[1] != fSlow1)) ? fSlow1 : fRec4[1]);
+		output0[i] = FAUSTFLOAT((fTemp0 + (fRec0[0] * ((fVec0[((IOTA - int(std::min<float>(524288.0f, std::max<float>(0.0f, fRec3[0])))) & 1048575)] * (1.0f - fRec2[0])) + (fRec2[0] * fVec0[((IOTA - int(std::min<float>(524288.0f, std::max<float>(0.0f, fRec4[0])))) & 1048575)])))));
 		IOTA = (IOTA + 1);
+		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
 		fRec2[1] = fRec2[0];
 		fRec3[1] = fRec3[0];
@@ -163,8 +161,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("delay.bpm",N_("BPM"),"S",N_("Delay in Beats per Minute"),&fHslider0, 120.0f, 24.0f, 360.0f, 1.0f);
-	reg.registerVar("delay.gain",N_("Gain"),"S","",&fVslider0, 0.0f, -20.0f, 20.0f, 0.100000001f);
+	reg.registerFloatVar("delay.bpm",N_("BPM"),"S",N_("Delay in Beats per Minute"),&fHslider0, 120.0f, 24.0f, 360.0f, 1.0f, 0);
+	reg.registerFloatVar("delay.gain",N_("Gain"),"S","",&fVslider0, 0.0f, -20.0f, 20.0f, 0.100000001f, 0);
 	return 0;
 }
 

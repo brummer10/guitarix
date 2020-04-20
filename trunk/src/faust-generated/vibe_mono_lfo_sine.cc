@@ -1,5 +1,5 @@
 // generated from file '../src/faust/vibe_mono_lfo_sine.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 namespace vibe_mono_lfo_sine {
 static double fConst0;
@@ -9,7 +9,7 @@ static int iVec0[2];
 static double fRec2[2];
 static double fRec1[2];
 static double fRec0[2];
-static int	fSamplingFreq;
+static int	fSampleRate;
 
 static void clear_state_f(PluginDef* = 0)
 {
@@ -19,11 +19,10 @@ static void clear_state_f(PluginDef* = 0)
 	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec0[l3] = 0.0;
 }
 
-static void init(unsigned int samplingFreq, PluginDef* = 0)
+static void init(unsigned int sample_rate, PluginDef* = 0)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (100.53096491487338 / std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq))));
-	fVslider0 = FAUSTFLOAT(4.4000000000000004);
+	fSampleRate = sample_rate;
+	fConst0 = (100.53096491487338 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
 	clear_state_f();
 }
 
@@ -47,7 +46,7 @@ void compute(int count, FAUSTFLOAT *output0)
 
 static int register_params(const ParamReg& reg)
 {
-	fVslider0_ = reg.registerVar("univibe_mono.freq",N_("Tempo"),"SA",N_("LFO frequency (Hz)"),&fVslider0, 4.4000000000000004, 0.10000000000000001, 10.0, 0.10000000000000001);
+	fVslider0_ = reg.registerFloatVar("univibe_mono.freq",N_("Tempo"),"SA",N_("LFO frequency (Hz)"),&fVslider0, 4.4000000000000004, 0.10000000000000001, 10.0, 0.10000000000000001, 0);
 	return 0;
 }
 

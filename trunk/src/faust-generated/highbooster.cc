@@ -1,18 +1,18 @@
 // generated from file '../src/faust/highbooster.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace highbooster {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
+	double fVec0[2];
 	FAUSTFLOAT fVslider0;
 	double fConst0;
 	double fConst1;
 	double fConst2;
 	double fConst3;
-	double fVec0[2];
 	double fConst4;
 	double fConst5;
 	double fRec0[2];
@@ -20,13 +20,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -71,22 +71,21 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::tan((4712.3889803846896 / std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)))));
+	fSampleRate = sample_rate;
+	fConst0 = std::tan((4712.3889803846896 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)))));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (fConst1 + 1.0);
-	fConst3 = (0.0 - (1.0 / (fConst2 * fConst0)));
+	fConst3 = (0.0 - (1.0 / (fConst0 * fConst2)));
 	fConst4 = (1.0 / fConst2);
 	fConst5 = (1.0 - fConst1);
-	fVslider0 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -96,7 +95,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp0 = double(input0[i]);
 		fVec0[0] = fTemp0;
 		fRec0[0] = ((fConst3 * fVec0[1]) - (fConst4 * ((fConst5 * fRec0[1]) - (fConst1 * fTemp0))));
-		output0[i] = FAUSTFLOAT(((fSlow0 * fRec0[0]) + fTemp0));
+		output0[i] = FAUSTFLOAT((fTemp0 + (fSlow0 * fRec0[0])));
 		fVec0[1] = fVec0[0];
 		fRec0[1] = fRec0[0];
 	}
@@ -109,7 +108,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("highbooster.Level",N_("Level"),"S","",&fVslider0, 0.5, 0.0, 20.0, 0.5);
+	reg.registerFloatVar("highbooster.Level",N_("Level"),"S","",&fVslider0, 0.5, 0.0, 20.0, 0.5, 0);
 	return 0;
 }
 

@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/ruin.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -12,8 +12,8 @@ namespace ruin {
 class Dsp: public PluginDef {
 private:
 	gx_resample::FixedRateResampler smp;
-	int samplingFreq;
-	int fSamplingFreq;
+	int sample_rate;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -73,13 +73,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -139,15 +139,15 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = 96000;
-	smp.setup(RsamplingFreq, samplingFreq);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	sample_rate = 96000;
+	smp.setup(RsamplingFreq, sample_rate);
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = mydsp_faustpower2_f(fConst0);
 	fConst2 = std::tan((34.557519189487721 / fConst0));
 	fConst3 = (1.0 / fConst2);
 	fConst4 = (fConst3 + 1.0);
-	fConst5 = (1.0 / (fConst4 * fConst2));
+	fConst5 = (1.0 / (fConst2 * fConst4));
 	fConst6 = (3.6874037647271903e-05 * fConst0);
 	fConst7 = (0.0 - fConst6);
 	fConst8 = (2.5021125853332702e-10 * fConst0);
@@ -162,31 +162,29 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	fConst17 = (0.0 - fConst5);
 	fConst18 = ((1.0 - fConst3) / fConst4);
 	fConst19 = (2.61465064881748e-14 * fConst0);
-	fConst20 = ((((-5.3758251484096497e-12 - fConst19) * fConst0) + 8.1227954104630203e-10) * fConst0);
+	fConst20 = (fConst0 * ((fConst0 * (-5.3758251484096497e-12 - fConst19)) + 8.1227954104630203e-10));
 	fConst21 = (2.56034039795183e-15 * fConst0);
-	fConst22 = (((-5.2812234095761103e-13 - fConst21) * fConst0) + 7.9995717349203405e-11);
+	fConst22 = ((fConst0 * (-5.2812234095761103e-13 - fConst21)) + 7.9995717349203405e-11);
 	fConst23 = (2.5862024221735698e-15 * fConst0);
-	fConst24 = (((fConst23 + 4.4637938742608599e-13) * fConst0) + -5.7583260273739602e-11);
-	fConst25 = ((((fConst19 + -5.3758251484096497e-12) * fConst0) + -8.1227954104630203e-10) * fConst0);
-	fConst26 = (((fConst21 + -5.2812234095761103e-13) * fConst0) + -7.9995717349203405e-11);
-	fConst27 = (((4.4637938742608599e-13 - fConst23) * fConst0) + 5.7583260273739602e-11);
+	fConst24 = ((fConst0 * (fConst23 + 4.4637938742608599e-13)) + -5.7583260273739602e-11);
+	fConst25 = (fConst0 * ((fConst0 * (fConst19 + -5.3758251484096497e-12)) + -8.1227954104630203e-10));
+	fConst26 = ((fConst0 * (fConst21 + -5.2812234095761103e-13)) + -7.9995717349203405e-11);
+	fConst27 = ((fConst0 * (4.4637938742608599e-13 - fConst23)) + 5.7583260273739602e-11);
 	fConst28 = (8.7155021627249292e-15 * fConst0);
-	fConst29 = ((((5.3758251484096497e-12 - fConst28) * fConst0) + -8.1227954104630203e-10) * fConst0);
+	fConst29 = (fConst0 * ((fConst0 * (5.3758251484096497e-12 - fConst28)) + -8.1227954104630203e-10));
 	fConst30 = (8.5344679931727804e-16 * fConst0);
-	fConst31 = (((5.2812234095761103e-13 - fConst30) * fConst0) + -7.9995717349203405e-11);
+	fConst31 = ((fConst0 * (5.2812234095761103e-13 - fConst30)) + -7.9995717349203405e-11);
 	fConst32 = (8.6206747405785601e-16 * fConst0);
-	fConst33 = (((fConst32 + -4.4637938742608599e-13) * fConst0) + 5.7583260273739602e-11);
-	fConst34 = ((((fConst28 + 5.3758251484096497e-12) * fConst0) + 8.1227954104630203e-10) * fConst0);
-	fConst35 = (((fConst30 + 5.2812234095761103e-13) * fConst0) + 7.9995717349203405e-11);
-	fConst36 = (((-4.4637938742608599e-13 - fConst32) * fConst0) + -5.7583260273739602e-11);
-	fVslider0 = FAUSTFLOAT(0.5);
-	fVslider1 = FAUSTFLOAT(0.5);
+	fConst33 = ((fConst0 * (fConst32 + -4.4637938742608599e-13)) + 5.7583260273739602e-11);
+	fConst34 = (fConst0 * ((fConst0 * (fConst28 + 5.3758251484096497e-12)) + 8.1227954104630203e-10));
+	fConst35 = ((fConst0 * (fConst30 + 5.2812234095761103e-13)) + 7.9995717349203405e-11);
+	fConst36 = ((fConst0 * (-4.4637938742608599e-13 - fConst32)) + -5.7583260273739602e-11);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -260,9 +258,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("ruin.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fsliderdw0, 1e+02, 0.0, 1e+02, 1.0);
-	reg.registerVar("ruin.Intensity",N_("Intensity"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("ruin.Level",N_("Level"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01);
+	reg.registerFloatVar("ruin.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fsliderdw0, 1e+02, 0.0, 1e+02, 1.0, 0);
+	reg.registerFloatVar("ruin.Intensity",N_("Intensity"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("ruin.Level",N_("Level"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01, 0);
 	return 0;
 }
 

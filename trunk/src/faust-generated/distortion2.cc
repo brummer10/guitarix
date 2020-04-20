@@ -1,22 +1,22 @@
 // generated from file '../src/faust/distortion2.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace distortion2 {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fVslider1;
 	double fConst2;
 	double fConst3;
-	double fConst4;
 	FAUSTFLOAT fVslider2;
 	double fRec3[3];
 	double fVec0[2];
+	double fConst4;
 	double fRec2[2];
 	FAUSTFLOAT fVslider3;
 	double fRec4[2];
@@ -28,13 +28,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -84,25 +84,20 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (3.1415926535897931 / fConst0);
 	fConst2 = (1.0 / std::tan((20520.88321324853 / fConst0)));
 	fConst3 = (1.0 / (fConst2 + 1.0));
 	fConst4 = (1.0 - fConst2);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fVslider1 = FAUSTFLOAT(10000.0);
-	fVslider2 = FAUSTFLOAT(30.0);
-	fVslider3 = FAUSTFLOAT(0.0);
-	fVslider4 = FAUSTFLOAT(50.0);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -129,7 +124,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec3[0] = ((fSlow0 * fTemp0) - (fSlow7 * ((fSlow10 * fRec3[2]) + (fSlow11 * fRec3[1]))));
 		double fTemp1 = (fSlow7 * (((fSlow9 * fRec3[0]) + (fSlow12 * fRec3[1])) + (fSlow9 * fRec3[2])));
 		fVec0[0] = fTemp1;
-		fRec2[0] = (0.0 - (fConst3 * ((fConst4 * fRec2[1]) - (fTemp1 + fVec0[1]))));
+		fRec2[0] = (fConst3 * ((fTemp1 + fVec0[1]) - (fConst4 * fRec2[1])));
 		fRec4[0] = (fSlow13 + (0.999 * fRec4[1]));
 		double fTemp2 = (fRec2[0] * fRec4[0]);
 		fRec5[0] = (fSlow14 + (0.999 * fRec5[1]));
@@ -159,11 +154,11 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("distortion2.Hfreq",N_("Hi Pass"),"SL",N_("Highpass Frequency"),&fVslider2, 30.0, 20.0, 2000.0, 1.0800000000000001);
-	reg.registerVar("distortion2.drive",N_("Drive"),"S",N_("Distortion Level"),&fVslider4, 50.0, 0.0, 100.0, 1.0);
-	reg.registerVar("distortion2.freq",N_("Lo Pass"),"SL",N_("Lowpass Frequency"),&fVslider1, 10000.0, 1000.0, 20000.0, 1.0800000000000001);
-	reg.registerVar("distortion2.gain",N_("Gain"),"S",N_("Volume Level"),&fVslider3, 0.0, -30.0, 10.0, 0.10000000000000001);
-	reg.registerVar("distortion2.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0);
+	reg.registerFloatVar("distortion2.Hfreq",N_("Hi Pass"),"SL",N_("Highpass Frequency"),&fVslider2, 30.0, 20.0, 2000.0, 1.0800000000000001, 0);
+	reg.registerFloatVar("distortion2.drive",N_("Drive"),"S",N_("Distortion Level"),&fVslider4, 50.0, 0.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("distortion2.freq",N_("Lo Pass"),"SL",N_("Lowpass Frequency"),&fVslider1, 10000.0, 1000.0, 20000.0, 1.0800000000000001, 0);
+	reg.registerFloatVar("distortion2.gain",N_("Gain"),"S",N_("Volume Level"),&fVslider3, 0.0, -30.0, 10.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("distortion2.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0, 0);
 	return 0;
 }
 

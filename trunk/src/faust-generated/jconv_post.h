@@ -1,5 +1,5 @@
 // generated from file '../src/faust/jconv_post.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 #define FAUSTFLOAT float
 
@@ -7,7 +7,7 @@ namespace jconv_post {
 
 class Dsp {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	float fRec0[2];
@@ -30,7 +30,7 @@ private:
 public:
 	void clear_state_f();
 	int activate(bool start);
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *input2, FAUSTFLOAT *input3, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 	Dsp();

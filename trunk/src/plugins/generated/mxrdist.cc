@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/mxrdist.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -11,8 +11,8 @@ namespace mxrdist {
 class Dsp: public PluginDef {
 private:
 	gx_resample::FixedRateResampler smp;
-	int samplingFreq;
-	int fSamplingFreq;
+	int sample_rate;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -42,13 +42,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -99,34 +99,32 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = 96000;
-	smp.setup(RsamplingFreq, samplingFreq);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	sample_rate = 96000;
+	smp.setup(RsamplingFreq, sample_rate);
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.40668739186091e-10 * fConst0);
-	fConst2 = (((fConst1 + 1.40739073555684e-05) * fConst0) + 0.00035167184796522702);
+	fConst2 = ((fConst0 * (fConst1 + 1.40739073555684e-05)) + 0.00035167184796522702);
 	fConst3 = (fConst0 / fConst2);
 	fConst4 = (4.3356710341455001e-10 * fConst0);
-	fConst5 = (1.0 / (((fConst4 + 2.2111922274142e-08) * fConst0) + 2.14637179908193e-08));
+	fConst5 = (1.0 / ((fConst0 * (fConst4 + 2.2111922274142e-08)) + 2.14637179908193e-08));
 	fConst6 = (4.2927435981638601e-10 * fConst0);
-	fConst7 = ((fConst6 + 6.4391153972457898e-10) * fConst0);
+	fConst7 = (fConst0 * (fConst6 + 6.4391153972457898e-10));
 	fConst8 = mydsp_faustpower2_f(fConst0);
 	fConst9 = (4.29274359816386e-08 - (8.6713420682910003e-10 * fConst8));
-	fConst10 = (((fConst4 + -2.2111922274142e-08) * fConst0) + 2.14637179908193e-08);
+	fConst10 = ((fConst0 * (fConst4 + -2.2111922274142e-08)) + 2.14637179908193e-08);
 	fConst11 = (0.0 - (8.5854871963277201e-10 * fConst8));
-	fConst12 = ((fConst6 + -6.4391153972457898e-10) * fConst0);
+	fConst12 = (fConst0 * (fConst6 + -6.4391153972457898e-10));
 	fConst13 = (9.3999999999999995e-08 * fConst0);
 	fConst14 = (1.0 / fConst2);
 	fConst15 = (0.00070334369593045296 - (2.8133747837218101e-10 * fConst8));
-	fConst16 = (((fConst1 + -1.40739073555684e-05) * fConst0) + 0.00035167184796522702);
-	fHslider0 = FAUSTFLOAT(0.5);
-	fVslider0 = FAUSTFLOAT(0.5);
+	fConst16 = ((fConst0 * (fConst1 + -1.40739073555684e-05)) + 0.00035167184796522702);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -167,8 +165,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("mxrdis.Volume",N_("Volume"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("mxrdis.drive",N_("Drive"),"S","",&fHslider0, 0.5, 0.0, 1.0, 0.01);
+	reg.registerFloatVar("mxrdis.Volume",N_("Volume"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("mxrdis.drive",N_("Drive"),"S","",&fHslider0, 0.5, 0.0, 1.0, 0.01, 0);
 	return 0;
 }
 

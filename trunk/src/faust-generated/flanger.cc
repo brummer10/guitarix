@@ -1,12 +1,12 @@
 // generated from file '../src/faust/flanger.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace flanger {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fHslider1;
 	int iVec0[2];
@@ -28,13 +28,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -84,25 +84,18 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (0.10471975511965977 / fConst0);
-	fHslider0 = FAUSTFLOAT(0.0);
-	fHslider1 = FAUSTFLOAT(0.0);
-	fHslider2 = FAUSTFLOAT(1.0);
-	fHslider3 = FAUSTFLOAT(10.0);
-	fHslider4 = FAUSTFLOAT(24.0);
-	fCheckbox0 = FAUSTFLOAT(0.0);
-	fHslider5 = FAUSTFLOAT(1.0);
-			IOTA = 0;
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
@@ -115,7 +108,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow5 = std::sin(fSlow4);
 	double fSlow6 = std::cos(fSlow4);
 	double fSlow7 = double(fHslider5);
-	double fSlow8 = (int(double(fCheckbox0))?(-1.0 * fSlow7):fSlow7);
+	double fSlow8 = (int(double(fCheckbox0)) ? (-1.0 * fSlow7) : fSlow7);
 	for (int i = 0; (i < count); i = (i + 1)) {
 		double fTemp0 = (fSlow0 * double(input0[i]));
 		iVec0[0] = 1;
@@ -152,14 +145,14 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("flanger.depth",N_("Depth"),"S","",&fHslider5, 1.0, 0.0, 1.0, 0.01);
-	reg.registerVar("flanger.feedback gain",N_("Feedback"),"S","",&fHslider1, 0.0, 0.0, 1.0, 0.01);
-	reg.registerVar("flanger.flange delay offset",N_("Offset"),"S","",&fHslider2, 1.0, 0.0, 20.0, 0.01);
-	reg.registerVar("flanger.flange delay",N_("Delay"),"S","",&fHslider3, 10.0, 0.0, 20.0, 0.01);
+	reg.registerFloatVar("flanger.depth",N_("Depth"),"S","",&fHslider5, 1.0, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("flanger.feedback gain",N_("Feedback"),"S","",&fHslider1, 0.0, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("flanger.flange delay offset",N_("Offset"),"S","",&fHslider2, 1.0, 0.0, 20.0, 0.01, 0);
+	reg.registerFloatVar("flanger.flange delay",N_("Delay"),"S","",&fHslider3, 10.0, 0.0, 20.0, 0.01, 0);
 	static const value_pair fCheckbox0_values[] = {{"linear"},{"invert"},{0}};
-	reg.registerEnumVar("flanger.invert",N_("Invert"),"B","",fCheckbox0_values,&fCheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("flanger.level",N_("Level"),"S","",&fHslider0, 0.0, -60.0, 10.0, 0.10000000000000001);
-	reg.registerVar("flanger.lfobpm",N_("BPM"),"S",N_("LFO in Beats per Minute"),&fHslider4, 24.0, 24.0, 360.0, 1.0);
+	reg.registerFloatVar("flanger.invert",N_("Invert"),"B","",&fCheckbox0, 0.0, 0.0, 1.0, 1.0, fCheckbox0_values);
+	reg.registerFloatVar("flanger.level",N_("Level"),"S","",&fHslider0, 0.0, -60.0, 10.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("flanger.lfobpm",N_("BPM"),"S",N_("LFO in Beats per Minute"),&fHslider4, 24.0, 24.0, 360.0, 1.0, 0);
 	return 0;
 }
 

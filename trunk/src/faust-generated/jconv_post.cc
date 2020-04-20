@@ -1,5 +1,5 @@
 // generated from file '../src/faust/jconv_post.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 
 namespace jconv_post {
@@ -24,16 +24,11 @@ inline void Dsp::clear_state_f()
 	for (int l5 = 0; (l5 < 131072); l5 = (l5 + 1)) fVec1[l5] = 0.0f;
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (9.99999997e-07f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq))));
-	fVslider0 = FAUSTFLOAT(0.0f);
-	fVslider1 = FAUSTFLOAT(100.0f);
-	fVslider2 = FAUSTFLOAT(0.0f);
-	fVslider3 = FAUSTFLOAT(0.0f);
-	fVslider4 = FAUSTFLOAT(0.0f);
-			IOTA = 0;
+	fSampleRate = sample_rate;
+	fConst0 = (9.99999997e-07f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate))));
+	IOTA = 0;
 }
 
 void Dsp::mem_alloc()
@@ -79,13 +74,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp0 = (fSlow1 * float(input2[i]));
 		fVec0[(IOTA & 131071)] = fTemp0;
 		fRec3[0] = (fSlow5 + (0.999000013f * fRec3[1]));
-		float fTemp1 = ((fRec3[0] < 0.0f)?0.0f:fRec3[0]);
+		float fTemp1 = ((fRec3[0] < 0.0f) ? 0.0f : fRec3[0]);
 		int iTemp2 = int(fTemp1);
 		float fTemp3 = std::floor(fTemp1);
 		output0[i] = FAUSTFLOAT(((1.0f - std::max<float>(0.0f, fRec0[0])) * ((fSlow2 * float(input0[i])) + ((fRec1[0] * (1.0f - std::max<float>(0.0f, fRec2[0]))) * ((fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp2))) & 131071)] * (fTemp3 + (1.0f - fTemp1))) + ((fTemp1 - fTemp3) * fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp2 + 1)))) & 131071)]))))));
 		float fTemp4 = (fSlow1 * float(input3[i]));
 		fVec1[(IOTA & 131071)] = fTemp4;
-		float fTemp5 = ((fRec3[0] > 0.0f)?0.0f:(-1.0f * fRec3[0]));
+		float fTemp5 = ((fRec3[0] > 0.0f) ? 0.0f : (-1.0f * fRec3[0]));
 		int iTemp6 = int(fTemp5);
 		float fTemp7 = std::floor(fTemp5);
 		output1[i] = FAUSTFLOAT((((fSlow2 * float(input1[i])) + ((fRec1[0] * ((fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp6))) & 131071)] * (fTemp7 + (1.0f - fTemp5))) + ((fTemp5 - fTemp7) * fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp6 + 1)))) & 131071)]))) * (1.0f - std::max<float>(0.0f, (-1.0f * fRec2[0]))))) * (1.0f - std::max<float>(0.0f, (-1.0f * fRec0[0])))));
@@ -100,11 +95,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fVslider0_ = reg.registerVar("amp.balance",N_("Balance"),"SA","",&fVslider0, 0.0f, -1.0f, 1.0f, 0.100000001f);
-	reg.registerVar("jconv.balance",N_("Balance"),"S",N_("left/right trim for processed signal"),&fVslider3, 0.0f, -1.0f, 1.0f, 0.100000001f);
-	reg.registerVar("jconv.diff_delay",N_("Delta Delay"),"S",N_("de.delay left or right channel by the specified amount (unit: ms)"),&fVslider4, 0.0f, -100.0f, 100.0f, 0.00999999978f);
-	reg.registerVar("jconv.gain",N_("Gain"),"S",N_("gain trim for processed signal (unit: dB)"),&fVslider2, 0.0f, -20.0f, 20.0f, 0.100000001f);
-	reg.registerVar("jconv.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fVslider1, 100.0f, 0.0f, 100.0f, 1.0f);
+	fVslider0_ = reg.registerFloatVar("amp.balance",N_("Balance"),"SA","",&fVslider0, 0.0f, -1.0f, 1.0f, 0.100000001f, 0);
+	reg.registerFloatVar("jconv.balance",N_("Balance"),"S",N_("left/right trim for processed signal"),&fVslider3, 0.0f, -1.0f, 1.0f, 0.100000001f, 0);
+	reg.registerFloatVar("jconv.diff_delay",N_("Delta Delay"),"S",N_("delay left or right channel by the specified amount (unit: ms)"),&fVslider4, 0.0f, -100.0f, 100.0f, 0.00999999978f, 0);
+	reg.registerFloatVar("jconv.gain",N_("Gain"),"S",N_("gain trim for processed signal (unit: dB)"),&fVslider2, 0.0f, -20.0f, 20.0f, 0.100000001f, 0);
+	reg.registerFloatVar("jconv.wet_dry",N_("wet/dry"),"S",N_("percentage of processed signal in output signal"),&fVslider1, 100.0f, 0.0f, 100.0f, 1.0f, 0);
 	return 0;
 }
 

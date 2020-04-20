@@ -1,5 +1,5 @@
 // generated from file '../src/faust/drumseq.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #define FAUSTFLOAT float
 
@@ -7,7 +7,7 @@ namespace drumseq {
 
 class Dsp {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT	*fCheckbox0_;
 	double fConst0;
@@ -218,7 +218,7 @@ private:
 
 public:
 	void clear_state_f();
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 	Dsp();

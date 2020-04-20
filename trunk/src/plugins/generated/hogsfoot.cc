@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/hogsfoot.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -9,7 +9,7 @@ namespace hogsfoot {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	double fConst0;
 	double fConst1;
@@ -27,13 +27,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -78,26 +78,24 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (8.9388784767912697e-15 * fConst0);
-	fConst2 = (((((fConst1 + 4.9610614570897104e-12) * fConst0) + 2.63723081667839e-11) * fConst0) + 2.6773044958149099e-11);
+	fConst2 = ((fConst0 * ((fConst0 * (fConst1 + 4.9610614570897104e-12)) + 2.63723081667839e-11)) + 2.6773044958149099e-11);
 	fConst3 = (mydsp_faustpower2_f(fConst0) / fConst2);
 	fConst4 = (1.0 / fConst2);
 	fConst5 = (2.6816635430373801e-14 * fConst0);
-	fConst6 = (((((-4.9610614570897104e-12 - fConst5) * fConst0) + 2.63723081667839e-11) * fConst0) + 8.0319134874447397e-11);
-	fConst7 = (((((fConst5 + -4.9610614570897104e-12) * fConst0) + -2.63723081667839e-11) * fConst0) + 8.0319134874447397e-11);
-	fConst8 = (((((4.9610614570897104e-12 - fConst1) * fConst0) + -2.63723081667839e-11) * fConst0) + 2.6773044958149099e-11);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fVslider1 = FAUSTFLOAT(0.5);
+	fConst6 = ((fConst0 * ((fConst0 * (-4.9610614570897104e-12 - fConst5)) + 2.63723081667839e-11)) + 8.0319134874447397e-11);
+	fConst7 = ((fConst0 * ((fConst0 * (fConst5 + -4.9610614570897104e-12)) + -2.63723081667839e-11)) + 8.0319134874447397e-11);
+	fConst8 = ((fConst0 * ((fConst0 * (4.9610614570897104e-12 - fConst1)) + -2.63723081667839e-11)) + 2.6773044958149099e-11);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -127,8 +125,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("hogsfoot.Volume",N_("Volume"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("hogsfoot.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0);
+	reg.registerFloatVar("hogsfoot.Volume",N_("Volume"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("hogsfoot.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0, 0);
 	return 0;
 }
 

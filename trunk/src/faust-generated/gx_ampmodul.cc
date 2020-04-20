@@ -1,5 +1,5 @@
 // generated from file '../src/faust/gx_ampmodul.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "valve.h"
 
@@ -9,8 +9,8 @@ class Dsp: public PluginDef {
 private:
 	gx_resample::FixedRateResampler smp;
 	gx_resample::FixedRateResampler smps;
-	int samplingFreq;
-	int fSamplingFreq;
+	int sample_rate;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT fHslider0;
 	double fRec0[6];
@@ -87,13 +87,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -191,15 +191,15 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = 96000;
-	smp.setup(RsamplingFreq, samplingFreq);
-	smps.setup(RsamplingFreq, samplingFreq);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	sample_rate = 96000;
+	smp.setup(RsamplingFreq, sample_rate);
+	smps.setup(RsamplingFreq, sample_rate);
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = std::tan((97.389372261283583 / fConst0));
 	fConst2 = (1.0 / fConst1);
 	fConst3 = (fConst2 + 1.0);
-	fConst4 = (1.0 / (fConst3 * fConst1));
+	fConst4 = (1.0 / (fConst1 * fConst3));
 	fConst5 = (1.0 / std::tan((20517.741620594938 / fConst0)));
 	fConst6 = (1.0 / (fConst5 + 1.0));
 	fConst7 = (1.0 - fConst5);
@@ -214,18 +214,12 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	fConst16 = (1.0 / std::tan((609.46897479641984 / fConst0)));
 	fConst17 = (1.0 / (fConst16 + 1.0));
 	fConst18 = (1.0 - fConst16);
-	fVslider0 = FAUSTFLOAT(0.0);
-	fHslider0 = FAUSTFLOAT(0.0);
-	fHslider1 = FAUSTFLOAT(0.0);
-	fVslider1 = FAUSTFLOAT(-20.0);
-	fVslider2 = FAUSTFLOAT(6.0);
-	fVslider3 = FAUSTFLOAT(6.0);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
@@ -246,7 +240,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp0 = double(buf[i]);
 		fRec0[0] = (-1.0 * ((fSlow2 * fRec0[5]) - fTemp0));
 		fRec16[0] = (fSlow5 + (0.999 * fRec16[1]));
-		double fTemp1 = (fRec16[0] * fTemp0);
+		double fTemp1 = (fTemp0 * fRec16[0]);
 		fVec0[0] = fTemp1;
 		fRec15[0] = ((0.93028479253239138 * (fTemp1 + fVec0[1])) - (0.86056958506478287 * fRec15[1]));
 		fRec14[0] = (fRec15[0] - ((1.8405051250752198 * fRec14[1]) + (0.86129424393186271 * fRec14[2])));
@@ -275,7 +269,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		buf[i] = FAUSTFLOAT(((fSlow1 * fRec0[0]) + (fSlow3 * fRec1[0])));
 		double fTemp4 = double(bufs[i]);
 		fRec22[0] = (-1.0 * ((fSlow2 * fRec22[5]) - fTemp4));
-		double fTemp5 = (fRec16[0] * fTemp4);
+		double fTemp5 = (fTemp4 * fRec16[0]);
 		fVec3[0] = fTemp5;
 		fRec37[0] = ((0.93028479253239138 * (fTemp5 + fVec3[1])) - (0.86056958506478287 * fRec37[1]));
 		fRec36[0] = (fRec37[0] - ((1.8405051250752198 * fRec36[1]) + (0.86129424393186271 * fRec36[2])));
@@ -379,12 +373,12 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("ampmodul.feedbac",N_("Dry/FB"),"S","",&fHslider0, 0.0, -1.0, 1.0, 0.01);
-	reg.registerVar("ampmodul.feedback",N_("Wet/FB"),"S","",&fHslider1, 0.0, -1.0, 1.0, 0.01);
-	reg.registerVar("ampmodul.level",N_("Level"),"S","",&fVslider1, -20.0, -40.0, 4.0, 0.10000000000000001);
-	reg.registerVar("ampmodul.amp2.stage1.tube1",N_("Tube I"),"S","",&fVslider2, 6.0, -20.0, 20.0, 0.10000000000000001);
-	reg.registerVar("ampmodul.amp2.stage2.tube2",N_("Tube II"),"S","",&fVslider3, 6.0, -20.0, 20.0, 0.10000000000000001);
-	reg.registerVar("ampmodul.wet_dry",N_("Dry/Wet"),"S","",&fVslider0, 0.0, -1.0, 1.0, 0.10000000000000001);
+	reg.registerFloatVar("ampmodul.feedbac",N_("Dry/FB"),"S","",&fHslider0, 0.0, -1.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("ampmodul.feedback",N_("Wet/FB"),"S","",&fHslider1, 0.0, -1.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("ampmodul.level",N_("Level"),"S","",&fVslider1, -20.0, -40.0, 4.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("ampmodul.amp2.stage1.tube1",N_("Tube I"),"S","",&fVslider2, 6.0, -20.0, 20.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("ampmodul.amp2.stage2.tube2",N_("Tube II"),"S","",&fVslider3, 6.0, -20.0, 20.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("ampmodul.wet_dry",N_("Dry/Wet"),"S","",&fVslider0, 0.0, -1.0, 1.0, 0.10000000000000001, 0);
 	return 0;
 }
 

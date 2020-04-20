@@ -1,12 +1,12 @@
 // generated from file '../src/faust/autowah.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 
 namespace autowah {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	FAUSTFLOAT fVslider1;
@@ -28,12 +28,12 @@ private:
 	float fRec0[3];
 
 	void clear_state_f();
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -82,25 +82,22 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = std::exp((0.0f - (100.0f / fConst0)));
 	fConst2 = (1.0f - fConst1);
 	fConst3 = std::exp((0.0f - (10.0f / fConst0)));
 	fConst4 = (1.0f - fConst3);
 	fConst5 = (1413.71667f / fConst0);
 	fConst6 = (2827.43335f / fConst0);
-	fVslider0 = FAUSTFLOAT(0.0f);
-	fVslider1 = FAUSTFLOAT(100.0f);
-	fVslider2 = FAUSTFLOAT(0.10000000000000001f);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -111,7 +108,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	float fSlow0 = float(fVslider0);
 	float fSlow1 = float(fVslider1);
 	float fSlow2 = (0.00999999978f * (fSlow1 * float(fVslider2)));
-	float fSlow3 = ((1.0f - (0.00999999978f * fSlow1)) + (1.0f - fSlow0));
+	float fSlow3 = ((1.0f - fSlow0) + (1.0f - (0.00999999978f * fSlow1)));
 	for (int i = 0; (i < count); i = (i + 1)) {
 		float fTemp0 = float(input0[i]);
 		float fTemp1 = std::fabs(fTemp0);
@@ -123,7 +120,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		float fTemp4 = (1.0f - (fConst5 * (fTemp3 / std::pow(2.0f, ((2.0f * (1.0f - fTemp2)) + 1.0f)))));
 		fRec4[0] = ((0.999000013f * fRec4[1]) - (0.00200000009f * (fTemp4 * std::cos((fConst6 * fTemp3)))));
 		fRec5[0] = ((0.999000013f * fRec5[1]) + (0.00100000005f * mydsp_faustpower2_f(fTemp4)));
-		fRec0[0] = ((fSlow2 * (fRec1[0] * fTemp0)) - ((fRec4[0] * fRec0[1]) + (fRec5[0] * fRec0[2])));
+		fRec0[0] = ((fSlow2 * (fTemp0 * fRec1[0])) - ((fRec4[0] * fRec0[1]) + (fRec5[0] * fRec0[2])));
 		output0[i] = FAUSTFLOAT(((fSlow0 * (fRec0[0] - fRec0[1])) + (fSlow3 * fTemp0)));
 		fRec3[1] = fRec3[0];
 		fRec2[1] = fRec2[0];
@@ -145,9 +142,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fVslider2_ = reg.registerVar("crybaby.level","","SA","",&fVslider2, 0.100000001f, 0.0f, 1.0f, 0.00999999978f);
-	fVslider0_ = reg.registerVar("crybaby.wah","","SA","",&fVslider0, 0.0f, 0.0f, 1.0f, 0.00999999978f);
-	fVslider1_ = reg.registerVar("crybaby.wet_dry",N_("dry/wet"),"SA","",&fVslider1, 100.0f, 0.0f, 100.0f, 1.0f);
+	fVslider2_ = reg.registerFloatVar("crybaby.level","","SA","",&fVslider2, 0.100000001f, 0.0f, 1.0f, 0.00999999978f, 0);
+	fVslider0_ = reg.registerFloatVar("crybaby.wah","","SA","",&fVslider0, 0.0f, 0.0f, 1.0f, 0.00999999978f, 0);
+	fVslider1_ = reg.registerFloatVar("crybaby.wet_dry",N_("dry/wet"),"SA","",&fVslider1, 100.0f, 0.0f, 100.0f, 1.0f, 0);
 	return 0;
 }
 

@@ -1,12 +1,12 @@
 // generated from file '../src/faust/phaser.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 
 namespace phaser {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT fHslider1;
@@ -38,13 +38,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -100,35 +100,25 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = (1.0f / fConst0);
 	fConst2 = (6.28318548f / fConst0);
 	fConst3 = (0.104719758f / fConst0);
-	fHslider0 = FAUSTFLOAT(0.0f);
-	fCheckbox0 = FAUSTFLOAT(0.0f);
-	fHslider1 = FAUSTFLOAT(1.0f);
-	fHslider2 = FAUSTFLOAT(1000.0f);
-	fHslider3 = FAUSTFLOAT(0.0f);
-	fHslider4 = FAUSTFLOAT(1.5f);
-	fHslider5 = FAUSTFLOAT(100.0f);
-	fHslider6 = FAUSTFLOAT(800.0f);
-	fHslider7 = FAUSTFLOAT(30.0f);
-	fCheckbox1 = FAUSTFLOAT(0.0f);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 	float fSlow0 = std::pow(10.0f, (0.0500000007f * float(fHslider0)));
-	float fSlow1 = (0.5f * (int(float(fCheckbox0))?2.0f:float(fHslider1)));
+	float fSlow1 = (0.5f * (int(float(fCheckbox0)) ? 2.0f : float(fHslider1)));
 	float fSlow2 = (1.0f - fSlow1);
 	float fSlow3 = std::exp((fConst1 * (0.0f - (3.14159274f * float(fHslider2)))));
 	float fSlow4 = mydsp_faustpower2_f(fSlow3);
@@ -144,7 +134,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	float fSlow14 = mydsp_faustpower2_f(fSlow7);
 	float fSlow15 = mydsp_faustpower3_f(fSlow7);
 	float fSlow16 = mydsp_faustpower4_f(fSlow7);
-	float fSlow17 = (int(float(fCheckbox1))?(-1.0f * fSlow1):fSlow1);
+	float fSlow17 = (int(float(fCheckbox1)) ? (-1.0f * fSlow1) : fSlow1);
 	for (int i = 0; (i < count); i = (i + 1)) {
 		float fTemp0 = float(input0[i]);
 		iVec0[0] = 1;
@@ -160,7 +150,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp5 = (fRec1[1] * std::cos((fSlow16 * fTemp1)));
 		fRec1[0] = ((fSlow5 * (fTemp4 - fTemp5)) + (fRec2[2] + (fSlow4 * (fRec2[0] - fRec1[2]))));
 		fRec0[0] = ((fSlow4 * fRec1[0]) + ((fSlow5 * fTemp5) + fRec1[2]));
-		output0[i] = FAUSTFLOAT(((fSlow0 * (fSlow2 * fTemp0)) + (fRec0[0] * fSlow17)));
+		output0[i] = FAUSTFLOAT(((fSlow0 * (fTemp0 * fSlow2)) + (fRec0[0] * fSlow17)));
 		float fTemp6 = float(input1[i]);
 		float fTemp7 = (fSlow9 + (fSlow10 * (1.0f - fRec6[0])));
 		float fTemp8 = (fRec11[1] * std::cos((fSlow7 * fTemp7)));
@@ -172,7 +162,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp11 = (fRec8[1] * std::cos((fSlow16 * fTemp7)));
 		fRec8[0] = ((fSlow5 * (fTemp10 - fTemp11)) + (fRec9[2] + (fSlow4 * (fRec9[0] - fRec8[2]))));
 		fRec7[0] = ((fSlow4 * fRec8[0]) + ((fSlow5 * fTemp11) + fRec8[2]));
-		output1[i] = FAUSTFLOAT(((fSlow0 * (fSlow2 * fTemp6)) + (fRec7[0] * fSlow17)));
+		output1[i] = FAUSTFLOAT(((fSlow0 * (fTemp6 * fSlow2)) + (fRec7[0] * fSlow17)));
 		iVec0[1] = iVec0[0];
 		fRec5[1] = fRec5[0];
 		fRec6[1] = fRec6[0];
@@ -204,18 +194,18 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("phaser.MaxNotch1Freq",N_("Max Freq"),"S","",&fHslider6, 800.0f, 20.0f, 10000.0f, 1.0f);
-	reg.registerVar("phaser.MinNotch1Freq",N_("Freq"),"S","",&fHslider5, 100.0f, 20.0f, 5000.0f, 1.0f);
-	reg.registerVar("phaser.Notch width",N_("Width"),"S","",&fHslider2, 1000.0f, 10.0f, 5000.0f, 1.0f);
-	reg.registerVar("phaser.NotchFreq",N_("Min Freq"),"S","",&fHslider4, 1.5f, 1.10000002f, 4.0f, 0.00999999978f);
+	reg.registerFloatVar("phaser.MaxNotch1Freq",N_("Max Freq"),"S","",&fHslider6, 800.0f, 20.0f, 10000.0f, 1.0f, 0);
+	reg.registerFloatVar("phaser.MinNotch1Freq",N_("Freq"),"S","",&fHslider5, 100.0f, 20.0f, 5000.0f, 1.0f, 0);
+	reg.registerFloatVar("phaser.Notch width",N_("Width"),"S","",&fHslider2, 1000.0f, 10.0f, 5000.0f, 1.0f, 0);
+	reg.registerFloatVar("phaser.NotchFreq",N_("Min Freq"),"S","",&fHslider4, 1.5f, 1.10000002f, 4.0f, 0.00999999978f, 0);
 	static const value_pair fCheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
-	reg.registerEnumVar("phaser.VibratoMode","","B","",fCheckbox0_values,&fCheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("phaser.depth",N_("Depth"),"S","",&fHslider1, 1.0f, 0.0f, 1.0f, 0.00999999978f);
-	reg.registerVar("phaser.feedback gain",N_("Feedback"),"S","",&fHslider3, 0.0f, 0.0f, 1.0f, 0.00999999978f);
+	reg.registerFloatVar("phaser.VibratoMode","","B","",&fCheckbox0, 0.0, 0.0, 1.0, 1.0, fCheckbox0_values);
+	reg.registerFloatVar("phaser.depth",N_("Depth"),"S","",&fHslider1, 1.0f, 0.0f, 1.0f, 0.00999999978f, 0);
+	reg.registerFloatVar("phaser.feedback gain",N_("Feedback"),"S","",&fHslider3, 0.0f, 0.0f, 1.0f, 0.00999999978f, 0);
 	static const value_pair fCheckbox1_values[] = {{"linear"},{"invert"},{0}};
-	reg.registerEnumVar("phaser.invert","","B","",fCheckbox1_values,&fCheckbox1, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("phaser.level",N_("Level"),"S","",&fHslider0, 0.0f, -60.0f, 10.0f, 0.100000001f);
-	reg.registerVar("phaser.lfobpm",N_("Speed (bpm)"),"S",N_("Speed in Beats per Minute"),&fHslider7, 30.0f, 24.0f, 360.0f, 1.0f);
+	reg.registerFloatVar("phaser.invert","","B","",&fCheckbox1, 0.0, 0.0, 1.0, 1.0, fCheckbox1_values);
+	reg.registerFloatVar("phaser.level",N_("Level"),"S","",&fHslider0, 0.0f, -60.0f, 10.0f, 0.100000001f, 0);
+	reg.registerFloatVar("phaser.lfobpm",N_("Speed (bpm)"),"S",N_("Speed in Beats per Minute"),&fHslider7, 30.0f, 24.0f, 360.0f, 1.0f, 0);
 	return 0;
 }
 

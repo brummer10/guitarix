@@ -1,5 +1,5 @@
 // generated from file '../src/faust/chorus_mono.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 
 namespace chorus_mono {
@@ -13,27 +13,23 @@ class mydspSIG0 {
 	
 	int getNumInputsmydspSIG0() {
 		return 0;
-		
 	}
 	int getNumOutputsmydspSIG0() {
 		return 1;
-		
 	}
 	int getInputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			default: {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	int getOutputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			case 0: {
 				rate = 0;
 				break;
@@ -42,41 +38,35 @@ class mydspSIG0 {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	
-	void instanceInitmydspSIG0(int samplingFreq) {
+	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) {
 			iRec1[l2] = 0;
-			
 		}
-		
 	}
 	
-	void fillmydspSIG0(int count, float* output) {
+	void fillmydspSIG0(int count, float* table) {
 		for (int i = 0; (i < count); i = (i + 1)) {
 			iRec1[0] = (iRec1[1] + 1);
-			output[i] = std::sin((9.58738019e-05f * float((iRec1[0] + -1))));
+			table[i] = std::sin((9.58738019e-05f * float((iRec1[0] + -1))));
 			iRec1[1] = iRec1[0];
-			
 		}
-		
 	}
 
 };
 
-mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
-void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
+static mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
+static void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
 
 static float ftbl0mydspSIG0[65536];
 
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fVslider0;
 	int IOTA;
@@ -94,14 +84,14 @@ private:
 	int activate(bool start);
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int activate_static(bool start, PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -148,25 +138,22 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
 	mydspSIG0* sig0 = newmydspSIG0();
-	sig0->instanceInitmydspSIG0(samplingFreq);
+	sig0->instanceInitmydspSIG0(sample_rate);
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = (0.00999999978f * fConst0);
 	fConst2 = (1.0f / fConst0);
-	fHslider0 = FAUSTFLOAT(0.5f);
-	fVslider0 = FAUSTFLOAT(100.0f);
-	fHslider1 = FAUSTFLOAT(2.0f);
-			IOTA = 0;
+	IOTA = 0;
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void Dsp::mem_alloc()
@@ -229,9 +216,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("chorus_mono.freq",N_("Freq"),"S","",&fHslider1, 2.0f, 0.0f, 10.0f, 0.00999999978f);
-	reg.registerVar("chorus_mono.level",N_("Level"),"S","",&fHslider0, 0.5f, 0.0f, 1.0f, 0.00999999978f);
-	reg.registerVar("chorus_mono.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0f, 0.0f, 100.0f, 1.0f);
+	reg.registerFloatVar("chorus_mono.freq",N_("Freq"),"S","",&fHslider1, 2.0f, 0.0f, 10.0f, 0.00999999978f, 0);
+	reg.registerFloatVar("chorus_mono.level",N_("Level"),"S","",&fHslider0, 0.5f, 0.0f, 1.0f, 0.00999999978f, 0);
+	reg.registerFloatVar("chorus_mono.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0f, 0.0f, 100.0f, 1.0f, 0);
 	return 0;
 }
 

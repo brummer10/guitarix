@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/flanger_gx.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -9,9 +9,9 @@ namespace flanger_gx {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
-	int iVec0[2];
+	int fSampleRate;
 	FAUSTFLOAT fHslider0;
+	int iVec0[2];
 	FAUSTFLOAT fHslider1;
 	int IOTA;
 	double fVec1[2048];
@@ -32,13 +32,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -89,41 +89,35 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (0.5 * fConst0);
 	fConst2 = (6.2831853071795862 / fConst0);
-	fHslider0 = FAUSTFLOAT(0.0);
-	fHslider1 = FAUSTFLOAT(100.0);
-	fHslider2 = FAUSTFLOAT(0.5);
-	fHslider3 = FAUSTFLOAT(5.0);
-	fHslider4 = FAUSTFLOAT(0.20000000000000001);
-	fHslider5 = FAUSTFLOAT(-0.70699999999999996);
-			IOTA = 0;
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double fSlow0 = double(fHslider0);
 	double fSlow1 = double(fHslider1);
-	double fSlow2 = (0.01 * (std::min<double>(1.0, (1.0 - fSlow0)) * fSlow1));
+	double fSlow2 = (0.01 * (fSlow0 * std::min<double>(1.0, (1.0 - fSlow1))));
 	double fSlow3 = (2.0 - fSlow2);
-	double fSlow4 = (0.01 * (std::min<double>(1.0, (fSlow0 + 1.0)) * fSlow1));
+	double fSlow4 = (0.01 * (fSlow0 * std::min<double>(1.0, (fSlow1 + 1.0))));
 	double fSlow5 = (2.0 - fSlow4);
 	double fSlow6 = (0.001 * double(fHslider2));
 	double fSlow7 = (0.00050000000000000001 * double(fHslider3));
 	double fSlow8 = (fConst2 * double(fHslider4));
 	double fSlow9 = std::sin(fSlow8);
 	double fSlow10 = std::cos(fSlow8);
-	double fSlow11 = (0.33333333333333331 * ((std::fabs(fSlow0) + 2.0) * double(fHslider5)));
+	double fSlow11 = (0.33333333333333331 * (double(fHslider5) * (std::fabs(fSlow1) + 2.0)));
 	for (int i = 0; (i < count); i = (i + 1)) {
 		iVec0[0] = 1;
 		double fTemp0 = double(input0[i]);
@@ -165,12 +159,12 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("flanger_mono_gx.depth",N_("Depth"),"S","",&fHslider2, 0.5, 0.0, 5.0, 0.01);
-	reg.registerVar("flanger_mono_gx.feedback",N_("Feedback"),"S","",&fHslider5, -0.70699999999999996, -0.98999999999999999, 0.98999999999999999, 0.01);
-	reg.registerVar("flanger_mono_gx.freq",N_("Speed"),"SL","",&fHslider4, 0.20000000000000001, 0.050000000000000003, 10.0, 1.0600000000000001);
-	reg.registerVar("flanger_mono_gx.mix",N_("Mix"),"S","",&fHslider0, 0.0, -1.0, 1.0, 0.10000000000000001);
-	reg.registerVar("flanger_mono_gx.wet",N_("Wet"),"S","",&fHslider1, 100.0, 0.0, 100.0, 1.0);
-	reg.registerVar("flanger_mono_gx.width",N_("Width"),"S","",&fHslider3, 5.0, 0.0, 10.0, 0.01);
+	reg.registerFloatVar("flanger_mono_gx.depth",N_("Depth"),"S","",&fHslider2, 0.5, 0.0, 5.0, 0.01, 0);
+	reg.registerFloatVar("flanger_mono_gx.feedback",N_("Feedback"),"S","",&fHslider5, -0.70699999999999996, -0.98999999999999999, 0.98999999999999999, 0.01, 0);
+	reg.registerFloatVar("flanger_mono_gx.freq",N_("Speed"),"SL","",&fHslider4, 0.20000000000000001, 0.050000000000000003, 10.0, 1.0600000000000001, 0);
+	reg.registerFloatVar("flanger_mono_gx.mix",N_("Mix"),"S","",&fHslider1, 0.0, -1.0, 1.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("flanger_mono_gx.wet",N_("Wet"),"S","",&fHslider0, 100.0, 0.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("flanger_mono_gx.width",N_("Width"),"S","",&fHslider3, 5.0, 0.0, 10.0, 0.01, 0);
 	return 0;
 }
 

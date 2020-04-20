@@ -1,5 +1,5 @@
 // generated from file '../src/faust/tremolo.dsp' by dsp2cc:
-// Code generated with Faust 2.20.2 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace tremolo {
@@ -92,10 +92,6 @@ inline void Dsp::init(unsigned int sample_rate)
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (6.2831853071795862 / fConst0);
 	fConst3 = (0.5 * fConst0);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fVslider1 = FAUSTFLOAT(0.5);
-	fCheckbox0 = FAUSTFLOAT(0.0);
-	fVslider2 = FAUSTFLOAT(5.0);
 	clear_state_f();
 }
 

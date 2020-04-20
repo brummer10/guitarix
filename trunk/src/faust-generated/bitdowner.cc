@@ -1,12 +1,12 @@
 // generated from file '../src/faust/bitdowner.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace bitdowner {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	double fRec0[2];
 	FAUSTFLOAT fVslider1;
@@ -19,13 +19,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -72,19 +72,15 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fVslider0 = FAUSTFLOAT(0.0);
-	fVslider1 = FAUSTFLOAT(1.0);
-	fVslider2 = FAUSTFLOAT(16.0);
-	fVslider3 = FAUSTFLOAT(0.0);
+	fSampleRate = sample_rate;
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -99,11 +95,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i = 0; (i < count); i = (i + 1)) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		fRec1[0] = (fSlow5 + (0.999 * fRec1[1]));
-		double fTemp0 = (fSlow4 * std::floor((fSlow3 * (fRec1[0] * double(input0[i])))));
-		double fTemp1 = ((fTemp0 > 1.0)?1.0:((fTemp0 < -1.0)?-1.0:fTemp0));
-		iRec3[0] = ((iRec3[1] < iSlow6)?(iRec3[1] + 1):0);
-		fRec2[0] = ((iRec3[0] == 0)?fTemp1:fRec2[1]);
-		output0[i] = FAUSTFLOAT((fRec0[0] * (iSlow2?fRec2[0]:fTemp1)));
+		double fTemp0 = (fSlow4 * std::floor((fSlow3 * (double(input0[i]) * fRec1[0]))));
+		double fTemp1 = ((fTemp0 > 1.0) ? 1.0 : ((fTemp0 < -1.0) ? -1.0 : fTemp0));
+		iRec3[0] = ((iRec3[1] < iSlow6) ? (iRec3[1] + 1) : 0);
+		fRec2[0] = ((iRec3[0] == 0) ? fTemp1 : fRec2[1]);
+		output0[i] = FAUSTFLOAT((fRec0[0] * (iSlow2 ? fRec2[0] : fTemp1)));
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
 		iRec3[1] = iRec3[0];
@@ -118,10 +114,10 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("bitdowner.bit_down",N_("Bit Down"),"S","",&fVslider2, 16.0, 1.0, 16.0, 0.10000000000000001);
-	reg.registerVar("bitdowner.downsampling",N_("Smpl Down"),"S",N_("Downsampling (samples to skip ba.count)"),&fVslider1, 1.0, 1.0, 200.0, 1.0);
-	reg.registerVar("bitdowner.input_gain",N_("Input"),"S",N_("Gain (dB)"),&fVslider3, 0.0, -40.0, 40.0, 0.10000000000000001);
-	reg.registerVar("bitdowner.volume",N_("Volume"),"S",N_("Volume (dB)"),&fVslider0, 0.0, -90.0, 12.0, 0.10000000000000001);
+	reg.registerFloatVar("bitdowner.bit_down",N_("Bit Down"),"S","",&fVslider2, 16.0, 1.0, 16.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("bitdowner.downsampling",N_("Smpl Down"),"S",N_("Downsampling (samples to skip ba.count)"),&fVslider1, 1.0, 1.0, 200.0, 1.0, 0);
+	reg.registerFloatVar("bitdowner.input_gain",N_("Input"),"S",N_("Gain (dB)"),&fVslider3, 0.0, -40.0, 40.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("bitdowner.volume",N_("Volume"),"S",N_("Volume (dB)"),&fVslider0, 0.0, -90.0, 12.0, 0.10000000000000001, 0);
 	return 0;
 }
 

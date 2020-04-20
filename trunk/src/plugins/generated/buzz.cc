@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/buzz.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -10,7 +10,7 @@ namespace buzz {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -48,13 +48,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -110,35 +110,33 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = std::tan((34.557519189487721 / fConst0));
 	fConst2 = (1.0 / fConst1);
 	fConst3 = (fConst2 + 1.0);
-	fConst4 = (1.0 / (fConst3 * fConst1));
+	fConst4 = (1.0 / (fConst1 * fConst3));
 	fConst5 = (9.0420168692285508e-15 * fConst0);
-	fConst6 = (((((fConst5 + 1.0967885210812e-14) * fConst0) + 8.1405834755984808e-15) * fConst0) + 2.46256378077601e-15);
+	fConst6 = ((fConst0 * ((fConst0 * (fConst5 + 1.0967885210812e-14)) + 8.1405834755984808e-15)) + 2.46256378077601e-15);
 	fConst7 = (0.93028479253239138 * (mydsp_faustpower3_f(fConst0) / fConst6));
 	fConst8 = (1.0 / fConst6);
 	fConst9 = (2.71260506076857e-14 * fConst0);
-	fConst10 = (((((-1.0967885210812e-14 - fConst9) * fConst0) + 8.1405834755984808e-15) * fConst0) + 7.3876913423280403e-15);
-	fConst11 = (((((fConst9 + -1.0967885210812e-14) * fConst0) + -8.1405834755984808e-15) * fConst0) + 7.3876913423280403e-15);
-	fConst12 = (((((1.0967885210812e-14 - fConst5) * fConst0) + -8.1405834755984808e-15) * fConst0) + 2.46256378077601e-15);
+	fConst10 = ((fConst0 * ((fConst0 * (-1.0967885210812e-14 - fConst9)) + 8.1405834755984808e-15)) + 7.3876913423280403e-15);
+	fConst11 = ((fConst0 * ((fConst0 * (fConst9 + -1.0967885210812e-14)) + -8.1405834755984808e-15)) + 7.3876913423280403e-15);
+	fConst12 = ((fConst0 * ((fConst0 * (1.0967885210812e-14 - fConst5)) + -8.1405834755984808e-15)) + 2.46256378077601e-15);
 	fConst13 = (1.0 / std::tan((270.1769682087222 / fConst0)));
 	fConst14 = (1.0 / (fConst13 + 1.0));
 	fConst15 = (1.0 - fConst13);
 	fConst16 = (0.0 - fConst4);
 	fConst17 = ((1.0 - fConst2) / fConst3);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fVslider1 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -192,8 +190,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("buzz.Level",N_("Level"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("buzz.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0);
+	reg.registerFloatVar("buzz.Level",N_("Level"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("buzz.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0, 0);
 	return 0;
 }
 

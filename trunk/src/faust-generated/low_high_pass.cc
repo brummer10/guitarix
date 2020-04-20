@@ -1,12 +1,12 @@
 // generated from file '../src/faust/low_high_pass.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace low_high_pass {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT fCheckbox1;
 	double fConst0;
@@ -29,13 +29,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -95,22 +95,16 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (3.1415926535897931 / std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq))));
-	fCheckbox0 = FAUSTFLOAT(0.0);
-	fCheckbox1 = FAUSTFLOAT(0.0);
-	fEntry0 = FAUSTFLOAT(130.0);
-	fEntry1 = FAUSTFLOAT(5000.0);
-	fVslider0 = FAUSTFLOAT(5000.0);
-	fVslider1 = FAUSTFLOAT(130.0);
+	fSampleRate = sample_rate;
+	fConst0 = (3.1415926535897931 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -140,11 +134,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp0 = double(input0[i]);
 		iVec0[0] = 1;
 		fRec2[0] = ((9.9999999999999995e-21 * double((1 - iVec0[1]))) - fRec2[1]);
-		double fTemp1 = (fRec2[0] + fTemp0);
+		double fTemp1 = (fTemp0 + fRec2[0]);
 		fVec1[0] = fTemp1;
 		fRec1[0] = (0.0 - (fSlow7 * ((fSlow8 * fRec1[1]) - (fTemp1 + fVec1[1]))));
 		fRec0[0] = ((fSlow5 * fRec1[1]) - (fSlow9 * ((fSlow10 * fRec0[1]) - (fSlow3 * fRec1[0]))));
-		double fTemp2 = (iSlow1?fRec0[0]:fTemp0);
+		double fTemp2 = (iSlow1 ? fRec0[0] : fTemp0);
 		double fTemp3 = (fRec2[0] + fTemp2);
 		fVec2[0] = (fSlow16 * fTemp3);
 		fRec6[0] = ((fSlow16 * (fTemp3 + (fSlow17 * fRec6[1]))) - fVec2[1]);
@@ -152,7 +146,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec5[0] = ((fSlow16 * (fRec6[0] + (fSlow17 * fRec5[1]))) - fVec3[1]);
 		fRec4[0] = (fRec5[0] - (fSlow14 * ((fSlow18 * fRec4[2]) + (fSlow19 * fRec4[1]))));
 		fRec3[0] = ((fSlow14 * (fRec4[2] + (fRec4[0] + (2.0 * fRec4[1])))) - (fSlow13 * ((fSlow20 * fRec3[2]) + (fSlow19 * fRec3[1]))));
-		output0[i] = FAUSTFLOAT((iSlow0?(fSlow13 * (fRec3[2] + (fRec3[0] + (2.0 * fRec3[1])))):fTemp2));
+		output0[i] = FAUSTFLOAT((iSlow0 ? (fSlow13 * (fRec3[2] + (fRec3[0] + (2.0 * fRec3[1])))) : fTemp2));
 		iVec0[1] = iVec0[0];
 		fRec2[1] = fRec2[0];
 		fVec1[1] = fVec1[0];
@@ -176,12 +170,12 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("low_high_pass.lhc.high_freq",N_("Highcut"),"S",N_("high-freq cutoff Hz"),&fVslider0, 5000.0, 1000.0, 12000.0, 10.0);
-	reg.registerVar("low_high_pass.lhc.low_freq",N_("Lowcut"),"S",N_("low-freq cutoff Hz"),&fVslider1, 130.0, 20.0, 1000.0, 10.0);
-	reg.registerVar("low_high_pass.lhc.on_off",N_("low highcutoff"),"B","",&fCheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("low_high_pass.lhp.high_freq",N_("Highpass"),"S","",&fEntry0, 130.0, 20.0, 7040.0, 10.0);
-	reg.registerVar("low_high_pass.lhp.low_freq",N_("Lowpass"),"S","",&fEntry1, 5000.0, 20.0, 12000.0, 10.0);
-	reg.registerVar("low_high_pass.lhp.on_off",N_("low fi.highpass"),"B","",&fCheckbox1, 0.0, 0.0, 1.0, 1.0);
+	reg.registerFloatVar("low_high_pass.lhc.high_freq",N_("Highcut"),"S",N_("high-freq cutoff Hz"),&fVslider0, 5000.0, 1000.0, 12000.0, 10.0, 0);
+	reg.registerFloatVar("low_high_pass.lhc.low_freq",N_("Lowcut"),"S",N_("low-freq cutoff Hz"),&fVslider1, 130.0, 20.0, 1000.0, 10.0, 0);
+	reg.registerFloatVar("low_high_pass.lhc.on_off",N_("low highcutoff"),"B","",&fCheckbox0, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("low_high_pass.lhp.high_freq",N_("Highpass"),"S","",&fEntry0, 130.0, 20.0, 7040.0, 10.0, 0);
+	reg.registerFloatVar("low_high_pass.lhp.low_freq",N_("Lowpass"),"S","",&fEntry1, 5000.0, 20.0, 12000.0, 10.0, 0);
+	reg.registerFloatVar("low_high_pass.lhp.on_off",N_("low fi.highpass"),"B","",&fCheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
 	return 0;
 }
 

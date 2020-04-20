@@ -1,12 +1,12 @@
 // generated from file '../src/faust/flanger_mono.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace flanger_mono {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT fHslider0;
 	int iVec0[2];
@@ -22,13 +22,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -76,28 +76,25 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (0.10471975511965977 / fConst0);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fHslider0 = FAUSTFLOAT(0.0);
-	fHslider1 = FAUSTFLOAT(24.0);
-			IOTA = 0;
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double fSlow0 = double(fVslider0);
 	double fSlow1 = (1.0 - (0.01 * fSlow0));
-	double fSlow2 = (0.01 * (std::pow(10.0, (0.050000000000000003 * double(fHslider0))) * fSlow0));
+	double fSlow2 = (0.01 * (fSlow0 * std::pow(10.0, (0.050000000000000003 * double(fHslider0)))));
 	double fSlow3 = (fConst1 * double(fHslider1));
 	double fSlow4 = std::sin(fSlow3);
 	double fSlow5 = std::cos(fSlow3);
@@ -129,9 +126,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("flanger_mono.level",N_("Level"),"S","",&fHslider0, 0.0, -60.0, 10.0, 0.10000000000000001);
-	reg.registerVar("flanger_mono.lfobpm",N_("BPM"),"S",N_("LFO in Beats per Minute"),&fHslider1, 24.0, 24.0, 360.0, 1.0);
-	reg.registerVar("flanger_mono.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0);
+	reg.registerFloatVar("flanger_mono.level",N_("Level"),"S","",&fHslider0, 0.0, -60.0, 10.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("flanger_mono.lfobpm",N_("BPM"),"S",N_("LFO in Beats per Minute"),&fHslider1, 24.0, 24.0, 360.0, 1.0, 0);
+	reg.registerFloatVar("flanger_mono.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0, 0);
 	return 0;
 }
 

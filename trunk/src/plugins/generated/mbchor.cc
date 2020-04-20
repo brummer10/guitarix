@@ -1,5 +1,5 @@
 // generated from file '../src/plugins/mbchor.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "gx_faust_support.h"
 #include "gx_plugin.h"
@@ -16,27 +16,23 @@ class mydspSIG0 {
 	
 	int getNumInputsmydspSIG0() {
 		return 0;
-		
 	}
 	int getNumOutputsmydspSIG0() {
 		return 1;
-		
 	}
 	int getInputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			default: {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	int getOutputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			case 0: {
 				rate = 0;
 				break;
@@ -45,48 +41,41 @@ class mydspSIG0 {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	
-	void instanceInitmydspSIG0(int samplingFreq) {
+	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l9 = 0; (l9 < 2); l9 = (l9 + 1)) {
 			iRec10[l9] = 0;
-			
 		}
-		
 	}
 	
-	void fillmydspSIG0(int count, double* output) {
+	void fillmydspSIG0(int count, double* table) {
 		for (int i = 0; (i < count); i = (i + 1)) {
 			iRec10[0] = (iRec10[1] + 1);
-			output[i] = std::sin((9.5873799242852573e-05 * double((iRec10[0] + -1))));
+			table[i] = std::sin((9.5873799242852573e-05 * double((iRec10[0] + -1))));
 			iRec10[1] = iRec10[0];
-			
 		}
-		
 	}
 
 };
 
-mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
-void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
+static mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
+static void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
 
-	
 static double ftbl0mydspSIG0[65536];
 
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
+	double fVec0[2];
 	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	double fConst2;
 	FAUSTFLOAT fHslider1;
-	double fVec0[2];
 	double fRec7[2];
 	double fRec6[3];
 	FAUSTFLOAT fHslider2;
@@ -176,13 +165,13 @@ private:
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
 	static const char *glade_def;
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -281,49 +270,25 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
 	mydspSIG0* sig0 = newmydspSIG0();
-	sig0->instanceInitmydspSIG0(samplingFreq);
+	sig0->instanceInitmydspSIG0(sample_rate);
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (3.1415926535897931 / fConst0);
 	fConst3 = (0.5 * fConst0);
 	fConst4 = (0.016666666666666666 / fConst0);
-	fHslider0 = FAUSTFLOAT(0.5);
-	fHslider1 = FAUSTFLOAT(5000.0);
-	fHslider2 = FAUSTFLOAT(1700.0);
-	fHslider3 = FAUSTFLOAT(210.0);
-	fHslider4 = FAUSTFLOAT(80.0);
-	fHslider5 = FAUSTFLOAT(0.10000000000000001);
-	fHslider6 = FAUSTFLOAT(0.10000000000000001);
-	fHslider7 = FAUSTFLOAT(150.0);
-	fHslider8 = FAUSTFLOAT(0.5);
-	fHslider9 = FAUSTFLOAT(0.080000000000000002);
-	fHslider10 = FAUSTFLOAT(0.080000000000000002);
-	fHslider11 = FAUSTFLOAT(120.0);
-	fHslider12 = FAUSTFLOAT(0.5);
-	fHslider13 = FAUSTFLOAT(0.059999999999999998);
-	fHslider14 = FAUSTFLOAT(0.059999999999999998);
-	fHslider15 = FAUSTFLOAT(90.0);
-	fHslider16 = FAUSTFLOAT(0.5);
-	fHslider17 = FAUSTFLOAT(0.040000000000000001);
-	fHslider18 = FAUSTFLOAT(0.040000000000000001);
-	fHslider19 = FAUSTFLOAT(60.0);
-	fHslider20 = FAUSTFLOAT(0.5);
-	fHslider21 = FAUSTFLOAT(0.02);
-	fHslider22 = FAUSTFLOAT(0.02);
-	fHslider23 = FAUSTFLOAT(30.0);
-			IOTA = 0;
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -336,7 +301,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow5 = mydsp_faustpower2_f(fSlow1);
 	double fSlow6 = (1.0 / fSlow5);
 	double fSlow7 = (fSlow2 + 1.0);
-	double fSlow8 = (0.0 - (1.0 / (fSlow7 * fSlow1)));
+	double fSlow8 = (0.0 - (1.0 / (fSlow1 * fSlow7)));
 	double fSlow9 = (1.0 / fSlow7);
 	double fSlow10 = (1.0 - fSlow2);
 	double fSlow11 = (((fSlow2 + -1.0000000000000004) / fSlow1) + 1.0);
@@ -377,7 +342,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow46 = (1.0 / fSlow45);
 	double fSlow47 = (0.0 - (1.0 / (fSlow14 * fSlow16)));
 	double fSlow48 = (1.0 / fSlow16);
-	double fSlow49 = (1.0 / (fSlow3 * fSlow14));
+	double fSlow49 = (1.0 / (fSlow14 * fSlow3));
 	double fSlow50 = (((fSlow15 + -1.0000000000000004) / fSlow14) + 1.0);
 	double fSlow51 = (0.0 - (2.0 / fSlow20));
 	double fSlow52 = (0.0010000000000000009 * double(fHslider9));
@@ -388,7 +353,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow57 = (1.0 / fSlow56);
 	double fSlow58 = (0.0 - (1.0 / (fSlow23 * fSlow25)));
 	double fSlow59 = (1.0 / fSlow25);
-	double fSlow60 = (1.0 / (fSlow45 * fSlow23));
+	double fSlow60 = (1.0 / (fSlow23 * fSlow45));
 	double fSlow61 = (((fSlow24 + -1.0000000000000004) / fSlow23) + 1.0);
 	double fSlow62 = (0.0 - (2.0 / fSlow29));
 	double fSlow63 = (0.0010000000000000009 * double(fHslider13));
@@ -398,7 +363,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow67 = (1.0 / (((fSlow33 + 1.0000000000000004) / fSlow32) + 1.0));
 	double fSlow68 = (0.0 - (1.0 / (fSlow32 * fSlow34)));
 	double fSlow69 = (1.0 / fSlow34);
-	double fSlow70 = (1.0 / (fSlow56 * fSlow32));
+	double fSlow70 = (1.0 / (fSlow32 * fSlow56));
 	double fSlow71 = (((fSlow33 + -1.0000000000000004) / fSlow32) + 1.0);
 	double fSlow72 = (0.0 - (2.0 / fSlow38));
 	double fSlow73 = (0.0010000000000000009 * double(fHslider17));
@@ -409,10 +374,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow78 = (0.10000000000000001 * double(fHslider22));
 	double fSlow79 = (fConst4 * double(fHslider23));
 	for (int i = 0; (i < count); i = (i + 1)) {
-		int iTemp0 = (iRec1[1] < 4096);
-		double fTemp1 = double(input0[i]);
-		fVec0[0] = fTemp1;
-		fRec7[0] = ((fSlow8 * fVec0[1]) - (fSlow9 * ((fSlow10 * fRec7[1]) - (fSlow2 * fTemp1))));
+		double fTemp0 = double(input0[i]);
+		fVec0[0] = fTemp0;
+		int iTemp1 = (iRec1[1] < 4096);
+		fRec7[0] = ((fSlow8 * fVec0[1]) - (fSlow9 * ((fSlow10 * fRec7[1]) - (fSlow2 * fTemp0))));
 		fRec6[0] = (fRec7[0] - (fSlow4 * ((fSlow11 * fRec6[2]) + (fSlow12 * fRec6[1]))));
 		double fTemp2 = (fSlow22 * fRec5[1]);
 		fRec5[0] = ((fSlow4 * (((fSlow6 * fRec6[0]) + (fSlow13 * fRec6[1])) + (fSlow6 * fRec6[2]))) - (fSlow17 * ((fSlow19 * fRec5[2]) + fTemp2)));
@@ -432,12 +397,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp11 = std::floor(fTemp9);
 		double fTemp12 = (fSlow0 * (fTemp5 + (fSlow0 * ((fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp10))) & 131071)] * (fTemp11 + (1.0 - fTemp9))) + ((fTemp9 - fTemp11) * fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp10 + 1)))) & 131071)])))));
 		double fTemp13 = std::max<double>(fConst1, std::fabs(fTemp12));
-		fRec0[0] = (iTemp0?(fTemp13 + fRec0[1]):fTemp13);
-		iRec1[0] = (iTemp0?(iRec1[1] + 1):1);
-		fRec2[0] = (iTemp0?fRec2[1]:(0.000244140625 * fRec0[1]));
+		fRec0[0] = (iTemp1 ? (fTemp13 + fRec0[1]) : fTemp13);
+		iRec1[0] = (iTemp1 ? (iRec1[1] + 1) : 1);
+		fRec2[0] = (iTemp1 ? fRec2[1] : (0.000244140625 * fRec0[1]));
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
 		int iTemp14 = (iRec12[1] < 4096);
-		fRec19[0] = (0.0 - (fSlow9 * ((fSlow10 * fRec19[1]) - (fVec0[1] + fTemp1))));
+		fRec19[0] = (0.0 - (fSlow9 * ((fSlow10 * fRec19[1]) - (fTemp0 + fVec0[1]))));
 		fRec18[0] = (fRec19[0] - (fSlow4 * ((fSlow11 * fRec18[2]) + (fSlow12 * fRec18[1]))));
 		double fTemp15 = (fRec18[2] + (fRec18[0] + (2.0 * fRec18[1])));
 		double fTemp16 = (fSlow4 * fTemp15);
@@ -460,9 +425,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp25 = std::floor(fTemp23);
 		double fTemp26 = (fSlow44 * (fTemp19 + (fSlow44 * ((fVec3[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp24))) & 131071)] * (fTemp25 + (1.0 - fTemp23))) + ((fTemp23 - fTemp25) * fVec3[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp24 + 1)))) & 131071)])))));
 		double fTemp27 = std::max<double>(fConst1, std::fabs(fTemp26));
-		fRec11[0] = (iTemp14?(fTemp27 + fRec11[1]):fTemp27);
-		iRec12[0] = (iTemp14?(iRec12[1] + 1):1);
-		fRec13[0] = (iTemp14?fRec13[1]:(0.000244140625 * fRec11[1]));
+		fRec11[0] = (iTemp14 ? (fTemp27 + fRec11[1]) : fTemp27);
+		iRec12[0] = (iTemp14 ? (iRec12[1] + 1) : 1);
+		fRec13[0] = (iTemp14 ? fRec13[1] : (0.000244140625 * fRec11[1]));
 		fVbargraph1 = FAUSTFLOAT(fRec13[0]);
 		int iTemp28 = (iRec23[1] < 4096);
 		fRec29[0] = (0.0 - (fSlow48 * ((fSlow18 * fRec29[1]) - (fTemp16 + fVec2[1]))));
@@ -486,9 +451,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp38 = std::floor(fTemp36);
 		double fTemp39 = (fSlow55 * (fTemp32 + (fSlow55 * ((fVec5[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp37))) & 131071)] * (fTemp38 + (1.0 - fTemp36))) + ((fTemp36 - fTemp38) * fVec5[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp37 + 1)))) & 131071)])))));
 		double fTemp40 = std::max<double>(fConst1, std::fabs(fTemp39));
-		fRec22[0] = (iTemp28?(fTemp40 + fRec22[1]):fTemp40);
-		iRec23[0] = (iTemp28?(iRec23[1] + 1):1);
-		fRec24[0] = (iTemp28?fRec24[1]:(0.000244140625 * fRec22[1]));
+		fRec22[0] = (iTemp28 ? (fTemp40 + fRec22[1]) : fTemp40);
+		iRec23[0] = (iTemp28 ? (iRec23[1] + 1) : 1);
+		fRec24[0] = (iTemp28 ? fRec24[1] : (0.000244140625 * fRec22[1]));
 		fVbargraph2 = FAUSTFLOAT(fRec24[0]);
 		int iTemp41 = (iRec33[1] < 4096);
 		fRec38[0] = (0.0 - (fSlow59 * ((fSlow27 * fRec38[1]) - (fTemp30 + fVec4[1]))));
@@ -510,9 +475,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp50 = std::floor(fTemp48);
 		double fTemp51 = (fSlow66 * (fTemp44 + (fSlow66 * ((fVec7[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp49))) & 131071)] * (fTemp50 + (1.0 - fTemp48))) + ((fTemp48 - fTemp50) * fVec7[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp49 + 1)))) & 131071)])))));
 		double fTemp52 = std::max<double>(fConst1, std::fabs(fTemp51));
-		fRec32[0] = (iTemp41?(fTemp52 + fRec32[1]):fTemp52);
-		iRec33[0] = (iTemp41?(iRec33[1] + 1):1);
-		fRec34[0] = (iTemp41?fRec34[1]:(0.000244140625 * fRec32[1]));
+		fRec32[0] = (iTemp41 ? (fTemp52 + fRec32[1]) : fTemp52);
+		iRec33[0] = (iTemp41 ? (iRec33[1] + 1) : 1);
+		fRec34[0] = (iTemp41 ? fRec34[1] : (0.000244140625 * fRec32[1]));
 		fVbargraph3 = FAUSTFLOAT(fRec34[0]);
 		int iTemp53 = (iRec42[1] < 4096);
 		fRec45[0] = (0.0 - (fSlow69 * ((fSlow36 * fRec45[1]) - (fTemp43 + fVec6[1]))));
@@ -529,11 +494,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp60 = std::floor(fTemp58);
 		double fTemp61 = (fSlow76 * (fTemp54 + (fSlow76 * ((fVec8[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp59))) & 131071)] * (fTemp60 + (1.0 - fTemp58))) + ((fTemp58 - fTemp60) * fVec8[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp59 + 1)))) & 131071)])))));
 		double fTemp62 = std::max<double>(fConst1, std::fabs(fTemp61));
-		fRec41[0] = (iTemp53?(fTemp62 + fRec41[1]):fTemp62);
-		iRec42[0] = (iTemp53?(iRec42[1] + 1):1);
-		fRec43[0] = (iTemp53?fRec43[1]:(0.000244140625 * fRec41[1]));
+		fRec41[0] = (iTemp53 ? (fTemp62 + fRec41[1]) : fTemp62);
+		iRec42[0] = (iTemp53 ? (iRec42[1] + 1) : 1);
+		fRec43[0] = (iTemp53 ? fRec43[1] : (0.000244140625 * fRec41[1]));
 		fVbargraph4 = FAUSTFLOAT(fRec43[0]);
-		output0[i] = FAUSTFLOAT((((((fTemp12 + fTemp26) + fTemp39) + fTemp51) + fTemp61) + fTemp1));
+		output0[i] = FAUSTFLOAT((fTemp0 + ((((fTemp12 + fTemp26) + fTemp39) + fTemp51) + fTemp61)));
 		fVec0[1] = fVec0[0];
 		fRec7[1] = fRec7[0];
 		fRec6[2] = fRec6[1];
@@ -610,35 +575,35 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("mbchor.crossover_b1_b2",N_("Crossover B1-B2 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider4, 80.0, 20.0, 20000.0, 1.0800000000000001);
-	reg.registerVar("mbchor.crossover_b2_b3",N_("Crossover B2-B3 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider3, 210.0, 20.0, 20000.0, 1.0800000000000001);
-	reg.registerVar("mbchor.crossover_b3_b4",N_("Crossover B3-B4 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider2, 1700.0, 20.0, 20000.0, 1.0800000000000001);
-	reg.registerVar("mbchor.crossover_b4_b5",N_("Crossover B4-B5 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider1, 5000.0, 20.0, 20000.0, 1.0800000000000001);
-	reg.registerVar("mbchor.delay1","","S","",&fHslider21, 0.02, 0.0, 0.20000000000000001, 0.01);
-	reg.registerVar("mbchor.delay2","","S","",&fHslider17, 0.040000000000000001, 0.0, 0.20000000000000001, 0.01);
-	reg.registerVar("mbchor.delay3","","S","",&fHslider13, 0.059999999999999998, 0.0, 0.20000000000000001, 0.01);
-	reg.registerVar("mbchor.delay4","","S","",&fHslider9, 0.080000000000000002, 0.0, 0.20000000000000001, 0.01);
-	reg.registerVar("mbchor.delay5","","S","",&fHslider5, 0.10000000000000001, 0.0, 0.20000000000000001, 0.01);
-	reg.registerVar("mbchor.depth1","","S","",&fHslider22, 0.02, 0.01, 1.0, 0.01);
-	reg.registerVar("mbchor.depth2","","S","",&fHslider18, 0.040000000000000001, 0.01, 1.0, 0.01);
-	reg.registerVar("mbchor.depth3","","S","",&fHslider14, 0.059999999999999998, 0.01, 1.0, 0.01);
-	reg.registerVar("mbchor.depth4","","S","",&fHslider10, 0.080000000000000002, 0.01, 1.0, 0.01);
-	reg.registerVar("mbchor.depth5","","S","",&fHslider6, 0.10000000000000001, 0.01, 1.0, 0.01);
-	reg.registerVar("mbchor.freq1","","S",N_("Beats per Minute"),&fHslider23, 30.0, 24.0, 360.0, 1.0);
-	reg.registerVar("mbchor.freq2","","S",N_("Beats per Minute"),&fHslider19, 60.0, 24.0, 360.0, 1.0);
-	reg.registerVar("mbchor.freq3","","S",N_("Beats per Minute"),&fHslider15, 90.0, 24.0, 360.0, 1.0);
-	reg.registerVar("mbchor.freq4","","S",N_("Beats per Minute"),&fHslider11, 120.0, 24.0, 360.0, 1.0);
-	reg.registerVar("mbchor.freq5","","S",N_("Beats per Minute"),&fHslider7, 150.0, 24.0, 360.0, 1.0);
-	reg.registerVar("mbchor.level1","","S","",&fHslider20, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("mbchor.level2","","S","",&fHslider16, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("mbchor.level3","","S","",&fHslider12, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("mbchor.level4","","S","",&fHslider8, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("mbchor.level5","","S","",&fHslider0, 0.5, 0.0, 1.0, 0.01);
-	reg.registerNonMidiFloatVar("mbchor.v1",&fVbargraph4, false, true, -70.0, -70.0, 4.0, 0.00001);
-	reg.registerNonMidiFloatVar("mbchor.v2",&fVbargraph3, false, true, -70.0, -70.0, 4.0, 0.00001);
-	reg.registerNonMidiFloatVar("mbchor.v3",&fVbargraph2, false, true, -70.0, -70.0, 4.0, 0.00001);
-	reg.registerNonMidiFloatVar("mbchor.v4",&fVbargraph1, false, true, -70.0, -70.0, 4.0, 0.00001);
-	reg.registerNonMidiFloatVar("mbchor.v5",&fVbargraph0, false, true, -70.0, -70.0, 4.0, 0.00001);
+	reg.registerFloatVar("mbchor.crossover_b1_b2",N_("Crossover B1-B2 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider4, 80.0, 20.0, 20000.0, 1.0800000000000001, 0);
+	reg.registerFloatVar("mbchor.crossover_b2_b3",N_("Crossover B2-B3 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider3, 210.0, 20.0, 20000.0, 1.0800000000000001, 0);
+	reg.registerFloatVar("mbchor.crossover_b3_b4",N_("Crossover B3-B4 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider2, 1700.0, 20.0, 20000.0, 1.0800000000000001, 0);
+	reg.registerFloatVar("mbchor.crossover_b4_b5",N_("Crossover B4-B5 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider1, 5000.0, 20.0, 20000.0, 1.0800000000000001, 0);
+	reg.registerFloatVar("mbchor.delay1","","S","",&fHslider21, 0.02, 0.0, 0.20000000000000001, 0.01, 0);
+	reg.registerFloatVar("mbchor.delay2","","S","",&fHslider17, 0.040000000000000001, 0.0, 0.20000000000000001, 0.01, 0);
+	reg.registerFloatVar("mbchor.delay3","","S","",&fHslider13, 0.059999999999999998, 0.0, 0.20000000000000001, 0.01, 0);
+	reg.registerFloatVar("mbchor.delay4","","S","",&fHslider9, 0.080000000000000002, 0.0, 0.20000000000000001, 0.01, 0);
+	reg.registerFloatVar("mbchor.delay5","","S","",&fHslider5, 0.10000000000000001, 0.0, 0.20000000000000001, 0.01, 0);
+	reg.registerFloatVar("mbchor.depth1","","S","",&fHslider22, 0.02, 0.01, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.depth2","","S","",&fHslider18, 0.040000000000000001, 0.01, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.depth3","","S","",&fHslider14, 0.059999999999999998, 0.01, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.depth4","","S","",&fHslider10, 0.080000000000000002, 0.01, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.depth5","","S","",&fHslider6, 0.10000000000000001, 0.01, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.freq1","","S",N_("Beats per Minute"),&fHslider23, 30.0, 24.0, 360.0, 1.0, 0);
+	reg.registerFloatVar("mbchor.freq2","","S",N_("Beats per Minute"),&fHslider19, 60.0, 24.0, 360.0, 1.0, 0);
+	reg.registerFloatVar("mbchor.freq3","","S",N_("Beats per Minute"),&fHslider15, 90.0, 24.0, 360.0, 1.0, 0);
+	reg.registerFloatVar("mbchor.freq4","","S",N_("Beats per Minute"),&fHslider11, 120.0, 24.0, 360.0, 1.0, 0);
+	reg.registerFloatVar("mbchor.freq5","","S",N_("Beats per Minute"),&fHslider7, 150.0, 24.0, 360.0, 1.0, 0);
+	reg.registerFloatVar("mbchor.level1","","S","",&fHslider20, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.level2","","S","",&fHslider16, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.level3","","S","",&fHslider12, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.level4","","S","",&fHslider8, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.level5","","S","",&fHslider0, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("mbchor.v1","","SOLN","",&fVbargraph4, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("mbchor.v2","","SOLN","",&fVbargraph3, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("mbchor.v3","","SOLN","",&fVbargraph2, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("mbchor.v4","","SOLN","",&fVbargraph1, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("mbchor.v5","","SOLN","",&fVbargraph0, 0, 0.0, 1.0, 0, 0);
 	return 0;
 }
 
@@ -671,9 +636,8 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">8</property>\n\
                 <child>\n\
-                  <object class=\"GtkNotebook\" id=\"notebook:tab_rack\">\n\
+                  <object class=\"GtkNotebook\" id=\"notebook\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">True</property>\n\
                     <child>\n\
@@ -848,12 +812,14 @@ const char *Dsp::glade_def = "\
                           <object class=\"GtkGrid\" id=\"table1\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"halign\">center</property>\n\
                             <property name=\"margin_left\">4</property>\n\
                             <property name=\"margin_right\">4</property>\n\
                             <property name=\"margin_top\">4</property>\n\
                             <property name=\"margin_bottom\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"column_spacing\">4</property>\n\
+                            <property name=\"row_homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_141:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -878,6 +844,19 @@ const char *Dsp::glade_def = "\
                                 <property name=\"left_attach\">1</property>\n\
                                 <property name=\"top_attach\">0</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <object class=\"GtkLabel\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">0</property>\n\
+                                <property name=\"top_attach\">1</property>\n\
+                              </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -1070,12 +1049,14 @@ const char *Dsp::glade_def = "\
                           <object class=\"GtkGrid\" id=\"table2\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"halign\">center</property>\n\
                             <property name=\"margin_left\">4</property>\n\
                             <property name=\"margin_right\">4</property>\n\
                             <property name=\"margin_top\">4</property>\n\
                             <property name=\"margin_bottom\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"column_spacing\">4</property>\n\
+                            <property name=\"row_homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_13:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -1321,12 +1302,14 @@ const char *Dsp::glade_def = "\
                           <object class=\"GtkGrid\" id=\"table3\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"halign\">center</property>\n\
                             <property name=\"margin_left\">4</property>\n\
                             <property name=\"margin_right\">4</property>\n\
                             <property name=\"margin_top\">4</property>\n\
                             <property name=\"margin_bottom\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"column_spacing\">4</property>\n\
+                            <property name=\"row_homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_132:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -1572,12 +1555,14 @@ const char *Dsp::glade_def = "\
                           <object class=\"GtkGrid\" id=\"table4\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"halign\">center</property>\n\
                             <property name=\"margin_left\">4</property>\n\
                             <property name=\"margin_right\">4</property>\n\
                             <property name=\"margin_top\">4</property>\n\
                             <property name=\"margin_bottom\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"column_spacing\">4</property>\n\
+                            <property name=\"row_homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_133:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -1823,12 +1808,14 @@ const char *Dsp::glade_def = "\
                           <object class=\"GtkGrid\" id=\"table5\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"halign\">center</property>\n\
                             <property name=\"margin_left\">4</property>\n\
                             <property name=\"margin_right\">4</property>\n\
                             <property name=\"margin_top\">4</property>\n\
                             <property name=\"margin_bottom\">4</property>\n\
                             <property name=\"row_spacing\">4</property>\n\
                             <property name=\"column_spacing\">4</property>\n\
+                            <property name=\"row_homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_134:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
@@ -1855,7 +1842,14 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <placeholder/>\n\
+                              <object class=\"GtkLabel\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can_focus\">False</property>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"left_attach\">0</property>\n\
+                                <property name=\"top_attach\">0</property>\n\
+                              </packing>\n\
                             </child>\n\
                             <child>\n\
                               <placeholder/>\n\
@@ -1883,6 +1877,9 @@ const char *Dsp::glade_def = "\
                         <property name=\"tab_fill\">False</property>\n\
                       </packing>\n\
                     </child>\n\
+                    <style>\n\
+                      <class name=\"tab_rack\"/>\n\
+                    </style>\n\
                   </object>\n\
                   <packing>\n\
                     <property name=\"expand\">True</property>\n\
@@ -1894,6 +1891,7 @@ const char *Dsp::glade_def = "\
                   <object class=\"GtkBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"halign\">center</property>\n\
                     <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label5:rack_label\">\n\
@@ -1912,13 +1910,17 @@ const char *Dsp::glade_def = "\
                       <object class=\"GtkBox\" id=\"hbox3\">\n\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can_focus\">False</property>\n\
+                        <property name=\"margin_bottom\">4</property>\n\
+                        <property name=\"spacing\">10</property>\n\
                         <child>\n\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter1\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
                             <property name=\"var_id\">mbchor.v1</property>\n\
+                            <property name=\"falloff\">True</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
@@ -1930,9 +1932,11 @@ const char *Dsp::glade_def = "\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter2\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
                             <property name=\"var_id\">mbchor.v2</property>\n\
+                            <property name=\"falloff\">True</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
@@ -1944,9 +1948,11 @@ const char *Dsp::glade_def = "\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter3\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
                             <property name=\"var_id\">mbchor.v3</property>\n\
+                            <property name=\"falloff\">True</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
@@ -1958,9 +1964,11 @@ const char *Dsp::glade_def = "\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter4\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
                             <property name=\"var_id\">mbchor.v4</property>\n\
+                            <property name=\"falloff\">True</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\
@@ -1972,9 +1980,11 @@ const char *Dsp::glade_def = "\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter5\">\n\
                             <property name=\"visible\">True</property>\n\
                             <property name=\"can_focus\">False</property>\n\
+                            <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
                             <property name=\"var_id\">mbchor.v5</property>\n\
+                            <property name=\"falloff\">True</property>\n\
                           </object>\n\
                           <packing>\n\
                             <property name=\"expand\">True</property>\n\

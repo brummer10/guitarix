@@ -1,12 +1,12 @@
 // generated from file '../src/faust/tonestack_sovtek.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 
 namespace tonestack_sovtek {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	double fConst0;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
@@ -19,12 +19,12 @@ private:
 	double fRec0[4];
 
 	void clear_state_f();
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -68,21 +68,18 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (2.0 * std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq))));
+	fSampleRate = sample_rate;
+	fConst0 = (2.0 * std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
 	fConst1 = mydsp_faustpower2_f(fConst0);
 	fConst2 = (3.0 * fConst0);
-	fVslider0 = FAUSTFLOAT(0.5);
-	fVslider1 = FAUSTFLOAT(0.5);
-	fVslider2 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -95,16 +92,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow2 = ((0.00022000000000000001 * fSlow0) + (0.022470000000000004 * fSlow1));
 	double fSlow3 = (fConst0 * (fSlow2 + 0.0025276999999999999));
 	double fSlow4 = (4.9434000000000004e-08 * fSlow0);
-	double fSlow5 = ((((((4.9434000000000008e-06 * fSlow1) + -1.2634599999999999e-07) - fSlow4) * fSlow0) + (2.8889960000000004e-05 * fSlow1)) + 7.748796000000001e-07);
+	double fSlow5 = (((fSlow0 * (((4.9434000000000008e-06 * fSlow1) + -1.2634599999999999e-07) - fSlow4)) + (2.8889960000000004e-05 * fSlow1)) + 7.748796000000001e-07);
 	double fSlow6 = ((1.2443156000000004e-09 * fSlow1) - (1.2443156000000002e-11 * fSlow0));
 	double fSlow7 = (5.3457800000000014e-09 * fSlow1);
-	double fSlow8 = ((((fSlow6 + -4.1014644000000008e-11) * fSlow0) + fSlow7) + 5.3457800000000012e-11);
+	double fSlow8 = (((fSlow0 * (fSlow6 + -4.1014644000000008e-11)) + fSlow7) + 5.3457800000000012e-11);
 	double fSlow9 = (fConst0 * fSlow8);
 	double fSlow10 = (1.0 / (-1.0 - (fSlow3 + (fConst1 * (fSlow5 + fSlow9)))));
 	double fSlow11 = double(fVslider2);
 	double fSlow12 = (fConst0 * ((fSlow2 + (0.00023500000000000002 * fSlow11)) + 0.00022470000000000001));
-	double fSlow13 = (((4.8598000000000007e-07 * fSlow11) + (((1.0113400000000001e-07 - fSlow4) * fSlow0) + (fSlow1 * ((4.9434000000000008e-06 * fSlow0) + 6.1419600000000012e-06)))) + 6.1419600000000008e-08);
-	double fSlow14 = (((fSlow6 + 1.2443156000000002e-11) * fSlow0) + ((fSlow7 - (5.3457800000000012e-11 * (fSlow0 + -1.0))) * fSlow11));
+	double fSlow13 = (((4.8598000000000007e-07 * fSlow11) + ((fSlow0 * (1.0113400000000001e-07 - fSlow4)) + (fSlow1 * ((4.9434000000000008e-06 * fSlow0) + 6.1419600000000012e-06)))) + 6.1419600000000008e-08);
+	double fSlow14 = ((fSlow0 * (fSlow6 + 1.2443156000000002e-11)) + (fSlow11 * (fSlow7 - (5.3457800000000012e-11 * (fSlow0 + -1.0)))));
 	double fSlow15 = (fConst0 * fSlow14);
 	double fSlow16 = (0.0 - (fSlow12 + (fConst1 * (fSlow13 + fSlow15))));
 	double fSlow17 = (fConst2 * fSlow8);
@@ -134,9 +131,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fVslider1_ = reg.registerVar("amp.tonestack.Bass","","SA","",&fVslider1, 0.5, 0.0, 1.0, 0.01);
-	fVslider0_ = reg.registerVar("amp.tonestack.Middle","","SA","",&fVslider0, 0.5, 0.0, 1.0, 0.01);
-	fVslider2_ = reg.registerVar("amp.tonestack.Treble","","SA","",&fVslider2, 0.5, 0.0, 1.0, 0.01);
+	fVslider1_ = reg.registerFloatVar("amp.tonestack.Bass","","SA","",&fVslider1, 0.5, 0.0, 1.0, 0.01, 0);
+	fVslider0_ = reg.registerFloatVar("amp.tonestack.Middle","","SA","",&fVslider0, 0.5, 0.0, 1.0, 0.01, 0);
+	fVslider2_ = reg.registerFloatVar("amp.tonestack.Treble","","SA","",&fVslider2, 0.5, 0.0, 1.0, 0.01, 0);
 	return 0;
 }
 
