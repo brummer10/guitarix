@@ -50,7 +50,7 @@ def configure(conf):
         env.USE_GENERATED_CPP = False
     else:
         env.USE_GENERATED_CPP = True
-    if opt.shared_lib or opt.lv2:
+    if opt.shared_lib:
         env.GX_LIB_SHARED = True
     elif opt.standalone:
         env.GX_LIB_STATIC = True

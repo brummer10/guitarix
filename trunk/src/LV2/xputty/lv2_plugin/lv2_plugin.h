@@ -57,6 +57,7 @@ typedef struct {
     void *private_ptr;
     cairo_surface_t *screw;
     int block_event;
+    int need_resize;
 
     void *controller;
     LV2UI_Write_Function write_function;

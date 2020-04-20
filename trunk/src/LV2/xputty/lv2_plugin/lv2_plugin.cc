@@ -293,7 +293,7 @@ Widget_t* add_my_combobox(Widget_t *w, PortIndex index, const char * label, cons
 }
 
 // init the xwindow and return the LV2UI handle
-static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
+static LV2UI_Handle instantiate(const struct LV2UI_Descriptor * descriptor,
             const char * plugin_uri, const char * bundle_path,
             LV2UI_Write_Function write_function,
             LV2UI_Controller controller, LV2UI_Widget * widget,
@@ -307,7 +307,6 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     }
 
     ui->parentXwindow = 0;
-    LV2UI_Resize* resize = NULL;
     ui->block_event = -1;
     ui->private_ptr = NULL;
 
@@ -320,7 +319,7 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
         if (!strcmp(features[i]->URI, LV2_UI__parent)) {
             ui->parentXwindow = features[i]->data;
         } else if (!strcmp(features[i]->URI, LV2_UI__resize)) {
-            resize = (LV2UI_Resize*)features[i]->data;
+            ui->resize = (LV2UI_Resize*)features[i]->data;
         }
     }
 
@@ -352,9 +351,8 @@ static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
     // set the widget pointer to the X11 Window from the toplevel Widget_t
     *widget = (void*)ui->win->widget;
     // request to resize the parentXwindow to the size of the toplevel Widget_t
-    if (resize){
-        ui->resize = resize;
-        resize->ui_resize(resize->handle, w, h);
+    if (ui->resize){
+        ui->resize->ui_resize(ui->resize->handle, w, h);
     }
     // store pointer to the host controller
     ui->controller = controller;
@@ -447,7 +445,7 @@ const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index) {
     if (index >= sizeof(descriptors) / sizeof(descriptors[0])) {
         return NULL;
     }
-    return descriptors + index;
+    return &descriptors[index];
 }
 #ifdef __cplusplus
 }

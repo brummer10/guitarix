@@ -268,7 +268,7 @@ def configure(conf):
 
     conf.env['OS'] = platform
 
-    if not opt.disable_nls:
+    if not opt.disable_nls and opt.standalone :
         conf.load('intltool')
         conf.gxload('intltool_extras')
         if conf.env['INTLTOOL'] and conf.env['MSGFMT']:
@@ -397,7 +397,7 @@ def configure(conf):
     if conf.env["LADSPA"]:
         conf.recurse('ladspa');
     if conf.env["LV2"]:
-        opt.shared_lib = True;
+        #opt.shared_lib = True;
         conf.recurse('src/LV2');
 
     # config subdirs

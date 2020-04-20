@@ -178,9 +178,11 @@ Widget_t *create_window(Xputty *app, Window win,
 
     XSizeHints* win_size_hints;
     win_size_hints = XAllocSizeHints();
-    win_size_hints->flags =  PMinSize|PWinGravity;
+    win_size_hints->flags =  PMinSize|PBaseSize|PWinGravity;
     win_size_hints->min_width = width/2;
     win_size_hints->min_height = height/2;
+    win_size_hints->base_width = width;
+    win_size_hints->base_height = height;
     win_size_hints->win_gravity = CenterGravity;
     XSetWMNormalHints(app->dpy, w->widget, win_size_hints);
     XFree(win_size_hints);

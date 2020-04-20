@@ -234,7 +234,7 @@ Widget_t* add_my_knob(Widget_t *w, PortIndex index, const char * label,
 }
 
 // init the xwindow and return the LV2UI handle
-static LV2UI_Handle instantiate(const struct _LV2UI_Descriptor * descriptor,
+static LV2UI_Handle instantiate(const struct LV2UI_Descriptor * descriptor,
             const char * plugin_uri, const char * bundle_path,
             LV2UI_Write_Function write_function,
             LV2UI_Controller controller, LV2UI_Widget * widget,
