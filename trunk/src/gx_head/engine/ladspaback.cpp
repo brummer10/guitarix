@@ -33,7 +33,6 @@ namespace ladspa {
 //#define HARD_RT_ONLY
 
 static const unsigned long blacklist[] = {
-    4069, 4070,		      // ladspa_guitarix
     1912,                     // jamincont (crashes on unload?)
     //1044, 1045, 1046, 1047, // sine
 };
@@ -41,6 +40,7 @@ static const unsigned long blacklist[] = {
 static bool lib_is_blacklisted(const std::string& name) {
     static const char *blacklist[] = {
         "dssi-vst.so",
+        "ladspa_guitarix.so",
     };
     for (unsigned int i = 0; i < sizeof(blacklist) / sizeof(blacklist[0]); i++) {
         if (name == blacklist[i]) {
@@ -1133,9 +1133,6 @@ void PluginDesc::output(JsonWriter& jw) {
 	    ++idx;
 	    if ((*p)->pos == MasterIdx) {
 		sm = MasterLabel;
-		if (sm == (*p)->get_name()) {
-		    sm = "";
-		}
 		break;
 	    }
 	}
@@ -1688,7 +1685,8 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std:
                 if (lib_is_blacklisted(nm)) {
                     continue;
                 }
-                lrdf_read_file(("file://"+Glib::build_filename(file->get_path(), nm)).c_str());
+                Glib::ustring path = "file://"+Glib::build_filename(file->get_path(), nm);
+                lrdf_read_file(path.c_str());
             }
         }
     }

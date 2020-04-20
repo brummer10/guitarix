@@ -37,23 +37,6 @@ const char *display_type_names[] = { "Scale", "Log. Scale", "Toggle", "Enum", "D
  ** class PluginDisplay
  */
 
-static const char *menudef = "\
-<ui>\n\
-  <menubar name=\"ladspalist\">\n\
-    <menu action=\"FileMenuAction\">\n\
-      <menuitem action=\"SelectAllAction\" />\n\
-      <menuitem action=\"SelectNoneAction\" />\n\
-      <menuitem action=\"SaveAction\" />\n\
-      <menuitem action=\"ApplyAction\" />\n\
-      <menuitem action=\"QuitAction\" />\n\
-    </menu>\n\
-    <menu action=\"ViewMenuAction\">\n\
-      <menuitem action= \"FindAction\" />\n\
-    </menu>\n\
-  </menubar>\n\
-</ui>\n\
-";
-
 static void append_displaytype(Glib::RefPtr<Gtk::ListStore> ls, DisplayType tp) {
     Gtk::TreeIter it = ls->append();
     it->set_value(0, ustring(display_type_names[tp]));
@@ -71,12 +54,25 @@ public:
 };
 
 PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gdk::Pixbuf> icon, sigc::slot<void, bool, bool> finished_callback_)
-    : machine(machine_), pluginlist(), needs_reload(), current_plugin(0), old_state(0), bld(), change_count(0),
-      actiongroup(Gtk::ActionGroup::create("ladspa_window")), uimanager(),
-      enum_liststore(new EnumListStore), port_liststore(new PortListStore),
-      plugin_liststore(new PluginListStore), masteridx_liststore(new MasterIdxListStore),
-      on_reordered_conn(), display_type_list(), display_type_list_sr(), output_type_list(),
-      finished_callback(finished_callback_), reload_plug(false)
+    : machine(machine_),
+      pluginlist(),
+      needs_reload(),
+      current_plugin(0),
+      old_state(0),
+      bld(),
+      change_count(0),
+      actiongroup(Gio::SimpleActionGroup::create()),
+      enum_liststore(new EnumListStore),
+      port_liststore(new PortListStore),
+      plugin_liststore(new PluginListStore),
+      masteridx_liststore(new MasterIdxListStore),
+      on_reordered_conn(),
+      display_type_list(),
+      display_type_list_sr(),
+      output_type_list(),
+      finished_callback(finished_callback_),
+      reload_plug(false)
+      //widget pointers not initialized
 {
     std::vector<std::string> old_not_found;
     machine.load_ladspalist(old_not_found, pluginlist);
@@ -101,50 +97,44 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("plugin_quirks", plugin_quirks);
     bld->find_widget("master_slider_idx", master_slider_idx);
     bld->find_widget("master_slider_name", master_slider_name);
-    bld->find_widget("cellrenderer_master", cellrenderer_master);
-    bld->find_widget("cellrenderer_newrow", cellrenderer_newrow);
-    bld->find_widget("cellrenderer_caption", cellrenderer_caption);
-    bld->find_widget("cellrenderer_active", cellrenderer_active);
-    bld->find_widget("cellrenderer_category", cellrenderer_category);
-    bld->find_widget("cellrenderer_quirks", cellrenderer_quirks);
+    bld->find_object("cellrenderer_master", cellrenderer_master);
+    bld->find_object("cellrenderer_newrow", cellrenderer_newrow);
+    bld->find_object("cellrenderer_caption", cellrenderer_caption);
+    bld->find_object("cellrenderer_active", cellrenderer_active);
+    bld->find_object("cellrenderer_category", cellrenderer_category);
+    bld->find_object("cellrenderer_quirks", cellrenderer_quirks);
 
     set_title();
-    treeview1->set_name("PresetView");
-    treeview2->set_name("PresetView");
-    treeview3->set_name("PresetView");
-    actiongroup->add(Gtk::Action::create("FileMenuAction",_("_File")));
-    save_action = Gtk::Action::create("SaveAction", _("_Ok"));
-    actiongroup->add(save_action, sigc::mem_fun(this, &PluginDisplay::on_save));
-    apply_action = Gtk::Action::create("ApplyAction", _("_Apply"));
-    actiongroup->add(apply_action, sigc::mem_fun(this, &PluginDisplay::on_apply));
-    quit_action = Gtk::Action::create("QuitAction", _("_Quit"));
-    actiongroup->add(quit_action, sigc::mem_fun(this, &PluginDisplay::on_quit));
-    select_all_action = Gtk::Action::create("SelectAllAction", _("_Select All"));
-    actiongroup->add(select_all_action, sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_select_all), true));
-    select_none_action = Gtk::Action::create("SelectNoneAction", _("Select _None"));
-    actiongroup->add(select_none_action, sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_select_all), false));
-    actiongroup->add(Gtk::Action::create("ViewMenuAction", _("_View")));
-    Glib::RefPtr<Gtk::Action> act = Gtk::Action::create("FindAction", _("_Find"));
-    actiongroup->add(act, sigc::mem_fun(this, &PluginDisplay::on_find));
+    actiongroup->add_action("FileMenuAction");
+    auto save_action = actiongroup->add_action(
+        "SaveAction", sigc::mem_fun(this, &PluginDisplay::on_save));
+    auto apply_action = actiongroup->add_action(
+        "ApplyAction", sigc::mem_fun(this, &PluginDisplay::on_apply));
+    auto quit_action = actiongroup->add_action(
+        "QuitAction", sigc::mem_fun(this, &PluginDisplay::on_quit));
+    auto select_all_action = actiongroup->add_action(
+        "SelectAllAction",
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_select_all), true));
+    auto select_none_action = actiongroup->add_action(
+        "SelectNoneAction",
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_select_all), false));
+    actiongroup->add_action("ViewMenuAction");
+    auto find_action = actiongroup->add_action(
+        "FindAction", sigc::mem_fun(this, &PluginDisplay::on_find));
 
-    uimanager = Gtk::UIManager::create();
-    uimanager->insert_action_group(actiongroup, 0);
-    uimanager->add_ui_from_string(menudef);
-    //uimanager->get_widget("/ladspalist");
-    //Gtk::HBox *ww; bld->find_widget("menubox", ww); ww->pack_start(*uimanager->get_widget("/ladspalist"));
-    window->add_accel_group(uimanager->get_accel_group());
+    window->insert_action_group("app", actiongroup);
+    auto accelgroup = Gtk::AccelGroup::create();
+    window->add_accel_group(accelgroup);
 
     window->signal_delete_event().connect(sigc::mem_fun(this, &PluginDisplay::on_delete_event));
     bld->find_widget("show_details", show_details);
     show_details->signal_clicked().connect(sigc::mem_fun(this, &PluginDisplay::on_show_details));
     treeview3->get_selection()->set_mode(Gtk::SELECTION_BROWSE);
     treeview3->set_model(enum_liststore);
-    Gtk::CellRendererText *r;
-    bld->find_widget("cellrenderer_label", r);
+    auto r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_label"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_label_edited));
-    Gtk::TreeViewColumn *c;
-    bld->find_widget("treeviewcolumn_label", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_label));
+    auto c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_label"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_label));
     
     bld->find_widget("dry_wet_button", dry_wet_button);
     dry_wet_button->signal_clicked().connect(sigc::mem_fun(this, &PluginDisplay::on_add_dry_wet_controller));
@@ -163,57 +153,56 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     CellRendererComboDerived *rd;
     bld->find_widget_derived("cellrenderer_type", rd, sigc::ptr_fun(CellRendererComboDerived::create_from_builder));
     rd->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_type_edited));
-    bld->find_widget("treeviewcolumn_type", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_type"));
     c->set_cell_data_func(*rd, sigc::mem_fun(this, &PluginDisplay::display_type));
 
     bld->find_widget_derived("cellrenderer_step", rd, sigc::ptr_fun(CellRendererComboDerived::create_from_builder));
     rd->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_step_edited));
-    bld->find_widget("treeviewcolumn_step", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_step"));
     c->set_cell_data_func(*rd, sigc::mem_fun(this, &PluginDisplay::display_step));
 
     cellrenderer_newrow->signal_toggled().connect(sigc::mem_fun(this, &PluginDisplay::on_newrow_toggled));
     Gtk::Label *label = new Gtk::Label("N");
     label->set_tooltip_text(_("start a new row of controls in the rackbox unit"));
     label->show();
-    bld->find_widget("treeviewcolumn_newrow", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_newrow"));
     c->set_widget(*manage(label));
     c->set_cell_data_func(*cellrenderer_newrow, sigc::mem_fun(this, &PluginDisplay::display_newrow));
     cellrenderer_caption->signal_toggled().connect(sigc::mem_fun(this, &PluginDisplay::on_caption_toggled));
     label = new Gtk::Label("C");
     label->set_tooltip_text(_("display the name as caption above the control"));
     label->show();
-    bld->find_widget("treeviewcolumn_caption", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_caption"));
     c->set_widget(*manage(label));
     c->set_cell_data_func(*cellrenderer_caption, sigc::mem_fun(this, &PluginDisplay::display_caption));
 
-    bld->find_widget("cellrenderer_name", r);
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_name"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_name_edited));
-    bld->find_widget("treeviewcolumn_name", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_name));
-    bld->find_widget("cellrenderer_dflt", r);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_name"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_name));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_dflt"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_dflt_edited));
-    bld->find_widget("treeviewcolumn_dflt", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_default));
-    bld->find_widget("cellrenderer_low", r);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_dflt"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_default));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_low"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_low_edited));
-    bld->find_widget("treeviewcolumn_low", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_lower));
-    bld->find_widget("cellrenderer_up", r);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_low"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_lower));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_up"));
     r->signal_edited().connect(sigc::mem_fun(this, &PluginDisplay::on_up_edited));
-    bld->find_widget("treeviewcolumn_up", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_upper));
-    bld->find_widget("cellrenderer_idx", r);
-    bld->find_widget("treeviewcolumn_idx", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_idx));
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_up"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_upper));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_idx"));
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_idx"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_idx));
 
-    bld->find_widget("treeviewcolumn_SR", c);
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_SR"));
     label = new Gtk::Label("SR");
     label->set_tooltip_text(_("marked rows: range depends on samplerate; using 44100 as fixed value"));
     label->show();
     c->set_widget(*manage(label));
-    Gtk::CellRendererToggle *t;
-    bld->find_widget("cellrenderer_SR", t);
-    c->set_cell_data_func(*t, sigc::mem_fun(this, &PluginDisplay::display_SR));
+    auto t = Glib::RefPtr<Gtk::CellRendererToggle>::cast_dynamic(bld->get_object("cellrenderer_SR"));
+    c->set_cell_data_func(*t.get(), sigc::mem_fun(this, &PluginDisplay::display_SR));
 
     Gtk::TreeModelColumnRecord recdef;
     Gtk::TreeModelColumn<Glib::ustring> strcol;
@@ -248,9 +237,9 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     sel->signal_changed().connect(sigc::mem_fun(this, &PluginDisplay::selection_changed));
     treeview1->set_model(plugin_liststore);
     cellrenderer_active->signal_toggled().connect(sigc::mem_fun(this, &PluginDisplay::on_active_toggled));
-    bld->find_widget("cellrenderer_ladspa", r);
-    bld->find_widget("treeviewcolumn_ladspa", c);
-    c->set_cell_data_func(*r, sigc::mem_fun(this, &PluginDisplay::display_ladspa));
+    r = Glib::RefPtr<Gtk::CellRendererText>::cast_dynamic(bld->get_object("cellrenderer_ladspa"));
+    c = Glib::RefPtr<Gtk::TreeViewColumn>::cast_dynamic(bld->get_object("treeviewcolumn_ladspa"));
+    c->set_cell_data_func(*r.get(), sigc::mem_fun(this, &PluginDisplay::display_ladspa));
 
     Gtk::ComboBox *cb;
     bld->find_widget("plugin_category", cb);
@@ -258,18 +247,24 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("plugin_quirks", cb);
     cb->set_cell_data_func(*cellrenderer_quirks, sigc::mem_fun(this, &PluginDisplay::display_quirks));
 
-    master_slider_idx->set_cell_data_func(*cellrenderer_master, sigc::mem_fun(this, &PluginDisplay::display_master_idx));
+    master_slider_idx->set_cell_data_func(
+        *cellrenderer_master, sigc::mem_fun(this, &PluginDisplay::display_master_idx));
     master_slider_idx->signal_changed().connect(sigc::mem_fun(this, &PluginDisplay::set_master_text));
 
-    selected_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), selected_only));
-    changed_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), changed_only));
-    ladspa_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), ladspa_only));
-    lv2_only->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), lv2_only));
-    show_all->signal_toggled().connect(sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), show_all));
+    selected_only->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), selected_only));
+    changed_only->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), changed_only));
+    ladspa_only->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), ladspa_only));
+    lv2_only->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), lv2_only));
+    show_all->signal_toggled().connect(
+        sigc::bind(sigc::mem_fun(this, &PluginDisplay::on_view_changed), show_all));
 
     bld->find_widget("combobox_mono_stereo", cb);
     cb->signal_changed().connect(sigc::mem_fun(this, &PluginDisplay::on_mono_stereo_changed));
-    cb->set_active(0);
+    cb->set_active(false);
     Gtk::Button *b;
     bld->find_widget("reset_changes", b);
     b->signal_clicked().connect(sigc::mem_fun(this, &PluginDisplay::on_delete_changes));
@@ -277,16 +272,29 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     bld->find_widget("master_slider_idx", cb);
     cb->set_model(masteridx_liststore);
 
+    Glib::VariantBase nulltarget = Glib::VariantBase();
+
     bld->find_widget("button_cancel", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("QuitAction")->gobj());
+    UIManager::set_widget_action(b, quit_action);
+    UIManager::add_accelerator(accelgroup, quit_action, "<Control>q", nulltarget);
+
     bld->find_widget("button_apply", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("ApplyAction")->gobj());
+    UIManager::set_widget_action(b, apply_action);
+    UIManager::add_accelerator(accelgroup, apply_action, "<Control>s", nulltarget);
+
     bld->find_widget("button_save", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("SaveAction")->gobj());
+    UIManager::set_widget_action(b, save_action);
+    UIManager::add_accelerator(accelgroup, save_action, "<Control>o", nulltarget);
+
     bld->find_widget("select_all", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("SelectAllAction")->gobj());
+    UIManager::set_widget_action(b, select_all_action);
+    UIManager::add_accelerator(accelgroup, select_all_action, "<Control>a", nulltarget);
+
     bld->find_widget("select_none", b);
-    gtk_activatable_set_related_action(GTK_ACTIVATABLE(b->gobj()), actiongroup->get_action("SelectNoneAction")->gobj());
+    UIManager::set_widget_action(b, select_none_action);
+    UIManager::add_accelerator(accelgroup, select_none_action, "<Control>n", nulltarget);
+
+    UIManager::add_accelerator(accelgroup, find_action, "<Control>f", nulltarget);
 
     window->set_icon(icon);
     window->show();
@@ -766,9 +774,9 @@ void PluginDisplay::selection_changed() {
     }
     set_old_state(p);
     if (p->shortname != p->Name) {
-	plugin_name->modify_text(Gtk::STATE_NORMAL, Gdk::Color("red"));
+        plugin_name->get_style_context()->add_class("pldef-changed");
     } else {
-	plugin_name->unset_text(Gtk::STATE_NORMAL);
+        plugin_name->get_style_context()->remove_class("pldef-changed");
     }
     plugin_name->set_text(p->shortname);
     Gtk::TreeNodeChildren ch = plugin_category->get_model()->children();
@@ -804,11 +812,11 @@ void PluginDisplay::selection_changed() {
 	}
     }
     master_slider_idx->set_active(p->MasterIdx+1);
-    master_slider_name->unset_text(Gtk::STATE_NORMAL);
+    master_slider_name->get_style_context()->remove_class("pldef-changed");
     if (!p->MasterLabel.empty()) {
 	master_slider_name->set_text(p->MasterLabel);
 	if (p->MasterLabel != ml) {
-	    master_slider_name->modify_text(Gtk::STATE_NORMAL, Gdk::Color("red"));
+	    master_slider_name->get_style_context()->add_class("pldef-changed");
 	}
     }
     dry_wet_button->set_active(current_plugin->add_wet_dry);

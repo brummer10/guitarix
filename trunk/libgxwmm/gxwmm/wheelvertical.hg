@@ -28,7 +28,7 @@ class WheelVertical: public Gxw::Regler {
 	_CLASS_GTKOBJECT(WheelVertical,GxWheelVertical,GX_WHEEL_VERTICAL,Gxw::Regler,GxRegler)
 	public:
 	_CTOR_DEFAULT
-	explicit WheelVertical(Gtk::Adjustment& adjustment);
+	explicit WheelVertical(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 };
 
 } // namespace Gxw

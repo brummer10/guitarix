@@ -1,8 +1,41 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import re, os
+from waflib import TaskGen, Logs
+from waflib.Build import INSTALL, UNINSTALL
+
+scss_theme_files = [
+    'gx_head_Guitarix.scss',
+    'gx_head_Copper.scss',
+    'gx_head_Lavender.scss',
+    'gx_head_Sky.scss',
+    'gx_head_Olive.scss',
+    'gx_head_Hippie.scss',
+    'gx_head_Psycedelic.scss',
+    'gx_head_Grandma.scss',
+    'gx_head_Grungy_Sun_Dark.scss',
+    'gx_head_Grungy_Sun.scss',
+    'gx_head_Aluminium.scss',
+    'gx_head_Oak.scss',
+    'gx_head_Burl.scss',
+    'gx_head_White_Oak.scss',
+    'gx_head_Guitarix_Oak.scss',
+    'gx_head_Plain_Dark.scss',
+    'gx_head_Dark.scss',
+    'gx_head_Nebula.scss',
+    'gx_head_Camouflage.scss',
+    'gx_head_Orange.scss',
+    'gx_head_Rust.scss',
+    'gx_head_Gold.scss',
+    ]
+
+scss_additional_files = [
+    'minimal.scss',
+    ]
+
 gxstyle_files = [
-    'gx_head_Guitarix.rc',
+    'clear.css',
     'background1.png',
     'background2.png',
     'live_wallpaper_aluminium.png',
@@ -26,8 +59,7 @@ gxstyle_files = [
     'live_wallpaper_nebula.png',
     'live_wallpaper_rust.png',
     'live_wallpaper_gold.png',
-    
-    'clear.rc',
+
     'tactile_knob_large_151f.png',
     'tactile_knob_small_99f.png',
     'tactile_knob_medium_151f.png',
@@ -63,108 +95,107 @@ gxstyle_files = [
     'knob_small_r.png',
     'knob_mid.png',
     'knob_big.png',
-    
+
     ###COPPER THEME
-    'gx_head_Copper.rc',
     'copper.png',
-    
+
     ###LAVENDER THEME
-    'gx_head_Lavender.rc',
     'lavender.png',
-    
+
     ###SKY THEME
-    'gx_head_Sky.rc',
     'sky.png',
-    
+
     ###OLIVE THEME
-    'gx_head_Olive.rc',
     'olive.png',
-    
+
     ###HIPPIE THEME
-    'gx_head_Hippie.rc',
     'hippie.png',
     'hippie2.png',
     'knob_small_hippie.png',
     'knob_small_r_hippie.png',
     'knob_mid_hippie.png',
     'knob_big_hippie.png',
-    
+
     ###PSYCEDELIC THEME
-    'gx_head_Psycedelic.rc',
     'psycedelic.png',
-    
+
     ###GRANDMA THEME
-    'gx_head_Grandma.rc',
     'grandma.png',
-    
+
     ###GRUNGY SUN THEME
-    'gx_head_Grungy_Sun_Dark.rc',
     'grungy_sun_dark.png',
     'grungy_sun_dark2.png',
-    
+
     ###GRUNGY SUN THEME
-    'gx_head_Grungy_Sun.rc',
     'grungy_sun.png',
     'grungy_sun2.png',
-    
+
     ###ALUMINIUM THEME
-    'gx_head_Aluminium.rc',
     'aluminium1.png',
     'aluminium2.png',
-    
+
     ###OAK THEME
-    'gx_head_Oak.rc',
     'oak1.png',
     'oak2.png',
-    
+
     ###BURL THEME
-    'gx_head_Burl.rc',
     'burl1.png',
     'burl2.png',
-    
+
     ###WHITE OAK THEME
-    'gx_head_White_Oak.rc',
     'oak_white.png',
     #'oak2.png',
-    
+
     ###GUITARIX OAK THEME
-    'gx_head_Guitarix_Oak.rc',
     'oak_green.png',
     #'oak2.png',
-    
+
     ###DARK THEME
-    'gx_head_Plain_Dark.rc',
-    'gx_head_Dark.rc',
     'dark.png',
 
     ###NEBULA THEMA
-    'gx_head_Nebula.rc',
     'nebula.png',
     'nebula2.png',
 
     ###CAMOUFLAGE THEME
-    'gx_head_Camouflage.rc',
     'camouflage.png',
-    
+
     ###ORANGE THEME
-    'gx_head_Orange.rc',
     'orange.png',
-    
+
     ###RUST THEME
-    'gx_head_Rust.rc',
     'rust.png',
     'rust2.png',
-    
+
     ###GOLD THEME
-    'gx_head_Gold.rc',
     'gold1.png',
     'gold2.png',
-    
+
      ]
 
 def configure(conf):
-    pass
+    conf.env.SASSC_ARGS = '-ltexpanded' if conf.options.debug else '-tcompressed'
 
 def build(bld):
-    if bld.env.STANDALONE:
-        bld.install_files(bld.env.GX_STYLE_DIR, gxstyle_files, chmod=0o644)
+    if not bld.env.STANDALONE:
+        return
+    full_rcstyle_dir = True # set to use "guitarix --style-dir build/rcstyles"
+    features = []
+    if full_rcstyle_dir:
+        bld(features='subst',
+            source=gxstyle_files,
+            target=gxstyle_files,
+            is_copy=True,
+            install_path=bld.env.GX_STYLE_DIR)
+        features.append('generate_symlink_icons')
+    bld(name = 'scss',
+        features = features,
+        source = scss_theme_files,
+        proc_args = bld.env.SASSC_ARGS,
+        install_path=bld.env.GX_STYLE_DIR,
+        chmod=0o644)
+    bld(name = 'scss_add',
+        source = scss_additional_files,
+        proc_args = bld.env.SASSC_ARGS,
+        install_path=bld.env.GX_STYLE_DIR,
+        chmod=0o644)

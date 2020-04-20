@@ -25,11 +25,11 @@ drive5     = hslider("Drive5 [tooltip: Amount of distortion]", 0.1, 0, 1, 0.01);
 
 gain1      = vslider("Gain", 0, -40, 4, 0.1) : ba.db2linear : si.smooth(0.999);
 
-vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
-vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi:no]", -70, +5));
-vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
-vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
-vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
+vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi][log]", -70, +5));
+vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi][log]", -70, +5));
+vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi][log]", -70, +5));
+vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi][log]", -70, +5));
+vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi][log]", -70, +5));
 
 envelop         = abs : max ~ (1.0/ma.SR) : mean(4096); // : max(ba.db2linear(-70)) : ba.linear2db;
     

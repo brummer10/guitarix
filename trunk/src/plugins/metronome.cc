@@ -1,3 +1,4 @@
+// THE STATEMENT BELOW IS NO LONGER TRUE
 // generated from file '../src/plugins/metronome.dsp' by dsp2cc:
 // Code generated with Faust 0.9.73 (http://faust.grame.fr)
 
@@ -11,7 +12,6 @@ class Dsp: public PluginDef {
 private:
 	int fSamplingFreq;
 	FAUSTFLOAT 	fslider0;
-	FAUSTFLOAT 	fcheckbox0;
 	FAUSTFLOAT 	fslider1;
 	int 	iRec6[2];
 	int 	iConst0;
@@ -220,8 +220,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerVar("metro.BPM","","S",N_("Beats per Minute"),&fslider1, 3e+01, 24.0, 3.6e+02, 1.0);
-	reg.registerVar("metro.Gain","","S",N_("Gain (value between 0 and 1)"),&fslider0, 0.8, 0.0, 1e+01, 0.01);
+	reg.registerFloatVar("metro.BPM","","S",N_("Beats per Minute"),&fslider1, 3e+01, 24.0, 3.6e+02, 1.0, 0);
+	reg.registerFloatVar("metro.Gain","","S",N_("Gain (value between 0 and 1)"),&fslider0, 0.8, 0.0, 1e+01, 0.01, 0);
 	return 0;
 }
 
@@ -230,170 +230,10 @@ int Dsp::register_params_static(const ParamReg& reg)
 	return static_cast<Dsp*>(reg.plugin)->register_par(reg);
 }
 
-const char *Dsp::glade_def = "\
-<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
-<interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
-  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
-  <!-- interface-naming-policy project-wide -->\n\
-  <object class=\"GtkWindow\" id=\"window1\">\n\
-    <property name=\"can_focus\">False</property>\n\
-    <child>\n\
-      <object class=\"GtkVBox\" id=\"vbox1\">\n\
-        <property name=\"visible\">True</property>\n\
-        <property name=\"can_focus\">False</property>\n\
-        <child>\n\
-          <object class=\"GtkHBox\" id=\"rackbox\">\n\
-            <property name=\"visible\">True</property>\n\
-            <property name=\"can_focus\">False</property>\n\
-            <property name=\"spacing\">4</property>\n\
-            <child>\n\
-              <object class=\"GtkHBox\" id=\"hbox1\">\n\
-                <property name=\"visible\">True</property>\n\
-                <property name=\"can_focus\">False</property>\n\
-                <property name=\"spacing\">10</property>\n\
-                <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox2\">\n\
-                    <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
-                    <child>\n\
-                      <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">label</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">0</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GxMidKnob\" id=\"gxbigknob1\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">True</property>\n\
-                        <property name=\"receives_default\">True</property>\n\
-                        <property name=\"var_id\">metro.BPM</property>\n\
-                        <property name=\"label_ref\">label1:rack_label</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">1</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                  </object>\n\
-                  <packing>\n\
-                    <property name=\"expand\">False</property>\n\
-                    <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">0</property>\n\
-                  </packing>\n\
-                </child>\n\
-                <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
-                    <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
-                    <child>\n\
-                      <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"label\" translatable=\"yes\">label</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">0</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                    <child>\n\
-                      <object class=\"GxSmallKnobR\" id=\"gxbigknob2\">\n\
-                        <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">True</property>\n\
-                        <property name=\"receives_default\">True</property>\n\
-                        <property name=\"var_id\">metro.Gain</property>\n\
-                        <property name=\"label_ref\">label2:rack_label</property>\n\
-                      </object>\n\
-                      <packing>\n\
-                        <property name=\"expand\">False</property>\n\
-                        <property name=\"fill\">False</property>\n\
-                        <property name=\"position\">1</property>\n\
-                      </packing>\n\
-                    </child>\n\
-                  </object>\n\
-                  <packing>\n\
-                    <property name=\"expand\">False</property>\n\
-                    <property name=\"fill\">False</property>\n\
-                    <property name=\"position\">1</property>\n\
-                  </packing>\n\
-                </child>\n\
-              </object>\n\
-              <packing>\n\
-                <property name=\"expand\">True</property>\n\
-                <property name=\"fill\">False</property>\n\
-                <property name=\"pack_type\">end</property>\n\
-                <property name=\"position\">0</property>\n\
-              </packing>\n\
-            </child>\n\
-          </object>\n\
-          <packing>\n\
-            <property name=\"expand\">True</property>\n\
-            <property name=\"fill\">False</property>\n\
-            <property name=\"position\">0</property>\n\
-          </packing>\n\
-        </child>\n\
-        <child>\n\
-          <object class=\"GtkHBox\" id=\"minibox\">\n\
-            <property name=\"visible\">True</property>\n\
-            <property name=\"can_focus\">False</property>\n\
-            <property name=\"spacing\">4</property>\n\
-            <child>\n\
-              <object class=\"GxHSlider\" id=\"gxhslider1\">\n\
-                <property name=\"visible\">True</property>\n\
-                <property name=\"can_focus\">True</property>\n\
-                <property name=\"receives_default\">True</property>\n\
-                <property name=\"round_digits\">0</property>\n\
-                <property name=\"var_id\">metro.BPM</property>\n\
-                <property name=\"show_value\">False</property>\n\
-                <property name=\"value_position\">right</property>\n\
-                <property name=\"value_xalign\">0.52000000000000002</property>\n\
-                <property name=\"label_ref\">label0:rack_label</property>\n\
-              </object>\n\
-              <packing>\n\
-                <property name=\"expand\">False</property>\n\
-                <property name=\"fill\">False</property>\n\
-                <property name=\"position\">0</property>\n\
-              </packing>\n\
-            </child>\n\
-            <child>\n\
-              <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
-                <property name=\"visible\">True</property>\n\
-                <property name=\"can_focus\">False</property>\n\
-                <property name=\"xalign\">0</property>\n\
-                <property name=\"label\" translatable=\"yes\">Level</property>\n\
-              </object>\n\
-              <packing>\n\
-                <property name=\"expand\">False</property>\n\
-                <property name=\"fill\">False</property>\n\
-                <property name=\"position\">1</property>\n\
-              </packing>\n\
-            </child>\n\
-          </object>\n\
-          <packing>\n\
-            <property name=\"expand\">True</property>\n\
-            <property name=\"fill\">True</property>\n\
-            <property name=\"position\">1</property>\n\
-          </packing>\n\
-        </child>\n\
-      </object>\n\
-    </child>\n\
-  </object>\n\
-</interface>\n\
-";
-
 inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
-        b.load_glade(glade_def);
+        b.load_glade_file("metronome_ui.glade");
         return 0;
     }
     if (form & UI_FORM_STACK) {

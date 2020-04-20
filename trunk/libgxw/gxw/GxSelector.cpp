@@ -31,6 +31,8 @@ struct _GxSelectorPrivate
 	GtkMenu *menu;
 	GtkRequisition textsize;
 	gboolean req_ok;
+	gint req_width;
+	gint req_height;
 	gboolean inside;
 };
 
@@ -41,36 +43,43 @@ enum {
 
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event);
 static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *event);
-static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event);
-static void gx_selector_size_request (GtkWidget *widget, GtkRequisition *requisition);
+static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr);
+static void gx_selector_get_preferred_width(GtkWidget *widget, gint *minimal_width,
+                                            gint *natural_width);
+static void gx_selector_get_preferred_height(GtkWidget *widget, gint *minimal_height,
+                                             gint *natural_height);
+static void gx_selector_size_request (GtkWidget *widget, gint *out_width, gint *out_height);
 static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *event);
-static void gx_selector_destroy(GtkObject *object);
+static void gx_selector_destroy(GtkWidget *widget);
 static void gx_selector_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_selector_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, GdkEventButton *event);
-static void gx_selector_style_set(GtkWidget *widget, GtkStyle *previous_style);
+static void gx_selector_style_updated(GtkWidget *widget);
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxSelector, gx_selector, GX_TYPE_REGLER);
 
 static void gx_selector_class_init(GxSelectorClass *klass)
 {
 	GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
-	GtkObjectClass *object_class = (GtkObjectClass*)klass;
 	GtkWidgetClass *widget_class = (GtkWidgetClass*)klass;
 	GxReglerClass *regler_class = (GxReglerClass*)klass;
 
 	gobject_class->set_property = gx_selector_set_property;
 	gobject_class->get_property = gx_selector_get_property;
-	object_class->destroy = gx_selector_destroy;
+	widget_class->destroy = gx_selector_destroy;
 	widget_class->enter_notify_event = gx_selector_enter_in;
 	widget_class->leave_notify_event = gx_selector_leave_out;
-	widget_class->expose_event = gx_selector_expose;
-	widget_class->size_request = gx_selector_size_request;
-	widget_class->style_set = gx_selector_style_set;
+	widget_class->draw = gx_selector_draw;
+	widget_class->get_preferred_width = gx_selector_get_preferred_width;
+	widget_class->get_preferred_height = gx_selector_get_preferred_height;
+	widget_class->style_updated = gx_selector_style_updated;
 	widget_class->button_press_event = gx_selector_button_press;
 	regler_class->value_entry = gx_selector_value_entry;
+
+	gtk_widget_class_set_css_name(widget_class, "gx-selector");
+
 	g_object_class_install_property(
 		gobject_class, PROP_MODEL,
 		g_param_spec_object(
@@ -123,57 +132,68 @@ static void get_selector_border(GtkWidget *widget, GtkBorder *selector_border)
 }
 
 static void gx_selector_get_positions(
-	GtkWidget *widget, GdkRectangle *arrow, GdkRectangle *text, gint *off_x, gint *off_y)
+    GtkWidget *widget, GdkRectangle *arrow, GdkRectangle *text, gint *off_x, gint *off_y, GdkRectangle *frame)
 {
 	GtkBorder selector_border;
 	get_selector_border(widget, &selector_border);
     gint iwidth = GX_SELECTOR(widget)->icon_width;
     gint iheight = GX_SELECTOR(widget)->icon_height;
 	GtkAllocation allocation;
+	gint min_height;
 	gtk_widget_get_allocation(widget, &allocation);
-	GtkRequisition requisition;
-	gtk_widget_get_requisition(widget, &requisition);
-	GtkStyle *style = gtk_widget_get_style(widget);
+	gtk_widget_get_preferred_height(widget, &min_height, nullptr);
+
+	GtkStyleContext *sc = gtk_widget_get_style_context(widget);
+	GtkStateFlags state_flags = gtk_widget_get_state_flags(widget);
+	GtkBorder border;
+	gtk_style_context_get_border(sc, state_flags, &border);
+
 	int width = allocation.width; // fill allocated width
-	int height = requisition.height;
-	int x = allocation.x + style->xthickness;
-	int y = allocation.y + style->ythickness + (allocation.height - height) / 2;
-	arrow->x = x + width - 2 * style->xthickness - iwidth;
-	arrow->y = y + selector_border.bottom - style->ythickness +
-		(height - selector_border.bottom - selector_border.top - iheight) / 2;
+	int height = min_height;
+	int x = 0;
+	int y = (allocation.height - height) / 2;
+	arrow->x = width - (border.right + iwidth) / 2;
+	arrow->y = y + (height + selector_border.top - selector_border.bottom - iheight) / 2;
 	arrow->width = iwidth;
 	arrow->height = iheight;
 	if (text) {
-		text->x = x;
-		text->y = y;
-		text->width = width - 3 * style->xthickness - iwidth;
-		text->height = height - 2 * style->ythickness;
-		*off_x = selector_border.left;
-		*off_y = selector_border.bottom;
+		text->x = x + border.left;
+		text->y = y + border.top;
+		text->width = width - border.left - border.right;
+		text->height = height - (border.top + border.bottom);
+		*off_x = text->x + selector_border.left;
+		*off_y = text->y + selector_border.top;
+	}
+	if (frame) {
+	    frame->x = x;
+	    frame->y = y;
+	    frame->width = width;
+	    frame->height = height;
 	}
 }
 
 static void gx_selector_create_icon(GxSelector *selector) {
     if (selector->icon)
         return;
-    selector->icon = gtk_widget_render_icon(GTK_WIDGET(selector), "selector_icon", (GtkIconSize)-1, NULL);
+    selector->icon = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 "selector_icon", -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
     selector->icon_width = gdk_pixbuf_get_width(selector->icon);
     selector->icon_height = gdk_pixbuf_get_height(selector->icon);
 }
 
-static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_SELECTOR(widget));
 	GxSelector *selector = GX_SELECTOR(widget);
-	GxSelectorPrivate *priv = selector->priv;
 	int selectorstate = get_selector_state(selector);
     
     gx_selector_create_icon(selector);
     
 	PangoLayout *layout = gtk_widget_create_pango_layout(widget, NULL);
-	GdkRectangle arrow, text;
+	GdkRectangle arrow, text, frame;
 	gint off_x, off_y;
-	gx_selector_get_positions(widget, &arrow, &text, &off_x, &off_y);
+	gx_selector_get_positions(widget, &arrow, &text, &off_x, &off_y, &frame);
     gint rad;
     float bevel;
     gtk_widget_style_get(widget, "border-radius", &rad, "bevel", &bevel, NULL);
@@ -181,47 +201,25 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
         rad = 0;
     if (!bevel)
         bevel = 0;
-    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
-    GtkAllocation allocation;
-    gtk_widget_get_allocation(widget, &allocation);
-    GdkRegion *reg = gdk_region_rectangle(&allocation);
-    if (event->region)
-        gdk_region_intersect(reg, event->region);
-    gdk_cairo_region(cr, reg);
-    cairo_clip (cr);
 
-    GtkRequisition requisition;
-    gtk_widget_get_requisition(widget, &requisition);
-    gx_draw_rect(widget, "bg", NULL, allocation.x,
-        allocation.y + (allocation.height - requisition.height) / 2,
-        allocation.width,
-        requisition.height,
-        rad,
-        bevel);
+    GtkStyleContext *sc = gtk_widget_get_style_context(widget);
+    gtk_render_background(sc, cr, frame.x, frame.y, frame.width, frame.height);
+    gtk_render_frame(sc, cr, frame.x, frame.y, frame.width, frame.height);
 
-    GtkStyle* style = gtk_widget_get_style(widget);
-    if (style->ythickness >= 3)
-        gx_draw_inset(widget, text.x, text.y, text.width, text.height,
-            std::max(rad - std::max(style->ythickness, style->ythickness), 0), 1);
-        
-    gx_draw_rect(widget, "base", NULL, text.x,
-        text.y,
-        text.width,
-        text.height,
-        std::max(rad - std::max(style->ythickness, style->ythickness), 0),
-        0);
-    
-    gx_draw_glass(widget, text.x, text.y, text.width, text.height,
-        std::max(rad - std::max(style->ythickness, style->ythickness), 0));
-    
+    GtkBorder padding;
+    gtk_style_context_get_padding(sc, gtk_widget_get_state_flags(widget), &padding);
+    if (padding.top >= 3)
+        gx_draw_inset(cr, text.x, text.y, text.width, text.height,
+					  std::max(rad - std::max(padding.top, padding.left), 0), 1);
+
+    gx_draw_glass(cr, text.x, text.y, text.width, text.height,
+        std::max(rad - std::max(padding.top, padding.left), 0));
+
     gdk_cairo_set_source_pixbuf(cr, selector->icon, arrow.x, arrow.y);
     cairo_rectangle(cr, arrow.x, arrow.y, arrow.width, arrow.height);
     cairo_fill(cr);
-    
-	cairo_destroy(cr);
-    
+
 	if (selector->model) {
-		gint x, y;
 		PangoRectangle logical;
 		char *s;
 		GtkTreeIter iter;
@@ -229,61 +227,82 @@ static gboolean gx_selector_expose (GtkWidget *widget, GdkEventExpose *event)
 		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
 		pango_layout_set_text(layout, s, -1);
 		pango_layout_get_pixel_extents(layout, NULL, &logical);
-		x = text.x + (text.width - logical.width) / 2;
-		y = text.y + off_y + (priv->textsize.height - logical.height)/ 2;
-		gtk_paint_layout(style, gtk_widget_get_window(widget),
-		                 gtk_widget_get_state(widget),
-		                 FALSE, NULL, widget, "label", x, y, layout);
+		gint x = text.x + (text.width - logical.width) / 2;
+		gint y = off_y;
+		gtk_render_layout(sc, cr, x, y, layout);
 		g_free(s);
 	}
 	g_object_unref(layout);
-	gdk_region_destroy(reg);
 	return TRUE;
 }
 
 static gboolean gx_selector_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-    gtk_widget_set_state(widget, GTK_STATE_NORMAL);
-    gtk_widget_queue_draw(widget);
+	gtk_widget_unset_state_flags(widget, GTK_STATE_FLAG_PRELIGHT);
+	gtk_widget_queue_draw(widget);
 	return TRUE;
 }
 
 static gboolean gx_selector_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
 	g_assert(GX_IS_SELECTOR(widget));
-    gtk_widget_set_state(widget, GTK_STATE_PRELIGHT);
-    gtk_widget_queue_draw(widget);
+	gtk_widget_set_state_flags(widget, GTK_STATE_FLAG_PRELIGHT, FALSE);
+	gtk_widget_queue_draw(widget);
 	return TRUE;
 }
 
-static void gx_selector_style_set(GtkWidget *widget, GtkStyle *previous_style)
+static void gx_selector_style_updated(GtkWidget *widget)
 {
-	GxSelectorPrivate *priv = GX_SELECTOR(widget)->priv;
-	priv->req_ok = FALSE;
+	GX_SELECTOR(widget)->priv->req_ok = FALSE;
+	GTK_WIDGET_CLASS(gx_selector_parent_class)->style_updated(widget);
 }
 
-static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisition)
+static void gx_selector_get_preferred_width(GtkWidget *widget, gint *minimal_width,
+                                            gint *natural_width)
+{
+	gint width, height;
+	gx_selector_size_request(widget, &width, &height);
+
+	if (minimal_width) {
+		*minimal_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_selector_get_preferred_height(GtkWidget *widget, gint *minimal_height,
+                                             gint *natural_height)
+{
+	gint width, height;
+	gx_selector_size_request(widget, &width, &height);
+
+	if (minimal_height) {
+		*minimal_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static void gx_selector_size_request(GtkWidget *widget, gint *out_width, gint *out_height)
 {
 	g_assert(GX_IS_SELECTOR(widget));
 	GxSelector *selector = GX_SELECTOR(widget);
-	if (!selector->model) {
-		return;
-	}
 	GxSelectorPrivate *priv = selector->priv;
-    
+
     gx_selector_create_icon(selector);
-    
-	if (priv->req_ok) {
-		gtk_widget_get_child_requisition(widget, requisition);
-	} else {
+
+	if (!priv->req_ok) {
 		GtkTreeIter iter;
-		gint width = selector->icon_width;
-		gint height = selector->icon_height;
+		gint width = 0;
+		gint height = 0;
 		GtkBorder selector_border;
 		get_selector_border(widget, &selector_border);
 		PangoLayout *l = gtk_widget_create_pango_layout(widget, NULL);
-		gboolean found = gtk_tree_model_get_iter_first(selector->model, &iter);
+		gboolean found = !!selector->model &&
+			gtk_tree_model_get_iter_first(selector->model, &iter);
 		while (found) {
 			PangoRectangle logical_rect;
 			gchar *s;
@@ -298,30 +317,20 @@ static void gx_selector_size_request(GtkWidget *widget, GtkRequisition *requisit
 		priv->textsize.width = width;
 		priv->textsize.height = height;
         height = std::max(height, selector->icon_height);
-		GtkStyle* style = gtk_widget_get_style(widget);
-		requisition->width = width + selector->icon_width +
-			selector_border.left + selector_border.right + 3 * style->xthickness;
-		requisition->height = height + selector_border.top + selector_border.bottom +
-			2 * style->ythickness;
+
+		GtkStyleContext *style = gtk_widget_get_style_context(widget);
+		GtkBorder wborder;
+		gtk_style_context_get_border(style, gtk_widget_get_state_flags(widget), &wborder);
+		priv->req_width = width +
+		    selector_border.left + selector_border.right + wborder.left + wborder.right;
+
+		priv->req_height = height + selector_border.top + selector_border.bottom +
+			wborder.top + wborder.bottom;
 		priv->req_ok = TRUE;
 		g_object_unref(l);
 	}
-}
-
-static void posfunc(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer user_data)
-{
-	GtkWidget *w = GTK_WIDGET(user_data);
-	GdkWindow *win = gtk_widget_get_window(w);
-	int i = get_selector_state(GX_SELECTOR(w));
-	gint n = g_list_length(gtk_container_get_children(GTK_CONTAINER(menu)));
-	GtkRequisition req;
-	gtk_widget_get_requisition(GTK_WIDGET(menu), &req);
-	gdk_window_get_origin(win, x, y);
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(w, &allocation);
-	*x += allocation.x;
-	*y += allocation.y - (req.height * i) / n;
-	*push_in = TRUE;
+	*out_width = priv->req_width;
+	*out_height = priv->req_height;
 }
 
 static void selection_done(GtkMenu *menu, gpointer data)
@@ -368,7 +377,7 @@ static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, Gd
 		while (found) {
 			gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
 			GtkWidget *item = gtk_menu_item_new_with_label(s);
-			gtk_menu_append(m, item);
+			gtk_menu_shell_append(GTK_MENU_SHELL(m), item);
 			gtk_widget_show(item);
 			g_free(s);
 			found = gtk_tree_model_iter_next(selector->model, &iter);
@@ -376,7 +385,8 @@ static gboolean gx_selector_value_entry(GxRegler *regler, GdkRectangle *rect, Gd
 		priv->menu = m;
 	}
 	gtk_menu_set_active(m, get_selector_state(selector));
-	gtk_menu_popup(m, NULL, NULL, posfunc, regler, event->button, event->time);
+	gtk_menu_popup_at_widget(m, GTK_WIDGET(regler), GDK_GRAVITY_SOUTH, GDK_GRAVITY_NORTH,
+							 (GdkEvent*)event);
 	return TRUE;
 }
 
@@ -395,7 +405,8 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		}
 		gtk_widget_grab_focus(widget);
 		gtk_grab_add(widget);
-		n = gtk_tree_model_iter_n_children(selector->model, NULL);
+		n = GTK_IS_TREE_MODEL(selector->model) ?
+			gtk_tree_model_iter_n_children(selector->model, NULL) : 0;
 		i = get_selector_state(GX_SELECTOR(widget)) + 1;
 		if (i >= n) {
 			i = 0;
@@ -403,14 +414,15 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 		set_value_from_selector_state(GX_SELECTOR(widget), i);
 		break;
 	case 3: // right button show num entry
-		GtkRequisition requisition;
-		gtk_widget_get_requisition(widget, &requisition);
-		rect.width = requisition.width;
-		rect.height = requisition.height;
+		gint width, height;
+		gtk_widget_get_preferred_width(widget, nullptr, &width);
+		gtk_widget_get_preferred_height(widget, nullptr, &height);
+		rect.width = width;
+		rect.height = height;
 		GtkAllocation allocation;
 		gtk_widget_get_allocation(widget, &allocation);
-		rect.x = allocation.x + (allocation.width - requisition.width) / 2;
-		rect.y = allocation.y + (allocation.height - requisition.height) / 2;
+		rect.x = (allocation.width - width) / 2;
+		rect.y = (allocation.height - height) / 2;
 		g_signal_emit_by_name(GX_REGLER(widget), "value-entry", &rect, event, &ret);
 		return ret;
 		break;
@@ -420,7 +432,7 @@ static gboolean gx_selector_button_press (GtkWidget *widget, GdkEventButton *eve
 
 static void gx_selector_init(GxSelector *selector)
 {
-	selector->priv = G_TYPE_INSTANCE_GET_PRIVATE(selector, GX_TYPE_SELECTOR, GxSelectorPrivate);
+	selector->priv = (GxSelectorPrivate*)gx_selector_get_instance_private(selector);
 	gtk_widget_set_has_window(GTK_WIDGET(selector), FALSE);
 	gtk_widget_set_can_focus(GTK_WIDGET(selector), TRUE);
     selector->icon = NULL;
@@ -442,11 +454,11 @@ static void gx_selector_unset_icon(GxSelector *selector)
 	}
 }
 
-static void gx_selector_destroy(GtkObject *object)
+static void gx_selector_destroy(GtkWidget *object)
 {
 	gx_selector_unset_model(GX_SELECTOR(object));
 	gx_selector_unset_icon(GX_SELECTOR(object));
-	GTK_OBJECT_CLASS(gx_selector_parent_class)->destroy(object);
+	GTK_WIDGET_CLASS(gx_selector_parent_class)->destroy(object);
 }
 
 

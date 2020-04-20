@@ -26,33 +26,17 @@ class UIDefs(object):
         def write(self, fp, v, prefix):
             d = {}
             d.update(self)
-            # set diggits
-            #d["tail"] = "".join([", "+str(round(float(str(x).replace('f','')),4)) for x in d["value"]])
             d["tail"] = "".join([", "+x for x in d["value"]])
             d["prefix"] = prefix
             d["N_name"] = wrap_N_("%(name)s" % self)
             d["N_tooltip"] = wrap_N_("%(tooltip)s" % self)
             if "log" in d:
                 d["type"] += "L"
+            if "nomidi" in d:
+                d["type"] += "N"
             if "alias" in d:
-                #assert "enum" not in d
-                if "enum" in d:
-                    def value_pair(s):
-                        m = re.match(r"(.*)\[(.*)\]$", s)
-                        if m:
-                            return '{"%s",%s}' % (m.group(1), wrap_N_(m.group(2)))
-                        else:
-                            return '{"%s"}' % s
-                    enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
-                    d["ename"] = ename = d["variable"] + "_values"
-                    fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
-                    fp.write('\t%(variable)s_ = %(prefix)sregisterSharedEnumVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
-                elif "nomidi" in d:
-                    assert "enum" not in d
-                    fp.write('\t%(variable)s_ = %(prefix)sregisterNonMidiSharedVar("%(id)s",&%(variable)s, false, true%(tail)s);\n' % d)
-                else:
-                    fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
-            elif "enum" in d:
+                d["type"] += "A"
+            if "enum" in d:
                 def value_pair(s):
                     m = re.match(r"(.*)\[(.*)\]$", s)
                     if m:
@@ -62,12 +46,12 @@ class UIDefs(object):
                 enumvals = ",".join([value_pair(x) for x in d["enum"].split("|")]+["{0}"])
                 d["ename"] = ename = d["variable"] + "_values"
                 fp.write('\tstatic const value_pair %s[] = {%s};\n' % (ename, enumvals))
-                fp.write('\t%(prefix)sregisterEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
-            elif "nomidi" in d:
-                assert "enum" not in d
-                fp.write('\t%(prefix)sregisterNonMidiFloatVar("%(id)s",&%(variable)s, false, true%(tail)s);\n' % d)
             else:
-                fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
+                d["ename"] = "0"
+            fp.write('\t')
+            if "alias" in d:
+                fp.write('%(variable)s_ = ' %d)
+            fp.write('%(prefix)sregisterFloatVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s, %(ename)s);\n' % d)
 
         def write_port(self, fp, v, prefix):
             d = {}
@@ -84,7 +68,6 @@ class UIDefs(object):
                 if "alias" in d:
                     assert "enum" not in d
                     fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
-                   # fp.write('\t%(variable)s_ = %(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)sA",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
             elif "enum" in d:
                 def value_pair(s):
                     m = re.match(r"(.*)\[(.*)\]$", s)
@@ -96,10 +79,8 @@ class UIDefs(object):
                 d["ename"] = ename = d["variable"] + "_values"
                 fp.write('\t// static const value_pair %s[] = {%s};\n' % (ename, enumvals))
                 fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
-                #fp.write('\t%(prefix)sregisterEnumVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,%(ename)s,&%(variable)s%(tail)s);\n' % d)
             else:
                 fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
-               #fp.write('\t%(prefix)sregisterVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s);\n' % d)
 
         def write_port_head(self, fp, v, prefix):
             d = {}
@@ -130,11 +111,8 @@ class UIDefs(object):
     def has(self, element, key):
         return key in self.ui[element]
 
-    def var_filter(self, const=2):
-        s = "|".join([r"%s\s*=\s*%s" % (v, num_re) for v in self.ui.keys()])
+    def var_filter(self, const):
         def filt(t):
-            if re.compile(r"\s*("+s+");").match(t):
-                return True
             if const == 1 and t.startswith("for "):
                 return True
             if const == 0 and not t.startswith("for "):
@@ -311,8 +289,8 @@ class Parser(object):
         vslider = re.compile(pre+r"addVerticalSlider\(%s\);" % sarg).match
         hslider = re.compile(pre+r"addHorizontalSlider\(%s\);" % sarg).match
         numentry = re.compile(pre+r"addNumEntry\(%s\);" % sarg).match
-        vbargrahp = re.compile(pre+r"addVerticalBargraph\(%s\);" % sargb).match
-        hbargrahp = re.compile(pre+r"addHorizontalBargraph\(%s\);" % sargb).match
+        vbargraph = re.compile(pre+r"addVerticalBargraph\(%s\);" % sargb).match
+        hbargraph = re.compile(pre+r"addHorizontalBargraph\(%s\);" % sargb).match
         checkbutton = re.compile(pre+r"addCheckButton\(%s,\s*&%s\);" % (nm, vr)).match
         declare = re.compile(pre+r"declare\((?:&%s|0),\s*%s,\s*%s\);" % (vr, nm, nm)).match
         stack = []
@@ -376,12 +354,12 @@ class Parser(object):
                 self.ui.add(vn, "id", make_name(m.group(1)))
                 self.ui.add(vn, "value", ("0.0","0.0","1.0","1.0"))
                 continue
-            m = vbargrahp(line) or hbargrahp(line) 
+            m = vbargraph(line) or hbargraph(line)
             if m:
                 vn = m.group(2)
-                self.ui.add(vn, "type", "S")
+                self.ui.add(vn, "type", "SO")
                 self.ui.add(vn, "id", make_name(m.group(1)))
-                self.ui.add(vn, "value", ("-70.0","-70.0","4.0","0.00001"))
+                self.ui.add(vn, "value", ("0",)+m.groups()[2:]+("0",))
                 continue
             m = declare(line)
             if m:
@@ -597,8 +575,6 @@ class Parser(object):
         self.skip_until(r"\s*static void classInit")
         s["var-init"] = self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void instanceConstants")
-        s["var-init"] += self.copy(r"\s*}$")
-        self.skip_until(r"\s*virtual void instanceResetUserInterface")
         s["var-init"] += self.copy(r"\s*}$")
         self.skip_until(r"\s*virtual void instanceClear")
         s["var-init"] += self.read_init(r'\t}')
@@ -1352,10 +1328,10 @@ void __rt_func Dsp::compute_static(int %(countname)s%(compute_args)s, PluginDef 
 int Dsp::register_par(const ParamReg& reg)
 {
 #if %(has_drywetbox)s
-	reg.registerVar("%(plugin_id)s.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fsliderdw0, 1e+02, 0.0, 1e+02, 1.0);
+	reg.registerFloatVar("%(plugin_id)s.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fsliderdw0, 1e+02, 0.0, 1e+02, 1.0, 0);
 #endif
 #if %(has_volume_p)s
-	reg.registerVar("%(plugin_id)s.%(volume_name)s",N_("%(volume_name)s"),"S","",&fsliderV0, 0.5, 0.0, 1, 0.01);
+	reg.registerFloatVar("%(plugin_id)s.%(volume_name)s",N_("%(volume_name)s"),"S","",&fsliderV0, 0.5, 0.0, 1, 0.01, 0);
 #endif
 %(register_body)s\
 	return 0;
@@ -1908,6 +1884,29 @@ class Output(object):
             fp.write(plugin_standalone_header)
         self.parser.write(fp, "includes")
 
+    def scan_params(self, ccdef, plugin_id):
+        previous = ""
+        for line in ccdef:
+            if re.match('\s*//', line):
+                continue
+            line = previous + line
+            previous = ""
+            m = re.search(r'\.create_[a-zA-Z0-9_]+\s*\((.*)', line)
+            if not m:
+                continue
+            rest = m.group(1).strip()
+            if not rest.endswith(');'):
+                previous = line[:-1]
+                continue
+            m = re.search(r'(?:[a-z_0-9]+\s*,\s*)?(.*)', rest)
+            rest = m.group(1)
+            m = re.match(r'"([^"]*)', rest)
+            if m:
+                yield m.group(1)
+                continue
+            for v in re.findall(r'PARAM\(\s*"([^"]+)"\s*\)', rest):
+                yield plugin_id + "." + v
+
     def write_load_ui(self, fps, fpg, plugin_id, wrap=True):
         load_ui = 0
         ui_name = self.fname.replace(".dsp", "_ui.glade")
@@ -1923,13 +1922,9 @@ class Output(object):
         ui_name = self.fname.replace(".dsp", "_ui.cc")
         ccdef = ""
         if os.path.exists(ui_name):
-            ccdef = open(ui_name).read()
-            re_func_name = r'.*\.create_[a-zA-Z0-9_]+'
-            re_str = r'"([^"]*)'
-            re_param = r'PARAM\(\s*' + re_str
-            re_expr = r'\s*(//)?'+re_func_name+r'\s*\(\s*(?:[a-z_0-9]+\s*,\s*)?(?:'+re_param+'|'+re_str+')'
-            found_params = [v[2] if v[2] else plugin_id + "." + v[1]
-                            for v in re.findall(re_expr,ccdef) if not v[0]]
+            with open(ui_name) as ccfd:
+                ccdef = ccfd.read()
+            found_params = list(self.scan_params(StringIO(ccdef), plugin_id))
             if not self.parser.has_drywetbox and not self.parser.has_volume_p:
                 if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
                     raise SystemExit(1)

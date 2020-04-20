@@ -33,6 +33,10 @@
 #include <jack/session.h>
 #endif
 
+namespace gx_engine {
+class GxEngine;
+}
+
 namespace gx_jack {
 
 /****************************************************************
@@ -100,13 +104,40 @@ extern "C" {
 }
 #endif
 
-struct midi_cc {
-	bool send_cc[5];
-	int cc_num[5];
-	int pg_num[5];
-	int bg_num[5];
-	int me_num[5];
+
+class MidiCC {
+private:
+    static const int max_midi_cc_cnt = 5;
+    std::atomic<bool> send_cc[max_midi_cc_cnt];
+    int cc_num[max_midi_cc_cnt];
+    int pg_num[max_midi_cc_cnt];
+    int bg_num[max_midi_cc_cnt];
+    int me_num[max_midi_cc_cnt];
+public:
+    MidiCC();
+    bool send_midi_cc(int _cc, int _pg, int _bgn, int _num);
+    inline int next(int i = -1) const;
+    inline int size(int i)  const { return me_num[i]; }
+    inline void fill(unsigned char *midi_send, int i);
 };
+
+inline int MidiCC::next(int i) const {
+    while (++i < max_midi_cc_cnt) {
+        if (send_cc[i].load(std::memory_order_acquire)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+inline void MidiCC::fill(unsigned char *midi_send, int i) {
+    if (size(i) == 3) {
+        midi_send[2] =  bg_num[i];
+    }
+    midi_send[1] = pg_num[i];    // program value
+    midi_send[0] = cc_num[i];    // controller+ channel
+    send_cc[i].store(false, std::memory_order_release);
+}
 
 class GxJack: public sigc::trackable {
  private:
@@ -114,7 +145,7 @@ class GxJack: public sigc::trackable {
     bool                jack_is_down;
     bool                jack_is_exit;
     bool                bypass_insert;
-    midi_cc             mmessage;
+    MidiCC              mmessage;
     static int          gx_jack_srate_callback(jack_nframes_t, void* arg);
     static int          gx_jack_xrun_callback(void* arg);
     static int          gx_jack_buffersize_callback(jack_nframes_t, void* arg);
@@ -164,6 +195,7 @@ class GxJack: public sigc::trackable {
     void                gx_jack_callbacks();
     void                gx_jack_cleanup();
     inline void         check_overload();
+    void                process_midi_cc(void *buf, jack_nframes_t nframes);
 
  public:
     JackPorts           ports;
@@ -193,8 +225,7 @@ public:
 					   int wait_after_connect, const gx_system::CmdlineOptions& opt);
     float               get_last_xrun() { return last_xrun; }
     void*               get_midi_buffer(jack_nframes_t nframes);
-    void                send_midi_cc(int cc_num, int pgm_num, int bgn, int num);
-    void                process_midi_cc(void *buf, jack_nframes_t nframes);
+    bool                send_midi_cc(int cc_num, int pgm_num, int bgn, int num);
 
     void                read_connections(gx_system::JsonParser& jp);
     void                write_connections(gx_system::JsonWriter& w);
@@ -228,6 +259,13 @@ public:
     gx_engine::GxEngine& get_engine() { return engine; }
 #endif
 };
+
+inline bool GxJack::send_midi_cc(int cc_num, int pgm_num, int bgn, int num) {
+    if (!client) {
+        return false;
+    }
+    return mmessage.send_midi_cc(cc_num, pgm_num, bgn, num);
+}
 
 } /* end of jack namespace */
 

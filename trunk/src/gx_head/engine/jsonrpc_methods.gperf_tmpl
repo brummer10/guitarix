@@ -54,7 +54,6 @@ struct CmdConnection::methodnames;
 "getstate", true
 "setstate", false
 "jack_cpu_load", true
-"get_jack_load_status", true
 "set_jack_insert", false
 
 /* Parameter, ParamMap */
@@ -67,12 +66,12 @@ struct CmdConnection::methodnames;
 "desc", true
 "list", true
 "insert_param", false
+"get_updates", false
 
 /* Preset Banks */
 
 "banks", true
 "setpreset", false
-"set_online_presets", false
 "create_default_scratch_preset", false
 "sendcc", false
 "bank_insert_content", true
@@ -141,18 +140,10 @@ struct CmdConnection::methodnames;
 "tuner_used_for_display", false
 
 
-/* Level Meter */
-
-"get_max_input_level", true
-"get_max_output_level", true
-
-
 /* Oscilloscope */
 
 "set_oscilloscope_mul_buffer", false
 "get_oscilloscope_mul_buffer", true
-"clear_oscilloscope_buffer", false
-"get_oscilloscope_info", true
 
 
 /* Convolver */

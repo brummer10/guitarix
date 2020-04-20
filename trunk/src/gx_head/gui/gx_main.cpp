@@ -34,6 +34,103 @@
 #include "avahi_discover.h"
 #endif
 
+/****************************************************************
+ ** class GxTheme
+ */
+
+void GxTheme::init(gx_system::CmdlineOptions* options_) {
+    options = options_;
+    if (!options) {
+	return; // program exit, no cleanup needed
+    }
+    std::string st_dir = options->get_style_dir();
+    Gtk::IconTheme::get_default()->prepend_search_path(st_dir.substr(0, st_dir.size()-1));
+    css_provider = Gtk::CssProvider::create();
+    css_show_values = Gtk::CssProvider::create();
+    style_context = Gtk::StyleContext::create();
+    style_context->add_provider_for_screen(
+	Gdk::Screen::get_default(), css_show_values,
+	GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    style_context->add_provider_for_screen(
+	Gdk::Screen::get_default(), css_provider,
+	GTK_STYLE_PROVIDER_PRIORITY_APPLICATION+1);
+}
+
+bool GxTheme::set_new_skin(const Glib::ustring& skin_name) {
+    if (!options) {
+	return false;
+    }
+    if (skin_name.empty()) {
+	options->skin.name = skin_name;
+    } else {
+	Glib::RefPtr<Gtk::IconTheme> deftheme = Gtk::IconTheme::get_default();
+	std::vector<Glib::ustring> pathlist = deftheme->get_search_path();
+	if (pathlist.empty() || pathlist.front() != options->get_style_filepath(options->skin.name)) {
+	    pathlist.insert(pathlist.cbegin(), "");
+	}
+	options->skin.name = skin_name;
+	*pathlist.begin() = options->get_style_filepath(skin_name);
+	deftheme->set_search_path(pathlist);
+	deftheme->rescan_if_needed();
+    }
+    css_provider->load_from_path(options->get_current_style_cssfile());
+    return true;
+}
+
+void GxTheme::update_show_values() {
+    /* Gtk 3.24 uses information about which style modifications
+     * change widget sizes this doesn't work with the (deprecated)
+     * style setting show-value as work-around use a fake min-width
+     * setting and remove it after the update
+     *
+     * DON'T USE "min-width: 1px" for GxRegler derived widgets in the
+     * css style sheet, it will disable this update hack.
+     */
+    if (!options) {
+	return;
+    }
+    boost::format fmt(
+	"gx-regler, gx-big-knob, gx-mid-knob, gx-small-knob, gx-small-knob-r, gx-value-display, gx-vslider, gx-hslider {\n"
+	"  -GxRegler-show-value: %1%;\n%2%"
+	"}\n");
+    fmt % gx_system::to_string(options->system_show_value);
+    css_show_values->load_from_data((boost::format(fmt) % "  min-width: 1px\n").str());
+    for (int i = 0; i < 50; i++) { // doesn't work reliable without this wait loop
+	while (Gtk::Main::events_pending()) {
+	    Gtk::Main::iteration(false);
+	}
+	usleep(1000);
+    }
+    css_show_values->load_from_data((fmt % "").str());
+}
+
+#ifndef NDEBUG
+void GxTheme::reload_css_post() {
+    window->show();
+    window->move(window_x, window_y);
+    window->set_focus_on_map(true);
+    try {
+	css_provider->load_from_path(options->get_current_style_cssfile());
+    } catch (Gtk::CssProviderError& e) {
+	cerr << "CSS Style Error: " << e.what() << endl;
+	gx_gui::show_error_msg(e.what());
+    }
+    style_context->add_provider_for_screen(
+	Gdk::Screen::get_default(), css_provider,
+	GTK_STYLE_PROVIDER_PRIORITY_APPLICATION+1);
+}
+
+void GxTheme::reload_css() {
+    if (!options) {
+	return;
+    }
+    style_context->remove_provider_for_screen(Gdk::Screen::get_default(), css_provider);
+    Glib::signal_idle().connect_once(sigc::mem_fun(this, &GxTheme::reload_css_post));
+    window->get_position(window_x, window_y);
+    window->set_focus_on_map(false);
+    window->hide();
+}
+#endif
 
 /****************************************************************
  ** class PosixSignals
@@ -49,6 +146,7 @@ private:
     Glib::Thread *thread;
     pthread_t pthr;
     bool gui;
+    GxTheme *theme;
     volatile bool exit;
     void signal_helper_thread();
     void quit_slot();
@@ -57,15 +155,16 @@ private:
     bool gtk_level();
     static void relay_sigchld(int);
 public:
-    PosixSignals(bool gui);
+    PosixSignals(bool gui, GxTheme *theme = nullptr);
     ~PosixSignals();
 };
 
-PosixSignals::PosixSignals(bool gui_)
+PosixSignals::PosixSignals(bool gui_, GxTheme *theme_)
     : waitset(),
       thread(),
       pthr(),
       gui(gui_),
+      theme(theme_),
       exit(false) {
     GxExit::get_instance().set_ui_thread();
     sigemptyset(&waitset);
@@ -74,6 +173,9 @@ PosixSignals::PosixSignals(bool gui_)
     ** signals are processed synchronously by signal_helper_thread
     */
     sigaddset(&waitset, SIGUSR1);
+    if (theme) {
+	sigaddset(&waitset, SIGUSR2);
+    }
     sigaddset(&waitset, SIGCHLD);
     sigaddset(&waitset, SIGINT);
     sigaddset(&waitset, SIGQUIT);
@@ -141,6 +243,9 @@ void PosixSignals::signal_helper_thread() {
     pthr = pthread_self();
     const char *signame;
     guint source_id_usr1 = 0;
+#ifndef NDEBUG
+    guint source_id_usr2 = 0;
+#endif
     pthread_sigmask(SIG_BLOCK, &waitset, NULL);
     bool seen = false;
     while (true) {
@@ -171,6 +276,25 @@ void PosixSignals::signal_helper_thread() {
 		source_id_usr1 = idle_source->get_id();
 	    }
 	    break;
+#ifndef NDEBUG
+	case SIGUSR2:
+	    if (gtk_level() < 1) {
+		gx_print_info(_("system startup"),
+					 _("signal usr2 skipped"));
+		break;
+	    }
+	    // do not add a new call if another one is already pending
+	    if (source_id_usr2 == 0 ||
+		g_main_context_find_source_by_id(NULL, source_id_usr2) == NULL) {
+		const Glib::RefPtr<Glib::IdleSource> idle_source = Glib::IdleSource::create();
+		idle_source->connect(
+		    sigc::bind_return<bool>(
+			sigc::mem_fun(*theme, &GxTheme::reload_css), false));
+		idle_source->attach();
+		source_id_usr2 = idle_source->get_id();
+	    }
+	    break;
+#endif
 	case SIGCHLD:
 	    Glib::signal_idle().connect_once(
 		sigc::ptr_fun(gx_child_process::gx_sigchld_handler));
@@ -267,24 +391,6 @@ void ErrorPopup::on_response(int) {
 void ErrorPopup::show_msg() {
     dialog = new Gtk::MessageDialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_CLOSE);
     dialog->set_keep_above(true);
-    //Gtk::VBox *ma = dialog->get_message_area(); // not in Gtkmm 0.20
-    //FIXME: no comment :-)
-    Gtk::VBox *ma = dynamic_cast<Gtk::VBox*>(
-	*(++dynamic_cast<Gtk::HBox*>(
-	      *dialog->get_vbox()->get_children().begin())->get_children().begin()));
-    // add an alignment parent to the label widget inside the message area
-    // should better define our own dialog instead of hacking MessageDialog...
-    Gtk::Alignment *align = new Gtk::Alignment();
-    align->show();
-    dynamic_cast<Gtk::Label*>(*ma->get_children().begin())->reparent(*align);
-    ma->pack_start(*manage(align));
-    align->set_padding(50,20,0,10);
-    Gtk::VBox *vbox = dynamic_cast<Gtk::VBox *>(dialog->get_child());
-    vbox->set_redraw_on_allocate(true);
-    g_signal_connect(GTK_WIDGET(vbox->gobj()), "expose-event",
-                     G_CALLBACK(gx_cairo::error_box_expose), NULL);
-   // vbox->signal_expose_event().connect(
-	//sigc::group(&gx_cairo::error_box_expose,GTK_WIDGET(vbox->gobj()),sigc::_1,(void*)0),false);
     dialog->set_title(_("GUITARIX ERROR"));
     dialog->signal_response().connect(
 	sigc::mem_fun(*this, &ErrorPopup::on_response));
@@ -297,28 +403,31 @@ void ErrorPopup::show_msg() {
  */
 
 class GxSplashBox: public Gtk::Window {
- public:
-    explicit GxSplashBox();
-    ~GxSplashBox();
+private:
     virtual void on_show();
+    virtual bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr);
+    Cairo::RefPtr<Cairo::ImageSurface> image;
+public:
+    explicit GxSplashBox(const string& imgpath);
+    ~GxSplashBox() {}
     virtual void on_message(const Glib::ustring& msg_, GxLogger::MsgType tp, bool plugged);
 };
-GxSplashBox::~GxSplashBox() {}
 
-GxSplashBox::GxSplashBox()
-    : Gtk::Window(Gtk::WINDOW_POPUP) {
-    set_redraw_on_allocate(true);
+GxSplashBox::GxSplashBox(const string& imgpath)
+    : Gtk::Window(Gtk::WINDOW_POPUP),
+      image(Cairo::ImageSurface::create_from_png(imgpath)) {
     set_app_paintable();
-    g_signal_connect(GTK_WIDGET(gobj()), "expose-event",
-                     G_CALLBACK(gx_cairo::splash_expose), NULL);
-    //signal_expose_event().connect(
-    //    sigc::group(&gx_cairo::splash_expose, GTK_WIDGET(gobj()),
-	//	    sigc::_1, (void*)0), false);
-    set_decorated(false);
-    set_type_hint(Gdk::WINDOW_TYPE_HINT_SPLASHSCREEN);
-    set_position(Gtk::WIN_POS_CENTER );
-    set_default_size(613, 180);
-    show_all();
+    set_position(Gtk::WIN_POS_CENTER);
+    set_default_size(image->get_width(), image->get_height());
+    realize();
+    shape_combine_region(Gdk::Cairo::create_region_from_surface(image));
+    show();
+}
+
+bool GxSplashBox::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
+    cr->set_source(image, 0, 0);
+    cr->paint();
+    return false;
 }
 
 void GxSplashBox::on_message(const Glib::ustring& msg_, GxLogger::MsgType tp, bool plugged) {
@@ -410,7 +519,6 @@ static void mainHeadless(int argc, char *argv[]) {
     if (port == RPCPORT_DEFAULT) {
 	port = 7000;
     }
-    machine.loadstate();
     if (port != RPCPORT_NONE) {
 	machine.start_socket(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), options.get_rpcaddress(), port);
 	loop->run();
@@ -454,42 +562,33 @@ static void exception_handler() {
     }
 }
 
-static void mainGtk(int argc, char *argv[]) {
-    Glib::init();
-    Gxw::init();
-
-    PosixSignals posixsig(true); // catch unix signals in special thread
-    Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
-    gx_system::CmdlineOptions options;
-    Gtk::Main main(argc, argv, options);
-    options.process(argc, argv);
-    GxSplashBox * Splash = NULL;
-#ifdef NDEBUG
-    Splash =  new GxSplashBox();
-    GxLogger::get_logger().signal_message().connect(
-	sigc::mem_fun(Splash, &GxSplashBox::on_message));
-    g_log_set_handler("Gtk",G_LOG_LEVEL_WARNING,null_handler,NULL);
-#endif
-    GxExit::get_instance().signal_msg().connect(
-	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
-    ErrorPopup popup;
-    GxLogger::get_logger().signal_message().connect(
-	sigc::mem_fun(popup, &ErrorPopup::on_message));
-    // ---------------- Check for working user directory  -------------
-    bool need_new_preset;
-    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
-	Gtk::MessageDialog dialog(
-	    _("old config directory found (.gx_head)."
-	      " state file and standard presets file have been copied to"
-	      " the new directory (.config/guitarix).\n"
-	      " Additional old preset files can be imported into the"
-	      " new bank scheme by mouse drag and drop with a file"
-	      " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
-	dialog.set_title("Guitarix");
-	dialog.run();
+static bool is_headless(int argc, char *argv[]) {
+    for (int i = 0; i < argc; ++i) {
+	if (strcmp(argv[i], "-N") == 0 || strcmp(argv[i], "--nogui") == 0) {
+	    return true;
+	}
     }
+    return false;
+}
 
+static bool is_frontend(int argc, char *argv[]) {
+    for (int i = 0; i < argc; ++i) {
+	if (strcmp(argv[i], "-G") == 0 || strcmp(argv[i], "--onlygui") == 0) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+static void mainGtk(gx_system::CmdlineOptions& options, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
     gx_engine::GxMachine machine(options);
+    while(Gtk::Main::events_pending()) {
+	// prevents crash in show_error_msg!dialog.run() when its
+	// called due to an early exception (like some icon file not
+	// found when the style-dir is bad). This is probably not the
+	// correct cure but it helps...
+        Gtk::Main::iteration(false);
+    }
 #if 0
 #ifndef NDEBUG
     if (argc > 1) {
@@ -500,50 +599,15 @@ static void mainGtk(int argc, char *argv[]) {
 #endif
 #endif
     // ----------------------- init GTK interface----------------------
-    MainWindow gui(machine, options, Splash, "");
+    MainWindow gui(machine, options, theme, Splash, "");
     if (need_new_preset) {
 	gui.create_default_scratch_preset();
     }
-    machine.loadstate();
-    // ----------------------- run GTK main loop ----------------------
     delete Splash;
     gui.run();
-    gx_child_process::childprocs.killall();
 }
 
-static void mainFront(int argc, char *argv[]) {
-    Glib::init();
-    Gxw::init();
-
-    PosixSignals posixsig(true); // catch unix signals in special thread
-    Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
-    gx_system::CmdlineOptions options;
-    Gtk::Main main(argc, argv, options);
-    options.process(argc, argv);
-    GxSplashBox * Splash = NULL;
-#ifdef NDEBUG
-    Splash =  new GxSplashBox();
-    g_log_set_handler("Gtk",G_LOG_LEVEL_WARNING,null_handler,NULL);
-#endif
-    GxExit::get_instance().signal_msg().connect(
-	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
-    ErrorPopup popup;
-    GxLogger::get_logger().signal_message().connect(
-	sigc::mem_fun(popup, &ErrorPopup::on_message));
-    // ---------------- Check for working user directory  -------------
-    bool need_new_preset;
-    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
-	Gtk::MessageDialog dialog(
-	    _("old config directory found (.gx_head)."
-	      " state file and standard presets file have been copied to"
-	      " the new directory (.config/guitarix).\n"
-	      " Additional old preset files can be imported into the"
-	      " new bank scheme by mouse drag and drop with a file"
-	      " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
-	dialog.set_title("Guitarix");
-	dialog.run();
-    }
-
+static void mainFront(gx_system::CmdlineOptions& options, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
     Glib::ustring title;
 #ifdef HAVE_AVAHI
     if (options.get_rpcaddress().empty() && options.get_rpcport() == RPCPORT_DEFAULT) {
@@ -576,35 +640,92 @@ static void mainFront(int argc, char *argv[]) {
     gx_engine::GxMachineRemote machine(options);
 
     // ----------------------- init GTK interface----------------------
-    MainWindow gui(machine, options, Splash, title);
+    MainWindow gui(machine, options, theme, Splash, title);
     if (need_new_preset) {
 	gui.create_default_scratch_preset();
     }
-    // ----------------------- run GTK main loop ----------------------
-    delete Splash;
     machine.set_init_values();
+    delete Splash;
     gui.run();
 }
 
-static bool is_headless(int argc, char *argv[]) {
-    for (int i = 0; i < argc; ++i) {
-	if (strcmp(argv[i], "-N") == 0 || strcmp(argv[i], "--nogui") == 0) {
-	    return true;
-	}
-    }
-    return false;
-}
+static void mainProg(int argc, char *argv[]) {
+    bool frontend = is_frontend(argc, argv);
+    Glib::init();
 
-static bool is_frontend(int argc, char *argv[]) {
-    for (int i = 0; i < argc; ++i) {
-	if (strcmp(argv[i], "-G") == 0 || strcmp(argv[i], "--onlygui") == 0) {
-	    return true;
-	}
+    GxTheme theme;
+#ifndef NDEBUG
+    PosixSignals posixsig(true, &theme); // catch unix signals in special thread
+#else
+    PosixSignals posixsig(true, nullptr);
+#endif
+    Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
+    gx_system::CmdlineOptions options;
+    Gtk::Main main(argc, argv, options);
+    Gxw::init();
+    options.process(argc, argv);
+    bool theme_ok = false;
+    if (options.get_clear_rc()) {
+	options.skin.name = "";
+    } else if (options.skin.name.empty()) {
+	options.skin.name = "Guitarix";
     }
-    return false;
+    theme.init(&options);
+    try { // early theme init
+	theme.set_new_skin(options.skin.name);
+	theme_ok = false;
+    } catch (...) {
+	// try again later to display message dialog
+    }
+    GxSplashBox * Splash = NULL;
+#ifdef NDEBUG
+    Splash =  new GxSplashBox(options.get_pixmap_filepath("gx_splash.png"));
+    GxLogger::get_logger().signal_message().connect(
+	sigc::mem_fun(Splash, &GxSplashBox::on_message));
+    g_log_set_handler("Gtk",G_LOG_LEVEL_WARNING,null_handler,NULL);
+#endif
+    GxExit::get_instance().signal_msg().connect(
+	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
+    ErrorPopup popup;
+    GxLogger::get_logger().signal_message().connect(
+	sigc::mem_fun(popup, &ErrorPopup::on_message));
+    if (!theme_ok) {
+	theme.set_new_skin(options.skin.name); // try again, display error message
+    }
+    // ---------------- Check for working user directory  -------------
+    bool need_new_preset;
+    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
+	if (Splash) {
+	    Splash->hide();
+	}
+	Gtk::MessageDialog dialog(
+	    _("old config directory found (.gx_head)."
+	      " state file and standard presets file have been copied to"
+	      " the new directory (.config/guitarix).\n"
+	      " Additional old preset files can be imported into the"
+	      " new bank scheme by mouse drag and drop with a file"
+	      " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
+	dialog.set_title("Guitarix");
+	dialog.run();
+    }
+
+    if (frontend) {
+	mainFront(options, theme, Splash, need_new_preset);
+    } else {
+	mainGtk(options, theme, Splash, need_new_preset);
+    }
+
+    gx_child_process::childprocs.killall();
+    theme.init(nullptr);
 }
 
 int main(int argc, char *argv[]) {
+	// This is a hack. If we start qjackctl, we want to make sure it scale
+	// automatically for HiDPI displays.
+	// Note: we don't change then environment if it is already set to *any* value.
+	if (!getenv("QT_AUTO_SCREEN_SCALE_FACTOR")) {
+		setenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1", 0);
+	}
 #ifdef DISABLE_NLS
 // break
 #elif defined(IS_MACOSX)
@@ -624,10 +745,8 @@ int main(int argc, char *argv[]) {
 #endif
 	if (is_headless(argc, argv)) {
 	    mainHeadless(argc, argv);
-	} else if (is_frontend(argc, argv)) {
-	    mainFront(argc, argv);
 	} else {
-	    mainGtk(argc, argv);
+	    mainProg(argc, argv);
 	}
     } catch (...) {
 	exception_handler();

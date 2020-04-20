@@ -39,7 +39,7 @@ private:
                            Glib::ustring plug_name);
   void make_logo(Gtk::VBox *box,Glib::ustring label) ;
 
-  bool _expose_event(GdkEventExpose *event);
+  bool _draw(const Cairo::RefPtr<Cairo::Context> &cr);
   void set_value(uint32_t port_index,
                  uint32_t format,
                  const void * buffer);

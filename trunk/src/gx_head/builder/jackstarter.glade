@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.20"/>
-  <!-- interface-naming-policy toplevel-contextual -->
+  <requires lib="gtk+" version="3.20"/>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name gchararray -->
@@ -35,18 +35,23 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
   <object class="GtkWindow" id="selectjackstarter">
     <property name="can_focus">False</property>
     <child>
-      <object class="GtkVBox" id="vbox2">
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkBox" id="vbox2">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="border_width">10</property>
+        <property name="orientation">vertical</property>
         <property name="spacing">8</property>
         <child>
-          <object class="GtkVBox" id="vbox1">
+          <object class="GtkBox" id="vbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
             <property name="spacing">10</property>
             <child>
-              <object class="GtkHBox" id="hbox3">
+              <object class="GtkBox" id="hbox3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="spacing">8</property>
@@ -108,11 +113,8 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
               <object class="GtkEntry" id="customstarter">
                 <property name="can_focus">True</property>
                 <property name="invisible_char">●</property>
-                <property name="invisible_char_set">True</property>
                 <property name="primary_icon_activatable">False</property>
                 <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -121,7 +123,7 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="hbox1">
+              <object class="GtkBox" id="hbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
@@ -130,7 +132,6 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
                   </object>
                   <packing>
@@ -156,7 +157,7 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
           </packing>
         </child>
         <child>
-          <object class="GtkHButtonBox" id="hbuttonbox1">
+          <object class="GtkButtonBox" id="hbuttonbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="spacing">6</property>
@@ -167,7 +168,6 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -182,7 +182,6 @@ might not work if your soundcard is used by pulseaudio and your jackd version is
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>

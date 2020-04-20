@@ -27,7 +27,7 @@ selfilter(n)  = _<: a <: b <: c :>_ with {
 tempo2note = ffunction(float B2N(int,float), "beat.h", "");
 
 dide         = _<:*(dry),(delx(B) : *(wet)):>_ with {
-  B          = hslider("Freeze[tooltip:Freeze the current delay]",0,0,1,1);
+  B          = checkbox("Freeze[name:Freeze][tooltip:Freeze the current delay]");
   delx(n)    = _<:(*(1.0-B):digd), !:>_;
 
   digd       = (+:(delayed:lback(B)))~(fback(B)) with {

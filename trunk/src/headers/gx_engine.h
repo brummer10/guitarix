@@ -25,8 +25,6 @@
 #ifndef SRC_HEADERS_GX_ENGINE_H_
 #define SRC_HEADERS_GX_ENGINE_H_
 
-namespace gx_jack { class GxJack; }
-
 namespace gx_engine {
 
 /* -- guitarix main engine -- */
@@ -43,6 +41,8 @@ private:
     Plugin* current_plugin;
     PluginDef **modules;
     unsigned int size;
+    value_pair *values;
+
     static int static_register(const ParamReg& reg);
     int register_parameter(const ParamReg& reg);
 public:
@@ -84,7 +84,6 @@ public:
     MonoMute monomute;
     StereoMute stereomute;
     TunerAdapter tuner;
-    MidiAudioBuffer midiaudiobuffer;
     Drumout drumout;
     Directout directout;
     MaxLevel maxlevel;
@@ -105,7 +104,6 @@ public:
 public:
     GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options);
     ~GxEngine();
-    void set_jack(gx_jack::GxJack *jack) { midiaudiobuffer.set_jack(jack); }
     void ladspaloader_update_plugins();
     sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed() { return plugin_changed; }
 };

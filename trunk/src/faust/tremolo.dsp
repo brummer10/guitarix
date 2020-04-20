@@ -32,7 +32,7 @@ cds = ((_ <: _,_),_ : _+(1-alpha)*_) ~ (_<:*(alpha)) with {
 
 vactrol = pow(_,1.9) : cds : *(b) + exp(1) : exp(log(Ra)/log) : R1/(_ + R1);
 
-/* os.triangle oscillator (not bandlimited, frequency is approximate) */
+/* triangle oscillator (not bandlimited, frequency is approximate) */
 
 trianglewave(freq) = _ ~ (_ <: _ + hyst) : /(periodsamps) with {
    if(c,t,e) = select2(c,e,t);
@@ -40,11 +40,11 @@ trianglewave(freq) = _ ~ (_ <: _ + hyst) : /(periodsamps) with {
     periodsamps = int(ma.SR / (2*float(freq)));
 };
 
-/* tremolo unit, using os.triangle or sine oscillator as lfo */
+/* tremolo unit, using triangle or sine oscillator as lfo */
 
 tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
     sine(freq) = (os.oscs(freq) + 1) / 2 : max(0); // max(0) because of numerical inaccuracy
-    SINE=checkbox("SINE[enum:os.triangle|sine|os.square]");
+    SINE=checkbox("SINE[enum:triangle|sine|square]");
     lfo = select3(SINE, trianglewave(freq), sine(freq), os.lf_squarewavepos(freq));
 };
 

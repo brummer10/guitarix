@@ -132,7 +132,7 @@ void MidiControllerTable::load() {
     }
 }
 
-void MidiControllerTable::toggle(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gtk::ToggleAction> item) {
+void MidiControllerTable::toggle(gx_engine::GxMachineBase& machine, Glib::RefPtr<ToggleAction> item) {
     if (!item->get_active()) {
         if (window) {
             gtk_widget_destroy(window);
@@ -148,7 +148,7 @@ MidiControllerTable::~MidiControllerTable() {
     window = NULL;
 }
 
-MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gtk::ToggleAction> item)
+MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Glib::RefPtr<ToggleAction> item)
     : menuaction(item),
       machine(machine_),
       midi_conn() {
@@ -161,7 +161,7 @@ MidiControllerTable::MidiControllerTable(gx_engine::GxMachineBase& machine_, Gli
     gx_engine::BoolParameter& p = machine.get_parameter("system.midi_in_preset").getBool();
     gtk_toggle_button_set_active(togglebutton, p.get_value());
     machine.signal_parameter_value<bool>("system.midi_in_preset").connect(sigc::mem_fun(*this, &MidiControllerTable::set));
-    g_signal_connect(GTK_OBJECT(togglebutton), "toggled",
+    g_signal_connect(G_OBJECT(togglebutton), "toggled",
                      G_CALLBACK(toggleButtonSetSwitch), (gpointer)&p);
     //g_signal_connect(gtk_builder_get_object(builder, "dialog-vbox1"),"expose-event",
                      //G_CALLBACK(gx_cairo::rectangle_skin_color_expose), NULL);
@@ -348,10 +348,6 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_, gx
     use_toggle = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "use_toggle"));
     toggle_behaviours = GTK_WIDGET(gtk_builder_get_object(builder, "toggle_behaviours"));
     GtkWidget *zn = GTK_WIDGET(gtk_builder_get_object(builder, "zone_name"));
-    GtkStyle *style = gtk_widget_get_style(zn);
-    pango_font_description_set_size(style->font_desc, 12*PANGO_SCALE);
-    pango_font_description_set_weight(style->font_desc, PANGO_WEIGHT_BOLD);
-    gtk_widget_modify_font(zn, style->font_desc);
     gtk_label_set_text(GTK_LABEL(zn), (param.l_group() + ": " + param.l_name()).c_str());
     gtk_widget_set_tooltip_text(zn, (_("Parameter ID: ")+param.id()).c_str());
     zn = GTK_WIDGET(gtk_builder_get_object(builder, "desc_box"));

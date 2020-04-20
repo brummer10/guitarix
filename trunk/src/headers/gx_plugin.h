@@ -119,26 +119,38 @@ struct value_pair {
     const char *value_label;
 };
 
+/**
+ * Parameter registration function pointers
+ *
+ * All functions expect a character string parameter tp:
+ *
+ * first char:
+ * - S: continuous values, float (Faust vslider, hslider, nentry, vbargraph, hbargraph)
+ * - B: 2 values: 0/1, false/true (Faust checkbox, button)
+ *
+ * following chars (order doesn't matter, there should not be duplicate chars):
+ * - A: aliased (parameter id used by several plugins), (Faust: [alias])
+ * - L: logarithmic input / output, (Faust: [log])
+ * - N: no midi controller connection possible, (Faust: [nomidi])
+ * - o: output parameter (will be polled for changes by plugin)
+ * - s: parameter not savable in preset / state file
+ * - w: no warning (if a non savable parameter is found in a preset / state file)
+ * - O: non-savable, no-midi output parameter (same as "Nos"), (Faust: vbargraph, hbargraph)
+ * - M: maxlevel output variable (max value since last poll)
+ */
 struct ParamReg {
     PluginDef *plugin;
-    float *(*registerVar)(const char* id, const char* name, const char* tp,
-			  const char* tooltip, float* var, float val,
-			  float low, float up, float step);
-    void (*registerBoolVar)(const char* id, const char* name, const char* tp,
-			    const char* tooltip, bool* var, bool val);
-    void (*registerNonMidiVar)(const char * id, bool*var, bool preset, bool nosave);
-    void (*registerNonMidiFloatVar)(const char * id, float *var, bool preset, bool nosave,
-              float val, float low, float up, float step);
-    void (*registerEnumVar)(const char *id, const char* name, const char* tp,
-			    const char* tooltip, const value_pair* values, float *var, float val,
-			    float low, float up, float step);
-    float *(*registerSharedEnumVar)(const char *id, const char* name, const char* tp,
-			    const char* tooltip, const value_pair* values, float *var, float val,
-			    float low, float up, float step);
-    void (*registerIEnumVar)(const char *id, const char* name, const char* tp,
-			     const char* tooltip, const value_pair* values, int *var, int val);
-    float *(*registerNonMidiSharedVar)(const char * id, float *var, bool preset, bool nosave,
-              float val, float low, float up, float step);
+    float *(*registerFloatVar)(
+        const char* id, const char* name, const char* tp,
+        const char* tooltip, float* var, float val,
+        float low, float up, float step, const value_pair* values);
+    int *(*registerIntVar)(
+        const char* id, const char* name, const char* tp,
+        const char* tooltip, int* var, int val,
+        int low, int up, const value_pair* values);
+    bool *(*registerBoolVar)(
+        const char* id, const char* name, const char* tp,
+        const char* tooltip, bool* var, bool val);
 };
 
 /*
@@ -153,7 +165,7 @@ typedef void (*clearstatefunc)(PluginDef *plugin);
 //typedef void (*process_stereo_audio) (int count, float *buffer1, float *buffer2, PluginDef *plugin);
 typedef void (*process_mono_audio) (int count, float *input, float *output, PluginDef *plugin);
 typedef void (*process_stereo_audio) (int count, float *input1, float *input2,
-				      float *output1, float *output2, PluginDef *plugin);
+                                      float *output1, float *output2, PluginDef *plugin);
 typedef int (*registerfunc)(const ParamReg& reg);
 typedef int (*uiloader)(const UiBuilder& builder, int format);
 typedef void (*deletefunc)(PluginDef *plugin);
@@ -164,9 +176,9 @@ enum {
     PGN_POST        = 0x0004, // (mono) always "post" position
     PGN_GUI         = 0x0008, // register variables for gui (auto set when load_ui)
     PGN_POST_PRE    = 0x0010, // (mono) register post/pre variable (auto set when
-				// gui and not always pre or post)
+                              // gui and not always pre or post)
     PGN_ALTERNATIVE = 0x0020, // plugin is part of a group of modules
-				// managed by a ModuleSelector
+                              // managed by a ModuleSelector
     PGN_SNOOP       = 0x0040, // does not alter audio stream
     PGN_MODE_NORMAL = 0x0100, // plugin is active in normal mode (default)
     PGN_MODE_BYPASS = 0x0200, // plugin is active in bypass mode
@@ -178,16 +190,16 @@ enum {
 
 #define PLUGINDEF_VERMAJOR_MASK 0xff00
 #define PLUGINDEF_VERMINOR_MASK 0x00ff
-#define PLUGINDEF_VERSION       0x0600
+#define PLUGINDEF_VERSION       0x0700
 
 struct PluginDef {
-    int version;	 // = PLUGINDEF_VERSION
-    int flags;		 // PGN_xx flags
+    int version;         // = PLUGINDEF_VERSION
+    int flags;           // PGN_xx flags
 
-    const char* id;	 // must be unique
-    const char* name;	 // displayed name (not translated) (may be 0)
+    const char* id;      // must be unique
+    const char* name;    // displayed name (not translated) (may be 0)
     const char** groups; // list of alternating group_id, group_name (not translated)
-				// may be 0 (else end with 0 entry)
+                         // may be 0 (else end with 0 entry)
     const char* description; // description (tooltip)
     const char* category;
     const char* shortname;
@@ -201,8 +213,8 @@ struct PluginDef {
     activatefunc activate_plugin; // called when taking in / out of pressing chain
     registerfunc register_params; // called once after module loading (register parameter ids)
     uiloader load_ui; // called once after module loading (define user interface)
-    clearstatefunc clear_state;	// clear internal audio state; may be called
-				// before calling the process function
+    clearstatefunc clear_state; // clear internal audio state; may be called
+                                // before calling the process function
     deletefunc delete_instance; // delete this plugin instance
 };
 

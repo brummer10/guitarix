@@ -7,7 +7,7 @@ class mydspSIG0 {
 	
   private:
 	
-	int iRec2[2];
+	int iRec1[2];
 	
   public:
 	
@@ -49,8 +49,8 @@ class mydspSIG0 {
 	}
 	
 	void instanceInitmydspSIG0(int samplingFreq) {
-		for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) {
-			iRec2[l3] = 0;
+		for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) {
+			iRec1[l2] = 0;
 			
 		}
 		
@@ -58,9 +58,9 @@ class mydspSIG0 {
 	
 	void fillmydspSIG0(int count, float* output) {
 		for (int i = 0; (i < count); i = (i + 1)) {
-			iRec2[0] = (iRec2[1] + 1);
-			output[i] = std::sin((9.58738019e-05f * float((iRec2[0] + -1))));
-			iRec2[1] = iRec2[0];
+			iRec1[0] = (iRec1[1] + 1);
+			output[i] = std::sin((9.58738019e-05f * float((iRec1[0] + -1))));
+			iRec1[1] = iRec1[0];
 			
 		}
 		
@@ -87,7 +87,7 @@ private:
 	FAUSTFLOAT fHslider2;
 	float fConst2;
 	FAUSTFLOAT fHslider3;
-	float fRec1[2];
+	float fRec2[2];
 	float *fVec1;
 
 	bool mem_allocated;
@@ -145,7 +145,7 @@ inline void Dsp::clear_state_f()
 {
 	for (int l0 = 0; (l0 < 131072); l0 = (l0 + 1)) fVec0[l0] = 0.0f;
 	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0f;
-	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec1[l2] = 0.0f;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec2[l3] = 0.0f;
 	for (int l4 = 0; (l4 < 131072); l4 = (l4 + 1)) fVec1[l4] = 0.0f;
 }
 
@@ -218,17 +218,17 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp0 = float(input0[i]);
 		fVec0[(IOTA & 131071)] = fTemp0;
 		fRec0[0] = (fSlow1 + (0.999000013f * fRec0[1]));
-		fRec1[0] = (fSlow3 + (fRec1[1] - std::floor((fSlow3 + fRec1[1]))));
-		float fTemp1 = (65536.0f * (fRec1[0] - std::floor(fRec1[0])));
+		fRec2[0] = (fSlow3 + (fRec2[1] - std::floor((fSlow3 + fRec2[1]))));
+		float fTemp1 = (65536.0f * (fRec2[0] - std::floor(fRec2[0])));
 		float fTemp2 = std::floor(fTemp1);
 		int iTemp3 = int(fTemp2);
-		float fTemp4 = (fConst1 * (fRec0[0] * ((fSlow2 * (((fTemp2 + (1.0f - fTemp1)) * ftbl0mydspSIG0[(iTemp3 & 65535)]) + ((fTemp1 - fTemp2) * ftbl0mydspSIG0[((iTemp3 + 1) & 65535)]))) + 1.0f)));
+		float fTemp4 = (fConst1 * (fRec0[0] * ((fSlow2 * ((ftbl0mydspSIG0[(iTemp3 & 65535)] * (fTemp2 + (1.0f - fTemp1))) + ((fTemp1 - fTemp2) * ftbl0mydspSIG0[((iTemp3 + 1) & 65535)]))) + 1.0f)));
 		int iTemp5 = int(fTemp4);
 		float fTemp6 = std::floor(fTemp4);
 		output0[i] = FAUSTFLOAT(((fSlow0 * ((fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp5))) & 131071)] * (fTemp6 + (1.0f - fTemp4))) + ((fTemp4 - fTemp6) * fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp5 + 1)))) & 131071)]))) + fTemp0));
 		float fTemp7 = float(input1[i]);
 		fVec1[(IOTA & 131071)] = fTemp7;
-		float fTemp8 = (65536.0f * (fRec1[0] + (0.25f - std::floor((fRec1[0] + 0.25f)))));
+		float fTemp8 = (65536.0f * (fRec2[0] + (0.25f - std::floor((fRec2[0] + 0.25f)))));
 		float fTemp9 = std::floor(fTemp8);
 		int iTemp10 = int(fTemp9);
 		float fTemp11 = (fConst1 * (fRec0[0] * ((fSlow2 * (((fTemp9 + (1.0f - fTemp8)) * ftbl0mydspSIG0[(iTemp10 & 65535)]) + ((fTemp8 - fTemp9) * ftbl0mydspSIG0[((iTemp10 + 1) & 65535)]))) + 1.0f)));
@@ -237,7 +237,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		output1[i] = FAUSTFLOAT(((fSlow0 * ((fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp12))) & 131071)] * (fTemp13 + (1.0f - fTemp11))) + ((fTemp11 - fTemp13) * fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp12 + 1)))) & 131071)]))) + fTemp7));
 		IOTA = (IOTA + 1);
 		fRec0[1] = fRec0[0];
-		fRec1[1] = fRec1[0];
+		fRec2[1] = fRec2[0];
 	}
 }
 
@@ -262,30 +262,35 @@ int Dsp::register_params_static(const ParamReg& reg)
 
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<!-- Generated with glade 3.22.1 -->\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
-  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
-  <!-- interface-naming-policy project-wide -->\n\
+  <requires lib=\"gtk+\" version=\"3.20\"/>\n\
+  <requires lib=\"gxwidgets\" version=\"0.0\"/>\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
     <child>\n\
-      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+      <placeholder/>\n\
+    </child>\n\
+    <child>\n\
+      <object class=\"GtkBox\" id=\"vbox1\">\n\
         <property name=\"visible\">True</property>\n\
         <property name=\"can_focus\">False</property>\n\
+        <property name=\"orientation\">vertical</property>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+          <object class=\"GtkBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
             <child>\n\
-              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+              <object class=\"GtkBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
                 <property name=\"spacing\">10</property>\n\
                 <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                  <object class=\"GtkBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -320,9 +325,10 @@ const char *Dsp::glade_def = "\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                  <object class=\"GtkBox\" id=\"vbox3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -357,9 +363,10 @@ const char *Dsp::glade_def = "\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox4\">\n\
+                  <object class=\"GtkBox\" id=\"vbox4\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label3:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -394,9 +401,10 @@ const char *Dsp::glade_def = "\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox5\">\n\
+                  <object class=\"GtkBox\" id=\"vbox5\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label4:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -446,7 +454,7 @@ const char *Dsp::glade_def = "\
           </packing>\n\
         </child>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"minibox\">\n\
+          <object class=\"GtkBox\" id=\"minibox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
@@ -472,8 +480,8 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"xalign\">0</property>\n\
                 <property name=\"label\" translatable=\"yes\">Level</property>\n\
+                <property name=\"xalign\">0</property>\n\
               </object>\n\
               <packing>\n\
                 <property name=\"expand\">False</property>\n\

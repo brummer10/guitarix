@@ -18,6 +18,6 @@
 
 #include <gxw/GxValueDisplay.h>
 
-Gxw::ValueDisplay::ValueDisplay(Gtk::Adjustment& adjustment):
-	_CONSTRUCT("adjustment", adjustment.gobj())
+Gxw::ValueDisplay::ValueDisplay(const Glib::RefPtr<Gtk::Adjustment>& adjustment):
+	_CONSTRUCT("adjustment", adjustment->gobj())
 {}

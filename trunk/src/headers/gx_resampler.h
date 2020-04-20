@@ -62,7 +62,6 @@ class FixedRateResampler {
 private:
     Resampler r_up, r_down;
     int inputRate, outputRate;
-    int last_in_count;
 public:
     int setup(int _inputRate, int _outputRate);
     int up(int count, float *input, float *output);

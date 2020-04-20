@@ -28,11 +28,11 @@ bswitch3	= max(0,sel3-1);
 bswitch4	= max(0,sel4-1);
 bswitch5	= max(0,sel5-1);
 
-vmeter1(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v1[nomidi:no][tooltip: Sum of Band1 ]", -70, +5)),y;
-vmeter2(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v2[nomidi:no][tooltip: Sum of Band2 ]", -70, +5)),y;
-vmeter3(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v3[nomidi:no][tooltip: Sum of Band3 ]", -70, +5)),y;
-vmeter4(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v4[nomidi:no][tooltip: Sum of Band4 ]", -70, +5)),y;
-vmeter5(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v5[nomidi:no][tooltip: Sum of Band5 ]", -70, +5)),y;
+vmeter1(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v1[nomidi][log][tooltip: Sum of Band1 ]", -70, +5)),y;
+vmeter2(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v2[nomidi][log][tooltip: Sum of Band2 ]", -70, +5)),y;
+vmeter3(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v3[nomidi][log][tooltip: Sum of Band3 ]", -70, +5)),y;
+vmeter4(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v4[nomidi][log][tooltip: Sum of Band4 ]", -70, +5)),y;
+vmeter5(x,y)		= attach(x, envelop(abs(x)+abs(y)) : vbargraph("v5[nomidi][log][tooltip: Sum of Band5 ]", -70, +5)),y;
 
 envelop         = _ : max ~ (1.0/ma.SR) : mean(4096) : *(0.5); // : max(ba.db2linear(-70)) : ba.linear2db;
 

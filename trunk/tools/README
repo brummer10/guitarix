@@ -45,7 +45,29 @@ Files in this directory:
    convert the C++ output of faust into the form used by
    guitarix. Used by build process.
 
+ - lv2loader.py
+   loads a LV2 plugin.
+
+ - lilv.py
+   included for convenience. It's part of lilv, but not included by
+   all distributions (http://drobilla.net/software/lilv)
+
+ - ts9sim.py, ts9func.pyx
+   simulates a Ibanez TS9 tube screamer
+
+ - dunwah1.py, dunwah2.py
+   analyzes the crybaby2 physical modeling LV2 plugin and produces a
+   simpler linear representation (2 different methods)
+   crybaby2 is written by Martin Holters, the source can be downloaded
+   from:
+   https://www.hsu-hh.de/ant/mitarbeiter/martin-holters/wah-wah-simulation
+   (debian) package dependencies:
+   gfortran, libgsl-dev, python3-scipy, python3-matplotlib,
+   octave, octave-signal
+
 ----------------- Python module builder ------------------------
+
+ - the .pyx module sources need cython3
 
  - build-module, faustmod.pyx, pythonmodule.cpp
    build python modules directly from faust sources (e.g. for

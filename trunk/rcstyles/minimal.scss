@@ -1,0 +1,352 @@
+/****************************************************************
+ * Basic settings for GX Widgets
+ ****************************************************************/
+
+/* GxSwitch */
+
+.gx_switch check {
+    -gtk-icon-transform: none;
+    -gtk-icon-shadow: none;
+    background-image: none;
+    transition-duration: 0;
+    /*transition-property: none;*/ /* no need for reset if duration is 0 */
+    border: none;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+@mixin gx-toggle-def($name, $width, $height:0) {
+    .gx_sw_#{$name} check {
+	-gtk-icon-source: -gtk-icontheme("#{$name}_off");
+	min-width: $width;
+	min-height: if($height == 0, $width, $height);
+	&:checked {
+	    -gtk-icon-source: -gtk-icontheme("#{$name}_on");
+	}
+    }
+}
+
+@include gx-toggle-def(button,     16px);
+@include gx-toggle-def(bypass,     14px, 16px);
+@include gx-toggle-def(cycle,      15px);
+@include gx-toggle-def(fbutton,    15px);
+@include gx-toggle-def(follow,     14px, 16px);
+@include gx-toggle-def(frbutton,   21px, 19px);
+@include gx-toggle-def(led,        20px);
+@include gx-toggle-def(minitoggle, 10px);
+@include gx-toggle-def(overdub,    15px);
+@include gx-toggle-def(pbutton,    14px, 16px);
+@include gx-toggle-def(pcycle,     15px);
+@include gx-toggle-def(plus,       16px);
+@include gx-toggle-def(prbutton,   14px, 16px);
+@include gx-toggle-def(rbutton,    16px);
+@include gx-toggle-def(resetbutton,14px, 16px);
+@include gx-toggle-def(switchit,   37px, 28px);
+@include gx-toggle-def(switch_mid, 10px);
+@include gx-toggle-def(switch_min,  7px,  7px);
+@include gx-toggle-def(switch,     16px);
+@include gx-toggle-def(sync,       16px);
+
+.gx_sw_frbutton check {
+    padding: 4px 30px 4px 30px;
+}
+
+.gx_sw_bypass check {
+    padding: 0px 0px 0px 8px;
+}
+
+/* GxWheel */
+
+gx-wheel {
+    -GxWheel-stock-wheel-back: "tactile_wheel_101f.png";
+    -GxWheel-framecount: 101; /* use 0 for auto (assumes square frames)
+				 and >1 for non squareframe animations */
+}
+
+/* GxPlayHead */
+
+gx-play-head {
+    -GxPortDisplay-stock-portdisplay: "playhead.png";
+    -GxRegler-show-value: 0;
+}
+
+/* GxWaveView */
+
+gx-wave-view {
+    background-image: linear-gradient(
+	to top,
+	rgba(255, 51, 0, 0.5) 12.5%,
+	rgba(255, 207, 0, 0.5) 40%,
+	rgba(255, 207, 0, 0.5) 60%,
+	rgba(255, 51, 0, 0.5) 87.5%
+    );
+    color: rgb(153, 153, 153);
+    font: 6pt "sans";
+}
+
+/* GxPaintBox */
+
+gx-paint-box {
+    -GxPaintBox-bevel         : 0.11;
+    -GxPaintBox-inverse       : 0;
+    -GxPaintBox-alternate-box : 60 0 0 0;
+    -GxPaintBox-width: 600;
+    -GxPaintBox-height: 180;
+    -GxPaintBox-icon-set: 7;
+    -GxPaintBox-stock-gxhead: "live_wallpaper.png";
+}
+
+/* GxIREdit */
+
+gx-ir-edit {
+    -GxIREdit-shade-alpha: 0.6;
+    -GxIREdit-gain-line-color: rgba(118.5, 152.4, 78.7, 255);
+    -GxIREdit-zoom-marker-color: rgba(0, 0, 255, 255);
+    -GxIREdit-no-data-color: rgba(255, 140.1, 0, 255);
+    -GxIREdit-sample-graph-color: rgba(255, 140.1, 0, 255);
+    -GxIREdit-sample-graph-color-out: rgba(255, 140.1, 0, 140.1);
+}
+
+/* GxSelector */
+
+gx-selector {
+    /*padding: 4px 4px 4px 4px;*/
+    /*border: 4px 32px 4px 8px solid #272727;*/
+    border-style: solid;
+    border-color: #272727;
+    border-width: 4px 24px 4px 8px;
+    padding-top: 3px;
+    background-color: black;
+    color: #ff9000;
+    /*-GxRegler-value-border: 2px 4px 8px 4px;*/
+    /*-GxRegler-value-border: 2px 4px 2px 4px;*/
+    -GxRegler-value-border: 1px 4px 0px 4px;
+    -GxRegler-border-radius: 0px;
+    font-size: 10px;
+    /*padding: 2px 0px 0px 8px;*/
+    border-radius: 3px;
+    -GxRegler-bevel: 0.12;
+}
+
+/* GxRegler + Knobs */
+gx-regler,
+gx-knob,
+gx-small-knob,
+gx-small-knob-r,
+gx-mid-knob,
+gx-big-knob {
+    font: 7pt "Roboto Condensed Regular";
+    
+    -GxRegler-value-border: 2px 4px 2px 4px; /* border around text */
+    -GxRegler-border-radius: 6px;
+    -GxRegler-bevel: 0.12;
+    -GxKnob-x-center: -1;
+    -GxKnob-y-center: -1;
+    
+    padding: 4px 8px 4px 8px;
+    
+    color: #ff9000;            /* text */
+    background-color: #222222; /* border */
+    &:disabled {
+	color: #211006;
+    }
+}
+
+gx-small-knob {
+    -GxKnob-ring-radius: 15;
+    -GxKnob-ring-width: 2;
+    -GxKnob-ring-led-size: 3;
+    -GxKnob-ring-led-distance: 2;
+    -GxKnob-indicator-radius: 11;
+    -GxKnob-indicator-width: 2;
+    -GxKnob-indicator-length: 5;
+}
+
+gx-small-knob-r {
+    -GxKnob-ring-radius: 26;
+    -GxKnob-ring-width: 3;
+    -GxKnob-ring-led-size: 3;
+    -GxKnob-ring-led-distance: 2;
+    -GxKnob-indicator-radius: 12;
+    -GxKnob-indicator-width: 3;
+    -GxKnob-indicator-length: 3;
+}
+
+gx-mid-knob {
+    -GxKnob-ring-radius: 35;
+    -GxKnob-ring-width: 6;
+    -GxKnob-ring-led-size: 2;
+    -GxKnob-ring-led-distance: 2;
+    -GxKnob-indicator-radius: 27;
+    -GxKnob-indicator-width: 2;
+    -GxKnob-indicator-length: 6;
+}
+
+gx-big-knob {
+    -GxKnob-ring-radius: 50.5;
+    -GxKnob-ring-width: 3;
+    -GxKnob-ring-led-size: 0;
+    -GxKnob-ring-led-distance: 0;
+    -GxKnob-indicator-radius: 46;
+    -GxKnob-indicator-width: 3;
+    -GxKnob-indicator-length: 6;
+}
+
+/* GxValueDisplay */
+
+gx-value-display {
+    font: 7pt "Roboto Condensed Regular";
+    -GxRegler-value-border: 4px 8px 4px 8px;
+    /* -GxRegler-value-border: 2px 4px 2px 4px; / border around text */
+    -GxRegler-border-radius: 6px;
+    -GxRegler-value-spacing: 0px;
+    color: #ff9000;            /* text */
+    background-color: #222222; /* border */
+}
+
+/* GxFastMeter */
+
+gx-fast-meter {
+    padding: 4px 8px 4px 8px;
+    
+    background-color: #222222; /* border */
+    
+    -GxFastMeter-clr-bottom: #b96901;
+    -GxFastMeter-clr-middle: #d4cd00;
+    -GxFastMeter-clr-top: #ff0500;
+    -GxFastMeter-over: #ff1100;
+    -GxFastMeter-mid-pos: 0.717;
+    -GxFastMeter-dimen: 2;
+    -GxFastMeter-led-border: 1;
+    -GxFastMeter-led-width: 2;
+    -GxFastMeter-led-height: 2;
+    &:hover {
+	background-color: #222222; /* border hover */
+    }
+}
+
+/* GxHSlider */
+
+gx-hslider {
+    -GxHSlider-slider-width: 36;
+}
+
+/* GxMeterScale */
+
+gx-meter-scale {
+    padding: 2px 8px 2px 8px;
+    -GxMeterScale-tick-size: 3;
+    -GxMeterScale-tick-space: 1;
+}
+
+/* GxPortDisplay */
+
+gx-port-display {
+    -GxRegler-show-value: 0;
+    &.playhead {
+	/* instead of icon "portdisplay" */
+	-GxPortDisplay-icon-name: "playhead";
+    }
+}
+
+/* GxLevelSlider */
+
+gx-level-slider.lmw {
+    /* smaller slider for class lmw */
+    -GxLevelSlider-icon-name: "simplelevelslider";
+    -GxRegler-show-value: 0;
+    -GxLevelSlider-slider-width: 3;
+}
+
+/****************************************************************
+ * Rackbox
+ ****************************************************************/
+
+/* layout */
+
+#monorackcontainer {
+    min-width: 600px;
+}
+
+.rackbox {
+    min-height: 32px;
+}
+
+.minibox {
+    padding-left: 38px;
+}
+
+/* permanent value displays (are not switched off by preference option */
+
+%show-value-always,
+#amp #out_amp,
+#show_always,
+#gx_distortion #split_low_freqm,
+#gx_distortion #split_middle_freq,
+#gx_distortion #split_high_freq {
+    -GxRegler-show-value: 1;
+}
+
+/* specific parts */
+
+#PLUI-ampstack {
+    #effect_title {
+	min-height: 36px;
+	margin-left: 71px;
+    }
+    #rack_unit_title_bar .effect_title {
+	padding-bottom: 4px;
+    }
+    .rackmini {
+	padding-left: 72px;
+    }
+}
+
+#tunerbox {
+    #vbox_tuner_main {
+	margin-left: 32px;
+	margin-right: 32px;
+	margin-bottom: 4px;
+    }
+}
+
+#ampdetail_mini {
+    min-height: 36px;
+    padding: {
+	left: 72px;
+	right: 4px;
+	bottom: 4px;
+    }
+}
+
+#ampdetails > box {
+    margin-right: 28px
+}
+
+#hboxcenter,
+#ampdetails {
+    .gx_sw_minitoggle {
+	padding: 5px;
+    }
+}
+
+#ampbox {
+    padding: 4px;
+    #gxlogobox {
+	-GxPaintBox-paint-func: "logo_expose";
+	min-height: 16px;
+    }
+}
+
+#tuner_reference_pitch {
+    @extend %show-value-always;
+    -GxRegler-value-spacing: 1;
+    -GxRegler-value-border: 5 8 6 8;
+    font-size: 7pt;
+}
+
+// alway show bpm value (Digital Delay)
+#dide-bpm,
+#didest-bpm {
+    @extend %show-value-always;
+}

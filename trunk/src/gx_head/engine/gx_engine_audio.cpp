@@ -70,7 +70,7 @@ bool ProcessingChainBase::wait_rt_finished() {
 
 #ifdef __APPLE__
     // no timedewait here
-     while (sem_wait(&sync_sem) == -1) {
+    while (sem_wait(&sync_sem) == -1) {
 #else
     timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -82,8 +82,7 @@ bool ProcessingChainBase::wait_rt_finished() {
     }
     while (sem_timedwait(&sync_sem, &ts) == -1) {
 #endif
-   
-	if (errno == EINTR) {
+        if (errno == EINTR) {
 	    continue;
 	}
 	if (errno == ETIMEDOUT) {
@@ -92,7 +91,11 @@ bool ProcessingChainBase::wait_rt_finished() {
 	}
 	gx_print_error("sem_timedwait", "unknown error");
 	break;
+#ifdef __APPLE__ // make it look like balanced braces for code formatting tools
     }
+#else
+    }
+#endif
     return true;
 }
 
@@ -405,6 +408,7 @@ ModuleSelectorFromList::ModuleSelectorFromList(
       current_plugin(0),
       modules(),
       size(),
+      values(),
       plugin() {
     version = PLUGINDEF_VERSION;
     register_params = static_register;
@@ -424,18 +428,22 @@ ModuleSelectorFromList::ModuleSelectorFromList(
 }
 
 ModuleSelectorFromList::~ModuleSelectorFromList() {
+    for (unsigned int i = 0; i < size; i++) {
+        modules[i]->delete_instance(modules[i]);
+    }
     delete[] modules;
+    delete[] values;
 }
 
 int ModuleSelectorFromList::register_parameter(const ParamReg &param) {
-    value_pair *p = new value_pair[size+1];
+    values = new value_pair[size+1];
     for (unsigned int i = 0; i < size; ++i) {
-	p[i].value_id = modules[i]->id;
-	p[i].value_label = modules[i]->name;
+	values[i].value_id = modules[i]->id;
+	values[i].value_label = modules[i]->name;
     }
-    p[size].value_id = 0;
-    p[size].value_label = 0;
-    param.registerIEnumVar(select_id, select_name, "S", "", p, &selector, 0);
+    values[size].value_id = 0;
+    values[size].value_label = 0;
+    param.registerIntVar(select_id, select_name, "S", "", &selector, 0, 0, 0, values);
     seq.get_param()[select_id].signal_changed_int().connect(
 	sigc::hide(sigc::mem_fun(seq, &EngineControl::set_rack_changed)));
     return 0;

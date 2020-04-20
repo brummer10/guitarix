@@ -232,7 +232,7 @@ public:
  */
 
 const static int InterfaceVersionMajor = 1;
-const static int InterfaceVersionMinor = 0;
+const static int InterfaceVersionMinor = 1;
 
 CmdConnection::CmdConnection(GxService& serv_, const Glib::RefPtr<Gio::SocketConnection>& connection_)
     : serv(serv_),
@@ -242,6 +242,12 @@ CmdConnection::CmdConnection(GxService& serv_, const Glib::RefPtr<Gio::SocketCon
       midi_config_mode(false),
       flags(),
       maxlevel() {
+    gx_engine::ParamMap& pmap = serv.settings.get_param();
+    for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
+	if (i->second->isMaxlevel()) {
+	    maxlevel[i->first] = i->second->getFloat().get_value();
+	}
+    }
     jp.start_parser();
 }
 
@@ -266,8 +272,6 @@ static struct {
     { "presetlist_changed", CmdConnection::f_presetlist_changed, CmdConnection::f_presetlist_changed },
     { "logger", CmdConnection::f_log_message, CmdConnection::f_log_message },
     { "midi", CmdConnection::f_midi_changed, CmdConnection::f_midi_value_changed },
-    { "oscilloscope", CmdConnection::f_osc_size_changed, CmdConnection::f_osc_activation },
-    { "jack_load", CmdConnection::f_jack_load_changed, CmdConnection::f_jack_load_changed },
     { "param", CmdConnection::f_parameter_change_notify, CmdConnection::f_parameter_change_notify },
     { "plugins_changed", CmdConnection::f_plugins_changed, CmdConnection::f_plugins_changed },
     { "misc", CmdConnection::f_misc_msg, CmdConnection::f_misc_msg },
@@ -553,7 +557,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     FUNCTION(bank_insert_content) {
-	gx_system::PresetFile *f = serv.settings.bank_insert_content(params[0]->getString(), params[1]->getString());
+	gx_system::PresetFile *f = serv.settings.bank_insert_content(params[0]->getString(), params[1]->getString(), params[2]->getInt());
 	if (f) {
 	    f->writeJSON_remote(jw);
 	}
@@ -640,44 +644,8 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	jw.end_object();
     }
 
-    FUNCTION(get_max_input_level) {
-	jw.write(0.0);
-    }
-
-    FUNCTION(get_max_output_level) {
-	serv.update_maxlevel();
-	unsigned int n = params[0]->getInt();
-	jw.begin_array();
-	for (unsigned int i = 0; i < n; i++) {
-	    if (i < gx_engine::MaxLevel::channelcount) {
-		jw.write(maxlevel[i]);
-		maxlevel[i] = 0.0;
-	    } else {
-		jw.write(0.0);
-	    }
-	}
-	jw.end_array();
-    }
-
     FUNCTION(get_tuner_freq) {
 	jw.write(serv.jack.get_engine().tuner.get_freq());
-    }
-
-    FUNCTION(get_oscilloscope_info) {
-	jw.begin_array();
-	jw.write(static_cast<int>(round(serv.jack.get_jcpu_load())));
-	jw.write(serv.jack.get_time_is()/100000);
-	jw.write(serv.jack.get_is_rt());
-	jw.write(serv.jack.get_jack_bs());
-	unsigned int sz = serv.jack.get_engine().oscilloscope.get_size();
-	float *p = serv.jack.get_engine().oscilloscope.get_buffer();
-	jw.write(sz);
-	jw.begin_array();
-	for (unsigned int i = 0; i < sz; i++) {
-	    jw.write(*p++);
-	}
-	jw.end_array();
-	jw.end_array();
     }
 
     FUNCTION(get_oscilloscope_mul_buffer) {
@@ -690,10 +658,6 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     FUNCTION(jack_cpu_load) {
 	jw.write(serv.jack.get_jcpu_load());
-    }
-
-    FUNCTION(get_jack_load_status) {
-	jw.write(serv.jack.get_engine().midiaudiobuffer.jack_load_status());
     }
 
     FUNCTION(load_impresp_dirs) {
@@ -898,6 +862,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(bank_set_flag) {
 	serv.settings.banks.get_file(params[0]->getString())->set_flag(params[1]->getInt(), params[2]->getInt());
+	serv.settings.signal_presetlist_changed()();
     }
 
     PROCEDURE(pf_append) {
@@ -1062,14 +1027,35 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 	serv.save_state();
     }
 
+    PROCEDURE(get_updates) {
+	gx_engine::ParamMap& param = serv.settings.get_param();
+	gx_system::JsonStringWriter jw;
+	serv.jwc = &jw;
+	send_notify_begin(jw, "set");
+	for (JsonArray::iterator i = params.begin(); i != params.end(); ++i) {
+	    gx_engine::Parameter& p = param[(*i)->getString()];
+            jw.write(p.id());
+	    if (p.isMaxlevel()) {
+		serv.update_maxlevel(p.id());
+		float& f = maxlevel[p.id()];
+		jw.write(f);
+		f = 0;
+            } else if (p.isFloat()) {
+                jw.write(p.getFloat().get_value());
+            } else {
+                auto o = dynamic_cast<gx_engine::OscParameter*>(&p);
+                assert(o);
+                o->get_value().writeJSON(jw);
+            }
+	}
+	serv.jwc = 0;
+	serv.broadcast(jw, f_parameter_change_notify);
+    }
+
     PROCEDURE(setpreset) {
 	gx_system::PresetFile* pf = serv.settings.banks.get_file(params[0]->getString());
 	serv.settings.load_preset(pf, params[1]->getString());
 	serv.save_state();
-    }
-
-    PROCEDURE(set_online_presets) {
-	serv.settings.load_online_presets();
     }
 
     PROCEDURE(create_default_scratch_preset) {
@@ -1158,10 +1144,6 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(tuner_used_for_display) {
 	serv.jack.get_engine().tuner.used_for_display(params[0]->getInt());
-    }
-
-    PROCEDURE(clear_oscilloscope_buffer) {
-	serv.jack.get_engine().oscilloscope.clear_buffer();
     }
 
     PROCEDURE(set_oscilloscope_mul_buffer) {
@@ -1745,19 +1727,17 @@ GxService::GxService(gx_preset::GxSettings& settings_, gx_jack::GxJack& jack_,
 	sigc::mem_fun(this, &GxService::on_midi_changed));
     jack.get_engine().controller_map.signal_midi_value_changed().connect(
 	sigc::mem_fun(this, &GxService::on_midi_value_changed));
-    jack.get_engine().oscilloscope.size_change.connect(
-	sigc::mem_fun(this, &GxService::on_osc_size_changed));
-    jack.get_engine().oscilloscope.activation.connect(
-	sigc::mem_fun(this, &GxService::on_osc_activation));
-    jack.get_engine().midiaudiobuffer.signal_jack_load_change().connect(
-	sigc::mem_fun(this, &GxService::on_jack_load_changed));
     settings.signal_rack_unit_order_changed().connect(
 	sigc::mem_fun(this, &GxService::on_rack_unit_changed));
     gx_engine::ParamMap& pmap = settings.get_param();
     pmap.signal_insert_remove().connect(
 	sigc::mem_fun(this, &GxService::on_param_insert_remove));
     for (gx_engine::ParamMap::iterator i = pmap.begin(); i != pmap.end(); ++i) {
-	connect_value_changed_signal(i->second);
+	if (i->second->isMaxlevel()) {
+	    maxlevel[i->first] = i->second->getFloat().get_value();
+	} else {
+	    connect_value_changed_signal(i->second);
+	}
     }
 }
 
@@ -1967,41 +1947,6 @@ void GxService::on_param_value_changed(gx_engine::Parameter *p) {
     }
 }
 
-void GxService::on_jack_load_changed() {
-    if (!broadcast_listeners(CmdConnection::f_jack_load_changed)) {
-	return;
-    }
-    gx_system::JsonStringWriter jw;
-    jw.send_notify_begin("jack_load_changed");
-    gx_engine::MidiAudioBuffer::Load l = jack.get_engine().midiaudiobuffer.jack_load_status();
-    if (l == gx_engine::MidiAudioBuffer::load_low && !jack.get_engine().midiaudiobuffer.get_midistat()) {
-	l = gx_engine::MidiAudioBuffer::load_high;
-    }
-    jw.write(l);
-    broadcast(jw, CmdConnection::f_jack_load_changed);
-}
-
-void GxService::on_osc_size_changed(unsigned int sz) {
-    if (!broadcast_listeners(CmdConnection::f_osc_size_changed)) {
-	return;
-    }
-    gx_system::JsonStringWriter jw;
-    jw.send_notify_begin("osc_size_changed");
-    jw.write(sz);
-    broadcast(jw, CmdConnection::f_osc_size_changed);
-}
-
-int GxService::on_osc_activation(bool start) {
-    if (!broadcast_listeners(CmdConnection::f_osc_activation)) {
-	return 0;
-    }
-    gx_system::JsonStringWriter jw;
-    jw.send_notify_begin("osc_activation");
-    jw.write(start);
-    broadcast(jw, CmdConnection::f_osc_activation);
-    return 0;
-}
-
 void GxService::on_midi_changed() {
     if (!broadcast_listeners(CmdConnection::f_midi_changed)) {
 	return;
@@ -2149,7 +2094,7 @@ void GxService::save_state() {
     time_t now = time(NULL);
     if (oldest_unsaved == 0) {
 	oldest_unsaved = last_change = now;
-	save_conn = Glib::signal_timeout().connect(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), 1000*min_idle);
+	save_conn = Glib::signal_timeout().connect_seconds(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), min_idle);
 	return;
     }
     if (now - oldest_unsaved >= max_delay || now - last_change >= min_idle) {
@@ -2163,7 +2108,7 @@ void GxService::save_state() {
 	    oldest_unsaved = now;
 	}
 	save_conn.disconnect();
-	save_conn = Glib::signal_timeout().connect(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), 1000*min_idle);
+	save_conn = Glib::signal_timeout().connect_seconds(sigc::bind_return(sigc::mem_fun(this, &GxService::save_state),false), min_idle);
     }
 }
 
@@ -2218,13 +2163,19 @@ void GxService::broadcast(gx_system::JsonStringWriter& jw, CmdConnection::msg_ty
     }
 }
 
-void GxService::update_maxlevel(CmdConnection *curr) {
-    gx_engine::MaxLevel& m = jack.get_engine().maxlevel;
-    for (unsigned int i = 0; i < m.channelcount; i++) {
-	float v = m.get(i);
-	maxlevel[i] = max(maxlevel[i], v);
-	for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
-	    (*p)->update_maxlevel(i, v);
-	}
+float GxService::update_maxlevel(const std::string& id, bool reset) {
+    gx_engine::FloatParameter& p = settings.get_param()[id].getFloat();
+    float v = p.get_value();
+    p.set_zero();
+    for (std::list<CmdConnection*>::iterator p = connection_list.begin(); p != connection_list.end(); ++p) {
+	(*p)->update_maxlevel(id, v);
     }
+    float& m = maxlevel[id];
+    if (reset) {
+	v = max(v, m);
+	m = 0;
+    } else {
+	m = max(m, v);
+    }
+    return v;
 }

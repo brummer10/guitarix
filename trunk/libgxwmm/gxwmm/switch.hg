@@ -16,17 +16,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gtkmm/togglebutton.h>
+#include <gtkmm/checkbutton.h>
 #include <gtkmm/label.h>
 #include <gxwmm/controlparameter.h>
 
 _DEFS(gxwmm,gxw)
-_PINCLUDE(gtkmm/private/togglebutton_p.h)
+_PINCLUDE(gtkmm/private/checkbutton_p.h)
 
 namespace Gxw {
 
-class Switch: public Gtk::ToggleButton, public ControlParameter {
-	_CLASS_GTKOBJECT(Switch,GxSwitch,GX_SWITCH,Gtk::ToggleButton,GtkToggleButton)
+class Switch: public Gtk::CheckButton, public ControlParameter {
+	_CLASS_GTKOBJECT(Switch,GxSwitch,GX_SWITCH,Gtk::CheckButton,GtkCheckButton)
 	_IMPLEMENTS_INTERFACE(ControlParameter)
 	public:
 	_CTOR_DEFAULT

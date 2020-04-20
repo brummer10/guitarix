@@ -109,6 +109,27 @@ GxMachineBase::GxMachineBase()
 GxMachineBase::~GxMachineBase() {
 }
 
+void GxMachineBase::set_update_parameter(void *control, const string& id, bool on) {
+    if (on) {
+	update_map[id].insert(control);
+	if (!update_timeout.connected()) {
+	    update_timeout = Glib::signal_timeout().connect(
+		sigc::mem_fun(*this, &GxMachineBase::update_parameter), 60);
+	}
+    } else {
+	output_listen_map::iterator i = update_map.find(id);
+	if (i != update_map.end()) {
+	    i->second.erase(control);
+	    if (i->second.empty()) {
+		update_map.erase(id);
+	    }
+	}
+	if (update_map.empty()) {
+	    update_timeout.disconnect();
+	}
+    }
+}
+
 
 /****************************************************************
  ** GxMachine
@@ -138,6 +159,23 @@ void on_engine_bypass_changed(bool s, GxEngine& engine) {
     }
 }
 
+void GxMachine::process_cmdline_bank_preset() {
+    Glib::ustring sbank = options.get_setbank();
+    if (sbank.empty()) {
+        return;
+    }
+    sbank = sbank.lowercase();
+    if (sbank.size() < 2) {
+        return;
+    }
+    Glib::ustring bank = settings.banks.get_name(
+        KeySwitcher::key_offset_to_bank_idx(sbank[0]-'a', bank_size()));
+    int i = (sbank[1] == ':' ? 2 : 1);
+    Glib::ustring preset = get_bank_file(bank)->get_name(
+        KeySwitcher::key_offset_to_idx(std::stoi(sbank.substr(i))));
+    options.set_bank_preset(bank, preset);
+}
+
 GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     GxMachineBase(),
     options(options_),
@@ -150,8 +188,10 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 #ifdef HAVE_AVAHI
     avahi_service(0),
 #endif
-    pmap(engine.get_param()) {
-    engine.set_jack(&jack);
+    pmap(engine.get_param()),
+    switch_bank() {
+    engine.oscilloscope.set_jack(jack);
+    process_cmdline_bank_preset();
 
     /*
     ** setup parameters
@@ -250,14 +290,11 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 	sigc::mem_fun(this, &GxMachine::do_bank_change));
     pmap["ui.live_play_switcher"].signal_changed_bool().connect(
 	sigc::mem_fun(this, &GxMachine::edge_toggle_tuner));
-    engine.midiaudiobuffer.signal_jack_load_change().connect(
-	sigc::mem_fun(this, &GxMachine::on_jack_load_change));
     switch_bank = settings.get_current_bank();
     pmap["engine.next_preset"].signal_changed_bool().connect(
 	sigc::mem_fun(this, &GxMachine::process_next_preset_switch));
     pmap["engine.previus_preset"].signal_changed_bool().connect(
 	sigc::mem_fun(this, &GxMachine::process_previus_preset_switch));
-
 }
 
 GxMachine::~GxMachine() {
@@ -279,14 +316,6 @@ void GxMachine::insert_param(Glib::ustring group, Glib::ustring name) {
     sp.setSavable(false);
     sp.signal_changed().connect(sigc::hide(
       sigc::bind(sigc::bind(sigc::bind(sigc::mem_fun(this, &GxMachine::plugin_preset_list_set_on_idle), name), false),pluginlist_lookup_plugin("seq")->get_pdef())));
-}
-
-void GxMachine::on_jack_load_change() {
-    gx_engine::MidiAudioBuffer::Load l = engine.midiaudiobuffer.jack_load_status();
-    if (l == gx_engine::MidiAudioBuffer::load_low && !engine.midiaudiobuffer.get_midistat()) {
-	l = gx_engine::MidiAudioBuffer::load_high;
-    }
-    jack_load_change(l);
 }
 
 void GxMachine::edge_toggle_tuner(bool v) {
@@ -422,54 +451,6 @@ int GxMachine::get_oscilloscope_mul_buffer() {
     return engine.oscilloscope.get_mul_buffer();
 }
 
-const float *GxMachine::get_oscilloscope_buffer() {
-    return engine.oscilloscope.get_buffer();
-}
-
-void GxMachine::clear_oscilloscope_buffer() {
-    engine.oscilloscope.clear_buffer();
-}
-
-bool GxMachine::oscilloscope_plugin_box_visible() {
-    return engine.oscilloscope.plugin.get_box_visible();
-}
-
-sigc::signal<void, int>& GxMachine::signal_oscilloscope_post_pre() {
-    return pmap[engine.oscilloscope.plugin.id_effect_post_pre()].signal_changed_int();
-}
-
-sigc::signal<void, bool>& GxMachine::signal_oscilloscope_visible() {
-    return pmap[engine.oscilloscope.plugin.id_box_visible()].signal_changed_bool();
-}
-
-sigc::signal<int, bool>& GxMachine::signal_oscilloscope_activation() {
-    return engine.oscilloscope.activation;
-}
-
-sigc::signal<void, unsigned int>& GxMachine::signal_oscilloscope_size_change() {
-    return engine.oscilloscope.size_change;
-}
-
-void GxMachine::maxlevel_get(int channels, float *values) {
-    if (sock) {
-	sock->update_maxlevel();
-	for (int i = 0; i < channels; i++) {
-	    values[i] = sock->get_maxlevel(i);
-	}
-    } else {
-	for (int i = 0; i < channels; i++) {
-	    values[i] = engine.maxlevel.get(i);
-	}
-    }
-}
-
-void GxMachine::get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) {
-    load = static_cast<int>(round(jack.get_jcpu_load()));
-    frames = jack.get_time_is()/100000;
-    is_rt = jack.get_is_rt();
-    bsize = jack.get_jack_bs();
-}
-
 gx_system::CmdlineOptions& GxMachine::get_options() const {
     return options;
 }
@@ -542,16 +523,12 @@ void GxMachine::remove_rack_unit(const std::string& unit, PluginType type) {
     if (!settings.remove_rack_unit(unit, type == PLUGIN_TYPE_STEREO)) {
 	return;
     }
-    if (sock) {
-	sock->send_rack_changed(type == PLUGIN_TYPE_STEREO, 0);
-    }
+    settings.signal_rack_unit_order_changed()(type == PLUGIN_TYPE_STEREO);
 }
 
 void GxMachine::insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) {
     settings.insert_rack_unit(unit, before, type == PLUGIN_TYPE_STEREO);
-    if (sock) {
-	sock->send_rack_changed(type == PLUGIN_TYPE_STEREO, 0);
-    }
+    settings.signal_rack_unit_order_changed()(type == PLUGIN_TYPE_STEREO);
 }
 
 // tuner_switcher
@@ -597,43 +574,26 @@ Glib::ustring GxMachine::get_bank_name(int n) {
     return settings.banks.get_name(n);
 }
 
-int GxMachine::get_bank_num(Glib::ustring num) {
-    Glib::ustring array = "abcdefghijklmnopqrstuvwxyz" ;
-    int i = 0;
-	for(i=0;i<26;i++) {
-		if(num.compare(array.substr(i,1))==0) break;
-	}
-	return bank_size() -i -1;
-}
-
-void GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
-	jack.send_midi_cc(cc, pgn, bgn, num);
+bool GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
+	return jack.send_midi_cc(cc, pgn, bgn, num);
 }
 
 void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
     int n = get_bank_index(get_current_bank());
     settings.load_preset(pf, name);
 #ifdef USE_MIDI_CC_OUT
+    bool cc_ok = true;
     if (get_bank_index(pf->get_name()) != n) {
-        msend_midi_cc(0xB0, 32, get_bank_index(pf->get_name()),3);
+        cc_ok = msend_midi_cc(0xB0, 32, get_bank_index(pf->get_name()),3);
     }
-    msend_midi_cc(0xC0, pf->get_index(name),0,2);
+    if (cc_ok) { // don't send program change if bank switch failed
+        msend_midi_cc(0xC0, pf->get_index(name),0,2);
+    }
 #endif
-}
-
-void GxMachine::load_online_presets() {
-    settings.load_online_presets();
 }
 
 void GxMachine::loadstate() {
     settings.loadstate();
-	if (!options.get_setbank().empty()) {
-		Glib::ustring sbank = options.get_setbank();
-		int bl = get_bank_num(sbank.substr(0,1).lowercase());
-		int pgm = max(0,atoi(sbank.substr(2,Glib::ustring::npos).raw().c_str())-1);
-		switch_bank = settings.banks.get_name(bl);
-		do_program_change(pgm);
-    }
 }
 
 int GxMachine::bank_size() {
@@ -694,8 +654,8 @@ sigc::signal<void>& GxMachine::signal_presetlist_changed() {
     return settings.signal_presetlist_changed();
 }
 
-gx_system::PresetFileGui* GxMachine::bank_insert_uri(const Glib::ustring& uri, bool move) {
-    gx_system::PresetFile *f = settings.bank_insert_uri(uri, move);
+gx_system::PresetFileGui* GxMachine::bank_insert_uri(const Glib::ustring& uri, bool move, int position) {
+    gx_system::PresetFile *f = settings.bank_insert_uri(uri, move, position);
     if (f) {
 	return f->get_guiwrapper();
     } else {
@@ -739,6 +699,7 @@ void GxMachine::erase_preset(gx_system::PresetFileGui& pf, const Glib::ustring& 
 void GxMachine::bank_set_flag(gx_system::PresetFileGui *pf, int flag, bool v) {
     static_cast<gx_system::PresetFile*>(pf)->set_flag(flag, v);
     settings.banks.save();
+    signal_presetlist_changed()();
 }
 
 std::string GxMachine::bank_get_filename(const Glib::ustring& bank) {
@@ -811,6 +772,23 @@ void GxMachine::set_init_values() {
     pmap.set_init_values();
 }
 
+bool GxMachine::update_parameter() {
+    for (output_listen_map::const_iterator i = update_map.cbegin(); i != update_map.cend(); ++i) {
+	Parameter& p = pmap[i->first];
+	if (p.isMaxlevel()) {
+	    float*f = p.getFloat().value;
+	    if (sock) {
+		*f = sock->update_maxlevel(i->first, true);
+		}
+	    p.trigger_changed();
+	    *f = 0.0;
+	} else {
+	    p.trigger_changed();
+	}
+    }
+    return true;
+}
+
 bool GxMachine::parameter_hasId(const char *p) {
     return pmap.hasId(p);
 }
@@ -835,15 +813,7 @@ void GxMachine::set_parameter_value(const std::string& id, bool value) {
     pmap[id].getBool().set(value);
 }
 
- //bool GxMachine::ui_f_update(const std::string& id, float value) {
- //    pmap[id].getFloat().set(value);
- //    return false;
- //}
-
 void GxMachine::set_parameter_value(const std::string& id, float value) {
-    // Glib::signal_timeout().connect(
-    //     sigc::bind<const std::string&>(sigc::bind<float>(
-     //    sigc::mem_fun (*this, &GxMachine::ui_f_update),value),id), 20);
     pmap[id].getFloat().set(value);
 }
 
@@ -1001,10 +971,6 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
       current_preset(),
       bank_drag_get_counter(),
       bank_drag_get_path(),
-      oscilloscope_activation(),
-      oscilloscope_size_change(),
-      oscilloscope_buffer(0),
-      oscilloscope_buffer_size(0),
       tuner_switcher_display(),
       tuner_switcher_set_state(),
       tuner_switcher_selection_done() {
@@ -1050,8 +1016,6 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     jw->write("presetlist_changed");
     jw->write("logger");
     jw->write("midi");
-    jw->write("oscilloscope");
-    jw->write("jack_load");
     jw->write("param");
     jw->write("plugins_changed");
     jw->write("misc");
@@ -1235,6 +1199,10 @@ void GxMachineRemote::parameter_changed(gx_system::JsonStringParser *jp) {
 	SeqParameter* pj = dynamic_cast<SeqParameter*>(&p);
 	pj->readJSON_value(*jp);
 	pj->setJSON_value();
+    } else if (dynamic_cast<OscParameter*>(&p) != 0) {
+	OscParameter* po = dynamic_cast<OscParameter*>(&p);
+	po->readJSON_value(*jp);
+	po->setJSON_value();
     } else {
 	cerr << "change special type parameter " << p.id() << endl;
     }
@@ -1302,18 +1270,6 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	int value = jp->current_value_int();
 	jp->next(gx_system::JsonParser::end_array);
 	midi_value_changed(ctl, value);
-    } else if (method == "osc_activation") {
-	jp->next(gx_system::JsonParser::value_number);
-	oscilloscope_activation(jp->current_value_int());
-    } else if (method == "osc_size_changed") {
-	jp->next(gx_system::JsonParser::value_number);
-	unsigned int sz = jp->current_value_int();
-	if (oscilloscope_buffer_size != sz) {
-	    delete oscilloscope_buffer;
-	    oscilloscope_buffer = new float[sz];
-	    oscilloscope_buffer_size = sz;
-	}
-	oscilloscope_size_change(sz);
     } else if (method == "show_tuner") {
 	jp->next(gx_system::JsonParser::value_number);
 	tuner_switcher_selection_done(jp->current_value_int());
@@ -1352,9 +1308,6 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
 	impresp_list(path, l);
     } else if (method == "plugins_changed") {
 	update_plugins(jp);
-    } else if (method == "jack_load_changed") {
-	jp->next(gx_system::JsonParser::value_number);
-	jack_load_change(static_cast<gx_engine::MidiAudioBuffer::Load>(jp->current_value_int()));
     } else if (method == "server_shutdown") {
 	Gtk::Main::quit();
     } else {
@@ -1695,11 +1648,6 @@ static const std::string next_string(gx_system::JsonParser *jp) {
     return jp->current_value();
 }
 
-int GxMachineRemote::load_remote_ui_static (const UiBuilder& builder, int form) {
-    GxMachineRemote *m = dynamic_cast<GxMachineRemote*>(&static_cast<const gx_gui::UiBuilderImpl*>(&builder)->main.get_machine());
-    return m->load_remote_ui(builder, form);
-}
-
 int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
     START_CALL(plugin_load_ui);
     jw->write(builder.plugin->id);
@@ -1831,7 +1779,12 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 }
 
 bool GxMachineRemote::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) {
-    pdef->load_ui = load_remote_ui_static;
+    pdef->load_ui = [](const UiBuilder& builder, int form) {
+                        GxMachineRemote *m = dynamic_cast<GxMachineRemote*>(
+                            &static_cast<const gx_gui::UiBuilderImpl*>(
+                                &builder)->plugin_dict.get_machine());
+                        return m->load_remote_ui(builder, form);
+                    };
     return builder.load_unit(pdef);
 }
 
@@ -1853,88 +1806,12 @@ int GxMachineRemote::get_oscilloscope_mul_buffer() {
     END_RECEIVE(return 1);
 }
 
-const float *GxMachineRemote::get_oscilloscope_buffer() {
-    return oscilloscope_buffer;
-}
-
-void GxMachineRemote::clear_oscilloscope_buffer() {
-    START_NOTIFY(clear_oscilloscope_buffer);
-    SEND();
-}
-
-bool GxMachineRemote::oscilloscope_plugin_box_visible() {
-    return pluginlist.lookup_plugin("oscilloscope")->get_box_visible();
-}
-
-sigc::signal<void, int>& GxMachineRemote::signal_oscilloscope_post_pre() {
-    return pmap["oscilloscope.pp"].signal_changed_int();
-}
-
-sigc::signal<void, bool>& GxMachineRemote::signal_oscilloscope_visible() {
-    return pmap["ui.oscilloscope"].signal_changed_bool();
-}
-
-sigc::signal<int, bool>& GxMachineRemote::signal_oscilloscope_activation() {
-    return oscilloscope_activation;
-}
-
-sigc::signal<void, unsigned int>& GxMachineRemote::signal_oscilloscope_size_change() {
-    return oscilloscope_size_change;
-}
-
 float GxMachineRemote::get_tuner_freq() {
     START_CALL(get_tuner_freq);
     START_RECEIVE(0);
     jp->next(gx_system::JsonParser::value_number);
     return jp->current_value_float();
     END_RECEIVE(return 0);
-}
-
-void GxMachineRemote::maxlevel_get(int channels, float *values) {
-    START_CALL(get_max_output_level);
-    jw->write(channels);
-    START_RECEIVE();
-    jp->next(gx_system::JsonParser::begin_array);
-    for (int i = 0; i < channels; i++) {
-	if (jp->peek() != gx_system::JsonParser::end_array) {
-	    jp->next(gx_system::JsonParser::value_number);
-	    values[i] = jp->current_value_float();
-	} else {
-	    values[i] = 0.0;
-	}
-    }
-    END_RECEIVE();
-}
-
-void GxMachineRemote::get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) {
-    START_CALL(get_oscilloscope_info);
-    START_RECEIVE();
-    jp->next(gx_system::JsonParser::begin_array);
-    jp->next(gx_system::JsonParser::value_number);
-    load = jp->current_value_int();
-    jp->next(gx_system::JsonParser::value_number);
-    frames = jp->current_value_int();
-    jp->next(gx_system::JsonParser::value_number);
-    is_rt = jp->current_value_int();
-    jp->next(gx_system::JsonParser::value_number);
-    bsize = jp->current_value_int();
-    jp->next(gx_system::JsonParser::value_number);
-    unsigned int sz = jp->current_value_int();
-    if (oscilloscope_buffer_size != sz) {
-	delete oscilloscope_buffer;
-	oscilloscope_buffer = new float[sz];
-	oscilloscope_buffer_size = sz;
-	oscilloscope_size_change(sz);
-    }
-    jp->next(gx_system::JsonParser::begin_array);
-    float *p = oscilloscope_buffer;
-    while (jp->peek() != gx_system::JsonParser::end_array) {
-	jp->next(gx_system::JsonParser::value_number);
-	*p++ = jp->current_value_float();
-    }
-    jp->next(gx_system::JsonParser::end_array);
-    jp->next(gx_system::JsonParser::end_array);
-    END_RECEIVE();
 }
 
 gx_system::CmdlineOptions& GxMachineRemote::get_options() const {
@@ -2001,6 +1878,7 @@ void GxMachineRemote::remove_rack_unit(const std::string& unit, PluginType type)
     jw->write(unit);
     jw->write(type == PLUGIN_TYPE_STEREO);
     SEND();
+    rack_units.rack_unit_order_changed(type == PLUGIN_TYPE_STEREO);
 }
 
 void GxMachineRemote::insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) {
@@ -2009,6 +1887,7 @@ void GxMachineRemote::insert_rack_unit(const std::string& unit, const std::strin
     jw->write(before);
     jw->write(type == PLUGIN_TYPE_STEREO);
     SEND();
+    rack_units.rack_unit_order_changed(type == PLUGIN_TYPE_STEREO);
 }
 
 // tuner_switcher
@@ -2095,13 +1974,14 @@ Glib::ustring GxMachineRemote::get_bank_name(int n) {
     return banks.get_name(n);
 }
 
-void GxMachineRemote::msend_midi_cc(int cc, int pgn, int bgn, int num) {
+bool GxMachineRemote::msend_midi_cc(int cc, int pgn, int bgn, int num) {
 	START_NOTIFY(sendcc);
     jw->write(cc);
     jw->write(pgn);
     jw->write(bgn);
     jw->write(num);
     SEND();
+    return true;
 }
 
 void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
@@ -2116,11 +1996,6 @@ void GxMachineRemote::load_preset(gx_system::PresetFileGui *pf, const Glib::ustr
     }
     msend_midi_cc(0xC0, pf->get_index(name),0,2);
 #endif
-}
-
-void GxMachineRemote::load_online_presets() {
-    START_NOTIFY(set_online_presets);
-    SEND();
 }
 
 void GxMachineRemote::loadstate() {
@@ -2215,7 +2090,7 @@ sigc::signal<void>& GxMachineRemote::signal_presetlist_changed() {
     return presetlist_changed;
 }
 
-gx_system::PresetFileGui *GxMachineRemote::bank_insert_uri(const Glib::ustring& uri, bool move) {
+gx_system::PresetFileGui *GxMachineRemote::bank_insert_uri(const Glib::ustring& uri, bool move, int position) {
     START_CALL(bank_insert_content);
     jw->write(uri);
     Glib::RefPtr<Gio::File> rem = Gio::File::create_for_uri(uri);
@@ -2223,13 +2098,14 @@ gx_system::PresetFileGui *GxMachineRemote::bank_insert_uri(const Glib::ustring& 
     stringstream s;
     s << f.rdbuf();
     jw->write(s.str());
+    jw->write(position);
     START_RECEIVE(0);
     if (jp->peek() != gx_system::JsonParser::begin_object) {
 	return 0;
     }
     gx_system::PresetFile *pf = new gx_system::PresetFile();
     pf->readJSON_remote(*jp);
-    banks.insert(pf);
+    banks.insert(pf, position);
     return pf->get_guiwrapper();
     END_RECEIVE(return 0);
 }
@@ -2563,6 +2439,15 @@ void GxMachineRemote::set_init_values() {
 			sigc::mem_fun(this, &GxMachineRemote::param_signal), i->second)));
 	}
     }
+}
+
+bool GxMachineRemote::update_parameter() {
+    START_NOTIFY(get_updates);
+    for (output_listen_map::const_iterator i = update_map.cbegin(); i != update_map.cend(); ++i) {
+	jw->write(i->first);
+    }
+    SEND();
+    return true;
 }
 
 bool GxMachineRemote::parameter_hasId(const char *p) {

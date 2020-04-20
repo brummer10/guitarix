@@ -33,12 +33,12 @@ class ControlParameter: public Glib::Interface
 {
 	_CLASS_INTERFACE(ControlParameter,GxControlParameter,GX_CONTROL_PARAMETER,GxControlParameterIface)
 	public:
-	_WRAP_METHOD(void cp_configure(Glib::ustring group, Glib::ustring name, double lower, double upper, double step), gx_control_parameter_cp_configure)
+	_WRAP_METHOD(void cp_configure(const std::string& group, const std::string& name, double lower, double upper, double step), gx_control_parameter_cp_configure)
 	_WRAP_METHOD(void cp_set_value(double value), gx_control_parameter_cp_set_value)
 	_WRAP_METHOD(double cp_get_value(), gx_control_parameter_cp_get_value)
 	_WRAP_METHOD(int cp_get_int_value(), gx_control_parameter_cp_get_int_value)
-	_WRAP_METHOD(Glib::ustring cp_get_var(), gx_control_parameter_cp_get_var)
-	_WRAP_METHOD(void cp_set_var(Glib::ustring), gx_control_parameter_cp_set_var)
+	_WRAP_METHOD(std::string cp_get_var(), gx_control_parameter_cp_get_var)
+	_WRAP_METHOD(void cp_set_var(const Glib::ustring&), gx_control_parameter_cp_set_var)
 	_WRAP_PROPERTY("var-id", Glib::ustring)
 };
 

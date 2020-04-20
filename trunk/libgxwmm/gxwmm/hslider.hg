@@ -28,7 +28,7 @@ class HSlider: public Gxw::Regler {
 	_CLASS_GTKOBJECT(HSlider,GxHSlider,GX_HSLIDER,Gxw::Regler,GxRegler)
 	public:
 	_CTOR_DEFAULT
-	explicit HSlider(Gtk::Adjustment& adjustment);
+	explicit HSlider(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 };
 
 } // namespace Gxw

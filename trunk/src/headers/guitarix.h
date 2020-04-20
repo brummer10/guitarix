@@ -75,8 +75,6 @@ struct GdkSpanFunc;
 #include "jsonrpc.h"
 #include "machine.h"
 
-#include "gx_cairo_callbacks.h"
-
 #include "gx_gui_helpers.h"
 #include "gx_ui_builder.h"
 #include "gx_jack_options.h"

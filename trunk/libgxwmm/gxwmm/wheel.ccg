@@ -18,6 +18,6 @@
 
 #include <gxw/GxWheel.h>
 
-Gxw::Wheel::Wheel(Gtk::Adjustment& adjustment):
-	_CONSTRUCT("adjustment", adjustment.gobj())
+Gxw::Wheel::Wheel(const Glib::RefPtr<Gtk::Adjustment>& adjustment):
+	_CONSTRUCT("adjustment", adjustment->gobj())
 {}

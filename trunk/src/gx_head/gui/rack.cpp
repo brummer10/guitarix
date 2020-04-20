@@ -22,6 +22,7 @@
  */
 
 #include <guitarix.h>
+#include <boost/algorithm/string/replace.hpp>
 
 /****************************************************************
  ** class PluginUI
@@ -41,27 +42,29 @@
  **
  */
 
-PluginUI::PluginUI(MainWindow& main_, const char *name,
+PluginUI::PluginUI(PluginDict& plugin_dict_, const char *name,
 		   const Glib::ustring& tooltip_)
-    : merge_id(0),
-      action(),
-      plugin(main_.get_machine().pluginlist_lookup_plugin(name)),
-      tooltip(tooltip_),
-      shortname(),
-      icon(),
+    : action(),
       group(),
       toolitem(),
-      main(main_),
       rackbox(),
       hidden(false),
-      hidden_by_move(false) {
+      active(false),
+      output_widget_state(),
+      output_widgets_active(false),
+      tooltip(tooltip_),
+      shortname(),
+      plugin(plugin_dict_.get_machine().pluginlist_lookup_plugin(name)),
+    plugin_dict(plugin_dict_) {
     if (plugin->get_pdef()->description && tooltip.empty()) {
 	tooltip = plugin->get_pdef()->description;
     }
     plugin->get_pdef()->flags |= gx_engine::PGNI_UI_REG;
+    active = !has_gui();
 }
 
 PluginUI::~PluginUI() {
+    output_widget_state.clear();
     delete rackbox;
     if (toolitem) {
 	if (group) {
@@ -72,15 +75,8 @@ PluginUI::~PluginUI() {
     plugin->get_pdef()->flags &= ~gx_engine::PGNI_UI_REG;
 }
 
-void PluginUI::unset_ui_merge_id(Glib::RefPtr<Gtk::UIManager> uimanager) {
-    if (merge_id) {
-	uimanager->remove_ui(merge_id);
-	merge_id = 0;
-    }
-}
-
 void PluginUI::on_plugin_preset_popup() {
-    main.plugin_preset_popup(plugin->get_pdef());
+    plugin_dict.plugin_preset_popup(plugin->get_pdef());
 }
 
 bool PluginUI::is_registered(gx_engine::GxMachineBase& m, const char *name) {
@@ -96,68 +92,75 @@ void PluginUI::compress(bool state) {
     }
 }
 
-void PluginUI::set_action(Glib::RefPtr<Gtk::ToggleAction>& act)
+void PluginUI::set_action(Glib::RefPtr<ToggleAction>& act)
 {
     action = act;
     action->signal_toggled().connect(sigc::mem_fun(*this, &PluginUI::on_action_toggled));
 }
 
 void PluginUI::on_action_toggled() {
-    if (rackbox && action->get_active() == rackbox->get_box_visible()) {
+    if (rackbox && action->get_active() == active) {
 	return;
     }
     if (action->get_active()) {
-	display_new();
+	plugin_dict.activate(get_id(), "", true);
     } else {
-	display(false, true);
+	plugin_dict.deactivate(get_id(), true);
     }
 }
 
 void PluginUI::hide(bool animate) {
-    plugin->set_on_off(false);
-    if (rackbox) {
-	rackbox->display(false, animate);
-	main.add_icon(get_id());
-    }
+    rackbox->display(false, animate);
 }
 
 void PluginUI::show(bool animate) {
-    if (!rackbox) {
-	rackbox = main.add_rackbox(*this, plugin->get_plug_visible(), -1, animate);
-	set_active(true);
+    hidden = plugin_dict.get_plugins_hidden();
+    if (hidden) {
+	rackbox->hide();
     } else {
 	rackbox->display(true, animate);
     }
-    if (hidden) {
-	rackbox->hide();
-    }
-    main.hide_effect(get_id());
 }
 
-void PluginUI::display(bool v, bool animate) {
-    // this function hides the rackbox. It could also destroy it (or
-    // some other function could do it, e.g. when unloading a module),
-    // but currently there are too many memory leaks in the stack based
-    // builder.
-    plugin->set_box_visible(v);
-    if (v) {
-	main.get_machine().insert_rack_unit(get_id(), "", get_type());
-	hidden = false;
-	show(animate);
-    } else {
-	main.get_machine().remove_rack_unit(get_id(), get_type());
-	hide(animate);
+void PluginUI::activate(bool animate, const string& before) {
+    if (!has_gui() || active) {
+	return;
     }
-}
-
-void PluginUI::display_new(bool unordered) {
-    plugin->set_plug_visible(false);
+    active = true;
+    hidden = plugin_dict.get_plugins_hidden();
+    toolitem->hide();
+    bool plug = plugin->get_plug_visible();
     if (rackbox) {
-	rackbox->swtch(false);
+	rackbox->swtch(plug);
+    } else {
+	rackbox = plugin_dict.add_rackbox(*this, plug, -1, animate);
     }
-    display(true, true);
-    if (!unordered) {
-	rackbox->get_parent()->reorder(get_id(), -1);
+    plugin->set_box_visible(true);
+    rackbox->set_config_mode(plugin_dict.get_config_mode());
+    set_update_state(get_update_cond());
+    if (hidden) {
+	rackbox->display(false, false);
+    } else {
+	rackbox->display(true, animate);
+    }
+    set_active(true);
+}
+
+void PluginUI::deactivate(bool animate) {
+    if (!has_gui() || !active) {
+	return;
+    }
+    active = false;
+    plugin->set_box_visible(false);
+    toolitem->show();
+    hide(animate);
+    set_active(false);
+}
+
+void PluginUI::set_config_mode(bool state) {
+    if (active) {
+	on_state_change();
+	rackbox->set_config_mode(state);
     }
 }
 
@@ -165,23 +168,26 @@ void PluginUI::update_rackbox() {
     if (!rackbox) {
 	return;
     }
-    if (plugin->get_box_visible()) {
-	RackContainer::rackbox_list l = rackbox->get_parent()->get_children();
-	int n = 0;
-	for (RackContainer::rackbox_list::iterator i = l.begin(); i != l.end(); ++i, ++n)
-	    if (*i == rackbox) {
-		break;
-	    }
-    display(false,false);
-	delete rackbox;
-    rackbox = 0;
-    display(true,false);
-    rackbox->get_parent()->reorder(get_id(), n);
-	//rackbox = main.add_rackbox(*this, plugin->get_plug_visible(), n, false);
-    } else {
+    if (!plugin->get_box_visible()) {
 	delete rackbox;
 	rackbox = 0;
     }
+    RackContainer *container = rackbox->get_parent();
+    RackContainer::rackbox_list l = container->get_children();
+    string before;
+    for (RackContainer::rackbox_list::iterator i = l.begin(); i != l.end(); ++i) {
+	if (*i == rackbox) {
+	    if (++i != l.end()) {
+		before = (*i)->get_id();
+	    }
+	    break;
+	}
+    }
+    hide(false);
+    delete rackbox;
+    rackbox = plugin_dict.add_rackbox(*this, plugin->get_plug_visible(), -1, false);
+    show(false);
+    container->reorder(get_id(), before);
 }
 
 bool plugins_by_name_less(PluginUI *a, PluginUI *b) {
@@ -196,10 +202,313 @@ bool plugins_by_name_less(PluginUI *a, PluginUI *b) {
     return res < 0;
 }
 
+bool PluginUI::on_rack_handle_press(GdkEventButton* ev) {
+    if (ev->type == GDK_2BUTTON_PRESS && ev->button == 1) {
+        plugin_dict.deactivate(get_id(), true);
+	group->set_collapsed(false);
+	return true;
+    }
+    return false;
+}
+
+void PluginUI::on_ti_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context) {
+    plugin_dict.drag_icon = new DragIcon(*this, context, plugin_dict.get_options());
+}
+
+void PluginUI::on_ti_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp) {
+    selection.set(*context->list_targets().begin(), get_id());
+}
+
+void PluginUI::on_ti_drag_data_delete(const Glib::RefPtr<Gdk::DragContext>& context) {
+    toolitem->hide();
+}
+
+bool PluginUI::on_ti_button_press(GdkEventButton *ev) {
+    if (ev->type == GDK_2BUTTON_PRESS) {
+	plugin_dict.activate(get_id(), "", true);
+	return true;
+    }
+    return false;
+}
+
+void PluginUI::on_ti_drag_end(const Glib::RefPtr<Gdk::DragContext>& context) {
+    if (plugin_dict.drag_icon) {
+	delete plugin_dict.drag_icon;
+	plugin_dict.drag_icon = nullptr;
+    }
+}
+
+bool PluginUI::on_my_leave_out(GdkEventCrossing *focus) {
+    Glib::RefPtr<Gdk::Window> wind = toolitem->get_window();
+    wind->set_cursor();
+    return true;
+}
+
+bool PluginUI::on_my_enter_in(GdkEventCrossing *focus) {
+    Glib::RefPtr<Gdk::Window> wind = toolitem->get_window();
+    Glib::RefPtr<Gdk::Display> disp = toolitem->get_display();
+    Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(disp, Gdk::HAND1));
+    wind->set_cursor(cursor);
+    return true;
+}
+
+Glib::ustring PluginUI::get_displayname(bool useshort) const {
+    Glib::ustring name = useshort ? get_shortname() : get_name();
+    if (get_type() == PLUGIN_TYPE_STEREO) {
+	name = "◗◖ " + name; //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
+    }
+    return name;
+}
+
+void PluginUI::add_toolitem(Gtk::ToolItemGroup *gw) {
+    Gtk::ToolItem *tb = new Gtk::ToolItem();
+    tb->set_use_drag_window(true);
+    tb->signal_drag_begin().connect(sigc::mem_fun(*this, &PluginUI::on_ti_drag_begin));
+    tb->signal_drag_end().connect(sigc::mem_fun(*this, &PluginUI::on_ti_drag_end));
+    tb->signal_drag_data_delete().connect(sigc::mem_fun(*this, &PluginUI::on_ti_drag_data_delete));
+    tb->signal_button_press_event().connect(sigc::mem_fun(*this, &PluginUI::on_ti_button_press));
+    tb->add_events(Gdk::ENTER_NOTIFY_MASK|Gdk::LEAVE_NOTIFY_MASK);
+    tb->signal_leave_notify_event().connect(sigc::mem_fun(*this, &PluginUI::on_my_leave_out));
+    tb->signal_enter_notify_event().connect(sigc::mem_fun(*this, &PluginUI::on_my_enter_in));
+    std::vector<Gtk::TargetEntry> listTargets;
+    if (get_type() == PLUGIN_TYPE_MONO) {
+	listTargets.push_back(Gtk::TargetEntry("application/x-gtk-tool-palette-item-mono", Gtk::TARGET_SAME_APP, 0));
+    } else {
+	listTargets.push_back(Gtk::TargetEntry("application/x-gtk-tool-palette-item-stereo", Gtk::TARGET_SAME_APP, 0));
+    }
+    tb->drag_source_set(listTargets, Gdk::BUTTON1_MASK, Gdk::ACTION_MOVE);
+    tb->signal_drag_data_get().connect(sigc::mem_fun(*this, &PluginUI::on_ti_drag_data_get));
+    Gtk::Label *img = new Gtk::Label(get_displayname(true));
+    img->set_xalign(0);
+    img->set_halign(Gtk::ALIGN_END);
+    if (!tooltip.empty()) {
+	gx_gui::GxBuilder::set_tooltip_text_connect_handler(*img, tooltip);
+    }
+    tb->add(*manage(img));
+    tb->show_all();
+    toolitem = tb;
+    gw->add(*manage(tb));
+    group = gw;
+}
+
+bool PluginUI::get_update_cond() {
+    return active && !plugin_dict.get_config_mode() && plugin->get_on_off() /*&& !plugin->get_plug_visible()*/;
+}
+
+void PluginUI::set_update_state(bool state) {
+    output_widgets_active = state;
+    output_widget_state(state);
+}
+
+void PluginUI::on_state_change() {
+    int i = get_update_cond();
+    if (i != output_widgets_active) {
+	set_update_state(i);
+    }
+}
+
+// define if memory leaks in atk, pango, etc. are closed (valgrind --leak-check=full guitarix)
+//#define LEAKS_OK
+
+void PluginUI::dispose_rackbox() {
+    if (plugin->get_box_visible()) {
+        rackbox->hide(); // dnd operation, just hide
+    } else {
+#ifdef LEAKS_OK
+        delete rackbox;
+        rackbox = nullptr;
+#else
+        rackbox->hide();
+#endif
+    }
+}
+
+bool PluginUI::animate_vanish() {
+    rackbox->anim_height -= rackbox->anim_step;
+    if (rackbox->anim_height > 0) {
+	rackbox->set_size_request(-1, rackbox->anim_height);
+	return true;
+    }
+    rackbox->set_visibility(true);
+    rackbox->set_size_request(-1,-1);
+    dispose_rackbox();
+    return false;
+}
+
+#define ANIMATE_STEPS 5
+#define ANIMATE_TIME 20
+#define AUTOSCROLL_TIMEOUT 50
+
+void PluginUI::remove(bool animate) {
+    if (!animate || !plugin_dict.use_animations()) {
+        dispose_rackbox();
+    } else {
+	if (rackbox->anim_tag.connected()) {
+	    rackbox->anim_tag.disconnect();
+	    rackbox->set_size_request(-1,-1);
+	    rackbox->show();
+	}
+	gint min_height, natural_height;
+	rackbox->get_preferred_height(min_height, natural_height);
+	rackbox->anim_height = min_height;
+	rackbox->set_size_request(-1, rackbox->anim_height);
+	rackbox->set_visibility(false);
+	rackbox->anim_step = rackbox->anim_height / ANIMATE_STEPS;
+	rackbox->anim_tag = Glib::signal_timeout().connect(
+	    sigc::mem_fun(*this, &PluginUI::animate_vanish),
+	    ANIMATE_TIME);
+    }
+}
+
 
 /****************************************************************
  ** class PluginDict
  */
+
+PluginDict::PluginDict(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
+		       Gtk::ToolPalette& toolpalette_, gx_gui::StackBoxBuilder& boxbuilder_,
+		       UIManager& uimanager_)
+    : monorackcontainer(*this),
+      stereorackcontainer(*this),
+      groupmap(),
+      monotargets(),
+      stereotargets(),
+      boxbuilder(boxbuilder_),
+      machine(machine_),
+      options(options_),
+      toolpalette(toolpalette_),
+      uimanager(uimanager_),
+      config_mode(false),
+      plugins_hidden(false),
+      drag_icon(0) {
+    std::vector<Gtk::TargetEntry> listTargets;
+    // the tool palette accepts drags from the racks
+    listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-mono", Gtk::TARGET_SAME_APP, 0));
+    listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-stereo", Gtk::TARGET_SAME_APP, 1));
+    toolpalette.drag_dest_set(listTargets, Gtk::DEST_DEFAULT_ALL, Gdk::ACTION_MOVE);
+    toolpalette.signal_drag_data_received().connect(sigc::mem_fun(*this, &PluginDict::on_tp_drag_data_received));
+    // the racks additionally accept drags from the tool palette
+    listTargets.push_back(Gtk::TargetEntry("application/x-gtk-tool-palette-item-mono", Gtk::TARGET_SAME_APP, 2));
+    listTargets.push_back(Gtk::TargetEntry("application/x-gtk-tool-palette-item-stereo", Gtk::TARGET_SAME_APP, 3));
+    monotargets.push_back("application/x-guitarix-mono");
+    monotargets.push_back("application/x-gtk-tool-palette-item-mono");
+    stereotargets.push_back("application/x-guitarix-stereo");
+    stereotargets.push_back("application/x-gtk-tool-palette-item-stereo");
+    monorackcontainer.set_list_targets(listTargets, monotargets, stereotargets);
+    stereorackcontainer.set_list_targets(listTargets, stereotargets, monotargets);
+    machine.signal_selection_changed().connect(
+	sigc::mem_fun0(this, &PluginDict::check_order));
+    machine.signal_rack_unit_order_changed().connect(
+	sigc::mem_fun(this, &PluginDict::unit_order_changed));
+    machine.signal_plugin_changed().connect(
+	sigc::mem_fun(this, &PluginDict::on_plugin_changed));
+    fill_pluginlist();
+}
+
+PluginUI *PluginDict::activate(const string& id, const string& before, bool animate) {
+    PluginUI *p = at(id);
+    if (!p->has_gui() || p->active) {
+	return p;
+    }
+    p->plugin->set_plug_visible(false);
+    p->activate(animate, before);
+    machine.insert_rack_unit(id, before, p->get_type());
+    return p;
+}
+
+PluginUI *PluginDict::deactivate(const string& id, bool animate) {
+    PluginUI *p = at(id);
+    if (!p->has_gui() || !p->active) {
+	return p;
+    }
+    p->plugin->set_on_off(false);
+    p->deactivate(animate);
+    machine.remove_rack_unit(id, p->get_type());
+    return p;
+}
+
+double PluginDict::stop_at(RackContainer *container, double off, double step_size, double page_size) {
+    if (container == &monorackcontainer) {
+	return stereorackcontainer.stop_at_bottom(off, step_size, page_size);
+    } else {
+	assert(container == &stereorackcontainer);
+	return monorackcontainer.stop_at_top(off, step_size);
+    }
+}
+
+void PluginDict::check_order() {
+    check_order(PLUGIN_TYPE_MONO, false);
+    check_order(PLUGIN_TYPE_STEREO, false);
+}
+
+void PluginDict::check_order(PluginType tp, bool animate) {
+    RackContainer& container = (tp == PLUGIN_TYPE_STEREO) ? stereorackcontainer : monorackcontainer;
+    const std::vector<std::string> ol = machine.get_rack_unit_order(tp);
+    bool in_order = true;
+    int pos = 0;
+    unsigned int post_pre = 1;
+    bool need_renumber = false;
+    std::set<std::string> unit_set(ol.begin(), ol.end());
+    RackContainer::rackbox_list l = container.get_children();
+    std::vector<std::string>::const_iterator oi = ol.begin();
+    for (RackContainer::rackbox_list::iterator c = l.begin(); c != l.end(); ++c) {
+	string id = (*c)->get_id();
+	PluginUI *p = at(id);
+	if (!p->active) {
+	    continue;
+	}
+	if (unit_set.find(id) == unit_set.end()) {
+	    deactivate(id, animate);
+	    continue;
+	}
+	if (!in_order) {
+	    continue;
+	}
+	if (oi == ol.end()) {
+	    in_order = false;
+	    continue;
+	}
+	if (*oi != id) {
+	    in_order = false;
+	    continue;
+	}
+	if (id == "ampstack") {
+	    pos = 0;
+	    post_pre = 0;
+	    continue;
+	}
+	if (!need_renumber && !(*c)->compare_position(pos, post_pre)) {
+	    need_renumber = true;
+	}
+	++oi;
+    }
+    if (oi != ol.end()) {
+	in_order = false;
+    }
+    if (!in_order) {
+	int n = 0;
+	for (std::vector<std::string>::const_iterator oi = ol.begin(); oi != ol.end(); ++oi) {
+	    PluginUI *p = at(*oi);
+	    p->activate(animate, "");
+	    if (p->rackbox) {
+		container.reorder_child(*p->rackbox, n++);
+	    }
+	}
+    }
+    if (!in_order || need_renumber) {
+	container.renumber();
+    }
+    container.set_child_count(ol.size());
+}
+
+void PluginDict::unit_order_changed(bool stereo) {
+    check_order(stereo ? PLUGIN_TYPE_STEREO : PLUGIN_TYPE_MONO, true);
+}
+
+void PluginDict::reorder(RackContainer *container, const std::string& name, const std::string& before) {
+    PluginType tp = (container == &monorackcontainer ? PLUGIN_TYPE_MONO : PLUGIN_TYPE_STEREO);
+    machine.insert_rack_unit(name, before, tp);
+}
 
 void PluginDict::add(PluginUI *p) {
     insert(pair<std::string, PluginUI*>(p->get_id(), p));
@@ -215,6 +524,9 @@ void PluginDict::cleanup() {
     for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
 	delete i->second;
     }
+    for (std::map<Glib::ustring, Gtk::ToolItemGroup*>::iterator i = groupmap.begin(); i != groupmap.end(); ++i) {
+        delete i->second;
+    }
     clear();
 }
 
@@ -228,38 +540,268 @@ void PluginDict::compress(bool state) {
    }
 }
 
+void PluginDict::set_config_mode(bool state) {
+    config_mode = state;
+    for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
+	i->second->set_config_mode(state);
+    }
+}
+
+void PluginDict::show_entries() {
+    plugins_hidden = false;
+    for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
+	i->second->hidden = false;
+	if (i->second->active) {
+	    RackBox *r = i->second->rackbox;
+	    if (r) {
+		r->show();
+	    }
+	}
+    }
+}
+
+void PluginDict::hide_entries() {
+    plugins_hidden = true;
+    for (std::map<std::string, PluginUI*>::iterator i = begin(); i != end(); ++i) {
+	i->second->hidden = true;
+	RackBox *r = i->second->rackbox;
+	if (r) {
+	    if (r->can_compress()) {
+		r->hide();
+	    }
+	}
+    }
+}
+
+void PluginDict::on_tp_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, int info, int timestamp) {
+    Glib::ustring id = data.get_data_as_string();
+    PluginUI *p = deactivate(id, false);
+    p->group->set_collapsed(false);
+}
+
+void PluginDict::add_plugin(std::vector<PluginUI*>& p, const char *id, const Glib::ustring& tooltip) {
+    if (PluginUI::is_registered(machine, id)) {
+	return;
+    }
+    p.push_back(new PluginUI(*this, id, tooltip));
+}
+
+void PluginDict::add_bare(const char * id, Gtk::Container *box) {
+    PluginUI *plugin = new PluginUI(*this, id);
+    add(plugin);
+    plugin->rackbox = add_rackbox_internal(*plugin, 0, 0, false, -1, false, box);
+}
+
+RackBox *PluginDict::add_rackbox_internal(PluginUI& plugin, Gtk::Widget *mainwidget, Gtk::Widget *miniwidget,
+					  bool mini, int pos, bool animate, Gtk::Widget *bare) {
+    RackBox *r = new RackBox(plugin, *this, bare);
+    r->swtch(mini);
+    r->pack(mainwidget, miniwidget);
+    if (plugin.get_type() == PLUGIN_TYPE_MONO) {
+	monorackcontainer.add(*manage(r), pos);
+    } else {
+	stereorackcontainer.add(*manage(r), pos);
+    }
+    if (animate) {
+	r->animate_insert();
+    }
+    return r;
+}
+
+RackBox *PluginDict::add_rackbox(PluginUI& pl, bool mini, int pos, bool animate) {
+    gx_gui::UiBuilderImpl builder(this, &boxbuilder, nullptr, &pl);
+    Gtk::Widget *mainwidget = 0;
+    Gtk::Widget *miniwidget = 0;
+    if (machine.load_unit(builder, pl.plugin->get_pdef())) {
+        boxbuilder.fetch(mainwidget, miniwidget);
+    }
+    return add_rackbox_internal(pl, mainwidget, miniwidget, mini, pos, animate);
+}
+
+void PluginDict::plugin_preset_popup(const PluginDef *pdef) {
+    new PluginPresetPopup(pdef, machine);
+}
+
+void PluginDict::plugin_preset_popup(const PluginDef *pdef, const Glib::ustring& name) {
+    new PluginPresetPopup(pdef, machine, name);
+}
+
+void PluginDict::pluginlist_append(std::vector<PluginUI*>& p) {
+    gx_gui::UiBuilderImpl builder(this, &boxbuilder, &p, nullptr);
+    machine.pluginlist_append_rack(builder);
+}
+
+void PluginDict::on_plugin_changed(gx_engine::Plugin *pl, gx_engine::PluginChange::pc c) {
+    if (!pl) { // end of update sequence
+        return;
+    }
+    if (c == gx_engine::PluginChange::add) {
+        register_plugin(new PluginUI(*this, pl->get_pdef()->id, ""));
+        return;
+    }
+    PluginUI *pui = at(pl->get_pdef()->id);
+    if (c == gx_engine::PluginChange::remove) {
+        Glib::ustring actname = pui->get_action()->get_name();
+        remove_plugin_menu_entry(pui);
+        uimanager.get_action_group()->remove(actname);
+        machine.remove_rack_unit(pui->get_id(), pui->get_type());
+        std::string group_id = pui->get_category();
+        remove(pui);
+        delete pui;
+        Gtk::ToolItemGroup * group = groupmap[group_id];
+        if (group->get_n_items() == 0) {
+            // removal is optional since empty toolitem groups and
+            // menus are already hidden.
+            uimanager.remove_item(category_id(pui->get_category(), false));
+            uimanager.remove_item(category_id(pui->get_category(), true));
+            groupmap.erase(group_id);
+            delete group;
+        }
+    } else {
+        assert(c == gx_engine::PluginChange::update ||
+               c == gx_engine::PluginChange::update_category);
+        bool state =  pui->plugin->get_on_off();
+        pui->update_rackbox();
+        pui->plugin->set_on_off(state);
+        if (c == gx_engine::PluginChange::update_category) {
+            pui->group = add_plugin_category(pui->get_category());
+            // if the toolitem group becomes empty, it will be hidden automatically
+            pui->toolitem->reparent(*pui->group);
+            remove_plugin_menu_entry(pui);
+            add_plugin_menu_entry(pui);
+        }
+    }
+}
+
+Glib::ustring PluginDict::category_id(const std::string& group, bool stereo) {
+    const char *tp = stereo ? "Stereo" : "Mono";
+    std::string group_id = group;
+    boost::replace_all(group_id, " ", ""); // FIXME: replace all invalid chars
+    return Glib::ustring::compose("Plugin%1Category_%2", tp, group_id);
+}
+
+Gtk::ToolItemGroup *PluginDict::add_plugin_category(const char *group, bool collapse) {
+    std::map<Glib::ustring, Gtk::ToolItemGroup*>::iterator it = groupmap.find(group);
+    if (it != groupmap.end()) {
+        return it->second;
+    }
+    // add category menus (mono and stereo)
+    Glib::ustring display = gettext(group);
+    Glib::RefPtr<Gio::MenuItem> item;
+    Glib::ustring action;
+    action = category_id(group, false);
+    item = Gio::MenuItem::create(display, action);
+    item->set_submenu(Gio::Menu::create());
+    uimanager.get_linked_menu("MonoPlugins")->append_item(item);
+    uimanager.find_item(action)->hide();
+    action = category_id(group, true);
+    item = Gio::MenuItem::create(display, action);
+    item->set_submenu(Gio::Menu::create());
+    uimanager.get_linked_menu("StereoPlugins")->append_item(item);
+    uimanager.find_item(action)->hide();
+    // toolitem group
+    Gtk::ToolItemGroup *gw = new Gtk::ToolItemGroup(gettext(group));
+    groupmap[group] = gw;
+    gw->set_collapsed(collapse);
+    toolpalette.add(*manage(gw));
+    toolpalette.set_exclusive(*gw, true);
+    toolpalette.set_expand(*gw, true);
+    // make groups label left aligned (not settable in CSS)
+    gw->get_label_widget()->set_halign(Gtk::ALIGN_START);
+    return gw;
+}
+
+Glib::ustring PluginDict::add_plugin_menu_entry(PluginUI *pui) {
+    Glib::ustring cat_id = category_id(
+        pui->get_category(), pui->get_type() == PLUGIN_TYPE_STEREO);
+    Glib::RefPtr<Gio::Menu> menu = uimanager.get_linked_menu(cat_id);
+    uimanager.find_item(cat_id)->show();
+    Glib::ustring actname = Glib::ustring::compose("Plugin_%1", pui->get_id());
+    auto a = Gio::MenuItem::create(pui->get_name(), actname);
+    menu->append_item(a);
+    return actname;
+}
+
+void PluginDict::remove_plugin_menu_entry(PluginUI *pui) {
+    Glib::ustring action = pui->get_action()->get_name();
+    auto *menu = dynamic_cast<Gtk::Menu*>(uimanager.find_item(action)->get_parent());
+    uimanager.remove_item(action);
+    if (menu->get_children().size() == 0) {
+        menu->get_attach_widget()->hide();
+    }
+}
+
+void PluginDict::register_plugin(PluginUI *pui) {
+    add(pui);
+    Gtk::ToolItemGroup *gw = add_plugin_category(pui->get_category());
+    Glib::ustring actionname = add_plugin_menu_entry(pui);
+    pui->add_toolitem(gw);
+    Glib::RefPtr<ToggleAction> act = uimanager.add_toggle_action(
+        actionname, pui->plugin->get_box_visible());
+    pui->set_action(act);
+    if (pui->plugin->get_box_visible()) {
+        act->set_active(true);
+    }
+}
+
+class JConvPluginUI: public PluginUI {
+private:
+    virtual void on_plugin_preset_popup();
+public:
+    JConvPluginUI(PluginDict& plugin_dict, const char* id,
+		  const Glib::ustring& tooltip="")
+	: PluginUI(plugin_dict, id, tooltip) {
+    }
+};
+
+void JConvPluginUI::on_plugin_preset_popup() {
+    gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(
+	&plugin_dict.get_machine().get_parameter(std::string(get_id())+".convolver"));
+    assert(jcp);
+    Glib::ustring name = jcp->get_value().getIRFile();
+    Glib::ustring::size_type n = name.find_last_of('.');
+    if (n != Glib::ustring::npos) {
+	name.erase(n);
+    }
+    plugin_dict.plugin_preset_popup(plugin->get_pdef(), name);
+}
+
+void PluginDict::fill_pluginlist() {
+    // define order of categories by registering
+    // them first
+    add_plugin_category(N_("Tone Control"), false);
+    add_plugin_category(N_("Distortion"));
+    add_plugin_category(N_("Fuzz"));
+    add_plugin_category(N_("Reverb"));
+    add_plugin_category(N_("Echo / Delay"));
+    add_plugin_category(N_("Modulation"));
+    add_plugin_category(N_("Guitar Effects"));
+    add_plugin_category(N_("Misc"));
+
+    std::vector<PluginUI*> p;
+    p.push_back(new JConvPluginUI(*this, "jconv"));
+    p.push_back(new JConvPluginUI(*this, "jconv_mono"));
+    pluginlist_append(p);
+    std::sort(p.begin(), p.end(), plugins_by_name_less);
+    for (std::vector<PluginUI*>::iterator v = p.begin(); v != p.end(); ++v) {
+	register_plugin(*v);
+    }
+}
+
 
 /****************************************************************
  ** class DragIcon
  */
 
-inline guint8 convert_color_channel (guint8 src, guint8 alpha) {
-    return alpha ? ((guint (src) << 8) - src) / alpha : 0;
-}
-
-void convert_bgra_to_rgba (guint8 const* src, guint8* dst, int width, int height) {
-    guint8 const* src_pixel = src;
-    guint8*       dst_pixel = dst;
-
-    for (int i = 0; i < height*width; ++i) {
-        dst_pixel[0] = convert_color_channel(src_pixel[2], src_pixel[3]);
-        dst_pixel[1] = convert_color_channel(src_pixel[1], src_pixel[3]);
-        dst_pixel[2] = convert_color_channel(src_pixel[0], src_pixel[3]);
-        dst_pixel[3] = src_pixel[3];
-
-        dst_pixel += 4;
-        src_pixel += 4;
-    }
-}
-
-DragIcon::DragIcon(const PluginUI& plugin, Glib::RefPtr<Gdk::DragContext> context, gx_system::CmdlineOptions& options, int xoff)
+DragIcon::DragIcon(PluginUI& plugin, Glib::RefPtr<Gdk::DragContext> context, gx_system::CmdlineOptions& options, int xoff)
     : window(), drag_icon_pixbuf() {
     Glib::RefPtr<Gdk::Screen> screen = context->get_source_window()->get_screen();
-    Glib::RefPtr<Gdk::Colormap> rgba = screen->get_rgba_colormap();
+    Glib::RefPtr<Gdk::Visual> rgba;
     if (screen->is_composited()) {
+	rgba = screen->get_rgba_visual();
 	window = new Gtk::Window(Gtk::WINDOW_POPUP);
 	if (rgba) { // else will look ugly..
-	    window->set_colormap(rgba);
+	    gtk_widget_set_visual(GTK_WIDGET(window->gobj()), rgba->gobj());
 	}
     }
     create_drag_icon_pixbuf(plugin, rgba, options);
@@ -269,7 +811,7 @@ DragIcon::DragIcon(const PluginUI& plugin, Glib::RefPtr<Gdk::DragContext> contex
     int w2 = std::min(std::max(0, xoff), w-gradient_length/2) - 4;
     if (window) {
 	window->set_size_request(w, h);
-	window->signal_expose_event().connect(sigc::mem_fun(*this, &DragIcon::icon_expose_event));
+	window->signal_draw().connect(sigc::mem_fun(*this, &DragIcon::icon_draw));
 	//context->set_icon_widget(window, w2, h2);
 	gtk_drag_set_icon_widget(context->gobj(), GTK_WIDGET(window->gobj()), w2, h2);
     } else {
@@ -281,57 +823,43 @@ DragIcon::~DragIcon() {
     delete window;
 }
 
-bool DragIcon::icon_expose_event(GdkEventExpose *ev) {
-    Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(ev->window, true)->create_cairo_context();
-    gdk_cairo_region(cr->cobj(), ev->region);
-    cr->set_operator(Cairo::OPERATOR_SOURCE);
-    cr->clip();
+bool DragIcon::icon_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
     Gdk::Cairo::set_source_pixbuf(cr, drag_icon_pixbuf, 0, 0);
     cr->paint();
     return true;
 }
 
-void DragIcon::create_drag_icon_pixbuf(const PluginUI& plugin, Glib::RefPtr<Gdk::Colormap> rgba, gx_system::CmdlineOptions& options) {
+void DragIcon::create_drag_icon_pixbuf(const PluginUI& plugin, Glib::RefPtr<Gdk::Visual> rgba, gx_system::CmdlineOptions& options) {
     Gtk::OffscreenWindow w;
-    w.signal_expose_event().connect(sigc::bind(sigc::mem_fun(*this, &DragIcon::window_expose_event), sigc::ref(w)));
+    w.signal_draw().connect(sigc::bind(sigc::mem_fun(*this, &DragIcon::window_draw), sigc::ref(w)));
     if (rgba) {
-	w.set_colormap(rgba);
+        gtk_widget_set_visual(GTK_WIDGET(w.gobj()), rgba->gobj());
     }
     Gtk::Widget *r = RackBox::create_drag_widget(plugin, options);
     w.add(*r);
     w.show_all();
+    while (Gtk::Main::events_pending()) { // needed for style updates
+	Gtk::Main::iteration(false);
+    }
     w.get_window()->process_updates(true);
+    drag_icon_pixbuf = w.get_pixbuf();
 }
 
-static void destroy_data(const guint8 *data) {
-    delete[] data;
-}
-
-bool DragIcon::window_expose_event(GdkEventExpose *event, Gtk::OffscreenWindow& widget) {
-    Cairo::RefPtr<Cairo::Context> cr = widget.get_window()->create_cairo_context();
-    cr->set_operator(Cairo::OPERATOR_SOURCE);
-    cr->set_source_rgba(0,0,0,0);
-    cr->paint();
+bool DragIcon::window_draw(const Cairo::RefPtr<Cairo::Context> &cr, Gtk::OffscreenWindow& widget) {
     Gtk::Widget *child = widget.get_child();
     if (child) {
-	widget.propagate_expose(*child, event);
+	widget.propagate_draw(*child, cr);
     }
-    Cairo::RefPtr<Cairo::Surface> x_surf = cr->get_target();
-    int w = gdk_window_get_width(event->window);
-    int h = gdk_window_get_height(event->window);
+    if (!window) {
+	return true;
+    }
+    int w = widget.get_window()->get_width();
+    int h = widget.get_window()->get_height();
     Cairo::RefPtr<Cairo::LinearGradient> grad = Cairo::LinearGradient::create(w, 0, w-gradient_length, 0);
     grad->add_color_stop_rgba(0, 1, 1, 1, 1);
     grad->add_color_stop_rgba(1, 1, 1, 1, 0);
     cr->rectangle(w-gradient_length, 0, gradient_length, h);
     cr->mask(grad);
-    Cairo::RefPtr<Cairo::ImageSurface> i_surf = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, w, h);
-    Cairo::RefPtr<Cairo::Context> crt = Cairo::Context::create(i_surf);
-    crt->set_operator(Cairo::OPERATOR_SOURCE);
-    crt->set_source(x_surf, 0, 0);
-    crt->paint();
-    guint8 *data = new guint8[w*h*4];
-    convert_bgra_to_rgba(i_surf->get_data(), data, w, h);
-    drag_icon_pixbuf = Gdk::Pixbuf::create_from_data(data, Gdk::COLORSPACE_RGB, true, 8, w, h, i_surf->get_stride(), sigc::ptr_fun(destroy_data));
     return true;
 }
 
@@ -350,7 +878,11 @@ Gtk::Widget *MiniRackBox::make_delete_button(RackBox& rb) {
 	Gtk::Button *b = new Gtk::Button();
 	b->set_focus_on_click(false);
 	b->add(*manage(l));
-	b->signal_clicked().connect(sigc::bind(sigc::mem_fun(rb.plugin, &PluginUI::display), false, true));
+	b->signal_clicked().connect(
+	    sigc::hide_return(
+		sigc::bind(
+		    sigc::mem_fun(rb.plugin.plugin_dict, &PluginDict::deactivate),
+		    rb.get_id(), true)));
 	w = b;
     } else {
 	w = new Gtk::Alignment();
@@ -370,7 +902,8 @@ bool MiniRackBox::on_my_leave_out(GdkEventCrossing *focus) {
 bool MiniRackBox::on_my_enter_in(GdkEventCrossing *focus) {
     if (!mconbox.get_visible()) {
         Glib::RefPtr<Gdk::Window> window = this->get_window();
-        Gdk::Cursor cursor(Gdk::HAND1);
+        Glib::RefPtr<Gdk::Display> disp = this->get_display();
+        Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(disp, Gdk::HAND1));
         window->set_cursor(cursor);
     }
     return true;
@@ -383,11 +916,10 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
       mb_expand_button(),
       mb_delete_button(),
       preset_button(),
-      on_off_switch("switchit"),
-      toggle_on_off(rb.main.get_machine(), &on_off_switch, rb.plugin.plugin->id_on_off()) {
+      on_off_switch("switchit") {
+    gx_gui::ui_connect_switch(rb.plugin_dict.get_machine(), &on_off_switch,
+                              rb.plugin.plugin->id_on_off(), nullptr, false);
     if (strcmp(rb.plugin.get_id(), "ampstack") != 0) { // FIXME
-        gx_gui::connect_midi_controller(&on_off_switch, rb.plugin.plugin->id_on_off().c_str(), rb.main.get_machine());
-
         if (!szg_label) {
             szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
         }
@@ -399,6 +931,7 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
         Gtk::Alignment *al = new Gtk::Alignment();
         al->set_padding(0, 4, 0, 0);
         al->set_border_width(0);
+	al->get_style_context()->add_class("minibox-title");
     
         evbox.add(*manage(al));
     
@@ -437,11 +970,6 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
         mb_delete_button = make_delete_button(rb);
         mb_delete_button->set_no_show_all(true);
         top->pack_end(*manage(mb_delete_button), Gtk::PACK_SHRINK);
-#ifdef USE_SZG
-        RackBox::szg->add_widget(*al);
-#else
-        al->set_size_request(32, -1);
-#endif
     } else { // special minibox for main amp in config mode
         if (!szg_label) {
             szg_label = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
@@ -466,11 +994,6 @@ MiniRackBox::MiniRackBox(RackBox& rb, gx_system::CmdlineOptions& options)
         top->pack_start(mconbox, Gtk::PACK_EXPAND_WIDGET);
         box->pack_start(*manage(al), Gtk::PACK_SHRINK);
         box->pack_start(*manage(top));
-#ifdef USE_SZG
-        RackBox::szg->add_widget(*al);
-#else
-        al->set_size_request(64, 32);
-#endif
     }
     show_all();
 }
@@ -481,7 +1004,7 @@ void MiniRackBox::pack(Gtk::Widget *w) {
     }
 }
 
-void MiniRackBox::set_config_mode(bool mode) {
+void MiniRackBox::set_config_mode(bool mode, PluginUI& plugin) {
     evbox.set_above_child(mode);
     if (mode) {
 	mconbox.hide();
@@ -492,7 +1015,13 @@ void MiniRackBox::set_config_mode(bool mode) {
 	    mb_expand_button->hide();
 	}
 	if (mb_delete_button) {
-	    mb_delete_button->show();
+	    // force event handling of the button to be above the evbox
+	    mb_delete_button->hide();
+	    Glib::signal_idle().connect_once(
+		sigc::mem_fun(mb_delete_button,&Gtk::Widget::show),
+		Glib::PRIORITY_HIGH_IDLE);
+	    evbox_button = evbox.signal_button_press_event().connect(
+		sigc::mem_fun(plugin, &PluginUI::on_rack_handle_press));
 	}
     } else {
 	mconbox.show();
@@ -503,6 +1032,7 @@ void MiniRackBox::set_config_mode(bool mode) {
 	    mb_expand_button->show();
 	}
 	if (mb_delete_button) {
+	    evbox_button.disconnect();
 	    mb_delete_button->hide();
 	}
     }
@@ -805,7 +1335,7 @@ PluginPresetPopup::PluginPresetPopup(const PluginDef *pdef_, gx_engine::GxMachin
 	    sigc::mem_fun(this, &PluginPresetPopup::remove_plugin_preset));
     }
     show_all();
-    popup(1, gtk_get_current_event_time());
+    popup_at_pointer(nullptr);
 }
 
 
@@ -813,42 +1343,25 @@ PluginPresetPopup::PluginPresetPopup(const PluginDef *pdef_, gx_engine::GxMachin
  ** class RackBox
  */
 
-#ifdef USE_SZG
-Glib::RefPtr<Gtk::SizeGroup> RackBox::szg;
-#endif
-
 void RackBox::set_paintbox_unit_shrink(Gxw::PaintBox& pb, PluginType tp) {
-    pb.set_name("rackbox");
-    pb.property_paint_func().set_value("gx_rack_unit_shrink_expose");
-    pb.set_border_width(4);
+    pb.get_style_context()->add_class("rackmini");
+    pb.set_border_width(0);
 }
 
 void RackBox::set_paintbox_unit(Gxw::PaintBox& pb, const PluginUI& plugin) {
-    pb.set_name("rackbox");
-    pb.property_paint_func().set_value("gx_rack_unit_expose");
-    pb.set_border_width(4);
-    // FIXME set special background for LV2 plugins
-    // if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2)
-    //   fprintf(stderr,"LV2 Plugin Load for %s %i\n",plugin.plugin->get_pdef()->name, plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2);
-    // else if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LADSPA)
-    //   fprintf(stderr,"LADSPA Plugin Load for %s %i\n",plugin.plugin->get_pdef()->name, plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2);
-
+    pb.set_border_width(0);
 }
 
 void RackBox::set_paintbox(Gxw::PaintBox& pb, PluginType tp) {
     pb.set_name("rackbox");
    // pb.property_paint_func().set_value("rectangle_skin_color_expose");
-    pb.set_border_width(4);
+    pb.set_border_width(0);
 }
 
 Gtk::Widget *RackBox::make_label(const PluginUI& plugin, gx_system::CmdlineOptions& options, bool useshort) {
-    const char *effect_name = useshort ? plugin.get_shortname() : plugin.get_name();
-    Gtk::Label *effect_label = new Gtk::Label(effect_name);
+    Gtk::Label *effect_label = new Gtk::Label(plugin.get_displayname(useshort));
     effect_label->set_alignment(0.0, 0.5);
-    effect_label->set_name("effect_title");
-    if (plugin.get_type() == PLUGIN_TYPE_STEREO) {
-        effect_label->set_markup("◗◖ " + effect_label->get_label()); //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
-    }
+    effect_label->get_style_context()->add_class("effect_title");
     return effect_label;
 }
 
@@ -858,7 +1371,7 @@ Gtk::Widget *RackBox::make_bar(int left, int right, bool sens) {
     Gtk::Button *button = new Gtk::Button();
     button->set_size_request(32,-1);
     //button->set_name("effect_reset");
-    button->set_tooltip_text(_("Drag'n' Drop Handle"));
+    gx_gui::GxBuilder::set_tooltip_text_connect_handler(*button, _("Drag'n' Drop Handle"));
     button->set_relief(Gtk::RELIEF_NONE);
     button->set_sensitive(sens);
     al->add(*manage(button));
@@ -873,18 +1386,11 @@ bool RackBox::on_my_leave_out(GdkEventCrossing *focus) {
 
 bool RackBox::on_my_enter_in(GdkEventCrossing *focus) {
     Glib::RefPtr<Gdk::Window> window = this->get_window();
-    Gdk::Cursor cursor(Gdk::HAND1);
-    window->set_cursor(cursor); 
+    Glib::RefPtr<Gdk::Display> disp = this->get_display();
+    Glib::RefPtr<Gdk::Cursor> cursor(Gdk::Cursor::create(disp, Gdk::HAND1));
+    window->set_cursor(cursor);
     return true;
 }
-
-bool RackBox::on_my_button_press(GdkEventButton* ev) {
-    if (ev->type == GDK_2BUTTON_PRESS && ev->button == 1) {
-        plugin.display(false, true);
-    }
-    return true;
-}
-
 
 Gtk::Widget *RackBox::wrap_bar(int left, int right, bool sens) {
     Gtk::EventBox *ev = new Gtk::EventBox;
@@ -893,9 +1399,10 @@ Gtk::Widget *RackBox::wrap_bar(int left, int right, bool sens) {
     ev->add(*manage(make_bar(left, right, sens)));
     ev->signal_leave_notify_event().connect(sigc::mem_fun(*this, &RackBox::on_my_leave_out));
     ev->signal_enter_notify_event().connect(sigc::mem_fun(*this, &RackBox::on_my_enter_in));
-    ev->signal_button_press_event().connect(sigc::mem_fun(*this, &RackBox::on_my_button_press));
+    ev->signal_button_press_event().connect(sigc::mem_fun(plugin, &PluginUI::on_rack_handle_press));
     ev->signal_drag_begin().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_begin));
     ev->signal_drag_end().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_end));
+    ev->signal_drag_failed().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_failed));
     ev->signal_drag_data_get().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_data_get));
     std::vector<Gtk::TargetEntry> listTargets;
     listTargets.push_back(Gtk::TargetEntry(target, Gtk::TARGET_SAME_APP, 0));
@@ -919,16 +1426,6 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
     RackBox::set_paintbox_unit_shrink(*pb, plugin.get_type());
     pb->set_name("drag_widget");
-    if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
-	pb->property_paint_func().set_value("gx_rack_amp_expose");
-    }
-    //Gxw::Switch *swtch = new Gxw::Switch("switchit");
-    //swtch->set_active(plugin.plugin->get_on_off());
-#ifdef USE_SZG
-    //RackBox::szg->add_widget(*swtch);
-#else
-    //swtch->set_size_request(35, -1);
-#endif
     Gtk::Widget *effect_label = RackBox::make_label(plugin, options);
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->set_padding(0,0,4,20);
@@ -944,43 +1441,36 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
 }
 
 void RackBox::display(bool v, bool animate) {
-    assert(box_visible != v);
-    box_visible = v;
-    plugin.set_active(v);
     if (v) {
 	if (animate) {
 	    animate_insert();
 	} else {
 	    show();
 	}
-	get_parent()->increment();
-	plugin.hidden_by_move = false;
-	plugin.toolitem->hide();
     } else {
-	if (animate) {
-	    animate_remove();
-	} else {
-	    hide();
-	}
-	get_parent()->decrement();
-	plugin.hidden_by_move = true;
+	plugin.remove(animate);
     }
 }
 
-RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
-    : Gtk::VBox(), plugin(plugin_), main(tl), config_mode(false), anim_tag(),
-      compress(true), delete_button(true), mbox(Gtk::ORIENTATION_HORIZONTAL), minibox(0),
-      fbox(0), target(), anim_height(0), anim_step(), drag_icon(), target_height(0),
-      box(Gtk::ORIENTATION_HORIZONTAL, 2), box_visible(true), on_off_switch("switchit"),
-      toggle_on_off(tl.get_machine(), &on_off_switch, plugin.plugin->id_on_off()) {
-    if (strcmp(plugin.get_id(), "ampstack") != 0) { // FIXME
-	gx_gui::connect_midi_controller(&on_off_switch, plugin.plugin->id_on_off().c_str(), main.get_machine());
-    }
-#ifdef USE_SZG
-    if (!szg) {
-	szg = Gtk::SizeGroup::create(Gtk::SIZE_GROUP_HORIZONTAL);
-    }
-#endif
+RackBox::RackBox(PluginUI& plugin_, PluginDict& tl, Gtk::Widget* bare)
+    : Gtk::VBox(),
+      plugin(plugin_),
+      plugin_dict(tl),
+      anim_tag(),
+      compress(true),
+      delete_button(true),
+      mbox(Gtk::ORIENTATION_HORIZONTAL),
+      minibox(0),
+      fbox(0),
+      target(),
+      anim_height(0),
+      anim_step(),
+      drag_icon(),
+      target_height(0),
+      box(Gtk::ORIENTATION_HORIZONTAL, 2),
+      on_off_switch("switchit") {
+    gx_gui::ui_connect_switch(tl.get_machine(), &on_off_switch,
+                              plugin.plugin->id_on_off(), nullptr, false);
     if (bare) {
 	compress = false;
 	delete_button = false;
@@ -989,11 +1479,10 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
     init_dnd();
     minibox = new MiniRackBox(*this, tl.get_options());
     mbox.pack_start(*manage(minibox));
-    pack_start(mbox, Gtk::PACK_SHRINK);
+    pack_start(mbox, Gtk::PACK_EXPAND_WIDGET);
     if (bare) {
 	add(*manage(bare));
 	fbox = bare;
-	mbox.property_paint_func().set_value("gx_rack_amp_expose");
     } else {
 	Gxw::PaintBox *pb = new Gxw::PaintBox(Gtk::ORIENTATION_HORIZONTAL);
 	pb->show();
@@ -1002,6 +1491,20 @@ RackBox::RackBox(PluginUI& plugin_, MainWindow& tl, Gtk::Widget* bare)
 	pack_start(*manage(pb), Gtk::PACK_SHRINK);
 	fbox = pb;
     }
+    fbox->get_style_context()->add_class("rackmain");
+
+    string css_id = plugin.plugin->get_pdef()->id;
+    boost::replace_all(css_id, ".", "-");
+    set_name("PLUI-" + css_id);
+    Glib::RefPtr<Gtk::StyleContext> context = get_style_context();
+    context->add_class("rackbox");
+    if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2) {
+	context->add_class("PL-LV2");
+    } else if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LADSPA) {
+	context->add_class("PL-LADSPA");
+    }
+    on_off_switch.signal_toggled().connect(
+	sigc::mem_fun(plugin, &PluginUI::on_state_change));
     show();
 }
 
@@ -1012,11 +1515,9 @@ void RackBox::init_dnd() {
     } else {
 	target += "stereo";
     }
-    if (!delete_button) {
-	target += "-s";
-    }
     mbox.signal_drag_begin().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_begin));
     mbox.signal_drag_end().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_end));
+    mbox.signal_drag_failed().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_failed));
     mbox.signal_drag_data_get().connect(sigc::mem_fun(*this, &RackBox::on_my_drag_data_get));
 }
 
@@ -1030,38 +1531,6 @@ void RackBox::enable_drag(bool v) {
     }
 }
 
-bool RackBox::animate_vanish() {
-    anim_height -= anim_step;
-    if (anim_height <= 0) {
-	hide();
-	set_visibility(true);
-	set_size_request(-1,-1);
-	get_parent()->resize_finished();
-	return false;
-    } else {
-	set_size_request(-1, anim_height);
-	return true;
-    }
-}
-
-void RackBox::animate_remove() {
-    if (!get_parent()->check_if_animate(*this)) {
-	hide();
-    } else {
-	if (anim_tag.connected()) {
-	    //Glib::source_remove(anim_tag);
-	    anim_tag.disconnect();
-	    set_size_request(-1,-1);
-	    show();
-	}
-	anim_height = size_request().height;
-	set_size_request(-1, anim_height);
-	set_visibility(false);
-	anim_step = anim_height / 5;
-	anim_tag = Glib::signal_timeout().connect(sigc::mem_fun(*this, &RackBox::animate_vanish), 20);
-    }
-}
-
 RackContainer *RackBox::get_parent() {
     return dynamic_cast<RackContainer*>(Gtk::VBox::get_parent());
 }
@@ -1069,8 +1538,9 @@ RackContainer *RackBox::get_parent() {
 void RackBox::on_my_drag_begin(const Glib::RefPtr<Gdk::DragContext>& context) {
     int x, y;
     get_pointer(x, y);
-    drag_icon = new DragIcon(plugin, context, main.get_options(), x);
-    animate_remove();
+    drag_icon = new DragIcon(plugin, context, plugin_dict.get_options(), x);
+    plugin.remove(true);
+    get_parent()->change_child_count(-1);
 }
 
 bool RackBox::animate_create() {
@@ -1088,7 +1558,7 @@ bool RackBox::animate_create() {
 }
 
 void RackBox::animate_insert() {
-    if (!get_parent()->check_if_animate(*this)) {
+    if (!plugin_dict.use_animations()) {
 	show();
 	get_parent()->ensure_visible(*this);
     } else {
@@ -1097,13 +1567,15 @@ void RackBox::animate_insert() {
 	    anim_tag.disconnect();
 	    set_size_request(-1,-1);
 	}
-	target_height = size_request().height;
+	show();
+	gint min_height, natural_height;
+	get_preferred_height(min_height, natural_height); // needs show and visibility true
+	target_height = min_height;
 	set_size_request(-1,0);
 	set_visibility(false);
-	show();
 	anim_height = 0;
-	anim_step = target_height / 5;
-	anim_tag = Glib::signal_timeout().connect(mem_fun(*this, &RackBox::animate_create), 20);
+	anim_step = target_height / ANIMATE_STEPS;
+	anim_tag = Glib::signal_timeout().connect(mem_fun(*this, &RackBox::animate_create), ANIMATE_TIME);
     }
 }
 
@@ -1117,6 +1589,11 @@ void RackBox::on_my_drag_end(const Glib::RefPtr<Gdk::DragContext>& context) {
     }
 }
 
+bool RackBox::on_my_drag_failed(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::DragResult result) {
+    get_parent()->change_child_count(1);
+    return false;
+}
+
 void RackBox::on_my_drag_data_get(const Glib::RefPtr<Gdk::DragContext>& context, Gtk::SelectionData& selection, int info, int timestamp) {
     selection.set(target, plugin.get_id());
 }
@@ -1127,10 +1604,10 @@ void RackBox::vis_switch(Gtk::Widget& a, Gtk::Widget& b) {
 }
 
 void RackBox::set_visibility(bool v) {
+    bool config_mode = plugin_dict.get_config_mode();
     if (config_mode || get_plug_visible()) {
-	minibox->set_config_mode(false);
 	mbox.set_visible(v);
-	minibox->set_config_mode(config_mode);
+	set_config_mode(plugin_dict.get_config_mode());
     } else {
 	fbox->set_visible(v);
     }
@@ -1138,36 +1615,44 @@ void RackBox::set_visibility(bool v) {
 
 void RackBox::swtch(bool mini) {
     plugin.plugin->set_plug_visible(mini);
-    if (!config_mode) {
-	if (mini) {
-	    vis_switch(*fbox, mbox);
-	} else {
-	    vis_switch(mbox, *fbox);
-	}
+    plugin.on_state_change();
+    if (mini || plugin_dict.get_config_mode()) {
+	vis_switch(*fbox, mbox);
+    } else {
+	vis_switch(mbox, *fbox);
     }
 }
 
 void RackBox::set_config_mode(bool mode) {
-    config_mode = mode;
     if (!can_compress() || !get_plug_visible()) {
 	if (mode) {
 	    vis_switch(*fbox, mbox);
-        if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
-	        return;
-        }
+	    if (strcmp(plugin.get_id(), "ampstack") == 0) { // FIXME
+		return;
+	    }
 	} else {
 	    vis_switch(mbox, *fbox);
 	}
     }
-    minibox->set_config_mode(mode);
+    minibox->set_config_mode(mode, plugin);
     enable_drag(mode);
 }
 
-void RackBox::setOrder(int pos, int post_pre) {
+void RackBox::set_position(int pos, int post_pre) {
     plugin.plugin->set_position(pos);
     if (plugin.get_type() == PLUGIN_TYPE_MONO) {
 	plugin.plugin->set_effect_post_pre(post_pre);
     }
+}
+
+bool RackBox::compare_position(int pos, int post_pre) {
+    if (plugin.plugin->get_position() != pos) {
+	return false;
+    }
+    if (plugin.get_type() == PLUGIN_TYPE_MONO && plugin.plugin->get_effect_post_pre() != post_pre) {
+	return false;
+    }
+    return true;
 }
 
 void RackBox::do_expand() {
@@ -1184,14 +1669,14 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
     //b->set_relief(Gtk::RELIEF_NONE);
     if (expand) {
 	t = "rack_expand";
-	b->set_tooltip_text(_("expand effect unit"));
+	gx_gui::GxBuilder::set_tooltip_text_connect_handler(*b, _("expand effect unit"));
     } else {
 	t = "rack_shrink";
-	b->set_tooltip_text(_("shrink effect unit"));
+	gx_gui::GxBuilder::set_tooltip_text_connect_handler(*b, _("shrink effect unit"));
     }
-    GtkWidget *l = gtk_image_new_from_stock(t, (GtkIconSize)-1);
+    Gtk::Image *l = new Gtk::Image(t, Gtk::ICON_SIZE_BUTTON);
     b->set_focus_on_click(false);
-    b->add(*manage(Glib::wrap(l)));
+    b->add(*manage(l));
     b->set_name("effect_on_off");
     if (expand) {
 	b->signal_clicked().connect(
@@ -1206,25 +1691,23 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
 Gtk::Button *RackBox::make_preset_button() {
     Gtk::Button *p = new Gtk::Button();
     //p->set_relief(Gtk::RELIEF_NONE);
-    GtkWidget *l = gtk_image_new_from_stock("rack_preset", (GtkIconSize)-1);
-    p->add(*manage(Glib::wrap(l)));
+    Gtk::Image *l = new Gtk::Image("rack_preset", Gtk::ICON_SIZE_BUTTON);
+    p->add(*manage(l));
     p->set_can_default(false);
     p->set_can_focus(false);
-	p->set_tooltip_text(_("manage effect unit presets"));
+    gx_gui::GxBuilder::set_tooltip_text_connect_handler(*p, _("manage effect unit presets"));
 	p->set_name("effect_on_off");
     p->signal_clicked().connect(
 	sigc::mem_fun(plugin, &PluginUI::on_plugin_preset_popup));
     return p;
 }
 
-void RackBox::pack(Gtk::Widget *main, Gtk::Widget *mini, const Glib::RefPtr<Gtk::SizeGroup>& szg) {
+void RackBox::pack(Gtk::Widget *main, Gtk::Widget *mini) {
     if (!main) {
 	return;
     }
     box.pack_start(*manage(main));
     minibox->pack(mini);
-    szg->add_widget(*fbox);
-    szg->add_widget(mbox);
 }
 
 Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
@@ -1272,25 +1755,6 @@ Gtk::HBox *RackBox::make_full_box(gx_system::CmdlineOptions& options) {
     return bx;
 }
 
-Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
-    Gtk::VBox *vbox = new Gtk::VBox();
-    
-    Gtk::HBox *hbox = new Gtk::HBox();
-    vbox->pack_start(*manage(hbox));
-    Gtk::HBox *hbox2 = new Gtk::HBox();
-    hbox->pack_start(*manage(hbox2), Gtk::PACK_SHRINK);
-    Gtk::VBox *vbox2 = new Gtk::VBox();
-    hbox2->pack_start(*manage(vbox2));
-    hbox2->pack_start(*manage(wrap_bar(4,4)), Gtk::PACK_SHRINK);
-#ifdef USE_SZG
-    szg->add_widget(&on_off_switch);
-#endif
-    Gtk::Alignment *al = new Gtk::Alignment(0.5, 0.5, 0.0, 0.0);
-    al->add(on_off_switch);
-    vbox2->pack_start(*manage(al));
-    return vbox;
-}
-
 
 /****************************************************************
  ** class RackContainer
@@ -1298,85 +1762,55 @@ Gtk::VBox *RackBox::switcher_vbox(gx_system::CmdlineOptions& options) {
 
 static const int min_containersize = 40;
 
-RackContainer::RackContainer(PluginType tp_, MainWindow& main_)
+RackContainer::RackContainer(PluginDict& plugin_dict_)
     : Gtk::VBox(),
-      tp(tp_),
-      main(main_),
-      config_mode(false),
+      plugin_dict(plugin_dict_),
       in_drag(-2),
-      child_count(0),
+      count(0),
       targets(),
       othertargets(),
       highlight_connection(),
       autoscroll_connection() {
-    std::vector<std::string> *pm, *ps;
-    if (tp == PLUGIN_TYPE_MONO) {
-	pm = &targets;
-	ps = &othertargets;
-    } else {
-	ps = &targets;
-	pm = &othertargets;
-    }
-    pm->push_back("application/x-guitarix-mono");
-    pm->push_back("application/x-guitarix-mono-s");
-    pm->push_back("application/x-gtk-tool-palette-item-mono");
-    ps->push_back("application/x-guitarix-stereo");
-    ps->push_back("application/x-guitarix-stereo-s");
-    ps->push_back("application/x-gtk-tool-palette-item-stereo");
-    std::vector<Gtk::TargetEntry> listTargets;
-    listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-mono", Gtk::TARGET_SAME_APP, 0));
-    listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-mono-s", Gtk::TARGET_SAME_APP, 1));
-    listTargets.push_back(Gtk::TargetEntry("application/x-gtk-tool-palette-item-mono", Gtk::TARGET_SAME_APP, 2));
-    listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-stereo", Gtk::TARGET_SAME_APP, 3));
-    listTargets.push_back(Gtk::TargetEntry("application/x-guitarix-stereo-s", Gtk::TARGET_SAME_APP, 4));
-    listTargets.push_back(Gtk::TargetEntry("application/x-gtk-tool-palette-item-stereo", Gtk::TARGET_SAME_APP, 5));
-    drag_dest_set(listTargets, Gtk::DEST_DEFAULT_DROP, Gdk::ACTION_MOVE);
-    main.get_machine().signal_rack_unit_order_changed().connect(
-	sigc::mem_fun(this, &RackContainer::unit_order_changed));
-    signal_remove().connect(sigc::mem_fun(*this, &RackContainer::on_my_remove));
     set_size_request(-1, min_containersize);
     show_all();
 }
 
-void RackContainer::unit_order_changed(bool stereo) {
-    if (stereo == (tp == PLUGIN_TYPE_STEREO)) {
-	check_order();
-    }
+void RackContainer::set_list_targets(const std::vector<Gtk::TargetEntry>& listTargets,
+				     const std::vector<std::string>& targets_,
+				     const std::vector<std::string>& othertargets_) {
+    targets = targets_;
+    othertargets = othertargets_;
+    drag_dest_set(listTargets, Gtk::DEST_DEFAULT_DROP, Gdk::ACTION_MOVE);
 }
 
-bool RackContainer::drag_highlight_expose(GdkEventExpose *event, int y0) {
-    if (!is_drawable()) {
+bool RackContainer::drag_highlight_draw(const Cairo::RefPtr<Cairo::Context> &cr, int y0) {
+    if (!get_is_drawable()) {
 	return false;
     }
-    Cairo::RefPtr<Cairo::Context> cr = Glib::wrap(event->window, true)->create_cairo_context();
     int x, y, width, height;
     if (!get_has_window()) {
         Gtk::Allocation a = get_allocation();
-        x      = a.get_x();
-        y      = a.get_y();
+        x      = 0;
+        y      = 0;
         width  = a.get_width();
         height = a.get_height();
     } else {
-        int depth;
-        get_window()->get_geometry(x, y, width, height, depth);
+        get_window()->get_geometry(x, y, width, height);
         x = 0;
         y = 0;
     }
-    GdkPixbuf * pb_ = gtk_widget_render_icon(GTK_WIDGET(this->gobj()), "insert", (GtkIconSize)-1, NULL);
+    Glib::RefPtr<Gdk::Pixbuf> pb_ = Gtk::IconTheme::get_default()->load_icon("insert", -1, Gtk::ICON_LOOKUP_GENERIC_FALLBACK);
     if (pb_) {
-        cairo_t *cr_ = gdk_cairo_create(unwrap(get_window()));
-        gdk_cairo_set_source_pixbuf(cr_, pb_, x, y);
-        cairo_pattern_set_extend(cairo_get_source(cr_), CAIRO_EXTEND_REPEAT);
+        Gdk::Cairo::set_source_pixbuf(cr, pb_, x, y);
+        cr->get_source()->set_extend(Cairo::EXTEND_REPEAT);
         if (y0 < 0) {
-            cairo_set_line_width(cr_, 4.0);
-            cairo_rectangle(cr_, x, max(0, y), width, height);
-            cairo_stroke(cr_);
+            cr->set_line_width(4.0);
+            cr->rectangle(x, max(0, y), width, height);
+            cr->stroke();
         } else {
-            cairo_rectangle(cr_, x, max(y, y0 - 3), width, 2);
-            cairo_fill(cr_);
+            cr->rectangle(x, max(y, y0 - 3), width, 2);
+            cr->fill();
         }
-        cairo_destroy(cr_);
-        g_object_unref(pb_);
     }
     return false;
 }
@@ -1387,7 +1821,7 @@ struct childpos {
     bool operator<(const childpos& p) { return y0 < p.y0; }
 };
 
-void RackContainer::find_index(int x, int y, int* len, int *ypos) {
+void RackContainer::find_index(int x, int y, string *before, int *ypos) {
     std::list<childpos> l;
     std::vector<RackBox*> children = get_children();
     int mpos = -1;
@@ -1400,7 +1834,9 @@ void RackContainer::find_index(int x, int y, int* len, int *ypos) {
 	l.push_back(childpos(a.get_y(), a.get_y()+a.get_height(), mpos));
     }
     if (l.empty()) {
-	*len = -1;
+	if (before) {
+	    *before = "";
+	}
 	*ypos = -1;
 	return;
     }
@@ -1409,19 +1845,18 @@ void RackContainer::find_index(int x, int y, int* len, int *ypos) {
     int sy = l.begin()->y0;
     for (std::list<childpos>::iterator cp = l.begin(); cp != l.end(); ++cp) {
 	if (y < (cp->y0 + cp->y1) / 2) {
-	    *len = cp->pos;
-	    *ypos = (cp->y0+sy)/2;
+	    if (before) {
+		*before = children[cp->pos]->get_id();
+	    }
+	    *ypos = (cp->y0+sy)/2 - a0.get_y();
 	    return;
 	}
 	sy = cp->y1;
     }
-    *len = mpos+1;
-    *ypos = sy;
-}
-
-void RackContainer::on_my_remove(Gtk::Widget *ch) {
-    decrement();
-    renumber();
+    if (before) {
+	*before = "";
+    }
+    *ypos = sy - a0.get_y();
 }
 
 bool RackContainer::check_targets(const std::vector<std::string>& tgts1, const std::vector<std::string>& tgts2) {
@@ -1436,12 +1871,12 @@ bool RackContainer::check_targets(const std::vector<std::string>& tgts1, const s
 }
 
 bool RackContainer::on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, guint timestamp) {
-    const std::vector<std::string>& tg = context->get_targets();
+    const std::vector<std::string>& tg = context->list_targets();
     if (!check_targets(tg, targets)) {
 	if (check_targets(tg, othertargets)) {
 	    if (!autoscroll_connection.connected()) {
 		autoscroll_connection = Glib::signal_timeout().connect(
-		    sigc::mem_fun(*this, &RackContainer::scrollother_timeout), 50);
+		    sigc::mem_fun(*this, &RackContainer::scrollother_timeout), AUTOSCROLL_TIMEOUT);
 	    }
 	    context->drag_status(Gdk::DragAction(0), timestamp);
 	    return true;
@@ -1449,19 +1884,20 @@ bool RackContainer::on_drag_motion(const Glib::RefPtr<Gdk::DragContext>& context
 	return false;
     }
     context->drag_status(Gdk::ACTION_MOVE, timestamp);
-    int i, ind;
-    find_index(x, y, &i, &ind);
+    int ind;
+    find_index(x, y, nullptr, &ind);
     if (in_drag == ind) {
 	return true;
     }
     if (in_drag > -2) {
 	highlight_connection.disconnect();
     }
-    highlight_connection = signal_expose_event().connect(sigc::bind(sigc::mem_fun(*this, &RackContainer::drag_highlight_expose), ind), true);
+    highlight_connection = signal_draw().connect(sigc::bind(sigc::mem_fun(*this, &RackContainer::drag_highlight_draw), ind), true);
     queue_draw();
     in_drag = ind;
     if (!autoscroll_connection.connected()) {
-	autoscroll_connection = Glib::signal_timeout().connect(sigc::mem_fun(*this, &RackContainer::scroll_timeout), 50);
+	autoscroll_connection = Glib::signal_timeout().connect(
+	    sigc::mem_fun(*this, &RackContainer::scroll_timeout), AUTOSCROLL_TIMEOUT);
     }
     return true;
 }
@@ -1477,7 +1913,7 @@ static const int step_size = 20;
 
 bool RackContainer::scrollother_timeout() {
     Gtk::Viewport *p = dynamic_cast<Gtk::Viewport*>(get_ancestor(GTK_TYPE_VIEWPORT));
-    Gtk::Adjustment *a = p->get_vadjustment();
+    Glib::RefPtr<Gtk::Adjustment> a = p->get_vadjustment();
     double off = a->get_value();
     Gtk::Allocation alloc = get_allocation();
     int x, y;
@@ -1492,11 +1928,7 @@ bool RackContainer::scrollother_timeout() {
 	    return false;
 	}
     }
-    if (tp == PLUGIN_TYPE_MONO) {
-	off = main.stop_at_stereo_bottom(off, step_size, a->get_page_size());
-    } else {
-	off = main.stop_at_mono_top(off, step_size);
-    }
+    off = plugin_dict.stop_at(this, off, step_size, a->get_page_size());
     if (off < a->get_lower()) {
 	off = a->get_lower();
     }
@@ -1509,7 +1941,7 @@ bool RackContainer::scrollother_timeout() {
 
 bool RackContainer::scroll_timeout() {
     Gtk::Viewport *p = dynamic_cast<Gtk::Viewport*>(get_ancestor(GTK_TYPE_VIEWPORT));
-    Gtk::Adjustment *a = p->get_vadjustment();
+    Glib::RefPtr<Gtk::Adjustment> a = p->get_vadjustment();
     double off = a->get_value();
     Gtk::Allocation alloc = get_allocation();
     int x, y;
@@ -1542,6 +1974,23 @@ bool RackContainer::scroll_timeout() {
     return true;
 }
 
+double RackContainer::stop_at_bottom(double off, double step_size, double pagesize) {
+    Gtk::Allocation alloc = get_allocation();
+    double lim = alloc.get_y() + alloc.get_height() - pagesize;
+    if (off >= lim) {
+	return off;
+    }
+    return min(off+step_size, lim);
+}
+
+double RackContainer::stop_at_top(double off, double step_size) {
+    Gtk::Allocation alloc = get_allocation();
+    if (off < alloc.get_y()) {
+	return off;
+    }
+    return max(off-step_size, double(alloc.get_y()));
+}
+
 void RackContainer::on_drag_leave(const Glib::RefPtr<Gdk::DragContext>& context, guint timestamp) {
     if (in_drag > -2) {
 	highlight_connection.disconnect();
@@ -1552,130 +2001,40 @@ void RackContainer::on_drag_leave(const Glib::RefPtr<Gdk::DragContext>& context,
 }
 
 void RackContainer::on_drag_data_received(const Glib::RefPtr<Gdk::DragContext>& context, int x, int y, const Gtk::SelectionData& data, guint info, guint timestamp) {
-    int i, ind;
-    find_index(x, y, &i, &ind);
+    int ind;
+    string before;
+    find_index(x, y, &before, &ind);
+    string id = data.get_data_as_string();
     std::string dtype = data.get_data_type();
     if (dtype == "application/x-gtk-tool-palette-item-mono" || dtype == "application/x-gtk-tool-palette-item-stereo") {
-	main.get_plugin(data.get_data_as_string())->display_new(true);
+	plugin_dict.activate(id, before, true);
+    } else {
+	reorder(id, before);
+	plugin_dict[id]->show(true);
     }
-    reorder(data.get_data_as_string(), i);
-}
-
-void RackContainer::show_entries() {
-    for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
-	i->second->hidden = false;
-    if (!i->second->hidden_by_move) {
-	RackBox *r = i->second->rackbox;
-	if (r) {
-	    r->show();
-	}
-    }
-	}
-}
-
-void RackContainer::hide_entries() {
-    for (PluginDict::iterator i = main.plugins_begin(); i != main.plugins_end(); ++i) {
-	i->second->hidden = true;
-	RackBox *r = i->second->rackbox;
-	if (r) {
-	    if (r->can_compress()) {
-		r->hide();
-	    }
-	}
-    }
-}
-
-void RackContainer::reorder(const std::string& name, unsigned int pos) {
-    std::vector<RackBox*> l = get_children();
-    main.get_machine().insert_rack_unit(name, ((pos >= l.size()) ? "" : l[pos]->get_id()), tp);
-    check_order();
 }
 
 void RackContainer::on_add(Widget *ch) {
-    add(*dynamic_cast<RackBox*>(ch));
+    assert(false);
 }
 
 void RackContainer::add(RackBox& r, int pos) {
-    pack_start(r, Gtk::PACK_SHRINK);
-    increment();
-    if (config_mode) {
-	r.set_config_mode(true);
-    }
-    reorder_child(r, pos);
-    renumber();
-}
-
-void RackContainer::increment() {
-    ++child_count;
-    if (child_count == 1) {
-	set_size_request(-1, -1);
+    pack_start(r, false, true);
+    if (pos != -1) {
+	reorder_child(r, pos);
     }
 }
 
-void RackContainer::decrement() {
-    --child_count;
-    assert(child_count >= 0);
-    if (child_count == 0) {
-	set_size_request(-1, min_containersize);
-    }
-}
-
-void RackContainer::set_config_mode(bool mode) {
-    config_mode = mode;
-    std::vector<RackBox*> l = get_children();
-    for (std::vector<RackBox*>::iterator c = l.begin(); c != l.end(); ++c) {
-	(*c)->set_config_mode(mode);
-    }
-}
-
-void RackContainer::check_order() {
-    const std::vector<std::string>& ol = main.get_machine().get_rack_unit_order(tp);
-    bool in_order = true;
-    std::set<std::string> unit_set(ol.begin(), ol.end());
-    rackbox_list l = get_children();
-    std::vector<std::string>::const_iterator oi = ol.begin();
-    for (rackbox_list::iterator c = l.begin(); c != l.end(); ++c) {
-	if (!(*c)->get_box_visible()) {
-	    continue;
-	}
-	if (unit_set.find((*c)->get_id()) == unit_set.end()) {
-	    main.get_plugin((*c)->get_id())->hide(false);
-	    continue;
-	}
-	if (!in_order) {
-	    continue;
-	}
-	if (oi == ol.end()) {
-	    in_order = false;
-	    continue;
-	}
-	if (*oi != (*c)->get_id()) {
-	    in_order = false;
-	}
-	++oi;
-    }
-    if (oi != ol.end()) {
-	in_order = false;
-    }
-    if (in_order) {
+void RackContainer::set_child_count(int n) {
+    if (n == count) {
 	return;
     }
-    int n = 0;
-    for (std::vector<std::string>::const_iterator oi = ol.begin(); oi != ol.end(); ++oi) {
-	PluginUI *p = main.get_plugin(*oi);
-	if (!p->rackbox) {
-	    p->show(false);
-	} else {
-	    if (!p->rackbox->get_box_visible()) {
-		p->rackbox->display(true, false);
-		if (p->hidden) {
-		    p->rackbox->hide();
-		}
-	    }
-	}
-	reorder_child(*p->rackbox, n++);
+    count = n;
+    if (!count) {
+	set_size_request(-1, min_containersize);
+    } else {
+	set_size_request(-1, -1);
     }
-    renumber();
 }
 
 void RackContainer::renumber() {
@@ -1688,6 +2047,6 @@ void RackContainer::renumber() {
 	    post_pre = 0;
 	    continue;
 	}
-	(*c)->setOrder(pos, post_pre);
+	(*c)->set_position(pos, post_pre);
     }
 }

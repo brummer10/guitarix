@@ -47,6 +47,8 @@ struct _GxPortDisplayClass {
 GType gx_port_display_get_type(void);
 
 void gx_port_display_set_state(GxPortDisplay *pd, gint cutoff_low, gint cutoff_high);
+void gx_port_display_set_cutoff_low(GxPortDisplay *port_display, gint cutoff_low);
+void gx_port_display_set_cutoff_high(GxPortDisplay *port_display, gint cutoff_high);
 G_END_DECLS
 
 #endif /* __GX_PORT_DISPLAY_H__ */

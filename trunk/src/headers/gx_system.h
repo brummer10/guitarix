@@ -272,16 +272,17 @@ inline void measure_stop()  {}
 /****************************************************************/
 
 class SkinHandling {
-private:
-    Glib::ustring empty;
 public:
-    std::vector<Glib::ustring>   skin_list;
+    Glib::ustring name;
+    std::vector<Glib::ustring> skin_list;
     SkinHandling(const std::string& styledir)
-	: skin_list() { set_styledir(styledir); }
+	: name(), skin_list() { set_styledir(styledir); }
     void set_styledir(const std::string& styledir);
-    bool is_in_list(const std::string& name);
+    bool is_in_list(const std::string& skin_name);
     const Glib::ustring& operator[](unsigned int idx);
-    unsigned int index(const Glib::ustring& name);
+    unsigned int index(const Glib::ustring& skin_name);
+    string get_cssfile() const;
+    void set_default_skin_name();
 };
 
 /****************************************************************/
@@ -418,6 +419,8 @@ private:
     bool hideonquit;
     bool mute;
     Glib::ustring setbank;
+    Glib::ustring cmdline_bank;
+    Glib::ustring cmdline_preset;
     Glib::ustring tuner_tet;
     Glib::ustring tuner_ref;
     int sporadic_overload;
@@ -444,7 +447,6 @@ public:
     int window_height;
     int preset_window_height;
     int mul_buffer;
-    Glib::ustring skin_name;
     bool no_warn_latency;
     bool system_order_rack_h;
     bool system_show_value;
@@ -461,6 +463,7 @@ public:
     void process(int argc, char** argv);
     const std::string& get_path_to_program() const { return path_to_program; }
     std::string get_style_filepath(const std::string& basename) const { return style_dir + basename; }
+    std::string get_current_style_cssfile() const { return get_style_filepath(skin.get_cssfile()); }
     std::string get_pixmap_filepath(const std::string& basename) const { return pixmap_dir + basename; }
     std::string get_preset_filepath(const std::string& basename) const { return preset_dir + basename; }
     std::string get_plugin_filepath(const std::string& basename) const { return plugin_dir + basename; }
@@ -478,6 +481,7 @@ public:
     const std::string& get_loop_dir() const { return loop_dir; }
     const std::string& get_temp_dir() const { return temp_dir; }
     const std::string& get_factory_dir() const { return factory_dir; }
+    const std::string& get_style_dir() const { return style_dir; }
     std::string get_ladspa_config_filename() const { return get_user_filepath("ladspa_defs.js"); }
     std::string get_online_config_filename() const { return get_user_filepath("musical-artifacts.js"); }
     std::string get_online_presets_filename() const { return get_user_filepath("artifacts.js"); }
@@ -488,6 +492,10 @@ public:
     bool get_hideonquit() const { return hideonquit; }
     bool get_mute() const { return mute; }
     const Glib::ustring& get_setbank() { return setbank; }
+    void set_bank_preset(const Glib::ustring& bank, const Glib::ustring& preset) {
+        cmdline_bank = bank; cmdline_preset = preset; }
+    const Glib::ustring& get_cmdline_bank() { return cmdline_bank; }
+    const Glib::ustring& get_cmdline_preset() { return cmdline_preset; }
     const Glib::ustring& get_tuner_tet() { return tuner_tet; }
     const Glib::ustring& get_tuner_ref() { return tuner_ref; }
     int get_rpcport() const { return rpcport; }

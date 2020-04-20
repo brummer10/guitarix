@@ -26,7 +26,6 @@
 #include <bitset>
 #include <giomm/init.h>     // NOLINT
 #include <giomm/socketservice.h>
-//#include <ext/stdio_filebuf.h>
 #include "jsonrpc_methods.h"
 
 class GxService;
@@ -68,9 +67,6 @@ public:
 	f_log_message,
 	f_midi_changed,
 	f_midi_value_changed,
-	f_osc_activation,
-	f_osc_size_changed,
-	f_jack_load_changed,
 	f_parameter_change_notify,
 	f_plugins_changed,
 	f_misc_msg,
@@ -85,7 +81,7 @@ private:
     gx_system::JsonStringParser jp;
     bool midi_config_mode;
     std::bitset<END_OF_FLAGS> flags;
-    float maxlevel[gx_engine::MaxLevel::channelcount];
+    std::map<string,float> maxlevel;
 private:
     bool find_token(const Glib::ustring& token, msg_type *start, msg_type *end);
     void activate(int n, bool v) { flags.set(n, v); }
@@ -110,7 +106,7 @@ public:
     bool on_data_out(Glib::IOCondition cond);
     void send(gx_system::JsonStringWriter& jw);
     bool is_activated(msg_type n) { return flags[n]; }
-    void update_maxlevel(unsigned int channel, float v) { maxlevel[channel] = max(maxlevel[channel], v); }
+    void update_maxlevel(const std::string& id, float v) { float& m = maxlevel[id]; m = max(m, v); }
     friend class UiBuilderVirt;
 };
 
@@ -132,7 +128,7 @@ private:
     std::list<CmdConnection*> connection_list;
     gx_system::JsonStringWriter *jwc;
     std::map<std::string,bool> *preg_map;
-    float maxlevel[gx_engine::MaxLevel::channelcount];
+    std::map<std::string,float> maxlevel;
 private:
     virtual bool on_incoming(const Glib::RefPtr<Gio::SocketConnection>& connection,
 			     const Glib::RefPtr<Glib::Object>& source_object);
@@ -159,9 +155,6 @@ private:
     void on_log_message(const string& msg, GxLogger::MsgType tp, bool plugged);
     void on_midi_changed();
     void on_midi_value_changed(int ctl, int value);
-    void on_osc_size_changed(unsigned int sz);
-    int on_osc_activation(bool v);
-    void on_jack_load_changed();
     void on_rack_unit_changed(bool stereo);
     static void add_changed_plugin(gx_engine::Plugin* pl, gx_engine::PluginChange::pc v,
 				   std::vector<ChangedPlugin>& vec);
@@ -175,13 +168,7 @@ public:
     ~GxService();
     void send_rack_changed(bool stereo, CmdConnection *cmd);
     void ladspaloader_update_plugins(gx_system::JsonWriter *jw, CmdConnection *cmd);
-    void update_maxlevel(CmdConnection *cmd = 0);
-    float get_maxlevel(unsigned int channel) {
-	assert(channel < gx_engine::MaxLevel::channelcount);
-	float v = maxlevel[channel];
-	maxlevel[channel] = 0;
-	return v;
-    }
+    float update_maxlevel(const std::string& id, bool reset=false);
 };
 
 const char *engine_state_to_string(gx_engine::GxEngineState s);

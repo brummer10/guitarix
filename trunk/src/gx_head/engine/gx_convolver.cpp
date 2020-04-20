@@ -395,7 +395,7 @@ bool GxConvolver::configure(
     const Gainline& points) {
     Audiofile     audio;
     cleanup();
-    if (fname.empty()) {
+    if (fname.empty() || !samplerate) {
         return false;
     }
     if (audio.open_read(fname)) {
@@ -465,7 +465,7 @@ bool GxConvolver::configure(string fname, float gain, unsigned int delay, unsign
 			    const Gainline& points) {
     Audiofile audio;
     cleanup();
-    if (fname.empty()) {
+    if (fname.empty() || !samplerate) {
         return false;
     }
     if (audio.open_read(fname)) {
@@ -554,7 +554,7 @@ public:
     }
     ~CheckResample() {
 	if (vec) {
-	    delete vec;
+	    delete[] vec;
 	}
     }
 };

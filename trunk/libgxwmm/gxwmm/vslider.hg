@@ -28,7 +28,7 @@ class VSlider: public Gxw::Regler {
 	_CLASS_GTKOBJECT(VSlider,GxVSlider,GX_VSLIDER,Gxw::Regler,GxRegler)
 	public:
 	_CTOR_DEFAULT
-	explicit VSlider(Gtk::Adjustment& adjustment);
+	explicit VSlider(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 };
 
 } // namespace Gxw

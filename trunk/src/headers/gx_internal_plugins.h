@@ -28,7 +28,7 @@ namespace gx_jack { class GxJack; }
 namespace gx_engine {
 
 /****************************************************************
- ** MonoMute, StereoMute, MaxLevel, MidiAudioBuffer
+ ** MonoMute, StereoMute, MaxLevel
  */
 
 class MonoMute: public PluginDef {
@@ -54,6 +54,7 @@ private:
     static void process(int count, float *input0, float *input1,
 			float *output0, float *output1, PluginDef*);
     static int activate(bool start, PluginDef *plugin);
+    static int regparam(const ParamReg& reg);
 public:
     static float get(unsigned int channel) {
 	assert(channel < channelcount);
@@ -97,107 +98,6 @@ public:
 
 
 /****************************************************************
- ** class MidiAudioBuffer
- */
-
-class MidiVariables {
-private:
-    float fslider45;
-    float fslider38;
-    float fslider31;
-    float fslider27;
-    float fslider29;
-    float fslider30;
-    float fslider26;
-    float fslider33;
-    float fslider34;
-    float fslider35;
-    float fslider36;
-    float fslider42;
-    float fslider43;
-    float fslider40;
-    float fslider41;
-    float fslider44;
-    float fslider37;
-    float fslider39;
-    float fslider46;
-    float fslider47;
-    float fslider48;
-    float fConstlog;
-    float fConstlog2;
-    float beat0;
-    float midi_gain;
-    float fConstun0;
-    float fslider32;
-    float BeatFilter1;
-    float BeatFilter2;
-    float BeatFilterk;
-    bool fautogain;
-    bool fpitch;
-    bool fautogain1;
-    bool fpitch1;
-    bool fpitch2;
-    bool fautogain2;
-    bool  midistat;
-    bool  midistat1;
-    bool  midistat2;
-    bool  midistat3;
-
-    int   weg;
-    int   program;
-    int   program2;
-    int   volume2;
-    int   Beat_is;
-    int   send;
-    int   volume;
-    int   noten;
-    int   program1;
-    int   send1;
-    int   noten1;
-    int   volume1;
-    int   send2;
-    int   noten2;
-
-    bool  fcheckbox10;
-    bool  fcheckbox11;
-
-    unsigned char* midi_send;
-    unsigned char* midi_send1;
-    unsigned char* midi_send2;
-
-public:
-    void register_parameter(const ParamReg& reg);
-    void init(int samplingFreq);
-    void process_midi(int len, float *audiodata, void *midi_port_buf, float jcpu_load,
-		      float fConsta4, float fConsta1t);
-    bool get_midistat() { return midistat; }
-};
-
-
-class MidiAudioBuffer: PluginDef {
-public:
-    enum Load { load_off = -1, load_low = 0, load_high = 1, load_over = 2 };
-private:
-    MidiVariables midi;
-    gx_engine::TunerAdapter& tuner;
-    gx_jack::GxJack* jack;
-    Load jack_overload;
-    Glib::Dispatcher overload_change;
-    static void fill_buffer(int count, float *input0, float *output0, PluginDef*);
-    static int regparam(const ParamReg& reg);
-    static void init(unsigned int samplingFreq, PluginDef *plugin);
-    static int activate(bool start, PluginDef *plugin);
-public:
-    Plugin plugin;
-    MidiAudioBuffer(TunerAdapter& t);
-    void set_jack(gx_jack::GxJack* jack_) { jack = jack_; }
-    bool get_midistat() { return midi.get_midistat(); }
-    Load jack_load_status() { return jack_overload; }
-    Glib::Dispatcher& signal_jack_load_change() { return overload_change; }
-};
-
-
-/****************************************************************
  ** class NoiseGate
  */
 
@@ -222,25 +122,76 @@ public:
  ** class OscilloscopeAdapter
  */
 
-class OscilloscopeAdapter: PluginDef {
+class OscilloscopeInfo {
 private:
-    static float* buffer;
-    static unsigned int size;
+    gx_jack::GxJack *jack;
+    sigc::signal<void(unsigned int, float*)> size_change;
+    float *buffer;
+    unsigned int buffer_size;
+    friend class OscilloscopeAdapter;
+public:
+    int load;
+    int frames;
+    bool is_rt;
+    jack_nframes_t bsize;
+
+ public:
+    OscilloscopeInfo():
+        jack(nullptr), size_change(), buffer(nullptr), buffer_size(0),
+        load(0), frames(0), is_rt(false), bsize(0) {}
+    void readJSON(gx_system::JsonParser& jp);
+    void writeJSON(gx_system::JsonWriter& w) const;
+    void update();
+    float *get_buffer() const { return buffer; }
+    unsigned int get_buffer_size() const { return buffer_size; }
+    sigc::signal<void(unsigned int, float*)> signal_size_change() { return size_change; }
+};
+
+template<>
+class ParameterV<OscilloscopeInfo>: public Parameter {
+private:
+    OscilloscopeInfo value_storage;
+    OscilloscopeInfo *value;
+    sigc::signal<void, const OscilloscopeInfo&> changed;
+    void trigger_changed() override;
+public:
+    ParameterV(const string& id, OscilloscopeInfo *v);
+    ParameterV(gx_system::JsonParser& jp);
+    ~ParameterV();
+    virtual void serializeJSON(gx_system::JsonWriter& jw) override;
+    sigc::signal<void, const OscilloscopeInfo&>& signal_changed() { return changed; }
+    static ParameterV<OscilloscopeInfo> *insert_param(
+        ParamMap &pmap, const string& id, OscilloscopeInfo *v);
+    OscilloscopeInfo& get_value() const { return *value; }
+    virtual void stdJSON_value() override;
+    virtual bool on_off_value() override;
+    virtual void writeJSON(gx_system::JsonWriter& jw) const override;
+    virtual bool compareJSON_value() override;
+    virtual void setJSON_value() override;
+    virtual void readJSON_value(gx_system::JsonParser& jp) override;
+};
+
+typedef ParameterV<OscilloscopeInfo> OscParameter;
+
+class OscilloscopeAdapter: PluginDef {
+public:
+    OscilloscopeInfo info;
+private:
+    ParamMap &pmap;
     static void fill_buffer(int count, float *input0, float *output0, PluginDef*);
     static int osc_register(const ParamReg& reg);
-    static int activate(bool start, PluginDef *p);
+    static int osc_load_ui(const UiBuilder& builder, int format);
     void change_buffersize(unsigned int);
     int mul_buffer;
 public:
     Plugin plugin;
-    sigc::signal<int, bool>          activation;
-    sigc::signal<void, unsigned int> size_change;
     void clear_buffer();
-    unsigned int get_size() { return size; }
-    inline float *get_buffer() { return buffer; }
+    unsigned int get_size() const { return info.buffer_size; }
+    inline float *get_buffer() const { return info.buffer; }
     int get_mul_buffer() { return mul_buffer; }
     void set_mul_buffer(int a, unsigned int b) { mul_buffer = a; change_buffersize(b); }
     OscilloscopeAdapter(ModuleSequencer& engine);
+    void set_jack(gx_jack::GxJack& jack) { info.jack = &jack; }
 };
 
 
@@ -350,8 +301,6 @@ class ConvolverAdapter;
 template<>
 class ParameterV<GxJConvSettings>: public Parameter {
 private:
-    const gx_system::PathList *searchpath;
-    const gx_system::PrefixConverter* pfx_conv;
     GxJConvSettings json_value;
     GxJConvSettings *value;
     GxJConvSettings std_value;
@@ -388,7 +337,6 @@ protected:
     boost::mutex activate_mutex;
     EngineControl& engine;
     sigc::slot<void> sync;
-    ParamMap& param;
     bool activated;
     // wrapper for the rack order function pointers
     void change_buffersize(unsigned int size);
@@ -397,7 +345,7 @@ protected:
 public:
     Plugin plugin;
 public:
-    ConvolverAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
+    ConvolverAdapter(EngineControl& engine, sigc::slot<void> sync);
     ~ConvolverAdapter();
     void restart();
     bool conv_start();
@@ -407,7 +355,7 @@ public:
     inline const std::string& getIRDir() const { return jcset.getIRDir(); }
     bool set(const GxJConvSettings& jcset) const { return jcp->set(jcset); }
     const GxJConvSettings& get_jcset() const { return jcset; }
-    ParamMap& get_parameter_map() const { return param; }
+    ParamMap& get_parameter_map() const { return engine.get_param(); }
 };
 
 
@@ -427,8 +375,9 @@ private:
     static void convolver(int count, float *input0, float *input1,
 			  float *output0, float *output1, PluginDef*);
     static int convolver_register(const ParamReg& reg);
+    static int jconv_load_ui(const UiBuilder& builder, int format);
 public:
-    ConvolverStereoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
+    ConvolverStereoAdapter(EngineControl& engine, sigc::slot<void> sync);
     ~ConvolverStereoAdapter();
 };
 
@@ -445,8 +394,9 @@ private:
     static int activate(bool start, PluginDef *pdef);
     static void convolver(int count, float *input, float *output, PluginDef*);
     static int convolver_register(const ParamReg& reg);
+    static int jconv_load_ui(const UiBuilder& builder, int format);
 public:
-    ConvolverMonoAdapter(EngineControl& engine, sigc::slot<void> sync, ParamMap& param);
+    ConvolverMonoAdapter(EngineControl& engine, sigc::slot<void> sync);
     ~ConvolverMonoAdapter();
 };
 
@@ -771,8 +721,8 @@ public:
     pluginarray::iterator begin() { return plugins.begin(); }
     pluginarray::iterator end() { return plugins.end(); }
     pluginarray::iterator find(plugdesc* desc);
+    void clear_list();
     void set_plugins(pluginarray& new_plugins);
-    void change_plugins(pluginarray& new_plugins);
     void update_instance(PluginDef *pdef, plugdesc *pdesc);
     static std::string get_ladspa_filename(unsigned long uid)
 	{ return "ladspa"+gx_system::to_string(uid)+".js"; }
@@ -826,7 +776,6 @@ class FileResampler {
 private:
     Resampler r_file;
     int inputRate, outputRate;
-    int last_in_count;
 public:
     int setup(int _inputRate, int _outputRate);
     int run(int count, float *input, float *output);
@@ -855,10 +804,6 @@ private:
 	float 	rplay2;
 	float 	rplay3;
 	float 	rplay4;
-	float 	load1;
-	float 	load2;
-	float 	load3;
-	float 	load4;
 	float 	od1;
 	float 	od2;
 	float 	od3;
@@ -1091,43 +1036,41 @@ public:
 
 class DrumSequencer: public PluginDef {
 private:
-	int fSamplingFreq;
-	FAUSTFLOAT 	position;
-	FAUSTFLOAT 	ftact;
-	FAUSTFLOAT 	fsec;
-	FAUSTFLOAT 	fslidergain;
-	FAUSTFLOAT 	fsliderbpm;
-	FAUSTFLOAT 	fsliderhum;
+    int fSamplingFreq;
+    FAUSTFLOAT 	position;
+    FAUSTFLOAT 	ftact;
+    FAUSTFLOAT 	fsec;
+    FAUSTFLOAT 	fsliderbpm;
+    FAUSTFLOAT 	fsliderhum;
     drumseq::Dsp drums;
 
-	int 	counter;
-	int 	seq_size;
+    int 	counter;
+    int 	seq_size;
     int 	bsize;
-	FAUSTFLOAT 	step;
-	FAUSTFLOAT 	step_orig;
-	FAUSTFLOAT 	fSlow1;
-	FAUSTFLOAT 	fSlow3;
-	FAUSTFLOAT 	fSlow5;
-	FAUSTFLOAT 	fSlow7;
-	FAUSTFLOAT 	fSlow12;
-	FAUSTFLOAT 	fSlow14;
-	FAUSTFLOAT 	fSlow16;
-	FAUSTFLOAT 	fSlow18;
-	FAUSTFLOAT 	fSlow20;
-	FAUSTFLOAT 	fSlow22;
-	std::vector<int> Vectom;
-	std::vector<int> Vectom1;
-	std::vector<int> Vectom2;
-	std::vector<int> Veckick;
-	std::vector<int> Vecsnare;
-	std::vector<int> Vechat;
+    FAUSTFLOAT 	step;
+    FAUSTFLOAT 	step_orig;
+    FAUSTFLOAT 	fSlow1;
+    FAUSTFLOAT 	fSlow3;
+    FAUSTFLOAT 	fSlow5;
+    FAUSTFLOAT 	fSlow7;
+    FAUSTFLOAT 	fSlow12;
+    FAUSTFLOAT 	fSlow14;
+    FAUSTFLOAT 	fSlow16;
+    FAUSTFLOAT 	fSlow18;
+    FAUSTFLOAT 	fSlow20;
+    FAUSTFLOAT 	fSlow22;
+    std::vector<int> Vectom;
+    std::vector<int> Vectom1;
+    std::vector<int> Vectom2;
+    std::vector<int> Veckick;
+    std::vector<int> Vecsnare;
+    std::vector<int> Vechat;
 
     EngineControl&  engine;
-	bool            mem_allocated;
+    bool            mem_allocated;
     sigc::slot<void> sync;
-	volatile bool ready;
+    volatile bool ready;
     float *outdata;
-    ParamMap& param;
     GxSeqSettings tomset;
     SeqParameter *tomp;
     GxSeqSettings tomset1;
@@ -1142,13 +1085,13 @@ private:
     SeqParameter *kickp;
 
     void mem_alloc();
-	void mem_free();
-	void init(unsigned int samplingFreq);
-	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
+    void mem_free();
+    void init(unsigned int samplingFreq);
+    void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
     void change_buffersize(unsigned int size);
-	int register_par(const ParamReg& reg);
+    int register_par(const ParamReg& reg);
 
-	int min_seq_size();
+    int min_seq_size();
     void reset_tom();
     void reset_tom1();
     void reset_tom2();
@@ -1156,14 +1099,15 @@ private:
     void reset_hat();
     void reset_snare();
 
-	static void init_static(unsigned int samplingFreq, PluginDef*);
-	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
-	static int register_params_static(const ParamReg& reg);
-	static void del_instance(PluginDef *p);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+    static int drum_load_ui(const UiBuilder& builder, int format);
 public:
     Plugin plugin;
-	DrumSequencer(ParamMap& param_, EngineControl& engine, sigc::slot<void> sync);
-	~DrumSequencer();
+    DrumSequencer(EngineControl& engine, sigc::slot<void> sync);
+    ~DrumSequencer();
 };
 
 /****************************************************************************
@@ -1199,7 +1143,6 @@ private:
 	bool            mem_allocated;
     sigc::slot<void> sync;
 	volatile bool ready;
-    ParamMap& param;
 	float gInFIFO[MAX_FRAME_LENGTH];
 	float gOutFIFO[MAX_FRAME_LENGTH];
     float *fpb;
@@ -1228,8 +1171,8 @@ private:
     int ai;
     int aio;
     int ii;
-	long  gRover , gInit ;
-	double magn, phase, tmp, window, real, imag;
+	long  gRover ;
+	double magn, phase, tmp, real, imag;
 	double freqPerBin, freqPerBin1, freqPerBin2, expct;
     double fftFrameSize3;
     double fftFrameSize4;
@@ -1259,7 +1202,7 @@ private:
 
 public:
     Plugin plugin;
-	smbPitchShift(ParamMap& param_, EngineControl& engine, sigc::slot<void> sync);
+	smbPitchShift(EngineControl& engine, sigc::slot<void> sync);
 	~smbPitchShift();
 };
 

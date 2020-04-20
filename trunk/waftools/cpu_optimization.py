@@ -27,12 +27,6 @@ def options(opt):
                     dest='cxxflags',
                     help='C++ base compiler flags [Default: %default]')
 
-    comp.add_option('--disable-cxx11',
-                    action='store_const',
-                    default=False,
-                    const=True,
-                    help='deselect C++ compiler flag -std=c++11 [Default: False]')
-
     comp.add_option('--ldflags',
                     type='string',
                     default='',
@@ -173,7 +167,6 @@ def configure(conf):
         if conf.env['NOOPT']:
             conf.env['OPT'] = False
             cpu_model = append_optimization_flags(conf, cxxflags)
-    if not opt.disable_cxx11:
-        cxxflags.append ("-std=c++11")
+    cxxflags.append ("-std=c++11")
     conf.env['CXXFLAGS'] += cxxflags
     conf.cpu_model = cpu_model

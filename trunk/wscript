@@ -25,7 +25,8 @@ Options.OptionsContext.gxload = \
         Build.BuildContext.gxload = \
             lambda ctx, tool: ctx.load(tool, tooldir='waftools')
 
-good_faust_versions = ['2.15.11']
+check_in_faust_version = '2.20.2'  # this Faust should be used for checked in generated files
+other_faust_versions = ['2.15.11'] # other Faust versions known to work
 
 g_maxlen = 40 # maximum width of message for 2-column display
 
@@ -302,7 +303,7 @@ def configure(conf):
     # needed libaries
     conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
-    conf.check_cfg(package='glibmm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
+    conf.check_cfg(package='glibmm-2.4', atleast_version='2.38', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
     conf.check(header_name='fftw3.h', mandatory=1)
     conf.check_cfg(package='fftw3f', atleast_version='3.3.8', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
 
@@ -319,13 +320,14 @@ def configure(conf):
         conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
         conf.check_cfg(package='libcurl', atleast_version='7.26.0', args='--cflags --libs', uselib_store='CURL', mandatory=1)
         conf.gxload('robotofont')
+        conf.gxload('sassc')
     else:
         conf.env['NO_MAIN'] = True
         opt.no_desktop_update = True
 
-    if opt.standalone :
-        conf.check_cfg(package='gtk+-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
-        conf.check_cfg(package='gtkmm-2.4', atleast_version='2.20', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
+    if opt.standalone:
+        conf.check_cfg(package='gtk+-3.0', atleast_version='3.22', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
+        conf.check_cfg(package='gtkmm-3.0', atleast_version='3.22', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
         conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
 
     if opt.standalone or opt.ladspa or opt.new_ladspa:
@@ -403,7 +405,7 @@ def configure(conf):
     # config subdirs
     conf.recurse('pygxw')
     conf.recurse('glade-gxw')
-    if conf.env['STANDALONE'] or conf.env['LV2GUI'] or conf.env.NEW_LADSPA:
+    if conf.env['STANDALONE'] or conf.env['LV2GUI'] or conf.env.NEW_LADSPA or conf.env.GX_PYTHON_WRAPPER or conf.env.GX_GLADE_SUPPORT:
         conf.recurse('libgxwmm')
         conf.recurse('libgxw/gxw')
         conf.recurse('rcstyles')
@@ -471,8 +473,8 @@ def configure(conf):
     display_feature("Localization  (intltool)", conf.env['ENABLE_NLS'])
     display_feature("skip glade support", not conf.env['GX_GLADE_SUPPORT'])
     if conf.env['GX_GLADE_SUPPORT']:
-        display_msg("glade catalog dir", conf.env['GLADE_CATALOG_DIR'], 'CYAN')
-        display_msg("glade modules dir", conf.env['GLADE_MODULES_DIR'], 'CYAN')
+        display_msg("glade catalog dir", conf.env.GLADEUI_catalogdir, 'CYAN')
+        display_msg("glade modules dir", conf.env.GLADEUI_moduledir, 'CYAN')
     display_msg("Install prefix", conf.env['PREFIX'], 'CYAN')
     if conf.env['STANDALONE']:
         display_msg("Install standalone binary", conf.env['BINDIR'], 'CYAN')
@@ -573,6 +575,7 @@ def build(bld):
     bld.recurse('src/gx_head')
     bld.recurse('src/ladspa')
     bld.recurse('src/LV2')
+    bld.recurse('documentation')
 
     if bld.env['STANDALONE']:
         if bld.env['FONT']:
@@ -747,3 +750,12 @@ class ArchiveCheck(Archive):
         if os.path.exists(instdir):
             raise WafError('distcheck succeeded, but files were left in %s'%instdir)
         shutil.rmtree(path)
+
+class DistClean(Context.Context):
+    # redefine distclean
+    cmd='distclean'
+    def execute(self):
+        Context.g_module.distclean(self)
+        html_path = 'html'
+        if os.path.exists(html_path):
+            shutil.rmtree(html_path)

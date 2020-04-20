@@ -40,6 +40,8 @@
 #include <cstring>
 #include <string>
 
+class ToggleAction; //FIXME
+
 namespace gx_main_midi {
 /****************************************************************
  ** MidiControllerTable
@@ -52,7 +54,7 @@ class MidiControllerTable: public sigc::trackable {
     GtkToggleButton *togglebutton;
     GtkTreeSelection *selection;
     GtkListStore *store;
-    Glib::RefPtr<Gtk::ToggleAction> menuaction;
+    Glib::RefPtr<ToggleAction> menuaction;
     gx_engine::GxMachineBase& machine;
     sigc::connection midi_conn;
     static void response_cb(GtkWidget *widget, gint response_id, gpointer data);
@@ -62,10 +64,10 @@ class MidiControllerTable: public sigc::trackable {
     static void toggleButtonSetSwitch(GtkWidget *w, gpointer data);
     void set(bool v);
     void load();
-    explicit MidiControllerTable(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gtk::ToggleAction> item);
+    explicit MidiControllerTable(gx_engine::GxMachineBase& machine, Glib::RefPtr<ToggleAction> item);
     ~MidiControllerTable();
  public:
-    static void toggle(gx_engine::GxMachineBase& machine, Glib::RefPtr<Gtk::ToggleAction> item);
+    static void toggle(gx_engine::GxMachineBase& machine, Glib::RefPtr<ToggleAction> item);
 };
 
 /*****************************************************************
@@ -80,7 +82,6 @@ class MidiConnect {
         { gx_engine::Parameter::toggle_type::Constant, "constant state toggle" },
         { gx_engine::Parameter::toggle_type::Toggle, "toggle state" }
     };
-    GtkTreeSelection* selection;
     GtkListStore* store;
     gx_engine::Parameter &param;
     gx_engine::GxMachineBase& machine;

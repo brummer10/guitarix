@@ -30,7 +30,7 @@ class PaintBox: public Gtk::Box {
 	_WRAP_PROPERTY(paint-func, Glib::ustring)
 	_WRAP_PROPERTY(icon-set, guint)
 	_WRAP_PROPERTY(force-reload, guint)
-	_WRAP_METHOD(void call_paint_func(GdkEventExpose *event), gx_paint_box_call_paint_func)
+	_WRAP_METHOD(void call_paint_func(cairo_t *cr), gx_paint_box_call_paint_func)
 };
 
 } // namespace Gxw

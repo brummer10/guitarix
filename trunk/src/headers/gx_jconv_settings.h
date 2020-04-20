@@ -127,7 +127,6 @@ class IRWindow: public sigc::trackable {
     IRWindow(const Glib::RefPtr<gx_gui::GxBuilder>& builder, gx_engine::JConvParameter *jcp,
 	     Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine,
 	     Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
-    ~IRWindow();
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
      public:
@@ -147,7 +146,7 @@ public:
     static IRWindow *create(const std::string& unit_id,
 			    Glib::RefPtr<Gdk::Pixbuf> icon, gx_engine::GxMachineBase& machine,
 			    Glib::RefPtr<Gtk::AccelGroup> accels, int nchan);
-    friend class JConvPopup;
+    ~IRWindow();
 };
 
 } /* end of gx_jconv namespace*/

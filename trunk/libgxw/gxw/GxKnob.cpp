@@ -41,14 +41,16 @@ struct _GxKnobPrivate
 static gboolean gx_knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event);
 static gboolean gx_knob_enter_in(GtkWidget *widget, GdkEventCrossing *event);
 static gboolean gx_knob_leave_out(GtkWidget *widget, GdkEventCrossing *event);
-static gboolean gx_knob_expose(GtkWidget *widget, GdkEventExpose *event);
-static void gx_knob_size_request(GtkWidget *widget, GtkRequisition *requisition);
+static gboolean gx_knob_draw(GtkWidget *widget, cairo_t *cr);
+static void gx_knob_get_preferred_width(GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_knob_get_preferred_height(GtkWidget *widget, gint *min_height, gint *natural_height);
+static void gx_knob_size_request(GtkWidget *widget, gint *width, gint *height);
 static gboolean gx_knob_button_press(GtkWidget *widget, GdkEventButton *event);
 
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GxKnob, gx_knob, GX_TYPE_REGLER);
 
-#define get_stock_id(widget) (GX_KNOB_CLASS(GTK_OBJECT_GET_CLASS(widget))->stock_id)
+#define get_stock_id(widget) (GX_KNOB_CLASS(GTK_WIDGET_GET_CLASS(widget))->stock_id)
 
 static void gx_knob_class_init(GxKnobClass *klass)
 {
@@ -56,9 +58,12 @@ static void gx_knob_class_init(GxKnobClass *klass)
 	widget_class->motion_notify_event = gx_knob_pointer_motion;
 	widget_class->enter_notify_event = gx_knob_enter_in;
 	widget_class->leave_notify_event = gx_knob_leave_out;
-	widget_class->expose_event = gx_knob_expose;
-	widget_class->size_request = gx_knob_size_request;
+	widget_class->draw = gx_knob_draw;
+	widget_class->get_preferred_width = gx_knob_get_preferred_width;
+	widget_class->get_preferred_height = gx_knob_get_preferred_height;
 	widget_class->button_press_event = gx_knob_button_press;
+
+	gtk_widget_class_set_css_name(widget_class, "gx-knob");
 
 	gtk_widget_class_install_style_property(
 		widget_class,
@@ -142,7 +147,7 @@ static void gx_knob_class_init(GxKnobClass *klass)
 
 static void gx_knob_init(GxKnob *knob)
 {
-	knob->priv = G_TYPE_INSTANCE_GET_PRIVATE(knob, GX_TYPE_KNOB, GxKnobPrivate);
+	knob->priv = (GxKnobPrivate*)gx_knob_get_instance_private(knob);
 }
 
 static const double scale_zero = 40 * (M_PI/180); // defines "dead zone" for knobs
@@ -161,14 +166,14 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
                                  "ring_led_distance", &ring_led_distance,
                                  "ring_width", &ring_width, "ring_led_size", &ring_led_size,
                                  "x_center", &x_center, "y_center", &y_center, NULL);
-	
+
+    GtkStyleContext *style = gtk_widget_get_style_context(widget);
     // foreground and background color
-    float r, g, b;
-    gx_get_fg_color(widget, NULL, &r, &g, &b);
-    float r_, g_, b_;
-    GtkStateType state = GTK_STATE_INSENSITIVE;
-    gx_get_fg_color(widget, &state, &r_, &g_, &b_);
-    
+    GdkRGBA color;
+    gtk_style_context_get_color(style, gtk_widget_get_state_flags(widget), &color);
+    GdkRGBA color_;
+    gtk_style_context_get_color(style, GTK_STATE_FLAG_INSENSITIVE, &color_);
+
     // auto values in style?
     gint minrad = min(image_rect->width, image_rect->height) / 2;
     if(x_center < 0)
@@ -197,7 +202,7 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
     
     // draw background
     if (scale_zero < 320 * (M_PI/180)) {
-        cairo_set_source_rgb(cr, r_, g_, b_);
+        gdk_cairo_set_source_rgba(cr, &color_);
         cairo_set_line_width(cr, ring_width);
         cairo_arc (cr, x_center + x0, y_center + y0, ring_radius,
             add_angle + scale_zero, add_angle + 320 * (M_PI/180));
@@ -206,10 +211,9 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
     
     // draw foreground
     if (scale_zero < angle) {
-        cairo_set_source_rgb(cr, r, g, b);
+        gdk_cairo_set_source_rgba(cr, &color);
         cairo_arc (cr, x_center + x0, y_center + y0, ring_radius,
             add_angle + scale_zero, add_angle + angle);
-
         if (ring_width >= 3) {
             cairo_stroke_preserve(cr);
             
@@ -231,7 +235,7 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
     cairo_set_dash(cr, NULL, 0, 0);
     
     // draw indicator
-    cairo_set_source_rgb(cr,  r, g, b);
+    gdk_cairo_set_source_rgba(cr, &color);
     cairo_set_line_width(cr, ind_width);
     cairo_move_to(cr, x0 + x1 + x_center, y0 + y1 + y_center);
     cairo_line_to(cr, x0 + x2 + x_center, y0 + y2 + y_center);
@@ -254,24 +258,21 @@ void _gx_knob_draw_shtuff(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_re
     }
 }
 
-void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobstate,
+void _gx_knob_expose(GtkWidget *widget, cairo_t *cr, GdkRectangle *image_rect, gdouble knobstate,
                      GdkPixbuf *knob_image, gint framecount, int has_focus)
 {
 	if (framecount > 1) {
         int findex;
 		framecount--; // zero based index
 		findex = (int)(framecount * knobstate);
-		cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(widget));
 		gdk_cairo_set_source_pixbuf(cr, knob_image, image_rect->x - (image_rect->width * findex), image_rect->y);
 		cairo_rectangle(cr, image_rect->x, image_rect->y, image_rect->width, image_rect->height);
 		cairo_fill(cr);
-		cairo_destroy (cr);
 	}
 	else {
-		cairo_t *cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
 		if (gtk_widget_has_focus(widget)) {
-			gtk_paint_focus(gtk_widget_get_style(widget), gtk_widget_get_window(widget), GTK_STATE_NORMAL, NULL, widget, NULL,
-					image_rect->x, image_rect->y, image_rect->width, image_rect->height);
+			gtk_render_focus(gtk_widget_get_style_context(widget), cr,
+							 image_rect->x, image_rect->y, image_rect->width, image_rect->height);
 		}
 		cairo_surface_t *surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 
                                image_rect->width, image_rect->height);
@@ -285,7 +286,6 @@ void _gx_knob_expose(GtkWidget *widget, GdkRectangle *image_rect, gdouble knobst
         cairo_paint(cr);
         cairo_surface_destroy (surface);
 		cairo_destroy(cr_s);
-		cairo_destroy(cr);
 	}
 
 	
@@ -318,17 +318,15 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	GdkRectangle image_rect, value_rect;
 	
 	GxKnob *knob = GX_KNOB(widget);
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, icon, GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 icon, -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	GxKnobPrivate *priv = knob->priv;
 	
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
 	
 	g_object_unref(pb);
-	GtkAllocation allocation;
-	gtk_widget_get_allocation(widget, &allocation);
-	x += allocation.x;
-	y += allocation.y;
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
+	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {
 			return FALSE;
@@ -402,19 +400,14 @@ static gboolean gx_knob_pointer_motion(GtkWidget *widget, GdkEventMotion *event)
 
 static gboolean gx_knob_enter_in (GtkWidget *widget, GdkEventCrossing *event)
 {
-	gint fcount;
 	g_assert(GX_IS_KNOB(widget));
 	if (gtk_widget_has_grab(widget) || gtk_widget_has_focus(widget)== TRUE) {
 		return TRUE;
 	}
-	GdkRectangle image_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
-	get_image_dimensions (widget, pb, &image_rect, &fcount);
-	g_object_unref(pb);
-	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
+	gint fcount;
+	gtk_widget_style_get(widget, "framecount", &fcount, NULL);
 	if (fcount == -1) {
-		_gx_knob_expose(widget, &image_rect, knobstate, pb, fcount, TRUE);
+		gtk_widget_queue_draw(widget);
 	}
 	return TRUE;
 }
@@ -425,46 +418,71 @@ static gboolean gx_knob_leave_out (GtkWidget *widget, GdkEventCrossing *event)
 	if (gtk_widget_has_grab(widget) || gtk_widget_has_focus(widget)== TRUE) {
 		return TRUE;
 	}
-	GdkRectangle image_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
 	gint fcount;
-	get_image_dimensions (widget, pb, &image_rect, &fcount);
-	g_object_unref(pb);
-	gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
-	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, NULL);
+	gtk_widget_style_get(widget, "framecount", &fcount, NULL);
 	if (fcount == -1) {
-		_gx_knob_expose(widget, &image_rect, knobstate, pb, fcount, FALSE);
+		gtk_widget_queue_draw(widget);
 	}
 	return TRUE;
 }
 
-static void gx_knob_size_request (GtkWidget *widget, GtkRequisition *requisition)
+static void gx_knob_get_preferred_width(GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width, height;
+	gx_knob_size_request(widget, &width, &height);
+
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_knob_get_preferred_height(GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint width, height;
+	gx_knob_size_request(widget, &width, &height);
+
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static void gx_knob_size_request (GtkWidget *widget, gint *width, gint *height)
 {
 	g_assert(GX_IS_KNOB(widget));
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 get_stock_id(widget), -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	if (GDK_IS_PIXBUF (pb)) {
 		gint fcount;
 		GdkRectangle rect;
 		get_image_dimensions (widget, pb, &rect, &fcount);
-		requisition->width = rect.width;
-		requisition->height = rect.height;
-		_gx_regler_calc_size_request(GX_REGLER(widget), requisition);
+		*width = rect.width;
+		*height = rect.height;
+		_gx_regler_calc_size_request(GX_REGLER(widget), width, height, TRUE);
 		g_object_unref(pb);
 	}
 }
 
-static gboolean gx_knob_expose(GtkWidget *widget, GdkEventExpose *event)
+static gboolean gx_knob_draw(GtkWidget *widget, cairo_t *cr)
 {
 	g_assert(GX_IS_KNOB(widget));
 	GdkRectangle image_rect, value_rect;
-	GdkPixbuf *pb = gtk_widget_render_icon(widget, get_stock_id(widget), GtkIconSize(-1), NULL);
+	GdkPixbuf *pb = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
+											 get_stock_id(widget), -1,
+											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	if (GDK_IS_PIXBUF (pb)) {
 		gint fcount;
 		get_image_dimensions (widget, pb, &image_rect, &fcount);
 		gdouble knobstate = _gx_regler_get_step_pos(GX_REGLER(widget), 1);
-		_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect);
-		_gx_knob_expose(widget, &image_rect, knobstate, pb, fcount, gtk_widget_has_focus(widget));
-		_gx_regler_display_value(GX_REGLER(widget), &value_rect);
+		_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
+		_gx_knob_expose(widget, cr, &image_rect, knobstate, pb, fcount, gtk_widget_has_focus(widget));
+		_gx_regler_display_value(GX_REGLER(widget), cr, &value_rect);
 		g_object_unref(pb);
 	}
 	return FALSE;

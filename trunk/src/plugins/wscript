@@ -161,7 +161,7 @@ def build(bld):
             )
     bld(name = 'shared_plugins',
         features = 'cxx',
-        cxxflags = bld.env.CXXFLAGS_cxxshlib,
+        cxxflags = bld.env.CXXFLAGS_cxxshlib + ["-fvisibility=hidden"],
         includes = incl,
         source = [s.replace(".dsp",".cc") for s in lib_sources_shared],
         use = ["EIGEN3"],

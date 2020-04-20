@@ -1,0 +1,725 @@
+/* GX-Style Guitarix */
+
+@import 'minimal';
+
+/****************************************************************
+ * Theme Variable Settings
+ ****************************************************************/
+
+/* ICON THEME
+ * 
+ * bigknob:        knob_big.png
+ * midknob:        knob_mid.png
+ * minitoggle_off: switch_mid_off.png
+ * minitoggle_on:  switch_mid_on.png
+ * smallknob:      knob_small.png
+ * smallknobr:     knob_small_r.png
+ * switchit_off:   switch_off.png
+ * switchit_on:    switch_on.png
+ * wheel_back:     tactile_wheel_101f.png
+ * gxhead:         live_wallpaper.png
+ * 
+ * ICON THEME
+ */
+
+/*
+ * Override basic GX Widget settings
+ */
+
+@include gx-toggle-def(minitoggle, 10px);  // -> switch_mid_{on,off}.png
+@include gx-toggle-def(switchit,   16px); // -> switch_{on,off}.png
+
+$bg-button: rgb(45, 45, 45);
+//$bg-button-hover: scale-color($bg-button, $lightness: 7%);
+$bg-button-hover: lighten($bg-button, 6%);
+//$bg-button-checked: scale-color($bg-button, $lightness: -100%);
+$bg-button-checked: darken($bg-button, 20%);
+$bg-meterbox: rgb(25.5, 25.5, 25.5);
+
+/* Conversion .rc -> .css:
+ * border spec (all -X-xx are rc file format):
+ * rc-file: { left, right, top, bottom }
+ * css-file: { top, right, bottom, left }
+*/
+
+
+/****************************************************************
+ * General style settings
+ ****************************************************************/
+
+.dialog-vbox > box > box { // message area
+    margin: 20px 20px 0px 10px;
+}
+
+* {
+    color: rgb(216.8, 216.8, 216.8); /* 0.85, 0.85, 0.85 */
+    background-color: rgb(25.5, 25.5, 25.5); /* 0.10, 0.10, 0.10 */
+}
+
+entry selection {
+    background-color: rgb(80,80,80);
+}
+
+*:disabled {
+    color: rgb(128,128,128);
+}
+
+gx-paint-box, box, label, grid, button {
+    background-color: rgba(0,0,0,0);
+}
+
+scrollbar {
+    border-color: rgba(0,0,0,0.5);
+    background-color: rgb(2.55, 2.55, 2.55); /* { 0.10, 0.10, 0.10 } */
+    &:hover,
+    &:active {
+	background-color: rgb(76.5, 76.5, 76.5);
+    }
+    &:disabled {
+	background-color: rgb(51, 51, 51);
+    }
+    slider {
+	background-color: rgba(255,255,255,0.1);
+	transition-duration: 0.3s;
+	&:hover {
+	    background-color: rgba(255,255,255,0.2);
+	}
+    }
+}
+
+scrolledwindow {
+    /* avoid opaque regions with global background color when scrolling */
+    undershoot,
+    overshoot {
+	background-color: rgba(0,0,0,0);
+    }
+}
+
+tooltip {
+  border-radius: 0px;
+  background-color: black;
+  border: 1px solid rgba(255,255,255,0.2);
+  * {
+      margin: 0px;
+      padding: 0px;
+  }
+}
+
+menu, menuitem {
+    &:active {
+	background-color: $bg-button;
+    }
+    &:hover {
+	background-color: $bg-button-hover;
+    }
+    &:disabled, &:selected {
+	background-color: $bg-button-checked;
+    }
+}
+
+button, checkbutton {
+    background-clip: initial;
+    border-width: 0px;
+    border-radius: 0px;
+    padding: 2px 6px 2px 6px;
+    box-shadow: none;
+    background-image: none;
+    text-shadow: none;
+    transition-duration: 0;
+    -gtk-icon-shadow: none;
+    &, * {
+	background-color: $bg-button;
+    }
+    &:hover, &:hover *, &:checked:hover:not(:active), &:checked:hover:not(:active) * {
+	background-color: $bg-button-hover;
+    }
+    &:checked, &:checked *, &:active, &:active * {
+	background-color: $bg-button-checked;
+    }
+    /* experimental: 3d effect
+    background-color: $bg-button;
+    box-shadow:
+	1px 1px 0px 1px black,
+	0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.1),
+	-0.5px -0.5px 0px 0.5px rgba(200,200,200,0.4);
+    &:checked {
+	background-color: $bg-button-checked;
+	box-shadow:
+	    1px 1px 0px 1px black,
+	    0.5px 0.5px 0px 0.5px rgba(200,200,200,0.4),
+	    -0.5px -0.5px 0px 0.5px rgba(255, 255, 255, 0.1);
+    }
+   */
+}
+
+radiobutton radio,
+treeview check {
+    color: rgb(50, 50, 50);
+}
+
+notebook {
+    border: none;
+    background-color: black;
+}
+
+gx-paint-box {
+    -GxPaintBox-icon-set: 10;
+    -GxPaintBox-stock-gxhead: "live_wallpaper.png";
+}
+
+/****************************************************************
+ * XX
+ */
+
+#window1,
+dialog {
+    entry { border-color: black; }
+    treeview {
+	background-color: black;
+	&:hover { background-color: rgb(10,10,10); }
+	&:selected { background-color: rgb(20,20,20); }
+    }
+    checkbutton check { color: black; }
+}
+
+/* Jack start selection */
+#JackStart {
+    box {
+	margin: 4px;
+    }
+    button {
+	margin: {
+	    top: 8px;
+	    bottom: 8px;
+	    right: 6px;
+	}
+	outline-color: white;
+	box-shadow:
+	    1px 1px 0px 1px black,
+	    0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.1),
+	    -0.5px -0.5px 0px 0.5px rgba(200,200,200,0.4);
+	&.suggested-action {
+	    font-weight: bold;
+	}
+    }
+}
+
+/****************************************************************
+ * midi connect window
+ */
+
+#midi-zone-name-header {
+    font-size: 12pt; // 12*PANGO_SCALE
+    font-weight: bold;
+}
+
+/****************************************************************
+ * Ladspa / LV2 plugin window
+ */
+
+.pldef-changed {
+    color: red; // mark changed values (only text field, table and combobox are hardcoded)
+}
+
+/****************************************************************
+ * Main Window
+ */
+
+/* Toolbar (left side) */
+
+$toolpalette-width: 120px; // max. ToolItem label width
+$toolpalette-right:   4px; // label right margin
+$toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appears)
+
+#effects_frame_paintbox {
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-right-color: rgb(15,15,15);
+}
+
+#scrolledwindow_effects {
+    min-width: $toolpalette-width + $toolpalette-right + $toolpalette-left;
+}
+
+#effects_toolpalette toolitemgroup {
+    toolitem {
+	label {
+	    min-width: $toolpalette-width;
+	    margin: {
+		top: 4px;
+		bottom: 4px;
+		right: $toolpalette-right;
+	    }
+	}
+    }
+
+    arrow {
+	// gtk3 parser BUG: in compressed output mode a ";" before a
+	// "}" will be removed by sassc, but the gtk3 css parser (as
+	// of version 3.24) will produce an error when seeing
+	// "scale(1.5)}".
+	// Be careful to put some other setting after the scale expression
+	-gtk-icon-transform: scale(1.5); // make the arrow left of the button bigger
+	color: #ff9000;
+    }
+    button {
+	padding-bottom: 1px;
+	background-color: black;
+	background-clip: border-box;
+	label {
+	    color: #ff9000;
+	    background-color: black;
+	    font-size: 12px;
+	    margin-left: 4px; // make some space between arrow and label
+	}
+	&:hover * {
+	    color: #ffffff;
+	    //background-color: black;
+	}
+    }
+}
+
+/* Paned window (right side) */
+
+#main_vpaned {
+    separator {
+	margin: {
+	    // sum of top + buttom is used in the preset pane, but can't
+	    // be queried by the program. If the values don't
+	    // these are the standard values;
+	    top: 0px;
+	    bottom: -8px;
+	}
+    }
+    button {
+	border-width: 0px;
+	border-radius: 0px;
+	padding: 2px;
+	box-shadow: none;
+	background-image: none;
+	background-clip: content-box;
+	background-color: initial;
+    }
+}
+
+/* Presets (bottom part) */
+
+#preset_scrolledbox {
+    treeview {
+	background-color: rgb(10,10,10);
+	&:selected {
+	    background-color: rgb(51,51,51);
+	    &:focus {
+		//background-color: rgb(204, 46, 46);
+	    }
+	}
+	&#bank_treeview:selected {
+	}
+	&#preset_treeview:selected {
+	    color: #ff9000;
+	}
+	&:checked {
+	    // misused to mark the current preset in bank_treeview and preset_treeview
+	    // settable attributes:
+	    //  - color  (used only for non-selected lines)
+	    //  - font-weight
+	    color: #ff9000;
+	    font-weight: bold;
+	}
+    }
+    grid > label {
+	// settings to get horizontal alignment with the combobox in
+	// organize mode
+	min-height: 28px;
+	padding-top: 6px;
+    }
+}
+
+#preset_status {
+    border: none;
+    background-color: black;
+    min-height: 0px;
+}
+
+/****************************************************************
+ * Rackbox
+ ****************************************************************/
+
+/* Buttons */
+
+#rackbox,
+.rackbox {
+    checkbutton.gx_sw_switch_mid {
+	&#effect_on_off,
+	&.gx_effect_on_off {
+	    box-shadow: none;
+	    background-color: $bg-button;
+	& check {
+	    padding: 5px 0px 5px 3px;
+	    box-shadow: none;
+	    background-color: $bg-button;
+	}
+	}
+    }
+    .gx_rack_small_button {
+	font-size: 7pt;
+	font-weight: normal;
+    }
+    .gx_rack_box_label {
+	font-size: 8pt;
+	font-weight: bold;
+    }
+    .gx_simple_c_meter_label {
+	font-size: 6pt;
+	font-weight: normal;
+    }
+    gx-fast-meter {
+	border: solid black 1px;
+    }
+}
+
+/* specific parts */
+
+#hboxcenter,
+#ampdetails {
+    -GxPaintBox-alternate-box: 0 0 0 0;
+    -GxPaintBox-inverse: 0;
+    .gx_sw_minitoggle {
+	background-color: $bg-button;
+	&:hover {
+	    background-color: $bg-button-hover;
+	}
+    }
+}
+
+#tunerbox {
+    -GxPaintBox-alternate-box: 55 0 0 0;
+}
+
+#PLUI-ampstack {
+    gx-paint-box {
+	-GxPaintBox-paint-func: "gx_rack_amp_expose";
+    }
+    #hboxmain {
+	padding-left: 8px;
+    }
+    .rackmain {
+	-GxPaintBox-alternate-box: 33 0 33 0;
+	font: condensed 9pt "Roboto";
+    }
+    .rackmini {
+    }
+}
+
+.rackmini {
+    -GxPaintBox-paint-func: "gx_rack_unit_shrink_expose";
+}
+
+.rackmain {
+    -GxPaintBox-paint-func: "gx_rack_unit_expose";
+}
+
+#status_image {
+    -gtk-icon-effect: dim;
+}
+
+#LivePlay {
+    background-color: rgb(12.75, 12.75, 12.75);
+}
+
+/****************************************************************
+* Widgets inside of the rack container (#rackcontainer)
+*/
+
+/* Boxes with GxFastMeter's (1 or 2 channels)
+ * and (optional) a GxSwitch(switch_mid) (0 dBFS clipping display)
+ */
+
+.meterbox {
+    gx-fast-meter {
+	border-color: $bg-meterbox;
+	border-style: solid;
+    }
+    .gx_sw_switch_mid {
+	border-style: solid;
+	border-color: lighten($bg-meterbox,3%);
+	&:disabled:checked check {
+	    -gtk-icon-source: -gtk-icontheme("switch_mid_off");
+	}
+    }
+    &.mono {
+	gx-fast-meter {
+	    -GxFastMeter-border-radius: 6;
+	    -GxFastMeter-bevel: 0.12;
+	    border-width: 4px 4px 4px 8px;
+	}
+	.gx_sw_switch_mid {
+	    border-width: 4px 4px 4px 0px;
+	}
+    }
+    &.stereo {
+	gx-fast-meter {
+	    -GxFastMeter-border-radius: 6;
+	    -GxFastMeter-bevel: 0;
+	    &.horizontal {
+		&.left {
+		    border-width: 4px 8px 2px 8px;
+		}
+		&.right {
+		    border-width: 2px 8px 4px 8px;
+		}
+	    }
+	}
+	.gx_sw_switch_mid {
+	    border-width: 8px 8px 8px 0px;
+	}
+    }
+}
+
+/* box with GxFastMeter (left), GxVSlider (right) and GtkLabel (top)
+ * used in Graphic EQ
+ */
+.metered-slider {
+    min-width: 42px;
+    gx-vslider {
+	-GxRegler-value-border: 0 0 0 0;
+    }
+    gx-fast-meter {
+	border-style: solid;
+	border-width: 0px 0px 0px 1px;
+	border-color: lighten($bg-meterbox,3%);
+	border-radius: 3px;
+	background-color: $bg-meterbox;
+    }
+    label { margin-top: 2px; }
+    box { margin-bottom: 2px; }
+}
+
+#rackcontainer {
+    border-left-width: 1px;
+    border-left-style: solid;
+    border-left-color: black;
+    button {
+	color: #ff9000;
+	padding: 4px 8px 4px 8px;
+	&:hover {
+	    color: #ffffff;
+	}
+    }
+    button#effect_on_off,
+    button.gx_effect_on_off,
+    #effect_reset {
+	min-width: 0px;
+	min-height: 24px;
+	padding: 0px;
+	margin: 4px 8px 4px -4px;
+	-gtk-icon-shadow: none;
+	box-shadow: none;
+    }
+    /* shadow for rackbox buttons */
+    button#effect_on_off image,
+    button.gx_effect_on_off image,
+    #effect_on_off.gx_switch,
+    .gx_effect_on_off.gx_switch {
+	box-shadow:
+	    1px 1px 0px 1px black,
+	    0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.1),
+	    -0.5px -0.5px 0px 0.5px rgba(200,200,200,0.4);
+    }
+    button#effect_on_off image,
+    button.gx_effect_on_off image {
+	padding: 0px 3px 0px 5px;
+    }
+    button#effect_on_off,
+    button.gx_effect_on_off {
+	check {
+	    -gtk-icon-shadow: none;
+	    padding: 1px 3px 0px 5px;
+	}
+    }
+    #effect_on_off.gx_switch,
+    .gx_effect_on_off.gx_switch {
+	margin: 4px 6px 4px 5px;
+	min-height: 23px;
+	check {
+	    padding: 1px 3px 0px 5px;
+	}
+    }
+    #effect_on_off.gx_switch,
+    .gx_effect_on_off.gx_switch,
+    #effect_on_off.gx_switch check,
+    .gx_effect_on_off.gx_switch check {
+	background-color: $bg-button;
+	&:checked { background-color: $bg-button-checked; }
+    }
+    #effect_on_off.gx_switch:hover,
+    .gx_effect_on_off.gx_switch:hover,
+    #effect_on_off.gx_switch:hover check,
+    .gx_effect_on_off.gx_switch:hover check {
+	background-color: $bg-button-hover;
+    }
+    gx-vslider {
+	border-radius: 3px;
+	border: 2px solid;
+	-GxVSlider-slider-width: 36;
+	font: condensed 6pt "Roboto";
+	-GxRegler-value-border: 6px 6px 4px 4px;
+	color: #ff9000;
+	background-color: black;
+    }
+}
+
+#seq_button {
+    /* background-color: rgb(64, 64, 64); */ /* 0.25, 0.25, 0.25 */
+	border-color: lighten($bg-button,3%);
+	border-width: 1px 1px 1px 1px;
+    &:active {
+	background-color: rgb(0, 0, 0); /* 0.0, 0.0, 0.0 */
+    }
+    &:hover {
+	background-color: rgb(76.5, 76.5, 76.5); /* 0.30, 0.30, 0.30 */
+    }
+    &:disabled, &:selected {
+	background-color: rgb(51, 51, 51); /* 0.2, 0.2, 0.2 */
+    }
+}
+
+#seqbutton {
+    /* background-color: rgb(64, 64, 64); */ /* 0.25, 0.25, 0.25 */
+	border-color: darken($bg-button,3%);    
+	border-width: 1px 1px 1px 1px;
+    &:active {
+	background-color: rgb(0, 0, 0); /* 0.0, 0.0, 0.0 */
+    }
+    &:hover {
+	background-color: rgb(76.5, 76.5, 76.5); /* 0.30, 0.30, 0.30 */
+    }
+    &:disabled, &:selected {
+	background-color: rgb(51, 51, 51); /* 0.2, 0.2, 0.2 */
+    }
+}
+
+#drag_widget {
+    .effect_title {
+	color: #222222;
+    }
+}
+
+#rackcontainer .effect_title {
+    font: condensed 10pt "Roboto";
+    color: #222222;
+}
+
+#effect_title {
+    font: condensed 10pt "Roboto";
+    color: #222222;
+}
+
+#rack_label,
+.rack_label,
+#Value, /* *Value */
+#ampbox label,
+#beffekt_label,
+.tab_rack label,
+#rack_effect_label {
+    font: condensed 8pt "Roboto";
+    color: #222222; /* #dadfe1 # #c9d5b9  # #ffffff */
+}
+
+%rack-label-inverse,
+#rack_label_inverse {
+    font: condensed 7pt "Roboto";
+    color: #aaaaaa;
+}
+
+#rack_drag_button {
+    font: condensed 20px "Roboto";
+    padding: 0px 11px 0px 11px;
+}
+
+#simplemeter {
+    padding: 1px 0px 1px 0px;
+}
+
+.tab_rack {
+    padding: 5px;
+    margin: { left: 4px; right: 4px; bottom: 4px; }
+    box-shadow:
+	0.5px 0.5px 0px 0.5px black,
+	-0.5px -0.5px 0px 0.5px rgba(200,200,200,0.2);
+    background-color: rgb(25.5, 25.5, 25.5); /* { 0.10, 0.10, 0.10 } */
+    header {
+	margin-bottom: 8px;
+	label {
+	    margin-bottom: -12px;
+	}
+    }
+    & label,
+    & .label {
+	color: darken(#ff9000, 20%);
+    }
+    & :checked label {
+	color: #ff9000;
+    }
+    & label:active {
+	color: #555555;
+    }
+    #rack_label,
+    .rack_label {
+	@extend %rack-label-inverse;
+    }
+}
+
+menu separator {
+    background-color: #555555;
+}
+
+separator.horizontal {
+    padding: 2px;
+    background-color: #97BB6D;
+}
+
+separator.vertical {
+    background-color: #333333;
+}
+
+frame, #frame_inversed, frame border, #frame_inversed border {
+    padding: 4px;
+    background-color: transparent;
+}
+
+#frame_inversed border {
+    border-color: rgba(50, 50, 50, 0.7);
+    border-style: groove;
+    border-width: 1px;
+}
+
+/* IR Edit Window */
+
+#run_switch.gx_switch check {
+    min-width: 48px;
+    min-height: 48px;
+}
+
+/* Live Looper */
+
+#PLUI-dubber {
+    gx-small-knob-r ~ label { // some space for the 2 labels above the knobs
+	margin-top: 20px;
+	margin-bottom: 4px;
+    }
+    #buffer_label {
+	margin-top: 10px;
+    }
+}
+
+/****************************************************************/
+/* to check */
+
+#smallbutton {
+}
+
+.gx_switch {
+    padding: 0px;
+    -GtkButton-button-relief: GTK_RELIEF_NORMAL;
+}

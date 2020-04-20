@@ -35,7 +35,7 @@ enum {
 	PROP_SCALE = 3
 };
 
-static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event);
+static gboolean gx_tuner_draw (GtkWidget *widget, cairo_t *cr);
 static void draw_background(GxTuner *tuner);
 static void gx_tuner_class_init (GxTunerClass *klass);
 static void gx_tuner_init(GxTuner *tuner);
@@ -44,6 +44,8 @@ static void gx_tuner_set_property(
 	GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
 static void gx_tuner_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
+static void gx_tuner_get_preferred_width(GtkWidget *widget, gint *min_width, gint *natural_width);
+static void gx_tuner_get_preferred_height(GtkWidget *widget, gint *min_height, gint *natural_height);
 
 static const int tuner_width = 100;
 static const int tuner_height = 90;
@@ -66,15 +68,19 @@ static const double dash_ind[] = {
 
 G_DEFINE_TYPE_WITH_PRIVATE(GxTuner, gx_tuner, GTK_TYPE_DRAWING_AREA);
 
-#define GX_TUNER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), GX_TYPE_TUNER, GxTunerPrivate))
-
 static void gx_tuner_class_init(GxTunerClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	GTK_WIDGET_CLASS(klass)->expose_event = gtk_tuner_expose;
+	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+	widget_class->draw = gx_tuner_draw;
+	widget_class->get_preferred_width = gx_tuner_get_preferred_width;
+	widget_class->get_preferred_height = gx_tuner_get_preferred_height;
 	gobject_class->finalize = gx_tuner_finalize;
 	gobject_class->set_property = gx_tuner_set_property;
 	gobject_class->get_property = gx_tuner_get_property;
+
+	gtk_widget_class_set_css_name(widget_class, "gx-tuner");
+
 	g_object_class_install_property(
 		gobject_class, PROP_FREQ, g_param_spec_double (
 			"freq", P_("Frequency"),
@@ -112,13 +118,11 @@ static void tuner_surface_finalize(GxTuner *tuner)
 static void gx_tuner_init (GxTuner *tuner)
 {
 	g_assert(GX_IS_TUNER(tuner));
-	tuner->priv = GX_TUNER_GET_PRIVATE(tuner);
+	tuner->priv = (GxTunerPrivate*)gx_tuner_get_instance_private(tuner);
 	tuner->priv->freq = 0;
 	tuner->priv->reference_pitch = 440.0;
 	tuner->priv->scale = 1.0;
 	tuner_surface_init(tuner);
-	gtk_widget_set_size_request(GTK_WIDGET(tuner), tuner_width * tuner->priv->scale,
-	                            tuner_height * tuner->priv->scale);
 }
 
 static void gx_tuner_finalize(GObject *object)
@@ -220,19 +224,39 @@ static void gx_tuner_get_property(GObject *object, guint prop_id,
 	}
 }
 
-static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
+static void gx_tuner_get_preferred_width(GtkWidget *widget, gint *min_width, gint *natural_width)
+{
+	gint width = tuner_width * GX_TUNER(widget)->priv->scale;
+	if (min_width) {
+		*min_width = width;
+	}
+	if (natural_width) {
+		*natural_width = width;
+	}
+}
+
+static void gx_tuner_get_preferred_height(GtkWidget *widget, gint *min_height, gint *natural_height)
+{
+	gint height = tuner_height * GX_TUNER(widget)->priv->scale;
+	if (min_height) {
+		*min_height = height;
+	}
+	if (natural_height) {
+		*natural_height = height;
+	}
+}
+
+static gboolean gx_tuner_draw (GtkWidget *widget, cairo_t *cr)
 {
 	static const char* note[12] = {"F#","G ","G#","A ","A#","B ","C ","C#","D ","D#","E ","F "};
 	static const char* octave[] = {"0","1","2","3","4","5"," "};
 	GxTuner *tuner = GX_TUNER(widget);
-	cairo_t *cr;
 	GtkAllocation allocation;
 	gtk_widget_get_allocation(widget, &allocation);
 
 	double x0      = (allocation.width - 100 * tuner->priv->scale) * 0.5;
 	double y0      = (allocation.height - 90 * tuner->priv->scale) * 0.5;
 
-	cr = gdk_cairo_create(gtk_widget_get_window(widget));
 	cairo_set_source_surface(cr, tuner->priv->surface_tuner, x0, y0);
 	cairo_scale(cr, tuner->priv->scale, tuner->priv->scale);
 	cairo_paint (cr);
@@ -256,7 +280,7 @@ static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 		}
 
 		// display note
-		float pitch_add = fabsf(tuner->priv->reference_pitch - 440.00);
+		float pitch_add = std::abs(tuner->priv->reference_pitch - 440.00);
 		cairo_set_source_rgba(cr, fabsf(scale)*2+(pitch_add*0.1), 1-(scale*scale*4+(pitch_add*0.1)), 0.2,1-(fabsf(scale)*2));
 		cairo_set_font_size(cr, 18.0);
 		cairo_move_to(cr,x0+50 -9 , y0+30 +9 );
@@ -282,8 +306,6 @@ static gboolean gtk_tuner_expose (GtkWidget *widget, GdkEventExpose *event)
 	cairo_line_to(cr, (scale*2*rect_width)+x0+50, y0+(scale*scale*30)+2);
 	cairo_set_source_rgb(cr,  0.5, 0.1, 0.1);
 	cairo_stroke(cr);
-
-	cairo_destroy(cr);
 
 	return FALSE;
 }
@@ -339,6 +361,7 @@ static void draw_background(GxTuner *tuner)
 	cairo_line_to(cr, x0+98, y0+3);
 	cairo_stroke(cr);
 
+        cairo_pattern_destroy(pat);
 	pat = cairo_pattern_create_linear (x0+50, y0,x0, y0);
 	cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
 	cairo_pattern_add_color_stop_rgb (pat, 0, 0.1, 0.8, 0.1);
@@ -368,6 +391,7 @@ static void draw_background(GxTuner *tuner)
 	cairo_set_line_width(cr, 2.0);
 	cairo_stroke(cr);
 
+        cairo_pattern_destroy(pat);
 	cairo_destroy(cr);
 }
 

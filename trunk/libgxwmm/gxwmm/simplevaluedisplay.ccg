@@ -18,6 +18,6 @@
 
 #include <gxw/GxSimpleValueDisplay.h>
 
-Gxw::SimpleValueDisplay::SimpleValueDisplay(Gtk::Adjustment& adjustment):
-	_CONSTRUCT("adjustment", adjustment.gobj())
+Gxw::SimpleValueDisplay::SimpleValueDisplay(const Glib::RefPtr<Gtk::Adjustment>& adjustment):
+	_CONSTRUCT("adjustment", adjustment->gobj())
 {}

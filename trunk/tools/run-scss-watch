@@ -1,0 +1,29 @@
+#! /bin/bash
+help() {
+    echo "$(basename $0) {--entr-X} {guitarix options}"
+    echo "--entr-X uses -X for entr (normally -n or -p, see entr man page)"
+    exit 1
+}
+entr_opts=(-p -s)
+args=()
+for a in "$@"; do
+    case "$a" in
+	-[h?]) help;;
+	--entr-?) entr_opts+=(-"${a:7}");;
+	*) args+=("$a");;
+    esac
+done
+
+start() {
+    ./build/src/gx_head/guitarix --style-dir build/rcstyles "${args[@]}" >&2 &
+    GUIT=$!; echo $GUIT; trap "wait $GUIT" INT; wait $GUIT; kill -INT -$$
+}
+
+cmd="python3 waf --target=scss,scss_add"
+
+watch() {
+    ls rcstyles/*.scss | entr "${entr_opts[@]}" "$cmd && kill -USR2 $GUIT"
+}
+
+$cmd
+start "$@" | { read GUIT && watch; }

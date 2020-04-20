@@ -54,11 +54,11 @@ with {
 };
 };
 
-vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -0, +1));
-vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi:no]", -0, +1));
-vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -0, +1));
-vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -0, +1));
-vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -0, +1));
+vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi][log]", -0, +1));
+vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi][log]", -0, +1));
+vmeter3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi][log]", -0, +1));
+vmeter4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi][log]", -0, +1));
+vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi][log]", -0, +1));
 
 envelop         = abs : max ~ (1.0/ma.SR) :mean(4096) ; // : max(ba.db2linear(-70)) : ba.linear2db;
 

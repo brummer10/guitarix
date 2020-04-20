@@ -908,6 +908,15 @@ void Parameter::serializeJSON(gx_system::JsonWriter& jw) {
     if (!save_in_preset) {
 	jw.write_key("non_preset"); jw.write(false);
     }
+    if (do_not_save) {
+	jw.write_key("do_not_save"); jw.write(true);
+    }
+    if (output) {
+	jw.write_key("output"); jw.write(true);
+    }
+    if (maxlevel) {
+	jw.write_key("maxlevel"); jw.write(true);
+    }
     jw.end_object();
 }
 
@@ -924,6 +933,9 @@ Parameter::Parameter(gx_system::JsonParser& jp)
       controllable(true),
       do_not_save(false),
       blocked(false),
+      midi_blocked(false),
+      output(false),
+      maxlevel(false),
       used(false) {
     jp.next(gx_system::JsonParser::begin_object);
     while (jp.peek() != gx_system::JsonParser::end_object) {
@@ -947,6 +959,15 @@ Parameter::Parameter(gx_system::JsonParser& jp)
 	} else if (jp.current_value() == "non_preset") {
 	    jp.next(gx_system::JsonParser::value_number);
 	    save_in_preset = false;
+	} else if (jp.current_value() == "do_not_save") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    do_not_save = true;
+	} else if (jp.current_value() == "output") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    output = true;
+	} else if (jp.current_value() == "maxlevel") {
+	    jp.next(gx_system::JsonParser::value_number);
+	    maxlevel = true;
 	} else {
 	    gx_print_warning(
 		"Parameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
@@ -1361,10 +1382,19 @@ void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     jp.check_expect(gx_system::JsonParser::value_string);
     float n = idx_from_id(jp.current_value());
     if (n < 0) {
-        gx_print_warning(
-            _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
-                               % _id % jp.current_value()).str());
-        n = lower;
+#ifndef NEW_LADSPA
+        bool found;
+        string v_id = gx_preset::PresetIO::try_replace_param_value(id(), jp.current_value(), found);
+        if (found) {
+            n = idx_from_id(v_id);
+        }
+#endif
+        if (n < 0) {
+            gx_print_warning(
+                _("read parameter"), (boost::format(_("parameter %1%: unknown enum value: %2%"))
+                                      % _id % jp.current_value()).str());
+            n = lower;
+        }
     }
     json_value = n;
 }
@@ -1909,6 +1939,10 @@ void ParamMap::writeJSON_one(gx_system::JsonWriter& jw, Parameter *p) {
 	jw.write("JConv");
     } else if (dynamic_cast<SeqParameter*>(p) != 0) {
 	jw.write("Seq");
+#ifndef NEW_LADSPA
+    } else if (dynamic_cast<OscParameter*>(p) != 0) {
+	jw.write("Osc");
+#endif
     } else {
 #ifndef NDEBUG
 	cerr << "skipping " << p->id() << endl;
@@ -1946,6 +1980,10 @@ Parameter *ParamMap::readJSON_one(gx_system::JsonParser& jp) {
 	return insert(new JConvParameter(jp));
     } else if (jp.current_value() == "Seq") {
 	return insert(new SeqParameter(jp));
+#ifndef NEW_LADSPA
+    } else if (jp.current_value() == "Osc") {
+	return insert(new OscParameter(jp));
+#endif
     } else {
 	gx_print_warning(
 	    "ParamMap", Glib::ustring::compose("unknown parameter type: %1", jp.current_value()));
@@ -2124,7 +2162,7 @@ bool ParamMap::unit_has_std_values(const PluginDef *pdef) const {
     std::string position = group_id + "position";
     for (iterator i = begin(); i != end(); ++i) {
 	if (i->first.compare(0, group_id.size(), group_id) == 0 || compare_groups(i->first, pdef->groups)) {
-	    if (i->second->isInPreset()) {
+	    if (i->second->isInPreset() && !i->second->isOutput()) {
 		if (i->first != on_off && i->first != pp && i->first != position) {
 		    i->second->stdJSON_value();
 		    if (!i->second->compareJSON_value()) {

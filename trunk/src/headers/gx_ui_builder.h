@@ -25,84 +25,53 @@
 #ifndef SRC_HEADERS_GX_UI_BUILDER_H_
 #define SRC_HEADERS_GX_UI_BUILDER_H_
 
+#include <gxwmm/controlparameter.h>
+#include <gxwmm/regler.h>
+
 class PluginUI;
-class MainWindow;
+class PluginDict;
 
 namespace gx_gui {
 
-class uiElement {
-public:
-    virtual ~uiElement() {}
-};
+gx_engine::Parameter *check_get_parameter(
+    gx_engine::GxMachineBase& machine, const std::string& id, Gtk::Widget *w);
 
-template<class T>
-class uiToggle: public uiElement {
-protected:
-    gx_engine::GxMachineBase& machine;
-    const std::string id;
-    Gtk::ToggleButton* button;
-    void on_button_toggled();
-    void on_parameter_changed(T v);
-public:
-    uiToggle(gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b, const std::string& id);
-};
+gx_engine::FloatParameter *check_get_float_parameter(
+    gx_engine::GxMachineBase& machine, const std::string& id, Gtk::Widget *w);
 
-template<class T>
-uiToggle<T>::uiToggle(gx_engine::GxMachineBase& machine_, Gtk::ToggleButton *b, const std::string& id_)
-    : uiElement(), machine(machine_), id(id_), button(b) {
-    if (!machine.parameter_hasId(id)) {
-	return;
-    }
-    button->set_active(machine.get_parameter_value<T>(id));
-    button->signal_toggled().connect(sigc::mem_fun(this, &uiToggle<T>::on_button_toggled));
-    machine.signal_parameter_value<T>(id).connect(sigc::mem_fun(this, &uiToggle<T>::on_parameter_changed));
-}
+bool ui_connect_switch(
+    gx_engine::GxMachineBase& machine, Gtk::ToggleButton *b,
+    const string& id, sigc::signal<void(bool)> *out_ctr, bool disable);
 
-template<>
-inline void uiToggle<float>::on_button_toggled() {
-    machine.set_parameter_value(id, static_cast<float>(button->get_active()));
-}
+bool ui_connect(gx_engine::GxMachineBase& machine, Gtk::Widget *w, const std::string& id,
+                sigc::signal<void(bool)> *out_ctr);
 
-template<>
-inline void uiToggle<bool>::on_button_toggled() {
-    machine.set_parameter_value(id, button->get_active());
-}
-
-template<>
-inline void uiToggle<float>::on_parameter_changed(float v) {
-    button->set_active(v != 0.0);
-}
-
-template<>
-inline void uiToggle<bool>::on_parameter_changed(bool v) {
-    button->set_active(v);
-}
-
-/****************************************************************
- ** class GxBuilder
- **
- ** Attempts to correct the mismatch between GtkBuilder and
- ** Gtk::Builder wrt. reference counting.
- **
- ** Use get_toplevel or get_toplevel_derived to become the owner of a
- ** toplevel widget of the loaded builder widget tree (specifying
- ** object id's for the loader means that only part of the defined
- ** widget tree is loaded). These pointers must be delete'd to destroy
- ** the widget (and its child widgets). If you loaded a window
- ** (GtkWindow or derived) you must use one of the get_toplevel
- ** functions and delete the instance to avoid a memory leak.
- **
- ** Use find_widget for getting a pointer to a widget (but you don't
- ** become owner of that widget, don't use delete). If you want to add
- ** the loaded widget tree to a container, use this function (the
- ** container will ref the widget and manage its lifetime).
- **
- ** template function code mostly copied from Gtk::Builder, look
- ** there for comments.
+/**************************************************************//**
+ * class GxBuilder
+ *
+ * Attempts to correct the mismatch between GtkBuilder and
+ * Gtk::Builder wrt. reference counting.
+ *
+ * Use get_toplevel or get_toplevel_derived to become the owner of a
+ * toplevel widget of the loaded builder widget tree (specifying
+ * object id's for the loader means that only part of the defined
+ * widget tree is loaded). These pointers must be delete'd to destroy
+ * the widget (and its child widgets). If you loaded a window
+ * (GtkWindow or derived) you must use one of the get_toplevel
+ * functions and delete the instance to avoid a memory leak.
+ *
+ * Use find_widget for getting a pointer to a widget (but you don't
+ * become owner of that widget, don't use delete). If you want to add
+ * the loaded widget tree to a container, use this function (the
+ * container will ref the widget and manage its lifetime).
+ *
+ * template function code mostly copied from Gtk::Builder, look
+ * there for comments.
  */
 
 class GxBuilder: public Gtk::Builder {
 private:
+    static bool show_tooltips;
     // only implemented for base class, make inaccessable
     static Glib::RefPtr<GxBuilder> create_from_file(const std::string& filename, const char* object_id);
     static Glib::RefPtr<GxBuilder> create_from_file(const std::string& filename, const Glib::ustring& object_id);
@@ -111,30 +80,43 @@ private:
     static Glib::RefPtr<GxBuilder> create_from_string(const Glib::ustring& buffer, const Glib::ustring& object_id);
     static Glib::RefPtr<GxBuilder> create_from_string(const Glib::ustring& buffer, const Glib::StringArrayHandle& object_ids);
     GObject* get_cobject(const Glib::ustring& name);
-protected:
-    Gtk::Object* get_widget_checked(const Glib::ustring& name, GType type, bool take_ref);
 public:
     static inline Glib::RefPtr<GxBuilder> create() { return Glib::RefPtr<GxBuilder>(new GxBuilder()); }
 
     static Glib::RefPtr<GxBuilder> create_from_file(
-	const std::string& filename, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0);
+	const std::string& filename, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0, sigc::signal<void(bool)> *out_ctr = 0);
 
     static Glib::RefPtr<GxBuilder> create_from_file(
-	const std::string& filename, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids);
+	const std::string& filename, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids, sigc::signal<void(bool)> *out_ctr = 0);
 
     static Glib::RefPtr<GxBuilder> create_from_string(
-	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0);
+	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach = 0, const char* object_id = 0, sigc::signal<void(bool)> *out_ctr = 0);
 
     static Glib::RefPtr<GxBuilder> create_from_string(
-	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids);
+	const Glib::ustring& buffer, gx_engine::GxMachineBase* pmach, const Glib::StringArrayHandle& object_ids, sigc::signal<void(bool)> *out_ctr = 0);
 
-    void fixup_controlparameters(gx_engine::GxMachineBase& machine);
+    static bool get_show_tooltips() { return show_tooltips; }
+    static void set_show_tooltips(bool v) { show_tooltips = v; }
+    static void connect_gx_tooltip_handler(GtkWidget *widget);
+    static void set_tooltip_text_connect_handler(GtkWidget *widget, const char *text);
+    static void set_tooltip_text_connect_handler(Gtk::Widget& widget, const char *text) {
+	set_tooltip_text_connect_handler(widget.gobj(), text); }
+    static void set_tooltip_text_connect_handler(Gtk::Widget& widget, const Glib::ustring& text) {
+	set_tooltip_text_connect_handler(widget.gobj(), text.c_str()); }
+
+    void fixup_controlparameters(gx_engine::GxMachineBase& machine, sigc::signal<void(bool)> *out_ctr);
 
     template <class T_Widget> inline
     void find_widget(const Glib::ustring& name, T_Widget*& widget) {
-	widget = 0;
-	widget = dynamic_cast<T_Widget*>(this->get_widget_checked(name, T_Widget::get_base_type(), false));
+	widget = dynamic_cast<T_Widget*>(get_widget_checked(name, T_Widget::get_base_type()));
 	assert(widget);
+    }
+    // pointer set by find_object only have the lifetime of the underlying GxBuilder
+    // if you need a longer lifetime, use get_object()!
+    template <class T_Object> inline
+    void find_object(const Glib::ustring& name, T_Object*& object) {
+	object = dynamic_cast<T_Object*>(get_object(name).get());
+	assert(object);
     }
 
     template <class T_Widget, class F> inline
@@ -162,9 +144,8 @@ public:
 
     template <class T_Widget> inline
     void get_toplevel(const Glib::ustring& name, T_Widget*& widget) {
-	widget = 0;
 	GType type = T_Widget::get_base_type();
-	widget = dynamic_cast<T_Widget*>(this->get_widget_checked(name, type, !g_type_is_a(type, GTK_TYPE_WINDOW)));
+	widget = dynamic_cast<T_Widget*>(get_widget_checked(name, type));
 	assert(widget);
 	assert(!widget->get_parent());
     }
@@ -199,7 +180,7 @@ class StackBoxBuilder;
 
 class UiBuilderImpl: public gx_engine::UiBuilderBase {
 protected:
-    MainWindow& main;
+    PluginDict& plugin_dict;
     std::vector<PluginUI*> *pluginlist;
     static StackBoxBuilder *intf;
     static void openTabBox_(const char* label);
@@ -240,7 +221,8 @@ protected:
     static void load_glade_file_(const char *fname);
     virtual bool load(gx_engine::Plugin *p);
 public:
-    UiBuilderImpl(MainWindow *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl=0);
+    UiBuilderImpl(PluginDict *i, StackBoxBuilder *b, std::vector<PluginUI*> *pl, PluginUI *pluginui);
+    ~UiBuilderImpl();
     bool load_unit(PluginDef *pl);
     friend class gx_engine::GxMachineRemote;
 };

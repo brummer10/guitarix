@@ -27,8 +27,10 @@ namespace Gxw {
 class PortDisplay: public Gxw::VSlider {
 	_CLASS_GTKOBJECT(PortDisplay,GxPortDisplay,GX_PORT_DISPLAY,Gxw::VSlider,GxVSlider)
 	public:
-	void set_state(int cutoff_low, int cutoff_high);
-	explicit PortDisplay(Gtk::Adjustment& adjustment);
+	_WRAP_METHOD(void set_state(int cutoff_low, int cutoff_high), gx_port_display_set_state)
+	_WRAP_METHOD(void set_cutoff_low(int cutoff_low), gx_port_display_set_cutoff_low);
+	_WRAP_METHOD(void set_cutoff_high(int cutoff_high), gx_port_display_set_cutoff_high);
+	explicit PortDisplay(const Glib::RefPtr<Gtk::Adjustment>& adjustment);
 	_CTOR_DEFAULT
 };
 

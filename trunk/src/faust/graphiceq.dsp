@@ -21,18 +21,18 @@ g9 = vslider("g9   [tooltip:gain (dB) at 8 kHz]", 0, -30, 20, 0.1) : ba.db2linea
 g10 = vslider("g10  [tooltip:gain (dB) at 16 kHz]", 0, -30, 20, 0.1) : ba.db2linear : si.smooth(0.999);
 g11 = vslider("g11  [tooltip:gain (dB) above 16 kHz]", 0, -30, 20, 0.1) : ba.db2linear : si.smooth(0.999);
 
-v1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi:no]", -70, +5));
-v2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi:no]", -70, +5));
-v3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi:no]", -70, +5));
-v4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi:no]", -70, +5));
-v5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi:no]", -70, +5));
+v1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi][log]", -70, +5));
+v2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi][log]", -70, +5));
+v3(x)		= attach(x, envelop(x) : vbargraph("v3[nomidi][log]", -70, +5));
+v4(x)		= attach(x, envelop(x) : vbargraph("v4[nomidi][log]", -70, +5));
+v5(x)		= attach(x, envelop(x) : vbargraph("v5[nomidi][log]", -70, +5));
 
-v6(x)		= attach(x, envelop(x) : vbargraph("v6[nomidi:no]", -70, +5));
-v7(x)		= attach(x, envelop(x) : vbargraph("v7[nomidi:no]", -70, +5));
-v8(x)		= attach(x, envelop(x) : vbargraph("v8[nomidi:no]", -70, +5));
-v9(x)		= attach(x, envelop(x) : vbargraph("v9[nomidi:no]", -70, +5));
-v10(x)		= attach(x, envelop(x) : vbargraph("v10[nomidi:no]", -70, +5));
-v11(x)		= attach(x, envelop(x) : vbargraph("v11[nomidi:no]", -70, +5));
+v6(x)		= attach(x, envelop(x) : vbargraph("v6[nomidi][log]", -70, +5));
+v7(x)		= attach(x, envelop(x) : vbargraph("v7[nomidi][log]", -70, +5));
+v8(x)		= attach(x, envelop(x) : vbargraph("v8[nomidi][log]", -70, +5));
+v9(x)		= attach(x, envelop(x) : vbargraph("v9[nomidi][log]", -70, +5));
+v10(x)		= attach(x, envelop(x) : vbargraph("v10[nomidi][log]", -70, +5));
+v11(x)		= attach(x, envelop(x) : vbargraph("v11[nomidi][log]", -70, +5));
 
 envelop         = abs : max ~ (1.0/ma.SR) : rd.maxn(4096) ;
 

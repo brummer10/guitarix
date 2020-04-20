@@ -1,0 +1,41 @@
+/*
+ * This is the GTK rc style file for default
+ */
+
+@import url("common.css");
+
+gx-paint-box {
+    -GxPaintBox-icon-set: 1000;
+}
+
+gx-knob {
+    /*stock["bigknob"] = {{"tactile_knob_large_151f.png"}}
+      stock["smallknob"] = {{"tactile_knob_small_99f.png"}}
+      stock["smallknobr"] = {{"tactile_knob_medium_151f.png"}}
+   */
+}
+
+gx-knob {
+    -GxKnob-framecount: 0; /* use 0 for auto (assumes square frames)
+                              and >1 for non squareframe animations */
+}
+
+gx-wheel {
+    /* stock["wheel_back"] = {{"tactile_wheel_101f.png"}} */
+
+    -GxWheel-framecount: 101; /* use 0 for auto (assumes square frames)
+				 and >1 for non squareframe animations */
+}
+
+gx-wheel-vertical {
+    /* stock["wheel_vertical_back"] = {{"tactile_h_wheel_101f.png"}} */
+
+    -GxWheelVertical-framecount: 101; /* use 0 for auto (assumes square frames)
+					 and >1 for non squareframe animations */
+}
+
+gx-toggle-image {
+    /* stock["switchit_on"] = {{"tactile_backlit_switchit_on.png"}}
+       stock["switchit_off"] = {{"tactile_backlit_switchit_off.png"}}
+   */
+}

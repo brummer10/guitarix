@@ -17,23 +17,22 @@
  */
 
 #include "drawingutils.h"
-#include <cstring> 
-#include <algorithm> 
+#include <cstring>
+#include <algorithm>
 
-void gx_draw_rect (GtkWidget * widget, const gchar * type, GtkStateType * state, gint x, gint y, gint width, gint height, gint rad, float bevel) {
-    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
-    float r, g, b;
-    gx_get_color(widget, type, state, &r, &g, &b);
-    gx_create_rectangle(cr, x, y, width, height, rad);
-	cairo_set_source_rgb(cr, r, g, b);
-	cairo_fill(cr);
-    
-    if (bevel)
-        gx_bevel(cr, x, y, width, height, rad, bevel);
-        
-    cairo_destroy(cr);
+GtkStyleContext *gx_get_entry_style_context()
+{
+    GtkWidgetPath *path = gtk_widget_path_new();
+    gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
+    gtk_widget_path_append_type (path, GTK_TYPE_ENTRY);
+    GtkStyleContext *entry_context = gtk_style_context_new();
+    gtk_style_context_set_path(entry_context, path);
+    gtk_widget_path_unref(path);
+
+    return entry_context;
 }
-void _gx_draw_inset (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad, gint depth) {
+
+void gx_draw_inset (cairo_t * cr, double x, double y, double width, double height, double rad, double depth) {
     cairo_pattern_t *pat = cairo_pattern_create_linear (x, y, x, y + height);
     cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.0, 0.0, 0.0, 0.33);
     cairo_pattern_add_color_stop_rgba(pat, 1.0, 1.0, 1.0, 1.0, 0.1);
@@ -42,12 +41,7 @@ void _gx_draw_inset (cairo_t * cr, gint x, gint y, gint width, gint height, gint
 	cairo_fill(cr);
     cairo_pattern_destroy (pat);
 }
-void gx_draw_inset (GtkWidget * widget, gint x, gint y, gint width, gint height, gint rad, gint depth) {
-    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
-    _gx_draw_inset(cr, x, y, width, height, rad, depth);
-    cairo_destroy(cr);
-}
-void _gx_draw_glass (cairo_t *cr, gint x, gint y, gint width, gint height, gint rad) {
+void gx_draw_glass (cairo_t *cr, double x, double y, double width, double height, double rad) {
     cairo_pattern_t *pat = cairo_pattern_create_linear (x, y, x, y + 3);
     cairo_pattern_add_color_stop_rgba(pat, 0.0, 0.0, 0.0, 0.0, 0.5);
     cairo_pattern_add_color_stop_rgba(pat, 1.0, 0.0, 0.0, 0.0, 0.0);
@@ -56,49 +50,8 @@ void _gx_draw_glass (cairo_t *cr, gint x, gint y, gint width, gint height, gint 
 	cairo_fill(cr);
     cairo_pattern_destroy (pat);
 }
-void gx_draw_glass (GtkWidget * widget, gint x, gint y, gint width, gint height, gint rad) {
-    cairo_t * cr = gdk_cairo_create(GDK_DRAWABLE(gtk_widget_get_window(widget)));
-    _gx_draw_glass(cr, x, y, width, height, rad);
-    cairo_destroy(cr);
-}
 
-void gx_get_bg_color (GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
-    gx_get_color(widget, "bg", state, r, g, b);
-}
-void gx_get_fg_color (GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
-    gx_get_color(widget, "fg", state, r, g, b);
-}
-void gx_get_base_color (GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
-    gx_get_color(widget, "base", state, r, g, b);
-}
-void gx_get_text_color (GtkWidget * widget, GtkStateType * state, float * r, float * g, float * b) {
-    gx_get_color(widget, "text", state, r, g, b);
-}
-void gx_get_color (GtkWidget * widget, const gchar * type, GtkStateType * state, float * r, float * g, float * b) {
-    GdkColor color;
-    GtkStyle * style = gtk_widget_get_style (widget);
-    if (style != NULL) {
-        GtkStateType s;
-        if (state)
-            s = *state;
-        else
-            s = gtk_widget_get_state(widget);
-        color = style->bg[s];
-        if (!strcmp(type, "bg"))
-            color = style->bg[s];
-        if (!strcmp(type, "fg"))
-            color = style->fg[s];
-        if (!strcmp(type, "base"))
-            color = style->base[s];
-        if (!strcmp(type, "text"))
-            color = style->text[s];
-        *r = float(color.red)   / 65535;
-        *g = float(color.green) / 65535;
-        *b = float(color.blue)  / 65535;
-    }
-}
-
-void gx_create_rectangle (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad) {
+void gx_create_rectangle (cairo_t * cr, double x, double y, double width, double height, double rad) {
     if (rad == 0) {
         cairo_rectangle(cr, x, y, width, height);
         return;
@@ -114,7 +67,7 @@ void gx_create_rectangle (cairo_t * cr, gint x, gint y, gint width, gint height,
     cairo_curve_to(cr,x,y,x,y,x+rad,y);             // Curve to A
 }
 
-void gx_bevel (cairo_t * cr, gint x, gint y, gint width, gint height, gint rad, float bevel) {
+void gx_bevel (cairo_t * cr, double x, double y, double width, double height, double rad, double bevel) {
     if (bevel == 0)
         return;
     cairo_save(cr);

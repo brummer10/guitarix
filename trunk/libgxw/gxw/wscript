@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from waflib import Logs, Utils, Configure, Options
-import os.path, shutil
+import os, shutil
 
 def options(opt):
     pass
@@ -43,7 +43,7 @@ def build_stock_images(bld):
     bld.add_group()
 
 def build(bld):
-    if not (bld.env.STANDALONE or bld.env.NEW_LADSPA):
+    if not (bld.env.STANDALONE or bld.env.NEW_LADSPA or bld.env.GX_PYTHON_WRAPPER or bld.env.GX_GLADE_SUPPORT):
         return
 
     sources = [
@@ -73,7 +73,6 @@ def build(bld):
         'GxLevelSlider.cpp',
         'GxPaintBox.cpp',
         'GxMeterScale.cpp',
-        'GxGradient.cpp',
         'GxValueDisplay.cpp',
         'GxSimpleValueDisplay.cpp',
         'GxRackTuner.cpp',
@@ -108,3 +107,9 @@ def build(bld):
             prog.install_path = None
 
     bld(name='gxw_inc', export_includes=['..'])
+    if "RUN_DOXYGEN" in os.environ:
+        # save source file list and include paths for use by doxygen
+        bld(rule="echo ${SRC} > ${TGT}",
+            source = sources,
+            target = 'input_libgxw.txt',
+            )

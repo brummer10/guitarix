@@ -34,8 +34,6 @@ G_BEGIN_DECLS
 typedef struct _GxIREdit GxIREdit;
 typedef struct _GxIREditClass GxIREditClass;
 
-typedef void (*cairo_paint_function)(GxIREdit*,cairo_t*,GdkEventExpose*);
-
 struct _GxIREdit {
 	GtkDrawingArea parent;
 	// wave file
@@ -62,7 +60,7 @@ struct _GxIREdit {
 	gint mode_arg;
 	gint mode_arg2;
 	GdkCursor *cursor[6]; //FIXME
-	GdkPixmap *surface;
+	cairo_surface_t *surface;
 	gint scale_num;
 	// coordinate axes
 	gint y_border_top;
@@ -86,8 +84,7 @@ struct _GxIREdit {
 	float *data; // odata_len samples
 	float *bdata;
 	gint bdata_len;
-	cairo_paint_function locked;
-	gboolean buffered;
+	int locked;
 	// output parameters
 	gint cutoff_low;
 	gint cutoff_high;

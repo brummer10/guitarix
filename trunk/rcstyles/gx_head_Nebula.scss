@@ -1,0 +1,52 @@
+/* GX-Style Nebula */
+
+/* ICON THEME
+ * 
+ * background1:    nebula.png
+ * background2:    nebula2.png
+ * bigknob:        knob_big.png
+ * levelslider:    simplelevelslider.png
+ * logo:           logo_white.png
+ * midknob:        knob_mid.png
+ * minitoggle_off: switch_mid_off.png
+ * minitoggle_on:  switch_mid_on.png
+ * portdisplay:    playhead.png
+ * smallknob:      knob_small.png
+ * smallknobr:     knob_small_r.png
+ * switchit_off:   switch_off.png
+ * switchit_on:    switch_on.png
+ * wheel_back:     tactile_wheel_101f.png
+ * gxhead:         live_wallpaper_nebula.png
+ * 
+ * ICON THEME
+ */
+
+@import url("gx_head_Guitarix.css");
+
+gx-paint-box {
+    -GxPaintBox-icon-set: 14;
+    -GxPaintBox-stock-gxhead: "live_wallpaper_nebula.png";
+}
+
+#rackcontainer .effect_title {
+    color: #999999;
+}
+
+#effect_title {
+    font: condensed 10pt "Roboto";
+    color: #999999;
+}
+
+#drag_widget {
+    .effect_title {
+	color: #999999;
+    }
+}
+
+#rack_label,
+#Value, /* *Value */
+#ampbox label,
+#beffekt_label,
+#rack_effect_label {
+    color: #999999;
+}

@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-04-15 16:00+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2020-01-25 15:48+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -3781,7 +3781,7 @@ msgid "Order Rack _Horizontally"
 msgstr ""
 
 #: ../src/gx_head/gui/gx_main_window.cpp:1733
-msgid "_Show _Values"
+msgid "Show _Values"
 msgstr ""
 
 #: ../src/gx_head/gui/gx_main_window.cpp:1738

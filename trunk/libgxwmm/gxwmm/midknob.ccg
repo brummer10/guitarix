@@ -18,6 +18,6 @@
 
 #include <gxw/GxMidKnob.h>
 
-Gxw::MidKnob::MidKnob(Gtk::Adjustment& adjustment):
-	_CONSTRUCT("adjustment", adjustment.gobj())
+Gxw::MidKnob::MidKnob(const Glib::RefPtr<Gtk::Adjustment>& adjustment):
+	_CONSTRUCT("adjustment", adjustment->gobj())
 {}

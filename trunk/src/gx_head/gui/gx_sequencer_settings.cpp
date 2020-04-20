@@ -172,10 +172,10 @@ void SEQWindow::init_connect() {
     builder->find_widget("gxvaluedisplay1", step_value);
     builder->find_widget("label8:rack_label_inverse", step_label);
     
-    Pango::FontDescription font = preset_label->get_style()->get_font();
+    Pango::FontDescription font = preset_label->get_style_context()->get_font();
     font.set_size(10*Pango::SCALE);
     font.set_weight(Pango::WEIGHT_BOLD);
-    preset_label->modify_font(font);
+    preset_label->override_font(font);
 
     make_preset_button(preset_button);
 
@@ -230,7 +230,7 @@ void SEQWindow::init_connect() {
 
     add_button->signal_clicked().connect(
       sigc::mem_fun(*this, &SEQWindow::on_preset_add_clicked));
-    add_button->set_tooltip_text(_("add effect unit preset to the sequence"));
+    gx_gui::GxBuilder::set_tooltip_text_connect_handler(*add_button, _("add effect unit preset to the sequence"));
 
     gtk_window->signal_key_press_event().connect(
       sigc::mem_fun(this, &SEQWindow::on_key_press_event));
@@ -241,7 +241,7 @@ void SEQWindow::init_connect() {
     }
 }
 
-void SEQWindow::init_sequences(gx_engine::SeqParameter *p, Gtk::HBox* _box) {
+void SEQWindow::init_sequences(gx_engine::SeqParameter *p, Gtk::Box* _box) {
     Glib::ListHandle<Gtk::Widget*> List = _box->get_children();
     for (Glib::ListHandle<Gtk::Widget*>::iterator itt = List.begin();itt != List.end(); ++itt) {
         dynamic_cast<Gtk::ToggleButton*>((*itt))->signal_clicked().connect(
@@ -351,13 +351,13 @@ void SEQWindow::connect_midi() {
     delete w;
 }
 
-void SEQWindow::make_preset_button(Gtk::HBox * box) {
+void SEQWindow::make_preset_button(Gtk::Box * box) {
     Gtk::Button *p = new Gtk::Button();
-    GtkWidget *l = gtk_image_new_from_stock("rack_preset", (GtkIconSize)-1);
-    p->add(*Gtk::manage(Glib::wrap(l)));
+    Gtk::Image *l = new Gtk::Image("rack_preset", Gtk::ICON_SIZE_BUTTON);
+    p->add(*Gtk::manage(l));
     p->set_can_default(false);
     p->set_can_focus(false);
-    p->set_tooltip_text(_("manage effect unit presets"));
+    gx_gui::GxBuilder::set_tooltip_text_connect_handler(*p, _("manage effect unit presets"));
     p->set_name("effect_on_off");
     box->pack_start(*Gtk::manage(p),Gtk::PACK_SHRINK);
     p->signal_clicked().connect(
@@ -503,7 +503,7 @@ void SEQWindow::on_sec_tact_changed() {
     );
 }
 
-void SEQWindow::append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, int r, int r_save) {
+void SEQWindow::append_seq_block(Gtk::Box * box, gx_engine::SeqParameter *p, int r, int r_save) {
     Gtk::ToggleButton * ab;
     for(int j = r_save; j<r; ++j) {
         ab = new Gtk::ToggleButton();
@@ -514,7 +514,7 @@ void SEQWindow::append_seq_block(Gtk::HBox * box, gx_engine::SeqParameter *p, in
     }
 }
 
-void SEQWindow::remove_seq_block(Gtk::HBox * box, int r) {
+void SEQWindow::remove_seq_block(Gtk::Box * box, int r) {
     Glib::ListHandle<Gtk::Widget*> boxList = box->get_children();
     int i = 0;
     for (Glib::ListHandle<Gtk::Widget*>::iterator itt = boxList.begin();itt != boxList.end(); ++itt) {
@@ -527,7 +527,7 @@ void SEQWindow::remove_seq_block(Gtk::HBox * box, int r) {
 }
 
 void SEQWindow::scroll_playhead(float value) {
-    Gtk::Adjustment *a = vp->get_hadjustment();
+    Glib::RefPtr<Gtk::Adjustment> a = vp->get_hadjustment();
     static float old_state = 0.0;
     float u = a->get_upper();
     float l = a->get_lower();
@@ -567,11 +567,11 @@ bool SEQWindow::on_key_press_event(GdkEventKey *event) {
     return true;
 }
 
-void SEQWindow::on_seq_button_clicked(Gtk::HBox *box, gx_engine::SeqParameter *p) {
+void SEQWindow::on_seq_button_clicked(Gtk::Box *box, gx_engine::SeqParameter *p) {
     Glib::signal_timeout().connect_once(sigc::bind(sigc::bind(sigc::mem_fun(this, &SEQWindow::on_seq_button_clicked_set),p),box),2);
 }
 
-void SEQWindow::on_seq_button_clicked_set(Gtk::HBox *box, gx_engine::SeqParameter *p) {
+void SEQWindow::on_seq_button_clicked_set(Gtk::Box *box, gx_engine::SeqParameter *p) {
     std::vector<int> sequence;
     gx_engine::GxSeqSettings seqc;
     Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
@@ -598,7 +598,7 @@ void SEQWindow::check_preset_label() {
     preset_label->set_label(pset);
 }
 
-void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box) {
+void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::Box *box) {
 
     Glib::ListHandle<Gtk::Widget*> seqList = box->get_children();
     Glib::ListHandle<Gtk::Widget*>::iterator itt = seqList.begin();
@@ -612,7 +612,7 @@ void SEQWindow::seq_changed(const gx_engine::GxSeqSettings* seqc, Gtk::HBox *box
             dynamic_cast<Gtk::ToggleButton*>((*itt))->set_name("seq_button");
             i0 = 0;
         } else {
-            dynamic_cast<Gtk::ToggleButton*>((*itt))->set_name("button");
+            dynamic_cast<Gtk::ToggleButton*>((*itt))->set_name("seqbutton");
             ++i0;
         }
         ++itt;

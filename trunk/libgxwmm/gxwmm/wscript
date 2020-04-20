@@ -43,17 +43,15 @@ def configure(conf):
     env = conf.env
     if opt.generate_cpp_wrapper:
         conf.check_cfg(package='glibmm-2.4', variables='gmmprocdir', uselib_store='GLIBMM', mandatory=True)
-        conf.check_cfg(package='gtkmm-2.4', variables='gmmprocm4dir', uselib_store='GTK', mandatory=True)
+        conf.check_cfg(package='gtkmm-3.0', variables='gmmprocm4dir', uselib_store='GTK', mandatory=True)
         conf.check_cfg(package='atkmm-1.6', variables='gmmprocm4dir', uselib_store='ATK', mandatory=True)
         conf.check_cfg(package='pangomm-1.4', variables='gmmprocm4dir', uselib_store='PANGO', mandatory=True)
         conf.check_cfg(package='pygobject-2.0', variables='codegendir', uselib_store='PYGOBJECT', mandatory=True)
         env.USE_GENERATED_CPP = False
     else:
         env.USE_GENERATED_CPP = True
-    if opt.shared_lib:
+    if opt.shared_lib or opt.standalone:
         env.GX_LIB_SHARED = True
-    elif opt.standalone:
-        env.GX_LIB_STATIC = True
     if opt.lib_dev:
         env.GX_LIB_SHARED = True
         env.GX_LIB_DEV = True
@@ -150,7 +148,6 @@ def build_generate_wrapper(bld):
               "GxLevelSlider.h",
               "GxPaintBox.h",
               "GxMeterScale.h",
-              "GxGradient.h",
               "GxValueDisplay.h",
               "GxSimpleValueDisplay.h",
               "GxPortDisplay.h",
@@ -278,4 +275,13 @@ def build(bld):
             source = sources+["init.cc","wrap_init.cc"],
             use = ['GTKMM','gxw'],
             target = 'gxwmm',
+            )
+    if "RUN_DOXYGEN" in os.environ:
+        # save source file list and include paths for use by doxygen
+        bld(rule="echo ${SRC} > ${TGT}",
+            source = (["init.cc","wrap_init.cc"] +
+                      [v.replace('.hg','.h') for v in sources] +
+                      [v.replace('.hg','.cc') for v in sources]),
+                      #['private/'+v.replace('.hg','_p.h') for v in sources]),
+            target = 'input_libgxwmm.txt',
             )

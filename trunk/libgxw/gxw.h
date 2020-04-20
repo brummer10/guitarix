@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __GXX_H__
+#ifndef __GXW_H__
 #define __GXW_H__
 
 #include <gxw/GxTuner.h>
@@ -44,7 +44,6 @@
 #include <gxw/GxLevelSlider.h>
 #include <gxw/GxPaintBox.h>
 #include <gxw/GxMeterScale.h>
-#include <gxw/GxGradient.h>
 #include <gxw/GxValueDisplay.h>
 #include <gxw/GxPlayHead.h>
 #include <gxw/gxinit.h>

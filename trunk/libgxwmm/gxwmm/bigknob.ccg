@@ -18,6 +18,6 @@
 
 #include <gxw/GxBigKnob.h>
 
-Gxw::BigKnob::BigKnob(Gtk::Adjustment& adjustment):
-	_CONSTRUCT("adjustment", adjustment.gobj())
+Gxw::BigKnob::BigKnob(const Glib::RefPtr<Gtk::Adjustment>& adjustment):
+	_CONSTRUCT("adjustment", adjustment->gobj())
 {}

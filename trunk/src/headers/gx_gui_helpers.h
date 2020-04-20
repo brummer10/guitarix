@@ -27,6 +27,14 @@
 
 namespace gx_gui {
 
+class WaitCursor {
+private:
+    Glib::RefPtr<Gdk::Window> gdk_window;
+public:
+    WaitCursor(Gtk::Window *window);
+    ~WaitCursor();
+};
+
 gint gx_nchoice_dialog_without_entry(
     const char* window_title,
     const char* msg,

@@ -36,7 +36,10 @@
 
 using namespace std;
 
-struct Meta : map<const char*, const char*>
+typedef map<const char*, const char*> charmapType;
+typedef charmapType::iterator charmapIter;
+
+struct Meta : charmapType
 {
     void declare (const char* key, const char* value) { (*this)[key]=value; }
 };

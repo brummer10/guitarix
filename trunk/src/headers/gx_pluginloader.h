@@ -45,12 +45,13 @@ enum {			       // additional flags for PluginDef (used internally)
 class Plugin {
 private:
     PluginDef *pdef;
-    BoolParameter *p_box_visible; // In Rack: UI Interface Box visible
-    BoolParameter *p_plug_visible; // In Box: UI Interface Box visible
-    BoolParameter *p_on_off;	   // Audio Processing
-    IntParameter  *p_position; // Position in Rack / Audio Processing Chain
-    IntParameter  *p_effect_post_pre; // pre/post amp position (post = 0)
+    BoolParameter *p_box_visible; ///< In Rack: UI Interface Box visible
+    BoolParameter *p_plug_visible; ///< minibox visible (false: full box)
+    BoolParameter *p_on_off;	   ///< Audio Processing
+    IntParameter  *p_position; ///< Position in Rack / Audio Processing Chain
+    IntParameter  *p_effect_post_pre; ///< pre/post amp position (post = 0)
     int pos_tmp;
+    void set_midi_on_off_blocked(bool v);
 public:
     PluginDef *get_pdef() { return pdef; }
     void set_pdef(PluginDef *p) { pdef = p; }
@@ -97,24 +98,17 @@ public:
 class ParamRegImpl: public ParamReg {
 private:
     static ParamMap *pmap;
-    static float *registerVar_(const char* id, const char* name, const char* tp,
-			       const char* tooltip, float* var, float val,
-			       float low, float up, float step);
-    static void registerBoolVar_(const char* id, const char* name, const char* tp,
-				 const char* tooltip, bool* var, bool val);
-    static void registerNonMidiVar_(const char * id, bool*var, bool preset, bool nosave);
-    static void registerNonMidiFloatVar_(const char * id, float *var, bool preset, bool nosave,
-              float val, float low, float up, float step);
-    static float *registerNonMidiSharedVar_(const char * id, float *var, bool preset, bool nosave,
-              float val, float low, float up, float step);
-    static void registerEnumVar_(const char *id, const char* name, const char* tp,
-				 const char* tooltip, const value_pair* values, float *var, float val,
-				 float low, float up, float step);
-    static float *registerSharedEnumVar_(const char *id, const char* name, const char* tp,
-				 const char* tooltip, const value_pair* values, float *var, float val,
-				 float low, float up, float step);
-    static void registerIEnumVar_(const char *id, const char* name, const char* tp,
-				  const char* tooltip, const value_pair* values, int *var, int val);
+    static float *registerFloatVar_(
+	const char* id, const char* name, const char* tp,
+	const char* tooltip, float* var, float val,
+	float low, float up, float step, const value_pair* values=0);
+    static int *registerIntVar_(
+	const char* id, const char* name, const char* tp,
+	const char* tooltip, int* var, int val,
+	int low, int up, const value_pair* values=0);
+    static bool *registerBoolVar_(
+	const char* id, const char* name, const char* tp,
+	const char* tooltip, bool* var, bool val);
 public:
     ParamRegImpl(ParamMap* pm);
 };

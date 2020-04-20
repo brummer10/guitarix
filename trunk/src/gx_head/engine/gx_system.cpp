@@ -175,7 +175,7 @@ void SkinHandling::set_styledir(const string& style_dir) {
     if (!d) {
         return;
     }
-    // look for gx_head_*.rc and extract *-part
+    // look for gx_head_*.css and extract *-part
     struct dirent *de;
     skin_list.clear();
     while ((de = readdir(d)) != 0) {
@@ -187,14 +187,21 @@ void SkinHandling::set_styledir(const string& style_dir) {
             continue;
         }
         p += 8;
-        int n = strlen(p) - 3;
-        if (strcmp(p+n, ".rc") != 0) {
+        int n = strlen(p) - 4;
+        if (strcmp(p+n, ".css") != 0) {
             continue;
         }
         skin_list.push_back(string(p, n));
     }
     closedir(d);
     sort(skin_list.begin(), skin_list.end());
+}
+
+string SkinHandling::get_cssfile() const {
+    if (name.empty()) {
+	return "minimal.css";
+    }
+    return "gx_head_" + name + ".css";
 }
 
 bool SkinHandling::is_in_list(const string& name) {
@@ -215,10 +222,14 @@ const Glib::ustring& SkinHandling::operator[](unsigned int idx) {
     if (idx < skin_list.size()) {
 	return skin_list[idx];
     } else {
+	static Glib::ustring empty;
 	return empty;
     }
 }
 
+void SkinHandling::set_default_skin_name() {
+    name = "Guitarix";
+}
 
 /****************************************************************
  ** class PathList
@@ -330,9 +341,9 @@ IRFileListing::IRFileListing(const std::string& path) {
 				       "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
         Glib::RefPtr<Gio::FileInfo> file_info;
         while ((file_info = child_enumeration->next_file())) {
-			// fprintf(stderr,"G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE == %s\n",file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE).c_str());
-	    if ((file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-wav") ||
-	        (file_info->get_attribute_string(G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE) == "audio/x-aiff")){
+            std::string content_type = file_info->get_attribute_string(
+                G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
+	    if (content_type.substr(0, 6) == "audio/") {
 		listing.push_back(
 		    FileName(
 			file_info->get_attribute_byte_string(G_FILE_ATTRIBUTE_STANDARD_NAME),
@@ -468,6 +479,8 @@ CmdlineOptions::CmdlineOptions()
       hideonquit(false),
       mute(false),
       setbank(),
+      cmdline_bank(),
+      cmdline_preset(),
       tuner_tet(),
       tuner_ref(),
       sporadic_overload(0),
@@ -487,7 +500,6 @@ CmdlineOptions::CmdlineOptions()
       window_height(600),
       preset_window_height(220),
       mul_buffer(1),
-      skin_name("Guitarix"),
       no_warn_latency(false),
       system_order_rack_h(false),
       system_show_value(false),
@@ -620,7 +632,7 @@ CmdlineOptions::CmdlineOptions()
     opt_jack_midi.set_arg_description("PORT");
     Glib::OptionEntry opt_jack_noconnect;
     opt_jack_noconnect.set_short_name('J');
-    opt_jack_noconnect.set_long_name("jack-no-conect");
+    opt_jack_noconnect.set_long_name("jack-no-connect");
     opt_jack_noconnect.set_description("dissable self-connect JACK ports");
     Glib::OptionEntry opt_jack_instance;
     opt_jack_instance.set_short_name('n');
@@ -719,7 +731,7 @@ CmdlineOptions::CmdlineOptions()
     Glib::OptionEntry opt_style_dir;
     opt_style_dir.set_short_name('S');
     opt_style_dir.set_long_name("style-dir");
-    opt_style_dir.set_description(_("directory with skin style definitions (.rc files)"));
+    opt_style_dir.set_description(_("directory with skin style definitions (.css files)"));
     opt_style_dir.set_arg_description("DIR");
     optgroup_debug.add_entry_filename(opt_style_dir, style_dir);
     Glib::OptionEntry opt_log_terminal;
@@ -750,64 +762,70 @@ CmdlineOptions::~CmdlineOptions() {
 void CmdlineOptions::read_ui_vars() {
     ifstream i(Glib::build_filename(get_user_dir(), "ui_rc").c_str());
     if (i.fail()) {
-	return;
+        return;
     }
     JsonParser jp(&i);
     try {
-	jp.next(JsonParser::begin_object);
-	while (jp.peek() != JsonParser::end_object) {
-	    jp.next(JsonParser::value_key);
-	    if (jp.current_value() == "system.mainwin_x") {
-		jp.next(JsonParser::value_number);
-		mainwin_x = jp.current_value_int();
-	    } else if (jp.current_value() == "system.mainwin_y") {
-		jp.next(JsonParser::value_number);
-		mainwin_y = jp.current_value_int();
-	    } else if (jp.current_value() == "system.mainwin_height") {
-		jp.next(JsonParser::value_number);
-		mainwin_height = jp.current_value_int();
-	    } else if (jp.current_value() == "system.mainwin_rack_height") {
-		jp.next(JsonParser::value_number);
-		window_height = jp.current_value_int();
-	    } else if (jp.current_value() == "system.preset_window_height") {
-		jp.next(JsonParser::value_number);
-		preset_window_height = jp.current_value_int();
-	    } else if (jp.current_value() == "system.mul_buffer") {
-		jp.next(JsonParser::value_number);
-		mul_buffer = jp.current_value_int();
-	    } else if (jp.current_value() == "ui.skin_name") {
-		jp.next(JsonParser::value_string);
-		skin_name = jp.current_value();
-	    } else if (jp.current_value() == "ui.latency_nowarn") {
-		jp.next(JsonParser::value_number);
-		no_warn_latency = jp.current_value_int();
-	    } else if (jp.current_value() == "system.order_rack_h") {
-		jp.next(JsonParser::value_number);
-		system_order_rack_h = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_value") {
-		jp.next(JsonParser::value_number);
-		system_show_value = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_tooltips") {
-		jp.next(JsonParser::value_number);
-		system_show_tooltips = jp.current_value_int();
-	    } else if (jp.current_value() == "system.animations") {
-		jp.next(JsonParser::value_number);
-		system_animations = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_presets") {
-		jp.next(JsonParser::value_number);
-		system_show_presets = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_toolbar") {
-		jp.next(JsonParser::value_number);
-		system_show_toolbar = jp.current_value_int();
-	    } else if (jp.current_value() == "system.show_rack") {
-		jp.next(JsonParser::value_number);
-		system_show_rack = jp.current_value_int();
-	    }
-	}
-	jp.next(JsonParser::end_object);
-	jp.close();
+        jp.next(JsonParser::begin_object);
+        while (jp.peek() != JsonParser::end_object) {
+            jp.next(JsonParser::value_key);
+            if (jp.current_value() == "system.mainwin_x") {
+                jp.next(JsonParser::value_number);
+                mainwin_x = jp.current_value_int();
+            } else if (jp.current_value() == "system.mainwin_y") {
+                jp.next(JsonParser::value_number);
+                mainwin_y = jp.current_value_int();
+            } else if (jp.current_value() == "system.mainwin_height") {
+                jp.next(JsonParser::value_number);
+                mainwin_height = jp.current_value_int();
+            } else if (jp.current_value() == "system.mainwin_rack_height") {
+                jp.next(JsonParser::value_number);
+                window_height = jp.current_value_int();
+            } else if (jp.current_value() == "system.preset_window_height") {
+                jp.next(JsonParser::value_number);
+                preset_window_height = jp.current_value_int();
+            } else if (jp.current_value() == "system.mul_buffer") {
+                jp.next(JsonParser::value_number);
+                mul_buffer = jp.current_value_int();
+            } else if (jp.current_value() == "ui.skin_name") {
+                jp.next(JsonParser::value_string);
+                if (skin.is_in_list(jp.current_value())) {
+                    skin.name = jp.current_value();
+                } else {
+                    gx_print_error(
+                        _("load state"),
+                        Glib::ustring::compose(_("Skin '%1' not found"), jp.current_value()));
+                }
+            } else if (jp.current_value() == "ui.latency_nowarn") {
+                jp.next(JsonParser::value_number);
+                no_warn_latency = jp.current_value_int();
+            } else if (jp.current_value() == "system.order_rack_h") {
+                jp.next(JsonParser::value_number);
+                system_order_rack_h = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_value") {
+                jp.next(JsonParser::value_number);
+                system_show_value = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_tooltips") {
+                jp.next(JsonParser::value_number);
+                system_show_tooltips = jp.current_value_int();
+            } else if (jp.current_value() == "system.animations") {
+                jp.next(JsonParser::value_number);
+                system_animations = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_presets") {
+                jp.next(JsonParser::value_number);
+                system_show_presets = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_toolbar") {
+                jp.next(JsonParser::value_number);
+                system_show_toolbar = jp.current_value_int();
+            } else if (jp.current_value() == "system.show_rack") {
+                jp.next(JsonParser::value_number);
+                system_show_rack = jp.current_value_int();
+            }
+        }
+        jp.next(JsonParser::end_object);
+        jp.close();
     } catch (JsonException&) {
-	gx_print_warning("main", "can't read/parse ui_rc");
+        gx_print_warning("main", "can't read/parse ui_rc");
     }
     i.close();
 }
@@ -826,7 +844,7 @@ void CmdlineOptions::write_ui_vars() {
 	jw.write_kv("system.mainwin_rack_height", window_height);
 	jw.write_kv("system.preset_window_height", preset_window_height);
 	jw.write_kv("system.mul_buffer", mul_buffer);
-	jw.write_kv("ui.skin_name", skin_name);
+	jw.write_kv("ui.skin_name", skin.name);
 	jw.write_kv("ui.latency_nowarn", no_warn_latency);
 	jw.write_kv("system.order_rack_h", system_order_rack_h);
 	jw.write_kv("system.show_value", system_show_value);
@@ -897,10 +915,15 @@ void CmdlineOptions::process(int argc, char** argv) {
 	    string("unknown argument on command line: ")+argv[1]);
     }
 #endif
-    if (clear && !rcset.empty()) {
-	throw Glib::OptionError(
-	    Glib::OptionError::BAD_VALUE,
-	    _("-c and -r cannot be used together"));
+    if (clear) {
+	if (!rcset.empty()) {
+	    throw Glib::OptionError(
+		Glib::OptionError::BAD_VALUE,
+		_("-c and -r cannot be used together"));
+	}
+	skin.name = "";
+    } else if (skin.name.empty()) {
+	skin.set_default_skin_name();
     }
     if (nogui && liveplaygui) {
 		throw Glib::OptionError(
@@ -938,7 +961,7 @@ void CmdlineOptions::process(int argc, char** argv) {
     }
     if (!rcset.empty()) {
 	if (skin.is_in_list(rcset)) {
-	    skin_name = rcset;
+	    skin.name = rcset;
 	} else {
 	    throw Glib::OptionError(
 		Glib::OptionError::BAD_VALUE,

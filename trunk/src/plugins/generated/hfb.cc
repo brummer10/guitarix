@@ -116,7 +116,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp0 = ((fConst0 * (((fRec1[0] * (fConst8 + (fConst9 * fRec1[0]))) + (fConst10 * fRec2[0])) + 7.8850346938344698e-07)) + 4.4085848172209803e-05);
 		fRec0[0] = (double(input0[i]) - (((fRec0[1] * ((fConst1 * ((fRec1[0] * ((2.3404750861370802e-09 * fRec1[0]) + -2.3655104081503402e-09)) - (4.7310208163006798e-10 * fRec2[0]))) + 8.8171696344419606e-05)) + (fRec0[2] * ((fConst0 * (((fRec1[0] * (fConst3 + (fConst5 * fRec1[0]))) + (fConst7 * fRec2[0])) + -7.8850346938344698e-07)) + 4.4085848172209803e-05))) / fTemp0));
 		double fTemp1 = (fConst0 * ((fRec1[0] * ((5.12666523663255e-23 * fRec1[0]) + -1.59041010538546e-09)) - (3.1808202107709101e-10 * fRec2[0])));
-		output0[i] = FAUSTFLOAT((fConst0 * ((((fConst0 * (fRec0[1] * ((6.3616404215418305e-10 * fRec2[0]) + (fRec1[0] * ((0.0 - (1.02533304732651e-22 * fRec1[0])) + 3.18082021077092e-09))))) + (fRec0[0] * (fTemp1 + -1.06027340359031e-06))) + (fRec0[2] * (fTemp1 + 1.06027340359031e-06))) / fTemp0)));
+		output0[i] = FAUSTFLOAT((fConst0 * ((((fRec0[0] * (fTemp1 + -1.06027340359031e-06)) + (fConst0 * (fRec0[1] * ((6.3616404215418305e-10 * fRec2[0]) + (fRec1[0] * ((0.0 - (1.02533304732651e-22 * fRec1[0])) + 3.18082021077092e-09)))))) + (fRec0[2] * (fTemp1 + 1.06027340359031e-06))) / fTemp0)));
 		fRec1[1] = fRec1[0];
 		fRec2[1] = fRec2[0];
 		fRec0[2] = fRec0[1];
@@ -143,30 +143,35 @@ int Dsp::register_params_static(const ParamReg& reg)
 
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
+<!-- Generated with glade 3.22.1 -->\n\
 <interface>\n\
-  <!-- interface-requires gxwidgets 0.0 -->\n\
-  <requires lib=\"gtk+\" version=\"2.20\"/>\n\
-  <!-- interface-naming-policy project-wide -->\n\
+  <requires lib=\"gtk+\" version=\"3.20\"/>\n\
+  <requires lib=\"gxwidgets\" version=\"0.0\"/>\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
     <property name=\"can_focus\">False</property>\n\
     <child>\n\
-      <object class=\"GtkVBox\" id=\"vbox1\">\n\
+      <placeholder/>\n\
+    </child>\n\
+    <child>\n\
+      <object class=\"GtkBox\" id=\"vbox1\">\n\
         <property name=\"visible\">True</property>\n\
         <property name=\"can_focus\">False</property>\n\
+        <property name=\"orientation\">vertical</property>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"rackbox\">\n\
+          <object class=\"GtkBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
             <child>\n\
-              <object class=\"GtkHBox\" id=\"hbox1\">\n\
+              <object class=\"GtkBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
                 <property name=\"spacing\">10</property>\n\
                 <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox2\">\n\
+                  <object class=\"GtkBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label1:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -201,9 +206,10 @@ const char *Dsp::glade_def = "\
                   </packing>\n\
                 </child>\n\
                 <child>\n\
-                  <object class=\"GtkVBox\" id=\"vbox3\">\n\
+                  <object class=\"GtkBox\" id=\"vbox3\">\n\
                     <property name=\"visible\">True</property>\n\
                     <property name=\"can_focus\">False</property>\n\
+                    <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label2:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
@@ -253,7 +259,7 @@ const char *Dsp::glade_def = "\
           </packing>\n\
         </child>\n\
         <child>\n\
-          <object class=\"GtkHBox\" id=\"minibox\">\n\
+          <object class=\"GtkBox\" id=\"minibox\">\n\
             <property name=\"visible\">True</property>\n\
             <property name=\"can_focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
@@ -279,8 +285,8 @@ const char *Dsp::glade_def = "\
               <object class=\"GtkLabel\" id=\"label0:rack_label\">\n\
                 <property name=\"visible\">True</property>\n\
                 <property name=\"can_focus\">False</property>\n\
-                <property name=\"xalign\">0</property>\n\
                 <property name=\"label\" translatable=\"yes\">Volume</property>\n\
+                <property name=\"xalign\">0</property>\n\
               </object>\n\
               <packing>\n\
                 <property name=\"expand\">False</property>\n\

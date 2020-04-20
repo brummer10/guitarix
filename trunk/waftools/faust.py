@@ -2,7 +2,8 @@ import re, shutil
 from waflib import Task, Configure, Logs, Options, Context
 from waflib.TaskGen import extension
 
-good_faust_versions = Context.g_module.good_faust_versions
+good_faust_versions = [Context.g_module.check_in_faust_version]
+good_faust_versions += Context.g_module.other_faust_versions
 
 # task function for task "dsp"
 def dsp2cc(task):
@@ -105,10 +106,11 @@ def dsp_file(self, node):
 def get_faust_args(bld):
     float_arg = ["-s","40000","--float"]
     double_arg = ["--double"]
+    arg = ['--no-version-header']
     if bld.env['FAUST_DOUBLE']:
-        arg = ["--double"]
+        arg.append("--double")
     else:
-        arg = ["--float"]
+        arg.append("--float")
     if bld.env['FAUST_VECTORIZE']:
         float_arg.append('--vectorize')
         arg.append('--vectorize')

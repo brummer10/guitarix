@@ -96,6 +96,34 @@ static inline bool rt_watchdog_check_alive(unsigned int bs, unsigned int sr) {
 
 
 /****************************************************************
+ ** class MidiCC
+ */
+
+MidiCC::MidiCC() {
+    for (int i = 0; i < max_midi_cc_cnt; i++) {
+        send_cc[i] = false;
+    }
+}
+
+bool MidiCC::send_midi_cc(int _cc, int _pg, int _bgn, int _num) {
+    for(int i = 0; i < max_midi_cc_cnt; i++) {
+        if (!send_cc[i].load(std::memory_order_acquire)) {
+            cc_num[i] = _cc;
+            pg_num[i] = _pg;
+            bg_num[i] = _bgn;
+            me_num[i] = _num;
+            send_cc[i].store(true, std::memory_order_release);
+            return true;
+        }
+    }
+#ifndef NDEBUG
+    cerr << "Internal error: MidiCC overflow" << endl;
+    assert(false);
+#endif
+    return false;
+}
+
+/****************************************************************
  ** GxJack ctor, dtor
  */
 
@@ -105,6 +133,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       jack_is_down(false),
       jack_is_exit(true),
       bypass_insert(false),
+      mmessage(),
 #ifdef HAVE_JACK_SESSION
       session_event(0),
       session_event_ins(0),
@@ -132,7 +161,6 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       shutdown(),
       connection(),
       single_client(false) {
-	for(int i = 0;i<5;i++) mmessage.send_cc[i] = false;
     connection_queue.new_data.connect(sigc::mem_fun(*this, &GxJack::fetch_connection_data));
     client_change_rt.connect(client_change);
     GxExit::get_instance().signal_exit().connect(
@@ -182,6 +210,7 @@ void GxJack::read_connections(gx_system::JsonParser& jp) {
             jp.skip_object();
             continue;
         }
+	i->clear();
         jp.next(gx_system::JsonParser::begin_array);
         while (jp.peek() == gx_system::JsonParser::value_string) {
             jp.next();
@@ -700,27 +729,12 @@ void GxJack::gx_jack_callbacks() {
  */
 
 void __rt_func GxJack::process_midi_cc(void *buf, jack_nframes_t nframes) {
-	// midi CC output processing
-	for(int i = 0;i<5;i++) {
-		if (mmessage.send_cc[i]) {
-			unsigned char* midi_send = jack_midi_event_reserve(buf, i, mmessage.me_num[i]);
-
-			if (midi_send) {
-				if (mmessage.me_num[i] == 2) {
-					// program value
-					midi_send[1] =  mmessage.pg_num[i];
-					// controller+ channel
-					midi_send[0] = mmessage.cc_num[i] | 0;
-				} else if (mmessage.me_num[i] == 3) {
-					midi_send[2] =  mmessage.bg_num[i];
-					// program value
-					midi_send[1] =  mmessage.pg_num[i];
-					// controller+ channel
-					midi_send[0] = mmessage.cc_num[i] | 0;
-				}
-			}
-			mmessage.send_cc[i] = false;
-		}
+    // midi CC output processing
+    for (int i = mmessage.next(); i >= 0; i = mmessage.next(i)) {
+        unsigned char* midi_send = jack_midi_event_reserve(buf, i, mmessage.size(i));
+        if (midi_send) {
+            mmessage.fill(midi_send, i);
+        }
     }
 }
 
@@ -915,19 +929,6 @@ void GxJack::gx_jack_portconn_callback(jack_port_id_t a, jack_port_id_t b, int c
 /****************************************************************
  ** callbacks: portreg, buffersize, samplerate, shutdown, xrun
  */
-
-void GxJack::send_midi_cc(int _cc, int _pg, int _bgn, int _num) {
-	for(int i = 0;i<5;i++) {
-		if (!mmessage.send_cc[i]) {
-			mmessage.send_cc[i] = true;
-			mmessage.cc_num[i] = _cc;
-			mmessage.pg_num[i] = _pg;
-			mmessage.bg_num[i] = _bgn;
-			mmessage.me_num[i] = _num;
-			return;
-		}
-	}
-}
 
 // ----- fetch available jack ports other than gx_head ports
 // jackd1: RT process thread

@@ -3,10 +3,58 @@ from pylab import *
 from scipy.signal import freqz
 from scipy import optimize
 
+def load_crybaby():
+    from lv2loader import LV2_Plugin
+    return LV2_Plugin('holters-sim/crybaby-1.2/')
+
 def display_parameter(filt):
-    print "Parameter:"
-    print "\n".join(["    %s=%s [%s..%s]" % ((k,filt[k])+filt.get_range(k))
-                   for k in filt.keys()])
+    print("Parameter:")
+    print("\n".join(["    %s=%s [%s..%s]" % ((k,filt[k])+filt.get_range(k))
+                     for k in filt.keys()]))
+
+def freqz_scaled(v, rate, rng, n = 2400):
+    w, h = freqz(v, worN=n)
+    scale = lambda freq: int(round(2 * n * freq / rate))
+    n0 = scale(rng[0])
+    n1 = scale(rng[1])
+    w = w[n0:n1+1]
+    h = h[n0:n1+1]
+    w *= rate / (2*pi)
+    return w, h
+
+def parabolaTurningPoint(w, y, h=None):
+    idx = y.argmax()
+    yTop = y[idx-1] - y[idx+1]
+    yBottom = y[idx+1] + y[idx-1] - 2 * y[idx];
+    if yBottom != 0.0:
+        x0 = yTop / (2 * yBottom)
+    else:
+        x0 = 0
+    if h is not None:
+        if x0 > 0:
+            hh = h[idx] + x0 * (h[idx+1]-h[idx])
+        else:
+            hh = h[idx-1] + x0 * (h[idx]-h[idx-1])
+        return w[idx] + x0*(w[idx+1]-w[idx]), hh
+    else:
+        return w[idx] + x0*(w[idx+1]-w[idx]), y[idx] - (yBottom / 2) * x0 * x0
+
+def db_point(w, h, db):
+    d = h - db
+    return parabolaTurningPoint(w, -d * d, h)
+
+def plotone(filt, freq, para, impulse, clr='--', fs=44100):
+    filt[para] = freq
+    filt.compute(zeros(10000,dtype=float32))
+    w, h = freqz_scaled(filt.compute(impulse), fs, [30, 15000], 15000)
+    h = 20*log10(abs(h))
+    wmax, hmax = parabolaTurningPoint(w, h)
+    wmax3, hmax3 = db_point(w, h, hmax-3)
+    q = wmax/wmax3
+    Q = 1/abs(q-1/q)
+    print("%.2f %.2f %g %g" % (freq, wmax, hmax, Q))
+    semilogx(w, h, clr, label="%.3f" % freq)
+    return (freq, wmax, hmax, Q)
 
 def plot_figure(filt, name, para, rg):
     display_parameter(filt)
@@ -32,10 +80,9 @@ def plot_figure(filt, name, para, rg):
     show()
 
 def plot_figure_libcrybaby():
-    from pluginloader import Plugin
-    filt = Plugin("../build/default/src/plugins/libcrybaby.so")
-    filt['crybaby2.refvolt'] = 0.1
-    para = 'crybaby2.hotpotz'
+    filt = load_crybaby()
+    filt['refvolt'] = 0.1
+    para = 'hotpotz'
     name = filt.get_var_attr(para)[0]
     rg = log10(linspace(*np.power(10,filt.get_range(para)), num=10))
     filt.init(48000)
@@ -52,51 +99,51 @@ def plot_figure_dunwah():
 
 def save_octave(name, var, fd):
     assert isinstance(var, ndarray) and len(var.shape) == 1
-    print >>fd, "# name:", name
+    print("# name:", name, file=fd)
     iscompl = iscomplexobj(var)
     if iscompl:
-        print >>fd, "# type: complex matrix"
+        print("# type: complex matrix", file=fd)
     else:
-        print >>fd, "# type: matrix"
-    print >>fd, "# rows: 1"
-    print >>fd, "# columns:", var.shape[0]
+        print("# type: matrix", file=fd)
+    print("# rows: 1", file=fd)
+    print("# columns:", var.shape[0], file=fd)
     if iscompl:
         for v in var:
-            print >>fd, (v.real, v.imag),
+            print((v.real, v.imag), file=fd, end=' ')
     else:
         for v in var:
-            print >>fd, v,
-    print >>fd
+            print(v, file=fd, end=' ')
+    print(file=fd)
 
 def load_octave(fd):
     var = []
     d = {}
     for l in fd:
+        l = l.strip()
         if l.startswith("#"):
             m = re.match("# *([a-z]+): *(.*)\n", l)
             if not m:
                 continue
             d[m.group(1)] = m.group(2)
-        else:
+        elif l:
             var.append(array([float(v) for v in l.split()]))
     return var
 
 def invfreqz(w, h, numzeros=2, numpoles=2):
-    fd = file("/tmp/out", "w");
-    save_octave("F", w, fd)
-    save_octave("H", h, fd)
-    fd.close()
+    with open("/tmp/out", "w") as fd:
+        save_octave("F", w, fd)
+        save_octave("H", h, fd)
     p = os.popen("octave -q","w")
     p.write(
+        "pkg load signal;\n"
         "load /tmp/out;\n"
         "wt = 1 ./ F.^2;\n"
         "[B,A] = invfreqz(H,F,%d,%d,wt);\n"
         "save /tmp/out B A;\n"
         % (numzeros, numpoles))
     p.close()
-    fd = file("/tmp/out");
-    res = load_octave(fd)
-    fd.close()
+    with open("/tmp/out") as fd:
+        res = load_octave(fd)
     os.remove("/tmp/out")
     return res
 
@@ -120,15 +167,15 @@ def estimate(rg, filt, para, impulse, fs):
         frn = theta / (2*pi)
         Q[i] = (pi * frn) / (1 - R)
 
-        print 'Pole frequency = %f Hz' % (aa[i]/(2*pi))
-        #print 'Q = %f' % Q[i]
-        #print "R =", R
-        #print "frn =", frn, "theta =", theta
+        print('Pole frequency = %f Hz' % (aa[i]/(2*pi)))
+        #print('Q = %f' % Q[i])
+        #print("R =", R)
+        #print("frn =", frn, "theta =", theta)
 
         A = array((1, -2*R*cos(theta), R*R))
         w1, h1 = freqz(Bconst, A, worN=15000)
         maxh[i] = max(abs(h))
-        #print "gain =", gain[i]
+        #print("gain =", gain[i])
     return aa, Q, maxh
 
 def fit_param(rg, aa, Q, fs):
@@ -142,9 +189,9 @@ def fit_param(rg, aa, Q, fs):
     #def ff(x, *p):
     #    return off - 1/polyval(p, x)
     #a1A = optimize.curve_fit(ff, rg, aa, a1A)[0]
-    print "theta2pi = %g - 1 / (%s);" % (off, string_polyval(a1A, "wah"))
+    print("theta2pi = %g - 1 / (%s);" % (off, string_polyval(a1A, "wah")))
     qA = polyfit(rg, Q, 3)
-    print "Q = %s;" % string_polyval(qA, "wah")
+    print("Q = %s;" % string_polyval(qA, "wah"))
     return off, a1A, qA
 
 def show_param(rg, off, g_off, aa, a1A, Q, qA, gain, gA):
@@ -187,14 +234,13 @@ def make_gain(rg, off, a1A, qA, maxh, fs):
         return g_off-1/polyval(p, x)
     a = optimize.curve_fit(f, rg, gain, a)
     a = a[0]
-    print "g = %g - 1 / (%s):" % (g_off, string_polyval(a, "wah"))
+    print("g = %g - 1 / (%s):" % (g_off, string_polyval(a, "wah")))
     return g_off, gain, a
 
 def output_freqz_libcrybaby():
-    from pluginloader import Plugin
-    filt = Plugin("../build/default/src/plugins/libcrybaby.so")
-    filt['crybaby2.refvolt'] = 0.1
-    para = 'crybaby2.hotpotz'
+    filt = load_crybaby()
+    filt['refvolt'] = 0.1
+    para ='hotpotz'
     name = filt.get_var_attr(para)[0]
     fs = 44100
     filt.init(fs)
@@ -204,12 +250,14 @@ def output_freqz_libcrybaby():
     rg = log10(linspace(*np.power(10,filt.get_range(para)), num=20))
     if True:
         aa, Q, maxh = estimate(rg, filt, para, impulse, fs)
-        pickle.dump((aa,Q,maxh), file("p.out","w"))
+        with open("p.out","wb") as fd:
+            pickle.dump((aa,Q,maxh), fd)
     else:
-        aa, Q, maxh = pickle.load(file("p.out"))
+        with open("p.out","rb") as fd:
+            aa, Q, maxh = pickle.load(fd)
     off, a1A, qA = fit_param(rg, aa, Q, fs)
     g_off, gain, gA = make_gain(rg, off, a1A, qA, maxh, fs)
-    show_param(rg, off, g_off, aa, a1A, Q, qA, gain, gA)
+    #show_param(rg, off, g_off, aa, a1A, Q, qA, gain, gA)
     rg = log10(linspace(*np.power(10,filt.get_range(para)), num=10))
     for i, freq in enumerate(rg):
         filt[para] = freq
@@ -225,8 +273,8 @@ def output_freqz_libcrybaby():
         frn = theta / (2*pi)
         Q[i] = (pi * frn) / (1 - R)
 
-        print 'Pole frequency = %f Hz' % (frn * fs)
-        print 'Q = %f' % Q[i]
+        print('Pole frequency = %f Hz' % (frn * fs))
+        print('Q = %f' % Q[i])
 
         if False:
             A = array((1, -2*R*cos(theta), R*R))
@@ -234,7 +282,7 @@ def output_freqz_libcrybaby():
             gain[i] = max(abs(h))/max(abs(h1))
             B *= gain[i]
             h1 *= gain[i]
-            print "gain =", gain[i]
+            print("gain =", gain[i])
             #h = h1
 
         if True:
@@ -242,8 +290,8 @@ def output_freqz_libcrybaby():
             a1 = (off - 1 / polyval(a1A, freq)) / fs
             frn = a1/(2*pi)
             r = 1 - a1/(2*q)
-            #print "R =", r
-            #print "frn =", frn, "theta =", math.acos(a1)
+            #print("R =", r)
+            #print("frn =", frn, "theta =", math.acos(a1))
             g = g_off - 1 / polyval(gA, freq)
 
             A = array((1, -2*r*cos(a1), r*r))
@@ -253,9 +301,9 @@ def output_freqz_libcrybaby():
             theta = math.acos(A[1]/(-2*R))
             frn = theta / (2*pi)
             bq = (pi * frn) / (1 - R)
-            print 'Pole frequency = %f Hz' % (frn * fs)
-            print 'Q = %f' % q
-            print "gain =", g
+            print('Pole frequency = %f Hz' % (frn * fs))
+            print('Q = %f' % q)
+            print("gain =", g)
 
         w *= fs / (2*pi)
         semilogx(w[1:], 20*log10(abs(h[1:])), "b")
@@ -263,9 +311,9 @@ def output_freqz_libcrybaby():
     show()
 
 def display_parameter(filt):
-    print "Parameter:"
-    print "\n".join(["    %s=%s [%s..%s]" % ((k,filt[k])+filt.get_range(k))
-                   for k in filt.keys()])
+    print("Parameter:")
+    print("\n".join(["    %s=%s [%s..%s]" % ((k,filt[k])+filt.get_range(k))
+                     for k in filt.keys()]))
 
 if __name__ == "__main__":
     try:

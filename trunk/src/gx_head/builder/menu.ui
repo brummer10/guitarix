@@ -1,0 +1,242 @@
+<interface>
+  <menu id="menubar">
+    <submenu>
+      <attribute name="action">EngineMenu</attribute>
+      <attribute name="label">_Engine</attribute>
+      <section>
+	<item>
+	  <attribute name="action">EngineMute</attribute>
+	  <attribute name="label">Engine _Mute</attribute>
+	  <attribute name="accel">space</attribute>
+	</item>
+	<item>
+	  <attribute name="action">EngineBypass</attribute>
+	  <attribute name="label">Engine _Bypass</attribute>
+	  <attribute name="accel">&lt;Control&gt;y</attribute>
+	</item>
+      </section>
+      <section>
+	<item>
+	  <attribute name="action">JackServerConnection</attribute>
+	  <attribute name="label">Jack Server _Connection</attribute>
+	  <attribute name="accel">&lt;Control&gt;c</attribute>
+	</item>
+	<item>
+	  <attribute name="action">JackPorts</attribute>
+	  <attribute name="label">Jack _Ports</attribute>
+	  <attribute name="accel">&lt;Control&gt;p</attribute>
+	</item>
+	<submenu>
+	  <attribute name="action">JackLatency</attribute>
+	  <attribute name="label">_Latency</attribute>
+	</submenu>
+      </section>
+      <section>
+	<item>
+	  <attribute name="action">MidiController</attribute>
+	  <attribute name="label">M_idi Controller</attribute>
+	  <attribute name="accel">&lt;Control&gt;i</attribute>
+	</item>
+      </section>
+      <section>
+	<item>
+	  <attribute name="action">Quit</attribute>
+	  <attribute name="label">_Quit</attribute> <!-- fixme options.get_hideonquit() HIDE / QUIT -->
+	  <attribute name="accel">&lt;Control&gt;q</attribute>
+	</item>
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="action">PresetsMenu</attribute>
+      <attribute name="label">_Presets</attribute>
+      <section>
+	<item>
+	  <attribute name="action">Presets</attribute>
+	  <attribute name="label">_Preset Selection</attribute>
+	  <attribute name="accel">&lt;Control&gt;x</attribute>
+	</item>
+	<item>
+	  <attribute name="action">NextPreset</attribute>
+	  <attribute name="label">Next Preset</attribute>
+	  <attribute name="accel">&lt;Control&gt;plus</attribute>
+	</item>
+	<item>
+	  <attribute name="action">PreviusPreset</attribute>
+	  <attribute name="label">Previous Preset</attribute>
+	  <attribute name="accel">&lt;Control&gt;minus</attribute>
+	</item>
+	<item>
+	  <attribute name="action">SetNextPresetSwitcher</attribute>
+	  <attribute name="label">Next Preset Midi Switch</attribute>
+	</item>
+	<item>
+	  <attribute name="action">SetPreviusPresetSwitcher</attribute>
+	  <attribute name="label">Previous Preset Midi Switch</attribute>
+	</item>
+	<item>
+	  <attribute name="action">Organize</attribute>
+	  <attribute name="label">_Organize</attribute>
+	  <attribute name="accel">&lt;Control&gt;o</attribute>
+	</item>
+	<item>
+	  <attribute name="action">Save</attribute>
+	  <attribute name="label">_Save changes</attribute>
+	  <attribute name="accel">&lt;Control&gt;s</attribute>
+	</item>
+	<submenu>
+	  <attribute name="action">PresetListMenu</attribute>
+	  <attribute name="label">--</attribute>
+	</submenu>
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="action">PluginsMenu</attribute>
+      <attribute name="label">P_lugins</attribute>
+      <section>
+	<item>
+	  <attribute name="action">ShowPluginBar</attribute>
+	  <attribute name="label">Show Plugin _Bar</attribute>
+	  <attribute name="accel">&lt;Control&gt;b</attribute>
+	</item>
+	<item>
+	  <attribute name="action">RackConfig</attribute>
+	  <attribute name="label">R_ack Configuration</attribute>
+	  <attribute name="accel">&lt;Control&gt;a</attribute>
+	</item>
+	<item>
+	  <attribute name="action">ShowRack</attribute>
+	  <attribute name="label">Show _Rack</attribute>
+	  <attribute name="accel">&lt;Control&gt;r</attribute>
+	</item>
+	<item>
+	  <attribute name="action">RackH</attribute>
+	  <attribute name="label">Order Rack _Horizontally</attribute>
+	  <attribute name="accel">&lt;Control&gt;h</attribute>
+	</item>
+      </section>
+      <section>
+	<item>
+	  <attribute name="action">Tuner</attribute>
+	  <attribute name="label">_Tuner show</attribute>
+	  <attribute name="accel">&lt;Control&gt;t</attribute>
+	</item>
+	<item>
+	  <attribute name="action">Tunermove</attribute>
+	  <attribute name="label">Tuner stic_k</attribute>
+	  <attribute name="accel">&lt;Control&gt;k</attribute>
+	</item>
+	<submenu>
+	  <attribute name="action">MonoPlugins</attribute>
+	  <attribute name="label">_Mono Plugins</attribute>
+	</submenu>
+	<submenu>
+	  <attribute name="action">StereoPlugins</attribute>
+	  <attribute name="label">_Stereo Plugins</attribute>
+	</submenu>
+	<item>
+	  <attribute name="action">LoadLADSPA</attribute>
+	  <attribute name="label">LADSPA/LV2 Pl_ugins</attribute>
+	  <attribute name="accel">&lt;Control&gt;u</attribute>
+	</item>
+      </section>
+      <section>
+	<item>
+	  <attribute name="action">Compress</attribute>
+	  <attribute name="label">C_ompress all</attribute>
+	  <attribute name="accel">&lt;Control&gt;m</attribute>
+	</item>
+	<item>
+	  <attribute name="action">Expand</attribute>
+	  <attribute name="label">E_xpand all</attribute>
+	  <attribute name="accel">&lt;Control&gt;e</attribute>
+	</item>
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="action">TubeMenu</attribute>
+      <attribute name="label">_Tube</attribute>
+    </submenu>
+    <submenu>
+      <attribute name="action">OptionsMenu</attribute>
+      <attribute name="label">_Options</attribute>
+      <section>
+	<item>
+	  <attribute name="action">Liveplay</attribute>
+	  <attribute name="label">Live _Display</attribute>
+	  <attribute name="accel">&lt;Control&gt;d</attribute>
+	</item>
+	<item>
+	  <attribute name="action">LoggingBox</attribute>
+	  <attribute name="label">Show _Logging Box</attribute>
+	  <attribute name="accel">&lt;Control&gt;l</attribute>
+	</item>
+	<item>
+	  <attribute name="action">Meterbridge</attribute>
+	  <attribute name="label">_Meterbridge</attribute>
+	  <attribute name="accel">&lt;Alt&gt;&lt;Shift&gt;m</attribute>
+	</item>
+	<item>
+	  <attribute name="action">ShowValues</attribute>
+	  <attribute name="label">Show _Values</attribute>
+	  <attribute name="accel">&lt;Alt&gt;&lt;Shift&gt;s</attribute>
+	</item>
+	<submenu>
+	  <attribute name="action">ChangeSkin</attribute>
+	  <attribute name="label">_Skin...</attribute>
+	</submenu>
+	<item>
+	  <attribute name="action">JackStartup</attribute>
+	  <attribute name="label">_Jack Startup Control</attribute>
+	  <attribute name="accel">&lt;Control&gt;j</attribute>
+	</item>
+	<item>
+	  <attribute name="action">MidiInPresets</attribute>
+	  <attribute name="label">Include MIDI in _presets</attribute>
+	</item>
+	<item>
+	  <attribute name="action">ResetAll</attribute>
+	  <attribute name="label">Reset _All Parameters</attribute>
+	</item>
+	<item>
+	  <attribute name="action">Animations</attribute>
+	  <attribute name="label">_Use Animations</attribute>
+	</item>
+	<item>
+	  <attribute name="action">SetPresetSwitcher</attribute>
+	  <attribute name="label">L_iveplay Midi Switch</attribute>
+	</item>
+	<item>
+	  <attribute name="action">SetBypassSwitcher</attribute>
+	  <attribute name="label">B_ypass Midi Switch</attribute>
+	</item>
+	<item>
+	  <attribute name="action">SetMidiChannel</attribute>
+	  <attribute name="label">Set Midi Channel</attribute>
+	</item>
+	<submenu>
+	  <attribute name="action">OscBufferSize</attribute>
+	  <attribute name="label">Osc. Buffer-size</attribute>
+	</submenu>
+      </section>
+    </submenu>
+    <submenu>
+      <attribute name="action">AboutMenu</attribute>
+      <attribute name="label">_About</attribute>
+      <section>
+	<item>
+	  <attribute name="action">About</attribute>
+	  <attribute name="label">_About</attribute>
+	</item>
+	<item>
+	  <attribute name="action">Help</attribute>
+	  <attribute name="label">_Help</attribute>
+	  <attribute name="accel">F1</attribute>
+	</item>
+	<item>
+	  <attribute name="action">ShowTooltips</attribute>
+	  <attribute name="label">Show _Tooltips</attribute>
+	</item>
+      </section>
+    </submenu>
+  </menu>
+</interface>

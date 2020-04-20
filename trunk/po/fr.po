@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: 0.21.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-11-25 18:21+0100\n"
-"PO-Revision-Date: 2015-12-19 13:24+0100\n"
+"PO-Revision-Date: 2020-01-25 15:49+0100\n"
 "Last-Translator: fred rech <f.rech@yahoo.fr>\n"
 "Language-Team: français <>\n"
 "Language: fr\n"
@@ -3393,7 +3393,7 @@ msgid "Order Rack _Horizontally"
 msgstr "Ordonner le Rack _Horizontalement"
 
 #: ../src/gx_head/gui/gx_main_window.cpp:1529
-msgid "_Show _Values"
+msgid "Show _Values"
 msgstr "Afficher les _Valeurs"
 
 #: ../src/gx_head/gui/gx_main_window.cpp:1534

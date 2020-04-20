@@ -36,19 +36,19 @@ struct _GxControlParameterIface
 {
 	GTypeInterface parent_iface;
 
-	void (*cp_configure)(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step);
+	void (*cp_configure)(GxControlParameter *self, const gchar* group, const gchar *name, gdouble lower, gdouble upper, gdouble step);
 	void (*cp_set_value)(GxControlParameter *self, gdouble value);
 	gdouble (*cp_get_value)(GxControlParameter *self);
 };
 
 GType gx_control_parameter_get_type(void);
 
-void gx_control_parameter_cp_configure(GxControlParameter *self, gchar* group, gchar *name, gdouble lower, gdouble upper, gdouble step);
+void gx_control_parameter_cp_configure(GxControlParameter *self, const gchar* group, const gchar *name, gdouble lower, gdouble upper, gdouble step);
 void gx_control_parameter_cp_set_value(GxControlParameter *self, gdouble value);
 gdouble gx_control_parameter_cp_get_value(GxControlParameter *self);
 gint gx_control_parameter_cp_get_int_value(GxControlParameter *self);
-gchar *gx_control_parameter_cp_get_var(GxControlParameter *self);
-void gx_control_parameter_cp_set_var(GxControlParameter *self, gchar *varname);
+const gchar *gx_control_parameter_cp_get_var(GxControlParameter *self);
+void gx_control_parameter_cp_set_var(GxControlParameter *self, const gchar *varname);
 
 G_END_DECLS
 

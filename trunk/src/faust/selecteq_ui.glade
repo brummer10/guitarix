@@ -1,32 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <!-- interface-requires gxwidgets 0.0 -->
-  <requires lib="gtk+" version="2.20"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gxwidgets" version="0.0"/>
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <placeholder/>
+    </child>
+    <child>
+      <object class="GtkBox" id="vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GxPaintBox" id="rackbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="spacing">4</property>
+            <property name="margin_left">4</property>
+            <property name="margin_right">5</property>
             <property name="paint_func">box_uni_2_expose</property>
             <child>
-              <object class="GtkTable" id="table1">
+              <object class="GtkGrid" id="table1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="n_rows">3</property>
-                <property name="n_columns">10</property>
-                <property name="column_spacing">3</property>
+                <property name="margin_left">10</property>
+                <property name="margin_right">10</property>
                 <property name="row_spacing">10</property>
                 <child>
-                  <object class="GtkVBox" id="vbox2">
+                  <object class="GtkBox" id="vbox2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label1:rack_label_inverse">
@@ -55,14 +60,15 @@
                     </child>
                   </object>
                   <packing>
+                    <property name="left_attach">0</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox3">
+                  <object class="GtkBox" id="vbox3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label2:rack_label_inverse">
@@ -92,15 +98,14 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox4">
+                  <object class="GtkBox" id="vbox4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label3:rack_label_inverse">
@@ -130,15 +135,14 @@
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox5">
+                  <object class="GtkBox" id="vbox5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label4:rack_label_inverse">
@@ -168,15 +172,14 @@
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
-                    <property name="right_attach">4</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox6">
+                  <object class="GtkBox" id="vbox6">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label5:rack_label_inverse">
@@ -206,15 +209,14 @@
                   </object>
                   <packing>
                     <property name="left_attach">4</property>
-                    <property name="right_attach">5</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox7">
+                  <object class="GtkBox" id="vbox7">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label6:rack_label_inverse">
@@ -244,15 +246,14 @@
                   </object>
                   <packing>
                     <property name="left_attach">5</property>
-                    <property name="right_attach">6</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox8">
+                  <object class="GtkBox" id="vbox8">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label7:rack_label_inverse">
@@ -282,15 +283,14 @@
                   </object>
                   <packing>
                     <property name="left_attach">6</property>
-                    <property name="right_attach">7</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox9">
+                  <object class="GtkBox" id="vbox9">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label8:rack_label_inverse">
@@ -320,15 +320,14 @@
                   </object>
                   <packing>
                     <property name="left_attach">7</property>
-                    <property name="right_attach">8</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox10">
+                  <object class="GtkBox" id="vbox10">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label9:rack_label_inverse">
@@ -358,15 +357,14 @@
                   </object>
                   <packing>
                     <property name="left_attach">8</property>
-                    <property name="right_attach">9</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vbox11">
+                  <object class="GtkBox" id="vbox11">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkLabel" id="label10:rack_label_inverse">
@@ -396,9 +394,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">9</property>
-                    <property name="right_attach">10</property>
                     <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
                   </packing>
                 </child>
                 <child>
@@ -406,12 +402,12 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs31_25</property>
                   </object>
                   <packing>
+                    <property name="left_attach">0</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -419,14 +415,14 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="margin_left">8</property>
+                    <property name="margin_right">8</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs62_5</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -434,14 +430,12 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs125</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -449,14 +443,12 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs250</property>
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
-                    <property name="right_attach">4</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -464,14 +456,12 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs500</property>
                   </object>
                   <packing>
                     <property name="left_attach">4</property>
-                    <property name="right_attach">5</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -479,14 +469,12 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs1k</property>
                   </object>
                   <packing>
                     <property name="left_attach">5</property>
-                    <property name="right_attach">6</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -494,14 +482,12 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs2k</property>
                   </object>
                   <packing>
                     <property name="left_attach">6</property>
-                    <property name="right_attach">7</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -509,14 +495,12 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">False</property>
                     <property name="var_id">eqs.fs4k</property>
                   </object>
                   <packing>
                     <property name="left_attach">7</property>
-                    <property name="right_attach">8</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -524,14 +508,12 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs8k</property>
                   </object>
                   <packing>
                     <property name="left_attach">8</property>
-                    <property name="right_attach">9</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -539,14 +521,12 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="hexpand">True</property>
                     <property name="var_id">eqs.fs16k</property>
                   </object>
                   <packing>
                     <property name="left_attach">9</property>
-                    <property name="right_attach">10</property>
                     <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options">GTK_EXPAND</property>
                   </packing>
                 </child>
                 <child>
@@ -557,7 +537,8 @@
                     <property name="var_id">eqs.freq31_25</property>
                   </object>
                   <packing>
-                    <property name="x_options"/>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -569,8 +550,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="x_options"/>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -582,8 +562,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="x_options"/>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -595,8 +574,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
-                    <property name="right_attach">4</property>
-                    <property name="x_options"/>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -608,8 +586,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">4</property>
-                    <property name="right_attach">5</property>
-                    <property name="x_options"/>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -621,8 +598,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">5</property>
-                    <property name="right_attach">6</property>
-                    <property name="x_options"/>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -634,8 +610,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">6</property>
-                    <property name="right_attach">7</property>
-                    <property name="x_options"/>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -647,8 +622,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">7</property>
-                    <property name="right_attach">8</property>
-                    <property name="x_options"/>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -660,8 +634,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">8</property>
-                    <property name="right_attach">9</property>
-                    <property name="x_options"/>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -673,8 +646,7 @@
                   </object>
                   <packing>
                     <property name="left_attach">9</property>
-                    <property name="right_attach">10</property>
-                    <property name="x_options"/>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
               </object>
@@ -686,19 +658,16 @@
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">False</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="minibox">
+          <object class="GtkBox" id="minibox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="spacing">4</property>
-            <child>
-              <placeholder/>
-            </child>
             <child>
               <placeholder/>
             </child>

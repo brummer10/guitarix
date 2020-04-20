@@ -1,12 +1,12 @@
 // generated from file '../src/faust/tremolo.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust 2.20.2 (https://faust.grame.fr)
 
 
 namespace tremolo {
 
 class Dsp: public PluginDef {
 private:
-	int fSamplingFreq;
+	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	int iVec0[2];
 	double fConst0;
@@ -27,13 +27,13 @@ private:
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
 	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -85,10 +85,10 @@ void Dsp::clear_state_f_static(PluginDef *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(unsigned int samplingFreq)
+inline void Dsp::init(unsigned int sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (6.2831853071795862 / fConst0);
 	fConst3 = (0.5 * fConst0);
@@ -99,9 +99,9 @@ inline void Dsp::init(unsigned int samplingFreq)
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -124,12 +124,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp1 = (fRec1[1] + (fConst1 * fVec1[1]));
 		fRec1[0] = (fTemp1 - std::floor(fTemp1));
 		fRec4[0] = (fRec4[1] + (fSlow8 * (0.0 - fRec2[1])));
-		fRec3[0] = ((fSlow8 * fRec4[0]) + (fRec3[1] + double((1 - iVec0[1]))));
+		fRec3[0] = ((fSlow8 * fRec4[0]) + (double((1 - iVec0[1])) + fRec3[1]));
 		fRec2[0] = fRec3[0];
-		iRec6[0] = ((iRec6[1] > 0)?((2 * (iRec5[1] < iSlow9)) + -1):(1 - (2 * (iRec5[1] > 0))));
+		iRec6[0] = ((iRec6[1] > 0) ? ((2 * (iRec5[1] < iSlow9)) + -1) : (1 - (2 * (iRec5[1] > 0))));
 		iRec5[0] = (iRec6[0] + iRec5[1]);
-		fRec0[0] = (fTemp0 + (fConst1 * (std::pow(((fSlow3 * ((iSlow5?(fSlow10 * double(iRec5[0])):(iSlow6?std::max<double>(0.0, (0.5 * (fRec2[0] + 1.0))):double((fRec1[0] <= 0.5)))) + -1.0)) + 1.0), 1.8999999999999999) / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
-		output0[i] = FAUSTFLOAT(((fSlow1 + (fSlow2 / (std::exp((13.815510557964274 / std::log(((8.5519675079294171 * fRec0[0]) + 2.7182818284590451)))) + 2700.0))) * double(input0[i])));
+		fRec0[0] = (fTemp0 + (fConst1 * (std::pow(((fSlow3 * ((iSlow5 ? (fSlow10 * double(iRec5[0])) : (iSlow6 ? std::max<double>(0.0, (0.5 * (fRec2[0] + 1.0))) : double((fRec1[0] <= 0.5)))) + -1.0)) + 1.0), 1.8999999999999999) / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
+		output0[i] = FAUSTFLOAT((double(input0[i]) * (fSlow1 + (fSlow2 / (std::exp((13.815510557964274 / std::log(((8.5519675079294171 * fRec0[0]) + 2.7182818284590451)))) + 2700.0)))));
 		iVec0[1] = iVec0[0];
 		fVec1[1] = fVec1[0];
 		fRec1[1] = fRec1[0];
@@ -149,11 +149,11 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	static const value_pair fCheckbox0_values[] = {{"os.triangle"},{"sine"},{"os.square"},{0}};
-	reg.registerEnumVar("tremolo.SINE","","B","",fCheckbox0_values,&fCheckbox0, 0.0, 0.0, 1.0, 1.0);
-	reg.registerVar("tremolo.depth",N_("Depth"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01);
-	reg.registerVar("tremolo.freq",N_("Freq"),"S","",&fVslider2, 5.0, 0.10000000000000001, 50.0, 0.10000000000000001);
-	reg.registerVar("tremolo.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0);
+	static const value_pair fCheckbox0_values[] = {{"triangle"},{"sine"},{"square"},{0}};
+	reg.registerFloatVar("tremolo.SINE","","B","",&fCheckbox0, 0.0, 0.0, 1.0, 1.0, fCheckbox0_values);
+	reg.registerFloatVar("tremolo.depth",N_("Depth"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("tremolo.freq",N_("Freq"),"S","",&fVslider2, 5.0, 0.10000000000000001, 50.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("tremolo.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0, 0);
 	return 0;
 }
 

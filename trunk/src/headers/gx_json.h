@@ -364,8 +364,10 @@ public:
     bool remove_file();
     iterator begin();
     iterator end() { return entries.end(); }
-    bool is_mutable() const { return (tp == PRESET_SCRATCH || tp == PRESET_FILE) && !flags; }
+    bool is_moveable() const { return tp == PRESET_SCRATCH || tp == PRESET_FILE; }
+    bool is_mutable() const { return is_moveable() && !flags; }
     PresetFileGui *get_guiwrapper();
+    bool is_newer(time_t m);
 };
 
 class PresetFileGui: private PresetFile {
@@ -386,6 +388,7 @@ public:
     using PresetFile::get_type;
     using PresetFile::begin;
     using PresetFile::end;
+    using PresetFile::is_moveable;
     using PresetFile::is_mutable;
     operator PresetFile*() { return this; }
 };
@@ -404,7 +407,6 @@ class AbstractPresetIO {
 public:
     virtual ~AbstractPresetIO();
     virtual void read_preset(JsonParser&,const SettingsFileHeader&) = 0;
-    virtual void read_online(JsonParser&) = 0;
     virtual void commit_preset() = 0;
     virtual void write_preset(JsonWriter&) = 0;
     virtual void copy_preset(JsonParser&,const SettingsFileHeader&,JsonWriter&) = 0;
@@ -443,10 +445,11 @@ public:
     iterator begin() { return iterator(banklist.begin()); }
     iterator end() { return iterator(banklist.end()); }
     bool remove(const Glib::ustring& bank);
+    void check_save();
     void save();
     int size() { return banklist.size(); }
     Glib::ustring get_name(int n);
-    void insert(PresetFile* f) { banklist.push_front(f); save(); }
+    void insert(PresetFile* f, int position = 0);
     bool has_entry(const Glib::ustring& bank) const { return get_file(bank) != 0; }
     bool has_file(const std::string& file) const;
     bool rename(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
@@ -495,7 +498,6 @@ public:
     void insert_before(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
     void insert_after(PresetFile& pf, const Glib::ustring& src, PresetFile& pftgt, const Glib::ustring& pos, const Glib::ustring& name);
     void load_preset(PresetFile *pf, const Glib::ustring& name);
-    void load_online_presets();
     bool rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
     bool remove_bank(const Glib::ustring& bank);
     bool rename_preset(PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname);

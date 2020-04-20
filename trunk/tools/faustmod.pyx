@@ -59,12 +59,32 @@ cdef extern from "faustwrap.cpp":
     cppclass UI:
         pass
 
+    cppclass charmapType
+    cppclass charmapIter:
+        charmapIter operator++()
+        bint operator!=(charmapIter)
+        bint operator==(charmapIter)
+        charmapType operator*()
+
+    cppclass charmapType:
+        const char *first
+        const char *second
+        charmapIter begin()
+        charmapIter end()
+        charmapIter find(char *s)
+
+    cppclass Meta(charmapType):
+        pass
+
     cppclass mydsp:
+        char *id
+        char *name
         void buildUserInterface(UI* interface)
         int getNumInputs()
         int getNumOutputs()
         void init(int samplingRate)
         void compute(int len, float** inputs, float** outputs)
+        void metadata(Meta *m)
 
     cppclass CMDUI(UI):
         fKeyType fKeyParam
@@ -100,6 +120,7 @@ cdef class dsp(object):
     cdef mydsp *Cdsp
     cdef CMDUI *interface
     cdef dict Cparameter
+    cdef dict meta
     cdef int defsize
     cdef double time_per_sample
 
@@ -107,13 +128,22 @@ cdef class dsp(object):
         self.Cdsp = new mydsp()
         self.interface = new CMDUI()
         self.Cdsp.buildUserInterface(self.interface)
-        cdef fKeyIter i
-        i = self.interface.fKeyParam.begin()
+        cdef fKeyIter i = self.interface.fKeyParam.begin()
         p = {}
+        cdef object p_id
         while i != self.interface.fKeyParam.end():
-            p[deref(i).first.c_str()] = (deref(i).second.fMin, deref(i).second.fMax)
+            p_id = deref(i).first.c_str()
+            p[p_id.decode()] = (deref(i).second.fMin, deref(i).second.fMax)
             inc(i)
         self.Cparameter = p
+        cdef Meta m
+        self.Cdsp.metadata(&m)
+        cdef charmapIter j = m.begin()
+        k = {}
+        while j != m.end():
+            k[deref(j).first.decode()] = deref(j).second.decode()
+            inc(j)
+        self.meta = k
         self.defsize = 128
         self.time_per_sample = 0
 
@@ -142,14 +172,14 @@ cdef class dsp(object):
         returns: allowed range tuple (lower, upper)"""
         return self.Cparameter[key]
 
-    def __getitem__(self, char* pname):
-        cdef fKeyIter p = self.interface.fKeyParam.find(pname)
+    def __getitem__(self, str pname):
+        cdef fKeyIter p = self.interface.fKeyParam.find(pname.encode())
         if p == self.interface.fKeyParam.end():
             raise KeyError("not found: %s" % pname)
         return deref(p).second.fZone[0]
     
-    def __setitem__(self, char* pname, float pval):
-        cdef fKeyIter p = self.interface.fKeyParam.find(pname)
+    def __setitem__(self, str pname, float pval):
+        cdef fKeyIter p = self.interface.fKeyParam.find(pname.encode())
         if p == self.interface.fKeyParam.end():
             raise KeyError("not found: %s" % pname)
         if not (deref(p).second.fMin <= pval <= deref(p).second.fMax):
@@ -157,6 +187,11 @@ cdef class dsp(object):
                 "parameter %s value %s outside range [%s, %s]"
                 % (pname, pval, deref(p).second.fMin, deref(p).second.fMax))
         deref(p).second.fZone[0] = pval
+
+    property meta:
+        "meta dictionary"
+        def __get__(self):
+            return self.meta
 
     property num_inputs:
         "number of input channels"
@@ -195,19 +230,19 @@ cdef class dsp(object):
                 raise ValueError("need ndarray")
             if inp.dtype != np.float32:
                 raise ValueError("need float32")
-            count = inp.shape[inp.ndim-1]
+            count = np.PyArray_DIMS(inp)[np.PyArray_NDIM(inp)-1]
         if ni == 1:
-            if not (inp.ndim == 1 or (inp.ndim == 2 and inp.shape[1] >= 1)):
+            if not (np.PyArray_NDIM(inp) == 1 or (np.PyArray_NDIM(inp) == 2 and np.PyArray_DIMS(inp)[1] >= 1)):
                 raise ValueError("need vector or 2-dim array with 1 row")
         elif ni > 1:
-            if not (inp.ndim == 2 and inp.shape[1] >= ni):
+            if not (np.PyArray_NDIM(inp) == 2 and np.PyArray_DIMS(inp)[1] >= ni):
                 raise ValueError("need 2-dim array with at least %d rows" % ni)
         cdef floatp *ina = <floatp*>alloca(ni*sizeof(floatp))
         cdef int i, n
         if inp is not None:
-            n = inp.strides[0]
+            n = np.PyArray_STRIDES(inp)[0]
             for i in range(ni):
-                ina[i] = <floatp>(inp.data+i*n)
+                ina[i] = <floatp>(np.PyArray_DATA(inp))+i*n
         cdef int no = self.Cdsp.getNumOutputs()
         cdef floatp *oa = <floatp*>alloca(no*sizeof(floatp))
         cdef np.ndarray o
@@ -215,9 +250,9 @@ cdef class dsp(object):
             o = np.empty(count,dtype=np.float32)
         else:
             o = np.empty((no,count),dtype=np.float32)
-        n = o.strides[0]
+        n = np.PyArray_STRIDES(o)[0]
         for i in range(no):
-            oa[i] = <floatp>(o.data + i*n)
+            oa[i] = <floatp>(np.PyArray_DATA(o)) + i*n
         cdef timespec t0, t1
         clock_gettime(CLOCK_MONOTONIC, &t0)
         self.Cdsp.compute(count, ina, oa)

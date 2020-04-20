@@ -50,10 +50,14 @@ public:
     gx_system::PresetFileGui* operator*() { return (*it)->get_guiwrapper(); }
 };
 
+typedef map<string, set<void*> > output_listen_map;
+
 class GxMachineBase {
+private:
+    sigc::connection update_timeout;
 protected:
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> > impresp_list;
-    sigc::signal<void, MidiAudioBuffer::Load> jack_load_change;
+    output_listen_map update_map;
 private:
     virtual int _get_parameter_value_int(const std::string& id) = 0;
     virtual int _get_parameter_value_bool(const std::string& id) = 0;
@@ -62,6 +66,7 @@ private:
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id) = 0;
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id) = 0;
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id) = 0;
+    virtual bool update_parameter() = 0;
 protected:
     GxMachineBase();
 public:
@@ -79,20 +84,10 @@ public:
     virtual float get_tuner_freq() = 0;
     virtual void set_oscilloscope_mul_buffer(int a) = 0;
     virtual int get_oscilloscope_mul_buffer() = 0;
-    virtual const float *get_oscilloscope_buffer() = 0;
-    virtual void clear_oscilloscope_buffer() = 0;
-    virtual bool oscilloscope_plugin_box_visible() = 0;
-    virtual sigc::signal<void, int>& signal_oscilloscope_post_pre() = 0;
-    virtual sigc::signal<void, bool>& signal_oscilloscope_visible() = 0;
-    virtual sigc::signal<int, bool>& signal_oscilloscope_activation() = 0;
-    virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change() = 0;
-    virtual void maxlevel_get(int channels, float *values) = 0;
-    virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize) = 0;
     virtual gx_system::CmdlineOptions& get_options() const = 0;
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port) = 0;
     virtual void stop_socket() = 0;
     virtual sigc::signal<void,GxEngineState>& signal_state_change() = 0;
-    sigc::signal<void,MidiAudioBuffer::Load>& signal_jack_load_change() { return jack_load_change; }
     virtual void tuner_used_for_display(bool on) = 0;
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type) = 0;
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed() = 0;
@@ -114,8 +109,7 @@ public:
     virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const = 0;
     virtual Glib::ustring get_bank_name(int n) = 0;
     virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) = 0;
-    virtual void load_online_presets()  = 0;
-    virtual void msend_midi_cc(int cc, int pgn, int bgn, int num) = 0;
+    virtual bool msend_midi_cc(int cc, int pgn, int bgn, int num) = 0;
     virtual void loadstate() = 0;
     virtual int bank_size() = 0;
     virtual int get_bank_index(const Glib::ustring& bank) = 0;
@@ -131,7 +125,7 @@ public:
     virtual void disable_autosave(bool v) = 0;
     virtual sigc::signal<void>& signal_selection_changed() = 0;
     virtual sigc::signal<void>& signal_presetlist_changed() = 0;
-    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move) = 0;
+    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move, int position) = 0;
     virtual gx_system::PresetFileGui *bank_insert_new(const Glib::ustring& newname) = 0;
     virtual bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname) = 0;
     virtual bool rename_preset(gx_system::PresetFileGui& pf, const Glib::ustring& oldname, const Glib::ustring& newname) = 0;
@@ -165,6 +159,7 @@ public:
     virtual Parameter& get_parameter(const std::string& id) = 0;
     virtual void insert_param(Glib::ustring group, Glib::ustring name) = 0;
     virtual void set_init_values() = 0;
+    void set_update_parameter(void *control, const string& id, bool on=true);
     virtual bool parameter_hasId(const char *p) = 0;
     virtual bool parameter_hasId(const std::string& id) = 0;
     virtual void reset_unit(const PluginDef *pdef) const = 0;
@@ -227,6 +222,7 @@ template <> inline sigc::signal<void, bool>& GxMachineBase::signal_parameter_val
     return _signal_parameter_value_bool(id);
 }
 
+
 class GxMachine: public GxMachineBase {
 private:
     gx_system::CmdlineOptions& options;
@@ -242,15 +238,13 @@ private:
     Glib::ustring switch_bank;
 private:
     void reset_switch_bank();
-    int get_bank_num(Glib::ustring num);
     void set_mute_state(int mute);
-    volatile int block;
     void do_program_change(int pgm);
     void do_bank_change(int pgm);
     void edge_toggle_tuner(bool v);
     void on_impresp(const std::string& path);
     void exit_handler(bool otherthread);
-    void on_jack_load_change();
+    void process_cmdline_bank_preset();
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);
@@ -258,6 +252,7 @@ private:
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id);
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id);
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id);
+    virtual bool update_parameter();
 public:
     GxMachine(gx_system::CmdlineOptions& options);
     virtual ~GxMachine();
@@ -273,15 +268,6 @@ public:
     virtual float get_tuner_freq();
     virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
-    virtual const float *get_oscilloscope_buffer();
-    virtual void clear_oscilloscope_buffer();
-    virtual bool oscilloscope_plugin_box_visible();
-    virtual sigc::signal<void, int>& signal_oscilloscope_post_pre();
-    virtual sigc::signal<void, bool>& signal_oscilloscope_visible();
-    virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
-    virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
-    virtual void maxlevel_get(int channels, float *values);
-    virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port);
     virtual void stop_socket();
@@ -307,8 +293,7 @@ public:
     virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const;
     virtual Glib::ustring get_bank_name(int n);
     virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name);
-    virtual void load_online_presets() ;
-    virtual void msend_midi_cc(int cc, int pgn, int bgn, int num);
+    virtual bool msend_midi_cc(int cc, int pgn, int bgn, int num);
     virtual void loadstate();
     virtual int bank_size();
     virtual int get_bank_index(const Glib::ustring& bank);
@@ -324,7 +309,7 @@ public:
     virtual void disable_autosave(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
-    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move);
+    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move, int position);
     virtual gx_system::PresetFileGui *bank_insert_new(const Glib::ustring& newname);
     virtual bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname);
     virtual bool rename_preset(gx_system::PresetFileGui& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
@@ -413,10 +398,6 @@ private:
     Glib::ustring current_preset;
     int bank_drag_get_counter;
     std::string bank_drag_get_path;
-    sigc::signal<int, bool> oscilloscope_activation;
-    sigc::signal<void, unsigned int> oscilloscope_size_change;
-    float *oscilloscope_buffer;
-    unsigned int oscilloscope_buffer_size;
     sigc::signal<void,const Glib::ustring&,const Glib::ustring&> tuner_switcher_display;
     sigc::signal<void,TunerSwitcher::SwitcherState> tuner_switcher_set_state;
     sigc::signal<void, bool> tuner_switcher_selection_done;
@@ -432,7 +413,6 @@ private:
     bool idle_notify_handler();
     void handle_notify(gx_system::JsonStringParser *jp);
     void parameter_changed(gx_system::JsonStringParser *jp);
-    static int load_remote_ui_static(const UiBuilder& builder, int form);
     int load_remote_ui(const UiBuilder& builder, int form);
     void report_rpc_error(gx_system::JsonStringParser *jp,
 			  const gx_system::JsonException& e, const char *method=0);
@@ -448,6 +428,7 @@ private:
     virtual sigc::signal<void, int>& _signal_parameter_value_int(const std::string& id);
     virtual sigc::signal<void, bool>& _signal_parameter_value_bool(const std::string& id);
     virtual sigc::signal<void, float>& _signal_parameter_value_float(const std::string& id);
+    virtual bool update_parameter();
 
 public:
     GxMachineRemote(gx_system::CmdlineOptions& options);
@@ -464,15 +445,6 @@ public:
     virtual float get_tuner_freq();
     virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
-    virtual const float *get_oscilloscope_buffer();
-    virtual void clear_oscilloscope_buffer();
-    virtual bool oscilloscope_plugin_box_visible();
-    virtual sigc::signal<void, int>& signal_oscilloscope_post_pre();
-    virtual sigc::signal<void, bool>& signal_oscilloscope_visible();
-    virtual sigc::signal<int, bool>& signal_oscilloscope_activation();
-    virtual sigc::signal<void, unsigned int>& signal_oscilloscope_size_change();
-    virtual void maxlevel_get(int channels, float *values);
-    virtual void get_oscilloscope_info(int& load, int& frames, bool& is_rt, jack_nframes_t& bsize);
     virtual gx_system::CmdlineOptions& get_options() const;
     virtual void start_socket(sigc::slot<void> quit_mainloop, const Glib::ustring& host, int port);
     virtual void stop_socket();
@@ -498,8 +470,7 @@ public:
     virtual gx_system::PresetFileGui* get_bank_file(const Glib::ustring& bank) const;
     virtual Glib::ustring get_bank_name(int n);
     virtual void load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name);
-    virtual void load_online_presets() ;
-    virtual void msend_midi_cc(int cc, int pgn, int bgn, int num);
+    virtual bool msend_midi_cc(int cc, int pgn, int bgn, int num);
     virtual void loadstate();
     virtual int bank_size();
     virtual int get_bank_index(const Glib::ustring& bank);
@@ -515,7 +486,7 @@ public:
     virtual void disable_autosave(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
-    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move);
+    virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move, int position);
     virtual gx_system::PresetFileGui *bank_insert_new(const Glib::ustring& newname);
     virtual bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname);
     virtual bool rename_preset(gx_system::PresetFileGui& pf, const Glib::ustring& oldname, const Glib::ustring& newname);

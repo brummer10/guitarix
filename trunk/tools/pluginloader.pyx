@@ -1,6 +1,7 @@
 from cython.operator cimport dereference as deref, preincrement as inc
 import numpy as np
 cimport numpy as np
+from libcpp cimport bool
 
 cdef extern from "dlfcn.h":
     cdef enum:
@@ -41,6 +42,7 @@ cdef extern from "gx_plugin.h":
         char *name
         realt *var
         int   *ivar
+        bool  *bvar
         realt val
         realt low
         realt up
@@ -110,7 +112,7 @@ cdef class Plugin:
         self.p = <PluginDef*>0
         if "/" not in path:
             path = "./" + path # do not search system dirs
-        self.handle = dlopen(path, RTLD_LOCAL|RTLD_NOW)
+        self.handle = dlopen(path.encode(), RTLD_LOCAL|RTLD_NOW)
         if not self.handle:
             raise RuntimeError("Cannot open library: %s [%s]" % (path, dlerror()))
         cdef plugin_inifunc get_gx_plugin = <plugin_inifunc>dlsym(self.handle, "get_gx_plugin")
@@ -133,14 +135,17 @@ cdef class Plugin:
         cdef ParamRegImpl *pr
         cdef variter i
         d = {}
+        cdef object p_id, p_name
         if self.p[0].register_params:
             pr = new ParamRegImpl(self.varmap, &self.p[0])
             self.p[0].register_params(pr[0])
             del pr
             i = self.varmap[0].begin()
             while i != self.varmap[0].end():
-                d[deref(i).second[0].id] = (
-                    deref(i).second[0].name, deref(i).second[0].val,
+                p_id = deref(i).second[0].id
+                p_name = deref(i).second[0].name
+                d[p_id.decode()] = (
+                    p_name.decode(), deref(i).second[0].val,
                     deref(i).second[0].low, deref(i).second[0].up,
                     self.get_vp_list(deref(i).second))
                 inc(i)
@@ -177,8 +182,8 @@ cdef class Plugin:
         f = self.d[key]
         return (f[2], f[3])
 
-    def __getitem__(self, char *pname):
-        cdef variter p = self.varmap[0].find(pname)
+    def __getitem__(self, str pname):
+        cdef variter p = self.varmap[0].find(pname.encode())
         if p == self.varmap[0].end():
             raise KeyError("not found: %s" % pname)
         if deref(p).second.var:
@@ -187,8 +192,8 @@ cdef class Plugin:
             return deref(p).second.ivar[0]
         assert(False)
 
-    def __setitem__(self, char* pname, pval):
-        cdef variter p = self.varmap[0].find(pname)
+    def __setitem__(self, str pname, pval):
+        cdef variter p = self.varmap[0].find(pname.encode())
         if p == self.varmap[0].end():
             raise KeyError("not found: %s" % pname)
         if not (deref(p).second[0].low <= pval <= deref(p).second[0].up):

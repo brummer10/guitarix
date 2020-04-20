@@ -94,21 +94,22 @@ void GxLogger::write_queued() {
 
     // quick copy list
     msgmutex.lock();
-    std::list<logmsg> l = msglist;
+    std::list<logmsg*> l = msglist;
     if (!queue_all_msgs) {
 	msglist.clear();
     }
     msgmutex.unlock();
 
     // feed throught the handler(s)
-    for (std::list<logmsg>::iterator i = l.begin(); i != l.end(); ++i) {
+    for (std::list<logmsg*>::iterator i = l.begin(); i != l.end(); ++i) {
 	if (queue_all_msgs) {
-	    if (!i->plugged) {
-		handlers(i->msg, i->msgtype, i->plugged);
-		i->plugged = true;
+	    if (!(*i)->plugged) {
+		handlers((*i)->msg, (*i)->msgtype, (*i)->plugged);
+		(*i)->plugged = true;
 	    }
 	} else {
-	    handlers(i->msg, i->msgtype, i->plugged);
+	    handlers((*i)->msg, (*i)->msgtype, (*i)->plugged);
+            delete *i;
 	}
     }
 }
@@ -135,7 +136,7 @@ void GxLogger::print(const std::string& formatted_msg, GxLogger::MsgType msgtype
     if (handlers.empty() || !(pthread_equal(pthread_self(), ui_thread))) {
 	boost::mutex::scoped_lock lock(msgmutex);
 	// defer output
-        msglist.push_back(logmsg(formatted_msg, msgtype, false));
+        msglist.push_back(new logmsg(formatted_msg, msgtype, false));
 	if (!handlers.empty() && msglist.size() == 1) {
 	    (*got_new_msg)();
 	}
@@ -143,7 +144,7 @@ void GxLogger::print(const std::string& formatted_msg, GxLogger::MsgType msgtype
 	write_queued();
 	handlers(formatted_msg, msgtype, false);
 	if (queue_all_msgs) {
-	    msglist.push_back(logmsg(formatted_msg, msgtype, true));
+	    msglist.push_back(new logmsg(formatted_msg, msgtype, true));
 	}
     }
 }

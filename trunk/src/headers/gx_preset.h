@@ -63,15 +63,14 @@ public:
 };
 
 class PresetIO: public gx_system::AbstractPresetIO {
-private:
+protected:
     gx_engine::MidiControllerList& mctrl;
-    gx_engine::ConvolverAdapter& convolver;
     gx_engine::ParamMap& param;
     gx_system::CmdlineOptions& opt;
     gx_engine::paramlist plist;
     gx_engine::ControllerArray *m;
     UnitRacks& rack_units;
-private:
+protected:
     void read_parameters(gx_system::JsonParser &jp, bool preset);
     void write_parameters(gx_system::JsonWriter &w, bool preset);
     void clear();
@@ -83,14 +82,14 @@ private:
     void collectRackOrder(gx_engine::Parameter *p, gx_system::JsonParser &jp, UnitsCollector& u);
     friend class StateIO;
 public:
-    PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-	     gx_engine::ParamMap& param, gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
+    PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ParamMap& param,
+	     gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
     ~PresetIO();
-    void read_online(gx_system::JsonParser &jp);
-    void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
-    void commit_preset();
-    void write_preset(gx_system::JsonWriter& jw);
-    void copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&, gx_system::JsonWriter &jw);
+    void read_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&) override;
+    void commit_preset() override;
+    void write_preset(gx_system::JsonWriter& jw) override;
+    void copy_preset(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&, gx_system::JsonWriter &jw) override;
+    static string try_replace_param_value(const std::string& id, const std::string& v_id, bool& found);
 };
 
 class StateIO: public gx_system::AbstractStateIO, private PresetIO {
@@ -98,13 +97,13 @@ private:
     gx_engine::MidiStandardControllers& midi_std_control;
     gx_jack::GxJack& jack;
 public:
-    StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ConvolverAdapter& cvr,
-	    gx_engine::ParamMap& param, gx_engine::MidiStandardControllers& mstdctr,
-	    gx_jack::GxJack& jack, gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
+    StateIO(gx_engine::MidiControllerList& mctrl, gx_engine::ParamMap& param,
+	    gx_engine::MidiStandardControllers& mstdctr, gx_jack::GxJack& jack,
+	    gx_system::CmdlineOptions& opt, UnitRacks& rack_units);
     ~StateIO();
-    void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&);
-    void commit_state();
-    void write_state(gx_system::JsonWriter &jw, bool preserve_preset);
+    void read_state(gx_system::JsonParser &jp, const gx_system::SettingsFileHeader&) override;
+    void commit_state() override;
+    void write_state(gx_system::JsonWriter &jw, bool preserve_preset) override;
 };
 
 class PluginPresetList {
@@ -189,8 +188,8 @@ public:
     bool remove_rack_unit(const std::string& unit, bool stereo);
     void insert_rack_unit(const std::string& unit, const std::string& before, bool stereo);
     Glib::RefPtr<Gio::File> uri_to_name_filename(const Glib::ustring& uri, Glib::ustring& name, std::string& filename);
-    gx_system::PresetFile *bank_insert_uri(const Glib::ustring& uri, bool move);
-    gx_system::PresetFile* bank_insert_content(const Glib::ustring& uri, const std::string content);
+    gx_system::PresetFile *bank_insert_uri(const Glib::ustring& uri, bool move, int position = 0);
+    gx_system::PresetFile* bank_insert_content(const Glib::ustring& uri, const std::string content, int position = 0);
     gx_system::PresetFile *bank_insert_new(const Glib::ustring& name);
     bool rename_bank(const Glib::ustring& oldname, Glib::ustring& newname);
 };

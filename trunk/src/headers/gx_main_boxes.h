@@ -46,79 +46,22 @@
 
 namespace gx_gui {
 
-void set_accessible(Gtk::Widget& widget,Gtk::Label& label);
-
-/****************************************************************/
-
-class UiSwitch: public Gxw::Switch {
- public:
-    explicit UiSwitch(const char *sw_type);
-    static UiSwitch *create(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param);
-    static UiSwitch *create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id) {
-        if (!machine.parameter_hasId(id)) return 0;
-        return create(machine, sw_type, machine.get_parameter(id));
-    }
-};
-
-/****************************************************************/
-
-class UiSwitchFloat: public UiSwitch {
- protected:
-    gx_engine::GxMachineBase& machine;
-    gx_engine::FloatParameter& param;
-    void on_toggled();
-    void set_value(float v);
- public:
-    UiSwitchFloat(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::FloatParameter &param);
-};
-
-/****************************************************************/
-
-class UiSwitchBool: public UiSwitch {
- protected:
-    gx_engine::GxMachineBase& machine;
-    gx_engine::BoolParameter& param;
-    void on_toggled();
-    void set_value(bool v);
- public:
-    UiSwitchBool(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::BoolParameter &param);
-};
-
 /****************************************************************/
 
 // can be done more elegantly when Gtk::Orientable can be used
 
-class UiHSwitchWithCaption: public Gtk::HBox {
- private:
-    Gtk::Label m_label;
- protected:
-    UiSwitch *m_switch;
- public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id,
-			       const char *label);
-    UiHSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
-			 const char *label);
-    void set_rack_label_inverse() {m_label.set_name("rack_label_inverse"); }
-    UiSwitch *get_regler() { return m_switch; }
-    ~UiHSwitchWithCaption();
-};
-
 class UiVSwitchWithCaption: public Gtk::VBox {
- private:
+private:
     Gtk::HBox  m_hbox;
     Gtk::HBox  m_hbox1;
     Gtk::HBox  m_hbox2;
     Gtk::Label m_label;
- protected:
-    UiSwitch *m_switch;
- public:
-    static Gtk::Widget* create(gx_engine::GxMachineBase& machine, const char *sw_type, const std::string& id,
-			       const char *label);
-    UiVSwitchWithCaption(gx_engine::GxMachineBase& machine, const char *sw_type, gx_engine::Parameter &param,
-			 const char *label);
+protected:
+    Gxw::Switch m_switch;
+public:
+    UiVSwitchWithCaption(const char *sw_type, gx_engine::Parameter &param, const char *label);
     void set_rack_label_inverse() {m_label.set_name("rack_label_inverse"); }
-    UiSwitch *get_regler() { return m_switch; }
-    ~UiVSwitchWithCaption();
+    Gxw::Switch *get_regler() { return &m_switch; }
 };
 
 /****************************************************************/
@@ -154,21 +97,6 @@ class GxPaintBox: public Gxw::PaintBox {
     Gtk::HBox m_hbox;
     GxPaintBox(const char *expose_funk);
     ~GxPaintBox();
-};
-
-/****************************************************************/
-
-class GxEventBox: public Gtk::HBox {
- public:
-    Gtk::HBox m_hbox;
-    Gtk::HBox m_pbox;
-    Gtk::HBox m_tbox;
-    Gtk::EventBox m_eventbox;
-    Gtk::HBox m_fbox;
-    Gtk::HBox m_fixedbox;
-    Gtk::Label m_label;
-    GxEventBox();
-    ~GxEventBox();
 };
 
 /****************************************************************/

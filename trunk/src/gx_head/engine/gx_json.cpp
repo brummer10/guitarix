@@ -28,7 +28,7 @@
 
 namespace gx_system {
 
-bool check_mtime(const std::string& filename, time_t& mtime) {
+static bool check_mtime(const std::string& filename, time_t& mtime) {
     struct stat st;
     if (stat(filename.c_str(), &st) != 0) {
 	mtime = 0;
@@ -932,15 +932,12 @@ void PresetFile::writeJSON_remote(gx_system::JsonWriter& jw) {
     }
     if (flags & gx_system::PRESET_FLAG_INVALID) {
 	jw.write_key("flag_invalid");
-	jw.write(1);
     }
     if (flags & gx_system::PRESET_FLAG_READONLY) {
 	jw.write_key("flag_readonly");
-	jw.write(1);
     }
     if (flags & gx_system::PRESET_FLAG_VERSIONDIFF) {
 	jw.write_key("flag_versiondiff");
-	jw.write(1);
     }
     jw.write_key("presets");
     jw.begin_array();
@@ -1107,6 +1104,11 @@ bool PresetFile::ensure_is_current() {
     }
     close();
     return false;
+}
+
+bool PresetFile::is_newer(time_t m) {
+    check_mtime(filename, mtime);
+    return mtime >= m;
 }
 
 void PresetFile::open(const std::string& fname) {
@@ -1514,6 +1516,25 @@ void PresetBanks::collect_lost_banks(const char* scratchpad_name, const char* sc
 }
 
 
+void PresetBanks::insert(PresetFile* f, int position) {
+    std::list<PresetFile*>::iterator i = banklist.begin();
+    for (; position > 0 && i != banklist.end(); ++i, --position);
+    banklist.insert(i, f);
+    save();
+}
+
+void PresetBanks::check_save() {
+    for (iterator i = begin(); i != end(); ++i) {
+	int tp = i->get_type();
+	if (tp == PresetFile::PRESET_FILE || tp == PresetFile::PRESET_SCRATCH) {
+	    if (i->is_newer(mtime)) {
+		save();
+		return;
+	    }
+	}
+    }
+}
+
 void PresetBanks::save() {
     if (filepath.empty()) { //FIXME remote operation hack
 	return;
@@ -1754,45 +1775,32 @@ bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
     }
 }
 
-void GxSettingsBase::load_online_presets() {
-    PresetFile *p = get_current_bank_file();
-    JsonParser *jp = 0;
-    jp = p->create_reader(0);
-    try {
-	    preset_io->read_online(*jp);
-    } catch(JsonException& e) {
-	    gx_print_error(
-		_("load online preset"),
-		boost::format(_("error loading online presets")) );
-	}
-}
-
 void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
     PresetFile *p = get_current_bank_file();
     if (p && p->has_entry(current_name) && p->get_type() == gx_system::PresetFile::PRESET_SCRATCH) {
-	JsonWriter *jw = 0;
-	try {
-	    jw = p->create_writer(current_name);
-	    preset_io->write_preset(*jw);
-	} catch(JsonException& e) {
-	    gx_print_warning(
-		_("save preset"),
-		boost::format(_("parse error in %1%"))
-		% p->get_filename());
-	}
-	delete jw;
+        JsonWriter *jw = 0;
+        try {
+            jw = p->create_writer(current_name);
+            preset_io->write_preset(*jw);
+        } catch(JsonException& e) {
+            gx_print_warning(
+                _("save preset"),
+                boost::format(_("parse error in %1%"))
+                % p->get_filename());
+        }
+        delete jw;
     }
     if (!pf->has_entry(name)) {
-	gx_print_error(_("open preset"), Glib::ustring::compose("bank %1 does not contain preset %2", pf->get_name(), name));
-	pf = 0;
+        gx_print_error(_("open preset"), Glib::ustring::compose("bank %1 does not contain preset %2", pf->get_name(), name));
+        pf = 0;
     }
     if (!pf) {
-	if (setting_is_preset()) {
-	    current_bank = "";
-	    current_name = "";
-	    selection_changed();
-	}
-	return;
+        if (setting_is_preset()) {
+            current_bank = "";
+            current_name = "";
+            selection_changed();
+        }
+        return;
     }
     current_bank = pf->get_name();
     current_name = name;
@@ -1805,7 +1813,7 @@ void GxSettingsBase::load_preset(PresetFile* pf, const Glib::ustring& name) {
     // In that case there is still a rack change left to be
     // done
     if (modules_changed) {
-	seq.clear_rack_changed();
+        seq.clear_rack_changed();
     }
     selection_changed();
 }
@@ -1981,6 +1989,9 @@ bool GxSettingsBase::convert_preset(PresetFile& pf) {
     state_io->commit_state();
     delete sp;
     seq.start_ramp_up();
+    if (res) {
+	presetlist_changed();
+    }
     return res;
 }
 
@@ -1992,6 +2003,8 @@ bool GxSettingsBase::rename_bank(const Glib::ustring& oldname, const Glib::ustri
 	current_bank = newname;
 	presetlist_changed();
 	selection_changed();
+    } else {
+	presetlist_changed();
     }
     return true;
 }
@@ -2002,6 +2015,10 @@ bool GxSettingsBase::remove_bank(const Glib::ustring& bank) {
     }
     if (bank == current_bank) {
 	set_source_to_state();
+	presetlist_changed();
+	selection_changed();
+    } else {
+	presetlist_changed();
     }
     return true;
 }
@@ -2010,8 +2027,8 @@ bool GxSettingsBase::rename_preset(PresetFile& pf, const Glib::ustring& oldname,
     if (!pf.rename(oldname, newname)) {
 	return false;
     }
+    presetlist_changed();
     if (setting_is_preset() && current_bank == pf.get_name()) {
-	presetlist_changed();
 	if (current_name == oldname) {
 	    current_name = newname;
 	    selection_changed();
