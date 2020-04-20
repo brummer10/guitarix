@@ -819,6 +819,9 @@ static void request_meter(GtkWidget *widget)
 		width = b + xborder;
 		height = allocation.height - ymargin;
 	}
+    if (width <= xborder || height <= yborder) {
+        return;
+    }
 
     cairo_t *cr;
     fm->priv->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
