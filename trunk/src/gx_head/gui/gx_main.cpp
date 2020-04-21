@@ -28,6 +28,7 @@
 #include <gtkmm/main.h>     // NOLINT
 #include <gxwmm/init.h>     // NOLINT
 #include <string>           // NOLINT
+#include <thread>
 #include "jsonrpc.h"
 
 #ifdef HAVE_AVAHI
@@ -143,8 +144,7 @@ void GxTheme::reload_css() {
 class PosixSignals {
 private:
     sigset_t waitset;
-    Glib::Thread *thread;
-    pthread_t pthr;
+    std::thread *thread;
     bool gui;
     GxTheme *theme;
     volatile bool exit;
@@ -161,8 +161,7 @@ public:
 
 PosixSignals::PosixSignals(bool gui_, GxTheme *theme_)
     : waitset(),
-      thread(),
-      pthr(),
+      thread(nullptr),
       gui(gui_),
       theme(theme_),
       exit(false) {
@@ -194,20 +193,21 @@ PosixSignals::PosixSignals(bool gui_, GxTheme *theme_)
 
 PosixSignals::~PosixSignals() {
     if (thread) {
-	exit = true;
-	pthread_kill(pthr, SIGINT);
-	thread->join();
+        exit = true;
+        pthread_kill(thread->native_handle(), SIGINT);
+        thread->join();
+        delete thread;
     }
     sigprocmask(SIG_UNBLOCK, &waitset, NULL);
 }
 
 void PosixSignals::create_thread() {
     try {
-	thread = Glib::Thread::create(
-	    sigc::mem_fun(*this, &PosixSignals::signal_helper_thread), true);
-    } catch (Glib::ThreadError& e) {
-	throw GxFatalError(
-	    boost::format(_("Thread create failed (signal): %1%")) % e.what());
+        thread = new std::thread(
+            sigc::mem_fun(*this, &PosixSignals::signal_helper_thread));
+    } catch (std::system_error& e) {
+        throw GxFatalError(
+            boost::format(_("Thread create failed (signal): %1%")) % e.what());
     }
 }
 
@@ -240,7 +240,6 @@ bool PosixSignals::gtk_level() {
 
 // --- wait for USR1 signal to arrive and invoke ladi handler via mainloop
 void PosixSignals::signal_helper_thread() {
-    pthr = pthread_self();
     const char *signame;
     guint source_id_usr1 = 0;
 #ifndef NDEBUG
