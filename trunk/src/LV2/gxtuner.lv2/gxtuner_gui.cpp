@@ -46,7 +46,7 @@ private:
 
 public:
 
-  static LV2UI_Handle instantiate(const struct LV2UI_Descriptor * descriptor,
+  static LV2UI_Handle instantiate(const LV2UI_Descriptor * descriptor,
                                   const char * plugin_uri,
                                   const char * bundle_path,
                                   LV2UI_Write_Function write_function,
@@ -306,7 +306,7 @@ GtkWidget* GxtunerGUI::make_gui()
 }
 
 
-LV2UI_Handle GxtunerGUI::instantiate(const struct LV2UI_Descriptor * descriptor,
+LV2UI_Handle GxtunerGUI::instantiate(const LV2UI_Descriptor * descriptor,
                                 const char * plugin_uri,
                                 const char * bundle_path,
                                 LV2UI_Write_Function write_function,
