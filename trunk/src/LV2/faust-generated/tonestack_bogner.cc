@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/tonestack_bogner.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace tonestack_bogner {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	double fConst0;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
@@ -20,11 +20,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -62,21 +62,18 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (2.0 * std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq))));
+	fSampleRate = sample_rate;
+	fConst0 = (2.0 * std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
 	fConst1 = mydsp_faustpower2_f(fConst0);
 	fConst2 = (3.0 * fConst0);
-	fVslider0 = FAUSTFLOAT(0.5);
-	fVslider1 = FAUSTFLOAT(0.5);
-	fVslider2 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -89,16 +86,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow2 = ((0.0015510000000000001 * fSlow0) + (0.015220000000000001 * fSlow1));
 	double fSlow3 = (fConst0 * (fSlow2 + 0.0037192600000000003));
 	double fSlow4 = (7.7900526000000021e-07 * fSlow0);
-	double fSlow5 = ((((((2.3606220000000006e-05 * fSlow1) + -3.2220474e-07) - fSlow4) * fSlow0) + (3.7475640000000014e-05 * fSlow1)) + 1.4106061200000003e-06);
+	double fSlow5 = (((fSlow0 * (((2.3606220000000006e-05 * fSlow1) + -3.2220474e-07) - fSlow4)) + (3.7475640000000014e-05 * fSlow1)) + 1.4106061200000003e-06);
 	double fSlow6 = ((1.5406083e-09 * fSlow1) - (5.0840073900000003e-11 * fSlow0));
 	double fSlow7 = (1.9775250000000004e-09 * fSlow1);
-	double fSlow8 = ((((fSlow6 + -1.4418251099999996e-11) * fSlow0) + fSlow7) + 6.5258324999999999e-11);
+	double fSlow8 = (((fSlow0 * (fSlow6 + -1.4418251099999996e-11)) + fSlow7) + 6.5258324999999999e-11);
 	double fSlow9 = (fConst0 * fSlow8);
 	double fSlow10 = (1.0 / (-1.0 - (fSlow3 + (fConst1 * (fSlow5 + fSlow9)))));
 	double fSlow11 = double(fVslider2);
 	double fSlow12 = (fConst0 * ((fSlow2 + (5.4999999999999995e-05 * fSlow11)) + 0.00050226000000000014));
-	double fSlow13 = (((1.7391e-07 * fSlow11) + (((8.6431026000000019e-07 - fSlow4) * fSlow0) + (fSlow1 * ((2.3606220000000006e-05 * fSlow0) + 1.5206400000000001e-06)))) + 5.0181120000000003e-08);
-	double fSlow14 = (((fSlow6 + 5.0840073900000003e-11) * fSlow0) + ((fSlow7 - (6.5258324999999999e-11 * (fSlow0 + -1.0))) * fSlow11));
+	double fSlow13 = (((1.7391e-07 * fSlow11) + ((fSlow0 * (8.6431026000000019e-07 - fSlow4)) + (fSlow1 * ((2.3606220000000006e-05 * fSlow0) + 1.5206400000000001e-06)))) + 5.0181120000000003e-08);
+	double fSlow14 = ((fSlow0 * (fSlow6 + 5.0840073900000003e-11)) + (fSlow11 * (fSlow7 - (6.5258324999999999e-11 * (fSlow0 + -1.0)))));
 	double fSlow15 = (fConst0 * fSlow14);
 	double fSlow16 = (0.0 - (fSlow12 + (fConst1 * (fSlow13 + fSlow15))));
 	double fSlow17 = (fConst2 * fSlow8);

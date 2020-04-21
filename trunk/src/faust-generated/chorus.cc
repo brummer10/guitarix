@@ -1,5 +1,5 @@
 // generated from file '../src/faust/chorus.dsp' by dsp2cc:
-// Code generated with Faust 2.20.2 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace chorus {

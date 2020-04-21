@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/switched_tremolo.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace switched_tremolo {
@@ -13,27 +13,23 @@ class mydspSIG0 {
 	
 	int getNumInputsmydspSIG0() {
 		return 0;
-		
 	}
 	int getNumOutputsmydspSIG0() {
 		return 1;
-		
 	}
 	int getInputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			default: {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	int getOutputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			case 0: {
 				rate = 0;
 				break;
@@ -42,41 +38,35 @@ class mydspSIG0 {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	
-	void instanceInitmydspSIG0(int samplingFreq) {
+	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) {
 			iRec2[l3] = 0;
-			
 		}
-		
 	}
 	
-	void fillmydspSIG0(int count, double* output) {
+	void fillmydspSIG0(int count, double* table) {
 		for (int i = 0; (i < count); i = (i + 1)) {
 			iRec2[0] = (iRec2[1] + 1);
-			output[i] = std::sin((9.5873799242852573e-05 * double((iRec2[0] + -1))));
+			table[i] = std::sin((9.5873799242852573e-05 * double((iRec2[0] + -1))));
 			iRec2[1] = iRec2[0];
-			
 		}
-		
 	}
 
 };
 
-mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
-void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
+static mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
+static void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
 
 static double ftbl0mydspSIG0[65536];
 
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	FAUSTFLOAT fHslider0;
@@ -110,11 +100,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -161,31 +151,23 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
 	mydspSIG0* sig0 = newmydspSIG0();
-	sig0->instanceInitmydspSIG0(samplingFreq);
+	sig0->instanceInitmydspSIG0(sample_rate);
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = std::exp((0.0 - (20.0 / fConst0)));
 	fConst2 = (1.0 - fConst1);
 	fConst3 = (1.0 / fConst0);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fHslider0 = FAUSTFLOAT(0.5);
-	fHslider1 = FAUSTFLOAT(1.0);
-	fHslider2 = FAUSTFLOAT(4.0);
-	fHslider3 = FAUSTFLOAT(1.0);
-	fHslider4 = FAUSTFLOAT(1.0);
-	fHslider5 = FAUSTFLOAT(1.0);
-	fHslider6 = FAUSTFLOAT(1.0);
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -223,7 +205,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec7[0] = (fSlow10 + (fRec7[1] - std::floor((fSlow10 + fRec7[1]))));
 		fRec8[0] = ((fConst1 * fRec8[1]) + (fConst2 * double(((fRec1[0] <= fSlow11) * (fRec1[0] > fSlow9)))));
 		fRec9[0] = (fSlow12 + (fRec9[1] - std::floor((fSlow12 + fRec9[1]))));
-		output0[i] = FAUSTFLOAT(((fSlow1 + (fSlow0 * ((fSlow2 * (((((fRec0[0] * ftbl0mydspSIG0[int((65536.0 * fRec3[0]))]) + (fRec4[0] * ftbl0mydspSIG0[int((65536.0 * fRec5[0]))])) + (fRec6[0] * ftbl0mydspSIG0[int((65536.0 * fRec7[0]))])) + (fRec8[0] * ftbl0mydspSIG0[int((65536.0 * fRec9[0]))])) + -1.0)) + 1.0))) * double(input0[i])));
+		output0[i] = FAUSTFLOAT((double(input0[i]) * (fSlow1 + (fSlow0 * ((fSlow2 * (((((fRec0[0] * ftbl0mydspSIG0[int((65536.0 * fRec3[0]))]) + (fRec4[0] * ftbl0mydspSIG0[int((65536.0 * fRec5[0]))])) + (fRec6[0] * ftbl0mydspSIG0[int((65536.0 * fRec7[0]))])) + (fRec8[0] * ftbl0mydspSIG0[int((65536.0 * fRec9[0]))])) + -1.0)) + 1.0)))));
 		fVec0[1] = fVec0[0];
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];

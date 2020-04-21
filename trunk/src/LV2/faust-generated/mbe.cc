@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/mbe.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace mbe {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -130,12 +130,12 @@ private:
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	int activate(bool start);
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
 	static int activate_static(bool start, PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -249,35 +249,21 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (3.1415926535897931 / fConst0);
 	fConst3 = (60.0 * fConst0);
 	fConst4 = (10.0 / fConst0);
 	fConst5 = (0.0 - fConst4);
-	fHslider0 = FAUSTFLOAT(80.0);
-	fHslider1 = FAUSTFLOAT(5000.0);
-	fHslider2 = FAUSTFLOAT(1700.0);
-	fHslider3 = FAUSTFLOAT(210.0);
-	fHslider4 = FAUSTFLOAT(0.0);
-	fHslider5 = FAUSTFLOAT(240.0);
-	fHslider6 = FAUSTFLOAT(20.0);
-	fHslider7 = FAUSTFLOAT(150.0);
-	fHslider8 = FAUSTFLOAT(45.0);
-	fHslider9 = FAUSTFLOAT(120.0);
-	fHslider10 = FAUSTFLOAT(30.0);
-	fHslider11 = FAUSTFLOAT(60.0);
-	fHslider12 = FAUSTFLOAT(10.0);
-	fHslider13 = FAUSTFLOAT(30.0);
 	IOTA = 0;
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void Dsp::mem_alloc()
@@ -353,7 +339,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow11 = mydsp_faustpower2_f(fSlow7);
 	double fSlow12 = (1.0 / fSlow11);
 	double fSlow13 = (fSlow8 + 1.0);
-	double fSlow14 = (0.0 - (1.0 / (fSlow13 * fSlow7)));
+	double fSlow14 = (0.0 - (1.0 / (fSlow7 * fSlow13)));
 	double fSlow15 = (1.0 / fSlow13);
 	double fSlow16 = (1.0 - fSlow8);
 	double fSlow17 = (((fSlow8 + -1.0000000000000004) / fSlow7) + 1.0);
@@ -385,7 +371,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow43 = (1.0 / fSlow42);
 	double fSlow44 = (0.0 - (1.0 / (fSlow20 * fSlow22)));
 	double fSlow45 = (1.0 / fSlow22);
-	double fSlow46 = (1.0 / (fSlow9 * fSlow20));
+	double fSlow46 = (1.0 / (fSlow20 * fSlow9));
 	double fSlow47 = (((fSlow21 + -1.0000000000000004) / fSlow20) + 1.0);
 	double fSlow48 = (0.0 - (2.0 / fSlow26));
 	double fSlow49 = (1.0000000000000009e-05 * double(fHslider6));
@@ -394,7 +380,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow52 = (1.0 / fSlow51);
 	double fSlow53 = (0.0 - (1.0 / (fSlow29 * fSlow31)));
 	double fSlow54 = (1.0 / fSlow31);
-	double fSlow55 = (1.0 / (fSlow42 * fSlow29));
+	double fSlow55 = (1.0 / (fSlow29 * fSlow42));
 	double fSlow56 = (((fSlow30 + -1.0000000000000004) / fSlow29) + 1.0);
 	double fSlow57 = (0.0 - (2.0 / fSlow35));
 	double fSlow58 = (1.0000000000000009e-05 * double(fHslider8));
@@ -404,7 +390,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow62 = (1.0 / (((fSlow1 + 1.0000000000000004) / fSlow0) + 1.0));
 	double fSlow63 = (0.0 - (1.0 / (fSlow0 * fSlow2)));
 	double fSlow64 = (1.0 / fSlow2);
-	double fSlow65 = (1.0 / (fSlow51 * fSlow0));
+	double fSlow65 = (1.0 / (fSlow0 * fSlow51));
 	double fSlow66 = (((fSlow1 + -1.0000000000000004) / fSlow0) + 1.0);
 	double fSlow67 = (0.0 - (2.0 / fSlow4));
 	double fSlow68 = (1.0000000000000009e-05 * double(fHslider12));
@@ -422,20 +408,20 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp4 = (fSlow6 * fRec4[1]);
 		fRec4[0] = ((fRec5[2] + (fSlow32 * (fTemp3 + (fSlow34 * fRec5[0])))) - (fSlow3 * ((fSlow39 * fRec4[2]) + fTemp4)));
 		fRec9[0] = (fSlow40 + (0.999 * fRec9[1]));
-		double fTemp5 = ((fRec10[1] != 0.0)?(((fRec11[1] > 0.0) & (fRec11[1] < 1.0))?fRec10[1]:0.0):(((fRec11[1] == 0.0) & (fSlow41 != fRec12[1]))?fConst4:(((fRec11[1] == 1.0) & (fSlow41 != fRec13[1]))?fConst5:0.0)));
+		double fTemp5 = ((fRec10[1] != 0.0) ? (((fRec11[1] > 0.0) & (fRec11[1] < 1.0)) ? fRec10[1] : 0.0) : (((fRec11[1] == 0.0) & (fSlow41 != fRec12[1])) ? fConst4 : (((fRec11[1] == 1.0) & (fSlow41 != fRec13[1])) ? fConst5 : 0.0)));
 		fRec10[0] = fTemp5;
 		fRec11[0] = std::max<double>(0.0, std::min<double>(1.0, (fRec11[1] + fTemp5)));
-		fRec12[0] = (((fRec11[1] >= 1.0) & (fRec13[1] != fSlow41))?fSlow41:fRec12[1]);
-		fRec13[0] = (((fRec11[1] <= 0.0) & (fRec12[1] != fSlow41))?fSlow41:fRec13[1]);
+		fRec12[0] = (((fRec11[1] >= 1.0) & (fRec13[1] != fSlow41)) ? fSlow41 : fRec12[1]);
+		fRec13[0] = (((fRec11[1] <= 0.0) & (fRec12[1] != fSlow41)) ? fSlow41 : fRec13[1]);
 		fRec3[(IOTA & 524287)] = ((fSlow3 * (fTemp4 + (fSlow39 * fRec4[0]))) + ((fRec9[0] * (((1.0 - fRec11[0]) * fRec3[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec12[0]))) + 1)) & 524287)]) + (fRec11[0] * fRec3[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec13[0]))) + 1)) & 524287)]))) + fRec4[2]));
 		double fTemp6 = fRec3[((IOTA - 0) & 524287)];
 		double fTemp7 = std::max<double>(fConst1, std::fabs(fTemp6));
-		fRec0[0] = (iTemp0?std::max<double>(fRec0[1], fTemp7):fTemp7);
-		iRec1[0] = (iTemp0?(iRec1[1] + 1):1);
-		fRec2[0] = (iTemp0?fRec2[1]:fRec0[1]);
+		fRec0[0] = (iTemp0 ? std::max<double>(fRec0[1], fTemp7) : fTemp7);
+		iRec1[0] = (iTemp0 ? (iRec1[1] + 1) : 1);
+		fRec2[0] = (iTemp0 ? fRec2[1] : fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
 		int iTemp8 = (iRec15[1] < 4096);
-		fRec23[0] = (0.0 - (fSlow15 * ((fSlow16 * fRec23[1]) - (fVec0[1] + fTemp1))));
+		fRec23[0] = (0.0 - (fSlow15 * ((fSlow16 * fRec23[1]) - (fTemp1 + fVec0[1]))));
 		fRec22[0] = (fRec23[0] - (fSlow10 * ((fSlow17 * fRec22[2]) + (fSlow18 * fRec22[1]))));
 		double fTemp9 = (fRec22[2] + (fRec22[0] + (2.0 * fRec22[1])));
 		double fTemp10 = (fSlow10 * fTemp9);
@@ -447,17 +433,17 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp12 = (fSlow6 * fRec18[1]);
 		fRec18[0] = ((fRec19[2] + (fSlow32 * (fTemp11 + (fSlow34 * fRec19[0])))) - (fSlow3 * ((fSlow39 * fRec18[2]) + fTemp12)));
 		fRec24[0] = (fSlow49 + (0.999 * fRec24[1]));
-		double fTemp13 = ((fRec25[1] != 0.0)?(((fRec26[1] > 0.0) & (fRec26[1] < 1.0))?fRec25[1]:0.0):(((fRec26[1] == 0.0) & (fSlow50 != fRec27[1]))?fConst4:(((fRec26[1] == 1.0) & (fSlow50 != fRec28[1]))?fConst5:0.0)));
+		double fTemp13 = ((fRec25[1] != 0.0) ? (((fRec26[1] > 0.0) & (fRec26[1] < 1.0)) ? fRec25[1] : 0.0) : (((fRec26[1] == 0.0) & (fSlow50 != fRec27[1])) ? fConst4 : (((fRec26[1] == 1.0) & (fSlow50 != fRec28[1])) ? fConst5 : 0.0)));
 		fRec25[0] = fTemp13;
 		fRec26[0] = std::max<double>(0.0, std::min<double>(1.0, (fRec26[1] + fTemp13)));
-		fRec27[0] = (((fRec26[1] >= 1.0) & (fRec28[1] != fSlow50))?fSlow50:fRec27[1]);
-		fRec28[0] = (((fRec26[1] <= 0.0) & (fRec27[1] != fSlow50))?fSlow50:fRec28[1]);
+		fRec27[0] = (((fRec26[1] >= 1.0) & (fRec28[1] != fSlow50)) ? fSlow50 : fRec27[1]);
+		fRec28[0] = (((fRec26[1] <= 0.0) & (fRec27[1] != fSlow50)) ? fSlow50 : fRec28[1]);
 		fRec17[(IOTA & 524287)] = ((fSlow3 * (fTemp12 + (fSlow39 * fRec18[0]))) + ((fRec24[0] * (((1.0 - fRec26[0]) * fRec17[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec27[0]))) + 1)) & 524287)]) + (fRec26[0] * fRec17[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec28[0]))) + 1)) & 524287)]))) + fRec18[2]));
 		double fTemp14 = fRec17[((IOTA - 0) & 524287)];
 		double fTemp15 = std::max<double>(fConst1, std::fabs(fTemp14));
-		fRec14[0] = (iTemp8?std::max<double>(fRec14[1], fTemp15):fTemp15);
-		iRec15[0] = (iTemp8?(iRec15[1] + 1):1);
-		fRec16[0] = (iTemp8?fRec16[1]:fRec14[1]);
+		fRec14[0] = (iTemp8 ? std::max<double>(fRec14[1], fTemp15) : fTemp15);
+		iRec15[0] = (iTemp8 ? (iRec15[1] + 1) : 1);
+		fRec16[0] = (iTemp8 ? fRec16[1] : fRec14[1]);
 		fVbargraph1 = FAUSTFLOAT(fRec16[0]);
 		int iTemp16 = (iRec30[1] < 4096);
 		fRec37[0] = (0.0 - (fSlow45 * ((fSlow24 * fRec37[1]) - (fTemp10 + fVec1[1]))));
@@ -470,25 +456,25 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp19 = (fSlow6 * fRec33[1]);
 		fRec33[0] = ((fSlow52 * (((fSlow36 * fRec34[0]) + (fSlow57 * fRec34[1])) + (fSlow36 * fRec34[2]))) - (fSlow3 * ((fSlow39 * fRec33[2]) + fTemp19)));
 		fRec38[0] = (fSlow58 + (0.999 * fRec38[1]));
-		double fTemp20 = ((fRec39[1] != 0.0)?(((fRec40[1] > 0.0) & (fRec40[1] < 1.0))?fRec39[1]:0.0):(((fRec40[1] == 0.0) & (fSlow59 != fRec41[1]))?fConst4:(((fRec40[1] == 1.0) & (fSlow59 != fRec42[1]))?fConst5:0.0)));
+		double fTemp20 = ((fRec39[1] != 0.0) ? (((fRec40[1] > 0.0) & (fRec40[1] < 1.0)) ? fRec39[1] : 0.0) : (((fRec40[1] == 0.0) & (fSlow59 != fRec41[1])) ? fConst4 : (((fRec40[1] == 1.0) & (fSlow59 != fRec42[1])) ? fConst5 : 0.0)));
 		fRec39[0] = fTemp20;
 		fRec40[0] = std::max<double>(0.0, std::min<double>(1.0, (fRec40[1] + fTemp20)));
-		fRec41[0] = (((fRec40[1] >= 1.0) & (fRec42[1] != fSlow59))?fSlow59:fRec41[1]);
-		fRec42[0] = (((fRec40[1] <= 0.0) & (fRec41[1] != fSlow59))?fSlow59:fRec42[1]);
+		fRec41[0] = (((fRec40[1] >= 1.0) & (fRec42[1] != fSlow59)) ? fSlow59 : fRec41[1]);
+		fRec42[0] = (((fRec40[1] <= 0.0) & (fRec41[1] != fSlow59)) ? fSlow59 : fRec42[1]);
 		fRec32[(IOTA & 524287)] = ((fSlow3 * (fTemp19 + (fSlow39 * fRec33[0]))) + ((fRec38[0] * (((1.0 - fRec40[0]) * fRec32[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec41[0]))) + 1)) & 524287)]) + (fRec40[0] * fRec32[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec42[0]))) + 1)) & 524287)]))) + fRec33[2]));
 		double fTemp21 = fRec32[((IOTA - 0) & 524287)];
 		double fTemp22 = std::max<double>(fConst1, std::fabs(fTemp21));
-		fRec29[0] = (iTemp16?std::max<double>(fRec29[1], fTemp22):fTemp22);
-		iRec30[0] = (iTemp16?(iRec30[1] + 1):1);
-		fRec31[0] = (iTemp16?fRec31[1]:fRec29[1]);
+		fRec29[0] = (iTemp16 ? std::max<double>(fRec29[1], fTemp22) : fTemp22);
+		iRec30[0] = (iTemp16 ? (iRec30[1] + 1) : 1);
+		fRec31[0] = (iTemp16 ? fRec31[1] : fRec29[1]);
 		fVbargraph2 = FAUSTFLOAT(fRec31[0]);
 		int iTemp23 = (iRec44[1] < 4096);
 		fRec47[0] = (fSlow60 + (0.999 * fRec47[1]));
-		double fTemp24 = ((fRec48[1] != 0.0)?(((fRec49[1] > 0.0) & (fRec49[1] < 1.0))?fRec48[1]:0.0):(((fRec49[1] == 0.0) & (fSlow61 != fRec50[1]))?fConst4:(((fRec49[1] == 1.0) & (fSlow61 != fRec51[1]))?fConst5:0.0)));
+		double fTemp24 = ((fRec48[1] != 0.0) ? (((fRec49[1] > 0.0) & (fRec49[1] < 1.0)) ? fRec48[1] : 0.0) : (((fRec49[1] == 0.0) & (fSlow61 != fRec50[1])) ? fConst4 : (((fRec49[1] == 1.0) & (fSlow61 != fRec51[1])) ? fConst5 : 0.0)));
 		fRec48[0] = fTemp24;
 		fRec49[0] = std::max<double>(0.0, std::min<double>(1.0, (fRec49[1] + fTemp24)));
-		fRec50[0] = (((fRec49[1] >= 1.0) & (fRec51[1] != fSlow61))?fSlow61:fRec50[1]);
-		fRec51[0] = (((fRec49[1] <= 0.0) & (fRec50[1] != fSlow61))?fSlow61:fRec51[1]);
+		fRec50[0] = (((fRec49[1] >= 1.0) & (fRec51[1] != fSlow61)) ? fSlow61 : fRec50[1]);
+		fRec51[0] = (((fRec49[1] <= 0.0) & (fRec50[1] != fSlow61)) ? fSlow61 : fRec51[1]);
 		fRec55[0] = (0.0 - (fSlow54 * ((fSlow33 * fRec55[1]) - (fTemp18 + fVec2[1]))));
 		fRec54[0] = (fRec55[0] - (fSlow52 * ((fSlow56 * fRec54[2]) + (fSlow37 * fRec54[1]))));
 		double fTemp25 = (fRec54[2] + (fRec54[0] + (2.0 * fRec54[1])));
@@ -499,25 +485,25 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec46[(IOTA & 524287)] = ((fRec47[0] * (((1.0 - fRec49[0]) * fRec46[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec50[0]))) + 1)) & 524287)]) + (fRec49[0] * fRec46[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec51[0]))) + 1)) & 524287)]))) + (fSlow62 * (((fSlow5 * fRec52[0]) + (fSlow67 * fRec52[1])) + (fSlow5 * fRec52[2]))));
 		double fTemp27 = fRec46[((IOTA - 0) & 524287)];
 		double fTemp28 = std::max<double>(fConst1, std::fabs(fTemp27));
-		fRec43[0] = (iTemp23?std::max<double>(fRec43[1], fTemp28):fTemp28);
-		iRec44[0] = (iTemp23?(iRec44[1] + 1):1);
-		fRec45[0] = (iTemp23?fRec45[1]:fRec43[1]);
+		fRec43[0] = (iTemp23 ? std::max<double>(fRec43[1], fTemp28) : fTemp28);
+		iRec44[0] = (iTemp23 ? (iRec44[1] + 1) : 1);
+		fRec45[0] = (iTemp23 ? fRec45[1] : fRec43[1]);
 		fVbargraph3 = FAUSTFLOAT(fRec45[0]);
 		int iTemp29 = (iRec57[1] < 4096);
 		fRec60[0] = (fSlow68 + (0.999 * fRec60[1]));
-		double fTemp30 = ((fRec61[1] != 0.0)?(((fRec62[1] > 0.0) & (fRec62[1] < 1.0))?fRec61[1]:0.0):(((fRec62[1] == 0.0) & (fSlow69 != fRec63[1]))?fConst4:(((fRec62[1] == 1.0) & (fSlow69 != fRec64[1]))?fConst5:0.0)));
+		double fTemp30 = ((fRec61[1] != 0.0) ? (((fRec62[1] > 0.0) & (fRec62[1] < 1.0)) ? fRec61[1] : 0.0) : (((fRec62[1] == 0.0) & (fSlow69 != fRec63[1])) ? fConst4 : (((fRec62[1] == 1.0) & (fSlow69 != fRec64[1])) ? fConst5 : 0.0)));
 		fRec61[0] = fTemp30;
 		fRec62[0] = std::max<double>(0.0, std::min<double>(1.0, (fRec62[1] + fTemp30)));
-		fRec63[0] = (((fRec62[1] >= 1.0) & (fRec64[1] != fSlow69))?fSlow69:fRec63[1]);
-		fRec64[0] = (((fRec62[1] <= 0.0) & (fRec63[1] != fSlow69))?fSlow69:fRec64[1]);
+		fRec63[0] = (((fRec62[1] >= 1.0) & (fRec64[1] != fSlow69)) ? fSlow69 : fRec63[1]);
+		fRec64[0] = (((fRec62[1] <= 0.0) & (fRec63[1] != fSlow69)) ? fSlow69 : fRec64[1]);
 		fRec66[0] = (0.0 - (fSlow64 * ((fSlow38 * fRec66[1]) - (fTemp26 + fVec3[1]))));
 		fRec65[0] = (fRec66[0] - (fSlow62 * ((fSlow66 * fRec65[2]) + (fSlow6 * fRec65[1]))));
 		fRec59[(IOTA & 524287)] = ((fRec60[0] * (((1.0 - fRec62[0]) * fRec59[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec63[0]))) + 1)) & 524287)]) + (fRec62[0] * fRec59[((IOTA - (int(std::min<double>(262144.0, std::max<double>(0.0, fRec64[0]))) + 1)) & 524287)]))) + (fSlow62 * (fRec65[2] + (fRec65[0] + (2.0 * fRec65[1])))));
 		double fTemp31 = fRec59[((IOTA - 0) & 524287)];
 		double fTemp32 = std::max<double>(fConst1, std::fabs(fTemp31));
-		fRec56[0] = (iTemp29?std::max<double>(fRec56[1], fTemp32):fTemp32);
-		iRec57[0] = (iTemp29?(iRec57[1] + 1):1);
-		fRec58[0] = (iTemp29?fRec58[1]:fRec56[1]);
+		fRec56[0] = (iTemp29 ? std::max<double>(fRec56[1], fTemp32) : fTemp32);
+		iRec57[0] = (iTemp29 ? (iRec57[1] + 1) : 1);
+		fRec58[0] = (iTemp29 ? fRec58[1] : fRec56[1]);
 		fVbargraph4 = FAUSTFLOAT(fRec58[0]);
 		output0[i] = FAUSTFLOAT(((((fTemp6 + fTemp14) + fTemp21) + fTemp27) + fTemp31));
 		fVec0[1] = fVec0[0];
@@ -676,19 +662,19 @@ void Dsp::connect(uint32_t port,void* data)
 		fHslider5_ = (float*)data; // , 240.0, 24.0, 360.0, 1.0 
 		break;
 	case V1: 
-		fVbargraph4_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
+		fVbargraph4_ = (float*)data; // , 0, -70.0, 5.0, 0 
 		break;
 	case V2: 
-		fVbargraph3_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
+		fVbargraph3_ = (float*)data; // , 0, -70.0, 5.0, 0 
 		break;
 	case V3: 
-		fVbargraph2_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
+		fVbargraph2_ = (float*)data; // , 0, -70.0, 5.0, 0 
 		break;
 	case V4: 
-		fVbargraph1_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
+		fVbargraph1_ = (float*)data; // , 0, -70.0, 5.0, 0 
 		break;
 	case V5: 
-		fVbargraph0_ = (float*)data; // , -70.0, -70.0, 4.0, 0.00001 
+		fVbargraph0_ = (float*)data; // , 0, -70.0, 5.0, 0 
 		break;
 	default:
 		break;

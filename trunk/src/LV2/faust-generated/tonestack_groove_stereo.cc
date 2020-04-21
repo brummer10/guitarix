@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/tonestack_groove_stereo.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace tonestack_groove_stereo {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	double fConst0;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
@@ -21,11 +21,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -64,21 +64,18 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (2.0 * std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq))));
+	fSampleRate = sample_rate;
+	fConst0 = (2.0 * std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
 	fConst1 = mydsp_faustpower2_f(fConst0);
 	fConst2 = (3.0 * fConst0);
-	fVslider0 = FAUSTFLOAT(0.5);
-	fVslider1 = FAUSTFLOAT(0.5);
-	fVslider2 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
@@ -91,16 +88,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow2 = ((0.00048400000000000006 * fSlow0) + (0.022470000000000004 * fSlow1));
 	double fSlow3 = (fConst0 * (fSlow2 + 0.0035897400000000001));
 	double fSlow4 = (2.3926056000000006e-07 * fSlow0);
-	double fSlow5 = ((((((1.0875480000000001e-05 * fSlow1) + -4.3475784000000012e-07) - fSlow4) * fSlow0) + (3.659304000000001e-05 * fSlow1)) + 1.1144196800000003e-06);
+	double fSlow5 = (((fSlow0 * (((1.0875480000000001e-05 * fSlow1) + -4.3475784000000012e-07) - fSlow4)) + (3.659304000000001e-05 * fSlow1)) + 1.1144196800000003e-06);
 	double fSlow6 = ((1.4413132800000006e-09 * fSlow1) - (3.1708892160000014e-11 * fSlow0));
 	double fSlow7 = (3.403100800000001e-09 * fSlow1);
-	double fSlow8 = ((((fSlow6 + -4.3159325440000013e-11) * fSlow0) + fSlow7) + 7.4868217600000027e-11);
+	double fSlow8 = (((fSlow0 * (fSlow6 + -4.3159325440000013e-11)) + fSlow7) + 7.4868217600000027e-11);
 	double fSlow9 = (fConst0 * fSlow8);
 	double fSlow10 = (1.0 / (-1.0 - (fSlow3 + (fConst1 * (fSlow5 + fSlow9)))));
 	double fSlow11 = double(fVslider2);
 	double fSlow12 = (fConst0 * ((fSlow2 + (0.00010340000000000001 * fSlow11)) + 0.00049434000000000001));
-	double fSlow13 = (((3.0937280000000007e-07 * fSlow11) + (((2.8930616000000009e-07 - fSlow4) * fSlow0) + (fSlow1 * ((1.0875480000000001e-05 * fSlow0) + 3.6810400000000007e-06)))) + 8.0982880000000019e-08);
-	double fSlow14 = (((fSlow6 + 3.1708892160000014e-11) * fSlow0) + ((fSlow7 - (7.4868217600000027e-11 * (fSlow0 + -1.0))) * fSlow11));
+	double fSlow13 = (((3.0937280000000007e-07 * fSlow11) + ((fSlow0 * (2.8930616000000009e-07 - fSlow4)) + (fSlow1 * ((1.0875480000000001e-05 * fSlow0) + 3.6810400000000007e-06)))) + 8.0982880000000019e-08);
+	double fSlow14 = ((fSlow0 * (fSlow6 + 3.1708892160000014e-11)) + (fSlow11 * (fSlow7 - (7.4868217600000027e-11 * (fSlow0 + -1.0)))));
 	double fSlow15 = (fConst0 * fSlow14);
 	double fSlow16 = (0.0 - (fSlow12 + (fConst1 * (fSlow13 + fSlow15))));
 	double fSlow17 = (fConst2 * fSlow8);

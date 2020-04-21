@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/stereoverb.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace stereoverb {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	FAUSTFLOAT fVslider1;
@@ -89,11 +89,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -197,22 +197,17 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (6.2831853071795862 / std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq))));
-	fVslider0 = FAUSTFLOAT(50.0);
-	fVslider1 = FAUSTFLOAT(0.5);
-	fVslider2 = FAUSTFLOAT(0.5);
-	fCheckbox0 = FAUSTFLOAT(0.0);
-	fHslider0 = FAUSTFLOAT(0.20000000000000001);
-			IOTA = 0;
+	fSampleRate = sample_rate;
+	fConst0 = (6.2831853071795862 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
@@ -228,7 +223,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow3 = ((0.28000000000000003 * double(fVslider1)) + 0.69999999999999996);
 	double fSlow4 = double(fVslider2);
 	double fSlow5 = (1.0 - fSlow4);
-	double fSlow6 = (((0.01 * fSlow1) + 0.00014999999999999999) * fSlow0);
+	double fSlow6 = (fSlow0 * ((0.01 * fSlow1) + 0.00014999999999999999));
 	double fSlow7 = double(fCheckbox0);
 	double fSlow8 = (fConst0 * double(fHslider0));
 	double fSlow9 = std::sin(fSlow8);

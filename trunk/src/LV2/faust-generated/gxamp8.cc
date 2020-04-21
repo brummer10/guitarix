@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/gxamp8.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 #include "valve.h"
 
@@ -7,7 +7,7 @@ namespace gxamp8 {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -191,11 +191,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -321,14 +321,14 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = std::tan((97.389372261283583 / fConst0));
 	fConst2 = (1.0 / fConst1);
 	fConst3 = (fConst2 + 1.0);
-	fConst4 = (1.0 / (fConst3 * fConst1));
+	fConst4 = (1.0 / (fConst1 * fConst3));
 	fConst5 = (1.0 / std::tan((20517.741620594938 / fConst0)));
 	fConst6 = (1.0 / (fConst5 + 1.0));
 	fConst7 = (1.0 - fConst5);
@@ -394,7 +394,7 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst67 = mydsp_faustpower2_f(fConst61);
 	fConst68 = (1.0 / fConst67);
 	fConst69 = (2.0 * (1.0 - fConst68));
-	fConst70 = (0.0 - (1.0 / (fConst18 * fConst13)));
+	fConst70 = (0.0 - (1.0 / (fConst13 * fConst18)));
 	fConst71 = (0.0 - (2.0 / fConst52));
 	fConst72 = (1.0 / ((fConst16 / fConst8) + 1.0));
 	fConst73 = (1.0 - (fConst56 / fConst8));
@@ -406,17 +406,13 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst79 = (((fConst62 + -1.0000000000000004) / fConst61) + 1.0);
 	fConst80 = (0.0 - (2.0 / fConst67));
 	fConst81 = (1.0 / fConst63);
-	fVslider0 = FAUSTFLOAT(0.34999999999999998);
-	fVslider1 = FAUSTFLOAT(-6.0);
-	fVslider2 = FAUSTFLOAT(100.0);
-	fVslider3 = FAUSTFLOAT(-6.0);
-			IOTA = 0;
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -507,7 +503,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp17 = std::max<double>(-600.0, fTemp16);
 		double fTemp18 = (0.0 - (40.100000000000001 * fTemp14));
 		double fTemp19 = std::max<double>(-600.0, fTemp18);
-		double fTemp20 = (((std::fabs(fTemp16) > 0.0001)?((fTemp17 < -50.0)?(0.0 - (fTemp17 * std::exp(fTemp17))):(fTemp17 / (1.0 - std::exp((-1.0 * fTemp17))))):((fTemp15 * ((134.00083333333336 * fTemp15) + 20.050000000000001)) + 1.0)) - ((std::fabs(fTemp18) > 0.0001)?((fTemp19 < -50.0)?(0.0 - (fTemp19 * std::exp(fTemp19))):(fTemp19 / (1.0 - std::exp((-1.0 * fTemp19))))):((fTemp18 * ((0.083333333333333329 * fTemp18) + 0.5)) + 1.0)));
+		double fTemp20 = (((std::fabs(fTemp16) > 0.0001) ? ((fTemp17 < -50.0) ? (0.0 - (fTemp17 * std::exp(fTemp17))) : (fTemp17 / (1.0 - std::exp((-1.0 * fTemp17))))) : ((fTemp15 * ((134.00083333333336 * fTemp15) + 20.050000000000001)) + 1.0)) - ((std::fabs(fTemp18) > 0.0001) ? ((fTemp19 < -50.0) ? (0.0 - (fTemp19 * std::exp(fTemp19))) : (fTemp19 / (1.0 - std::exp((-1.0 * fTemp19))))) : ((fTemp18 * ((0.083333333333333329 * fTemp18) + 0.5)) + 1.0)));
 		fRec20[0] = ((0.024937655860349125 * fTemp20) - (fConst23 * ((fConst49 * fRec20[2]) + (fConst50 * fRec20[1]))));
 		double fTemp21 = (fRec20[2] + (fRec20[0] + (2.0 * fRec20[1])));
 		fVec12[0] = fTemp21;

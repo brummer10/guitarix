@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/phaser_mono.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace phaser_mono {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	float fConst0;
@@ -33,11 +33,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -82,10 +82,10 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = std::exp((0.0f - (3141.59277f / fConst0)));
 	fConst2 = mydsp_faustpower2_f(fConst1);
 	fConst3 = (0.0f - (2.0f * fConst1));
@@ -94,15 +94,12 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst6 = (4.0f / fConst0);
 	fConst7 = (8.0f / fConst0);
 	fConst8 = (16.0f / fConst0);
-	fVslider0 = FAUSTFLOAT(100.0f);
-	fHslider0 = FAUSTFLOAT(0.0f);
-	fHslider1 = FAUSTFLOAT(0.5f);
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -112,7 +109,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fHslider1 (*fHslider1_)
 	float fSlow0 = float(fVslider0);
 	float fSlow1 = (1.0f - (0.00999999978f * fSlow0));
-	float fSlow2 = (0.00999999978f * (std::pow(10.0f, (0.0500000007f * float(fHslider0))) * fSlow0));
+	float fSlow2 = (0.00999999978f * (fSlow0 * std::pow(10.0f, (0.0500000007f * float(fHslider0)))));
 	float fSlow3 = (fConst5 * float(fHslider1));
 	float fSlow4 = std::sin(fSlow3);
 	float fSlow5 = std::cos(fSlow3);
@@ -129,7 +126,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		float fTemp4 = (fRec2[1] * std::cos((fConst7 * fTemp1)));
 		fRec2[0] = ((fConst3 * (fTemp3 - fTemp4)) + (fRec3[2] + (fConst2 * (fRec3[0] - fRec2[2]))));
 		float fTemp5 = (fRec1[1] * std::cos((fConst8 * fTemp1)));
-		fRec1[0] = (((fConst2 * (fRec2[0] - fRec1[2])) + (fConst3 * (fTemp4 - fTemp5))) + fRec2[2]);
+		fRec1[0] = ((fConst3 * (fTemp4 - fTemp5)) + (fRec2[2] + (fConst2 * (fRec2[0] - fRec1[2]))));
 		fRec0[0] = ((fConst2 * fRec1[0]) + ((fConst3 * fTemp5) + fRec1[2]));
 		output0[i] = FAUSTFLOAT(((fSlow1 * fTemp0) - fRec0[0]));
 		iVec0[1] = iVec0[0];

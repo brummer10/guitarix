@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/flanger_mono.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace flanger_mono {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	FAUSTFLOAT fHslider0;
@@ -24,11 +24,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -70,21 +70,18 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (6.2831853071795862 / fConst0);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fHslider0 = FAUSTFLOAT(0.0);
-	fHslider1 = FAUSTFLOAT(0.20000000000000001);
-			IOTA = 0;
+	IOTA = 0;
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -94,7 +91,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fHslider1 (*fHslider1_)
 	double fSlow0 = double(fVslider0);
 	double fSlow1 = (1.0 - (0.01 * fSlow0));
-	double fSlow2 = (0.01 * (std::pow(10.0, (0.050000000000000003 * double(fHslider0))) * fSlow0));
+	double fSlow2 = (0.01 * (fSlow0 * std::pow(10.0, (0.050000000000000003 * double(fHslider0)))));
 	double fSlow3 = (fConst1 * double(fHslider1));
 	double fSlow4 = std::sin(fSlow3);
 	double fSlow5 = std::cos(fSlow3);

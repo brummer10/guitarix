@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/gxtubetremelo.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace gxtubetremelo {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -43,11 +43,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -95,10 +95,10 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (2.08237464507809e-05 * fConst0);
 	fConst2 = (fConst1 + 0.00046017036251682698);
 	fConst3 = (0.10000000000000001 * (fConst0 / fConst2));
@@ -110,17 +110,12 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst9 = (0.5 * fConst0);
 	fConst10 = (6.2831853071795862 / fConst0);
 	fConst11 = ((0.00046017036251682698 - fConst1) / fConst2);
-	fVslider0 = FAUSTFLOAT(0.5);
-	fVslider1 = FAUSTFLOAT(0.5);
-	fCheckbox0 = FAUSTFLOAT(0.0);
-	fVslider2 = FAUSTFLOAT(5.0);
-	fVslider3 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -143,12 +138,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec1[0] = (double(input0[i]) - (fConst7 * fRec1[1]));
 		fRec2[0] = (fSlow0 + (0.99299999999999999 * fRec2[1]));
 		double fTemp0 = (fRec3[1] * (1.0 - (fConst8 / (fConst8 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fRec3[1]))))))));
-		iRec5[0] = ((iRec5[1] > 0)?((2 * (iRec4[1] < iSlow4)) + -1):(1 - (2 * (iRec4[1] > 0))));
+		iRec5[0] = ((iRec5[1] > 0) ? ((2 * (iRec4[1] < iSlow4)) + -1) : (1 - (2 * (iRec4[1] > 0))));
 		iRec4[0] = (iRec5[0] + iRec4[1]);
 		fRec8[0] = (fRec8[1] + (fSlow6 * (0.0 - fRec6[1])));
 		fRec7[0] = ((fSlow6 * fRec8[0]) + (double((1 - iVec0[1])) + fRec7[1]));
 		fRec6[0] = fRec7[0];
-		fRec3[0] = (fTemp0 + (fConst8 * (std::pow(((fSlow1 * ((iSlow2?std::max<double>(0.0, (0.5 * (fRec6[0] + 1.0))):(fSlow5 * double(iRec4[0]))) + -1.0)) + 1.0), 1.8999999999999999) / (fConst8 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
+		fRec3[0] = (fTemp0 + (fConst8 * (std::pow(((fSlow1 * ((iSlow2 ? std::max<double>(0.0, (0.5 * (fRec6[0] + 1.0))) : (fSlow5 * double(iRec4[0]))) + -1.0)) + 1.0), 1.8999999999999999) / (fConst8 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
 		fRec0[0] = ((fConst6 * (((fRec1[0] * (0.0 - (0.00056464147870750696 * fRec2[0]))) + (0.00056464147870750696 * (fRec2[0] * fRec1[1]))) / (std::exp((13.815510557964274 / std::log(((8.5519675079294171 * fRec3[0]) + 2.7182818284590451)))) + 2700.0))) - (fConst11 * fRec0[1]));
 		fRec9[0] = (fSlow7 + (0.99299999999999999 * fRec9[1]));
 		output0[i] = FAUSTFLOAT((fConst3 * ((fRec0[1] * ((0.0 - (0.00025707732809075701 * fRec9[0])) + 0.00025707732809075701)) + (0.00025707732809075701 * (fRec0[0] * (fRec9[0] + -1.0))))));

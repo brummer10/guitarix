@@ -1,5 +1,5 @@
 // generated from file '../src/LV2/faust/chorus.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace chorus {
@@ -13,27 +13,23 @@ class mydspSIG0 {
 	
 	int getNumInputsmydspSIG0() {
 		return 0;
-		
 	}
 	int getNumOutputsmydspSIG0() {
 		return 1;
-		
 	}
 	int getInputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			default: {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	int getOutputRatemydspSIG0(int channel) {
 		int rate;
-		switch (channel) {
+		switch ((channel)) {
 			case 0: {
 				rate = 0;
 				break;
@@ -42,46 +38,40 @@ class mydspSIG0 {
 				rate = -1;
 				break;
 			}
-			
 		}
 		return rate;
-		
 	}
 	
-	void instanceInitmydspSIG0(int samplingFreq) {
+	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l6 = 0; (l6 < 2); l6 = (l6 + 1)) {
 			iRec9[l6] = 0;
-			
 		}
-		
 	}
 	
-	void fillmydspSIG0(int count, float* output) {
+	void fillmydspSIG0(int count, float* table) {
 		for (int i = 0; (i < count); i = (i + 1)) {
 			iRec9[0] = (iRec9[1] + 1);
-			output[i] = std::sin((9.58738019e-05f * float((iRec9[0] + -1))));
+			table[i] = std::sin((9.58738019e-05f * float((iRec9[0] + -1))));
 			iRec9[1] = iRec9[0];
-			
 		}
-		
 	}
 
 };
 
-mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
-void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
+static mydspSIG0* newmydspSIG0() { return (mydspSIG0*)new mydspSIG0(); }
+static void deletemydspSIG0(mydspSIG0* dsp) { delete dsp; }
 
 static float ftbl0mydspSIG0[65536];
 
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
+	int IOTA;
+	float *fVec0;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT	*fHslider0_;
 	float fRec0[2];
-	int IOTA;
-	float *fVec0;
 	float fConst0;
 	float fConst1;
 	FAUSTFLOAT fHslider1;
@@ -113,12 +103,12 @@ private:
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	int activate(bool start);
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 
 	static void clear_state_f_static(PluginLV2*);
 	static int activate_static(bool start, PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -151,8 +141,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec0[l0] = 0.0f;
-	for (int l1 = 0; (l1 < 131072); l1 = (l1 + 1)) fVec0[l1] = 0.0f;
+	for (int l0 = 0; (l0 < 131072); l0 = (l0 + 1)) fVec0[l0] = 0.0f;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0f;
 	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec5[l2] = 0.0f;
 	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec6[l3] = 0.0f;
 	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec8[l4] = 0.0f;
@@ -173,28 +163,24 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
 	mydspSIG0* sig0 = newmydspSIG0();
-	sig0->instanceInitmydspSIG0(samplingFreq);
+	sig0->instanceInitmydspSIG0(sample_rate);
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = (0.5f * fConst0);
 	fConst2 = (1.0f / fConst0);
 	fConst3 = (1000.0f / fConst0);
 	fConst4 = (0.0f - fConst3);
-	fHslider0 = FAUSTFLOAT(0.5f);
-	fHslider1 = FAUSTFLOAT(0.02f);
-	fHslider2 = FAUSTFLOAT(0.02f);
-	fHslider3 = FAUSTFLOAT(3.0f);
 	IOTA = 0;
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void Dsp::mem_alloc()
@@ -240,9 +226,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	float fSlow2 = (0.00700000022f * float(fHslider2));
 	float fSlow3 = (0.00700000022f * float(fHslider3));
 	for (int i = 0; (i < count); i = (i + 1)) {
-		fRec0[0] = (fSlow0 + (0.992999971f * fRec0[1]));
 		float fTemp0 = float(input0[i]);
 		fVec0[(IOTA & 131071)] = fTemp0;
+		fRec0[0] = (fSlow0 + (0.992999971f * fRec0[1]));
 		fRec5[0] = (fSlow1 + (0.992999971f * fRec5[1]));
 		fRec6[0] = (fSlow2 + (0.992999971f * fRec6[1]));
 		fRec8[0] = (fSlow3 + (0.992999971f * fRec8[1]));
@@ -252,26 +238,26 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp3 = std::floor(fTemp2);
 		int iTemp4 = int(fTemp3);
 		float fTemp5 = (fConst1 * (fRec5[0] * ((fRec6[0] * (((fTemp3 + (1.0f - fTemp2)) * ftbl0mydspSIG0[(iTemp4 & 65535)]) + ((fTemp2 - fTemp3) * ftbl0mydspSIG0[((iTemp4 + 1) & 65535)]))) + 1.0f)));
-		float fTemp6 = ((fRec1[1] != 0.0f)?(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))?fRec1[1]:0.0f):(((fRec2[1] == 0.0f) & (fTemp5 != fRec3[1]))?fConst3:(((fRec2[1] == 1.0f) & (fTemp5 != fRec4[1]))?fConst4:0.0f)));
+		float fTemp6 = ((fRec1[1] != 0.0f) ? (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f) : (((fRec2[1] == 0.0f) & (fTemp5 != fRec3[1])) ? fConst3 : (((fRec2[1] == 1.0f) & (fTemp5 != fRec4[1])) ? fConst4 : 0.0f)));
 		fRec1[0] = fTemp6;
 		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec2[1] + fTemp6)));
-		fRec3[0] = (((fRec2[1] >= 1.0f) & (fRec4[1] != fTemp5))?fTemp5:fRec3[1]);
-		fRec4[0] = (((fRec2[1] <= 0.0f) & (fRec3[1] != fTemp5))?fTemp5:fRec4[1]);
-		output0[i] = FAUSTFLOAT(((fRec0[0] * ((fVec0[((IOTA - int(std::min<float>(65536.0f, std::max<float>(0.0f, fRec3[0])))) & 131071)] * (1.0f - fRec2[0])) + (fRec2[0] * fVec0[((IOTA - int(std::min<float>(65536.0f, std::max<float>(0.0f, fRec4[0])))) & 131071)]))) + fTemp0));
+		fRec3[0] = (((fRec2[1] >= 1.0f) & (fRec4[1] != fTemp5)) ? fTemp5 : fRec3[1]);
+		fRec4[0] = (((fRec2[1] <= 0.0f) & (fRec3[1] != fTemp5)) ? fTemp5 : fRec4[1]);
+		output0[i] = FAUSTFLOAT((fTemp0 + (fRec0[0] * ((fVec0[((IOTA - int(std::min<float>(65536.0f, std::max<float>(0.0f, fRec3[0])))) & 131071)] * (1.0f - fRec2[0])) + (fRec2[0] * fVec0[((IOTA - int(std::min<float>(65536.0f, std::max<float>(0.0f, fRec4[0])))) & 131071)])))));
 		float fTemp7 = float(input1[i]);
 		fVec1[(IOTA & 131071)] = fTemp7;
 		float fTemp8 = (65536.0f * (fRec7[0] + (0.25f - std::floor((fRec7[0] + 0.25f)))));
 		float fTemp9 = std::floor(fTemp8);
 		int iTemp10 = int(fTemp9);
 		float fTemp11 = (fConst1 * (fRec5[0] * ((fRec6[0] * (((fTemp9 + (1.0f - fTemp8)) * ftbl0mydspSIG0[(iTemp10 & 65535)]) + ((fTemp8 - fTemp9) * ftbl0mydspSIG0[((iTemp10 + 1) & 65535)]))) + 1.0f)));
-		float fTemp12 = ((fRec10[1] != 0.0f)?(((fRec11[1] > 0.0f) & (fRec11[1] < 1.0f))?fRec10[1]:0.0f):(((fRec11[1] == 0.0f) & (fTemp11 != fRec12[1]))?fConst3:(((fRec11[1] == 1.0f) & (fTemp11 != fRec13[1]))?fConst4:0.0f)));
+		float fTemp12 = ((fRec10[1] != 0.0f) ? (((fRec11[1] > 0.0f) & (fRec11[1] < 1.0f)) ? fRec10[1] : 0.0f) : (((fRec11[1] == 0.0f) & (fTemp11 != fRec12[1])) ? fConst3 : (((fRec11[1] == 1.0f) & (fTemp11 != fRec13[1])) ? fConst4 : 0.0f)));
 		fRec10[0] = fTemp12;
 		fRec11[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec11[1] + fTemp12)));
-		fRec12[0] = (((fRec11[1] >= 1.0f) & (fRec13[1] != fTemp11))?fTemp11:fRec12[1]);
-		fRec13[0] = (((fRec11[1] <= 0.0f) & (fRec12[1] != fTemp11))?fTemp11:fRec13[1]);
-		output1[i] = FAUSTFLOAT(((fRec0[0] * ((fVec1[((IOTA - int(std::min<float>(65536.0f, std::max<float>(0.0f, fRec12[0])))) & 131071)] * (1.0f - fRec11[0])) + (fRec11[0] * fVec1[((IOTA - int(std::min<float>(65536.0f, std::max<float>(0.0f, fRec13[0])))) & 131071)]))) + fTemp7));
-		fRec0[1] = fRec0[0];
+		fRec12[0] = (((fRec11[1] >= 1.0f) & (fRec13[1] != fTemp11)) ? fTemp11 : fRec12[1]);
+		fRec13[0] = (((fRec11[1] <= 0.0f) & (fRec12[1] != fTemp11)) ? fTemp11 : fRec13[1]);
+		output1[i] = FAUSTFLOAT((fTemp7 + (fRec0[0] * ((fVec1[((IOTA - int(std::min<float>(65536.0f, std::max<float>(0.0f, fRec12[0])))) & 131071)] * (1.0f - fRec11[0])) + (fRec11[0] * fVec1[((IOTA - int(std::min<float>(65536.0f, std::max<float>(0.0f, fRec13[0])))) & 131071)])))));
 		IOTA = (IOTA + 1);
+		fRec0[1] = fRec0[0];
 		fRec5[1] = fRec5[0];
 		fRec6[1] = fRec6[0];
 		fRec8[1] = fRec8[0];

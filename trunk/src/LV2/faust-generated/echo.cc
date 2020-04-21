@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/echo.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace echo {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	float fConst0;
@@ -21,12 +21,12 @@ private:
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	int activate(bool start);
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
 	static int activate_static(bool start, PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -66,18 +66,16 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = (0.00100000005f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq))));
-	fVslider0 = FAUSTFLOAT(0.0f);
-	fVslider1 = FAUSTFLOAT(1.0f);
-			IOTA = 0;
+	fSampleRate = sample_rate;
+	fConst0 = (0.00100000005f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate))));
+	IOTA = 0;
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void Dsp::mem_alloc()
@@ -117,7 +115,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	float fSlow0 = (0.00999999978f * float(fVslider0));
 	int iSlow1 = (std::min<int>(131072, std::max<int>(0, (int((fConst0 * float(fVslider1))) + -1))) + 1);
 	for (int i = 0; (i < count); i = (i + 1)) {
-		fRec0[(IOTA & 262143)] = ((fSlow0 * fRec0[((IOTA - iSlow1) & 262143)]) + float(input0[i]));
+		fRec0[(IOTA & 262143)] = (float(input0[i]) + (fSlow0 * fRec0[((IOTA - iSlow1) & 262143)]));
 		output0[i] = FAUSTFLOAT(fRec0[((IOTA - 0) & 262143)]);
 		IOTA = (IOTA + 1);
 	}

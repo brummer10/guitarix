@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/foxwah.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace foxwah {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	double fConst0;
@@ -83,11 +83,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -135,73 +135,69 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (717.01248503233671 / fConst0);
 	fConst2 = (fConst1 + 1.0);
 	fConst3 = (1.0 / fConst2);
 	fConst4 = (1.0 - fConst1);
 	fConst5 = (0.01 / fConst2);
-	fConst6 = (1.2275879528436901e-18 * fConst0);
-	fConst7 = mydsp_faustpower2_f(fConst0);
-	fConst8 = (((-4.8055399796856898e-17 - fConst6) * fConst7) + 1.69880968875719e-11);
+	fConst6 = mydsp_faustpower2_f(fConst0);
+	fConst7 = (1.2275879528436901e-18 * fConst0);
+	fConst8 = ((fConst6 * (-4.8055399796856898e-17 - fConst7)) + 1.69880968875719e-11);
 	fConst9 = (0.10471975511965977 / fConst0);
 	fConst10 = std::exp((0.0 - (100.0 / fConst0)));
 	fConst11 = (1.0 - fConst10);
 	fConst12 = std::exp((0.0 - (10.0 / fConst0)));
 	fConst13 = (1.0 - fConst12);
 	fConst14 = (8.4734818644789999e-19 * fConst0);
-	fConst15 = (((fConst14 + 3.01343158474042e-18) * fConst7) + -2.2480754421574902e-12);
+	fConst15 = ((fConst6 * (fConst14 + 3.01343158474042e-18)) + -2.2480754421574902e-12);
 	fConst16 = (2.1117579289813799e-19 * fConst0);
-	fConst17 = ((fConst16 + 7.6916244557656196e-18) * fConst7);
-	fConst18 = ((1.8413819292655401e-18 * fConst7) + -5.8687949031775201e-13);
-	fConst19 = (-1.1685244043225301e-13 - (1.27102227967185e-18 * fConst7));
-	fConst20 = (8.9023787509436504e-14 - (3.1676368934720701e-19 * fConst7));
-	fConst21 = (((4.8055399796856898e-17 - fConst6) * fConst7) + -1.69880968875719e-11);
-	fConst22 = (((fConst14 + -3.01343158474042e-18) * fConst7) + 2.2480754421574902e-12);
-	fConst23 = ((fConst16 + -7.6916244557656196e-18) * fConst7);
+	fConst17 = (fConst6 * (fConst16 + 7.6916244557656196e-18));
+	fConst18 = ((1.8413819292655401e-18 * fConst6) + -5.8687949031775201e-13);
+	fConst19 = (-1.1685244043225301e-13 - (1.27102227967185e-18 * fConst6));
+	fConst20 = (8.9023787509436504e-14 - (3.1676368934720701e-19 * fConst6));
+	fConst21 = ((fConst6 * (4.8055399796856898e-17 - fConst7)) + -1.69880968875719e-11);
+	fConst22 = ((fConst6 * (fConst14 + -3.01343158474042e-18)) + 2.2480754421574902e-12);
+	fConst23 = (fConst6 * (fConst16 + -7.6916244557656196e-18));
 	fConst24 = (3.06896988210923e-19 * fConst0);
-	fConst25 = (((((fConst24 + -2.4027699898428501e-17) * fConst0) + 2.93439745158876e-13) * fConst0) + -8.4940484437859305e-12);
+	fConst25 = ((fConst0 * ((fConst0 * (fConst24 + -2.4027699898428501e-17)) + 2.93439745158876e-13)) + -8.4940484437859305e-12);
 	fConst26 = (2.11837046611975e-19 * fConst0);
-	fConst27 = (((((1.50671579237021e-18 - fConst26) * fConst0) + 5.8426220216126604e-14) * fConst0) + 1.12403772107874e-12);
+	fConst27 = ((fConst0 * ((fConst0 * (1.50671579237021e-18 - fConst26)) + 5.8426220216126604e-14)) + 1.12403772107874e-12);
 	fConst28 = (5.27939482245346e-20 * fConst0);
-	fConst29 = ((((3.8458122278828098e-18 - fConst28) * fConst0) + -4.4511893754718202e-14) * fConst0);
-	fConst30 = (((((fConst24 + 2.4027699898428501e-17) * fConst0) + 2.93439745158876e-13) * fConst0) + 8.4940484437859305e-12);
-	fConst31 = (((((-1.50671579237021e-18 - fConst26) * fConst0) + 5.8426220216126604e-14) * fConst0) + -1.12403772107874e-12);
-	fConst32 = ((((-3.8458122278828098e-18 - fConst28) * fConst0) + -4.4511893754718202e-14) * fConst0);
+	fConst29 = (fConst0 * ((fConst0 * (3.8458122278828098e-18 - fConst28)) + -4.4511893754718202e-14));
+	fConst30 = ((fConst0 * ((fConst0 * (fConst24 + 2.4027699898428501e-17)) + 2.93439745158876e-13)) + 8.4940484437859305e-12);
+	fConst31 = ((fConst0 * ((fConst0 * (-1.50671579237021e-18 - fConst26)) + 5.8426220216126604e-14)) + -1.12403772107874e-12);
+	fConst32 = (fConst0 * ((fConst0 * (-3.8458122278828098e-18 - fConst28)) + -4.4511893754718202e-14));
 	fConst33 = (7.0652649274790194e-21 * fConst0);
-	fConst34 = (((((-2.3382087600362899e-16 - fConst33) * fConst0) + -3.2682564451510601e-13) * fConst0) + -3.2429214385964599e-12);
+	fConst34 = ((fConst0 * ((fConst0 * (-2.3382087600362899e-16 - fConst33)) + -3.2682564451510601e-13)) + -3.2429214385964599e-12);
 	fConst35 = (2.0374917851091199e-21 * fConst0);
-	fConst36 = (((((-4.8544781840811302e-17 - fConst35) * fConst0) + -6.52701543961359e-14) * fConst0) + 1.41209804493283e-12);
+	fConst36 = ((fConst0 * ((fConst0 * (-4.8544781840811302e-17 - fConst35)) + -6.52701543961359e-14)) + 1.41209804493283e-12);
 	fConst37 = (1.8319982808400902e-21 * fConst0);
-	fConst38 = ((((fConst37 + 4.3717757539413797e-17) * fConst0) + 5.9658637492238004e-14) * fConst0);
+	fConst38 = (fConst0 * ((fConst0 * (fConst37 + 4.3717757539413797e-17)) + 5.9658637492238004e-14));
 	fConst39 = (2.8261059709916102e-20 * fConst0);
-	fConst40 = (((fConst39 + 4.6764175200725896e-16) * fConst7) + -6.4858428771929198e-12);
+	fConst40 = ((fConst6 * (fConst39 + 4.6764175200725896e-16)) + -6.4858428771929198e-12);
 	fConst41 = (8.1499671404364798e-21 * fConst0);
-	fConst42 = (((fConst41 + 9.7089563681622506e-17) * fConst7) + 2.8241960898656499e-12);
+	fConst42 = ((fConst6 * (fConst41 + 9.7089563681622506e-17)) + 2.8241960898656499e-12);
 	fConst43 = (7.3279931233603697e-21 * fConst0);
-	fConst44 = ((-8.7435515078827595e-17 - fConst43) * fConst7);
-	fConst45 = (6.5365128903021101e-13 - (4.2391589564874099e-20 * fConst7));
-	fConst46 = (1.30540308792272e-13 - (1.22249507106547e-20 * fConst7));
-	fConst47 = ((1.09919896850405e-20 * fConst7) + -1.1931727498447601e-13);
-	fConst48 = (((fConst39 + -4.6764175200725896e-16) * fConst7) + 6.4858428771929198e-12);
-	fConst49 = (((fConst41 + -9.7089563681622506e-17) * fConst7) + -2.8241960898656499e-12);
-	fConst50 = ((8.7435515078827595e-17 - fConst43) * fConst7);
-	fConst51 = (((((2.3382087600362899e-16 - fConst33) * fConst0) + -3.2682564451510601e-13) * fConst0) + 3.2429214385964599e-12);
-	fConst52 = (((((4.8544781840811302e-17 - fConst35) * fConst0) + -6.52701543961359e-14) * fConst0) + -1.41209804493283e-12);
-	fConst53 = ((((fConst37 + -4.3717757539413797e-17) * fConst0) + 5.9658637492238004e-14) * fConst0);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fVslider1 = FAUSTFLOAT(0.0);
-	fVslider2 = FAUSTFLOAT(24.0);
-	fVslider3 = FAUSTFLOAT(0.0);
+	fConst44 = (fConst6 * (-8.7435515078827595e-17 - fConst43));
+	fConst45 = (6.5365128903021101e-13 - (4.2391589564874099e-20 * fConst6));
+	fConst46 = (1.30540308792272e-13 - (1.22249507106547e-20 * fConst6));
+	fConst47 = ((1.09919896850405e-20 * fConst6) + -1.1931727498447601e-13);
+	fConst48 = ((fConst6 * (fConst39 + -4.6764175200725896e-16)) + 6.4858428771929198e-12);
+	fConst49 = ((fConst6 * (fConst41 + -9.7089563681622506e-17)) + -2.8241960898656499e-12);
+	fConst50 = (fConst6 * (8.7435515078827595e-17 - fConst43));
+	fConst51 = ((fConst0 * ((fConst0 * (2.3382087600362899e-16 - fConst33)) + -3.2682564451510601e-13)) + 3.2429214385964599e-12);
+	fConst52 = ((fConst0 * ((fConst0 * (4.8544781840811302e-17 - fConst35)) + -6.52701543961359e-14)) + -1.41209804493283e-12);
+	fConst53 = (fConst0 * ((fConst0 * (fConst37 + -4.3717757539413797e-17)) + 5.9658637492238004e-14));
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -232,9 +228,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec6[0] = ((fConst10 * fRec6[1]) + (fConst11 * fRec7[0]));
 		fRec5[0] = ((0.99299999999999999 * fRec5[1]) + (0.0070000000000000062 * (1.0 - std::max<double>(0.02, std::min<double>(0.97999999999999998, fRec6[0])))));
 		fRec8[0] = (fSlow8 + (0.99299999999999999 * fRec8[1]));
-		double fTemp2 = (iSlow5?fRec8[0]:(iSlow6?fRec5[0]:(1.0 - std::max<double>(0.02, std::min<double>(0.97999999999999998, (0.5 * (fRec2[0] + 1.0)))))));
+		double fTemp2 = (iSlow5 ? fRec8[0] : (iSlow6 ? fRec5[0] : (1.0 - std::max<double>(0.02, std::min<double>(0.97999999999999998, (0.5 * (fRec2[0] + 1.0)))))));
 		double fTemp3 = ((fConst0 * (fConst30 + (fTemp2 * (fConst31 + (fConst32 * fTemp2))))) + 2.8384790936331901e-11);
-		fRec0[0] = (fRec1[0] - (((((fRec0[1] * ((fConst0 * (fConst8 + (fTemp2 * (fConst15 + (fConst17 * fTemp2))))) + 1.1353916374532801e-10)) + (fRec0[2] * ((fConst7 * (fConst18 + (fTemp2 * (fConst19 + (fConst20 * fTemp2))))) + 1.70308745617991e-10))) + (fRec0[3] * ((fConst0 * (fConst21 + (fTemp2 * (fConst22 + (fConst23 * fTemp2))))) + 1.1353916374532801e-10))) + (fRec0[4] * ((fConst0 * (fConst25 + (fTemp2 * (fConst27 + (fConst29 * fTemp2))))) + 2.8384790936331901e-11))) / fTemp3));
+		fRec0[0] = (fRec1[0] - (((((fRec0[1] * ((fConst0 * (fConst8 + (fTemp2 * (fConst15 + (fConst17 * fTemp2))))) + 1.1353916374532801e-10)) + (fRec0[2] * ((fConst6 * (fConst18 + (fTemp2 * (fConst19 + (fConst20 * fTemp2))))) + 1.70308745617991e-10))) + (fRec0[3] * ((fConst0 * (fConst21 + (fTemp2 * (fConst22 + (fConst23 * fTemp2))))) + 1.1353916374532801e-10))) + (fRec0[4] * ((fConst0 * (fConst25 + (fTemp2 * (fConst27 + (fConst29 * fTemp2))))) + 2.8384790936331901e-11))) / fTemp3));
 		output0[i] = FAUSTFLOAT(((fSlow2 * fTemp0) + (fConst0 * ((((((fRec0[0] * (fConst34 + (fTemp2 * (fConst36 + (fConst38 * fTemp2))))) + (fRec0[1] * (fConst40 + (fTemp2 * (fConst42 + (fConst44 * fTemp2)))))) + (fConst0 * (fRec0[2] * (fConst45 + (fTemp2 * (fConst46 + (fConst47 * fTemp2))))))) + (fRec0[3] * (fConst48 + (fTemp2 * (fConst49 + (fConst50 * fTemp2)))))) + (fRec0[4] * (fConst51 + (fTemp2 * (fConst52 + (fConst53 * fTemp2)))))) / fTemp3))));
 		iVec0[1] = iVec0[0];
 		fVec1[1] = fVec1[0];

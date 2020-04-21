@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/rangem.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace rangem {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	double fConst0;
@@ -48,11 +48,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -91,29 +91,29 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = mydsp_faustpower2_f(fConst0);
 	fConst2 = (1.3112152596533899e-14 * fConst0);
-	fConst3 = ((((-2.23510911173716e-10 - fConst2) * fConst0) + 1.20972656728663e-08) * fConst0);
+	fConst3 = (fConst0 * ((fConst0 * (-2.23510911173716e-10 - fConst2)) + 1.20972656728663e-08));
 	fConst4 = (1.80914841671183e-16 * fConst0);
-	fConst5 = ((((fConst4 + -1.26333088694976e-11) * fConst0) + 1.9579195352328598e-11) * fConst0);
+	fConst5 = (fConst0 * ((fConst0 * (fConst4 + -1.26333088694976e-11)) + 1.9579195352328598e-11));
 	fConst6 = (2.8831193297149801e-16 * fConst0);
-	fConst7 = (((((fConst6 + 1.2982868337500301e-11) * fConst0) + -3.7705539406211702e-11) * fConst0) + -1.94326933795877e-22);
-	fConst8 = ((((fConst2 + -2.23510911173716e-10) * fConst0) + -1.20972656728663e-08) * fConst0);
-	fConst9 = ((((-1.26333088694976e-11 - fConst4) * fConst0) + -1.9579195352328598e-11) * fConst0);
-	fConst10 = (((((1.2982868337500301e-11 - fConst6) * fConst0) + 3.7705539406211702e-11) * fConst0) + -1.94326933795877e-22);
+	fConst7 = ((fConst0 * ((fConst0 * (fConst6 + 1.2982868337500301e-11)) + -3.7705539406211702e-11)) + -1.94326933795877e-22);
+	fConst8 = (fConst0 * ((fConst0 * (fConst2 + -2.23510911173716e-10)) + -1.20972656728663e-08));
+	fConst9 = (fConst0 * ((fConst0 * (-1.26333088694976e-11 - fConst4)) + -1.9579195352328598e-11));
+	fConst10 = ((fConst0 * ((fConst0 * (1.2982868337500301e-11 - fConst6)) + 3.7705539406211702e-11)) + -1.94326933795877e-22);
 	fConst11 = (4.3707175321779698e-15 * fConst0);
-	fConst12 = ((((2.23510911173716e-10 - fConst11) * fConst0) + -1.20972656728663e-08) * fConst0);
+	fConst12 = (fConst0 * ((fConst0 * (2.23510911173716e-10 - fConst11)) + -1.20972656728663e-08));
 	fConst13 = (6.0304947223727498e-17 * fConst0);
-	fConst14 = ((((fConst13 + 1.26333088694976e-11) * fConst0) + -1.9579195352328598e-11) * fConst0);
+	fConst14 = (fConst0 * ((fConst0 * (fConst13 + 1.26333088694976e-11)) + -1.9579195352328598e-11));
 	fConst15 = (9.6103977657166e-17 * fConst0);
-	fConst16 = (((((fConst15 + -1.2982868337500301e-11) * fConst0) + 3.7705539406211702e-11) * fConst0) + -6.4775644598625805e-23);
-	fConst17 = ((((fConst11 + 2.23510911173716e-10) * fConst0) + 1.20972656728663e-08) * fConst0);
-	fConst18 = ((((1.26333088694976e-11 - fConst13) * fConst0) + 1.9579195352328598e-11) * fConst0);
-	fConst19 = (((((-1.2982868337500301e-11 - fConst15) * fConst0) + -3.7705539406211702e-11) * fConst0) + -6.4775644598625805e-23);
+	fConst16 = ((fConst0 * ((fConst0 * (fConst15 + -1.2982868337500301e-11)) + 3.7705539406211702e-11)) + -6.4775644598625805e-23);
+	fConst17 = (fConst0 * ((fConst0 * (fConst11 + 2.23510911173716e-10)) + 1.20972656728663e-08));
+	fConst18 = (fConst0 * ((fConst0 * (1.26333088694976e-11 - fConst13)) + 1.9579195352328598e-11));
+	fConst19 = ((fConst0 * ((fConst0 * (-1.2982868337500301e-11 - fConst15)) + -3.7705539406211702e-11)) + -6.4775644598625805e-23);
 	fConst20 = (8.3285238622566202e-13 * fConst0);
 	fConst21 = (-2.2490612274236699e-12 - fConst20);
 	fConst22 = (8.3146660854475396e-13 * fConst0);
@@ -126,14 +126,12 @@ inline void Dsp::init(uint32_t samplingFreq)
 	fConst29 = (fConst26 + -2.2453190290419298e-12);
 	fConst30 = (fConst20 + -2.2490612274236699e-12);
 	fConst31 = (2.2453190290419298e-12 - fConst22);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fVslider1 = FAUSTFLOAT(0.5);
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)

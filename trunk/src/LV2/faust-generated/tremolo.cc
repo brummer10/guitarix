@@ -1,12 +1,12 @@
 // generated from file '../src/LV2/faust/tremolo.dsp' by dsp2cc:
-// Code generated with Faust 2.15.11 (https://faust.grame.fr)
+// Code generated with Faust (https://faust.grame.fr)
 
 
 namespace tremolo {
 
 class Dsp: public PluginLV2 {
 private:
-	uint32_t fSamplingFreq;
+	uint32_t fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	int iVec0[2];
@@ -29,11 +29,11 @@ private:
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
-	void init(uint32_t samplingFreq);
+	void init(uint32_t sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 
 	static void clear_state_f_static(PluginLV2*);
-	static void init_static(uint32_t samplingFreq, PluginLV2*);
+	static void init_static(uint32_t sample_rate, PluginLV2*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
@@ -77,23 +77,19 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 	static_cast<Dsp*>(p)->clear_state_f();
 }
 
-inline void Dsp::init(uint32_t samplingFreq)
+inline void Dsp::init(uint32_t sample_rate)
 {
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (0.5 * fConst0);
 	fConst3 = (6.2831853071795862 / fConst0);
-	fVslider0 = FAUSTFLOAT(100.0);
-	fVslider1 = FAUSTFLOAT(0.5);
-	fCheckbox0 = FAUSTFLOAT(0.0);
-	fVslider2 = FAUSTFLOAT(5.0);
 	clear_state_f();
 }
 
-void Dsp::init_static(uint32_t samplingFreq, PluginLV2 *p)
+void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -114,13 +110,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i = 0; (i < count); i = (i + 1)) {
 		iVec0[0] = 1;
 		double fTemp0 = (fRec0[1] * (1.0 - (fConst1 / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fRec0[1]))))))));
-		iRec2[0] = ((iRec2[1] > 0)?((2 * (iRec1[1] < iSlow6)) + -1):(1 - (2 * (iRec1[1] > 0))));
+		iRec2[0] = ((iRec2[1] > 0) ? ((2 * (iRec1[1] < iSlow6)) + -1) : (1 - (2 * (iRec1[1] > 0))));
 		iRec1[0] = (iRec2[0] + iRec1[1]);
 		fRec5[0] = (fRec5[1] + (fSlow8 * (0.0 - fRec3[1])));
 		fRec4[0] = ((fSlow8 * fRec5[0]) + (double((1 - iVec0[1])) + fRec4[1]));
 		fRec3[0] = fRec4[0];
-		fRec0[0] = (fTemp0 + (fConst1 * (std::pow(((fSlow3 * ((iSlow4?std::max<double>(0.0, (0.5 * (fRec3[0] + 1.0))):(fSlow7 * double(iRec1[0]))) + -1.0)) + 1.0), 1.8999999999999999) / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
-		output0[i] = FAUSTFLOAT(((fSlow1 + (fSlow2 / (std::exp((13.815510557964274 / std::log(((8.5519675079294171 * fRec0[0]) + 2.7182818284590451)))) + 2700.0))) * double(input0[i])));
+		fRec0[0] = (fTemp0 + (fConst1 * (std::pow(((fSlow3 * ((iSlow4 ? std::max<double>(0.0, (0.5 * (fRec3[0] + 1.0))) : (fSlow7 * double(iRec1[0]))) + -1.0)) + 1.0), 1.8999999999999999) / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
+		output0[i] = FAUSTFLOAT((double(input0[i]) * (fSlow1 + (fSlow2 / (std::exp((13.815510557964274 / std::log(((8.5519675079294171 * fRec0[0]) + 2.7182818284590451)))) + 2700.0)))));
 		iVec0[1] = iVec0[0];
 		iRec2[1] = iRec2[0];
 		iRec1[1] = iRec1[0];
