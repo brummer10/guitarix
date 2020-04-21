@@ -622,9 +622,12 @@ private:
     static LV2_URID lv2_urid_map(LV2_URID_Map_Handle, const char* const uri_);
     static LV2_Feature gx_urid_map_feature;
     
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     static uint32_t lv2_uri_to_id(LV2_URI_Map_Callback_Data handle, const char*, const char* uri);
     static LV2_URI_Map_Feature gx_uri_map;
     static LV2_Feature gx_uri_map_feature;
+#pragma GCC diagnostic pop
     
     static const char* lv2_urid_unmap(LV2_URID_Unmap_Handle, const LV2_URID urid);
     static LV2_Feature gx_urid_unmap_feature;
