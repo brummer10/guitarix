@@ -104,9 +104,9 @@ def dsp_file(self, node):
 
 @Configure.conf
 def get_faust_args(bld):
-    float_arg = ["-s","40000","--float"]
-    double_arg = ["--double"]
     arg = ['--no-version-header']
+    float_arg = arg + ["-s","40000","--float"]
+    double_arg = arg + ["--double"]
     if bld.env['FAUST_DOUBLE']:
         arg.append("--double")
     else:
