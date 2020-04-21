@@ -372,14 +372,14 @@ int SCapture::register_par(const ParamReg& reg)
 	reg.registerFloatVar("recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 2.0, 1.0, fformat_values);
 	reg.registerFloatVar("recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0, 0);
 	reg.registerFloatVar("recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f, 0);
-	reg.registerFloatVar("recorder.clip","","BN","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("recorder.v1","","SO","",&fbargraph0, -70.0, -70.0, 4.0, 0.00001, 0);
+	reg.registerFloatVar("recorder.clip","","BoN","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("recorder.v1","","SOLN","",&fbargraph0, -70.0, -70.0, 4.0, 0.00001, 0);
     } else {
 	reg.registerFloatVar("st_recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 2.0, 1.0, fformat_values);
 	reg.registerFloatVar("st_recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0, 0);
 	reg.registerFloatVar("st_recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f, 0);
-	reg.registerFloatVar("st_recorder.clip","","BN","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("st_recorder.v1","","SO","",&fbargraph0, -70.0, -70.0, 4.0, 0.00001, 0);
+	reg.registerFloatVar("st_recorder.clip","","BoN","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("st_recorder.v1","","SOLN","",&fbargraph0, -70.0, -70.0, 4.0, 0.00001, 0);
     }
 
     return 0;
