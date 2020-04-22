@@ -44,11 +44,19 @@ void child_set_property(Gtk::Container& container, Gtk::Widget& child, const cha
 }
 
 Glib::ustring logarithmic_format_value(double v, int prec) {
+    const char *fmt;
     if (v < -4) {
-	return Glib::ustring::format(std::setprecision(prec+1), pow(10.0,v));
+         // more than 4 zeros after decimal point, switch to scrientific notation
+        fmt = "%0.*e";
     } else {
-	return Glib::ustring::format(std::fixed, std::setprecision(prec-floor(v)), pow(10.0,v));
+        // use a fixed number of digits
+        prec -= floor(v);
+        fmt = "%0.*f";
     }
+    auto c_str = g_strdup_printf(fmt, prec, pow(10.0,v));
+    Glib::ustring ustr(c_str);
+    g_free(c_str);
+    return ustr ;
 }
 
 int logarithmic_input_value(gpointer obj, gpointer nv)
