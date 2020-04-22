@@ -169,10 +169,7 @@
                           <object class="GtkSpinButton" id="lower">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="invisible_char">●</property>
                             <property name="activates_default">True</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
                             <property name="numeric">True</property>
                           </object>
                           <packing>
@@ -185,10 +182,8 @@
                           <object class="GtkSpinButton" id="upper">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="invisible_char">●</property>
                             <property name="activates_default">True</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
+                            <property name="numeric">True</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
