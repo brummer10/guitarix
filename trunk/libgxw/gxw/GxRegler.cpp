@@ -105,7 +105,7 @@ gx_regler_cp_configure(GxControlParameter *self, const gchar* group, const gchar
 	}
 	GtkRange *range = GTK_RANGE(self);
 	gtk_range_set_range(range, lower, upper);
-	gtk_range_set_increments(range, step, 0);
+	gtk_range_set_increments(range, step, 10*step);
 }
 
 static gdouble
