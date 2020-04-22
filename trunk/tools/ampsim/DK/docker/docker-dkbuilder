@@ -1,0 +1,19 @@
+#! /bin/bash
+set -e
+[ -n "$1" ] || { echo "arg expected: path to guitarix git"; exit 1; }
+gitpath="$1"
+[ -f personality.json ] || {
+    mobyurl=https://raw.githubusercontent.com/moby/moby/master/profiles/seccomp
+    curl -sO $mobyurl/default.json
+    sed '/"pause",/a\\t\t\t\t"personality",' default.json > personality.json
+}
+docker build -qt guitarix-dkbuilder .
+echo
+echo '----------------------------------------'
+echo 'example command:'
+echo 'dkbuilder && ./build-plug.py -i VoxWahV847.sch --buildlv2 -n VoxWahV847'
+docker run -it --rm --name guitarix-dkbuilder \
+       -v $gitpath:/mnt/data --security-opt \
+       seccomp=personality.json \
+       guitarix-dkbuilder \
+       bash

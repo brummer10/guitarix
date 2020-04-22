@@ -1,0 +1,10 @@
+#! /bin/sh
+[ -n "$1" ] || { echo "arg expected: path to guitarix git"; exit 1; }
+GUITARIX_GIT="$1"
+cat >> ~/.bashrc <<EOF
+dkbuilder() {
+. /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+cd $GUITARIX_GIT/trunk/tools/ampsim/DK/gschem-schematics
+workon guitarix
+}
+EOF

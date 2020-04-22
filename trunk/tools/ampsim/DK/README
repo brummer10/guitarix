@@ -26,34 +26,28 @@ Circuit schematics can also be drawn with gEDA Schematic Editor (gschem, part of
 
 II) Software ecosystem
 
+The easiest method to get a working environment is to create a Docker
+container. The image is defined in docker/Dockerfile, and the script
+docker/docker-dkbuilder can be used as a demo or reference how to
+build the image and use it in a container.
+
+If you don't use Docker or similar, try to follow the steps in the
+Dockerfile. After starting the add_dkbuilder_script you need to
+restart the shell, then you can execute the example command from the
+docker-dkbuilder script to create a plugin from a circuit schematic.
+
 It is highly recommended to create a Python 2.7 virtual environment dedicated to Guitarix.
  (see https://packaging.python.org/guides/installing-using-pip-and-virtualenv/
   and https://virtualenvwrapper.readthedocs.io/en/latest/index.html)
-This ensures any system update will not interfere with the Python packagesused by Guitarix and its tools.
-Packages requirements are listed in the file python_venv which can be used to setup the virtual environment
-    Debian/Ubuntu quickstart:
-    - Install the virtualenvwrapper package and its eventual dependencies
-    - add the following lines to your .bashrc
-        export WORKON_HOME=$HOME/.virtualenvs
-        export PROJECT_HOME=$HOME/Devel
-        source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
-    - restart your shell and run
-        mkvirtualenv -r python_venv guitarix
-    Once the setup is complete, you can type 
-        workon guitarix
+This ensures any system update will not interfere with the Python packages used by Guitarix and its tools.
+Packages requirements are listed in the file docker/python_venv. which
+can be used to setup the virtual environment
+
+Once the setup is complete, you can type
+        dkbuilder
     to switch to the dedicated Python virtual environment for Guitarix and
         deactivate
     to return to your default/system Python environment    
-
-Additional dependencies:
-- Faust 0.9.90
-- for internally generated C++ module:
-    - libeigen3-dev
-    - libcminpack-dev
-    - libsundials-serial-dev
-- to generate symbolic output (e.g. Faust code):
-    - maxima
-- (at least on debian / ubuntu): package maxima-share (add-on packages)
 
 
 III) Examples:
