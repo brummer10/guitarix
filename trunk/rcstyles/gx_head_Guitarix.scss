@@ -35,13 +35,7 @@ $bg-button-hover: lighten($bg-button, 6%);
 //$bg-button-checked: scale-color($bg-button, $lightness: -100%);
 $bg-button-checked: darken($bg-button, 20%);
 $bg-meterbox: rgb(25.5, 25.5, 25.5);
-
-/* Conversion .rc -> .css:
- * border spec (all -X-xx are rc file format):
- * rc-file: { left, right, top, bottom }
- * css-file: { top, right, bottom, left }
-*/
-
+$cl-control: #ff9000;
 
 /****************************************************************
  * General style settings
@@ -122,7 +116,6 @@ button, checkbutton {
     border-width: 0px;
     border-radius: 0px;
     padding: 2px 6px 2px 6px;
-    box-shadow: none;
     background-image: none;
     text-shadow: none;
     transition-duration: 0;
@@ -136,20 +129,18 @@ button, checkbutton {
     &:checked, &:checked *, &:active, &:active * {
 	background-color: $bg-button-checked;
     }
-    /* experimental: 3d effect
     background-color: $bg-button;
     box-shadow:
-	1px 1px 0px 1px black,
-	0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.1),
+	1px 1px 0px 1px rgba(0, 0, 0, 0.5),
+	0.5px 0.5px 0px 0.5px rgba(255, 255, 255, 0.05),
 	-0.5px -0.5px 0px 0.5px rgba(200,200,200,0.4);
     &:checked {
 	background-color: $bg-button-checked;
 	box-shadow:
-	    1px 1px 0px 1px black,
+	    1px 1px 0px 1px rgba(0, 0, 0, 0.5),
 	    0.5px 0.5px 0px 0.5px rgba(200,200,200,0.4),
-	    -0.5px -0.5px 0px 0.5px rgba(255, 255, 255, 0.1);
+	    -0.5px -0.5px 0px 0.5px rgba(255, 255, 255, 0.05);
     }
-   */
 }
 
 radiobutton radio,
@@ -168,18 +159,24 @@ gx-paint-box {
 }
 
 /****************************************************************
- * XX
+ * Dialogs and secondary Windows
  */
 
-#window1,
+%secondary_window,
 dialog {
     entry { border-color: black; }
     treeview {
 	background-color: black;
-	&:hover { background-color: rgb(10,10,10); }
-	&:selected { background-color: rgb(20,20,20); }
+	&:hover { background-color: rgb(20,20,20); }
+	&:selected { background-color: rgb(50,50,50); }
     }
     checkbutton check { color: black; }
+}
+
+#MidiControllerTable {
+    treeview {
+	&:selected { background-color: rgb(100, 50, 50); }
+    }
 }
 
 /* Jack start selection */
@@ -216,6 +213,10 @@ dialog {
 /****************************************************************
  * Ladspa / LV2 plugin window
  */
+
+#LadspaLv2Window {
+    @extend %secondary_window;
+}
 
 .pldef-changed {
     color: red; // mark changed values (only text field, table and combobox are hardcoded)
@@ -260,14 +261,14 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 	// "scale(1.5)}".
 	// Be careful to put some other setting after the scale expression
 	-gtk-icon-transform: scale(1.5); // make the arrow left of the button bigger
-	color: #ff9000;
+	color: $cl-control;
     }
     button {
 	padding-bottom: 1px;
 	background-color: black;
 	background-clip: border-box;
 	label {
-	    color: #ff9000;
+	    color: $cl-control;
 	    background-color: black;
 	    font-size: 12px;
 	    margin-left: 4px; // make some space between arrow and label
@@ -281,24 +282,13 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 
 /* Paned window (right side) */
 
-#main_vpaned {
-    separator {
-	margin: {
-	    // sum of top + buttom is used in the preset pane, but can't
-	    // be queried by the program. If the values don't
-	    // these are the standard values;
-	    top: 0px;
-	    bottom: -8px;
-	}
-    }
-    button {
-	border-width: 0px;
-	border-radius: 0px;
-	padding: 2px;
-	box-shadow: none;
-	background-image: none;
-	background-clip: content-box;
-	background-color: initial;
+#main_vpaned separator {
+    margin: {
+	// sum of top + buttom is used in the preset pane, but can't
+	// be queried by the program. If the values don't
+	// these are the standard values;
+	top: 0px;
+	bottom: -8px;
     }
 }
 
@@ -316,14 +306,14 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 	&#bank_treeview:selected {
 	}
 	&#preset_treeview:selected {
-	    color: #ff9000;
+	    color: $cl-control;
 	}
 	&:checked {
 	    // misused to mark the current preset in bank_treeview and preset_treeview
 	    // settable attributes:
 	    //  - color  (used only for non-selected lines)
 	    //  - font-weight
-	    color: #ff9000;
+	    color: $cl-control;
 	    font-weight: bold;
 	}
     }
@@ -349,6 +339,15 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 
 #rackbox,
 .rackbox {
+    button {
+	border-width: 0px;
+	border-radius: 0px;
+	padding: 2px;
+	box-shadow: none;
+	background-image: none;
+	background-clip: content-box;
+	background-color: initial;
+    }
     checkbutton.gx_sw_switch_mid {
 	&#effect_on_off,
 	&.gx_effect_on_off {
@@ -500,7 +499,7 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     border-left-style: solid;
     border-left-color: black;
     button {
-	color: #ff9000;
+	color: $cl-control;
 	padding: 4px 8px 4px 8px;
 	&:hover {
 	    color: #ffffff;
@@ -564,7 +563,7 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 	-GxVSlider-slider-width: 36;
 	font: condensed 6pt "Roboto";
 	-GxRegler-value-border: 6px 6px 4px 4px;
-	color: #ff9000;
+	color: $cl-control;
 	background-color: black;
     }
 }
@@ -656,10 +655,10 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     }
     & label,
     & .label {
-	color: darken(#ff9000, 20%);
+	color: darken($cl-control, 20%);
     }
     & :checked label {
-	color: #ff9000;
+	color: $cl-control;
     }
     & label:active {
 	color: #555555;

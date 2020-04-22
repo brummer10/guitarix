@@ -77,7 +77,7 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     std::vector<std::string> old_not_found;
     machine.load_ladspalist(old_not_found, pluginlist);
     bld = gx_gui::GxBuilder::create_from_file(machine.get_options().get_builder_filepath("ladspaliste.glade"));
-    bld->get_toplevel("window1", window);
+    bld->get_toplevel("LadspaLv2Window", window);
     bld->find_widget("treeview1", treeview1);
     bld->find_widget("treeview2", treeview2);
     bld->find_widget("treeview3", treeview3);
