@@ -1,0 +1,5 @@
+#! /bin/bash
+echo "/* BUILD WITH tools/gen_marshal, PLEASE DON'T MODIFY */"
+echo -e 'STRING:DOUBLE\nBOOLEAN:BOXED,BOXED' |\
+    glib-genmarshal \
+	--quiet --prefix=marshal --skip-source --nostdinc --body -

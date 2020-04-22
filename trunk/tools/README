@@ -45,6 +45,9 @@ Files in this directory:
    convert the C++ output of faust into the form used by
    guitarix. Used by build process.
 
+ - gen_regler_marshal
+   script build libgxw/gxw/regler_marshal.cc
+
  - lv2loader.py
    loads a LV2 plugin.
 
