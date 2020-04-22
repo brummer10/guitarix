@@ -1042,12 +1042,13 @@ static gint gx_regler_spinner_input(GtkSpinButton *spin_button, gdouble *new_val
 	return ret;
 }
 
-static void gx_regler_spinner_output(GtkSpinButton *spinner, GxRegler *regler) {
+static gboolean gx_regler_spinner_output(GtkSpinButton *spinner, GxRegler *regler) {
 	gchar *fmt;
 	gdouble value = gtk_adjustment_get_value(gtk_spin_button_get_adjustment(spinner));
 	fmt = _gx_regler_format_value(regler, value);
 	gtk_entry_set_text (GTK_ENTRY(spinner), fmt);
 	g_free(fmt);
+    return TRUE;
 }
 
 static int gx_regler_get_nchars(GxRegler *regler, gdouble value)
