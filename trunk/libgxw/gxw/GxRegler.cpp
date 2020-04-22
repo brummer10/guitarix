@@ -39,6 +39,7 @@ struct _GxReglerPrivate
 {
 	GtkRequisition value_req;
 	gdouble last_step;
+    int round_digits;
 	GtkAdjustment *adjustment;
 	gchar *var_id;
 	GtkLabel *label;
@@ -128,7 +129,7 @@ gx_control_parameter_interface_init(GxControlParameterIface *iface)
   iface->cp_get_value = gx_regler_cp_get_value;
 }
 
-gboolean gx_boolean_handled_accumulator(
+static gboolean gx_boolean_handled_accumulator(
 	GSignalInvocationHint *ihint, GValue *return_accu,
 	const GValue *handler_return, gpointer dummy)
 {
@@ -502,7 +503,7 @@ static gboolean should_invert(GtkRange *range)
 
 static gboolean gx_regler_scroll(GtkRange *range, GtkScrollType scroll)
 {
-	gdouble old_value = gtk_adjustment_get_value(gtk_range_get_adjustment(range));
+	gdouble old_value = gtk_range_get_value(range);
 
 	switch (scroll) {
     case GTK_SCROLL_STEP_DOWN:
@@ -567,7 +568,7 @@ static gboolean gx_regler_scroll(GtkRange *range, GtkScrollType scroll)
       break;
     }
 
-    return gtk_adjustment_get_value(gtk_range_get_adjustment(range)) != old_value;
+    return gtk_range_get_value(range) != old_value;
 }
 
 static void gx_regler_move_slider(GtkRange *range, GtkScrollType scroll)
@@ -614,22 +615,20 @@ static void ensure_digits(GxRegler *regler)
 	if (v == priv->last_step) {
 		return;
 	}
-	if (v == 0.0) {
-		priv->last_step = 0.0;
-		return;
-	}
+    priv->last_step = v;
 	gint n = 0;
-	while (v < 1.0 - 1e-3) {
-		v *= 10;
-		n++;
-	}
-	gtk_range_set_round_digits(GTK_RANGE(regler), n);
+	if (v > 0.0) {
+        while (v < 1.0 - 1e-3) {
+            v *= 10;
+            n++;
+        }
+    }
+    priv->round_digits = n;
 }
 
 static gboolean gx_regler_change_value(GtkRange *range, GtkScrollType scroll, gdouble value)
 {
 	g_assert(GX_IS_REGLER(range));
-	ensure_digits(GX_REGLER(range));
 	return GTK_RANGE_CLASS(gx_regler_parent_class)->change_value(range, scroll, value);
 }
 
@@ -800,7 +799,7 @@ static gchar* _gx_regler_format_value(GxRegler *regler, gdouble value)
 	if (fmt) {
 		return fmt;
 	} else {
-		int rd = gtk_range_get_round_digits(GTK_RANGE(regler));
+		int rd = regler->priv->round_digits;
 		if (rd < 0) {
 			rd = 0;
 		}
@@ -834,12 +833,11 @@ void _gx_regler_simple_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle
 	if (!show_value) {
 		return;
 	}
-    GtkAdjustment* adjustment = gtk_range_get_adjustment(GTK_RANGE(regler));
     PangoLayout *l = regler->priv->value_layout;
     PangoRectangle logical_rect;
 	gchar *txt;
 	ensure_digits(regler);
-	txt = _gx_regler_format_value(regler, gtk_adjustment_get_value(adjustment));
+	txt = _gx_regler_format_value(regler, gtk_range_get_value(GTK_RANGE(regler)));
     pango_layout_set_text(l, txt, -1);
     g_free (txt);
     pango_layout_get_pixel_extents(l, NULL, &logical_rect);
@@ -879,7 +877,7 @@ void _gx_regler_display_value(GxRegler *regler, cairo_t *cr, GdkRectangle *rect)
 
 	gchar *txt;
 	ensure_digits(regler);
-	txt = _gx_regler_format_value(regler, gtk_adjustment_get_value(gtk_range_get_adjustment(GTK_RANGE(regler))));
+	txt = _gx_regler_format_value(regler, gtk_range_get_value(GTK_RANGE(regler)));
     GdkRGBA color;
     gtk_style_context_get_color(style, state_flags, &color);
     cairo_set_source_rgba(cr, color.red, color.green, color.blue, color.alpha);
@@ -1043,7 +1041,8 @@ static gboolean gx_regler_value_entry(GxRegler *regler, GdkRectangle *rect, GdkE
 			gtk_adjustment_get_page_increment(dst_adj),
 			gtk_adjustment_get_page_size(dst_adj)));
 	GtkWidget *spinner = gtk_spin_button_new(
-		src_adj, gtk_adjustment_get_step_increment(src_adj), 0);
+		src_adj, gtk_adjustment_get_step_increment(src_adj),
+        regler->priv->round_digits);
     gtk_entry_set_width_chars(GTK_ENTRY(spinner), max(gx_regler_get_nchars(regler, lower),
                                                       gx_regler_get_nchars(regler, upper)));
 	g_signal_connect(spinner, "output", G_CALLBACK(gx_regler_spinner_output), regler);
@@ -1136,7 +1135,8 @@ static void gx_regler_adjustment_notified(GObject *gobject, GParamSpec *pspec)
 static void gx_regler_init(GxRegler *regler)
 {
 	regler->priv = (GxReglerPrivate*)gx_regler_get_instance_private(regler);
-	gtk_range_set_round_digits(GTK_RANGE(regler), -1);
+    regler->priv->last_step = -1;
+    regler->priv->round_digits = 0;
 	regler->priv->value_position = GTK_POS_BOTTOM;
 	regler->priv->show_value = TRUE;
 	regler->priv->value_xalign = 0.5;
@@ -1212,7 +1212,7 @@ static void gx_regler_get_property(
 		g_value_set_object(value, regler->priv->label);
 		break;
 	case PROP_DIGITS:
-		g_value_set_int(value, gtk_range_get_round_digits(GTK_RANGE(object)));
+		g_value_set_int(value, regler->priv->round_digits);
 		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
