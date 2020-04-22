@@ -832,10 +832,10 @@ int LiveLooper::register_par(const ParamReg& reg)
     reg.registerFloatVar("dubber.reset2","","Bosw",N_("erase"),&reset2, 0.0, 0.0, 1.0, 1.0, 0);
     reg.registerFloatVar("dubber.reset3","","Bosw",N_("erase"),&reset3, 0.0, 0.0, 1.0, 1.0, 0);
     reg.registerFloatVar("dubber.reset4","","Bosw",N_("erase"),&reset4, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.od1","","Bos",N_("overdub"),&od1, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.od2","","Bos",N_("overdub"),&od2, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.od3","","Bos",N_("overdub"),&od3, 0.0, 0.0, 1.0, 1.0, 0);
-    reg.registerFloatVar("dubber.od4","","Bos",N_("overdub"),&od4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.od1","","Bosw",N_("overdub"),&od1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.od2","","Bosw",N_("overdub"),&od2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.od3","","Bosw",N_("overdub"),&od3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber.od4","","Bosw",N_("overdub"),&od4, 0.0, 0.0, 1.0, 1.0, 0);
     reg.registerFloatVar("dubber.playall","","B",N_("play all tapes "),&play_all, 0.0, 0.0, 1.0, 1.0, 0);
     reg.registerFloatVar("dubber.dout","","B",N_("bypass the rack for direct output"),&dout, 0.0, 0.0, 1.0, 1.0, 0);
     param["dubber.playall"].signal_changed_float().connect(

@@ -177,7 +177,13 @@ static std::string replaced_id(const std::string& s, bool& warn) {
         { "midi_out.channel_3.velocity", nullptr },
         { "midi_out.channel_3.volume", nullptr },
         { "midi_out.on_off", nullptr },
+        { "midi_out.s_h", nullptr },
         { "ui.midi_out", nullptr },
+        // changes in dubber (livelooper)
+        { "dubber.load1", nullptr },
+        { "dubber.load2", nullptr },
+        { "dubber.load3", nullptr },
+        { "dubber.load4", nullptr },
         {0}
     };
     warn = true;
