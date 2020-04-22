@@ -382,17 +382,14 @@ Widget_t *create_widget(Xputty *app, Widget_t *win,
                           int x, int y, int width, int height);
 
 /**
- * @brief signal_connect_func - connect a event with a handler
- * by EventType identifier, without type check
- * \n You must ensure that the handler coresponde to the event type
- * \n check EventType for more information
- * @param *w                  - the Widget_t sending the event
- * @param type                - the event type to connect
- * @param *handler            - the handler to handle the event
+ * @brief connect_func      - connect a event with a handler
+ * without type check. For supported events see: Func_t
+ * @param **event           - the event to connect
+ * @param *handler          - the handler to handle the event
  * @return void
  */
 
-void signal_connect_func(Widget_t *w, EventType type, void (*handler)(void*, void*, void*));
+void connect_func(void (**event)(), void (*handler)());
 
 /**
  * @brief widget_set_title  - set window title for a Widget_t

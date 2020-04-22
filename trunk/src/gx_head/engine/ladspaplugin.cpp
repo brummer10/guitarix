@@ -795,6 +795,8 @@ LV2_Feature LV2Features::gx_urid_map_feature = {
     LV2_URID__map, &gx_urid_map
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 uint32_t LV2Features::lv2_uri_to_id(LV2_URI_Map_Callback_Data handle, const char*, const char* uri) {
     return lv2_urid_map(handle, uri);
 }
@@ -806,6 +808,7 @@ LV2_URI_Map_Feature LV2Features::gx_uri_map = {
 LV2_Feature LV2Features::gx_uri_map_feature = {
     LV2_URI_MAP_URI, &gx_uri_map
 };
+#pragma GCC diagnostic pop
 
 const char* LV2Features::lv2_urid_unmap(LV2_URID_Unmap_Handle, const LV2_URID urid) {
     if (urid == 0 || urid >= gx_uri_mapping.size())
