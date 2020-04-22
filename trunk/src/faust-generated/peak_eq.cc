@@ -191,18 +191,18 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("eq.bandwidth1",N_("Q"),"S",N_("bandwidth (hz)"),&fVslider5, 41.0, 5.0, 20000.0, 1.0, 0);
-	reg.registerFloatVar("eq.bandwidth2",N_("Q"),"S",N_("bandwidth (hz)"),&fVslider7, 220.0, 5.0, 20000.0, 1.0, 0);
-	reg.registerFloatVar("eq.bandwidth3",N_("Q"),"S",N_("bandwidth (hz)"),&fVslider9, 880.0, 5.0, 20000.0, 1.0, 0);
-	reg.registerFloatVar("eq.bandwidth4",N_("Q"),"S",N_("bandwidth (hz)"),&fVslider11, 1760.0, 5.0, 20000.0, 1.0, 0);
+	reg.registerFloatVar("eq.bandwidth1",N_("Q"),"SL",N_("bandwidth (hz)"),&fVslider5, 41.0, 5.0, 20000.0, 1.01, 0);
+	reg.registerFloatVar("eq.bandwidth2",N_("Q"),"SL",N_("bandwidth (hz)"),&fVslider7, 220.0, 5.0, 20000.0, 1.01, 0);
+	reg.registerFloatVar("eq.bandwidth3",N_("Q"),"SL",N_("bandwidth (hz)"),&fVslider9, 880.0, 5.0, 20000.0, 1.01, 0);
+	reg.registerFloatVar("eq.bandwidth4",N_("Q"),"SL",N_("bandwidth (hz)"),&fVslider11, 1760.0, 5.0, 20000.0, 1.01, 0);
 	reg.registerFloatVar("eq.level1",N_("Sub"),"S",N_("gain (dB)"),&fVslider4, 0.0, -50.0, 50.0, 0.10000000000000001, 0);
 	reg.registerFloatVar("eq.level2",N_("Low"),"S",N_("gain (dB)"),&fVslider6, 0.0, -50.0, 50.0, 0.10000000000000001, 0);
 	reg.registerFloatVar("eq.level3",N_("Mid"),"S",N_("gain (dB)"),&fVslider8, 0.0, -50.0, 50.0, 0.10000000000000001, 0);
 	reg.registerFloatVar("eq.level4",N_("High"),"S",N_("gain (dB)"),&fVslider10, 0.0, -50.0, 50.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("eq.peak1","","S",N_("frequency (hz)"),&fVslider3, 110.0, 20.0, 22000.0, 1.0, 0);
-	reg.registerFloatVar("eq.peak2","","S",N_("frequency (hz)"),&fVslider2, 440.0, 20.0, 22000.0, 1.0, 0);
-	reg.registerFloatVar("eq.peak3","","S",N_("frequency (hz)"),&fVslider1, 1760.0, 20.0, 22000.0, 1.0, 0);
-	reg.registerFloatVar("eq.peak4","","S",N_("frequency (hz)"),&fVslider0, 3520.0, 20.0, 22000.0, 1.0, 0);
+	reg.registerFloatVar("eq.peak1","","SL",N_("frequency (hz)"),&fVslider3, 110.0, 20.0, 22000.0, 1.01, 0);
+	reg.registerFloatVar("eq.peak2","","SL",N_("frequency (hz)"),&fVslider2, 440.0, 20.0, 22000.0, 1.01, 0);
+	reg.registerFloatVar("eq.peak3","","SL",N_("frequency (hz)"),&fVslider1, 1760.0, 20.0, 22000.0, 1.01, 0);
+	reg.registerFloatVar("eq.peak4","","SL",N_("frequency (hz)"),&fVslider0, 3520.0, 20.0, 22000.0, 1.01, 0);
 	return 0;
 }
 
