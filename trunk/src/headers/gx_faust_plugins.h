@@ -144,6 +144,14 @@ declare(rolwah)
 declare(jenbasswah)
 }
 
+namespace gx_poweramps {
+declare(champ)
+declare(epiphone)
+declare(orangedarkterror)
+declare(princeton)
+declare(supersonic)
+}
+
 declare(balance)
 
 } // namespace gx_engine

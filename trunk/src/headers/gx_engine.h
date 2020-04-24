@@ -79,6 +79,7 @@ public:
     ModuleSelectorFromList wah;
     ModuleSelectorFromList tonestack;
     ModuleSelectorFromList ampstack;
+    ModuleSelectorFromList poweramps;
     // internal audio modules
     NoiseGate noisegate;
     MonoMute monomute;

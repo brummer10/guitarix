@@ -144,7 +144,14 @@ namespace gx_effects {
 #include "faust/jenbasswah.cc"
 
 }
+namespace gx_poweramps {
+#include "faust/champ.cc"
+#include "faust/epiphone.cc"
+#include "faust/orangedarkterror.cc"
+#include "faust/princeton.cc"
+#include "faust/supersonic.cc"
 
+}
 #include "faust/balance.cc"
 
 }

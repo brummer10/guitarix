@@ -148,7 +148,7 @@ def build(bld):
     bld.add_group()
     have_pluginlib = len(lib_sources) != 0
     bld.env.HAVE_PLUGINLIB = have_pluginlib
-    incl = [".","../headers", "../gx_head/engine"]
+    incl = [".","../headers", "../gx_head/engine", "../gx_head/engine/tabels"]
     if not bld.env.ZITA_RESAMPLER:
         incl.append('../zita-resampler-1.1.0')
     

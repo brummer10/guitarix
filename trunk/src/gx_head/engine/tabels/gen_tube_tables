@@ -1,0 +1,13 @@
+#! /bin/bash
+tables=(
+  "12AX7 triode 12ax7.cc"
+  "12AU7 pentode 12AU7.cc"
+  "12AT7 triode 12AT7.cc"
+  #"6V6 triode 6V6.cc"
+  "6DJ8 triode 6DJ8.cc"
+  "6C16 triode 6C16.cc"
+)
+for f in "${tables[@]}"; do
+  set -- $f
+  python ../../../../tools/tube_transfer.py table $1 $2 > $3
+done

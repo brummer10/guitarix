@@ -150,6 +150,7 @@ def build(bld):
         './builder/Sequencer.glade',
         './builder/vumeter_ui.glade',
         './builder/vumeter_st_ui.glade',
+        './builder/poweramps_ui.glade',
         './builder/menu.ui',
         './builder/gx_plugins.png',
         './builder/gx_rack.png',
@@ -161,7 +162,7 @@ def build(bld):
         './builder/gx_fullscreen.png',
         ]
 
-    incl = ['.','./engine','../..','..','../headers'] # need ".." for config.h
+    incl = ['.','./engine','./engine/tabels','../..','..','../headers'] # need ".." for config.h
 
     if bld.env.NEW_LADSPA:
         bld(name = 'shared_engine',

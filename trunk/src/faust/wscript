@@ -173,6 +173,13 @@ def build(bld):
         'gxamp18.dsp',
         'gxnoamp.dsp',
 
+        # poweramps
+        'champ.dsp',
+        'epiphone.dsp',
+        'orangedarkterror.dsp',
+        'princeton.dsp',
+        'supersonic.dsp',
+
         # bypass mode
         'balance.dsp',
         ]

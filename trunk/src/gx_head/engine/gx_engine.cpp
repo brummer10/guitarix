@@ -216,6 +216,40 @@ static const char* ampstack_groups[] = {
     0
 };
 
+static plugindef_creator builtin_poweramp_plugins[] = {
+    gx_poweramps::champ::plugin,
+    gx_poweramps::epiphone::plugin,
+    gx_poweramps::princeton::plugin,
+    gx_poweramps::orangedarkterror::plugin,
+    gx_poweramps::supersonic::plugin,
+    0
+};
+
+static int load_poweramp_ui(const UiBuilder& builder, int format) {
+    if (format & UI_FORM_GLADE) {
+	builder.load_glade_file("poweramps_ui.glade");
+	return 0;
+    }
+    if (format & UI_FORM_STACK) {
+	builder.openHorizontalhideBox("");
+	builder.create_selector("poweramp.mode", _("Model"));
+	builder.closeBox();
+	builder.openHorizontalBox("");
+	{
+		builder.openVerticalBox("");
+		{
+	    builder.insertSpacer();
+	    builder.create_selector("poweramp.mode", _("Model"));
+	    builder.insertSpacer();
+	    }
+	    builder.closeBox();
+	}
+	builder.closeBox();
+	return 0;
+    }
+    return -1;
+};
+
 GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options)
     : ModuleSequencer(),
       resamp(),
@@ -236,6 +270,9 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       ampstack(
 	  *this, "ampstack", _("Amp"), "", builtin_amp_plugins,
 	  "tube.select", _("select"), 0, ampstack_groups),
+      poweramps(
+	  *this, "poweramp", _("PowerAmp"), N_("Guitar Effects"), builtin_poweramp_plugins,
+	  "poweramp.mode", _("select"),load_poweramp_ui , 0, PGN_POST_PRE),
       // internal audio modules
       noisegate(),
       monomute(),
@@ -289,6 +326,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
     add_selector(wah);
     add_selector(tonestack);
     add_selector(tuner);
+    add_selector(poweramps);
 
     registerParameter(groups);
 
@@ -344,6 +382,7 @@ void GxEngine::load_static_plugins() {
     pl.add(builtin_crybaby_plugins,               PLUGIN_POS_RACK, PGN_ALTERNATIVE);
     pl.add(builtin_wah_plugins,                   PLUGIN_POS_RACK, PGN_ALTERNATIVE);
     pl.add(builtin_tonestack_plugins,             PLUGIN_POS_RACK, PGN_ALTERNATIVE);
+    pl.add(builtin_poweramp_plugins,              PLUGIN_POS_RACK, PGN_ALTERNATIVE);
 
     // mono
     pl.add(gx_effects::gain::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
@@ -351,6 +390,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::highbooster::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::selecteq::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&poweramps.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&wah.plugin,                           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&loop.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&record.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
