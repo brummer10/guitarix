@@ -267,6 +267,7 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 	padding-bottom: 1px;
 	background-color: black;
 	background-clip: border-box;
+	box-shadow: none;
 	label {
 	    color: $cl-control;
 	    background-color: black;
@@ -384,6 +385,7 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     -GxPaintBox-alternate-box: 0 0 0 0;
     -GxPaintBox-inverse: 0;
     .gx_sw_minitoggle {
+	box-shadow: none;
 	background-color: $bg-button;
 	&:hover {
 	    background-color: $bg-button-hover;
@@ -442,6 +444,7 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     .gx_sw_switch_mid {
 	border-style: solid;
 	border-color: lighten($bg-meterbox,3%);
+	box-shadow: none;
 	&:disabled:checked check {
 	    -gtk-icon-source: -gtk-icontheme("switch_mid_off");
 	}
@@ -698,9 +701,12 @@ frame, #frame_inversed, frame border, #frame_inversed border {
 
 /* IR Edit Window */
 
-#run_switch.gx_switch check {
-    min-width: 48px;
-    min-height: 48px;
+#run_switch,
+#run_switch_mono {
+    &.gx_switch check {
+	min-width: 48px;
+	min-height: 48px;
+    }
 }
 
 /* Live Looper */

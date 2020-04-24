@@ -650,9 +650,7 @@ response file with the
                                     <property name="yscale">0</property>
                                     <child>
                                       <object class="GxSwitch" id="run_switch">
-                                        <property name="name">run_switch</property>
-                                        <property name="width_request">48</property>
-                                        <property name="height_request">48</property>
+                                        <property name="name">run_switch_mono</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
