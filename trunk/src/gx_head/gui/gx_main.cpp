@@ -419,7 +419,9 @@ GxSplashBox::GxSplashBox(const string& imgpath)
     set_position(Gtk::WIN_POS_CENTER);
     set_default_size(image->get_width(), image->get_height());
     realize();
+#if GTK_MINOR_VERSION >= 24
     shape_combine_region(Gdk::Cairo::create_region_from_surface(image));
+#endif
     show();
 }
 
