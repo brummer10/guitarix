@@ -1674,7 +1674,8 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
 	t = "rack_shrink";
 	gx_gui::GxBuilder::set_tooltip_text_connect_handler(*b, _("shrink effect unit"));
     }
-    Gtk::Image *l = new Gtk::Image(Gtk::StockID(t), Gtk::ICON_SIZE_BUTTON);
+    Gtk::Image *l = new Gtk::Image();
+    l->Gtk::Image::set_from_icon_name(t, Gtk::ICON_SIZE_BUTTON);
     b->set_focus_on_click(false);
     b->add(*manage(l));
     b->set_name("effect_on_off");
@@ -1691,7 +1692,8 @@ Gtk::Button *RackBox::make_expand_button(bool expand) {
 Gtk::Button *RackBox::make_preset_button() {
     Gtk::Button *p = new Gtk::Button();
     //p->set_relief(Gtk::RELIEF_NONE);
-    Gtk::Image *l = new Gtk::Image("rack_preset", Gtk::ICON_SIZE_BUTTON);
+    Gtk::Image *l = new Gtk::Image();
+    l->Gtk::Image::set_from_icon_name("rack_preset", Gtk::ICON_SIZE_BUTTON);
     p->add(*manage(l));
     p->set_can_default(false);
     p->set_can_focus(false);

@@ -353,7 +353,8 @@ void SEQWindow::connect_midi() {
 
 void SEQWindow::make_preset_button(Gtk::Box * box) {
     Gtk::Button *p = new Gtk::Button();
-    Gtk::Image *l = new Gtk::Image("rack_preset", Gtk::ICON_SIZE_BUTTON);
+    Gtk::Image *l = new Gtk::Image();
+    l->Gtk::Image::set_from_icon_name("rack_preset", Gtk::ICON_SIZE_BUTTON);
     p->add(*Gtk::manage(l));
     p->set_can_default(false);
     p->set_can_focus(false);
