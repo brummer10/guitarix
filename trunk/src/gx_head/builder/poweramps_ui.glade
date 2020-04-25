@@ -31,16 +31,7 @@
                     <property name="spacing">12</property>
                     <property name="homogeneous">True</property>
                     <child>
-                      <object class="GtkLabel" id="label01:rack_label">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Model</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
+                      <placeholder/>
                     </child>
                     <child>
                       <object class="GxSelector" id="gxselector1">
@@ -115,17 +106,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label0:rack_label">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Model</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>
