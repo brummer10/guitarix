@@ -521,6 +521,7 @@ MidiControllerDisplay::MidiControllerDisplay(gx_engine::GxMachineBase& machine, 
     machine.signal_midi_value_changed().connect(
         sigc::mem_fun(this, &MidiControllerDisplay::midi_value_changed));
     set_size_request(400, 50);
+    set_show_text(true);
     set_text(name);
     machine.request_midi_value_update();
 }
@@ -567,7 +568,7 @@ void Liveplay::add_midi_elements() {
         }
         midictrl_table->attach(
             *manage(new MidiControllerDisplay(machine, i, cl, v)),
-            left, top);
+            left, top, 1 ,1);
         top += 1;
         if (top >= top_max) {
             top = 0;
