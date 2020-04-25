@@ -1485,6 +1485,7 @@ void MainWindow::set_latency() {
 }
 
 void MainWindow::show_forum_help() {
+#if GTK_MINOR_VERSION >= 24
     try {
 	bld.window->show_uri(
 	    "https://sourceforge.net/p/guitarix/discussion/general/",
@@ -1493,6 +1494,15 @@ void MainWindow::show_forum_help() {
 	gx_print_info("guitarix help", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
 	gx_print_error("guitarix help", _("failed to load online help   "));
     }
+#else
+    try {
+        gtk_show_uri_on_window(NULL, "https://sourceforge.net/p/guitarix/discussion/general/",
+            gtk_get_current_event_time(), NULL);
+    } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
+	gx_print_info("guitarix help", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
+	gx_print_error("guitarix help", _("failed to load online help   "));
+    }
+#endif
 }
 
 void MainWindow::gx_show_help() {
