@@ -149,6 +149,7 @@ namespace gx_poweramps {
 #include "faust/epiphone.cc"
 #include "faust/orangedarkterror.cc"
 #include "faust/princeton.cc"
+#include "faust/plexiel34.cc"
 #include "faust/supersonic.cc"
 
 }

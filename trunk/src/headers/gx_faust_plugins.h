@@ -149,6 +149,7 @@ declare(champ)
 declare(epiphone)
 declare(orangedarkterror)
 declare(princeton)
+declare(plexiel34)
 declare(supersonic)
 }
 

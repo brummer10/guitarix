@@ -178,6 +178,7 @@ def build(bld):
         'epiphone.dsp',
         'orangedarkterror.dsp',
         'princeton.dsp',
+        'plexiel34.dsp',
         'supersonic.dsp',
 
         # bypass mode

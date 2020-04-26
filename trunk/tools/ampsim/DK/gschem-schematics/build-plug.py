@@ -23,6 +23,7 @@ parser.add_argument('-m','--module_id',help='Module ID for plugin [OPTIONAL]', r
 parser.add_argument('-p','--plot', type=str, nargs='?', const='freq', help='frequency response (freq), sinewave (sine) or harmonics (harm) plot from the circuit [OPTIONAL]', required=False)
 parser.add_argument('-b','--build',help='build guitarix plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-l','--buildlv2',help='build lv2 plugin from the circuit [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-F','--buildfaust',help='build faust code only from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-2','--stereo',help='build stereo plugin from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-t','--table', metavar='N', type=int, nargs='+', help='build nonlinear response table from the N\'t circuit [OPTIONAL]', required=False)
 parser.add_argument('-g','--table_neg', metavar='N', type=int, nargs='+', help='build negative nonlinear response table from the N\'t circuit (imply --table)[OPTIONAL]', required=False)
@@ -32,6 +33,7 @@ parser.add_argument('-S','--scip_div',help='skip the divider for the negative no
 parser.add_argument('-o','--table_op', metavar='N', type=float, nargs='+', help='step operator multiplier for nonlinear response table from the circuit [OPTIONAL]', required=False)
 parser.add_argument('--oversample', metavar='N', type=int, help='set oversample rate [OPTIONAL]', required=False)
 parser.add_argument('--fixedrate', metavar='N', type=int, help='set fixed samplerate [OPTIONAL]', required=False)
+parser.add_argument('--samplerate', metavar='N', type=int, help='set samplerate to be used in sim (default 96000) [OPTIONAL]', required=False)
 parser.add_argument('-f','--freqsplit', help='use frequency splitter [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-v','--vectorize', help='generate vectorized loop [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-V','--vector_size', metavar='N', type=int, help='use vector size N [OPTIONAL]', required=False)
@@ -282,6 +284,7 @@ class DKbuilder(object):
     category = args.category
     oversample = args.oversample
     fixedrate = args.fixedrate
+    samplerate = args.samplerate
     rs = False
     freqsplit = args.freqsplit
     frs = False
@@ -326,8 +329,11 @@ class DKbuilder(object):
         ui_counter = 0
         in_files = len(args.input)
 
+        if not (self.samplerate):
+            self.samplerate = 96000
+
         g = Generators()
-        c1 = Circuit()
+        c1 = Circuit(FS=self.samplerate)
 
         # generate faust code and nonlin table
         for sch in args.input:
@@ -461,14 +467,13 @@ class DKbuilder(object):
                     faustui += 'b.closeBox();\n'
                 fuidata += faustui
 
+        if any ([args.build, args.buildlv2, args.buildfaust]):
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,self.gain_stages,args.stereo)
         # create a guitarix module
         if args.build or (not args.table and not args.plot and not args.buildlv2) :
-            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,self.gain_stages,args.stereo)
             g.generate_gx_plugin(args.input, dspfile, self.vec, self.vs, args.table)
-
         # create a LV2 module
         elif args.buildlv2 :
-            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,self.gain_stages,args.stereo)
             g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, self.rs, self.vec, self.vs, args.table, args.table_neg)
 
 def main(argv):

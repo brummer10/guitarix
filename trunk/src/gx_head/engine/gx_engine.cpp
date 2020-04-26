@@ -221,6 +221,7 @@ static plugindef_creator builtin_poweramp_plugins[] = {
     gx_poweramps::epiphone::plugin,
     gx_poweramps::princeton::plugin,
     gx_poweramps::orangedarkterror::plugin,
+    gx_poweramps::plexiel34::plugin,
     gx_poweramps::supersonic::plugin,
     0
 };

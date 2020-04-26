@@ -739,8 +739,8 @@ int main(int argc, char *argv[]) {
 
     try {
 	// ----------------------- init basic subsystems ----------------------
-#ifndef G_DISABLE_DEPRECATED
-	if (!g_thread_supported ()) {
+#if (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION < 32)
+	if (!Glib::thread_supported()) {
 	    Glib::thread_init();
 	}
 #endif
