@@ -426,7 +426,20 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 
 #LivePlay {
     background-color: rgb(12.75, 12.75, 12.75);
+    progressbar text {
+        font: condensed 16pt "Roboto";
+    }
+    progressbar progress {
+        border-radius: 5px;
+        border-color:  lighten($cl-control,10%);
+        background-color: darken($cl-control,10%);
+    }
+    progress, trough {
+        border-radius: 5px;
+        min-height: 10px;
+    }
 }
+
 
 /****************************************************************
 * Widgets inside of the rack container (#rackcontainer)
