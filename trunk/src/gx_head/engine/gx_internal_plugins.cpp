@@ -2135,15 +2135,15 @@ void __rt_func DrumSequencer::compute_static(int count, FAUSTFLOAT *input0, FAUS
 
 int DrumSequencer::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("seq.hat_closed.dsp.gate","","S","",&fSlow3, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.kick.dsp.gate","","SN","",&fSlow5, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.snare.dsp.gate","","SN","",&fSlow1, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.tom.dsp.gate","","SN","",&fSlow7, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.tom.dsp.Gainf","","SNA","",&fSlow20, -2e+01, -6e+01, 4e+01, 0.1, 0);
+	reg.registerFloatVar("seq.hat_closed.dsp.gate","","BA","",&fSlow3, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.kick.dsp.gate","","BA","",&fSlow5, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.snare.dsp.gate","","BA","",&fSlow1, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.tom.dsp.gate","","BA","",&fSlow7, 0.0, 0.0, 1.0, 1.0, 0);
+	reg.registerFloatVar("seq.tom.dsp.Gainf","","SA","",&fSlow20, -2e+01, -6e+01, 4e+01, 0.1, 0);
 	reg.registerFloatVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fSlow12, -2e+01, -6e+01, 4e+01, 0.1, 0);
 	reg.registerFloatVar("seq.tom.dsp.Gain1","","S",N_("Volume level in decibels"),&fSlow14, -2e+01, -6e+01, 4e+01, 0.1, 0);
 	reg.registerFloatVar("seq.tom.dsp.Gain2","","S",N_("Volume level in decibels"),&fSlow16, -2e+01, -6e+01, 4e+01, 0.1, 0);
-	reg.registerFloatVar("seq.tom.dsp.freq","","SN","",&fSlow18, 9e+01, 9e+01, 1.5e+02, 1.0, 0);
+	reg.registerFloatVar("seq.tom.dsp.freq","","SA","",&fSlow18, 9e+01, 9e+01, 1.5e+02, 1.0, 0);
 	reg.registerFloatVar("seq.bpm","","S",N_("Beats per Minute"),&fsliderbpm, 120, 24, 360, 1, 0);
 	static const value_pair ftact_values[] = {{"1/4"},{"2/4"},{"3/4"},{"4/4"},{0}};
 	reg.registerFloatVar("seq.tact","","S",N_("select tact"),&ftact, 4.0, 1.0, 4.0, 1.0, ftact_values);

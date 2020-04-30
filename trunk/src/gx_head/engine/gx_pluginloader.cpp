@@ -109,7 +109,8 @@ float *ParamRegImpl::registerFloatVar_(const char* id, const char* name, const c
             gx_engine::Parameter& p = (*pmap)[id];
 #ifndef NDEBUG
             gx_engine::FloatParameter p2(
-                id, opts.name, (tp[0] == 'B' ? Parameter::Switch : gx_engine::Parameter::Continuous),
+                id, opts.name, (values ? gx_engine::Parameter::Enum : 
+                (tp[0] == 'B' ? Parameter::Switch : gx_engine::Parameter::Continuous)),
                 true, p.getFloat().value, val, low, up, step, true, false);
             p2.set_desc(tooltip);
             gx_engine::compare_parameter("Alias Parameter", &p, &p2);
