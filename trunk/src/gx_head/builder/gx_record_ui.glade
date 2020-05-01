@@ -71,8 +71,8 @@
                                         <property name="can_focus">False</property>
                                         <property name="hold">120</property>
                                         <property name="dimen">3</property>
-                                        <property name="falloff">True</property>
                                         <property name="var_id">recorder.v1</property>
+                                        <property name="falloff">True</property>
                                       </object>
                                     </child>
                                   </object>
@@ -84,19 +84,26 @@
                                 </child>
                                 <child>
                                   <object class="GxSwitch" id="gxfswitch3">
-                                    <property name="width_request">30</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
+                                    <property name="halign">center</property>
+                                    <property name="valign">center</property>
+                                    <property name="draw_indicator">True</property>
                                     <property name="var_id">recorder.clip</property>
                                     <property name="base_name">switch_mid</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
+                                    <property name="pack_type">end</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
+                                <style>
+                                  <class name="meterbox"/>
+                                  <class name="mono"/>
+                                </style>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -112,19 +119,31 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GxSwitch" id="gxfswitch1">
-                            <property name="width_request">40</property>
-                            <property name="height_request">40</property>
+                          <object class="GtkAlignment">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <property name="var_id">recorder.rec</property>
-                            <property name="base_name">rbutton</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GxSwitch" id="gxfswitch1">
+                                <property name="width_request">40</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="hexpand">True</property>
+                                <property name="vexpand">True</property>
+                                <property name="use_stock">True</property>
+                                <property name="draw_indicator">True</property>
+                                <property name="var_id">recorder.rec</property>
+                                <property name="base_name">rbutton</property>
+                                <style>
+                                  <class name="gx_effect_on_off"/>
+                                </style>
+                              </object>
+                            </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
+                            <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                       </object>
@@ -227,12 +246,16 @@
             </child>
             <child>
               <object class="GxSwitch" id="gxfswitch2">
-                <property name="width_request">40</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="valign">center</property>
+                <property name="draw_indicator">True</property>
                 <property name="var_id">recorder.rec</property>
                 <property name="base_name">rbutton</property>
+                <style>
+                  <class name="gx_effect_on_off"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -245,8 +268,13 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="receives_default">False</property>
+                <property name="valign">center</property>
+                <property name="draw_indicator">True</property>
                 <property name="var_id">recorder.clip</property>
                 <property name="base_name">switch_mid</property>
+                <style>
+                  <class name="gx_effect_on_off"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
