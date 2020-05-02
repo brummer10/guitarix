@@ -500,7 +500,6 @@ void widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
     switch(xev->type) {
         case ConfigureNotify:
             wid->func.configure_callback(w_, user_data);
-            //transparent_draw(w_, user_data);
             debug_print("Widget_t ConfigureNotify \n");
         break;
 
@@ -605,6 +604,10 @@ void widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
 
         default:
         break;
+    }
+    if (main->queue_event) {
+        main->queue_event = false;
+        transparent_draw(w_, user_data);
     }
 }
 

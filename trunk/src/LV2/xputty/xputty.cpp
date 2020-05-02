@@ -35,6 +35,7 @@ void main_init(Xputty *main) {
     main->small_font = 10;
     main->normal_font = 12;
     main->big_font = 16;
+    main->queue_event = false;
 }
 
 void main_run(Xputty *main) {
@@ -101,7 +102,18 @@ void run_embedded(Xputty *main) {
         ew = childlist_find_widget(main->childlist, xev.xany.window);
         if(ew  >= 0) {
             Widget_t * w = main->childlist->childs[ew];
-            w->event_callback(w, &xev, main, NULL);
+            unsigned short retrigger = 0;
+            if (XEventsQueued(main->dpy, QueuedAlready)) {
+                XEvent nev;
+                XPeekEvent(main->dpy, &nev);
+                if (nev.type == ConfigureNotify && xev.type == Expose) {
+                    retrigger = 1;
+                    main->queue_event = true;
+                }
+            }
+            if (!retrigger) {
+                w->event_callback(w, &xev, main, NULL);
+            }
         }
         switch (xev.type) {
         case ButtonPress:

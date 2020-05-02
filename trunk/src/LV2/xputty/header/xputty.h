@@ -191,6 +191,8 @@ struct Xputty{
     int normal_font;
 /** big fontsize  for all Widget_t*/
     int big_font;
+    
+    bool queue_event;
 };
 
 /**

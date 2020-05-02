@@ -165,6 +165,8 @@ typedef enum {
     CENTER        ,
 /** Widget_t adjust in a aspect frame */
     ASPECT        ,
+/** Widget_t has fixed size */
+    FIXEDSIZE        ,
 /** Widget_t adjust in a aspect frame */
     MENUITEM      ,
 /** Widget_t request no adjustment in frame */
