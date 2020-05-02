@@ -586,9 +586,23 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor * descriptor,
     ui->screw = surface_get_png(ui->win, ui->screw, LDVAR(screw_png));
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
+
+    // set min size equal to base size
+    XSizeHints* win_size_hints;
+    win_size_hints = XAllocSizeHints();
+    win_size_hints->flags =  PMinSize|PBaseSize|PWinGravity;
+    win_size_hints->min_width = 925;
+    win_size_hints->min_height = 180;
+    win_size_hints->base_width = 925;
+    win_size_hints->base_height = 180;
+    win_size_hints->win_gravity = CenterGravity;
+    XSetWMNormalHints(ui->main.dpy, ui->win->widget, win_size_hints);
+    XFree(win_size_hints);
     
     ui->tool = add_check_box(ui->win, "Show tooltips", 40, 10, 80, 15);
     ui->tool->parent_struct = ui;
+    ui->tool->scale.gravity  = FIXEDSIZE;
+    ui->tool->flags |= FAST_REDRAW;
     adj_set_value(ui->tool->adj,1.0);
     ui->tool->func.value_changed_callback = tool_changed;
     
@@ -597,65 +611,65 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor * descriptor,
     widget_get_png(ui->widget[0], LDVAR(record_png));
 
     ui->widget[1] = add_my_toggle_button(ui->widget[1], rec2,"", ui,305, 85, 30, 30);
-    widget_get_png(ui->widget[1], LDVAR(record_png));
+    widget_get_surface_ptr(ui->widget[1], ui->widget[0]);
 
     ui->widget[2] = add_my_toggle_button(ui->widget[2], rec3,"", ui,470, 85, 30, 30);
-    widget_get_png(ui->widget[2], LDVAR(record_png));
+    widget_get_surface_ptr(ui->widget[2], ui->widget[0]);
 
     ui->widget[3] = add_my_toggle_button(ui->widget[3], rec4,"", ui,635, 85, 30, 30);
-    widget_get_png(ui->widget[3], LDVAR(record_png));
+    widget_get_surface_ptr(ui->widget[3], ui->widget[0]);
 
 
     ui->widget[4] = add_my_toggle_button(ui->widget[4], play1,"", ui,170, 85, 30, 30);
     widget_get_png(ui->widget[4], LDVAR(play_png));
 
     ui->widget[5] = add_my_toggle_button(ui->widget[5], play2,"", ui,335, 85, 30, 30);
-    widget_get_png(ui->widget[5], LDVAR(play_png));
+    widget_get_surface_ptr(ui->widget[5], ui->widget[4]);
 
     ui->widget[6] = add_my_toggle_button(ui->widget[6], play3,"", ui,500, 85, 30, 30);
-    widget_get_png(ui->widget[6], LDVAR(play_png));
+    widget_get_surface_ptr(ui->widget[6], ui->widget[4]);
 
     ui->widget[7] = add_my_toggle_button(ui->widget[7], play4,"", ui,665, 85, 30, 30);
-    widget_get_png(ui->widget[7], LDVAR(play_png));
+    widget_get_surface_ptr(ui->widget[7], ui->widget[4]);
 
 
     ui->widget[8] = add_my_toggle_button(ui->widget[8], rplay1,"", ui,200, 85, 30, 30);
     widget_get_png(ui->widget[8], LDVAR(playreverse_png));
 
     ui->widget[9] = add_my_toggle_button(ui->widget[9], rplay2,"", ui,365, 85, 30, 30);
-    widget_get_png(ui->widget[9], LDVAR(playreverse_png));
+    widget_get_surface_ptr(ui->widget[9], ui->widget[8]);
 
     ui->widget[10] = add_my_toggle_button(ui->widget[10], rplay3,"", ui,530, 85, 30, 30);
-    widget_get_png(ui->widget[10], LDVAR(playreverse_png));
+    widget_get_surface_ptr(ui->widget[10], ui->widget[8]);
 
     ui->widget[11] = add_my_toggle_button(ui->widget[11], rplay4,"", ui,695, 85, 30, 30);
-    widget_get_png(ui->widget[11], LDVAR(playreverse_png));
+    widget_get_surface_ptr(ui->widget[11], ui->widget[8]);
 
 
     ui->widget[38] = add_my_button(ui->widget[38], rback1,"", ui,230, 85, 30, 30);
     widget_get_png(ui->widget[38], LDVAR(back_png));
 
     ui->widget[39] = add_my_button(ui->widget[39], rback2,"", ui,395, 85, 30, 30);
-    widget_get_png(ui->widget[39], LDVAR(back_png));
+    widget_get_surface_ptr(ui->widget[39], ui->widget[38]);
 
     ui->widget[40] = add_my_button(ui->widget[40], rback3,"", ui,560, 85, 30, 30);
-    widget_get_png(ui->widget[40], LDVAR(back_png));
+    widget_get_surface_ptr(ui->widget[40], ui->widget[38]);
 
     ui->widget[41] = add_my_button(ui->widget[41], rback4,"", ui,725, 85, 30, 30);
-    widget_get_png(ui->widget[41], LDVAR(back_png));
+    widget_get_surface_ptr(ui->widget[41], ui->widget[38]);
 
 
     ui->widget[12] = add_my_button(ui->widget[12], reset1,"", ui,260, 85, 30, 30);
     widget_get_png(ui->widget[12], LDVAR(close_png));
 
     ui->widget[13] = add_my_button(ui->widget[13], reset2,"", ui,425, 85, 30, 30);
-    widget_get_png(ui->widget[13], LDVAR(close_png));
+    widget_get_surface_ptr(ui->widget[13], ui->widget[12]);
 
     ui->widget[14] = add_my_button(ui->widget[14], reset3,"", ui,590, 85, 30, 30);
-    widget_get_png(ui->widget[14], LDVAR(close_png));
+    widget_get_surface_ptr(ui->widget[14], ui->widget[12]);
 
     ui->widget[15] = add_my_button(ui->widget[15], reset4,"", ui,755, 85, 30, 30);
-    widget_get_png(ui->widget[15], LDVAR(close_png));
+    widget_get_surface_ptr(ui->widget[15], ui->widget[12]);
 
 
     ui->widget[20] = add_my_slider(ui->widget[20], clips1,"clip", ui,140, 115, 150, 12);
@@ -731,13 +745,19 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor * descriptor,
 
     ui->widget[37] = add_my_knob(ui->widget[37], mix,"Mix", ui,805, 35, 80, 105);
     set_adjustment(ui->widget[37]->adj,100.0, 100.0, 0.0, 150.0, 1.0, CL_CONTINUOS);
-
     
     ui->widget[42] = add_check_box(ui->win, "sync tapes", 140, 150, 80, 15);
     ui->widget[42]->parent_struct = ui;
     ui->widget[42]->data = synct;
     ui->widget[42]->func.value_changed_callback = value_changed;
     add_tooltip(ui->widget[42],"loop1 becomes the master");
+
+    // set all controllers to FIXEDSIZE and FAST_REDRAW to reduce flicker during resize
+    i = 0;
+    for (;i<CONTROLS;i++) {
+        ui->widget[i]->scale.gravity  = FIXEDSIZE;
+        ui->widget[i]->flags |= FAST_REDRAW;
+    }
 
     adj_set_value(ui->tool->adj,0.0);
     // map all widgets into the toplevel Widget_t
