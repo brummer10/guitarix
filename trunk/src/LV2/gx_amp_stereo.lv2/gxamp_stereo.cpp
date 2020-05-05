@@ -70,6 +70,8 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "gx_pluginlv2.h"   // define struct PluginLV2
 #include "impulse_former.h"
 #include "ampulse_former.h"
+#include "gx_bypass.cc"     // bypass ramping
+
 #ifndef __SSE__
 #include "stereo_noiser.cc"
 #endif
@@ -192,6 +194,8 @@ static const size_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[
 class GxPluginStereo
 {
 private:
+  GxBypass                     bp;
+  float*                       bypass;
   // internal stuff
   float*                       output;
   float*                       output1;
@@ -293,6 +297,8 @@ public:
 
 // constructor
 GxPluginStereo::GxPluginStereo() :
+  bp(),
+  bypass(0),
   output(NULL),
   output1(NULL),
   input(NULL),
@@ -443,6 +449,7 @@ void GxPluginStereo::init_dsp_stereo(uint32_t rate, uint32_t bufsize_)
 
   bufsize = bufsize_;
   s_rate = rate;
+  bp.init_bypass(rate);
 
 #ifdef _POSIX_MEMLOCK_RANGE
   GX_LOCK::lock_rt_memory();
@@ -535,6 +542,9 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
     case AMP_INPUT1:
       input1 = static_cast<float*>(data);
       break;
+    case BYPASS: 
+      bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
+      break;
     default:
       break;
     }
@@ -546,20 +556,31 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
+  FAUSTFLOAT buf[n_samples];
+  FAUSTFLOAT buf1[n_samples];
+  // do inplace processing at default
+  if (output != input)
+    memcpy(output, input, n_samples*sizeof(float));
+  if (output1 != input1)
+    memcpy(output1, input1, n_samples*sizeof(float));
+  // check if bypass is pressed
+  if (!bp.pre_check_bypass(bypass, buf, buf1, input, input1, n_samples)) {
 #ifndef __SSE__
-  wn->stereo_audio(static_cast<int>(n_samples), input, input1, input, input1, wn);;
+    wn->stereo_audio(static_cast<int>(n_samples), input, input1, input, input1, wn);;
 #endif
-  // run selected tube model
-  a_model_ = min(a_max, static_cast<uint32_t>(*(a_model)));
-  amplifier[a_model_]->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1, amplifier[a_model_]);
-  // run presence convolver
-  ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
-  // run selected tonestack
-  t_model_ = static_cast<uint32_t>(*(t_model));
-  if (t_model_ <= t_max)
-  tonestack[t_model_]->stereo_audio(static_cast<int>(n_samples), output, output1, output, output1, tonestack[t_model_]);
-  // run selected cabinet convolver
-  cabconv.run_static_stereo(n_samples, &cabconv, output, output1);
+    // run selected tube model
+    a_model_ = min(a_max, static_cast<uint32_t>(*(a_model)));
+    amplifier[a_model_]->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1, amplifier[a_model_]);
+    // run presence convolver
+    ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+    // run selected tonestack
+    t_model_ = static_cast<uint32_t>(*(t_model));
+    if (t_model_ <= t_max)
+    tonestack[t_model_]->stereo_audio(static_cast<int>(n_samples), output, output1, output, output1, tonestack[t_model_]);
+    // run selected cabinet convolver
+    cabconv.run_static_stereo(n_samples, &cabconv, output, output1);
+  }
+  bp.post_check_bypass(buf, buf1, output, output1, n_samples);
 
   // work ?
   if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed() ))

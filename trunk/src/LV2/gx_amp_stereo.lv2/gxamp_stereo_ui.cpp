@@ -32,7 +32,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 12
+#define CONTROLS 13
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -84,6 +84,16 @@ static void set_my_theme(Xputty *main) {
         /*frame */    { 0.18, 0.18, 0.18, 1.0},
         /*light */    { 0.18, 0.18, 0.28, 1.0}
     };
+
+    main->color_scheme->active = (Colors) {
+        /*fg */       { 0.9, 0.9, 0.9, 1.0},
+        /*bg */       { 0.2, 0.2, 0.3, 1.0},
+        /*base */     { 0.18, 0.18, 0.28, 1.0},
+        /*text */     { 1.0, 1.0, 1.0, 1.0},
+        /*shadow */   { 0.18, 0.18, 0.18, 0.2},
+        /*frame */    { 0.18, 0.18, 0.18, 1.0},
+        /*light */    { 0.28, 0.28, 0.38, 1.0}
+    };
 }
 
 void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
@@ -91,7 +101,7 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
 }
 
 void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
-    (*w) = 810; //set initial widht of main window
+    (*w) = 870; //set initial widht of main window
     (*h) = 196; //set initial heigth of main window
 }
 
@@ -106,33 +116,40 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_my_theme(&ui->main);
     widget_get_png(ui->win, LDVAR(guitarix_png));
 
+
     // create knob widgets
-    ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Mastergain", ui,685, 60, 90, 115);
+    ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Mastergain", ui,745, 60, 90, 115);
     set_adjustment(ui->widget[0]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[1] = add_my_knob(ui->widget[1], PREGAIN,"Pregain", ui,40, 60, 90, 115);
+    ui->widget[1] = add_my_knob(ui->widget[1], PREGAIN,"Pregain", ui,100, 60, 90, 115);
     set_adjustment(ui->widget[1]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[2] = add_my_knob(ui->widget[2], WET_DRY,"Distortion", ui,142, 67, 75, 100);
+    ui->widget[2] = add_my_knob(ui->widget[2], WET_DRY,"Distortion", ui,202, 67, 75, 100);
     set_adjustment(ui->widget[2]->adj,1.0, 1.0, 1.0, 100.0, 1.0, CL_CONTINUOS);
 
-    ui->widget[3] = add_my_knob(ui->widget[3], DRIVE,"Drive", ui,225, 70, 70, 95);
+    ui->widget[3] = add_my_knob(ui->widget[3], DRIVE,"Drive", ui,285, 70, 70, 95);
     set_adjustment(ui->widget[3]->adj,0.01, 0.01, 0.01, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[4] = add_my_knob(ui->widget[4], TREBLE,"Treble", ui,305, 72, 65, 90);
+    ui->widget[4] = add_my_knob(ui->widget[4], TREBLE,"Treble", ui,365, 72, 65, 90);
     set_adjustment(ui->widget[4]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[5] = add_my_knob(ui->widget[5], MIDDLE,"Mid", ui,375, 72, 65, 90);
+    ui->widget[5] = add_my_knob(ui->widget[5], MIDDLE,"Mid", ui,435, 72, 65, 90);
     set_adjustment(ui->widget[5]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[6] = add_my_knob(ui->widget[6], BASS,"Bass", ui,445, 72, 65, 90);
+    ui->widget[6] = add_my_knob(ui->widget[6], BASS,"Bass", ui,505, 72, 65, 90);
     set_adjustment(ui->widget[6]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[7] = add_my_knob(ui->widget[7], ALevel,"Presence", ui,520, 70, 70, 95);
+    ui->widget[7] = add_my_knob(ui->widget[7], ALevel,"Presence", ui,580, 70, 70, 95);
     set_adjustment(ui->widget[7]->adj,1.0, 1.0, 1.0, 10.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,600, 67, 75, 100);
+    ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,660, 67, 75, 100);
     set_adjustment(ui->widget[8]->adj,1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
+
+    ui->widget[12] = add_on_off_button(ui->win, "Power", 40, 60, 40, 80);
+    ui->widget[12]->scale.gravity = ASPECT;
+    ui->widget[12]->data = BYPASS;
+    ui->widget[12]->parent_struct = ui;
+    ui->widget[12]->func.value_changed_callback = value_changed;
 
     // create combobox widgets
     const char* tonestacks[] = {"default","Bassman Style","Twin Reverb Style","Princeton Style","JCM-800 Style",
@@ -141,20 +158,20 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     "Trio Preamp Style","Hughes&Kettner Style","Fender Junior Style","Fender Style","Fender Deville Style",
     "Gibsen Style", "Off" };
     size_t len = sizeof(tonestacks) / sizeof(tonestacks[0]);
-    ui->widget[9] = add_my_combobox(ui->widget[9], T_MODEL, "Tonestack", tonestacks, len, 1, ui, 300, 30, 210, 30);
+    ui->widget[9] = add_my_combobox(ui->widget[9], T_MODEL, "Tonestack", tonestacks, len, 1, ui, 360, 30, 210, 30);
 
     const char* cab[] = {"4x12","2x12","1x12","4x10","2x10","HighGain Style","Twin Style",
     "Bassman Style","Marshall Style","AC30 Style","Princeton Style","A2 Style","1x15","Mesa Style","Briliant","Vitalize",
     "Charisma","1x8", "Off" };
     len = sizeof(cab) / sizeof(cab[0]);
-    ui->widget[10] = add_my_combobox(ui->widget[10], C_MODEL, "Cabinet", cab, len, 0, ui, 540, 30, 210, 30);
+    ui->widget[10] = add_my_combobox(ui->widget[10], C_MODEL, "Cabinet", cab, len, 0, ui, 600, 30, 210, 30);
 
     const char* tubes[] = {"12ax7","12AU7","12AT7","6DJ8","6C16","6V6","12ax7 feedback",
     "12AU7 feedback","12AT7 feedback","6DJ8 feedback","pre 12ax7/ master 6V6","pre 12AU7/ master 6V6",
     "pre 12AT7/ master 6V6","pre 6DJ8/ master 6V6","pre 12ax7/ push-pull 6V6","pre 12AU7/ push-pull 6V6",
     "pre 12AT7/ push pull 6V6","pre 6DJ8/ push-pull 6V6" };
     len = sizeof(tubes) / sizeof(tubes[0]);
-    ui->widget[11] = add_my_combobox(ui->widget[11], MODEL, "Tubes", tubes, len, 0, ui, 60, 30, 210, 30);
+    ui->widget[11] = add_my_combobox(ui->widget[11], MODEL, "Tubes", tubes, len, 0, ui, 120, 30, 210, 30);
 }
 
 void plugin_cleanup(X11_UI *ui) {
@@ -186,10 +203,11 @@ static void set_sensitive_state(X11_UI* ui, float state) {
 void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
                         uint32_t buffer_size, uint32_t format,
                         const void * buffer) {
+    X11_UI* ui = (X11_UI*)handle;
     if (port_index == SCHEDULE) {
-        X11_UI* ui = (X11_UI*)handle;
         float value = *(float*)buffer;
         set_sensitive_state(ui, value);
     }
+    if (port_index == (uint32_t) BYPASS) ui->block_event = -1;
 }
 
