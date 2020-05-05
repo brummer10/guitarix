@@ -58,6 +58,16 @@ static void set_default_theme(Xputty *main) {
         /*frame */    { 0.18, 0.18, 0.18, 1.0},
         /*light */    { 0.18, 0.18, 0.28, 1.0}
     };
+
+    main->color_scheme->active = (Colors) {
+        /*fg */       { 0.9, 0.9, 0.9, 1.0},
+        /*bg */       { 0.2, 0.2, 0.2, 1.0},
+        /*base */     { 0.1, 0.1, 0.1, 1.0},
+        /*text */     { 1.0, 1.0, 1.0, 1.0},
+        /*shadow */   { 0.18, 0.18, 0.18, 0.2},
+        /*frame */    { 0.18, 0.18, 0.18, 1.0},
+        /*light */    { 0.85, 0.52, 0.00, 0.6}
+    };
 }
 
 static void set_default_knob_color(KnobColors* kp) {
@@ -224,6 +234,99 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_new_path (w->crb);
 }
 
+// draw a bypass switch
+static void draw_my_bypass(void *w_, void* user_data) {
+    Widget_t *w = (Widget_t*)w_;
+    X11_UI* ui = (X11_UI*)w->parent_struct;
+    int width = w->width-2;
+    int height = w->height-2;
+
+    int arc_offset = 2;
+    int switch_x = 0;
+    int switch_y = 0;
+
+    int grow = (width > height) ? height:width;
+    switch_x = grow-1;
+    switch_y = grow-1;
+    /** get values for the switch **/
+
+    int switchx1 = width* 0.5;
+
+    int switchy1 = height * 0.5;
+
+    double switchstate = adj_get_state(w->adj_y);
+
+    cairo_pattern_t* pat;
+    cairo_pattern_t* pat2;
+    cairo_new_path (w->crb);
+
+    pat = cairo_pattern_create_linear (0, 0, 0, switch_y);
+    cairo_pattern_add_color_stop_rgba (pat, 1, ui->kp->p1f[0],ui->kp->p1f[1],ui->kp->p1f[2],ui->kp->p1f[3]);
+    cairo_pattern_add_color_stop_rgba (pat, 0.75, ui->kp->p2f[0],ui->kp->p2f[1],ui->kp->p2f[2],ui->kp->p2f[3]);
+    cairo_pattern_add_color_stop_rgba (pat, 0.5,  ui->kp->p3f[0],ui->kp->p3f[1],ui->kp->p3f[2],ui->kp->p3f[3]);
+    cairo_pattern_add_color_stop_rgba (pat, 0.25,  ui->kp->p4f[0],ui->kp->p4f[1],ui->kp->p4f[2],ui->kp->p4f[3]);
+    cairo_pattern_add_color_stop_rgba (pat, 0,  ui->kp->p5f[0],ui->kp->p5f[1],ui->kp->p5f[2],ui->kp->p5f[3]);
+
+    cairo_scale (w->crb, 0.95, 1.05);
+    cairo_arc(w->crb,switchx1+arc_offset/2, switchy1-arc_offset, switch_x/2.2, 0, 2 * M_PI );
+    cairo_set_source (w->crb, pat);
+    cairo_fill_preserve (w->crb);
+    cairo_set_source_rgb (w->crb, 0.1, 0.1, 0.1); 
+    cairo_set_line_width(w->crb,1);
+    cairo_stroke(w->crb);
+    cairo_scale (w->crb, 1.05, 0.95);
+    cairo_new_path (w->crb);
+    cairo_pattern_destroy (pat);
+    pat = NULL;
+
+    pat = cairo_pattern_create_linear (0, 0, 0, switch_y);
+    cairo_pattern_add_color_stop_rgba (pat, 0, ui->kp->p1k[0],ui->kp->p1k[1],ui->kp->p1k[2],ui->kp->p1k[3]);
+    cairo_pattern_add_color_stop_rgba (pat, 0.25, ui->kp->p2k[0],ui->kp->p2k[1],ui->kp->p2k[2],ui->kp->p2k[3]);
+    cairo_pattern_add_color_stop_rgba (pat, 0.5, ui->kp->p3k[0],ui->kp->p3k[1],ui->kp->p3k[2],ui->kp->p3k[3]);
+    cairo_pattern_add_color_stop_rgba (pat, 0.75, ui->kp->p4k[0],ui->kp->p4k[1],ui->kp->p4k[2],ui->kp->p4k[3]);
+    cairo_pattern_add_color_stop_rgba (pat, 1, ui->kp->p5k[0],ui->kp->p5k[1],ui->kp->p5k[2],ui->kp->p5k[3]);
+
+    pat2 = cairo_pattern_create_linear (0, 0, switch_x, 0);
+    cairo_pattern_add_color_stop_rgba (pat2, 0, ui->kp->p2k[0],ui->kp->p2k[1],ui->kp->p2k[2],ui->kp->p2k[3]);
+    cairo_pattern_add_color_stop_rgba (pat2, 0.5, ui->kp->p4k[0],ui->kp->p4k[1],ui->kp->p4k[2],ui->kp->p4k[3]);
+    cairo_pattern_add_color_stop_rgba (pat2, 1, ui->kp->p2k[0],ui->kp->p2k[1],ui->kp->p2k[2],ui->kp->p2k[3]);
+
+    if((int) switchstate) {
+        cairo_arc(w->crb,switchx1, switchy1+((arc_offset/w->scale.ascale)*1.5), switch_x/3.1, 0, 2 * M_PI );
+    } else {
+        cairo_arc(w->crb,switchx1, switchy1+((arc_offset/w->scale.ascale)*1.5), switch_x/3.1, 0, 2 * M_PI );
+        cairo_set_source (w->crb, pat2);
+        cairo_fill_preserve (w->crb);
+        cairo_set_source_rgb (w->crb, 0.1, 0.1, 0.1); 
+        cairo_set_line_width(w->crb,1);
+        cairo_stroke(w->crb);
+        cairo_arc(w->crb,switchx1, switchy1-((arc_offset/w->scale.ascale)*1.5), switch_x/3.0, 0, 2 * M_PI );
+    }
+    cairo_set_source (w->crb, pat);
+    cairo_fill_preserve (w->crb);
+    cairo_set_source_rgb (w->crb, 0.1, 0.1, 0.1); 
+    cairo_set_line_width(w->crb,1);
+    cairo_stroke(w->crb);
+    cairo_new_path (w->crb);
+    cairo_pattern_destroy (pat);
+    cairo_pattern_destroy (pat2);
+
+    /** show label below the switch**/
+    cairo_text_extents_t extents;
+    use_text_color_scheme(w, get_color_state(w));
+    cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
+    if ((int)adj_get_value(w->adj) && strlen(w->input_label)) {
+        cairo_text_extents(w->crb,w->input_label , &extents);
+        cairo_move_to (w->crb, switchx1-extents.width/2, height-2 );
+        cairo_show_text(w->crb, w->input_label);
+    } else {
+        cairo_text_extents(w->crb,w->label , &extents);
+        cairo_move_to (w->crb, switchx1-extents.width/2, height-2 );
+        cairo_show_text(w->crb, w->label);
+    }
+    cairo_new_path (w->crb);
+}
+
 // if controller value changed send notify to host
 static void value_changed(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
@@ -267,7 +370,19 @@ Widget_t* add_my_value_knob(Widget_t *w, PortIndex index, const char * label,
     return w;
 }
 
-// shortcut to create image knobs with portindex binding
+// shortcut to create bypass switch with portindex binding
+Widget_t* add_my_bypass_switch(Widget_t *w, PortIndex index, const char * label,
+                                X11_UI* ui, int x, int y, int width, int height) {
+    w = add_toggle_button(ui->win, label, x, y, width, height);
+    w->parent_struct = ui;
+    w->data = index;
+    w->scale.gravity = ASPECT;
+    w->func.expose_callback = draw_my_bypass;
+    w->func.value_changed_callback = value_changed;
+    return w;
+}
+
+// shortcut to create image switch with portindex binding
 Widget_t* add_my_switch_image(Widget_t *w, PortIndex index, const char * label,
                                 X11_UI* ui, int x, int y, int width, int height) {
     w = add_switch_image_button(ui->win, label, x, y, width, height);

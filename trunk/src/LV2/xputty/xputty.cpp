@@ -103,10 +103,10 @@ void run_embedded(Xputty *main) {
         if(ew  >= 0) {
             Widget_t * w = main->childlist->childs[ew];
             unsigned short retrigger = 0;
-            if (XEventsQueued(main->dpy, QueuedAlready)) {
+            if (xev.type == Expose && XEventsQueued(main->dpy, QueuedAlready)) {
                 XEvent nev;
                 XPeekEvent(main->dpy, &nev);
-                if (nev.type == ConfigureNotify && xev.type == Expose) {
+                if (nev.type == ConfigureNotify) {
                     retrigger = 1;
                     main->queue_event = true;
                 }

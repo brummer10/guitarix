@@ -133,6 +133,11 @@ void _draw_button_base(Widget_t *w, int width, int height) {
         w->state = 0;
     }
 
+    _rounded_rectangle(w->crb,1.0, 1.0, width+1.0, height+1.0);
+    cairo_set_source_rgb (w->crb, 0.0, 0.0, 0.0); 
+    cairo_set_line_width(w->crb,1);
+    cairo_stroke(w->crb);
+
     _rounded_rectangle(w->crb,2.0, 2.0, width, height);
 
     if(w->state==0) {

@@ -289,20 +289,20 @@ void _resize_childs(Widget_t *wid) {
             break;
             case(ASPECT):
                 XMoveWindow(wid->app->dpy,w->widget,(
-                    (w->scale.init_x + w->scale.init_width/2) /
-                    wid->scale.cscale_x) - w->width/2,
-                    ((w->scale.init_y + w->scale.init_height/2) /
-                    wid->scale.cscale_y)- w->height/2) ;
+                    (w->scale.init_x + w->scale.init_width*0.5) /
+                    wid->scale.cscale_x) - w->width*0.5,
+                    ((w->scale.init_y + w->scale.init_height*0.5) /
+                    wid->scale.cscale_y)- w->height*0.5) ;
                 XResizeWindow (wid->app->dpy, w->widget, max(1,
                     w->scale.init_width / (wid->scale.ascale)), 
                     max(1,w->scale.init_height / (wid->scale.ascale)));
             break;
             case(FIXEDSIZE):
                 XMoveWindow(wid->app->dpy,w->widget,(
-                    (w->scale.init_x + w->scale.init_width/2) /
-                    wid->scale.cscale_x) - w->width/2,
-                    ((w->scale.init_y + w->scale.init_height/2) /
-                    wid->scale.cscale_y)- w->height/2) ;
+                    (w->scale.init_x + w->scale.init_width*0.5) /
+                    wid->scale.cscale_x) - w->width*0.5,
+                    ((w->scale.init_y + w->scale.init_height*0.5) /
+                    wid->scale.cscale_y)- w->height*0.5) ;
             break;
             case(MENUITEM):
                 XResizeWindow (wid->app->dpy, w->widget, max(1,
