@@ -85,7 +85,7 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:index 0 ;
         lv2:symbol "MasterGain" ;
         lv2:name "MasterGain";
-        lv2:default -15.0 ;
+        lv2:default 0.0 ;
         lv2:minimum -20.0 ;
         lv2:maximum 20.0 ;
         mod:default 0.0 ;

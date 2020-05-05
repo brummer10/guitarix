@@ -156,10 +156,11 @@ static void set_sensitive_state(X11_UI* ui, float state) {
 void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
                         uint32_t buffer_size, uint32_t format,
                         const void * buffer) {
+    X11_UI* ui = (X11_UI*)handle;
     if (port_index == SCHEDULE) {
-        X11_UI* ui = (X11_UI*)handle;
         float value = *(float*)buffer;
         set_sensitive_state(ui, value);
     }
+    if (port_index == (uint32_t) BYPASS) ui->block_event = -1;
 }
 
