@@ -55,6 +55,7 @@ typedef enum
   SCHEDULE,
   AMP_OUTPUT,
   AMP_INPUT,
+  BYPASS,
   AMP_OUTPUT1,
   AMP_INPUT1,
 } PortIndex;

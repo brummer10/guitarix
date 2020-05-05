@@ -70,6 +70,7 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 #include "gx_pluginlv2.h"   // define struct PluginLV2
 #include "impulse_former.h"
 #include "ampulse_former.h"
+#include "gx_bypass.cc"     // bypass ramping
 
 #ifndef __SSE__
 #include "noiser.cc"
@@ -194,6 +195,8 @@ static const size_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[
 class GxPluginMono
 {
 private:
+  GxBypass                     bp;
+  float*                       bypass;
   // internal stuff
   float*                       output;
   float*                       input;
@@ -293,6 +296,8 @@ public:
 
   // constructor
 GxPluginMono::GxPluginMono() :
+  bp(),
+  bypass(0),
   output(NULL),
   input(NULL),
   s_rate(0),
@@ -436,6 +441,7 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
 
   bufsize = bufsize_;
   s_rate = rate;
+  bp.init_bypass(rate);
 #ifdef _POSIX_MEMLOCK_RANGE
   GX_LOCK::lock_rt_memory();
 #endif
@@ -522,6 +528,9 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
     case AMP_INPUT:
       input = static_cast<float*>(data);
       break;
+    case BYPASS: 
+      bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
+      break;
     default:
       break;
     }
@@ -533,20 +542,28 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
   cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
+  FAUSTFLOAT buf[n_samples];
+  // do inplace processing at default
+  if (output != input)
+    memcpy(output, input, n_samples*sizeof(float));
+  // check if bypass is pressed
+  if (!bp.pre_check_bypass(bypass, buf, input, n_samples)) {
 #ifndef __SSE__
-  wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
+    wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
 #endif
-  // run selected tube model
-  a_model_ = min(a_max, static_cast<uint32_t>(*(a_model)));
-  amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
-  // run presence convolver
-  ampconv.run_static(n_samples, &ampconv, output);
-  // run selected tonestack
-  t_model_ =  static_cast<uint32_t>(*(t_model));
-  if (t_model_<=t_max)
-    tonestack[t_model_]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t_model_]);
-  // run selected cabinet convolver
-  cabconv.run_static(n_samples, &cabconv, output);
+    // run selected tube model
+    a_model_ = min(a_max, static_cast<uint32_t>(*(a_model)));
+    amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
+    // run presence convolver
+    ampconv.run_static(n_samples, &ampconv, output);
+    // run selected tonestack
+    t_model_ =  static_cast<uint32_t>(*(t_model));
+    if (t_model_<=t_max)
+      tonestack[t_model_]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t_model_]);
+    // run selected cabinet convolver
+    cabconv.run_static(n_samples, &cabconv, output);
+  }
+  bp.post_check_bypass(buf, output, n_samples);
 
   // work ?
   if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed())) 
