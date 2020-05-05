@@ -32,7 +32,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 3
+#define CONTROLS 4
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -70,6 +70,9 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
 
     ui->widget[2] = add_my_knob(ui->widget[2], LEVEL,"Level", ui,230, 30, 100, 125);
     set_adjustment(ui->widget[2]->adj,-2.0, -2.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
+
+    ui->widget[3] = add_my_bypass_switch(ui->widget[3], BYPASS,"Off", ui,145, 200, 60, 85);
+    strncpy(ui->widget[3]->input_label,"On",32);
 }
 
 void plugin_cleanup(X11_UI *ui) {
@@ -79,7 +82,7 @@ void plugin_cleanup(X11_UI *ui) {
 void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
                         uint32_t buffer_size, uint32_t format,
                         const void * buffer) {
-    // port value change message from host
-    // do special stuff when needed
+    X11_UI* ui = (X11_UI*)handle;
+    if (port_index == (uint32_t) BYPASS) ui->block_event = -1;
 }
 
