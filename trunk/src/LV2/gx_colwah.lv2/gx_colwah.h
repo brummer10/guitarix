@@ -36,7 +36,8 @@ typedef enum
    FREQ, 
    MODE, 
    MODEL, 
-   WET_DRY, 
+   WET_DRY,
+   BYPASS,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_
