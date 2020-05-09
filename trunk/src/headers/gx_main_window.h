@@ -702,6 +702,7 @@ public:
     Glib::RefPtr<ToggleAction> tooltips;
     Glib::RefPtr<UiBoolToggleAction> midi_in_presets;
     Glib::RefPtr<ToggleAction> rackh;
+    Glib::RefPtr<ToggleAction> midiout;
 
     Glib::RefPtr<RadioAction> skin;
     Glib::RefPtr<RadioAction> latency;
@@ -929,6 +930,7 @@ private:
     void amp_controls_visible(Gtk::Range *rr);
     void gx_show_help();
     void show_forum_help();
+    void set_midiout();
 public:
     Glib::RefPtr<Gtk::SizeGroup> left_column;
     MainWindow(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options, GxTheme& theme,

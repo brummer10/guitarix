@@ -508,6 +508,7 @@ CmdlineOptions::CmdlineOptions()
       system_show_presets(false),
       system_show_toolbar(false),
       system_show_rack(false),
+      system_midiout(false),
       reload_lv2_presets(true) {
     const char* home = getenv("HOME");
     if (!home) {
@@ -820,6 +821,9 @@ void CmdlineOptions::read_ui_vars() {
             } else if (jp.current_value() == "system.show_rack") {
                 jp.next(JsonParser::value_number);
                 system_show_rack = jp.current_value_int();
+            } else if (jp.current_value() == "system.midiout") {
+                jp.next(JsonParser::value_number);
+                system_midiout = jp.current_value_int();
             }
         }
         jp.next(JsonParser::end_object);
@@ -853,6 +857,7 @@ void CmdlineOptions::write_ui_vars() {
 	jw.write_kv("system.show_presets", system_show_presets);
 	jw.write_kv("system.show_toolbar", system_show_toolbar);
 	jw.write_kv("system.show_rack", system_show_rack);
+	jw.write_kv("system.midiout", system_midiout);
 	jw.end_object(true);
 	jw.close();
     } catch (JsonException&) {

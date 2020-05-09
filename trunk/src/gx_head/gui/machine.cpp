@@ -806,14 +806,53 @@ bool GxMachine::parameter_unit_has_std_values(const PluginDef *pdef) const {
 }
 
 void GxMachine::set_parameter_value(const std::string& id, int value) {
+#ifdef USE_MIDI_CC_OUT
+    if (options.system_midiout) {
+        const gx_engine::MidiController *pctrl;
+        IntParameter& p = get_parameter(id).getInt();
+        int nctl = midi_param2controller(p, &pctrl);
+        if (nctl > -1) {
+            if (p.get_value() != value) {
+                float state = (float(value) - p.getLowerAsFloat()) /
+                        (p.getUpperAsFloat() - p.getLowerAsFloat());
+                msend_midi_cc(0xB0, nctl, int(state * 127), 3);
+            }
+        }
+    }
+#endif
     pmap[id].getInt().set(value);
 }
 
 void GxMachine::set_parameter_value(const std::string& id, bool value) {
+#ifdef USE_MIDI_CC_OUT
+    if (options.system_midiout) {
+        const gx_engine::MidiController *pctrl;
+        BoolParameter& p = get_parameter(id).getBool();
+        int nctl = midi_param2controller(p, &pctrl);
+        if (nctl > -1)
+            if (p.get_value() != value) {
+                msend_midi_cc(0xB0, nctl,int(value * 127), 3);
+            }
+    }
+#endif
     pmap[id].getBool().set(value);
 }
 
 void GxMachine::set_parameter_value(const std::string& id, float value) {
+#ifdef USE_MIDI_CC_OUT
+    if (options.system_midiout) {
+        const gx_engine::MidiController *pctrl;
+        FloatParameter& p = get_parameter(id).getFloat();
+        int nctl = midi_param2controller(p, &pctrl);
+        if (nctl > -1) {
+            if (std::fabs(p.get_value() - value) > 0.0001) {
+                float state = (value - p.getLowerAsFloat()) /
+                    (p.getUpperAsFloat() - p.getLowerAsFloat());
+                msend_midi_cc(0xB0, nctl,int(state * 127), 3);
+            }
+        }
+    }
+#endif
     pmap[id].getFloat().set(value);
 }
 
@@ -2467,14 +2506,54 @@ bool GxMachineRemote::parameter_unit_has_std_values(const PluginDef *pdef) const
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, int value) {
+#ifdef USE_MIDI_CC_OUT
+    if (options.system_midiout) {
+        const gx_engine::MidiController *pctrl;
+        IntParameter& p = get_parameter(id).getInt();
+        int nctl = midi_param2controller(p, &pctrl);
+        if (nctl > -1) {
+            if (p.get_value() != value) {
+                float state = (float(value) - p.getLowerAsFloat()) /
+                        (p.getUpperAsFloat() - p.getLowerAsFloat());
+                msend_midi_cc(0xB0, nctl, int(state * 127), 3);
+            }
+        }
+    }
+#endif
     pmap[id].getInt().set(value);
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, bool value) {
+#ifdef USE_MIDI_CC_OUT
+    if (options.system_midiout) {
+        const gx_engine::MidiController *pctrl;
+        BoolParameter& p = get_parameter(id).getBool();
+        int nctl = midi_param2controller(p, &pctrl);
+        if (nctl > -1) {
+            if (p.get_value() != value) {
+                msend_midi_cc(0xB0, nctl,int(value * 127), 3);
+            }
+        }
+    }
+#endif
     pmap[id].getBool().set(value);
 }
 
 void GxMachineRemote::set_parameter_value(const std::string& id, float value) {
+#ifdef USE_MIDI_CC_OUT
+    if (options.system_midiout) {
+        const gx_engine::MidiController *pctrl;
+        FloatParameter& p = get_parameter(id).getFloat();
+        int nctl = midi_param2controller(p, &pctrl);
+        if (nctl > -1) {
+            if (std::fabs(p.get_value() - value) > 0.0001) {
+                float state = (value - p.getLowerAsFloat()) /
+                    (p.getUpperAsFloat() - p.getLowerAsFloat());
+                msend_midi_cc(0xB0, nctl,int(state * 127), 3);
+            }
+        }
+    }
+#endif
     pmap[id].getFloat().set(value);
 }
 

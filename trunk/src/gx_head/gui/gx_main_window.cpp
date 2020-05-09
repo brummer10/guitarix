@@ -1586,6 +1586,10 @@ void MainWindow::delete_select_midi_channel() {
     select_midi_channel = 0;
 }
 
+void MainWindow::set_midiout() {
+    options.system_midiout = actions.midiout->get_active();
+}
+
 // show loggingbox
 void MainWindow::on_log_activate() {
     if (actions.loggingbox->get_active()) {
@@ -1826,6 +1830,10 @@ void MainWindow::create_actions() {
 
     uimanager.add_action(
         "SetMidiChannel", sigc::mem_fun(this, &MainWindow::on_select_midi_channel));
+
+    actions.midiout = uimanager.add_toggle_action("MidiFeedback", true);
+    actions.midiout->signal_toggled().connect(
+        sigc::mem_fun(this, &MainWindow::set_midiout));
 
     /*
     ** Help and About
@@ -2763,6 +2771,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     actions.show_values->set_active(options.system_show_value);
     actions.tooltips->set_active(options.system_show_tooltips);
     actions.animations->set_active(options.system_animations);
+    actions.midiout->set_active(options.system_midiout);
 
     if (!title.empty()) {
 	bld.window->set_title(title);

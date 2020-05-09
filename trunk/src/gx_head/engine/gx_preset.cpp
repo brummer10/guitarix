@@ -375,6 +375,11 @@ bool PresetIO::convert_old(gx_system::JsonParser &jp) {
         opt.system_show_rack = jp.current_value_int();
         return true;
     }
+    if (s == "system.midiout") {
+        jp.next(gx_system::JsonParser::value_number);
+        opt.system_midiout = jp.current_value_int();
+        return true;
+    }
 
     return false;
 }

@@ -213,6 +213,10 @@
 	  <attribute name="action">SetMidiChannel</attribute>
 	  <attribute name="label">Set Midi Channel</attribute>
 	</item>
+	<item>
+	  <attribute name="action">MidiFeedback</attribute>
+	  <attribute name="label">Send Midi Feedback</attribute>
+	</item>
 	<submenu>
 	  <attribute name="action">OscBufferSize</attribute>
 	  <attribute name="label">Osc. Buffer-size</attribute>

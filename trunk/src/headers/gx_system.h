@@ -455,6 +455,7 @@ public:
     bool system_show_presets;
     bool system_show_toolbar;
     bool system_show_rack;
+    bool system_midiout;
     bool reload_lv2_presets;
 
 public:
