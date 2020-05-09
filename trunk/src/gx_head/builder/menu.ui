@@ -41,7 +41,7 @@
       <section>
 	<item>
 	  <attribute name="action">Quit</attribute>
-	  <attribute name="label">_Quit</attribute> <!-- fixme options.get_hideonquit() HIDE / QUIT -->
+	  <attribute name="label">_Quit</attribute>
 	  <attribute name="accel">&lt;Control&gt;q</attribute>
 	</item>
       </section>

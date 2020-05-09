@@ -2383,11 +2383,11 @@ void MainWindow::hide_extended_settings() {
 	(bld.window->get_window()->get_state()
 	 & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
         bld.window->move(options.mainwin_x, options.mainwin_y);
-        //bld.window->present();
-        bld.window->deiconify();
+        bld.window->present();
+       // bld.window->deiconify();
     } else {
-        //bld.window->hide();
-        bld.window->iconify();
+        bld.window->hide();
+       // bld.window->iconify();
     }
 }
 
@@ -2565,6 +2565,12 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     bld.window->set_icon(gx_head_icon);
     boxbuilder.set_accelgroup(uimanager.get_accel_group());
 
+    // replace menuitem label when needed
+    Gtk::MenuItem *item = uimanager.find_item("Quit");
+    if(options.get_hideonquit()) {
+        item->set_label("Hide");
+    }
+
     /*
     ** connect main window signals
     */
@@ -2583,11 +2589,11 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     ** status icon signal connections
     */
     if (!options.get_hideonquit()) {
-        status_icon->signal_activate().connect(
-        sigc::mem_fun(*this, &MainWindow::hide_extended_settings));
         status_icon->signal_popup_menu().connect(
         sigc::mem_fun(*this, &MainWindow::systray_menu));
     }
+    status_icon->signal_activate().connect(
+    sigc::mem_fun(*this, &MainWindow::hide_extended_settings));
 
     // add rack container
     bld.stereorackcontainerV->pack_start(plugin_dict.get_stereorackcontainer(), Gtk::PACK_EXPAND_WIDGET);
