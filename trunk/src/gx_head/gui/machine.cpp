@@ -295,6 +295,8 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
 	sigc::mem_fun(this, &GxMachine::process_next_preset_switch));
     pmap["engine.previus_preset"].signal_changed_bool().connect(
 	sigc::mem_fun(this, &GxMachine::process_previus_preset_switch));
+    engine.controller_map.signal_midi_value_changed().connect(
+        sigc::mem_fun(this, &GxMachine::midi_feedback));
 }
 
 GxMachine::~GxMachine() {
@@ -811,12 +813,10 @@ void GxMachine::set_parameter_value(const std::string& id, int value) {
         const gx_engine::MidiController *pctrl;
         IntParameter& p = get_parameter(id).getInt();
         int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1) {
-            if (p.get_value() != value) {
-                float state = (float(value) - p.getLowerAsFloat()) /
-                        (p.getUpperAsFloat() - p.getLowerAsFloat());
-                msend_midi_cc(0xB0, nctl, int(state * 127), 3);
-            }
+        if (nctl > -1 && nctl < 128) {
+            float state = (float(value) - p.getLowerAsFloat()) /
+                    (p.getUpperAsFloat() - p.getLowerAsFloat());
+            msend_midi_cc(0xB0, nctl, int(state * 127), 3);
         }
     }
 #endif
@@ -829,10 +829,9 @@ void GxMachine::set_parameter_value(const std::string& id, bool value) {
         const gx_engine::MidiController *pctrl;
         BoolParameter& p = get_parameter(id).getBool();
         int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1)
-            if (p.get_value() != value) {
-                msend_midi_cc(0xB0, nctl,int(value * 127), 3);
-            }
+        if (nctl > -1 && nctl < 128) {
+            msend_midi_cc(0xB0, nctl,int(value * 127), 3);
+        }
     }
 #endif
     pmap[id].getBool().set(value);
@@ -844,12 +843,10 @@ void GxMachine::set_parameter_value(const std::string& id, float value) {
         const gx_engine::MidiController *pctrl;
         FloatParameter& p = get_parameter(id).getFloat();
         int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1) {
-            if (std::fabs(p.get_value() - value) > 0.0001) {
-                float state = (value - p.getLowerAsFloat()) /
-                    (p.getUpperAsFloat() - p.getLowerAsFloat());
-                msend_midi_cc(0xB0, nctl,int(state * 127), 3);
-            }
+        if (nctl > -1 && nctl < 128) {
+            float state = (value - p.getLowerAsFloat()) /
+                (p.getUpperAsFloat() - p.getLowerAsFloat());
+            msend_midi_cc(0xB0, nctl,int(state * 127), 3);
         }
     }
 #endif
@@ -940,6 +937,13 @@ int GxMachine::midi_param2controller(Parameter& param, const MidiController** p)
 
 void GxMachine::set_midi_channel(int s) {
     return engine.controller_map.set_midi_channel(s);
+}
+
+void GxMachine::midi_feedback(int c, int v) {
+    // Don't send midi feedback for bpm / jack_transport and not on/off events
+    if ( c !=22 && c != 24 && c < 128) {
+        msend_midi_cc(0xB0, c,v, 3);
+    }
 }
 
 // Convolver
@@ -2511,12 +2515,10 @@ void GxMachineRemote::set_parameter_value(const std::string& id, int value) {
         const gx_engine::MidiController *pctrl;
         IntParameter& p = get_parameter(id).getInt();
         int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1) {
-            if (p.get_value() != value) {
-                float state = (float(value) - p.getLowerAsFloat()) /
-                        (p.getUpperAsFloat() - p.getLowerAsFloat());
-                msend_midi_cc(0xB0, nctl, int(state * 127), 3);
-            }
+        if (nctl > -1 && nctl < 128) {
+            float state = (float(value) - p.getLowerAsFloat()) /
+                    (p.getUpperAsFloat() - p.getLowerAsFloat());
+            msend_midi_cc(0xB0, nctl, int(state * 127), 3);
         }
     }
 #endif
@@ -2529,10 +2531,8 @@ void GxMachineRemote::set_parameter_value(const std::string& id, bool value) {
         const gx_engine::MidiController *pctrl;
         BoolParameter& p = get_parameter(id).getBool();
         int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1) {
-            if (p.get_value() != value) {
-                msend_midi_cc(0xB0, nctl,int(value * 127), 3);
-            }
+        if (nctl > -1 && nctl < 128) {
+            msend_midi_cc(0xB0, nctl,int(value * 127), 3);
         }
     }
 #endif
@@ -2545,12 +2545,10 @@ void GxMachineRemote::set_parameter_value(const std::string& id, float value) {
         const gx_engine::MidiController *pctrl;
         FloatParameter& p = get_parameter(id).getFloat();
         int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1) {
-            if (std::fabs(p.get_value() - value) > 0.0001) {
-                float state = (value - p.getLowerAsFloat()) /
-                    (p.getUpperAsFloat() - p.getLowerAsFloat());
-                msend_midi_cc(0xB0, nctl,int(state * 127), 3);
-            }
+        if (nctl > -1 && nctl < 128) {
+            float state = (value - p.getLowerAsFloat()) /
+                (p.getUpperAsFloat() - p.getLowerAsFloat());
+            msend_midi_cc(0xB0, nctl,int(state * 127), 3);
         }
     }
 #endif
@@ -2718,6 +2716,13 @@ void GxMachineRemote::set_midi_channel(int s) {
     START_NOTIFY(set_midi_channel);
     jw->write(s);
     SEND();
+}
+
+void GxMachineRemote::midi_feedback(int c, int v) {
+    // Don't send midi feedback for bpm / jack_transport and not on/off events
+    if ( c !=22 && c != 24 && c < 128) {
+        msend_midi_cc(0xB0, c,v, 3);
+    }
 }
 
 // Convolver
