@@ -940,10 +940,14 @@ void GxMachine::set_midi_channel(int s) {
 }
 
 void GxMachine::midi_feedback(int c, int v) {
-    // Don't send midi feedback for bpm / jack_transport and not on/off events
-    if ( c !=22 && c != 24 && c < 128) {
-        msend_midi_cc(0xB0, c,v, 3);
+#ifdef USE_MIDI_CC_OUT
+    if (options.system_midiout) {
+        // Don't send midi feedback for bpm / jack_transport and not on/off events
+        if ( c !=22 && c != 24 && c < 128) {
+            msend_midi_cc(0xB0, c,v, 3);
+        }
     }
+#endif
 }
 
 // Convolver
@@ -2719,10 +2723,14 @@ void GxMachineRemote::set_midi_channel(int s) {
 }
 
 void GxMachineRemote::midi_feedback(int c, int v) {
-    // Don't send midi feedback for bpm / jack_transport and not on/off events
-    if ( c !=22 && c != 24 && c < 128) {
-        msend_midi_cc(0xB0, c,v, 3);
+#ifdef USE_MIDI_CC_OUT
+    if (options.system_midiout) {
+        // Don't send midi feedback for bpm / jack_transport and not on/off events
+        if ( c !=22 && c != 24 && c < 128) {
+            msend_midi_cc(0xB0, c,v, 3);
+        }
     }
+#endif
 }
 
 // Convolver
