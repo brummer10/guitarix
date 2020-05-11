@@ -130,7 +130,8 @@ struct CmdConnection::methodnames;
 "midi_set_current_control", false
 "set_midi_channel", false
 "request_midi_value_update", false
-
+"get_last_midi_control_value", true
+"set_last_midi_control_value", false
 
 /* Tuner */
 

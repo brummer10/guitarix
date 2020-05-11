@@ -327,10 +327,12 @@ bool MidiController::set_midi(int n, int last_value, bool update) {
                 break;
             }
             case Parameter::toggle_type::Toggle: {
-                if (param->on_off_value() && !n) {
-                    ret = param->midi_set(0, 127, _lower, _upper);
-                } else {
-                    ret = param->midi_set(127, 127, _lower, _upper);
+                if (n !=last_value) {
+                    if (param->on_off_value() && !n) {
+                        ret = param->midi_set(0, 127, _lower, _upper);
+                    } else if (last_value != -1) {
+                        ret = param->midi_set(127, 127, _lower, _upper);
+                    }
                 }
                 break;
             }
@@ -515,7 +517,8 @@ MidiControllerList::MidiControllerList()
       new_program(),
       new_mute_state(),
       new_bank(),
-      midi_value_changed() {
+      midi_value_changed(),
+      trigger_midi_feedback() {
     for (int i = 0; i < ControllerArray::array_size; ++i) {
 	last_midi_control_value[i] = -1;
 	changed_midi_control_value[i] = 0;
@@ -577,7 +580,8 @@ void MidiControllerList::update_from_controller(int ctr) {
     if (v >= 0) {
 	midi_controller_list& cl = map[ctr];
 	for (midi_controller_list::iterator i = cl.begin(); i != cl.end(); ++i) {
-	    i->set_midi(v, v, true);
+	    if (i->set_midi(v, v, true))
+            trigger_midi_feedback(ctr,v);
 	}
     }
 }
@@ -669,7 +673,9 @@ void MidiControllerList::set_ctr_val(int ctr, int val) {
     } else {
         midi_controller_list& ctr_list = map[ctr];
         for (midi_controller_list::iterator i = ctr_list.begin(); i != ctr_list.end(); ++i) {
-            i->set_midi(val, get_last_midi_control_value(ctr), false);
+            if( i->set_midi(val, get_last_midi_control_value(ctr), false)) {
+                trigger_midi_feedback(ctr,val);
+            }
         }
     }
     MidiControllerList::set_last_midi_control_value(ctr, val);
@@ -778,7 +784,8 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
 			if (in_event.buffer[1]== 120) { // engine mute by All Sound Off on any midi channel
 				gx_system::atomic_set(&mute_change, in_event.buffer[2]);
 				 mute_chg();
-			} else if (in_event.buffer[1]== 32 && ch) { // bank change on any midi channel
+			} else if ((in_event.buffer[1]== 32 ||
+                        in_event.buffer[1]== 0) && ch) { // bank change (LSB/MSB) on any midi channel
 				gx_system::atomic_set(&bank_change, in_event.buffer[2]);
 				 bank_chg();
 			} else {

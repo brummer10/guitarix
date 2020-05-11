@@ -69,6 +69,8 @@ enum jsonrpc_method {
 	RPNM_midi_set_current_control,
 	RPNM_set_midi_channel,
 	RPNM_request_midi_value_update,
+	RPCM_get_last_midi_control_value,
+	RPNM_set_last_midi_control_value,
 	RPCM_get_tuning,
 	RPCM_get_tuner_freq,
 	RPNM_switch_tuner,

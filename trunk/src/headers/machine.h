@@ -423,6 +423,8 @@ private:
     void update_plugins(gx_system::JsonParser *jp);
     void create_bluetooth_socket(const Glib::ustring& bdaddr);
     void create_tcp_socket();
+    int midi_get_last_controller_value(int ctl);
+    void midi_set_last_controller_value(int ctl, int v);
     virtual int _get_parameter_value_int(const std::string& id);
     virtual int _get_parameter_value_bool(const std::string& id);
     virtual float _get_parameter_value_float(const std::string& id);

@@ -788,6 +788,7 @@ private:
     sigc::signal<void,int> new_mute_state;
     sigc::signal<void,int> new_bank;
     sigc::signal<void, int, int> midi_value_changed;
+    sigc::signal<void, int, int> trigger_midi_feedback;
 private:
     void               on_pgm_chg();
     void               on_mute_chg();
@@ -825,6 +826,7 @@ public:
     void update_from_controllers();
     void set_midi_channel(int s);
     sigc::signal<void, int, int>& signal_midi_value_changed() { return midi_value_changed; }
+    sigc::signal<void, int, int>& signal_trigger_midi_feedback() { return trigger_midi_feedback; }
     void request_midi_value_update();
 };
 

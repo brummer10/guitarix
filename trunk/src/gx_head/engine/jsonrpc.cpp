@@ -612,6 +612,12 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 	serv.jack.get_engine().controller_map.writeJSON(jw);
     }
 
+    FUNCTION(get_last_midi_control_value) {
+	jw.begin_object();
+	jw.write(serv.jack.get_engine().controller_map.get_last_midi_control_value(params[0]->getInt()));
+	jw.end_object();
+    }
+
     FUNCTION(midi_get_config_mode) {
 	bool mode = serv.jack.get_engine().controller_map.get_config_mode();
 	jw.begin_array();
@@ -953,6 +959,10 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(set_midi_channel) {
 	serv.jack.get_engine().controller_map.set_midi_channel(params[0]->getInt());
+    }
+
+    PROCEDURE(set_last_midi_control_value) {
+	serv.jack.get_engine().controller_map.set_last_midi_control_value(params[0]->getInt(),params[1]->getInt());
     }
 
     PROCEDURE(set) {
