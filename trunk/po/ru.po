@@ -2797,7 +2797,7 @@ msgstr "Частота дискретизации JACK составляет %1%/
 
 #: ../src/gx_head/engine/gx_jack.cpp:373
 msgid ""
-"The jack buffer size is %1%/frames is not power of two, Convolver wont run"
+"The jack buffer size is %1%/frames is not power of two, Convolver won't run"
 msgstr ""
 "Размер буфера JACK составляет %1%/кадров, это не степень двух, запуск"
 " Convolver не будет выполнен"
