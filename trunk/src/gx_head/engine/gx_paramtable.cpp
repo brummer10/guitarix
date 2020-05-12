@@ -312,16 +312,32 @@ bool MidiController::set_midi(int n, int last_value, bool update) {
                         ret = param->midi_set(127, 127, _lower, _upper);
                     }
                 }
+                if (update) {
+                    if (!s_n) {
+                        ret = param->midi_set(0, 127, _lower, _upper);
+                    } else {
+                        ret = param->midi_set(127, 127, _lower, _upper);
+                    }
+                    ret = true;
+                }
                 break;
             }
             case Parameter::toggle_type::Constant: {
                 if (n == last_value || last_value == -1) {
                     if (param->on_off_value()) {
-                        if (!update) ret = param->midi_set(0, n, _lower, _upper);
-                        else ret = param->midi_set(127, n, _lower, _upper);
+                        if (!update) {
+                            ret = param->midi_set(0, n, _lower, _upper);
+                        } else {
+                            ret = param->midi_set(127, n, _lower, _upper);
+                            ret = true;
+                        }
                     } else {
-                        if (!update) ret = param->midi_set(127, n, _lower, _upper);
-                        else ret = param->midi_set(0, n, _lower, _upper);
+                        if (!update) {
+                            ret = param->midi_set(127, n, _lower, _upper);
+                        } else {
+                            ret = param->midi_set(0, n, _lower, _upper);
+                            ret = true;
+                        }
                     }
                 }
                 break;
@@ -580,8 +596,9 @@ void MidiControllerList::update_from_controller(int ctr) {
     if (v >= 0) {
 	midi_controller_list& cl = map[ctr];
 	for (midi_controller_list::iterator i = cl.begin(); i != cl.end(); ++i) {
-	    if (i->set_midi(v, v, true))
+	    if (i->set_midi(v, v, true)) {
             trigger_midi_feedback(ctr,v);
+        }
 	}
     }
 }

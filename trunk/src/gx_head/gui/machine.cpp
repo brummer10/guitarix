@@ -818,7 +818,8 @@ void GxMachine::set_parameter_value(const std::string& id, int value) {
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
             if (engine.controller_map.get_last_midi_control_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl, state, 3);
-                engine.controller_map.set_last_midi_control_value(nctl, state);
+                if (!p.toggle_type::OnOff)
+                    engine.controller_map.set_last_midi_control_value(nctl, state);
             }
         }
     }
@@ -836,7 +837,8 @@ void GxMachine::set_parameter_value(const std::string& id, bool value) {
             int state = int(value * 127);
             if (engine.controller_map.get_last_midi_control_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl,state, 3);
-                engine.controller_map.set_last_midi_control_value(nctl, state);
+                if (!p.toggle_type::OnOff)
+                    engine.controller_map.set_last_midi_control_value(nctl, state);
             }
         }
     }
@@ -855,7 +857,8 @@ void GxMachine::set_parameter_value(const std::string& id, float value) {
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
             if (engine.controller_map.get_last_midi_control_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl, state, 3);
-                engine.controller_map.set_last_midi_control_value(nctl, state);
+                if (!p.toggle_type::OnOff)
+                    engine.controller_map.set_last_midi_control_value(nctl, state);
             }
         }
     }
@@ -2534,7 +2537,8 @@ void GxMachineRemote::set_parameter_value(const std::string& id, int value) {
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
             if (midi_get_last_controller_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl, state, 3);
-                midi_set_last_controller_value(nctl, state);
+                if (!p.toggle_type::OnOff)
+                    midi_set_last_controller_value(nctl, state);
             }
         }
     }
@@ -2552,7 +2556,8 @@ void GxMachineRemote::set_parameter_value(const std::string& id, bool value) {
             int state = int(value * 127);
             if (midi_get_last_controller_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl,state, 3);
-                midi_set_last_controller_value(nctl, state);
+                if (!p.toggle_type::OnOff)
+                    midi_set_last_controller_value(nctl, state);
             }
         }
     }
@@ -2571,7 +2576,8 @@ void GxMachineRemote::set_parameter_value(const std::string& id, float value) {
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
             if (midi_get_last_controller_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl, state, 3);
-                midi_set_last_controller_value(nctl, state);
+                if (!p.toggle_type::OnOff)
+                    midi_set_last_controller_value(nctl, state);
             }
         }
     }
