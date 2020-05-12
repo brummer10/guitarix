@@ -58,6 +58,7 @@ class Gx_colwah_
 private:
   GxBypass                     bp;
   float*                       bypass;
+  DenormalProtection           MXCSR;
   // pointer to buffer
   float*      output;
   float*      input;
@@ -95,6 +96,7 @@ public:
 Gx_colwah_::Gx_colwah_() :
   bp(),
   bypass(0),
+  MXCSR(),
   output(NULL),
   input(NULL),
   wahh_model(NULL),
@@ -113,7 +115,6 @@ Gx_colwah_::~Gx_colwah_()
 
 void Gx_colwah_::init_dsp_(uint32_t rate)
 {
-  AVOIDDENORMALS(); // init the SSE denormal protection
   bp.init_bypass(rate);
 
   for(uint32_t i=0; i<WAH_COUNT; i++) {
@@ -163,6 +164,7 @@ void Gx_colwah_::deactivate_f()
 void Gx_colwah_::run_dsp_(uint32_t n_samples)
 {
   if (n_samples< 1) return;
+  MXCSR.set_();
   FAUSTFLOAT buf[n_samples];
   // do inplace processing at default
   if (output != input)
@@ -173,6 +175,7 @@ void Gx_colwah_::run_dsp_(uint32_t n_samples)
     wah[wah_model_]->mono_audio(static_cast<int>(n_samples), input, output, wah[wah_model_]);
   }
   bp.post_check_bypass(buf, output, n_samples);
+  MXCSR.reset_();
 }
 
 void Gx_colwah_::connect_all__ports(uint32_t port, void* data)

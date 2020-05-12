@@ -21,6 +21,7 @@
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
 
 #include "gx_common.h"      // faust support and denormal protection (SSE)
+#include "gx_bypass.cc"
 #include "gx_bossds1.h"        // define struct PortIndex
 #include "gx_pluginlv2.h"   // define struct PluginLV2
 #include "gx_resampler.h"
@@ -33,6 +34,9 @@ namespace bossds1 {
 class Gx_bossds1_
 {
 private:
+  GxBypass                     bp;
+  float*                       bypass;
+  DenormalProtection           MXCSR;
   // pointer to buffer
   float*      output;
   float*      input;
@@ -65,6 +69,9 @@ public:
 
 // constructor
 Gx_bossds1_::Gx_bossds1_() :
+  bp(),
+  bypass(0),
+  MXCSR(),
   output(NULL),
   input(NULL),
   bossds1(bossds1::plugin()) {};
@@ -84,7 +91,7 @@ Gx_bossds1_::~Gx_bossds1_()
 
 void Gx_bossds1_::init_dsp_(uint32_t rate)
 {
-  AVOIDDENORMALS(); // init the SSE denormal protection
+  bp.init_bypass(rate);
   bossds1->set_samplerate(rate, bossds1); // init the DSP class
 }
 
@@ -98,6 +105,9 @@ void Gx_bossds1_::connect_(uint32_t port,void* data)
       break;
     case EFFECTS_INPUT:
       input = static_cast<float*>(data);
+      break;
+    case BYPASS: 
+      bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
       break;
     default:
       break;
@@ -128,7 +138,18 @@ void Gx_bossds1_::deactivate_f()
 void Gx_bossds1_::run_dsp_(uint32_t n_samples)
 {
   if (n_samples< 1) return;
-  bossds1->mono_audio(static_cast<int>(n_samples), input, output, bossds1);
+  MXCSR.set_();
+  // run dsp
+  FAUSTFLOAT buf[n_samples];
+  // do inplace processing at default
+  if (output != input)
+    memcpy(output, input, n_samples*sizeof(float));
+  // check if bypass is pressed
+  if (!bp.pre_check_bypass(bypass, buf, input, n_samples)) 
+    bossds1->mono_audio(static_cast<int>(n_samples), input, output, bossds1);
+  bp.post_check_bypass(buf, output, n_samples);
+
+  MXCSR.reset_();
 }
 
 void Gx_bossds1_::connect_all__ports(uint32_t port, void* data)

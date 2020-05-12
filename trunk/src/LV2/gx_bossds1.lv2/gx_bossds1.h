@@ -34,7 +34,8 @@ typedef enum
    EFFECTS_INPUT,
    LEVEL, 
    TONE, 
-   DRIVE, 
+   DRIVE,
+   BYPASS,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

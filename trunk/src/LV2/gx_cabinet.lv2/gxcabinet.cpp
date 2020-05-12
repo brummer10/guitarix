@@ -19,6 +19,7 @@
 
 #include <glibmm.h>
 #include "gx_common.h"
+#include "gx_bypass.cc"
 
 /****************************************************************
  ** "atomic" value access
@@ -75,6 +76,9 @@ inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
 class GxCabinet
 {
 private:
+  GxBypass                     bp;
+  float*                       bypass;
+  DenormalProtection           MXCSR;
   // internal stuff
   float*                       output;
   float*                       input;
@@ -159,6 +163,9 @@ public:
 
   // constructor
 GxCabinet::GxCabinet() :
+  bp(),
+  bypass(0),
+  MXCSR(),
   output(NULL),
   input(NULL),
   s_rate(0),
@@ -263,6 +270,7 @@ void GxCabinet::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
 
   bufsize = bufsize_;
   s_rate = rate;
+  bp.init_bypass(rate);
 #ifdef _POSIX_MEMLOCK_RANGE
   GX_LOCK::lock_rt_memory();
 #endif
@@ -326,6 +334,9 @@ void GxCabinet::connect_mono(uint32_t port,void* data)
     case AMP_INPUT:
       input = static_cast<float*>(data);
       break;
+    case BYPASS: 
+      bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
+      break;
     default:
       break;
     }
@@ -337,9 +348,17 @@ void GxCabinet::run_dsp_mono(uint32_t n_samples)
   cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
-  memcpy(output, input, n_samples * sizeof(float));
+  MXCSR.set_();
+  // run dsp
+  FAUSTFLOAT buf[n_samples];
+  // do inplace processing at default
+  if (output != input)
+    memcpy(output, input, n_samples*sizeof(float));
+  // check if bypass is pressed
+  if (!bp.pre_check_bypass(bypass, buf, input, n_samples)) 
   // run selected cabinet convolver
-  cabconv.run_static(n_samples, &cabconv, output);
+    cabconv.run_static(n_samples, &cabconv, output);
+  bp.post_check_bypass(buf, output, n_samples);
 
   // work ?
   if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed()))
@@ -351,6 +370,7 @@ void GxCabinet::run_dsp_mono(uint32_t n_samples)
       atomic_set(&schedule_wait,1);
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
     }
+  MXCSR.reset_();
 }
 
 void GxCabinet::connect_all_mono_ports(uint32_t port, void* data)

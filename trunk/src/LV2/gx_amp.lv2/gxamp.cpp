@@ -197,6 +197,7 @@ class GxPluginMono
 private:
   GxBypass                     bp;
   float*                       bypass;
+  DenormalProtection           MXCSR;
   // internal stuff
   float*                       output;
   float*                       input;
@@ -298,6 +299,7 @@ public:
 GxPluginMono::GxPluginMono() :
   bp(),
   bypass(0),
+  MXCSR(),
   output(NULL),
   input(NULL),
   s_rate(0),
@@ -437,8 +439,6 @@ void GxPluginMono::do_work_mono()
 
 void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
 {
-  AVOIDDENORMALS();
-
   bufsize = bufsize_;
   s_rate = rate;
   bp.init_bypass(rate);
@@ -539,6 +539,7 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
   if (n_samples< 1) return;
+  MXCSR.set_();
   cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
@@ -565,6 +566,7 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
   }
   bp.post_check_bypass(buf, output, n_samples);
 
+  MXCSR.reset_();
   // work ?
   if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed())) 
     {

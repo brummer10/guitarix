@@ -23,50 +23,8 @@
 #include <cstring>
 #include <unistd.h>
 
-#ifdef __SSE__
-/* On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
-   flags to avoid costly denormals */
-#ifdef __SSE3__
-#include <pmmintrin.h>
-inline void AVOIDDENORMALS()
-{
-  _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
-}
-#else
-#include <xmmintrin.h>
-inline void AVOIDDENORMALS()
-{
-  _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-}
-#endif //__SSE3__
-
-#else
-inline void AVOIDDENORMALS() {}
-#endif //__SSE__
-
-#define max(x, y) (((x) > (y)) ? (x) : (y))
-#define min(x, y) (((x) < (y)) ? (x) : (y))
-template <int32_t N> inline float faustpower(float x)
-{
-  return powf(x, N);
-}
-template <int32_t N> inline double faustpower(double x)
-{
-  return pow(x, N);
-}
-template <int32_t N> inline int32_t faustpower(int32_t x)
-{
-  return faustpower<N/2>(x) * faustpower<N-N/2>(x);
-}
-template <>      inline int32_t faustpower<0>(int32_t x)
-{
-  return 1;
-}
-template <>      inline int32_t faustpower<1>(int32_t x)
-{
-  return x;
-}
+#include "gx_common.h"
+#include "gx_bypass.cc"
 
 #include "gxautowah.h"
 #include "dunwahauto.cc"
@@ -80,6 +38,9 @@ typedef void (crybaby::*run_crybaby)
 class Gxautowah
 {
 private:
+  GxBypass                     bp;
+  float*                       bypass;
+  DenormalProtection           MXCSR;
   // internal stuff
   float*                       output;
   float*                       input;
@@ -95,6 +56,9 @@ public:
   inline void connect_all_mono_ports(uint32_t port, void* data);
   // constructor
   Gxautowah() :
+    bp(),
+    bypass(0),
+    MXCSR(),
     output(NULL),
     input(NULL),
     wah(crybaby()),
@@ -112,7 +76,7 @@ public:
 
 void Gxautowah::init_dsp_mono(uint32_t rate, const LV2_Descriptor* descriptor)
 {
-  AVOIDDENORMALS();
+  bp.init_bypass(rate);
   if (strcmp("http://guitarix.sourceforge.net/plugins/gxautowah#autowah",descriptor->URI)== 0)
     {
       _wah = &crybaby::run;
@@ -143,6 +107,9 @@ void Gxautowah::connect_mono(uint32_t port,void* data)
     case AUTOWAH_INPUT:
       input = static_cast<float*>(data);
       break;
+    case BYPASS: 
+      bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
+      break;
     default:
       break;
     }
@@ -157,8 +124,18 @@ void Gxautowah::activate_f()
 void Gxautowah::run_dsp_mono(uint32_t n_samples)
 {
   if (n_samples< 1) return;
+  MXCSR.set_();
   // run dsp
-  (&wah->*_wah)(n_samples, input, output);
+  FAUSTFLOAT buf[n_samples];
+  // do inplace processing at default
+  if (output != input)
+    memcpy(output, input, n_samples*sizeof(float));
+  // check if bypass is pressed
+  if (!bp.pre_check_bypass(bypass, buf, input, n_samples)) 
+    (&wah->*_wah)(n_samples, input, output);
+  bp.post_check_bypass(buf, output, n_samples);
+
+  MXCSR.reset_();
 }
 
 void Gxautowah::connect_all_mono_ports(uint32_t port, void* data)

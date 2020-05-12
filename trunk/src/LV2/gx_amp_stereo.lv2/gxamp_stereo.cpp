@@ -196,6 +196,7 @@ class GxPluginStereo
 private:
   GxBypass                     bp;
   float*                       bypass;
+  DenormalProtection           MXCSR;
   // internal stuff
   float*                       output;
   float*                       output1;
@@ -299,6 +300,7 @@ public:
 GxPluginStereo::GxPluginStereo() :
   bp(),
   bypass(0),
+  MXCSR(),
   output(NULL),
   output1(NULL),
   input(NULL),
@@ -445,8 +447,6 @@ void GxPluginStereo::do_work_stereo()
 
 void GxPluginStereo::init_dsp_stereo(uint32_t rate, uint32_t bufsize_)
 {
-  AVOIDDENORMALS();
-
   bufsize = bufsize_;
   s_rate = rate;
   bp.init_bypass(rate);
@@ -553,6 +553,7 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
   if (n_samples< 1) return;
+  MXCSR.set_();
   cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
   // run dsp
@@ -582,6 +583,7 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   }
   bp.post_check_bypass(buf, buf1, output, output1, n_samples);
 
+  MXCSR.reset_();
   // work ?
   if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed() ))
     {

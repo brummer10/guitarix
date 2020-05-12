@@ -73,7 +73,18 @@ All other trademarks are the property of their respective holders.'
         lv2:index 1 ;
         lv2:symbol "in" ;
         lv2:name "in"
-    ].
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 2 ;
+        lv2:symbol "BYPASS" ;
+        lv2:name "BYPASS" ;
+        lv2:default 1.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+        lv2:designation lv2:enabled;
+        lv2:portProperty lv2:toggled;
+    ] .
 
 <http://guitarix.sourceforge.net/plugins/gxautowah#wah>
     a lv2:Plugin ,
@@ -116,6 +127,17 @@ All other trademarks are the property of their respective holders.'
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 2 ;
+        lv2:symbol "BYPASS" ;
+        lv2:name "BYPASS" ;
+        lv2:default 1.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+        lv2:designation lv2:enabled;
+        lv2:portProperty lv2:toggled;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 3 ;
         lv2:symbol "fslider1_" ;
         lv2:name "Wah";
         lv2:default 0.0 ;

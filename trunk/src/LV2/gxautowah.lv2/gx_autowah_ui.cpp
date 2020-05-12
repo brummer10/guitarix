@@ -31,7 +31,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 1
+#define CONTROLS 2
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -79,6 +79,16 @@ static void set_my_theme(Xputty *main) {
         /*frame */    { 0.18, 0.18, 0.18, 1.0},
         /*light */    { 0.18, 0.18, 0.28, 1.0}
     };
+
+    main->color_scheme->active = (Colors) {
+        /*fg */       { 0.9, 0.9, 0.9, 1.0},
+        /*bg */       { 0.3, 0.3, 0.3, 1.0},
+        /*base */     { 0.18, 0.18, 0.28, 1.0},
+        /*text */     { 1.0, 1.0, 1.0, 1.0},
+        /*shadow */   { 0.18, 0.18, 0.18, 0.2},
+        /*frame */    { 0.18, 0.18, 0.18, 1.0},
+        /*light */    { 0.3, 0.3, 0.3, 1.0}
+    };
 }
 
 // set knob colors
@@ -105,9 +115,9 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
 void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
     if (strcmp(GXPLUGIN_URI "#wah", plugin_uri) == 0){
         (*w) = 250; //initial widht of main window
-        (*h) = 266; //initial heigth of main window
+        (*h) = 306; //initial heigth of main window
     } else {
-        (*w) = 200; //initial widht of main window
+        (*w) = 250; //initial widht of main window
         (*h) = 180; //initial heigth of main window
     }
 }
@@ -125,7 +135,19 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
         ui->win->label = "GxWah";
         ui->widget[0] = add_my_knob(ui->widget[0], WAH,"Wah", ui,35, 15, 180, 205);
         set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
-    }
+        ui->widget[1] = add_on_off_button(ui->win, "Power", 93, 230, 60, 40);
+        ui->widget[1]->scale.gravity = ASPECT;
+        ui->widget[1]->data = BYPASS;
+        ui->widget[1]->parent_struct = ui;
+        ui->widget[1]->func.value_changed_callback = value_changed;
+   } else {
+        ui->widget[1] = add_on_off_button(ui->win, "Power", 93, 100, 60, 40);
+        ui->widget[1]->scale.gravity = ASPECT;
+        ui->widget[1]->data = BYPASS;
+        ui->widget[1]->parent_struct = ui;
+        ui->widget[1]->func.value_changed_callback = value_changed;
+   }
+
 }
 
 void plugin_cleanup(X11_UI *ui) {
@@ -134,4 +156,6 @@ void plugin_cleanup(X11_UI *ui) {
 void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
                         uint32_t buffer_size, uint32_t format,
                         const void * buffer) {
+    X11_UI* ui = (X11_UI*)handle;
+    if (port_index == (uint32_t) BYPASS) ui->block_event = -1;
 }

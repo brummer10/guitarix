@@ -163,6 +163,17 @@ rdfs:comment """
         lv2:index 8 ;
         lv2:symbol "in" ;
         lv2:name "in" ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 9 ;
+        lv2:symbol "BYPASS" ;
+        lv2:name "BYPASS" ;
+        lv2:default 1.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+        lv2:designation lv2:enabled;
+        lv2:portProperty lv2:toggled;
     ] .
 
 

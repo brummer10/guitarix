@@ -32,6 +32,7 @@ typedef enum
 {
   AUTOWAH_OUTPUT,
   AUTOWAH_INPUT,
+  BYPASS,
   WAH,
 } PortIndex;
 
