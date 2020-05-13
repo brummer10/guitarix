@@ -406,7 +406,7 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
 	if (!is_power_of_two(jack_bs)) {
     gx_print_warning(
 	_("Jack init"),
-	boost::format(_("The jack buffer size is %1%/frames is not power of two, Convolver wont run"))
+	boost::format(_("The jack buffer size is %1%/frames is not power of two, Convolver won't run"))
 	% jack_bs);
 	} else {
     gx_print_info(
