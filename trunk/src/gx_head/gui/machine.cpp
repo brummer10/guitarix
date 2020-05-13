@@ -820,6 +820,8 @@ void GxMachine::set_parameter_value(const std::string& id, int value) {
                 msend_midi_cc(0xB0, nctl, state, 3);
                 if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
                     engine.controller_map.set_last_midi_control_value(nctl, state);
+                } else {
+                    engine.controller_map.set_last_midi_control_value(nctl, p.get_value()*127);
                 }
             }
         }
@@ -840,6 +842,8 @@ void GxMachine::set_parameter_value(const std::string& id, bool value) {
                 msend_midi_cc(0xB0, nctl,state, 3);
                 if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
                     engine.controller_map.set_last_midi_control_value(nctl, state);
+                } else {
+                    engine.controller_map.set_last_midi_control_value(nctl, p.get_value()*127);
                 }
             }
         }
@@ -856,12 +860,14 @@ void GxMachine::set_parameter_value(const std::string& id, float value) {
         if ( std::fabs(p.get_value() - value) > 0.00001) {
             int nctl = midi_param2controller(p, &pctrl);
             if (nctl > -1 && nctl < 128) {
-                bool tb = pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff;
                 int state = int(((float(value) - p.getLowerAsFloat()) /
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
                 msend_midi_cc(0xB0, nctl, state, 3);
-                if (tb)
+                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
                     engine.controller_map.set_last_midi_control_value(nctl, state);
+                } else {
+                     engine.controller_map.set_last_midi_control_value(nctl, p.get_value()*127);
+                }
             }
         }
     }
@@ -2540,8 +2546,11 @@ void GxMachineRemote::set_parameter_value(const std::string& id, int value) {
                 int state = int(((float(value) - p.getLowerAsFloat()) /
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
                 msend_midi_cc(0xB0, nctl, state, 3);
-                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff)
+                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
                     midi_set_last_controller_value(nctl, state);
+                } else {
+                     midi_set_last_controller_value(nctl, p.get_value()*127);
+                }
             }
         }
     }
@@ -2559,8 +2568,11 @@ void GxMachineRemote::set_parameter_value(const std::string& id, bool value) {
             if (nctl > -1 && nctl < 128) {
                 int state = int(value * 127);
                 msend_midi_cc(0xB0, nctl,state, 3);
-                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff)
+                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
                     midi_set_last_controller_value(nctl, state);
+                } else {
+                     midi_set_last_controller_value(nctl, p.get_value()*127);
+                }
             }
         }
     }
@@ -2579,8 +2591,11 @@ void GxMachineRemote::set_parameter_value(const std::string& id, float value) {
                 int state = int(((float(value) - p.getLowerAsFloat()) /
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
                 msend_midi_cc(0xB0, nctl, state, 3);
-                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff)
+                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
                     midi_set_last_controller_value(nctl, state);
+                } else {
+                     midi_set_last_controller_value(nctl, p.get_value()*127);
+                }
             }
         }
     }
