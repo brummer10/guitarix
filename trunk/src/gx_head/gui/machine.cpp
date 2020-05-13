@@ -812,14 +812,15 @@ void GxMachine::set_parameter_value(const std::string& id, int value) {
     if (options.system_midiout) {
         const gx_engine::MidiController *pctrl;
         IntParameter& p = get_parameter(id).getInt();
-        int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1 && nctl < 128) {
-            int state = int(((float(value) - p.getLowerAsFloat()) /
+        if (p.get_value() != value) {
+            int nctl = midi_param2controller(p, &pctrl);
+            if (nctl > -1 && nctl < 128) {
+                int state = int(((float(value) - p.getLowerAsFloat()) /
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
-            if (engine.controller_map.get_last_midi_control_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl, state, 3);
-                if (!p.toggle_type::OnOff)
+                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
                     engine.controller_map.set_last_midi_control_value(nctl, state);
+                }
             }
         }
     }
@@ -832,13 +833,14 @@ void GxMachine::set_parameter_value(const std::string& id, bool value) {
     if (options.system_midiout) {
         const gx_engine::MidiController *pctrl;
         BoolParameter& p = get_parameter(id).getBool();
-        int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1 && nctl < 128) {
-            int state = int(value * 127);
-            if (engine.controller_map.get_last_midi_control_value(nctl) != state) {
+        if (p.get_value() != value) {
+            int nctl = midi_param2controller(p, &pctrl);
+            if (nctl > -1 && nctl < 128) {
+                int state = int(value * 127);
                 msend_midi_cc(0xB0, nctl,state, 3);
-                if (!p.toggle_type::OnOff)
+                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
                     engine.controller_map.set_last_midi_control_value(nctl, state);
+                }
             }
         }
     }
@@ -851,13 +853,14 @@ void GxMachine::set_parameter_value(const std::string& id, float value) {
     if (options.system_midiout) {
         const gx_engine::MidiController *pctrl;
         FloatParameter& p = get_parameter(id).getFloat();
-        int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1 && nctl < 128) {
-            int state = int(((float(value) - p.getLowerAsFloat()) /
+        if ( std::fabs(p.get_value() - value) > 0.00001) {
+            int nctl = midi_param2controller(p, &pctrl);
+            if (nctl > -1 && nctl < 128) {
+                bool tb = pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff;
+                int state = int(((float(value) - p.getLowerAsFloat()) /
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
-            if (engine.controller_map.get_last_midi_control_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl, state, 3);
-                if (!p.toggle_type::OnOff)
+                if (tb)
                     engine.controller_map.set_last_midi_control_value(nctl, state);
             }
         }
@@ -2531,13 +2534,13 @@ void GxMachineRemote::set_parameter_value(const std::string& id, int value) {
     if (options.system_midiout) {
         const gx_engine::MidiController *pctrl;
         IntParameter& p = get_parameter(id).getInt();
-        int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1 && nctl < 128) {
-            int state = int(((float(value) - p.getLowerAsFloat()) /
+        if (p.get_value() != value) {
+            int nctl = midi_param2controller(p, &pctrl);
+            if (nctl > -1 && nctl < 128) {
+                int state = int(((float(value) - p.getLowerAsFloat()) /
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
-            if (midi_get_last_controller_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl, state, 3);
-                if (!p.toggle_type::OnOff)
+                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff)
                     midi_set_last_controller_value(nctl, state);
             }
         }
@@ -2551,12 +2554,12 @@ void GxMachineRemote::set_parameter_value(const std::string& id, bool value) {
     if (options.system_midiout) {
         const gx_engine::MidiController *pctrl;
         BoolParameter& p = get_parameter(id).getBool();
-        int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1 && nctl < 128) {
-            int state = int(value * 127);
-            if (midi_get_last_controller_value(nctl) != state) {
+        if (p.get_value() != value) {
+            int nctl = midi_param2controller(p, &pctrl);
+            if (nctl > -1 && nctl < 128) {
+                int state = int(value * 127);
                 msend_midi_cc(0xB0, nctl,state, 3);
-                if (!p.toggle_type::OnOff)
+                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff)
                     midi_set_last_controller_value(nctl, state);
             }
         }
@@ -2570,13 +2573,13 @@ void GxMachineRemote::set_parameter_value(const std::string& id, float value) {
     if (options.system_midiout) {
         const gx_engine::MidiController *pctrl;
         FloatParameter& p = get_parameter(id).getFloat();
-        int nctl = midi_param2controller(p, &pctrl);
-        if (nctl > -1 && nctl < 128) {
-            int state = int(((float(value) - p.getLowerAsFloat()) /
+        if ( std::fabs(p.get_value() - value) > 0.00001) {
+            int nctl = midi_param2controller(p, &pctrl);
+            if (nctl > -1 && nctl < 128) {
+                int state = int(((float(value) - p.getLowerAsFloat()) /
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
-            if (midi_get_last_controller_value(nctl) != state) {
                 msend_midi_cc(0xB0, nctl, state, 3);
-                if (!p.toggle_type::OnOff)
+                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff)
                     midi_set_last_controller_value(nctl, state);
             }
         }

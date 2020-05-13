@@ -107,14 +107,15 @@ extern "C" {
 
 class MidiCC {
 private:
-    static const int max_midi_cc_cnt = 5;
+    gx_engine::GxEngine& engine;
+    static const int max_midi_cc_cnt = 25;
     std::atomic<bool> send_cc[max_midi_cc_cnt];
     int cc_num[max_midi_cc_cnt];
     int pg_num[max_midi_cc_cnt];
     int bg_num[max_midi_cc_cnt];
     int me_num[max_midi_cc_cnt];
 public:
-    MidiCC();
+    MidiCC(gx_engine::GxEngine& engine_);
     bool send_midi_cc(int _cc, int _pg, int _bgn, int _num);
     inline int next(int i = -1) const;
     inline int size(int i)  const { return me_num[i]; }

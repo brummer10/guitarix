@@ -719,7 +719,7 @@ class MidiController {
     bool hasParameter(const Parameter& p) const { return *param == p; }
     Parameter& getParameter() const { return *param; }
     static MidiController *readJSON(gx_system::JsonParser& jp, ParamMap& param);
-    bool set_midi(int n, int last_value, bool update); //RT
+    bool set_midi(int n, int last_value, int *value_set, bool update); //RT
     bool set_bpm(int n, int last_value); //RT
     bool set_trans(int n, int last_value); //RT
     void set(float v, float high) { param->midi_set(v, high, _lower, _upper); }
@@ -788,7 +788,6 @@ private:
     sigc::signal<void,int> new_mute_state;
     sigc::signal<void,int> new_bank;
     sigc::signal<void, int, int> midi_value_changed;
-    sigc::signal<void, int, int> trigger_midi_feedback;
 private:
     void               on_pgm_chg();
     void               on_mute_chg();
@@ -825,7 +824,9 @@ public:
     void update_from_controller(int ctr);
     void update_from_controllers();
     void set_midi_channel(int s);
+    int get_midi_channel() {return channel_select; }
     sigc::signal<void, int, int>& signal_midi_value_changed() { return midi_value_changed; }
+    sigc::signal<void, int, int> trigger_midi_feedback;
     sigc::signal<void, int, int>& signal_trigger_midi_feedback() { return trigger_midi_feedback; }
     void request_midi_value_update();
 };

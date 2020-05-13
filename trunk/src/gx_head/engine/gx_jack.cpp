@@ -99,15 +99,22 @@ static inline bool rt_watchdog_check_alive(unsigned int bs, unsigned int sr) {
  ** class MidiCC
  */
 
-MidiCC::MidiCC() {
+MidiCC::MidiCC(gx_engine::GxEngine& engine_)
+    : engine(engine_) {
     for (int i = 0; i < max_midi_cc_cnt; i++) {
         send_cc[i] = false;
     }
 }
 
 bool MidiCC::send_midi_cc(int _cc, int _pg, int _bgn, int _num) {
+    int c = engine.controller_map.get_midi_channel();
+    if (c) _cc |=c-1;
     for(int i = 0; i < max_midi_cc_cnt; i++) {
-        if (!send_cc[i].load(std::memory_order_acquire)) {
+        if (send_cc[i].load(std::memory_order_acquire)) {
+            if (cc_num[i] == _cc && pg_num[i] == _pg &&
+                bg_num[i] == _bgn && me_num[i] == _num)
+                return true;
+        } else if (!send_cc[i].load(std::memory_order_acquire)) {
             cc_num[i] = _cc;
             pg_num[i] = _pg;
             bg_num[i] = _bgn;
@@ -133,7 +140,7 @@ GxJack::GxJack(gx_engine::GxEngine& engine_)
       jack_is_down(false),
       jack_is_exit(true),
       bypass_insert(false),
-      mmessage(),
+      mmessage(engine_),
 #ifdef HAVE_JACK_SESSION
       session_event(0),
       session_event_ins(0),

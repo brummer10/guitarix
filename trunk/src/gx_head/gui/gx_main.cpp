@@ -512,6 +512,8 @@ static void mainHeadless(int argc, char *argv[]) {
     if (need_new_preset) {
 	machine.create_default_scratch_preset();
     }
+    // when midiout is requested we need to reload state in order to send midi feedback
+    if (options.system_midiout) machine.loadstate();
     // ----------------------- Run Glib main loop ----------------------
     cout << "Ctrl-C to quit\n";
     Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create();
@@ -604,6 +606,8 @@ static void mainGtk(gx_system::CmdlineOptions& options, GxTheme& theme, GxSplash
     if (need_new_preset) {
 	gui.create_default_scratch_preset();
     }
+    // when midiout is requested we need to reload state in order to send midi feedback
+    if (options.system_midiout) machine.loadstate();
     delete Splash;
     gui.run();
 }
