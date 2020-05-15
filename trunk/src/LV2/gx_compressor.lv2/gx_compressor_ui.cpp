@@ -103,7 +103,7 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
 }
 
 void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
-    (*w) = 680; //set initial widht of main window
+    (*w) = 700; //set initial widht of main window
     (*h) = 180; //set initial heigth of main window
 }
 
@@ -115,19 +115,19 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_my_theme(&ui->main);
     set_my_knob_color(ui->kp);
     // create all controllers needed
-    ui->widget[0] = add_my_knob(ui->widget[0], RATIO,"Ratio", ui,100, 25, 100, 125);
+    ui->widget[0] = add_my_knob(ui->widget[0], RATIO,"Ratio", ui,120, 25, 100, 125);
     set_adjustment(ui->widget[0]->adj,2.0, 2.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[1] = add_my_knob(ui->widget[1], KNEE,"Knee", ui,210, 25, 100, 125);
+    ui->widget[1] = add_my_knob(ui->widget[1], KNEE,"Knee", ui,230, 25, 100, 125);
     set_adjustment(ui->widget[1]->adj,3.0, 3.0, 0.0, 20.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[2] = add_my_knob(ui->widget[2], THRESHOLD,"Threshold", ui,320, 25, 100, 125);
+    ui->widget[2] = add_my_knob(ui->widget[2], THRESHOLD,"Threshold", ui,340, 25, 100, 125);
     set_adjustment(ui->widget[2]->adj,-20.0, -20.0, -96.0, 10.0, 1.0, CL_CONTINUOS);
 
-    ui->widget[3] = add_my_knob(ui->widget[3], RELEASE,"Release", ui,430, 25, 100, 125);
+    ui->widget[3] = add_my_knob(ui->widget[3], RELEASE,"Release", ui,450, 25, 100, 125);
     set_adjustment(ui->widget[3]->adj,0.5, 0.5, 0.0, 10.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[4] = add_my_knob(ui->widget[4], ATTACK,"Attack", ui,540, 25, 100, 125);
+    ui->widget[4] = add_my_knob(ui->widget[4], ATTACK,"Attack", ui,560, 25, 100, 125);
     set_adjustment(ui->widget[4]->adj,0.002, 0.0, 0.0, 1.0, 0.001, CL_CONTINUOS);
 
     ui->widget[5] = add_on_off_button(ui->win, "Power", 50, 50, 40, 80);

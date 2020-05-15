@@ -35,6 +35,7 @@ typedef enum
    ATTACK, 
    LEVEL, 
    WET_DRY, 
+   BYPASS,
 } PortIndex;
 
 
