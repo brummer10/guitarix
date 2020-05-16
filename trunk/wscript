@@ -17,7 +17,7 @@ srcdir = '.'
 blddir = 'build'
 
 # used by waf dist and waf build
-VERSION='0.39.0'
+VERSION='0.40.0git'
 APPNAME='guitarix'
 
 Options.OptionsContext.gxload = \
@@ -532,6 +532,7 @@ def build(bld):
 
     if bld.env['JOBS'] and Options.options.jobs == bld.jobs:
         Options.options.jobs = int(bld.env['JOBS'])
+        bld.jobs = int(bld.env['JOBS'])
 
     if bld.env['INTLTOOL']:
         bld(name='i18n', features='intltool_po', appname=APPNAME, podir='po')
