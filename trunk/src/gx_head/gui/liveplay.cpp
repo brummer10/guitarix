@@ -340,8 +340,8 @@ Liveplay::Liveplay(
     background_adj->signal_value_changed().connect(
         sigc::mem_fun(this, &Liveplay::on_background_changed));
     Glib::RefPtr<Gdk::Screen> screen = liveplay_canvas->get_screen();
-    Glib::RefPtr<Gdk::Visual> rgba = screen->get_rgba_visual();
-    gtk_widget_set_visual(liveplay_canvas->gobj(), rgba->gobj());
+    Glib::RefPtr<Gdk::Visual> rgba = screen->get_rgba_visual(); // may return nullptr
+    if (rgba) gtk_widget_set_visual(liveplay_canvas->gobj(), rgba->gobj());
     liveplay_canvas->set_app_paintable(true);
     window->signal_delete_event().connect(
         sigc::mem_fun(this, &Liveplay::on_delete));
