@@ -863,11 +863,11 @@ void GxMachine::set_parameter_value(const std::string& id, float value) {
                 int state = int(((float(value) - p.getLowerAsFloat()) /
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
                 msend_midi_cc(0xB0, nctl, state, 3);
-                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
-                    engine.controller_map.set_last_midi_control_value(nctl, state);
-                } else {
-                     engine.controller_map.set_last_midi_control_value(nctl, p.get_value()*127);
-                }
+               // if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
+               //     engine.controller_map.set_last_midi_control_value(nctl, state);
+               // } else {
+               //      engine.controller_map.set_last_midi_control_value(nctl, p.get_value()*127);
+               // }
             }
         }
     }
@@ -2591,11 +2591,11 @@ void GxMachineRemote::set_parameter_value(const std::string& id, float value) {
                 int state = int(((float(value) - p.getLowerAsFloat()) /
                     (p.getUpperAsFloat() - p.getLowerAsFloat())) * 127.0);
                 msend_midi_cc(0xB0, nctl, state, 3);
-                if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
-                    midi_set_last_controller_value(nctl, state);
-                } else {
-                     midi_set_last_controller_value(nctl, p.get_value()*127);
-                }
+               // if (pctrl->toggle_behaviour() != Parameter::toggle_type::OnOff) {
+               //     midi_set_last_controller_value(nctl, state);
+               // } else {
+               //      midi_set_last_controller_value(nctl, p.get_value()*127);
+               // }
             }
         }
     }
