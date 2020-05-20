@@ -357,9 +357,8 @@ bool MidiController::set_midi(int n, int last_value, int *value_set, bool update
         //fprintf(stderr,"%f \n",double(n * double(double(n+1.)/128)));
         ret = param->midi_set(n, 127, _lower, _upper);
         *value_set = n;
-        //param->trigger_changed();
     }
-    //param->trigger_changed();
+    if (ret) param->trigger_changed();
     return ret;
 }
 
@@ -371,6 +370,7 @@ bool MidiController::set_trans(int n, int last_value) {
         else n = 0;
     }
     ret = param->midi_set(n, 127, _lower, _upper);
+    if (ret) param->trigger_changed();
     return ret;
 }
 
@@ -390,6 +390,7 @@ bool MidiController::set_bpm(int n, int last_value) {
     } else {
 	ret = param->midi_set_bpm(n, 360, _lower, _upper);
     }
+    if (ret) param->trigger_changed();
     return ret;
 }
 
@@ -560,7 +561,6 @@ bool MidiControllerList::check_midi_values() {
                         && i->toggle_behaviour() == Parameter::toggle_type::Constant) {
                         midi_value_changed(n, i->getParameter().on_off_value() * 127);
                     }
-                    i->trigger_changed();
                 }
             }
         }
@@ -582,7 +582,6 @@ void MidiControllerList::on_val_chg() {
                         && i->toggle_behaviour() == Parameter::toggle_type::Constant) {
                         midi_value_changed(n, i->getParameter().on_off_value() * 127);
                     }
-                    i->trigger_changed();
                 }
             }
         }
