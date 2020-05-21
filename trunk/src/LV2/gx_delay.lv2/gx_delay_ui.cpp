@@ -225,6 +225,8 @@ void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
     float value = *(float*)buffer;
     if (port_index == INVERT) {
         set_sensitive_state(ui, value);
+    } else if (port_index == (uint32_t) BYPASS) {
+        ui->block_event = -1;
     }
     check_for_link(ui, (PortIndex) port_index, &value);
 }

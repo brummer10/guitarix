@@ -49,6 +49,7 @@ typedef enum
    MIDDLETREBLE,
    TREBLE,
    LATENCYREPORT,
+   BYPASS,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

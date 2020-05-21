@@ -61,7 +61,8 @@ typedef enum
    DD_NOTIFY,
    SYNC,
    //SPEED,
-   HOSTBPM, 
+   HOSTBPM,
+   BYPASS,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

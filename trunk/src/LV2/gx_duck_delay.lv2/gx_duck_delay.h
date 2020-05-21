@@ -36,7 +36,8 @@ typedef enum
    ATTACK, 
    FEEDBACK, 
    RELESE, 
-   TIME, 
+   TIME,
+   BYPASS,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

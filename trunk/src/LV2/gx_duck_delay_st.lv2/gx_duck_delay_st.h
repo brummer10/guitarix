@@ -41,7 +41,8 @@ typedef enum
    FEEDBACK, 
    PINGPONG, 
    RELEASE, 
-   TIME, 
+   TIME,
+   BYPASS,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

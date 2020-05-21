@@ -23,6 +23,7 @@
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
 
 #include "gx_common.h"      // faust support and denormal protection (SSE)
+#include "gx_bypass.cc"
 #include "gx_detune.h"        // define struct PortIndex
 #include "gx_pluginlv2.h"   // define struct PluginLV2
 #include "gx_resampler.h"
@@ -35,6 +36,9 @@ namespace detune {
 class Gx_detune_
 {
 private:
+  GxBypass                     bp;
+  float*                       bypass;
+  DenormalProtection           MXCSR;
   // pointer to buffer
   float*      output;
   float*      input;
@@ -87,6 +91,9 @@ public:
 
 // constructor
 Gx_detune_::Gx_detune_() :
+  bp(),
+  bypass(0),
+  MXCSR(),
   output(NULL),
   input(NULL),
   latency(NULL),
@@ -114,7 +121,7 @@ void Gx_detune_::do_work_mono()
 }
 void Gx_detune_::init_dsp_(uint32_t rate, uint32_t bufsize_)
 {
-  AVOIDDENORMALS(); // init the SSE denormal protection
+  bp.init_bypass(rate);
   bufsize = bufsize_;
   detune::smbPitchShift::set_buffersize(detune, bufsize);
   detune->set_samplerate(rate, detune); // init the DSP class
@@ -131,9 +138,12 @@ void Gx_detune_::connect_(uint32_t port,void* data)
     case EFFECTS_INPUT:
       input = static_cast<float*>(data);
       break;
-	case LATENCY: 
-		latency = static_cast<float*>(data); 
-		break;
+    case LATENCY: 
+      latency = static_cast<float*>(data); 
+      break;
+    case BYPASS: 
+      bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
+      break;
     default:
       break;
     }
@@ -162,7 +172,17 @@ void Gx_detune_::deactivate_f()
 
 void Gx_detune_::run_dsp_(uint32_t n_samples)
 {
-  detune->mono_audio(static_cast<int>(n_samples), input, output, detune);
+  if (n_samples< 1) return;
+  MXCSR.set_();
+  FAUSTFLOAT buf[n_samples];
+  // do inplace processing at default
+  if (output != input)
+    memcpy(output, input, n_samples*sizeof(float));
+  // check if bypass is pressed
+  if (!bp.pre_check_bypass(bypass, buf, input, n_samples))
+    detune->mono_audio(static_cast<int>(n_samples), input, output, detune);
+  bp.post_check_bypass(buf, output, n_samples);
+  MXCSR.reset_();
   if (*(latency) != latency_) {
       latency_ = *(latency) ;
       mode = false;

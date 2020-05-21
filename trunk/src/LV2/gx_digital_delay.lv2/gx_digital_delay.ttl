@@ -216,6 +216,17 @@ rdfs:comment """
         lv2:minimum 24.0 ;
         lv2:maximum 360.0 ;
         lv2:designation time:beatsPerMinute;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 14 ;
+        lv2:symbol "BYPASS" ;
+        lv2:name "BYPASS" ;
+        lv2:default 1.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+        lv2:designation lv2:enabled;
+        lv2:portProperty lv2:toggled;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_digital_delay_#gui>
