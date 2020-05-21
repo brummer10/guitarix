@@ -542,35 +542,41 @@ void PresetIO::read_intern(gx_system::JsonParser &jp, bool *has_midi, const gx_s
     fixup_parameters(head);
 }
 
+void PresetIO::commit_midi_feedback(gx_engine::Parameter *p) {
+    const gx_engine::MidiController *pctrl;
+    int nctl = mctrl.param2controller(*p, &pctrl);
+    if (nctl > -1 && nctl < 128) {
+        if (p->isFloat()) {
+            const gx_engine::FloatParameter& pp = p->getFloat();
+            int state = int(((pp.get_value() - pp.getLowerAsFloat()) /
+                (pp.getUpperAsFloat() - pp.getLowerAsFloat())) * 127.0);
+            mctrl.trigger_midi_feedback(nctl,state);
+            if (pctrl->toggle_behaviour() != gx_engine::Parameter::toggle_type::OnOff)
+                mctrl.set_last_midi_control_value(nctl, state);
+        } else if (p->isInt()) {
+            const gx_engine::IntParameter& pp = p->getInt();
+            int state = int(((pp.get_value() - pp.getLowerAsFloat()) /
+                (pp.getUpperAsFloat() - pp.getLowerAsFloat())) * 127.0);
+            mctrl.trigger_midi_feedback(nctl,state);
+            if (pctrl->toggle_behaviour() != gx_engine::Parameter::toggle_type::OnOff)
+                mctrl.set_last_midi_control_value(nctl, state);
+        } else if (p->isBool()) {
+            const gx_engine::BoolParameter& pp = p->getBool();
+            int state = int(pp.get_value() * 127);
+            mctrl.trigger_midi_feedback(nctl,state);
+            if (pctrl->toggle_behaviour() != gx_engine::Parameter::toggle_type::OnOff)
+                mctrl.set_last_midi_control_value(nctl, state);
+        }
+    }
+}
+
 void PresetIO::commit_preset() {
     if (m) {
         mctrl.set_controller_array(*m);
     }
     for (gx_engine::paramlist::iterator i = plist.begin(); i != plist.end(); ++i) {
         (*i)->setJSON_value();
-        const gx_engine::MidiController *pctrl;
-        int nctl = mctrl.param2controller(*(*i), &pctrl);
-        if (nctl > -1 && nctl < 128) {
-            if ((*i)->isFloat()) {
-                int state = int((((*i)->getFloat().get_value() - (*i)->getFloat().getLowerAsFloat()) /
-                    ((*i)->getFloat().getUpperAsFloat() - (*i)->getFloat().getLowerAsFloat())) * 127.0);
-                mctrl.trigger_midi_feedback(nctl,state);
-                if (pctrl->toggle_behaviour() != gx_engine::Parameter::toggle_type::OnOff)
-                    mctrl.set_last_midi_control_value(nctl, state);
-            } else if ((*i)->isInt()) {
-                int state = int((((*i)->getInt().get_value() - (*i)->getInt().getLowerAsFloat()) /
-                    ((*i)->getInt().getUpperAsFloat() - (*i)->getInt().getLowerAsFloat())) * 127.0);
-                mctrl.trigger_midi_feedback(nctl,state);
-                if (pctrl->toggle_behaviour() != gx_engine::Parameter::toggle_type::OnOff)
-                    mctrl.set_last_midi_control_value(nctl, state);
-            } else if ((*i)->isBool()) {
-                int state = int((*i)->getBool().get_value() * 127);
-                mctrl.trigger_midi_feedback(nctl,state);
-                if (pctrl->toggle_behaviour() != gx_engine::Parameter::toggle_type::OnOff)
-                    mctrl.set_last_midi_control_value(nctl, state);
-            }
-        }
-
+        commit_midi_feedback((*i));
     }
     clear();
     mctrl.update_from_controllers();

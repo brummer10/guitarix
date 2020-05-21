@@ -80,6 +80,7 @@ protected:
     void write_intern(gx_system::JsonWriter &w, bool write_midi);
     bool convert_old(gx_system::JsonParser &jp);
     void collectRackOrder(gx_engine::Parameter *p, gx_system::JsonParser &jp, UnitsCollector& u);
+    void commit_midi_feedback(gx_engine::Parameter *p);
     friend class StateIO;
 public:
     PresetIO(gx_engine::MidiControllerList& mctrl, gx_engine::ParamMap& param,
