@@ -78,22 +78,22 @@ void NoiseGate::inputlevel_compute(int count, float *input, float *output, Plugi
 
 int NoiseGate::noisegate_register(const ParamReg& reg) {
     reg.registerFloatVar("noise_gate.threshold", N_("Threshold"), "S", "", &fnglevel,
-			 0.017f, 0.01f, 0.31f, 0.001f, 0);
+             0.017f, 0.01f, 0.31f, 0.001f, 0);
     return 0;
 }
 
 void NoiseGate::outputgate_compute(int count, float *input, float *output, PluginDef*) {
     if (off) {
-	return;
+        return;
     }
     while (count--) {
-	*output++ = ngate * *input++;
+        *output++ = ngate * *input++;
     }
 }
 
 int NoiseGate::outputgate_activate(bool start, PluginDef *pdef) {
     if (start) {
-	off = !inputlevel.get_on_off();
+        off = !inputlevel.get_on_off();
     }
     return 0;
 }
@@ -124,7 +124,7 @@ void GxSeqSettings::writeJSON(gx_system::JsonWriter& w) const {
 
 bool GxSeqSettings::operator==(const GxSeqSettings& seqset) const {
     if (seqline != seqset.seqline) {
-	return false;
+        return false;
     }
     return true;
 }
@@ -184,16 +184,16 @@ SeqParameter::ParameterV(gx_system::JsonParser& jp)
    value(&value_storage),
    std_value() {
     while (jp.peek() != gx_system::JsonParser::end_object) {
-	jp.next(gx_system::JsonParser::value_key);
-	if (jp.current_value() == "value") {
-	    value->readJSON(jp);
-	} else if (jp.current_value() == "std_value") {
-	    std_value.readJSON(jp);
-	} else {
-	    gx_print_warning(
-		"SeqParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
-	    jp.skip_object();
-	}
+        jp.next(gx_system::JsonParser::value_key);
+        if (jp.current_value() == "value") {
+            value->readJSON(jp);
+        } else if (jp.current_value() == "std_value") {
+            std_value.readJSON(jp);
+        } else {
+            gx_print_warning(
+            "SeqParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
+            jp.skip_object();
+        }
     }
     jp.next(gx_system::JsonParser::end_object);
 }
@@ -230,7 +230,7 @@ bool SeqParameter::compareJSON_value() {
 
 bool SeqParameter::set(const GxSeqSettings& val) const {
     if (val == *value) {
-	return false;
+        return false;
     }
     *value = val;
     changed(value);
@@ -304,19 +304,19 @@ void GxJConvSettings::writeJSON(gx_system::JsonWriter& w) const {
 
 bool GxJConvSettings::operator==(const GxJConvSettings& jcset) const {
     if (fIRFile != jcset.fIRFile || fIRDir != jcset.fIRDir) {
-	return false;
+        return false;
     }
     if (fOffset != jcset.fOffset || fLength != jcset.fLength || fDelay != jcset.fDelay) {
-	return false;
+        return false;
     }
     if (fGainCor != jcset.fGainCor) {
-	return false;
+        return false;
     }
     if (fGainCor && std::abs(fGain - jcset.fGain) > 1e-4 * (fGain + jcset.fGain)) {
-	return false;
+        return false;
     }
     if (gainline == jcset.gainline) {
-	return false;
+        return false;
     }
     return true;
 }
@@ -341,13 +341,13 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp) {
     jp.next(gx_system::JsonParser::begin_object);
     do {
         jp.next(gx_system::JsonParser::value_key);
-	if (jp.read_kv("jconv.IRFile", fIRFile) ||
-	    jp.read_kv("jconv.IRDir", fIRDir) ||
-	    jp.read_kv("jconv.Gain", fGain) ||
-	    jp.read_kv("jconv.GainCor", fGainCor) ||
-	    jp.read_kv("jconv.Offset", fOffset) ||
-	    jp.read_kv("jconv.Length", fLength) ||
-	    jp.read_kv("jconv.Delay", fDelay)) {
+    if (jp.read_kv("jconv.IRFile", fIRFile) ||
+        jp.read_kv("jconv.IRDir", fIRDir) ||
+        jp.read_kv("jconv.Gain", fGain) ||
+        jp.read_kv("jconv.GainCor", fGainCor) ||
+        jp.read_kv("jconv.Offset", fOffset) ||
+        jp.read_kv("jconv.Length", fLength) ||
+        jp.read_kv("jconv.Delay", fDelay)) {
         } else if (jp.current_value() == "jconv.gainline") {
             read_gainline(jp);
         } else if (jp.current_value() == "jconv.favorits") {
@@ -359,11 +359,11 @@ void GxJConvSettings::readJSON(gx_system::JsonParser& jp) {
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
     if (!fIRFile.empty()) {
-	if (fIRDir.empty()) {
-	    gx_system::get_options().get_IR_pathlist().find_dir(&fIRDir, fIRFile);
-	} else {
-	    fIRDir = gx_system::get_options().get_IR_prefixmap().replace_symbol(fIRDir);
-	}
+        if (fIRDir.empty()) {
+            gx_system::get_options().get_IR_pathlist().find_dir(&fIRDir, fIRFile);
+        } else {
+            fIRDir = gx_system::get_options().get_IR_prefixmap().replace_symbol(fIRDir);
+        }
     }
 }
 
@@ -404,16 +404,16 @@ JConvParameter::ParameterV(gx_system::JsonParser& jp)
    value(&value_storage),
    std_value() {
     while (jp.peek() != gx_system::JsonParser::end_object) {
-	jp.next(gx_system::JsonParser::value_key);
-	if (jp.current_value() == "value") {
-	    value->readJSON(jp);
-	} else if (jp.current_value() == "std_value") {
-	    std_value.readJSON(jp);
-	} else {
-	    gx_print_warning(
-		"JConvParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
-	    jp.skip_object();
-	}
+        jp.next(gx_system::JsonParser::value_key);
+        if (jp.current_value() == "value") {
+            value->readJSON(jp);
+        } else if (jp.current_value() == "std_value") {
+            std_value.readJSON(jp);
+        } else {
+            gx_print_warning(
+            "JConvParameter", Glib::ustring::compose("%1: unknown key: %2", _id, jp.current_value()));
+            jp.skip_object();
+        }
     }
     jp.next(gx_system::JsonParser::end_object);
 }
@@ -450,7 +450,7 @@ bool JConvParameter::compareJSON_value() {
 
 bool JConvParameter::set(const GxJConvSettings& val) const {
     if (val == *value) {
-	return false;
+        return false;
     }
     *value = val;
     changed(value);
@@ -485,7 +485,7 @@ ConvolverAdapter::ConvolverAdapter(
     //FIXME: add clear_state
     plugin = this;
     engine.signal_buffersize_change().connect(
-	sigc::mem_fun(*this, &ConvolverAdapter::change_buffersize));
+    sigc::mem_fun(*this, &ConvolverAdapter::change_buffersize));
 }
 
 ConvolverAdapter::~ConvolverAdapter() {
@@ -494,16 +494,16 @@ ConvolverAdapter::~ConvolverAdapter() {
 void ConvolverAdapter::change_buffersize(unsigned int size) {
     boost::mutex::scoped_lock lock(activate_mutex);
     if (activated) {
-	conv.stop_process();
-	while (conv.is_runnable()) {
-	    conv.checkstate();
-	}
-	conv.set_buffersize(size);
-	if (size) {
-	    conv_start();
-	}
+        conv.stop_process();
+        while (conv.is_runnable()) {
+            conv.checkstate();
+        }
+        conv.set_buffersize(size);
+        if (size) {
+            conv_start();
+        }
     } else {
-	conv.set_buffersize(size);
+        conv.set_buffersize(size);
     }
 }
 
@@ -517,13 +517,13 @@ void ConvolverAdapter::restart() {
     while (!conv.checkstate());
     float gain;
     if (jcset.getGainCor()) {
-	gain = jcset.getGain();
+        gain = jcset.getGain();
     } else {
-	gain = 1.0;
+        gain = 1.0;
     }
     bool rc = conv.configure(
         jcset.getFullIRPath(), gain, gain, jcset.getDelay(), jcset.getDelay(),
-	jcset.getOffset(), jcset.getLength(), 0, 0, jcset.getGainline());
+        jcset.getOffset(), jcset.getLength(), 0, 0, jcset.getGainline());
     int policy, priority;
     engine.get_sched_priority(policy, priority);
     if (!rc || !conv.start(policy, priority)) {
@@ -533,7 +533,7 @@ void ConvolverAdapter::restart() {
 
 bool ConvolverAdapter::conv_start() {
     if (!conv.get_buffersize() || !conv.get_samplerate()) {
-	return false;
+        return false;
     }
     string path = jcset.getFullIRPath();
     if (path.empty()) {
@@ -543,13 +543,13 @@ bool ConvolverAdapter::conv_start() {
     }
     while (!conv.checkstate());
     if (conv.is_runnable()) {
-	return true;
+        return true;
     }
     float gain;
     if (jcset.getGainCor()) {
-	gain = jcset.getGain();
+        gain = jcset.getGain();
     } else {
-	gain = 1.0;
+        gain = 1.0;
     }
     if (!conv.configure(
             path, gain, gain, jcset.getDelay(), jcset.getDelay(),
@@ -582,23 +582,23 @@ ConvolverStereoAdapter::~ConvolverStereoAdapter() {
 }
 
 void ConvolverStereoAdapter::convolver(int count, float *input0, float *input1,
-				 float *output0, float *output1, PluginDef* plugin) {
+                 float *output0, float *output1, PluginDef* plugin) {
     ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(plugin);
     if (self.conv.is_runnable()) {
         float conv_out0[count];
         float conv_out1[count];
         if (self.conv.compute(count, input0, input1, conv_out0, conv_out1)) {
             self.jc_post.compute(count, input0, input1,
-				 conv_out0, conv_out1, output0, output1);
-	    return;
+                 conv_out0, conv_out1, output0, output1);
+        return;
         }
-	self.engine.overload(EngineControl::ov_Convolver, self.id);
+        self.engine.overload(EngineControl::ov_Convolver, self.id);
     }
     if (input0 != output0) {
-	memcpy(output0, input0, count * sizeof(float));
+        memcpy(output0, input0, count * sizeof(float));
     }
     if (input1 != output1) {
-	memcpy(output1, input1, count * sizeof(float));
+        memcpy(output1, input1, count * sizeof(float));
     }
 }
 
@@ -606,8 +606,8 @@ int ConvolverStereoAdapter::convolver_register(const ParamReg& reg) {
     ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(reg.plugin);
     self.jcp = JConvParameter::insert_param(self.get_parameter_map(), "jconv.convolver", self, &self.jcset);
     self.jcp->signal_changed().connect(
-	sigc::hide(
-	    sigc::mem_fun(self, &ConvolverStereoAdapter::restart)));
+    sigc::hide(
+        sigc::mem_fun(self, &ConvolverStereoAdapter::restart)));
     return self.jc_post.register_par(reg);
 }
 
@@ -615,16 +615,16 @@ void ConvolverStereoAdapter::convolver_init(unsigned int samplingFreq, PluginDef
     ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (self.activated) {
-	self.conv.stop_process();
-	self.conv.set_samplerate(samplingFreq);
-	self.jc_post.init(samplingFreq);
-	while (self.conv.is_runnable()) {
-	    self.conv.checkstate();
-	}
-	self.conv_start();
+    self.conv.stop_process();
+    self.conv.set_samplerate(samplingFreq);
+    self.jc_post.init(samplingFreq);
+    while (self.conv.is_runnable()) {
+        self.conv.checkstate();
+    }
+    self.conv_start();
     } else {
-	self.conv.set_samplerate(samplingFreq);
-	self.jc_post.init(samplingFreq);
+        self.conv.set_samplerate(samplingFreq);
+        self.jc_post.init(samplingFreq);
     }
 }
 
@@ -632,26 +632,26 @@ int ConvolverStereoAdapter::activate(bool start, PluginDef *p) {
     ConvolverStereoAdapter& self = *static_cast<ConvolverStereoAdapter*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (start) {
-	if (self.activated && self.conv.is_runnable()) {
-	    return 0;
-	}
+        if (self.activated && self.conv.is_runnable()) {
+            return 0;
+        }
     } else {
-	if (!self.activated) {
-	    return 0;
-	}
+        if (!self.activated) {
+            return 0;
+        }
     }
     self.activated = start;
     if (start) {
-	if (self.jc_post.activate(true) != 0) {
-	    gx_print_error(_("convolver"), "jconv post activate error?!");
-	    return -1;
-	}
-	if (!self.conv_start()) {
-	    return -1;
-	}
+        if (self.jc_post.activate(true) != 0) {
+            gx_print_error(_("convolver"), "jconv post activate error?!");
+            return -1;
+        }
+        if (!self.conv_start()) {
+            return -1;
+        }
     } else {
-	self.conv.stop_process();
-	self.jc_post.activate(false);
+        self.conv.stop_process();
+        self.jc_post.activate(false);
     }
     return 0;
 }
@@ -659,7 +659,7 @@ int ConvolverStereoAdapter::activate(bool start, PluginDef *p) {
 //static
 int ConvolverStereoAdapter::jconv_load_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
-	builder.load_glade_file("jconv_st_ui.glade");
+    builder.load_glade_file("jconv_st_ui.glade");
         return 0;
     } else if (format & UI_FORM_STACK) {
         //static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create("jconv", window_icon, machine, accels, 2);
@@ -733,12 +733,12 @@ void ConvolverMonoAdapter::convolver(int count, float *input, float *output, Plu
         float conv_out[count];
         if (self.conv.compute(count, input, conv_out)) {
             self.jc_post_mono.compute(count, output, conv_out, output);
-	    return;
+            return;
         }
-	self.engine.overload(EngineControl::ov_Convolver, self.id);
+    self.engine.overload(EngineControl::ov_Convolver, self.id);
     }
     if (input != output) {
-	memcpy(output, input, count * sizeof(float));
+        memcpy(output, input, count * sizeof(float));
     }
 }
 
@@ -746,8 +746,8 @@ int ConvolverMonoAdapter::convolver_register(const ParamReg& reg) {
     ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(reg.plugin);
     self.jcp = JConvParameter::insert_param(self.get_parameter_map(), "jconv_mono.convolver", self, &self.jcset);
     self.jcp->signal_changed().connect(
-	sigc::hide(
-	    sigc::mem_fun(self, &ConvolverMonoAdapter::restart)));
+    sigc::hide(
+        sigc::mem_fun(self, &ConvolverMonoAdapter::restart)));
     return self.jc_post_mono.register_par(reg);;
 }
 
@@ -755,14 +755,14 @@ void ConvolverMonoAdapter::convolver_init(unsigned int samplingFreq, PluginDef *
     ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (self.activated) {
-	self.conv.stop_process();
-	self.conv.set_samplerate(samplingFreq);
-	while (self.conv.is_runnable()) {
-	    self.conv.checkstate();
-	}
-	self.conv_start();
+        self.conv.stop_process();
+        self.conv.set_samplerate(samplingFreq);
+        while (self.conv.is_runnable()) {
+            self.conv.checkstate();
+        }
+        self.conv_start();
     } else {
-	self.conv.set_samplerate(samplingFreq);
+        self.conv.set_samplerate(samplingFreq);
     }
 }
 
@@ -770,21 +770,21 @@ int ConvolverMonoAdapter::activate(bool start, PluginDef *p) {
     ConvolverMonoAdapter& self = *static_cast<ConvolverMonoAdapter*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (start) {
-	if (self.activated && self.conv.is_runnable()) {
-	    return 0;
-	}
+        if (self.activated && self.conv.is_runnable()) {
+            return 0;
+        }
     } else {
-	if (!self.activated) {
-	    return 0;
-	}
+        if (!self.activated) {
+            return 0;
+        }
     }
     self.activated = start;
     if (start) {
-	if (!self.conv_start()) {
-	    return -1;
-	}
+        if (!self.conv_start()) {
+            return -1;
+        }
     } else {
-	self.conv.stop_process();
+        self.conv.stop_process();
     }
     return 0;
 }
@@ -792,7 +792,7 @@ int ConvolverMonoAdapter::activate(bool start, PluginDef *p) {
 //static
 int ConvolverMonoAdapter::jconv_load_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
-	builder.load_glade_file("jconv_ui.glade");
+    builder.load_glade_file("jconv_ui.glade");
         return 0;
     } else if (format & UI_FORM_STACK) {
         //static gx_jconv::IRWindow *irw = gx_jconv::IRWindow::create(
@@ -858,7 +858,7 @@ BaseConvolver::BaseConvolver(EngineControl& engine_, sigc::slot<void> sync_, gx_
     activate_plugin = activate;
     plugin = this;
     engine.signal_buffersize_change().connect(
-	sigc::mem_fun(*this, &BaseConvolver::change_buffersize));
+    sigc::mem_fun(*this, &BaseConvolver::change_buffersize));
 }
 
 BaseConvolver::~BaseConvolver() {
@@ -869,11 +869,11 @@ void BaseConvolver::change_buffersize(unsigned int bufsize) {
     boost::mutex::scoped_lock lock(activate_mutex);
     conv.set_buffersize(bufsize);
     if (activated) {
-	if (!bufsize) {
-	    conv.stop_process();
-	} else {
-	    start(true);
-	}
+        if (!bufsize) {
+            conv.stop_process();
+        } else {
+            start(true);
+        }
     }
 }
 
@@ -882,13 +882,13 @@ void BaseConvolver::init(unsigned int samplingFreq, PluginDef *p) {
     boost::mutex::scoped_lock lock(self.activate_mutex);
     self.conv.set_samplerate(samplingFreq);
     if (self.activated) {
-	self.start(true);
+        self.start(true);
     }
 }
 
 bool BaseConvolver::check_update_timeout() {
     if (!activated || !plugin.get_on_off()) {
-	return false;
+        return false;
     }
     check_update();
     return true;
@@ -898,23 +898,23 @@ int BaseConvolver::activate(bool start, PluginDef *p) {
     BaseConvolver& self = *static_cast<BaseConvolver*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (start) {
-	if (!self.conv.get_buffersize()) {
-	    start = false;
-	}
+        if (!self.conv.get_buffersize()) {
+            start = false;
+        }
     }
     if (start == self.activated) {
-	return 0;
+        return 0;
     }
     if (start) {
-	if (!self.start()) {
-	    return -1;
-	}
-	self.update_conn = Glib::signal_timeout().connect(
-	    sigc::mem_fun(self, &BaseConvolver::check_update_timeout), 200);
+        if (!self.start()) {
+            return -1;
+        }
+        self.update_conn = Glib::signal_timeout().connect(
+            sigc::mem_fun(self, &BaseConvolver::check_update_timeout), 200);
     } else {
-	self.conv.stop_process();
+        self.conv.stop_process();
     }
-    self.activated = start;
+        self.activated = start;
     return 0;
 }
 
@@ -945,7 +945,7 @@ FixedBaseConvolver::FixedBaseConvolver(EngineControl& engine_, sigc::slot<void> 
     activate_plugin = activate;
     plugin = this;
     engine.signal_buffersize_change().connect(
-	sigc::mem_fun(*this, &FixedBaseConvolver::change_buffersize));
+    sigc::mem_fun(*this, &FixedBaseConvolver::change_buffersize));
 }
 
 FixedBaseConvolver::~FixedBaseConvolver() {
@@ -957,11 +957,11 @@ void FixedBaseConvolver::change_buffersize(unsigned int bufsize) {
     buffersize = bufsize;
     conv.set_buffersize(static_cast<int>(ceil((bufsize*bz))));
     if (activated) {
-	if (!bufsize) {
-	    conv.stop_process();
-	} else {
-	    start(true);
-	}
+        if (!bufsize) {
+            conv.stop_process();
+        } else {
+            start(true);
+        }
     }
 }
 
@@ -973,13 +973,13 @@ void FixedBaseConvolver::init(unsigned int samplingFreq, PluginDef *p) {
     self.conv.set_buffersize(static_cast<int>(ceil((self.buffersize*self.bz))));
     self.conv.set_samplerate(self.bz*self.SamplingFreq);
     if (self.activated) {
-	self.start(true);
+        self.start(true);
     }
 }
 
 bool FixedBaseConvolver::check_update_timeout() {
     if (!activated || !plugin.get_on_off()) {
-	return false;
+        return false;
     }
     check_update();
     return true;
@@ -989,23 +989,23 @@ int FixedBaseConvolver::activate(bool start, PluginDef *p) {
     FixedBaseConvolver& self = *static_cast<FixedBaseConvolver*>(p);
     boost::mutex::scoped_lock lock(self.activate_mutex);
     if (start) {
-	if (!self.conv.get_buffersize()) {
-	    start = false;
-	}
+        if (!self.conv.get_buffersize()) {
+            start = false;
+        }
     }
     if (start == self.activated) {
-	return 0;
+        return 0;
     }
     if (start) {
-	if (!self.start()) {
-	    return -1;
-	}
-	self.update_conn = Glib::signal_timeout().connect(
-	    sigc::mem_fun(self, &FixedBaseConvolver::check_update_timeout), 200);
+        if (!self.start()) {
+            return -1;
+        }
+        self.update_conn = Glib::signal_timeout().connect(
+            sigc::mem_fun(self, &FixedBaseConvolver::check_update_timeout), 200);
     } else {
-	self.conv.stop_process();
+        self.conv.stop_process();
     }
-    self.activated = start;
+        self.activated = start;
     return 0;
 }
 
@@ -1062,7 +1062,7 @@ static const unsigned int cab_table_size = sizeof(cab_table) / sizeof(cab_table[
 
 static CabEntry& getCabEntry(unsigned int n) {
     if (n >= cab_table_size) {
-	n = cab_table_size - 1;
+        n = cab_table_size - 1;
     }
     return cab_table[n];
 }
@@ -1073,23 +1073,23 @@ static const float no_sum = 1e10;
 
 static int cab_load_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
-	builder.load_glade_file("cabinet_ui.glade");
-    return 0;
+        builder.load_glade_file("cabinet_ui.glade");
+        return 0;
     } else if (format & UI_FORM_STACK) {
     builder.openHorizontalhideBox("");
     builder.create_selector_no_caption("cab.select");
     builder.closeBox();
     builder.openVerticalBox("");
     {
-	builder.openHorizontalBox("");
-	{
-	    builder.insertSpacer();
-	    builder.create_selector_no_caption("cab.select");
-	    builder.create_small_rackknobr("cab.bass", "Bass");
-	    builder.create_small_rackknobr("cab.treble", "Treble");
-	    builder.create_mid_rackknob("cab.Level", "Level");
-	}
-	builder.closeBox();
+    builder.openHorizontalBox("");
+    {
+        builder.insertSpacer();
+        builder.create_selector_no_caption("cab.select");
+        builder.create_small_rackknobr("cab.bass", "Bass");
+        builder.create_small_rackknobr("cab.treble", "Treble");
+        builder.create_mid_rackknob("cab.Level", "Level");
+    }
+    builder.closeBox();
     }
     builder.closeBox();
     return 0;
@@ -1112,9 +1112,9 @@ CabinetConvolver::CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
     impf(),
     smp() {
     for (unsigned int i = 0; i < cab_table_size; ++i) {
-	CabEntry& cab = getCabEntry(i);
-	cab_names[i].value_id = cab.value_id;
-	cab_names[i].value_label = cab.value_label;
+        CabEntry& cab = getCabEntry(i);
+        cab_names[i].value_id = cab.value_id;
+        cab_names[i].value_label = cab.value_label;
     }
     cab_names[cab_table_size].value_id = 0;
     cab_names[cab_table_size].value_label = 0;
@@ -1133,31 +1133,31 @@ CabinetConvolver::~CabinetConvolver() {
 bool CabinetConvolver::do_update() {
     bool configure = cabinet_changed();
     if (conv.is_runnable()) {
-	conv.set_not_runnable();
-	sync();
-	conv.stop_process();
+        conv.set_not_runnable();
+        sync();
+        conv.stop_process();
     }
     CabDesc& cab = *getCabEntry(cabinet).data;
     if (current_cab == -1) {
-	unsigned int sr = getSamplingFreq();
-	unsigned int sru = 96000;
-	unsigned int fact = sru/sr;
-	
-	smp.setup(sr, fact*sr);
-	impf.init(cab.ir_sr);
+        unsigned int sr = getSamplingFreq();
+        unsigned int sru = 96000;
+        unsigned int fact = sru/sr;
+        
+        smp.setup(sr, fact*sr);
+        impf.init(cab.ir_sr);
     }
     float cab_irdata_c[cab.ir_count];
     impf.clear_state_f();
     impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
     while (!conv.checkstate());
     if (configure) {
-	if (!conv.configure(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
-	    return false;
-	}
+        if (!conv.configure(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+            return false;
+        }
     } else {
-	if (!conv.update(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
-	    return false;
-	}
+        if (!conv.update(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+            return false;
+        }
     }
     update_cabinet();
     update_sum();
@@ -1166,33 +1166,33 @@ bool CabinetConvolver::do_update() {
 
 bool CabinetConvolver::start(bool force) {
     if (force) {
-	current_cab = -1;
+        current_cab = -1;
     }
     if (cabinet_changed() || sum_changed()) {
-	return do_update();
+        return do_update();
     } else {
-	while (!conv.checkstate());
-	if (!conv.is_runnable()) {
-	    return conv_start();
-	}
-	return true;
+        while (!conv.checkstate());
+        if (!conv.is_runnable()) {
+            return conv_start();
+        }
+        return true;
     }
 }
 
 void CabinetConvolver::check_update() {
     if (cabinet_changed() || sum_changed()) {
-	do_update();
+        do_update();
     }
 }
 
 void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, PluginDef *p) {
     CabinetConvolver& self = *static_cast<CabinetConvolver*>(p);
-	FAUSTFLOAT buf[self.smp.max_out_count(count)];
-	int ReCount = self.smp.up(count, output0, buf);
+    FAUSTFLOAT buf[self.smp.max_out_count(count)];
+    int ReCount = self.smp.up(count, output0, buf);
     if (!self.conv.compute(ReCount,buf)) {
-	self.engine.overload(EngineControl::ov_Convolver, "cab");
+        self.engine.overload(EngineControl::ov_Convolver, "cab");
     }
-	self.smp.down(buf, output0);
+    self.smp.down(buf, output0);
 }
 
 int CabinetConvolver::register_cab(const ParamReg& reg) {
@@ -1210,7 +1210,7 @@ int CabinetConvolver::register_cab(const ParamReg& reg) {
 
 static int cab_load_stereo_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
-	builder.load_glade_file("cabinet_stereo_ui.glade");
+        builder.load_glade_file("cabinet_stereo_ui.glade");
     return 0;
     } else if (format & UI_FORM_STACK) {
     builder.openHorizontalhideBox("");
@@ -1218,15 +1218,15 @@ static int cab_load_stereo_ui(const UiBuilder& builder, int format) {
     builder.closeBox();
     builder.openVerticalBox("");
     {
-	builder.openHorizontalBox("");
-	{
-	    builder.insertSpacer();
-	    builder.create_selector_no_caption("cab_st.select");
-	    builder.create_small_rackknobr("cab_st.bass", "Bass");
-	    builder.create_small_rackknobr("cab_st.treble", "Treble");
-	    builder.create_mid_rackknob("cab_st.Level", "Level");
-	}
-	builder.closeBox();
+    builder.openHorizontalBox("");
+    {
+        builder.insertSpacer();
+        builder.create_selector_no_caption("cab_st.select");
+        builder.create_small_rackknobr("cab_st.bass", "Bass");
+        builder.create_small_rackknobr("cab_st.treble", "Treble");
+        builder.create_mid_rackknob("cab_st.Level", "Level");
+    }
+    builder.closeBox();
     }
     builder.closeBox();
     return 0;
@@ -1250,9 +1250,9 @@ CabinetStereoConvolver::CabinetStereoConvolver(EngineControl& engine, sigc::slot
     smp(),
     smps() {
     for (unsigned int i = 0; i < cab_table_size; ++i) {
-	CabEntry& cab = getCabEntry(i);
-	cab_names[i].value_id = cab.value_id;
-	cab_names[i].value_label = cab.value_label;
+        CabEntry& cab = getCabEntry(i);
+        cab_names[i].value_id = cab.value_id;
+        cab_names[i].value_label = cab.value_label;
     }
     cab_names[cab_table_size].value_id = 0;
     cab_names[cab_table_size].value_label = 0;
@@ -1271,32 +1271,32 @@ CabinetStereoConvolver::~CabinetStereoConvolver() {
 bool CabinetStereoConvolver::do_update() {
     bool configure = cabinet_changed();
     if (conv.is_runnable()) {
-	conv.set_not_runnable();
-	sync();
-	conv.stop_process();
+        conv.set_not_runnable();
+        sync();
+        conv.stop_process();
     }
     CabDesc& cab = *getCabEntry(cabinet).data;
     if (current_cab == -1) {
-	unsigned int sr = getSamplingFreq();
-	unsigned int sru = 96000;
-	unsigned int fact = sru/sr;
-	
-	smp.setup(sr, fact*sr);
-	smps.setup(sr, fact*sr);
-	impf.init(cab.ir_sr);
+        unsigned int sr = getSamplingFreq();
+        unsigned int sru = 96000;
+        unsigned int fact = sru/sr;
+        
+        smp.setup(sr, fact*sr);
+        smps.setup(sr, fact*sr);
+        impf.init(cab.ir_sr);
     }
     float cab_irdata_c[cab.ir_count];
     impf.clear_state_f();
     impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
     while (!conv.checkstate());
     if (configure) {
-	if (!conv.configure_stereo(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
-	    return false;
-	}
+        if (!conv.configure_stereo(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+            return false;
+        }
     } else {
-	if (!conv.update_stereo(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
-	    return false;
-	}
+        if (!conv.update_stereo(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+            return false;
+        }
     }
     update_cabinet();
     update_sum();
@@ -1305,36 +1305,36 @@ bool CabinetStereoConvolver::do_update() {
 
 bool CabinetStereoConvolver::start(bool force) {
     if (force) {
-	current_cab = -1;
+        current_cab = -1;
     }
     if (cabinet_changed() || sum_changed()) {
-	return do_update();
+        return do_update();
     } else {
-	while (!conv.checkstate());
-	if (!conv.is_runnable()) {
-	    return conv_start();
-	}
-	return true;
+        while (!conv.checkstate());
+        if (!conv.is_runnable()) {
+            return conv_start();
+        }
+        return true;
     }
 }
 
 void CabinetStereoConvolver::check_update() {
     if (cabinet_changed() || sum_changed()) {
-	do_update();
+        do_update();
     }
 }
 
 void CabinetStereoConvolver::run_cab_conf(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p) {
     CabinetStereoConvolver& self = *static_cast<CabinetStereoConvolver*>(p);
-	FAUSTFLOAT buf[self.smp.max_out_count(count)];
-	FAUSTFLOAT buf1[self.smps.max_out_count(count)];
-	int ReCount = self.smp.up(count, output0, buf);
-	self.smps.up(count, output1, buf1);
+    FAUSTFLOAT buf[self.smp.max_out_count(count)];
+    FAUSTFLOAT buf1[self.smps.max_out_count(count)];
+    int ReCount = self.smp.up(count, output0, buf);
+    self.smps.up(count, output1, buf1);
     if (!self.conv.compute_stereo(ReCount,buf,buf1)) {
-	self.engine.overload(EngineControl::ov_Convolver, "cab_st");
+        self.engine.overload(EngineControl::ov_Convolver, "cab_st");
     }
-	self.smp.down(buf, output0);
-	self.smps.down(buf1, output1);
+    self.smp.down(buf, output0);
+    self.smps.down(buf1, output1);
 }
 
 int CabinetStereoConvolver::register_cab(const ParamReg& reg) {
@@ -1387,7 +1387,7 @@ static const unsigned int pre_table_size = sizeof(pre_table) / sizeof(pre_table[
 
 static PreEntry& getPreEntry(unsigned int n) {
     if (n >= pre_table_size) {
-	n = pre_table_size - 1;
+        n = pre_table_size - 1;
     }
     return pre_table[n];
 }
@@ -1396,7 +1396,7 @@ static PreEntry& getPreEntry(unsigned int n) {
 
 static int pre_load_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
-	builder.load_glade_file("ampimpulse_ui.glade");
+        builder.load_glade_file("ampimpulse_ui.glade");
     return 0;
     } else if (format & UI_FORM_STACK) {
     builder.openHorizontalhideBox("");
@@ -1404,20 +1404,20 @@ static int pre_load_ui(const UiBuilder& builder, int format) {
     builder.closeBox();
     builder.openVerticalBox("");
     {
-	builder.openHorizontalBox("");
-	{
-	    builder.insertSpacer();
-	    builder.create_selector_no_caption("pre.select");
-	    builder.create_small_rackknobr("pre.bass", "Bass");
-	    builder.create_small_rackknobr("pre.treble", "Treble");
-	    builder.create_mid_rackknob("pre.Level", "Level");
-	}
-	builder.closeBox();
+    builder.openHorizontalBox("");
+    {
+        builder.insertSpacer();
+        builder.create_selector_no_caption("pre.select");
+        builder.create_small_rackknobr("pre.bass", "Bass");
+        builder.create_small_rackknobr("pre.treble", "Treble");
+        builder.create_mid_rackknob("pre.Level", "Level");
+    }
+    builder.closeBox();
     }
     builder.closeBox();
     return 0;
-	} else {
-	return -1;
+    } else {
+    return -1;
     }
 
 }
@@ -1435,9 +1435,9 @@ PreampConvolver::PreampConvolver(EngineControl& engine, sigc::slot<void> sync,
     impf(),
     smp() {
     for (unsigned int i = 0; i < pre_table_size; ++i) {
-	PreEntry& pre = getPreEntry(i);
-	pre_names[i].value_id = pre.value_id;
-	pre_names[i].value_label = pre.value_label;
+        PreEntry& pre = getPreEntry(i);
+        pre_names[i].value_id = pre.value_id;
+        pre_names[i].value_label = pre.value_label;
     }
     pre_names[pre_table_size].value_id = 0;
     pre_names[pre_table_size].value_label = 0;
@@ -1456,31 +1456,31 @@ PreampConvolver::~PreampConvolver() {
 bool PreampConvolver::do_update() {
     bool configure = preamp_changed();
     if (conv.is_runnable()) {
-	conv.set_not_runnable();
-	sync();
-	conv.stop_process();
+        conv.set_not_runnable();
+        sync();
+        conv.stop_process();
     }
     PreDesc& pre = *getPreEntry(preamp).data;
     if (current_pre == -1) {
-	unsigned int sr = getSamplingFreq();
-	unsigned int sru = 96000;
-	unsigned int fact = sru/sr;
-	
-	smp.setup(sr, fact*sr);
-	impf.init(pre.ir_sr);
+        unsigned int sr = getSamplingFreq();
+        unsigned int sru = 96000;
+        unsigned int fact = sru/sr;
+        
+        smp.setup(sr, fact*sr);
+        impf.init(pre.ir_sr);
     }
     float pre_irdata_c[pre.ir_count];
     impf.clear_state_f();
     impf.compute(pre.ir_count,pre.ir_data,pre_irdata_c);
     while (!conv.checkstate());
     if (configure) {
-	if (!conv.configure(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
-	    return false;
-	}
+        if (!conv.configure(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+            return false;
+        }
     } else {
-	if (!conv.update(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
-	    return false;
-	}
+        if (!conv.update(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+            return false;
+        }
     }
     update_preamp();
     update_sum();
@@ -1489,33 +1489,33 @@ bool PreampConvolver::do_update() {
 
 bool PreampConvolver::start(bool force) {
     if (force) {
-	current_pre = -1;
+        current_pre = -1;
     }
     if (preamp_changed() || sum_changed()) {
-	return do_update();
+        return do_update();
     } else {
-	while (!conv.checkstate());
-	if (!conv.is_runnable()) {
-	    return conv_start();
-	}
-	return true;
+        while (!conv.checkstate());
+        if (!conv.is_runnable()) {
+            return conv_start();
+        }
+        return true;
     }
 }
 
 void PreampConvolver::check_update() {
     if (preamp_changed() || sum_changed()) {
-	do_update();
+        do_update();
     }
 }
 
 void PreampConvolver::run_pre_conf(int count, float *input0, float *output0, PluginDef *p) {
     PreampConvolver& self = *static_cast<PreampConvolver*>(p);
-	FAUSTFLOAT buf[self.smp.max_out_count(count)];
-	int ReCount = self.smp.up(count, output0, buf);
-     if (!self.conv.compute(ReCount, buf)) {
-	self.engine.overload(EngineControl::ov_Convolver, "pre");
+    FAUSTFLOAT buf[self.smp.max_out_count(count)];
+    int ReCount = self.smp.up(count, output0, buf);
+    if (!self.conv.compute(ReCount, buf)) {
+        self.engine.overload(EngineControl::ov_Convolver, "pre");
     }
-	self.smp.down(buf, output0);
+    self.smp.down(buf, output0);
 }
 
 int PreampConvolver::register_pre(const ParamReg& reg) {
@@ -1533,7 +1533,7 @@ int PreampConvolver::register_pre(const ParamReg& reg) {
 
 static int pre_load_stereo_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
-	builder.load_glade_file("ampimpulse_st_ui.glade");
+        builder.load_glade_file("ampimpulse_st_ui.glade");
     return 0;
     } else if (format & UI_FORM_STACK) {
     builder.openHorizontalhideBox("");
@@ -1541,15 +1541,15 @@ static int pre_load_stereo_ui(const UiBuilder& builder, int format) {
     builder.closeBox();
     builder.openVerticalBox("");
     {
-	builder.openHorizontalBox("");
-	{
-	    builder.insertSpacer();
-	    builder.create_selector_no_caption("pre_st.select");
-	    builder.create_small_rackknobr("pre_st.bass", "Bass");
-	    builder.create_small_rackknobr("pre_st.treble", "Treble");
-	    builder.create_mid_rackknob("pre_st.Level", "Level");
-	}
-	builder.closeBox();
+    builder.openHorizontalBox("");
+    {
+        builder.insertSpacer();
+        builder.create_selector_no_caption("pre_st.select");
+        builder.create_small_rackknobr("pre_st.bass", "Bass");
+        builder.create_small_rackknobr("pre_st.treble", "Treble");
+        builder.create_mid_rackknob("pre_st.Level", "Level");
+    }
+    builder.closeBox();
     }
     builder.closeBox();
     return 0;
@@ -1573,9 +1573,9 @@ PreampStereoConvolver::PreampStereoConvolver(EngineControl& engine, sigc::slot<v
     smp(),
     smps() {
     for (unsigned int i = 0; i < pre_table_size; ++i) {
-	PreEntry& pre = getPreEntry(i);
-	pre_names[i].value_id = pre.value_id;
-	pre_names[i].value_label = pre.value_label;
+        PreEntry& pre = getPreEntry(i);
+        pre_names[i].value_id = pre.value_id;
+        pre_names[i].value_label = pre.value_label;
     }
     pre_names[pre_table_size].value_id = 0;
     pre_names[pre_table_size].value_label = 0;
@@ -1594,32 +1594,32 @@ PreampStereoConvolver::~PreampStereoConvolver() {
 bool PreampStereoConvolver::do_update() {
     bool configure = preamp_changed();
     if (conv.is_runnable()) {
-	conv.set_not_runnable();
-	sync();
-	conv.stop_process();
+        conv.set_not_runnable();
+        sync();
+        conv.stop_process();
     }
     PreDesc& pre = *getPreEntry(preamp).data;
     if (current_pre == -1) {
-	unsigned int sr = getSamplingFreq();
-	unsigned int sru = 96000;
-	unsigned int fact = sru/sr;
-	
-	smp.setup(sr, fact*sr);
-	smps.setup(sr, fact*sr);
-	impf.init(pre.ir_sr);
+        unsigned int sr = getSamplingFreq();
+        unsigned int sru = 96000;
+        unsigned int fact = sru/sr;
+        
+        smp.setup(sr, fact*sr);
+        smps.setup(sr, fact*sr);
+        impf.init(pre.ir_sr);
     }
     float pre_irdata_c[pre.ir_count];
     impf.clear_state_f();
     impf.compute(pre.ir_count,pre.ir_data,pre_irdata_c);
     while (!conv.checkstate());
     if (configure) {
-	if (!conv.configure_stereo(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
-	    return false;
-	}
+        if (!conv.configure_stereo(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+            return false;
+        }
     } else {
-	if (!conv.update_stereo(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
-	    return false;
-	}
+        if (!conv.update_stereo(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+            return false;
+        }
     }
     update_preamp();
     update_sum();
@@ -1628,36 +1628,36 @@ bool PreampStereoConvolver::do_update() {
 
 bool PreampStereoConvolver::start(bool force) {
     if (force) {
-	current_pre = -1;
+        current_pre = -1;
     }
     if (preamp_changed() || sum_changed()) {
-	return do_update();
+        return do_update();
     } else {
-	while (!conv.checkstate());
-	if (!conv.is_runnable()) {
-	    return conv_start();
-	}
-	return true;
+    while (!conv.checkstate());
+    if (!conv.is_runnable()) {
+        return conv_start();
+    }
+    return true;
     }
 }
 
 void PreampStereoConvolver::check_update() {
     if (preamp_changed() || sum_changed()) {
-	do_update();
+        do_update();
     }
 }
 
 void PreampStereoConvolver::run_pre_conf(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p) {
     PreampStereoConvolver& self = *static_cast<PreampStereoConvolver*>(p);
-	FAUSTFLOAT buf[self.smp.max_out_count(count)];
-	FAUSTFLOAT buf1[self.smps.max_out_count(count)];
-	int ReCount = self.smp.up(count, output0, buf);
-	self.smps.up(count, output1, buf1);
+    FAUSTFLOAT buf[self.smp.max_out_count(count)];
+    FAUSTFLOAT buf1[self.smps.max_out_count(count)];
+    int ReCount = self.smp.up(count, output0, buf);
+    self.smps.up(count, output1, buf1);
     if (!self.conv.compute_stereo(ReCount,buf,buf1)) {
-	self.engine.overload(EngineControl::ov_Convolver, "pre_st");
+        self.engine.overload(EngineControl::ov_Convolver, "pre_st");
     }
-	self.smp.down(buf, output0);
-	self.smps.down(buf1, output1);
+    self.smp.down(buf, output0);
+    self.smps.down(buf1, output1);
 }
 
 int PreampStereoConvolver::register_pre(const ParamReg& reg) {
@@ -1677,12 +1677,12 @@ int PreampStereoConvolver::register_pre(const ParamReg& reg) {
 #include "faust/presence_level.cc"
 
 ContrastConvolver::ContrastConvolver(EngineControl& engine, sigc::slot<void> sync,
-    gx_resample::BufferResampler& resamp):
-    FixedBaseConvolver(engine, sync, resamp),
-    level(0),
-    sum(no_sum),
-    presl(),
-    smp() {
+    gx_resample::BufferResampler& resamp)
+    : FixedBaseConvolver(engine, sync, resamp),
+      level(0),
+      sum(no_sum),
+      presl(),
+      smp() {
     id = "con";
     name = N_("Contrast convolver");
     mono_audio = run_contrast;
@@ -1695,29 +1695,29 @@ ContrastConvolver::~ContrastConvolver() {
 bool ContrastConvolver::do_update() {
     bool configure = (sum == no_sum);
     if (conv.is_runnable()) {
-	conv.set_not_runnable();
-	sync();
-	conv.stop_process();
+        conv.set_not_runnable();
+        sync();
+        conv.stop_process();
     }
     if (configure) {
-	unsigned int sr = getSamplingFreq();
-	unsigned int sru = 96000;
-	unsigned int fact = sru/sr;
-	
-	smp.setup(sr, fact*sr);
-	presl.init(contrast_ir_desc.ir_sr);
+        unsigned int sr = getSamplingFreq();
+        unsigned int sru = 96000;
+        unsigned int fact = sru/sr;
+        
+        smp.setup(sr, fact*sr);
+        presl.init(contrast_ir_desc.ir_sr);
     }
     float contrast_irdata_c[contrast_ir_desc.ir_count];
     presl.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data,contrast_irdata_c);
     while (!conv.checkstate());
     if (configure) {
-	if (!conv.configure(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
-	    return false;
-	}
+        if (!conv.configure(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
+            return false;
+        }
     } else {
-	if (!conv.update(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
-	    return false;
-	}
+        if (!conv.update(contrast_ir_desc.ir_count, contrast_irdata_c, contrast_ir_desc.ir_sr)) {
+            return false;
+        }
     }
     update_sum();
     return conv_start();
@@ -1725,22 +1725,22 @@ bool ContrastConvolver::do_update() {
 
 bool ContrastConvolver::start(bool force) {
     if (force) {
-	sum = no_sum;
+        sum = no_sum;
     }
     if (sum_changed()) {
-	return do_update();
+        return do_update();
     } else {
-	while (!conv.checkstate());
-	if (!conv.is_runnable()) {
-	    return conv_start();
-	}
-	return true;
+        while (!conv.checkstate());
+        if (!conv.is_runnable()) {
+            return conv_start();
+        }
+        return true;
     }
 }
 
 void ContrastConvolver::check_update() {
     if (sum_changed()) {
-	do_update();
+        do_update();
     }
 }
 
@@ -1753,12 +1753,12 @@ int ContrastConvolver::register_con(const ParamReg& reg) {
 
 void ContrastConvolver::run_contrast(int count, float *input0, float *output0, PluginDef *p) {
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(p);
-	FAUSTFLOAT buf[self.smp.max_out_count(count)];
-	int ReCount = self.smp.up(count, output0, buf);
+    FAUSTFLOAT buf[self.smp.max_out_count(count)];
+    int ReCount = self.smp.up(count, output0, buf);
     if (!self.conv.compute(ReCount,buf)) {
-	self.engine.overload(EngineControl::ov_Convolver, "contrast");
+        self.engine.overload(EngineControl::ov_Convolver, "contrast");
     }
-	self.smp.down(buf, output0);
+    self.smp.down(buf, output0);
 }
 
 /****************************************************************
@@ -1767,21 +1767,21 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
 Plugin Directout::directoutput = Plugin();
 
 Directout::Directout(EngineControl& engine_, sigc::slot<void> sync_)
-	: PluginDef(),
+    : PluginDef(),
       outdata(0),
-	  engine(engine_),
-	  sync(sync_),
-	  mem_allocated(false),
-	  plugin() {
+      engine(engine_),
+      sync(sync_),
+      mem_allocated(false),
+      plugin() {
     directoutput.set_pdef(this);
-	version = PLUGINDEF_VERSION;
-	flags = 0;
-	id = "dout";
-	name = N_("Directoutputr");
-	stereo_audio = compute_static;
-	set_samplerate = init_static;
-	activate_plugin = 0;
-	plugin = this;
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "dout";
+    name = N_("Directoutputr");
+    stereo_audio = compute_static;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    plugin = this;
     engine.signal_buffersize_change().connect(
     sigc::mem_fun(*this, &Directout::change_buffersize));
 }
@@ -1792,14 +1792,14 @@ Directout::~Directout() {
 
 inline void Directout::init(unsigned int samplingFreq)
 {
-	bsize = int(engine.get_buffersize());
-	fSamplingFreq = samplingFreq;
-	mem_alloc();
+    bsize = int(engine.get_buffersize());
+    fSamplingFreq = samplingFreq;
+    mem_alloc();
 }
 
 void Directout::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-	static_cast<Directout*>(p)->init(samplingFreq);
+    static_cast<Directout*>(p)->init(samplingFreq);
 }
 
 void Directout::mem_alloc()
@@ -1854,7 +1854,7 @@ void Directout::set_data(bool dfill) {
 
 void __rt_func Directout::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginDef *p)
 {
-	static_cast<Directout*>(p)->compute(count, input0, input1, output0, output1);
+    static_cast<Directout*>(p)->compute(count, input0, input1, output0, output1);
 }
 
 
@@ -1916,12 +1916,12 @@ void Drumout::set_plugin(Plugin p) {
 }
 
 static const char* seq_groups[] = {
-	"hat_closed.dsp", N_("DrumSequencer"),
-	"kick.dsp", N_("DrumSequencer"),
-	"snare.dsp", N_("DrumSequencer"),
-	"tom.dsp", N_("DrumSequencer"),
-	"sequencer", N_("DrumSequencer"),
-	0
+    "hat_closed.dsp", N_("DrumSequencer"),
+    "kick.dsp", N_("DrumSequencer"),
+    "snare.dsp", N_("DrumSequencer"),
+    "tom.dsp", N_("DrumSequencer"),
+    "sequencer", N_("DrumSequencer"),
+    0
 };
 
 DrumSequencer::DrumSequencer(EngineControl& engine_, sigc::slot<void> sync_)
@@ -1976,25 +1976,25 @@ DrumSequencer::~DrumSequencer() {
 
 inline void DrumSequencer::init(unsigned int samplingFreq)
 {
-	bsize = int(engine.get_buffersize());
-	fSamplingFreq = samplingFreq;
-	counter = 0;
-	step = 0;
-	step_orig = 0;
-	fSlow1 = 0.0;
-	fSlow3 = 0.0;
-	fSlow5 = 0.0;
-	fSlow7 = 0.0;
-	fSlow18 = 150.0;
-	position = 0.0;
-	mem_alloc();
-	drums.init(samplingFreq);
+    bsize = int(engine.get_buffersize());
+    fSamplingFreq = samplingFreq;
+    counter = 0;
+    step = 0;
+    step_orig = 0;
+    fSlow1 = 0.0;
+    fSlow3 = 0.0;
+    fSlow5 = 0.0;
+    fSlow7 = 0.0;
+    fSlow18 = 150.0;
+    position = 0.0;
+    mem_alloc();
+    drums.init(samplingFreq);
     Drumout::set_plugin(plugin);
 }
 
 void DrumSequencer::init_static(unsigned int samplingFreq, PluginDef *p)
 {
-	static_cast<DrumSequencer*>(p)->init(samplingFreq);
+    static_cast<DrumSequencer*>(p)->init(samplingFreq);
 }
 
 void DrumSequencer::mem_alloc()
@@ -2036,38 +2036,38 @@ void DrumSequencer::change_buffersize(unsigned int size)
 }
 
 int DrumSequencer::min_seq_size(){
-	int i = min(min(min(Vectom.size(),Veckick.size()),min(Vechat.size(),Vecsnare.size())),min(Vectom1.size(),Vectom2.size()));
-	return i-1;
+    int i = min(min(min(Vectom.size(),Veckick.size()),min(Vechat.size(),Vecsnare.size())),min(Vectom1.size(),Vectom2.size()));
+    return i-1;
 }
 
 void DrumSequencer::reset_tom() {
-	Vectom = tomset.getseqline() ;
-	seq_size = min_seq_size();
+    Vectom = tomset.getseqline() ;
+    seq_size = min_seq_size();
 }
 
 void DrumSequencer::reset_tom1() {
-	Vectom1 = tomset1.getseqline() ;
-	seq_size = min_seq_size();
+    Vectom1 = tomset1.getseqline() ;
+    seq_size = min_seq_size();
 }
 
 void DrumSequencer::reset_tom2() {
-	Vectom2 = tomset2.getseqline() ;
-	seq_size = min_seq_size();
+    Vectom2 = tomset2.getseqline() ;
+    seq_size = min_seq_size();
 }
 
 void DrumSequencer::reset_kick() {
-	Veckick = kickset.getseqline() ;
-	seq_size = min_seq_size();
+    Veckick = kickset.getseqline() ;
+    seq_size = min_seq_size();
 }
 
 void DrumSequencer::reset_hat() {
-	Vechat = hatset.getseqline() ;
-	seq_size = min_seq_size();
+    Vechat = hatset.getseqline() ;
+    seq_size = min_seq_size();
 }
 
 void DrumSequencer::reset_snare() {
-	Vecsnare = snareset.getseqline() ;
-	seq_size = min_seq_size();
+    Vecsnare = snareset.getseqline() ;
+    seq_size = min_seq_size();
 }
 
 // hat = 1600Hz
@@ -2078,48 +2078,48 @@ void DrumSequencer::reset_snare() {
 
 void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow15 = (60.0/double(fsliderbpm*ftact))*fSamplingFreq;
-	counter += count;
-	int iSlow15 = (int)fSlow15;
-	// beat
-	if (counter >= iSlow15) {
-		int istep = (int)step;
-		fSlow1 = double(Vecsnare[istep]);
-		// disable hat when sequencer runs to fast
-		if (iSlow15 > 4800) {
-			fSlow3 = double(Vechat[istep]);
-		}
-		fSlow5 = double(Veckick[istep]);
+    double     fSlow15 = (60.0/double(fsliderbpm*ftact))*fSamplingFreq;
+    counter += count;
+    int iSlow15 = (int)fSlow15;
+    // beat
+    if (counter >= iSlow15) {
+        int istep = (int)step;
+        fSlow1 = double(Vecsnare[istep]);
+        // disable hat when sequencer runs to fast
+        if (iSlow15 > 4800) {
+            fSlow3 = double(Vechat[istep]);
+        }
+        fSlow5 = double(Veckick[istep]);
         // only one tom at time
-		if (Vectom2[istep]) {
-			fSlow7 = double(Vectom2[istep]);
-			fSlow18 = 150.0;
-			fSlow20 = fSlow16;
-		} else if (Vectom1[istep]) {
-			fSlow7 = double(Vectom1[istep]);
-			fSlow18 = 128.0;
-			fSlow20 = fSlow14;
-		} else if(Vectom[istep]) {
-			fSlow7 = double(Vectom[istep]);
-			fSlow18 = 90.0;
-			fSlow20 = fSlow12;
-		}
-		int m = ftact;
-		int r = rand()%(m+1 - (-m))+ (-m);
-		counter = 0; //int(r*fsliderhum);
-		
-		if (step<seq_size) step = fmin(seq_size,fmax(0,step + 1.0 + int(r*fsliderhum)));
-		else step = 0.0;
-		if (step_orig<seq_size) step_orig += 1.0;
-		else step_orig = 0.0;
-		double ph1 = 2300.0/seq_size;
-		position = fmin(2300,fmax(0,(step*ph1)));
-	} else {
-		fSlow1 = 0.0;
-		fSlow3 = 0.0;
-		fSlow5 = 0.0;
-		fSlow7 = 0.0;
-	}
+        if (Vectom2[istep]) {
+            fSlow7 = double(Vectom2[istep]);
+            fSlow18 = 150.0;
+            fSlow20 = fSlow16;
+        } else if (Vectom1[istep]) {
+            fSlow7 = double(Vectom1[istep]);
+            fSlow18 = 128.0;
+            fSlow20 = fSlow14;
+        } else if(Vectom[istep]) {
+            fSlow7 = double(Vectom[istep]);
+            fSlow18 = 90.0;
+            fSlow20 = fSlow12;
+        }
+        int m = ftact;
+        int r = rand()%(m+1 - (-m))+ (-m);
+        counter = 0; //int(r*fsliderhum);
+        
+        if (step<seq_size) step = fmin(seq_size,fmax(0,step + 1.0 + int(r*fsliderhum)));
+        else step = 0.0;
+        if (step_orig<seq_size) step_orig += 1.0;
+        else step_orig = 0.0;
+        double ph1 = 2300.0/seq_size;
+        position = fmin(2300,fmax(0,(step*ph1)));
+    } else {
+        fSlow1 = 0.0;
+        fSlow3 = 0.0;
+        fSlow5 = 0.0;
+        fSlow7 = 0.0;
+    }
     if (int(fSlow22 && mem_allocated)) {
         memcpy(output0, input0, count * sizeof(float));
         drums.compute(count,outdata,outdata);
@@ -2130,87 +2130,87 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
 
 void __rt_func DrumSequencer::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
 {
-	static_cast<DrumSequencer*>(p)->compute(count, input0, output0);
+    static_cast<DrumSequencer*>(p)->compute(count, input0, output0);
 }
 
 int DrumSequencer::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("seq.hat_closed.dsp.gate","","BA","",&fSlow3, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.kick.dsp.gate","","BA","",&fSlow5, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.snare.dsp.gate","","BA","",&fSlow1, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.tom.dsp.gate","","BA","",&fSlow7, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.tom.dsp.Gainf","","SA","",&fSlow20, -2e+01, -6e+01, 4e+01, 0.1, 0);
-	reg.registerFloatVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fSlow12, -2e+01, -6e+01, 4e+01, 0.1, 0);
-	reg.registerFloatVar("seq.tom.dsp.Gain1","","S",N_("Volume level in decibels"),&fSlow14, -2e+01, -6e+01, 4e+01, 0.1, 0);
-	reg.registerFloatVar("seq.tom.dsp.Gain2","","S",N_("Volume level in decibels"),&fSlow16, -2e+01, -6e+01, 4e+01, 0.1, 0);
-	reg.registerFloatVar("seq.tom.dsp.freq","","SA","",&fSlow18, 9e+01, 9e+01, 1.5e+02, 1.0, 0);
-	reg.registerFloatVar("seq.bpm","","S",N_("Beats per Minute"),&fsliderbpm, 120, 24, 360, 1, 0);
-	static const value_pair ftact_values[] = {{"1/4"},{"2/4"},{"3/4"},{"4/4"},{0}};
-	reg.registerFloatVar("seq.tact","","S",N_("select tact"),&ftact, 4.0, 1.0, 4.0, 1.0, ftact_values);
-	reg.registerFloatVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 240.0, 4.0, 0);
-	reg.registerFloatVar("seq.hum","","B",N_("Randomize Sequence"),&fsliderhum, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.npreset","","BO",N_("Load next unit preset"),0, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.ppreset","","BO",N_("Load previous unit preset"),0, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.pos","","SN","",&position, 0.0, 0.0, 2300.0, 1.0, 0);
-	reg.registerFloatVar("seq.step","","SN","",&step, 0.0, 0.0, 240.0, 1.0, 0);
-	reg.registerFloatVar("seq.step_orig","","SN","",&step_orig, 0.0, 0.0, 240.0, 1.0, 0);
-	reg.registerFloatVar("seq.set_step","","BO",N_("Set stepper one Beat back"),0, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.set_fstep","","BO",N_("Set stepper one Beat forward"),0, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.set_sync","","BO",N_("Set stepper back on Beat "),0, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.reset_step","","BO",N_("Set stepper one Start"),0, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.follow","","BA",N_("follow playhead"),0, 0.0, 0.0, 1.0, 1.0, 0);
-	reg.registerFloatVar("seq.direct_out","","BA",N_("bypass the rack for direct output"),&fSlow22, 0.0, 0.0, 1.0, 1.0, 0);
-	for (int i=0; i<24; i++) Vectom.push_back(0);
-	for (int i=0; i<24; i++) Vectom1.push_back(0);
-	for (int i=0; i<24; i++) Vectom2.push_back(0);
-	for (int i=0; i<24; i++) Veckick.push_back(0);
-	for (int i=0; i<24; i++) Vechat.push_back(0);
-	for (int i=0; i<24; i++) Vecsnare.push_back(0);
-	seq_size = min_seq_size();
+    reg.registerFloatVar("seq.hat_closed.dsp.gate","","BA","",&fSlow3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.kick.dsp.gate","","BA","",&fSlow5, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.snare.dsp.gate","","BA","",&fSlow1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.tom.dsp.gate","","BA","",&fSlow7, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.tom.dsp.Gainf","","SA","",&fSlow20, -2e+01, -6e+01, 4e+01, 0.1, 0);
+    reg.registerFloatVar("seq.tom.dsp.Gain","","S",N_("Volume level in decibels"),&fSlow12, -2e+01, -6e+01, 4e+01, 0.1, 0);
+    reg.registerFloatVar("seq.tom.dsp.Gain1","","S",N_("Volume level in decibels"),&fSlow14, -2e+01, -6e+01, 4e+01, 0.1, 0);
+    reg.registerFloatVar("seq.tom.dsp.Gain2","","S",N_("Volume level in decibels"),&fSlow16, -2e+01, -6e+01, 4e+01, 0.1, 0);
+    reg.registerFloatVar("seq.tom.dsp.freq","","SA","",&fSlow18, 9e+01, 9e+01, 1.5e+02, 1.0, 0);
+    reg.registerFloatVar("seq.bpm","","S",N_("Beats per Minute"),&fsliderbpm, 120, 24, 360, 1, 0);
+    static const value_pair ftact_values[] = {{"1/4"},{"2/4"},{"3/4"},{"4/4"},{0}};
+    reg.registerFloatVar("seq.tact","","S",N_("select tact"),&ftact, 4.0, 1.0, 4.0, 1.0, ftact_values);
+    reg.registerFloatVar("seq.asequences","","S",N_("Number of Sequences"),&fsec, 24.0, 24.0, 240.0, 4.0, 0);
+    reg.registerFloatVar("seq.hum","","B",N_("Randomize Sequence"),&fsliderhum, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.npreset","","BO",N_("Load next unit preset"),0, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.ppreset","","BO",N_("Load previous unit preset"),0, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.pos","","SN","",&position, 0.0, 0.0, 2300.0, 1.0, 0);
+    reg.registerFloatVar("seq.step","","SN","",&step, 0.0, 0.0, 240.0, 1.0, 0);
+    reg.registerFloatVar("seq.step_orig","","SN","",&step_orig, 0.0, 0.0, 240.0, 1.0, 0);
+    reg.registerFloatVar("seq.set_step","","BO",N_("Set stepper one Beat back"),0, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.set_fstep","","BO",N_("Set stepper one Beat forward"),0, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.set_sync","","BO",N_("Set stepper back on Beat "),0, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.reset_step","","BO",N_("Set stepper one Start"),0, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.follow","","BA",N_("follow playhead"),0, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("seq.direct_out","","BA",N_("bypass the rack for direct output"),&fSlow22, 0.0, 0.0, 1.0, 1.0, 0);
+    for (int i=0; i<24; i++) Vectom.push_back(0);
+    for (int i=0; i<24; i++) Vectom1.push_back(0);
+    for (int i=0; i<24; i++) Vectom2.push_back(0);
+    for (int i=0; i<24; i++) Veckick.push_back(0);
+    for (int i=0; i<24; i++) Vechat.push_back(0);
+    for (int i=0; i<24; i++) Vecsnare.push_back(0);
+    seq_size = min_seq_size();
         ParamMap& param = engine.get_param();
-	tomp = SeqParameter::insert_param(param, "seq.sequencer.tom", &tomset);
-	tomp1 = SeqParameter::insert_param(param, "seq.sequencer.tom1", &tomset1);
-	tomp2 = SeqParameter::insert_param(param, "seq.sequencer.tom2", &tomset2);
-	snarep = SeqParameter::insert_param(param, "seq.sequencer.snare", &snareset);
-	hatp = SeqParameter::insert_param(param, "seq.sequencer.hat", &hatset);
-	kickp = SeqParameter::insert_param(param, "seq.sequencer.kick", &kickset);
-	tomp->signal_changed().connect(
-	sigc::hide(
-		sigc::mem_fun(this, &DrumSequencer::reset_tom)));
-	tomp1->signal_changed().connect(
-	sigc::hide(
-		sigc::mem_fun(this, &DrumSequencer::reset_tom1)));
-	tomp2->signal_changed().connect(
-	sigc::hide(
-		sigc::mem_fun(this, &DrumSequencer::reset_tom2)));
-	snarep->signal_changed().connect(
-	sigc::hide(
-		sigc::mem_fun(this, &DrumSequencer::reset_snare)));
-	hatp->signal_changed().connect(
-	sigc::hide(
-		sigc::mem_fun(this, &DrumSequencer::reset_hat)));
-	kickp->signal_changed().connect(
-	sigc::hide(
-		sigc::mem_fun(this, &DrumSequencer::reset_kick)));
+    tomp = SeqParameter::insert_param(param, "seq.sequencer.tom", &tomset);
+    tomp1 = SeqParameter::insert_param(param, "seq.sequencer.tom1", &tomset1);
+    tomp2 = SeqParameter::insert_param(param, "seq.sequencer.tom2", &tomset2);
+    snarep = SeqParameter::insert_param(param, "seq.sequencer.snare", &snareset);
+    hatp = SeqParameter::insert_param(param, "seq.sequencer.hat", &hatset);
+    kickp = SeqParameter::insert_param(param, "seq.sequencer.kick", &kickset);
+    tomp->signal_changed().connect(
+    sigc::hide(
+        sigc::mem_fun(this, &DrumSequencer::reset_tom)));
+    tomp1->signal_changed().connect(
+    sigc::hide(
+        sigc::mem_fun(this, &DrumSequencer::reset_tom1)));
+    tomp2->signal_changed().connect(
+    sigc::hide(
+        sigc::mem_fun(this, &DrumSequencer::reset_tom2)));
+    snarep->signal_changed().connect(
+    sigc::hide(
+        sigc::mem_fun(this, &DrumSequencer::reset_snare)));
+    hatp->signal_changed().connect(
+    sigc::hide(
+        sigc::mem_fun(this, &DrumSequencer::reset_hat)));
+    kickp->signal_changed().connect(
+    sigc::hide(
+        sigc::mem_fun(this, &DrumSequencer::reset_kick)));
 
-	drums.register_par(reg);
-	return 0;
+    drums.register_par(reg);
+    return 0;
 }
 
 int DrumSequencer::register_params_static(const ParamReg& reg)
 {
-	return static_cast<DrumSequencer*>(reg.plugin)->register_par(reg);
+    return static_cast<DrumSequencer*>(reg.plugin)->register_par(reg);
 }
 
 void DrumSequencer::del_instance(PluginDef *p)
 {
-	delete static_cast<DrumSequencer*>(p);
+    delete static_cast<DrumSequencer*>(p);
 }
 
 //static
 int DrumSequencer::drum_load_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
-	builder.load_glade_file("drumsequencer_ui.glade");
+        builder.load_glade_file("drumsequencer_ui.glade");
         return 0;
     } else if (format & UI_FORM_STACK) {
         //static gx_seq::SEQWindow *seqw = gx_seq::SEQWindow::create("seq", machine);
@@ -2255,7 +2255,7 @@ int DrumSequencer::drum_load_ui(const UiBuilder& builder, int format) {
 *
 * Modified for guitarix by Hermann Meyer 2014
 *
-* 						The Wide Open License (WOL)
+*                         The Wide Open License (WOL)
 *
 * Permission to use, copy, modify, distribute and sell this software and its
 * documentation for any purpose is hereby granted without fee, provided that
@@ -2496,9 +2496,8 @@ void __rt_func smbPitchShift::compute_static(int count, float *input0, float *ou
 void always_inline smbPitchShift::PitchShift(int count, float *indata, float *outdata)
 {
     
-    if (!ready || count != numSampsToProcess)  {
-        if (indata != outdata)
-        {
+    if (!ready || count != numSampsToProcess) {
+        if (indata != outdata) {
             memcpy(outdata,indata,count*sizeof(float));
         }
         return;
@@ -2509,12 +2508,12 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
     double     fSlow1 = (0.01 * dry);
 
     // collect data for latency compensation
-    for (i = 0; i < count; i++){
+    for (i = 0; i < count; i++) {
         indata2[ii] = indata[i];
         ii++;
     }
     // collect data for fft
-    for (i = 0; i < numSampsToResamp; i++){
+    for (i = 0; i < numSampsToResamp; i++) {
         resampin2[ai] = resampin[i];
         ai++;
     }
@@ -2538,7 +2537,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
         }
         float pitchShift = pow(2., (semitones+tone)*0.0833333333);
         /* main processing loop */
-        for (i = 0; i < fftFrameSize; i++){
+        for (i = 0; i < fftFrameSize; i++) {
 
             /* As long as we have not yet collected enough data just read in */
             float fTemp = resampin2[i];
@@ -2610,7 +2609,7 @@ void always_inline smbPitchShift::PitchShift(int count, float *indata, float *ou
                             gSynMagn[index] += gAnaMagn[k]*c; 
                         else 
                             gSynMagn[index] += gAnaMagn[k]*d; 
-                           gSynFreq[index] = gAnaFreq[k] * pitchShift; 
+                        gSynFreq[index] = gAnaFreq[k] * pitchShift; 
                     } 
                 }
                 
@@ -2701,7 +2700,7 @@ int smbPitchShift::load_ui_f(const UiBuilder& b, int form)
         return 0;
     }
     if (form & UI_FORM_STACK) {
-    b.openHorizontalhideBox("");
+        b.openHorizontalhideBox("");
     {
         b.create_master_slider("smbPitchShift.semitone",N_("Detune"));
     }
