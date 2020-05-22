@@ -138,7 +138,7 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerFloatVar("expander.ratio","","S","",&fEntry0, 2.0, 1.0, 20.0, 0.10000000000000001, 0);
 	reg.registerFloatVar("expander.release","","S","",&fHslider1, 0.10000000000000001, 0.0, 10.0, 0.01, 0);
 	reg.registerFloatVar("expander.threshold","","S","",&fEntry2, -40.0, -96.0, 10.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("expander.v1","","SON","",&fVbargraph0, 0, -70.0, 5.0, 0, 0);
+	reg.registerFloatVar("expander.v1","","SOLN","",&fVbargraph0, 0, -70.0, 5.0, 0, 0);
 	return 0;
 }
 
@@ -476,26 +476,6 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         b.load_glade(glade_def);
-        return 0;
-    }
-    if (form & UI_FORM_STACK) {
-#define PARAM(p) ("expander" "." p)
-// ----- the expander
-b.openHorizontalhideBox("");
-b.create_master_slider(PARAM("ratio"), _("ratio"));
-b.closeBox();
-b.openHorizontalTableBox("");
-{
-    b.create_small_rackknob(PARAM("knee"), _("knee"));
-    b.create_small_rackknobr(PARAM("ratio"), _("ratio"));
-    b.create_small_rackknob(PARAM("threshold"), _("threshold"));
-
-    b.create_small_rackknob(PARAM("attack"), _("attack"));
-    b.create_small_rackknob(PARAM("release"), _("release"));
-}
-b.closeBox();
-
-#undef PARAM
         return 0;
     }
 	return -1;

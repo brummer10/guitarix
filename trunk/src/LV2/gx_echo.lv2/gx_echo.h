@@ -41,6 +41,7 @@ typedef enum
   EFFECTS_OUTPUT1,
   EFFECTS_INPUT,
   EFFECTS_INPUT1,
+  BYPASS,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

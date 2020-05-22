@@ -10,8 +10,8 @@ namespace orangedarkterror {
 class Dsp: public PluginDef {
 private:
 	gx_resample::FixedRateResampler smp;
-	int samplingFreq;
-	int fSamplingFreq;
+	int sample_rate;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -33,12 +33,12 @@ private:
 	double fConst17;
 
 	void clear_state_f();
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -84,33 +84,33 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = 96000;
-	smp.setup(RsamplingFreq, samplingFreq);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	sample_rate = 96000;
+	smp.setup(RsamplingFreq, sample_rate);
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.8695728816241201e-19 * fConst0);
-	fConst2 = (((((((fConst1 + 6.8201040728630095e-17) * fConst0) + 4.5345401396126398e-15) * fConst0) + 6.5110413991823704e-14) * fConst0) + 4.7364264039631899e-17);
+	fConst2 = ((fConst0 * ((fConst0 * ((fConst0 * (fConst1 + 6.8201040728630095e-17)) + 4.5345401396126398e-15)) + 6.5110413991823704e-14)) + 4.7364264039631899e-17);
 	fConst3 = (fConst0 / fConst2);
 	fConst4 = (6.57377333665727e-19 * fConst0);
-	fConst5 = (((((-4.0160720107015498e-17 - fConst4) * fConst0) + -4.3786559030431596e-21) * fConst0) + 1.22291757237028e-24);
+	fConst5 = ((fConst0 * ((fConst0 * (-4.0160720107015498e-17 - fConst4)) + -4.3786559030431596e-21)) + 1.22291757237028e-24);
 	fConst6 = (1.0 / fConst2);
-	fConst7 = (7.4782915264964696e-19 * fConst0);
-	fConst8 = mydsp_faustpower2_f(fConst0);
-	fConst9 = (((((-1.3640208145725999e-16 - fConst7) * fConst8) + 1.30220827983647e-13) * fConst0) + 1.8945705615852701e-16);
-	fConst10 = ((((1.1217437289744701e-18 * fConst8) + -9.0690802792252796e-15) * fConst8) + 2.84185584237791e-16);
-	fConst11 = (((((1.3640208145725999e-16 - fConst7) * fConst8) + -1.30220827983647e-13) * fConst0) + 1.8945705615852701e-16);
-	fConst12 = (((((((fConst1 + -6.8201040728630095e-17) * fConst0) + 4.5345401396126398e-15) * fConst0) + -6.5110413991823704e-14) * fConst0) + 4.7364264039631899e-17);
+	fConst7 = mydsp_faustpower2_f(fConst0);
+	fConst8 = (7.4782915264964696e-19 * fConst0);
+	fConst9 = ((fConst0 * ((fConst7 * (-1.3640208145725999e-16 - fConst8)) + 1.30220827983647e-13)) + 1.8945705615852701e-16);
+	fConst10 = ((fConst7 * ((1.1217437289744701e-18 * fConst7) + -9.0690802792252796e-15)) + 2.84185584237791e-16);
+	fConst11 = ((fConst0 * ((fConst7 * (1.3640208145725999e-16 - fConst8)) + -1.30220827983647e-13)) + 1.8945705615852701e-16);
+	fConst12 = ((fConst0 * ((fConst0 * ((fConst0 * (fConst1 + -6.8201040728630095e-17)) + 4.5345401396126398e-15)) + -6.5110413991823704e-14)) + 4.7364264039631899e-17);
 	fConst13 = (2.6295093346629099e-18 * fConst0);
-	fConst14 = (((fConst13 + 8.0321440214030897e-17) * fConst8) + 2.44583514474056e-24);
-	fConst15 = ((8.7573118060863102e-21 - (3.9442640019943603e-18 * fConst8)) * fConst0);
-	fConst16 = (((fConst13 + -8.0321440214030897e-17) * fConst8) + -2.44583514474056e-24);
-	fConst17 = (((((4.0160720107015498e-17 - fConst4) * fConst0) + -4.3786559030431596e-21) * fConst0) + -1.22291757237028e-24);
+	fConst14 = ((fConst7 * (fConst13 + 8.0321440214030897e-17)) + 2.44583514474056e-24);
+	fConst15 = (fConst0 * (8.7573118060863102e-21 - (3.9442640019943603e-18 * fConst7)));
+	fConst16 = ((fConst7 * (fConst13 + -8.0321440214030897e-17)) + -2.44583514474056e-24);
+	fConst17 = ((fConst0 * ((fConst0 * (4.0160720107015498e-17 - fConst4)) + -4.3786559030431596e-21)) + -1.22291757237028e-24);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -120,7 +120,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i = 0; (i < ReCount); i = (i + 1)) {
 		fRec0[0] = (double(buf[i]) - (fConst6 * ((((fConst9 * fRec0[1]) + (fConst10 * fRec0[2])) + (fConst11 * fRec0[3])) + (fConst12 * fRec0[4]))));
 		double fTemp0 = (fConst3 * (((((fConst5 * fRec0[0]) + (fConst14 * fRec0[1])) + (fConst15 * fRec0[2])) + (fConst16 * fRec0[3])) + (fConst17 * fRec0[4])));
-		buf[i] = FAUSTFLOAT((0.59999999999999998 * (int(signbit(double(fTemp0)))?double(orangedarkterrorp3_negclip(double(fTemp0))):double(orangedarkterrorp3clip(double(fTemp0))))));
+		buf[i] = FAUSTFLOAT((0.59999999999999998 * (int(signbit(double(fTemp0))) ? double(orangedarkterrorp3_negclip(double(fTemp0))) : double(orangedarkterrorp3clip(double(fTemp0))))));
 		for (int j0 = 4; (j0 > 0); j0 = (j0 - 1)) {
 			fRec0[j0] = fRec0[(j0 - 1)];
 		}

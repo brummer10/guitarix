@@ -10,7 +10,7 @@ def build(bld):
     bld.lv2(
         lv2_base = lv2_base,
         source   = ['gx_studiopre_st.cpp'],
-        includes = ['../faust','./', '../DSP', '../DSP/tube_tables'],
+        includes = ['../faust','./', '../DSP', '../DSP/tube_tables', '../DSP/circuit_tables'],
         cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
         use = ['LV2CORE','GX_RESAMPLER'],
         )

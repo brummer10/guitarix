@@ -8,8 +8,6 @@ declare category "Modulation";
 */
 
 import("stdfaust.lib");
-
-import("guitarix.lib");
 import("redeye.lib");
 
 /* vactrol model */
@@ -46,4 +44,8 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
     lfo = select2(SINE, trianglewave(freq), sine(freq));
 };
 
-process = input12at7:*(0.1):*(tremolo(vslider("speed[style:knob]",5,0.1,14,0.1),vslider("depth[style:knob]",0.5,0,1,0.01))):output12au7*(0.1);
+output = vslider("output[style:knob]", 0.0, -20.0, 20.0, 0.1):ba.db2linear:si.smooth(0.993);
+
+amp = input12ax7:*(tremolo(vslider("speed[style:knob]",5,0.1,14,0.1),vslider("depth[style:knob]",0.5,0,1,0.01))):output12ax7:*(output);
+freq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));
+process    = freq_split: ( amp , amp , amp, amp, amp) :>_;

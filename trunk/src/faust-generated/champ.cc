@@ -10,8 +10,8 @@ namespace champ {
 class Dsp: public PluginDef {
 private:
 	gx_resample::FixedRateResampler smp;
-	int samplingFreq;
-	int fSamplingFreq;
+	int sample_rate;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -30,12 +30,12 @@ private:
 	double fConst14;
 
 	void clear_state_f();
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -81,30 +81,30 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = 96000;
-	smp.setup(RsamplingFreq, samplingFreq);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	sample_rate = 96000;
+	smp.setup(RsamplingFreq, sample_rate);
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (9.0299809845296495e-15 * fConst0);
-	fConst2 = (((((fConst1 + 5.8836779086030702e-13) * fConst0) + 1.5483862334991899e-11) * fConst0) + 3.4336259025688601e-10);
+	fConst2 = ((fConst0 * ((fConst0 * (fConst1 + 5.8836779086030702e-13)) + 1.5483862334991899e-11)) + 3.4336259025688601e-10);
 	fConst3 = (fConst0 / fConst2);
 	fConst4 = (1.3455062865741699e-13 * fConst0);
-	fConst5 = (((fConst4 + 6.5162238324488899e-12) * fConst0) + 2.1539865545079801e-14);
+	fConst5 = ((fConst0 * (fConst4 + 6.5162238324488899e-12)) + 2.1539865545079801e-14);
 	fConst6 = (1.0 / fConst2);
 	fConst7 = (2.7089942953588999e-14 * fConst0);
-	fConst8 = (((((-5.8836779086030702e-13 - fConst7) * fConst0) + 1.5483862334991899e-11) * fConst0) + 1.0300877707706601e-09);
-	fConst9 = (((((fConst7 + -5.8836779086030702e-13) * fConst0) + -1.5483862334991899e-11) * fConst0) + 1.0300877707706601e-09);
-	fConst10 = (((((5.8836779086030702e-13 - fConst1) * fConst0) + -1.5483862334991899e-11) * fConst0) + 3.4336259025688601e-10);
+	fConst8 = ((fConst0 * ((fConst0 * (-5.8836779086030702e-13 - fConst7)) + 1.5483862334991899e-11)) + 1.0300877707706601e-09);
+	fConst9 = ((fConst0 * ((fConst0 * (fConst7 + -5.8836779086030702e-13)) + -1.5483862334991899e-11)) + 1.0300877707706601e-09);
+	fConst10 = ((fConst0 * ((fConst0 * (5.8836779086030702e-13 - fConst1)) + -1.5483862334991899e-11)) + 3.4336259025688601e-10);
 	fConst11 = (4.0365188597225e-13 * fConst0);
-	fConst12 = (((-6.5162238324488899e-12 - fConst11) * fConst0) + 2.1539865545079801e-14);
-	fConst13 = (((fConst11 + -6.5162238324488899e-12) * fConst0) + -2.1539865545079801e-14);
-	fConst14 = (((6.5162238324488899e-12 - fConst4) * fConst0) + -2.1539865545079801e-14);
+	fConst12 = ((fConst0 * (-6.5162238324488899e-12 - fConst11)) + 2.1539865545079801e-14);
+	fConst13 = ((fConst0 * (fConst11 + -6.5162238324488899e-12)) + -2.1539865545079801e-14);
+	fConst14 = ((fConst0 * (6.5162238324488899e-12 - fConst4)) + -2.1539865545079801e-14);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -114,7 +114,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i = 0; (i < ReCount); i = (i + 1)) {
 		fRec0[0] = (double(buf[i]) - (fConst6 * (((fConst8 * fRec0[1]) + (fConst9 * fRec0[2])) + (fConst10 * fRec0[3]))));
 		double fTemp0 = (fConst3 * ((((fConst5 * fRec0[0]) + (fConst12 * fRec0[1])) + (fConst13 * fRec0[2])) + (fConst14 * fRec0[3])));
-		buf[i] = FAUSTFLOAT((0.20000000000000001 * (int(signbit(double(fTemp0)))?double(tweedchamp_negclip(double(fTemp0))):double(tweedchampclip(double(fTemp0))))));
+		buf[i] = FAUSTFLOAT((0.20000000000000001 * (int(signbit(double(fTemp0))) ? double(tweedchamp_negclip(double(fTemp0))) : double(tweedchampclip(double(fTemp0))))));
 		for (int j0 = 3; (j0 > 0); j0 = (j0 - 1)) {
 			fRec0[j0] = fRec0[(j0 - 1)];
 		}

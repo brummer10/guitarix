@@ -54,12 +54,10 @@ trianglewave(freq) = _ ~ (_ <: _ + hyst) : /(periodsamps) with {
     hyst(x) = if(_ > 0, 2 * (x < periodsamps) - 1, 1 - 2 * (x > 0)) ~ _;
     periodsamps = int(ma.SR / (2*float(freq)));
 };
-
-process = chumpPreamp:*(0.1):poweramp:transformer:*(0.5):*(volume) with{
+ 
+amp = bigChumpPre:*(vibe):bigChumpPre2:bigChumpPower:*(volume) with{
 
 	volume =  hgroup( "Amp",vslider("Volume[alias][style:knob]",0.5,0,1,0.01):smoothi(0.999) );
-	poweramp = *(vibe):tubestage(TB_6V6_250k,120.0,820.0,1.130462) ;
-	transformer = fi.lowpass( 1, 5500 ):fi.highpass( 1, 120) ;
 	
 	// Tremelo effect
 
@@ -77,7 +75,9 @@ tremolo(freq, depth) = lfo * depth + 1 - depth : vactrol with {
 	intensity = hgroup( "Tremelo", vslider("intensity[1][style:knob]",5,0,10,0.1)/10.2 ) ;
 	effect =  tremolo(speed,intensity);
 	vof = hgroup( "Tremelo",checkbox("vibe[0][enum:Off|On]"));
-	vibe = select2(vof, 1.0, effect) ;
+	vibe = select2(vof, effect, 1.0) ;
 
 	
 };
+freq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));
+process    = freq_split: ( amp , amp , amp, amp, amp) :>_;

@@ -10,8 +10,8 @@ namespace epiphone {
 class Dsp: public PluginDef {
 private:
 	gx_resample::FixedRateResampler smp;
-	int samplingFreq;
-	int fSamplingFreq;
+	int sample_rate;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -25,12 +25,12 @@ private:
 	double fConst9;
 
 	void clear_state_f();
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -76,25 +76,25 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = 96000;
-	smp.setup(RsamplingFreq, samplingFreq);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	sample_rate = 96000;
+	smp.setup(RsamplingFreq, sample_rate);
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (4.33069857761234e-10 * fConst0);
-	fConst2 = (1.0 / (((fConst1 + 4.5972486299514297e-08) * fConst0) + 3.68375740341601e-07));
+	fConst2 = (1.0 / ((fConst0 * (fConst1 + 4.5972486299514297e-08)) + 3.68375740341601e-07));
 	fConst3 = (5.1658992604744604e-10 * fConst0);
-	fConst4 = ((fConst3 + 5.3352772216890702e-08) * fConst0);
+	fConst4 = (fConst0 * (fConst3 + 5.3352772216890702e-08));
 	fConst5 = mydsp_faustpower2_f(fConst0);
 	fConst6 = (7.36751480683202e-07 - (8.66139715522468e-10 * fConst5));
-	fConst7 = (((fConst1 + -4.5972486299514297e-08) * fConst0) + 3.68375740341601e-07);
+	fConst7 = ((fConst0 * (fConst1 + -4.5972486299514297e-08)) + 3.68375740341601e-07);
 	fConst8 = (0.0 - (1.03317985209489e-09 * fConst5));
-	fConst9 = ((fConst3 + -5.3352772216890702e-08) * fConst0);
+	fConst9 = (fConst0 * (fConst3 + -5.3352772216890702e-08));
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -104,7 +104,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i = 0; (i < ReCount); i = (i + 1)) {
 		fRec0[0] = (double(buf[i]) - (fConst2 * ((fConst6 * fRec0[1]) + (fConst7 * fRec0[2]))));
 		double fTemp0 = (fConst2 * (((fConst4 * fRec0[0]) + (fConst8 * fRec0[1])) + (fConst9 * fRec0[2])));
-		buf[i] = FAUSTFLOAT((2.0 * (int(signbit(double(fTemp0)))?double(epiphone_jr_out_negclip(double(fTemp0))):double(epiphone_jr_outclip(double(fTemp0))))));
+		buf[i] = FAUSTFLOAT((2.0 * (int(signbit(double(fTemp0))) ? double(epiphone_jr_out_negclip(double(fTemp0))) : double(epiphone_jr_outclip(double(fTemp0))))));
 		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];
 	}

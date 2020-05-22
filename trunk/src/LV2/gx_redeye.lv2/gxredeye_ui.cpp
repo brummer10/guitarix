@@ -170,7 +170,7 @@ void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
 }
 
 const char* plugin_set_name() {
-    return "GxRedeye Chump"; //plugin name to display on UI
+	return "GxRedeye Chump"; //plugin name to display on UI
 }
 
 void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
@@ -186,8 +186,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     ui->win->func.expose_callback = draw_my_window;
 
 
-    if(strcmp(GXPLUGIN_URI "#chump", plugin_uri) == 0 ||
-      strcmp(GXPLUGIN_URI "#bigchump", plugin_uri) == 0) {
+	if(strcmp(GXPLUGIN_URI "#chump", plugin_uri) == 0 ){
 
         set_chump_theme(&ui->main);
         ui->widget[0] = add_my_image_knob(ui->widget[0], GAIN,"Gain", ui,180, 210, 60, 70);
@@ -199,11 +198,26 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
         widget_get_surface_ptr(ui->widget[1], ui->widget[0]);
 
         ui->widget[2] = add_my_image_knob(ui->widget[2], VOLUME,"Volume", ui,340, 210, 60, 70);
-        set_adjustment(ui->widget[2]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+        set_adjustment(ui->widget[2]->adj,2.0, 2.0, 0.0, 4.0, 0.01, CL_CONTINUOS);
         widget_get_surface_ptr(ui->widget[2], ui->widget[0]);
 
         ui->widget[3] = add_my_switch_image(ui->widget[3], FEEDBACK, "Feedback", ui,420, 212, 60, 70);
         widget_get_png(ui->widget[3], LDVAR(switch_png));
+    }else if(strcmp(GXPLUGIN_URI "#bigchump", plugin_uri) == 0) {
+
+        set_chump_theme(&ui->main);
+        ui->widget[0] = add_my_image_knob(ui->widget[0], GAIN,"Gain", ui,180, 210, 60, 70);
+        set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+        widget_get_png(ui->widget[0], LDVAR(chumpknob_png));
+
+        ui->widget[1] = add_my_image_knob(ui->widget[1], TONE,"Tone", ui,260, 210, 60, 70);
+        set_adjustment(ui->widget[1]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+        widget_get_surface_ptr(ui->widget[1], ui->widget[0]);
+
+        ui->widget[2] = add_my_image_knob(ui->widget[2], VOLUME,"Volume", ui,340, 210, 60, 70);
+        set_adjustment(ui->widget[2]->adj,2.0, 2.0, 0.0, 4.0, 0.01, CL_CONTINUOS);
+        widget_get_surface_ptr(ui->widget[2], ui->widget[0]);
+
     } else if(strcmp(GXPLUGIN_URI "#vibrochump", plugin_uri) == 0){
 
         set_champ_theme(&ui->main);

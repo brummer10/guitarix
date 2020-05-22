@@ -11,7 +11,7 @@
         modgui:brand "Guitarix" ;
         modgui:label "Alembic Mono" ;
         modgui:model "boxy" ;
-        modgui:panel "5-knobs" ;
+        modgui:panel "6-knobs" ;
         modgui:color "racing" ;
         modgui:knob "copper" ;
         modgui:port [
@@ -34,5 +34,9 @@
             lv2:index 4 ;
             lv2:symbol "volume" ;
             lv2:name "Level" ;
+        ] , [
+            lv2:index 5 ;
+            lv2:symbol "master" ;
+            lv2:name "Master" ;
         ] ;
     ] .

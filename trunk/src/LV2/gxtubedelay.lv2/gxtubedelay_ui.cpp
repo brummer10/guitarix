@@ -61,11 +61,12 @@ const char* plugin_set_name() {
 }
 
 void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
+	
     ui->widget[0] = add_my_knob(ui->widget[0], DRIVE,"Drive", ui,30, 40, 80, 105);
     set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[1] = add_my_knob(ui->widget[1], GAIN,"Gain", ui,150, 40, 80, 105);
-    set_adjustment(ui->widget[1]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    ui->widget[1] = add_my_knob(ui->widget[1], OUTPUT,"Output", ui,150, 40, 80, 105);
+    set_adjustment(ui->widget[1]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
 
     ui->widget[2] = add_my_knob(ui->widget[2], DELAY,"Delay", ui,30, 160, 60, 85);
     set_adjustment(ui->widget[2]->adj,160.0, 160.0, 1.0, 2500.0, 0.01, CL_LOGARITHMIC);
@@ -75,7 +76,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_adjustment(ui->widget[3]->adj,0.35, 0.35, 0.01, 0.7, 0.01, CL_CONTINUOS);
 
     ui->widget[4] = add_my_knob(ui->widget[4], LEVEL,"Level", ui,170, 160, 60, 85);
-    set_adjustment(ui->widget[4]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    set_adjustment(ui->widget[4]->adj, 0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 }
 
 void plugin_cleanup(X11_UI *ui) {

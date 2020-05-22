@@ -10,8 +10,8 @@ namespace plexiel34 {
 class Dsp: public PluginDef {
 private:
 	gx_resample::FixedRateResampler smp;
-	int samplingFreq;
-	int fSamplingFreq;
+	int sample_rate;
+	int fSampleRate;
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -33,12 +33,12 @@ private:
 	double fConst17;
 
 	void clear_state_f();
-	void init(unsigned int samplingFreq);
+	void init(unsigned int sample_rate);
 	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
 	int register_par(const ParamReg& reg);
 
 	static void clear_state_f_static(PluginDef*);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
+	static void init_static(unsigned int sample_rate, PluginDef*);
 	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef*);
 	static int register_params_static(const ParamReg& reg);
 	static void del_instance(PluginDef *p);
@@ -84,33 +84,33 @@ void Dsp::clear_state_f_static(PluginDef *p)
 
 inline void Dsp::init(unsigned int RsamplingFreq)
 {
-	samplingFreq = 96000;
-	smp.setup(RsamplingFreq, samplingFreq);
-	fSamplingFreq = samplingFreq;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSamplingFreq)));
+	sample_rate = 96000;
+	smp.setup(RsamplingFreq, sample_rate);
+	fSampleRate = sample_rate;
+	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.8269373389389401e-19 * fConst0);
-	fConst2 = (((((((fConst1 + 2.7124352361658701e-16) * fConst0) + 8.16290535602033e-14) * fConst0) + 4.6414729817426102e-12) * fConst0) + 4.0015810287500304e-12);
+	fConst2 = ((fConst0 * ((fConst0 * ((fConst0 * (fConst1 + 2.7124352361658701e-16)) + 8.16290535602033e-14)) + 4.6414729817426102e-12)) + 4.0015810287500304e-12);
 	fConst3 = (fConst0 / fConst2);
 	fConst4 = (3.87560926163844e-19 * fConst0);
-	fConst5 = (((((fConst4 + 4.3080090312012499e-16) * fConst0) + 3.1750970560917398e-17) * fConst0) + 5.3495467261266997e-19);
+	fConst5 = ((fConst0 * ((fConst0 * (fConst4 + 4.3080090312012499e-16)) + 3.1750970560917398e-17)) + 5.3495467261266997e-19);
 	fConst6 = (1.0 / fConst2);
-	fConst7 = (7.3077493557557401e-19 * fConst0);
-	fConst8 = mydsp_faustpower2_f(fConst0);
-	fConst9 = (((((-5.4248704723317303e-16 - fConst7) * fConst8) + 9.2829459634852301e-12) * fConst0) + 1.6006324115000099e-11);
-	fConst10 = ((((1.0961624033633601e-18 * fConst8) + -1.63258107120407e-13) * fConst8) + 2.40094861725002e-11);
-	fConst11 = (((((5.4248704723317303e-16 - fConst7) * fConst8) + -9.2829459634852301e-12) * fConst0) + 1.6006324115000099e-11);
-	fConst12 = (((((((fConst1 + -2.7124352361658701e-16) * fConst0) + 8.16290535602033e-14) * fConst0) + -4.6414729817426102e-12) * fConst0) + 4.0015810287500304e-12);
+	fConst7 = mydsp_faustpower2_f(fConst0);
+	fConst8 = (7.3077493557557401e-19 * fConst0);
+	fConst9 = ((fConst0 * ((fConst7 * (-5.4248704723317303e-16 - fConst8)) + 9.2829459634852301e-12)) + 1.6006324115000099e-11);
+	fConst10 = ((fConst7 * ((1.0961624033633601e-18 * fConst7) + -1.63258107120407e-13)) + 2.40094861725002e-11);
+	fConst11 = ((fConst0 * ((fConst7 * (5.4248704723317303e-16 - fConst8)) + -9.2829459634852301e-12)) + 1.6006324115000099e-11);
+	fConst12 = ((fConst0 * ((fConst0 * ((fConst0 * (fConst1 + -2.7124352361658701e-16)) + 8.16290535602033e-14)) + -4.6414729817426102e-12)) + 4.0015810287500304e-12);
 	fConst13 = (1.5502437046553801e-18 * fConst0);
-	fConst14 = (((-8.6160180624025097e-16 - fConst13) * fConst8) + 1.0699093452253399e-18);
-	fConst15 = (((2.32536555698307e-18 * fConst8) + -6.3501941121834698e-17) * fConst0);
-	fConst16 = (((8.6160180624025097e-16 - fConst13) * fConst8) + -1.0699093452253399e-18);
-	fConst17 = (((((fConst4 + -4.3080090312012499e-16) * fConst0) + 3.1750970560917398e-17) * fConst0) + -5.3495467261266997e-19);
+	fConst14 = ((fConst7 * (-8.6160180624025097e-16 - fConst13)) + 1.0699093452253399e-18);
+	fConst15 = (fConst0 * ((2.32536555698307e-18 * fConst7) + -6.3501941121834698e-17));
+	fConst16 = ((fConst7 * (8.6160180624025097e-16 - fConst13)) + -1.0699093452253399e-18);
+	fConst17 = ((fConst0 * ((fConst0 * (fConst4 + -4.3080090312012499e-16)) + 3.1750970560917398e-17)) + -5.3495467261266997e-19);
 	clear_state_f();
 }
 
-void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
+void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 {
-	static_cast<Dsp*>(p)->init(samplingFreq);
+	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
@@ -120,7 +120,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i = 0; (i < ReCount); i = (i + 1)) {
 		fRec0[0] = (double(buf[i]) - (fConst6 * ((((fConst9 * fRec0[1]) + (fConst10 * fRec0[2])) + (fConst11 * fRec0[3])) + (fConst12 * fRec0[4]))));
 		double fTemp0 = (fConst3 * (((((fConst5 * fRec0[0]) + (fConst14 * fRec0[1])) + (fConst15 * fRec0[2])) + (fConst16 * fRec0[3])) + (fConst17 * fRec0[4])));
-		buf[i] = FAUSTFLOAT((int(signbit(double(fTemp0)))?double(plexipowerampel34_negclip(double(fTemp0))):double(plexipowerampel34clip(double(fTemp0)))));
+		buf[i] = FAUSTFLOAT((int(signbit(double(fTemp0))) ? double(plexipowerampel34_negclip(double(fTemp0))) : double(plexipowerampel34clip(double(fTemp0)))));
 		for (int j0 = 4; (j0 > 0); j0 = (j0 - 1)) {
 			fRec0[j0] = fRec0[(j0 - 1)];
 		}

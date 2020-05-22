@@ -31,7 +31,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 10
+#define CONTROLS 12
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -95,7 +95,7 @@ static void draw_my_window(void *w_, void* user_data) {
     cairo_set_source_surface (w->crb, w->image,0,0);
     cairo_paint (w->crb);
 
-    cairo_set_source_surface (w->crb, ps->logo,40,40);
+    cairo_set_source_surface (w->crb, ps->logo,35,40);
     cairo_paint (w->crb);
 
     cairo_set_source_surface (w->crb, ps->screw,10,10);
@@ -131,43 +131,52 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     ui->private_ptr = (void*)ps;
     ui->win->func.expose_callback = draw_my_window;
 
-    ui->widget[0] = add_my_switch_image(ui->widget[0], BRIGHT_L, "Bright", ui,180, 15, 64, 74);
+    ui->widget[0] = add_my_switch_image(ui->widget[0], BRIGHT_L, "Bright", ui,165, 15, 64, 74);
     widget_get_png(ui->widget[0], LDVAR(switch_png));
 
-    ui->widget[1] = add_my_image_knob(ui->widget[1], BASS_L,"Bass", ui,250, 15, 64, 74);
+    ui->widget[1] = add_my_image_knob(ui->widget[1], VOLUME_L,"Volume", ui,220, 15, 64, 74);
     set_adjustment(ui->widget[1]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
     widget_get_png(ui->widget[1], LDVAR(studiopreknob_png));
 
-    ui->widget[2] = add_my_image_knob(ui->widget[2], MIDDLE_L,"Middle", ui,320, 15, 64, 74);
+    ui->widget[2] = add_my_image_knob(ui->widget[2], BASS_L,"Bass", ui,290, 15, 64, 74);
     set_adjustment(ui->widget[2]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
     widget_get_surface_ptr(ui->widget[2], ui->widget[1]);
 
-    ui->widget[3] = add_my_image_knob(ui->widget[3], TREBLE_L,"Treble", ui,390, 15, 64, 74);
+    ui->widget[3] = add_my_image_knob(ui->widget[3], MIDDLE_L,"Middle", ui,360, 15, 64, 74);
     set_adjustment(ui->widget[3]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
     widget_get_surface_ptr(ui->widget[3], ui->widget[1]);
 
-    ui->widget[4] = add_my_image_knob(ui->widget[4], VOLUME_L,"Volume", ui,460, 15, 64, 74);
-    set_adjustment(ui->widget[4]->adj,0.5, 0.5, 0.0, 20.0, 0.1, CL_CONTINUOS);
+    ui->widget[4] = add_my_image_knob(ui->widget[4], TREBLE_L,"Treble", ui,430, 15, 64, 74);
+    set_adjustment(ui->widget[4]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
     widget_get_surface_ptr(ui->widget[4], ui->widget[1]);
 
-    ui->widget[5] = add_my_switch_image(ui->widget[5], BRIGHT_R, "Bright", ui,550, 15, 64, 74);
-    widget_get_surface_ptr(ui->widget[5], ui->widget[0]);
+    ui->widget[5] = add_my_image_knob(ui->widget[5], MASTER_L,"Master", ui, 500, 15, 64, 74);
+    set_adjustment(ui->widget[5]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    widget_get_surface_ptr(ui->widget[5], ui->widget[1]);
 
-    ui->widget[6] = add_my_image_knob(ui->widget[6], BASS_R,"Bass", ui,620, 15, 64, 74);
-    set_adjustment(ui->widget[6]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
-    widget_get_surface_ptr(ui->widget[6], ui->widget[1]);
+    ui->widget[6] = add_my_switch_image(ui->widget[6], BRIGHT_R, "Bright", ui,565, 15, 64, 74);
+    widget_get_surface_ptr(ui->widget[6], ui->widget[0]);
 
-    ui->widget[7] = add_my_image_knob(ui->widget[7], MIDDLE_R,"Middle", ui,690, 15, 64, 74);
+    ui->widget[7] = add_my_image_knob(ui->widget[7], VOLUME_R,"Volume", ui,620, 15, 64, 74);
     set_adjustment(ui->widget[7]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
     widget_get_surface_ptr(ui->widget[7], ui->widget[1]);
 
-    ui->widget[8] = add_my_image_knob(ui->widget[8], TREBLE_R,"Treble", ui,760, 15, 64, 74);
+    ui->widget[8] = add_my_image_knob(ui->widget[8], BASS_R,"Bass", ui,690, 15, 64, 74);
     set_adjustment(ui->widget[8]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
     widget_get_surface_ptr(ui->widget[8], ui->widget[1]);
 
-    ui->widget[9] = add_my_image_knob(ui->widget[9], VOLUME_R,"Volume", ui,830, 15, 64, 74);
-    set_adjustment(ui->widget[9]->adj,0.5, 0.5, 0.0, 20.0, 0.1, CL_CONTINUOS);
+    ui->widget[9] = add_my_image_knob(ui->widget[9], MIDDLE_R,"Middle", ui,760, 15, 64, 74);
+    set_adjustment(ui->widget[9]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
     widget_get_surface_ptr(ui->widget[9], ui->widget[1]);
+
+    ui->widget[10] = add_my_image_knob(ui->widget[10], TREBLE_R,"Treble", ui,830, 15, 64, 74);
+    set_adjustment(ui->widget[10]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    widget_get_surface_ptr(ui->widget[10], ui->widget[1]);
+
+    ui->widget[11] = add_my_image_knob(ui->widget[11], MASTER_R,"Master", ui,900, 15, 64, 74);
+    set_adjustment(ui->widget[11]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
+    widget_get_surface_ptr(ui->widget[11], ui->widget[1]);
+
 }
 
 void plugin_cleanup(X11_UI *ui) {

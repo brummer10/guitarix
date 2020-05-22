@@ -13,10 +13,10 @@ private:
 	FAUSTFLOAT fVslider1;
 	double fConst2;
 	double fConst3;
+	double fConst4;
 	FAUSTFLOAT fVslider2;
 	double fRec3[3];
 	double fVec0[2];
-	double fConst4;
 	double fRec2[2];
 	FAUSTFLOAT fVslider3;
 	double fRec4[2];
@@ -124,7 +124,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec3[0] = ((fSlow0 * fTemp0) - (fSlow7 * ((fSlow10 * fRec3[2]) + (fSlow11 * fRec3[1]))));
 		double fTemp1 = (fSlow7 * (((fSlow9 * fRec3[0]) + (fSlow12 * fRec3[1])) + (fSlow9 * fRec3[2])));
 		fVec0[0] = fTemp1;
-		fRec2[0] = (fConst3 * ((fTemp1 + fVec0[1]) - (fConst4 * fRec2[1])));
+		fRec2[0] = (0.0 - (fConst3 * ((fConst4 * fRec2[1]) - (fTemp1 + fVec0[1]))));
 		fRec4[0] = (fSlow13 + (0.999 * fRec4[1]));
 		double fTemp2 = (fRec2[0] * fRec4[0]);
 		fRec5[0] = (fSlow14 + (0.999 * fRec5[1]));

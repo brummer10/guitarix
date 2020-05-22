@@ -35,6 +35,7 @@ typedef enum
   BASS_L,
   MIDDLE_L,
   TREBLE_L,
+  MASTER_L,
   EFFECTS_OUTPUT,
   EFFECTS_INPUT,
 } PortIndex;

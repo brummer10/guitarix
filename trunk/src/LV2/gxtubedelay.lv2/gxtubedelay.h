@@ -36,10 +36,10 @@
 typedef enum
 { 
     DRIVE, 
-    DELAY, 
-    FEEDBACK, 
-    LEVEL, 
-    GAIN, 
+   DELAY, 
+   FEEDBACK, 
+   LEVEL, 
+   OUTPUT, 
     EFFECTS_OUTPUT,
     EFFECTS_INPUT,
 } PortIndex;

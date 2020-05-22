@@ -34,7 +34,7 @@ typedef enum
     DEPTH, 
     SPEED, 
     DRIVE, 
-    GAIN, 
+    OUTPUT, 
     EFFECTS_OUTPUT,
     EFFECTS_INPUT,
 } PortIndex;

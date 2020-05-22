@@ -62,8 +62,8 @@ A tape delay simulation plugin.
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 0 ;
-        lv2:symbol "drive" ;
-        lv2:name "Drive";
+        lv2:symbol "input" ;
+        lv2:name "Input";
         lv2:default 0.25 ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
@@ -89,11 +89,11 @@ A tape delay simulation plugin.
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 3 ;
-        lv2:symbol "gain" ;
-        lv2:name "Gain";
-        lv2:default 0.25 ;
+        lv2:symbol "output" ;
+        lv2:name "Output";
+        lv2:default 1.0 ;
         lv2:minimum 0.0 ;
-        lv2:maximum 1.0 ;
+        lv2:maximum 4.0 ;
     ] ,[
         a lv2:InputPort ,
             lv2:ControlPort ;

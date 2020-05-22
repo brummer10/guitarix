@@ -30,10 +30,10 @@
 
 typedef enum
 {
-	DRIVE,
+	INPUT,
 	SWELL,
 	SUSTAIN,
-	GAIN,
+	OUTPUT,
 	BPM,
 	HEAD1,
 	HEAD2,

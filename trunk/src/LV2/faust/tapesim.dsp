@@ -9,7 +9,6 @@
 
 import("stdfaust.lib");
 import("guitarix.lib");
-
 import("redeye.lib");
 
 // ((( lfo + 1 ) *5)+5) from vibrato
@@ -75,11 +74,11 @@ taperesponse = _<:select2( tapetype, taperesponse1, taperesponse2 ):tapehiss wit
 	// Loosely based on Tascam A3340X
 	taperesponse2 = select2( speed ,taperesponse2b,taperesponse2a);
 	
-	// TASCAM Q = 0.4 peak 9dB -- Although the ma.sub fi.lowpass wporks creates a lot of unwanted high end 
+	// TASCAM Q = 0.4 peak 9dB -- Although the ma.sub fi.lowpass works creates a lot of unwanted high end 
 	//7.5ips
-	taperesponse2a = fi.highpass(1,25):fi.peak_eq_cq(6,75,0.4):ma.sub~fi.lowpass( 1, 4500 ):fi.lowpass( 4, 10000 );
+	taperesponse2a = fi.highpass(1,25):fi.peak_eq_cq(6,75,0.4):ma.sub~fi.lowpass( 1, 4547 ):fi.lowpass( 4, 10000 );
 	// 15ips
-	taperesponse2b = fi.highpass(1,35):fi.peak_eq_cq(6,75,0.4):ma.sub~fi.lowpass( 1, 4500 ):fi.lowpass( 4, 15000 );
+	taperesponse2b = fi.highpass(1,35):fi.peak_eq_cq(6,75,0.4):ma.sub~fi.lowpass( 1, 4547 ):fi.lowpass( 4, 15000 );
 
 	// Sort this out so level is -XXdB no.noise floor
 	tapehiss = _<:_,(no.noise * level:hissfilter):>_ ;
@@ -91,12 +90,24 @@ taperesponse = _<:select2( tapetype, taperesponse1, taperesponse2 ):tapehiss wit
 
 } ;
 
-machine =  tapesaturate:taperesponse:wow:flutter;
+// Can I design these as RC/CR filters incorporated into the circuit ?
+iecfilter = select2( speed, 4547, 2274 );
+iec_in = fi.lowpass( 1, iecfilter );
+iec_out = ma.sub~fi.lowpass( 1, iecfilter );
+
+machine =  iec_in:tapesaturate:taperesponse:wow:flutter:iec_out;
 delaystage = component( "delaystage.dsp").delaystage ;
 
 // This is standard IEC eq maybe wrong way round as I want highs saturated more than lows
-iec_in = fi.lowpass( 1, 4500 );
-iec_out = ma.sub~fi.lowpass( 1, 4500 );
+// Time constants to Hertz
+// 	Speed	Low	    		HF			Type
+//	15ips	None			35us(4547Hz )		IEC
+//			3180us(50Hz)	50us(3183Hz)		NAB
+//	7.5ips	None			70us(2274Hz)		IEC
+//			3180us(50Hz)	50us(3183Hz)		NAB
+// so the above should change so order is IECIN -> SATURATE -> RESPONSE -> WOW&FLUTTER  -> IECOUT 
 
-channel = input12au7:*(0.1):BP(iec_in:machine:iec_out):output12au7:*(0.1):fi.lowpass( 2, 20000);
-//process = channel,channel;
+
+amp = input12au7:BP(machine):output12au7:fi.lowpass( 2, 20000);
+freq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));
+channel    = freq_split: ( amp , amp , amp, amp, amp) :>_;
