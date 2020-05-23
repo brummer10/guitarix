@@ -131,11 +131,11 @@ static gboolean gx_wheel_draw (GtkWidget *widget, cairo_t *cr)
 		cairo_fill(cr);
 		_gx_regler_display_value(regler, cr, &value_rect);
 
-		g_object_unref(ws);
-		g_object_unref(wp);
+		g_clear_object(&ws);
+		g_clear_object(&wp);
 	}
 
-	g_object_unref(wb);
+	g_clear_object(&wb);
 	return TRUE;
 }
 
@@ -178,7 +178,7 @@ static void gx_wheel_size_request (GtkWidget *widget, gint *width, gint *height)
 	*width = rect.width;
 	*height = rect.height;
 	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, TRUE);
-	g_object_unref(wb);
+	g_clear_object(&wb);
 }
 
 static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, gboolean drag, int state, int button, GdkEventButton *event)
@@ -240,7 +240,7 @@ static gboolean wheel_set_from_pointer(GtkWidget *widget, gdouble x, gdouble y, 
 	priv->last_x = x;
 	if (adj_value != value)
 		gtk_range_set_value(GTK_RANGE(widget), value);
-	g_object_unref(wb);
+	g_clear_object(&wb);
 	return TRUE;
 }
 

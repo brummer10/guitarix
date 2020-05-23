@@ -135,8 +135,7 @@ static void gx_switch_destroy(GtkWidget *object)
 {
 	GxSwitch *swtch = GX_SWITCH(object);
 	if (swtch->priv->label) {
-		g_object_unref(swtch->priv->label);
-		swtch->priv->label = 0;
+		g_clear_object(&swtch->priv->label);
 	}
 	g_free(swtch->priv->base_name);
 	swtch->priv->base_name = 0;
@@ -170,8 +169,7 @@ void gx_switch_set_label_ref(GxSwitch *swtch, GtkLabel *label)
 {
 	g_return_if_fail(GX_IS_SWITCH(swtch));
 	if (swtch->priv->label) {
-		g_object_unref(swtch->priv->label);
-		swtch->priv->label = 0;
+		g_clear_object(&swtch->priv->label);
 	}
 	if (label) {
 		g_return_if_fail(GTK_IS_LABEL(label));

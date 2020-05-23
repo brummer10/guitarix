@@ -108,7 +108,7 @@ static void gx_level_slider_size_request (GtkWidget *widget, gint *width, gint *
 	*width = gdk_pixbuf_get_width(pb);
 	*height = (gdk_pixbuf_get_height(pb) + slider_height) / 2;
 	_gx_regler_calc_size_request(GX_REGLER(widget), width, height, FALSE);
-	g_object_unref(pb);
+	g_clear_object(&pb);
 }
 
 static void level_slider_expose(
@@ -136,7 +136,7 @@ static gboolean gx_level_slider_draw(GtkWidget *widget, cairo_t *cr)
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 	level_slider_expose(widget, cr, &image_rect, sliderstate, pb);
 	_gx_regler_simple_display_value(GX_REGLER(widget), cr, &value_rect);
-	g_object_unref(pb);
+	g_clear_object(&pb);
 	return FALSE;
 }
 
@@ -147,7 +147,7 @@ static inline void get_width_height(GtkWidget *widget, GdkRectangle *r)
 											 GTK_ICON_LOOKUP_GENERIC_FALLBACK, nullptr);
 	r->width = gdk_pixbuf_get_width(pb);
 	r->height = gdk_pixbuf_get_height(pb);
-	g_object_unref(pb);
+	g_clear_object(&pb);
 }
 
 static gboolean slider_set_from_pointer(GtkWidget *widget, int state, gdouble x, gdouble y, gboolean drag, gint button, GdkEventButton *event)

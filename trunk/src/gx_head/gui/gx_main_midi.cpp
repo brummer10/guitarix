@@ -391,7 +391,7 @@ MidiConnect::MidiConnect(GdkEventButton *event, gx_engine::Parameter &param_, gx
                 gtk_list_store_set(store, &iter, 0, it->first, 1, it->second, -1);
         }
         gtk_combo_box_set_model(GTK_COMBO_BOX(toggle_behaviours), GTK_TREE_MODEL(store));
-        //g_object_unref(store); // this THROW A GLib-GObject-CRITICAL WARNING
+        g_clear_object(&store);
         GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(toggle_behaviours), renderer, TRUE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(toggle_behaviours), renderer, "text", 1, NULL); // "cell-background", 0, -> throw Gtk-WARNING **: Don't know color `0'

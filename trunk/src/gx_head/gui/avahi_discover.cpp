@@ -52,13 +52,13 @@ AvahiBrowser::AvahiBrowser()
 
 AvahiBrowser::~AvahiBrowser() {
     if (resolver) {
-	g_object_unref(resolver);
+	g_clear_object(&resolver);
     }
     if (browser) {
-	g_object_unref(browser);
+	g_clear_object(&browser);
     }
     if (client) {
-	g_object_unref(client);
+	g_clear_object(&client);
     }
 }
 

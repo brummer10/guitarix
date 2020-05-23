@@ -123,7 +123,7 @@ static void gx_toggle_image_size_request (GtkWidget *widget, gint *width, gint *
 		ypad = gtk_widget_get_margin_top(widget) + gtk_widget_get_margin_bottom(widget);
 		*width = gdk_pixbuf_get_width(img) + xpad * 2;
 		*height = gdk_pixbuf_get_height(img) + ypad * 2;
-		g_object_unref(img);
+		g_clear_object(&img);
 	}
 }
 
@@ -148,7 +148,7 @@ static gboolean gx_toggle_image_draw(GtkWidget *widget, cairo_t *cr)
 	int y = (allocation.height - gdk_pixbuf_get_height(img)) / 2;
 	gdk_cairo_set_source_pixbuf (cr, img, x, y);
 	cairo_paint (cr);
-	g_object_unref(img);
+	g_clear_object(&img);
 	return FALSE;
 }
 

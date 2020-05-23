@@ -325,7 +325,7 @@ gboolean _gx_knob_pointer_event(GtkWidget *widget, gdouble x, gdouble y, const g
 	
 	get_image_dimensions (widget, pb, &image_rect, &fcount);
 	
-	g_object_unref(pb);
+	g_clear_object(&pb);
 	_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 	if (!drag) {
 		if (_gx_regler_check_display_popup(GX_REGLER(widget), &image_rect, &value_rect, event)) {
@@ -465,7 +465,7 @@ static void gx_knob_size_request (GtkWidget *widget, gint *width, gint *height)
 		*width = rect.width;
 		*height = rect.height;
 		_gx_regler_calc_size_request(GX_REGLER(widget), width, height, TRUE);
-		g_object_unref(pb);
+		g_clear_object(&pb);
 	}
 }
 
@@ -483,7 +483,7 @@ static gboolean gx_knob_draw(GtkWidget *widget, cairo_t *cr)
 		_gx_regler_get_positions(GX_REGLER(widget), &image_rect, &value_rect, false);
 		_gx_knob_expose(widget, cr, &image_rect, knobstate, pb, fcount, gtk_widget_has_focus(widget));
 		_gx_regler_display_value(GX_REGLER(widget), cr, &value_rect);
-		g_object_unref(pb);
+		g_clear_object(&pb);
 	}
 	return FALSE;
 }

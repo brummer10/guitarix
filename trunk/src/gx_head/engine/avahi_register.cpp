@@ -43,10 +43,10 @@ AvahiService::AvahiService()
 
 AvahiService::~AvahiService() {
     if (client) {
-	g_object_unref(client);
+	g_clear_object(&client);
     }
     if (group) {
-	g_object_unref(group);
+	g_clear_object(&group);
     }
 }
 

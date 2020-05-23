@@ -933,7 +933,7 @@ static void request_meter(GtkWidget *widget)
 	for (i = 0; i < sizeof(rgb)/sizeof(rgb[0]); i++) {
         gdk_rgba_free(rgb[i]);
 	}
-    g_object_unref(entry_context);
+    g_clear_object(&entry_context);
     cairo_destroy(cr);
     cairo_destroy(co);
     cairo_pattern_destroy(pat);
