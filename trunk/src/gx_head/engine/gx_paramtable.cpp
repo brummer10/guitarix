@@ -1201,7 +1201,7 @@ FloatParameter::~ParameterV() {
 
 bool FloatParameter::set(float val) const {
     float v = min(max(val, lower), upper);
-    if (v != *value) {
+    if (std::fabs(v - *value) >= step) {
         *value = v;
         changed(v);
         return true;
@@ -1235,7 +1235,7 @@ bool FloatParameter::midi_set(float n, float high, float llimit, float ulimit) {
         assert(false);
         return false;
     }
-    if (v != *value) {
+    if (std::fabs(v - *value) >= step) {
         *value = v;
         return true;
     }
@@ -1263,7 +1263,7 @@ bool FloatParameter::midi_set_bpm(float n, float high, float llimit, float ulimi
         assert(false);
         return false;
     }
-    if (v != *value) {
+    if (std::fabs(v - *value) >= step) {
         *value = v;
         return true;
     }
