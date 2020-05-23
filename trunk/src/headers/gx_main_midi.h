@@ -80,7 +80,8 @@ class MidiConnect {
     std::map<gx_engine::Parameter::toggle_type, const char*> toggle_behaviour_descriptions {
         { gx_engine::Parameter::toggle_type::OnOff, "off /on states transition toggle" },
         { gx_engine::Parameter::toggle_type::Constant, "constant state toggle" },
-        { gx_engine::Parameter::toggle_type::Toggle, "toggle state" }
+        { gx_engine::Parameter::toggle_type::Toggle, "toggle state" },
+        { gx_engine::Parameter::toggle_type::Commander, "always toggle" }
     };
     GtkListStore* store;
     gx_engine::Parameter &param;
