@@ -1928,7 +1928,7 @@ void GxService::on_param_value_changed(gx_engine::Parameter *p) {
     gx_system::JsonStringWriter *jw;
     gx_system::JsonStringWriter jwp;
     if (jwc) {
-	jw = jwc;
+        return; // when a write process is active, the new writer could produce garbage. So better skip it.
     } else {
 	if (p->get_blocked()) {
 	    return;
