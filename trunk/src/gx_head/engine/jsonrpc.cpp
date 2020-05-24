@@ -1927,15 +1927,11 @@ void GxService::on_param_insert_remove(gx_engine::Parameter *p, bool inserted) {
 void GxService::on_param_value_changed(gx_engine::Parameter *p) {
     gx_system::JsonStringWriter *jw;
     gx_system::JsonStringWriter jwp;
-    if (jwc) {
-        return; // when a write process is active, the new writer could produce garbage. So better skip it.
-    } else {
 	if (p->get_blocked()) {
 	    return;
 	}
 	jwp.send_notify_begin("set");
 	jw = &jwp;
-    }
     jw->write(p->id());
     if (p->isInt()) {
 	jw->write(p->getInt().get_value());
@@ -1952,9 +1948,7 @@ void GxService::on_param_value_changed(gx_engine::Parameter *p) {
     } else {
 	assert(false);
     }
-    if (!jwc) {
 	broadcast(jwp, CmdConnection::f_parameter_change_notify);
-    }
 }
 
 void GxService::on_midi_changed() {
