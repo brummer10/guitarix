@@ -558,7 +558,7 @@ bool SEQWindow::get_sequencer_pos(Gxw::Regler * regler, const std::string id) {
             if (machine.get_parameter_value<float>("seq.follow"))
                 scroll_playhead(value);
         }
-        return true;
+        return gtk_window->get_visible();
     } else {
         return false;
     }
@@ -629,6 +629,14 @@ void SEQWindow::reload_and_show() {
             seq_changed(&d.p->get_value(), d.box);
         );
         gtk_window->present();
+        std::string id;
+        seq_pos->get_property("var_id",id);
+
+        int ti_o = 60;
+        if (!machine.get_jack()) ti_o = 250;
+        Glib::signal_timeout().connect(
+          sigc::bind<Gxw::Regler*>(sigc::bind<const std::string>(
+          sigc::mem_fun(*this, &SEQWindow::get_sequencer_pos),id), seq_pos), ti_o);
     }
 }
 
