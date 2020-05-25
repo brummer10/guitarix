@@ -370,7 +370,6 @@ bool MidiController::set_midi(int n, int last_value, int *value_set, bool update
         ret = param->midi_set(n, 127, _lower, _upper);
         *value_set = n;
     }
-    if (ret) param->trigger_changed();
     return ret;
 }
 
@@ -554,9 +553,9 @@ MidiControllerList::MidiControllerList()
     pgm_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_pgm_chg));
     mute_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_mute_chg));
     bank_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_bank_chg));
-    val_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_val_chg));
-   // Glib::signal_timeout().connect(
-        // sigc::mem_fun(this, &MidiControllerList::check_midi_values), 60);
+   // val_chg.connect(sigc::mem_fun(*this, &MidiControllerList::on_val_chg));
+    Glib::signal_timeout().connect(
+         sigc::mem_fun(this, &MidiControllerList::check_midi_values), 60);
 }
 
 bool MidiControllerList::check_midi_values() {
@@ -573,6 +572,7 @@ bool MidiControllerList::check_midi_values() {
                         && i->toggle_behaviour() == Parameter::toggle_type::Constant) {
                         midi_value_changed(n, i->getParameter().on_off_value() * 127);
                     }
+                    if (!i->getParameter().get_blocked()) i->trigger_changed();
                 }
             }
         }
