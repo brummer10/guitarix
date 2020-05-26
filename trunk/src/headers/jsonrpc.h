@@ -110,6 +110,12 @@ public:
     friend class UiBuilderVirt;
 };
 
+struct broadcast_data {
+    gx_system::JsonStringWriter *jw;
+    CmdConnection::msg_type n;
+    CmdConnection *sender;
+};
+
 class GxService: public Gio::SocketService {
 private:
     struct ChangedPlugin {
@@ -126,6 +132,7 @@ private:
     time_t last_change;
     sigc::connection save_conn;
     std::list<CmdConnection*> connection_list;
+    std::vector<broadcast_data> broadcast_list;
     gx_system::JsonStringWriter *jwc;
     std::map<std::string,bool> *preg_map;
     std::map<std::string,float> maxlevel;
@@ -136,6 +143,7 @@ private:
     void remove_connection(CmdConnection* p);
     bool broadcast_listeners(CmdConnection::msg_type n, CmdConnection *sender = 0);
     void broadcast(gx_system::JsonStringWriter& jw, CmdConnection::msg_type n, CmdConnection *sender = 0);
+    bool idle_broadcast_handler();
     void connect_value_changed_signal(gx_engine::Parameter *p);
 
     // message formatting functions
