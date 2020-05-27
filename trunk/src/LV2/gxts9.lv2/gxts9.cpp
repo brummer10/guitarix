@@ -17,33 +17,10 @@
  * --------------------------------------------------------------------------
  */
 
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <cstring>
-#include <unistd.h>
+////////////////////////////// LOCAL INCLUDES //////////////////////////
 
-#ifdef __SSE__
-/* On Intel set FZ (Flush to Zero) and DAZ (Denormals Are Zero)
-   flags to avoid costly denormals */
-#ifdef __SSE3__
-#include <pmmintrin.h>
-inline void AVOIDDENORMALS()
-{
-  _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-  _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
-}
-#else
-#include <xmmintrin.h>
-inline void AVOIDDENORMALS()
-{
-  _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
-}
-#endif //__SSE3__
-
-#else
-inline void AVOIDDENORMALS() {}
-#endif //__SSE__
+#include "gx_common.h"      // faust support and denormal protection (SSE)
+#include "gx_bypass.cc"
 
 #include "gxts9.h"
 #include "ts9sim.cc"
@@ -53,6 +30,9 @@ inline void AVOIDDENORMALS() {}
 class Gxts9
 {
 private:
+  GxBypass                     bp;
+  float*                       bypass;
+  DenormalProtection           MXCSR;
   // internal stuff
   float*                       output;
   float*                       input;
@@ -67,6 +47,9 @@ public:
   void activate_f();
   // constructor
   Gxts9() :
+    bp(),
+    bypass(0),
+    MXCSR(),
     output(NULL),
     input(NULL),
     ts9(ts9sim())
@@ -82,7 +65,7 @@ public:
 
 void Gxts9::init_dsp_mono(uint32_t rate)
 {
-  AVOIDDENORMALS();
+  bp.init_bypass(rate);
   ts9.init_static(rate, &ts9);
 }
 
@@ -95,6 +78,9 @@ void Gxts9::connect_mono(uint32_t port,void* data)
       break;
     case EFFECTS_INPUT:
       input = static_cast<float*>(data);
+      break;
+    case BYPASS: 
+      bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
       break;
     default:
       break;
@@ -110,7 +96,16 @@ void Gxts9::run_dsp_mono(uint32_t n_samples)
 {
   if (n_samples< 1) return;
   // run dsp
-  ts9.run_static(n_samples, input, output, &ts9);
+  MXCSR.set_();
+  FAUSTFLOAT buf[n_samples];
+  // do inplace processing at default
+  if (output != input)
+    memcpy(output, input, n_samples*sizeof(float));
+  // check if bypass is pressed
+  if (!bp.pre_check_bypass(bypass, buf, input, n_samples))
+    ts9.run_static(n_samples, input, output, &ts9);
+  bp.post_check_bypass(buf, output, n_samples);
+  MXCSR.reset_();
 }
 
 void Gxts9::connect_all_mono_ports(uint32_t port, void* data)

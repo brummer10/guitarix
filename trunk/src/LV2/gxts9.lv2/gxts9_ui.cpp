@@ -31,7 +31,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 3
+#define CONTROLS 4
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -104,7 +104,7 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
 
 void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
     (*w) = 260; //initial widht of main window
-    (*h) = 300; //initial heigth of main window
+    (*h) = 360; //initial heigth of main window
 }
 
 const char* plugin_set_name() {
@@ -124,6 +124,9 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     ui->widget[2] = add_my_knob(ui->widget[2], TS9_TONE,"Tone", ui,100, 120, 60, 85);
     set_adjustment(ui->widget[2]->adj,400.0, 400.0, 100.0, 1000.0, 0.001, CL_LOGARITHMIC);
     adj_set_scale(ui->widget[2]->adj, 2.0);
+
+    ui->widget[3] = add_my_bypass_switch(ui->widget[3], BYPASS,"Off", ui,100, 240, 60, 85);
+    strncpy(ui->widget[3]->input_label,"On",32);
 }
 
 void plugin_cleanup(X11_UI *ui) {
@@ -132,4 +135,6 @@ void plugin_cleanup(X11_UI *ui) {
 void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
                         uint32_t buffer_size, uint32_t format,
                         const void * buffer) {
+    X11_UI* ui = (X11_UI*)handle;
+    if (port_index == (uint32_t) BYPASS) ui->block_event = -1;
 }
