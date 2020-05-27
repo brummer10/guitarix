@@ -24,6 +24,7 @@
 
 #include "engine.h"
 #include <bitset>
+#include <queue>
 #include <giomm/init.h>     // NOLINT
 #include <giomm/socketservice.h>
 #include "jsonrpc_methods.h"
@@ -132,7 +133,7 @@ private:
     time_t last_change;
     sigc::connection save_conn;
     std::list<CmdConnection*> connection_list;
-    std::vector<broadcast_data> broadcast_list;
+    std::queue<broadcast_data> broadcast_list;
     gx_system::JsonStringWriter *jwc;
     std::map<std::string,bool> *preg_map;
     std::map<std::string,float> maxlevel;

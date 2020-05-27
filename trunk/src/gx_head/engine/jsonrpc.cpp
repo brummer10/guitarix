@@ -906,7 +906,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
             serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString())->get_pdef(),
             params[1]->getInt(), params[2]->getString());
     broadcast_data bd = {jw,CmdConnection::f_parameter_change_notify,0};
-    serv.broadcast_list.push_back(bd);
+    serv.broadcast_list.push(bd);
     }
 
     PROCEDURE(plugin_preset_list_set) {
@@ -916,7 +916,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
             serv.jack.get_engine().pluginlist.find_plugin(params[0]->getString())->get_pdef(),
             params[1]->getInt(), params[2]->getString());
     broadcast_data bd = {jw,CmdConnection::f_parameter_change_notify,0};
-    serv.broadcast_list.push_back(bd);
+    serv.broadcast_list.push(bd);
     }
 
     PROCEDURE(plugin_preset_list_save) {
@@ -1031,7 +1031,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
                 }
             }
         broadcast_data bd = {jw,CmdConnection::f_parameter_change_notify,this};
-        serv.broadcast_list.push_back(bd);
+        serv.broadcast_list.push(bd);
         }
         serv.save_state();
     }
@@ -1057,7 +1057,7 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
             }
         }
     broadcast_data bd = {jw,CmdConnection::f_parameter_change_notify,0};
-    serv.broadcast_list.push_back(bd);
+    serv.broadcast_list.push(bd);
     }
 
     PROCEDURE(setpreset) {
@@ -1759,9 +1759,11 @@ GxService::~GxService() {
     for (std::list<CmdConnection*>::iterator i = connection_list.begin(); i != connection_list.end(); ++i) {
         delete *i;
     }
-    for (unsigned int i = 0; i < broadcast_list.size(); ++i) {
-        gx_system::JsonStringWriter *jw = broadcast_list[i].jw;
+    while (!broadcast_list.empty()) {
+        broadcast_data bd = broadcast_list.front();
+        gx_system::JsonStringWriter *jw = bd.jw;
         delete jw;
+        broadcast_list.pop();
     }
 }
 
@@ -1852,7 +1854,7 @@ void GxService::ladspaloader_update_plugins(gx_system::JsonWriter *jw, CmdConnec
         jw->send_notify_begin("plugins_changed");
         ladspaloader_write_changes((*jw), changed_plugins);
     broadcast_data bd = {jw,CmdConnection::f_log_message,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
     }
     delete preg_map;
     preg_map = 0;
@@ -1881,7 +1883,7 @@ void GxService::send_rack_changed(bool stereo, CmdConnection *cmd) {
     }
     jw->end_array();
     broadcast_data bd = {jw,CmdConnection::f_log_message,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::on_rack_unit_changed(bool stereo) {
@@ -1954,7 +1956,7 @@ void GxService::on_param_value_changed(gx_engine::Parameter *p) {
         assert(false);
     }
     broadcast_data bd = {jw,CmdConnection::f_parameter_change_notify,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::on_midi_changed() {
@@ -1965,7 +1967,7 @@ void GxService::on_midi_changed() {
     jw->send_notify_begin("midi_changed");
     jack.get_engine().controller_map.writeJSON(*jw);
     broadcast_data bd = {jw,CmdConnection::f_midi_changed,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::on_midi_value_changed(int ctl, int value) {
@@ -1979,7 +1981,7 @@ void GxService::on_midi_value_changed(int ctl, int value) {
     jw->write(value);
     jw->end_array();
     broadcast_data bd = {jw,CmdConnection::f_midi_value_changed,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::on_log_message(const string& msg, GxLogger::MsgType tp, bool plugged) {
@@ -1998,7 +2000,7 @@ void GxService::on_log_message(const string& msg, GxLogger::MsgType tp, bool plu
     jw->write(tpname);
     jw->write(msg);
     broadcast_data bd = {jw,CmdConnection::f_log_message,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::on_selection_done(bool v) {
@@ -2009,7 +2011,7 @@ void GxService::on_selection_done(bool v) {
     jw->send_notify_begin("show_tuner");
     jw->write(v);
     broadcast_data bd = {jw,CmdConnection::f_selection_done,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::on_presetlist_changed() {
@@ -2019,7 +2021,7 @@ void GxService::on_presetlist_changed() {
     gx_system::JsonStringWriter *jw = new gx_system::JsonStringWriter;
     jw->send_notify_begin("presetlist_changed");
     broadcast_data bd = {jw,CmdConnection::f_presetlist_changed,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::on_engine_state_change(gx_engine::GxEngineState state) {
@@ -2030,7 +2032,7 @@ void GxService::on_engine_state_change(gx_engine::GxEngineState state) {
     jw->send_notify_begin("state_changed");
     jw->write(engine_state_to_string(state));
     broadcast_data bd = {jw,CmdConnection::f_state_changed,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::preset_changed() {
@@ -2047,7 +2049,7 @@ void GxService::preset_changed() {
         jw->write("");
     }
     broadcast_data bd = {jw,CmdConnection::f_preset_changed,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::on_tuner_freq_changed() {
@@ -2059,7 +2061,7 @@ void GxService::on_tuner_freq_changed() {
     jw->write(jack.get_engine().tuner.get_freq());
     jw->write(jack.get_engine().tuner.get_note());
     broadcast_data bd = {jw,CmdConnection::f_freq_changed,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::display(const Glib::ustring& bank, const Glib::ustring& preset) {
@@ -2071,7 +2073,7 @@ void GxService::display(const Glib::ustring& bank, const Glib::ustring& preset) 
     jw->write(bank);
     jw->write(preset);
     broadcast_data bd = {jw,CmdConnection::f_display,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::set_display_state(TunerSwitcher::SwitcherState state) {
@@ -2088,7 +2090,7 @@ void GxService::set_display_state(TunerSwitcher::SwitcherState state) {
         default: assert(false); break;
     }
     broadcast_data bd = {jw,CmdConnection::f_display_state,0};
-    broadcast_list.push_back(bd);
+    broadcast_list.push(bd);
 }
 
 void GxService::remove_connection(CmdConnection *p) {
@@ -2181,18 +2183,19 @@ void GxService::broadcast(gx_system::JsonStringWriter& jw, CmdConnection::msg_ty
     }
 }
 
-// collect all broadcast messages in a vector and send them one by one every 20ms
+// collect all broadcast messages in a queue and send them one by one every 20ms
 bool GxService::idle_broadcast_handler() {
-    for (unsigned int i = 0; i < broadcast_list.size(); ++i) {
-        gx_system::JsonStringWriter *jw = broadcast_list[i].jw;
-        CmdConnection::msg_type n = broadcast_list[i].n;
-        CmdConnection *sender = broadcast_list[i].sender;
+    //for (unsigned int i = 0; i < broadcast_list.size(); ++i) {
+    while (!broadcast_list.empty()) {
+        broadcast_data bd = broadcast_list.front();
+        gx_system::JsonStringWriter *jw = bd.jw;
+        CmdConnection::msg_type n = bd.n;
+        CmdConnection *sender = bd.sender;
         broadcast(*jw, n, sender);
         delete jw;
+        broadcast_list.pop();
         usleep(2000);
-        //broadcast_list.erase (broadcast_list.begin()+i);
     }
-    broadcast_list.clear();
     return true;
 }
 
