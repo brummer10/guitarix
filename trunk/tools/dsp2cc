@@ -1,7 +1,7 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
-import re, os, sys
+import re, os, sys, subprocess
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -617,7 +617,7 @@ class Parser(object):
                 self.faust_opt.append(options.add);
             cmd ='../tools/dsp2insert -o /tmp/'+self.insert_p+'.py'+' '+'  '.join(self.faust_opt)+' --init-type=insert ../src/faust/'+self.insert_p+'.dsp'
            # print('%s\n' % cmd)
-            os.system(cmd) 
+            result = subprocess.call(cmd, shell=True)
         if self.numOutputs == 2:
             self.has_stereo = True
         if self.topname is None:
