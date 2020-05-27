@@ -1,3 +1,13 @@
+guitarix2 (0.40.0) unstable; urgency=low
+
+  * Port GUI and underlying lib's (gxw/gxwmm) to GTK3 (gtkmm3)
+  * Port LV2 plugin GUI's to X11/cairo
+  * Add Midi feedback support
+  * Add new PowerAmp modul
+  * Fix several Bug's and hopefully don't introduce to much new one's
+
+ -- brummer <brummer-@web.de>  Wed, 27 May 2020 08:50:42 +0200
+
 guitarix2 (0.38.0) unstable; urgency=low
 
   * fix bug #67, dont use malloc.h on FreeBSD
