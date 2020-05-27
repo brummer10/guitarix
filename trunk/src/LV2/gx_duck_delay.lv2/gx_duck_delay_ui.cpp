@@ -132,7 +132,7 @@ void plugin_cleanup(X11_UI *ui) {
 void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
                         uint32_t buffer_size, uint32_t format,
                         const void * buffer) {
-    // port value change message from host
-    // do special stuff when needed
+    X11_UI* ui = (X11_UI*)handle;
+    if (port_index == (uint32_t) BYPASS) ui->block_event = -1;
 }
 

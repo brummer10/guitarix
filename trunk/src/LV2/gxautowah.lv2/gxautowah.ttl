@@ -47,7 +47,7 @@
     
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxautowah#gui>;
   
-    lv2:minorVersion 34;
+    lv2:minorVersion 40;
     lv2:microVersion 0;
     
 rdfs:comment """
@@ -97,7 +97,7 @@ All other trademarks are the property of their respective holders.'
     
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxautowah#gui>;
 
-    lv2:minorVersion 34;
+    lv2:minorVersion 40;
     lv2:microVersion 0;
 
 rdfs:comment """

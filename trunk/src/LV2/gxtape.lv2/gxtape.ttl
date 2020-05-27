@@ -47,7 +47,7 @@
     
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxtape#gui>;
 
-    lv2:minorVersion 34;
+    lv2:minorVersion 40;
     lv2:microVersion 0;
 
     lv2:port [

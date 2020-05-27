@@ -47,7 +47,7 @@
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_hogsfoot_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
       
-    lv2:minorVersion 34;
+    lv2:minorVersion 40;
     lv2:microVersion 0;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_hogsfoot_gui#_hogsfoot_>;

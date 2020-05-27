@@ -49,7 +49,7 @@
     
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_chorus_stereo#gui>;
   
-    lv2:minorVersion 34;
+    lv2:minorVersion 40;
     lv2:microVersion 0;
     
 rdfs:comment """

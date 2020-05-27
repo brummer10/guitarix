@@ -57,7 +57,7 @@
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_redeye#gui>;
   
-    lv2:minorVersion 34;
+    lv2:minorVersion 40;
     lv2:microVersion 0;
     
 rdfs:comment """
@@ -171,7 +171,7 @@ rdfs:comment """
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_redeye#gui>;
 
-    lv2:minorVersion 34;
+    lv2:minorVersion 40;
     lv2:microVersion 0;
 
     lv2:port [
@@ -279,7 +279,7 @@ rdfs:comment """
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_redeye#gui>;
 
-    lv2:minorVersion 34;
+    lv2:minorVersion 40;
     lv2:microVersion 0;
 
     lv2:port [
