@@ -191,6 +191,6 @@ void fp_init(FilePicker *filepicker, const char *path) {
     filepicker->selected_file = NULL;
     filepicker->path = NULL;
     filepicker->filter = NULL;
-    asprintf(&filepicker->path, path);
+    asprintf(&filepicker->path, "%s", path);
     assert(filepicker->path != NULL);
 }
