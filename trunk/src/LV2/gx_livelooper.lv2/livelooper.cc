@@ -557,6 +557,28 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
     // engine var settings
 	float 	fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * fgain)));
 	float 	fSlow1 = gain_out;
+    float   iClip1  = fclip1*0.01;
+	float   iClip2  = fclip2*0.01;
+	float   iClip3  = fclip3*0.01;
+	float   iClip4  = fclip4*0.01;
+	float   iClips1  = (100-fclips1)*0.01;
+	float   iClips2  = (100-fclips2)*0.01;
+	float   iClips3  = (100-fclips3)*0.01;
+	float   iClips4  = (100-fclips4)*0.01;
+    if(sync_tapes) {
+        back4 = back3 = back2 = back1;
+        fplayh4 = fplayh3 = fplayh2 = fplayh1;
+        IOTAR4 = IOTAR3 =IOTAR2 = IOTAR1;
+        IOTA4 = IOTA3 =IOTA2 = IOTA1;
+        fplay4 = fplay3 = fplay2 = fplay1;
+        rfplay4 = rfplay3 = rfplay2 = rfplay1;
+        iClip4 = iClip3 = iClip2 = iClip1;
+        iClips4 = iClips3 = iClips2 = iClips1;
+        RecSize4[0] = RecSize3[0] = RecSize2[0] = RecSize1[0];
+        RecSize4[1] = RecSize3[1] = RecSize2[1] = RecSize1[1];
+        speed4 = speed3 = speed2 = speed1;
+        rectime3 = rectime2 = rectime1 = rectime0;
+    }
     int 	iSlow3 = int(record1);
 	int 	iSlow4 = int((1 - freset1));
 	float 	fSlow5 = (((1 - iSlow3) * gain1) * (fplay1+rfplay1));
@@ -570,27 +592,6 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 	int 	iSlow13 = int((1 - freset4));
 	float 	fSlow14 = (((1 - iSlow12) * gain4) * (fplay4+rfplay4));
 	float 	fSlow15 = (0.0001f * fSlow1);
-    float   iClip1  = fclip1*0.01;
-	float   iClip2  = fclip2*0.01;
-	float   iClip3  = fclip3*0.01;
-	float   iClip4  = fclip4*0.01;
-	float   iClips1  = (100-fclips1)*0.01;
-	float   iClips2  = (100-fclips2)*0.01;
-	float   iClips3  = (100-fclips3)*0.01;
-	float   iClips4  = (100-fclips4)*0.01;
-    if(sync_tapes) {
-        fplayh4 = fplayh3 = fplayh2 = fplayh1;
-        IOTAR4 = IOTAR3 =IOTAR2 = IOTAR1;
-        IOTA4 = IOTA3 =IOTA2 = IOTA1;
-        fplay4 = fplay3 = fplay2 = fplay1;
-        rfplay4 = rfplay3 = rfplay2 = rfplay1;
-        iClip4 = iClip3 = iClip2 = iClip1;
-        iClips4 = iClips3 = iClips2 = iClips1;
-        RecSize4[0] = RecSize3[0] = RecSize2[0] = RecSize1[0];
-        RecSize4[1] = RecSize3[1] = RecSize2[1] = RecSize1[1];
-        speed4 = speed3 = speed2 = speed1;
-        rectime3 = rectime2 = rectime1 = rectime0;
-    }
     // run loop
 	for (int i=0; i<count; i++) {
 		fRec0[0] = (fSlow0 + (0.999f * fRec0[1]));
