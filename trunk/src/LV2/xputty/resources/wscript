@@ -41,7 +41,7 @@ def img2obj(task):
     src = " ".join(["'%s'" % os.path.splitext(v.name)[0] for v in task.inputs[0:]])
     cmd = ("cd src/LV2/xputty/resources/ \
     && for f in %s; do\
-     %s -r -b binary ${f}.png -o  ${f}.o; \
+     %s -r -b binary -z noexecstack ${f}.png -o  ${f}.o; \
      done " % (src, env.LD[0]) )
    # Logs.debug("runner: system command -> %s" % cmd)
     ret = task.exec_command(cmd, shell=True)
