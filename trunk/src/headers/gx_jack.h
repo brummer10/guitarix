@@ -25,6 +25,8 @@
 #ifndef SRC_HEADERS_GX_JACK_H_
 #define SRC_HEADERS_GX_JACK_H_
 
+#include <atomic>
+
 #include <jack/jack.h>          // NOLINT
 #include <jack/midiport.h>
 #include <jack/ringbuffer.h>
