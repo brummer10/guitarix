@@ -11,6 +11,10 @@
 #ifndef XASPRINTF_H_
 #define XASPRINTF_H_
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
