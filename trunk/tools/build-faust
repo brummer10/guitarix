@@ -8,6 +8,7 @@ function usage() {
   echo "    -S x: faust use vector size x"
   echo "    -c:   copy generated file to user plugin dir"
   echo "    -k:   keep in build dir"
+  echo "    -r:   include resampler"
   exit 1
 }
 tooldir="$(dirname "$0")"
@@ -17,7 +18,8 @@ DIR=""
 faustopt=()
 copy=0
 keep=0
-while getopts sdVS:ck OPT; do
+resample=0
+while getopts sdVS:ckr OPT; do
   case "$OPT" in
   h) usage;;
   s) prec="--float";;
@@ -26,6 +28,7 @@ while getopts sdVS:ck OPT; do
   S) faustopt+=(--add="-vs $OPTARG");;
   c) copy=1;;
   k) keep=1;;
+  r) resample=1;;
   \?) usage;;
   esac
 done
@@ -49,6 +52,11 @@ opt="$opt -Wall -Wno-unused-function"
 #opt="$opt -Wno-unused-but-set-variable"
 opt="$opt -D_= "
 opt="$opt -O2 -march=native -mmmx -msse4.2 -mfpmath=sse -ftree-loop-linear -ffinite-math-only -fno-math-errno -fno-signed-zeros -fstrength-reduce"
+if [ $resample = 1 ]; then
+  opt="$opt -I$instdir/src/zita-resampler-1.1.0 -I$instdir/src/zita-resampler-1.1.0/zita-resampler"
+  opt="$opt $instdir/src/zita-resampler-1.1.0/resampler.cc $instdir/src/zita-resampler-1.1.0/resampler-table.cc"
+fi
+
 g++ $opt "$DIR""$bname.cc" -o "$DIR""$bname.so"
 rm -f "$bname.cc"
 if [ $copy = 1 ]; then

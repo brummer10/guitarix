@@ -1084,7 +1084,7 @@ declare samplerate "@plugindef.fixedrate";
 %end
 
 import("stdfaust.lib");
-
+//TABLE
 process = pre : fi.iir((@b_list),(@a_list)) with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = ba.if(b, 1 - x, x);
@@ -1118,7 +1118,7 @@ b.closeBox();
 """)
 
 faust_simple_filter_template = Template("""\
-
+//TABLE
 process = pre : fi.iir((@b_list),(@a_list)) with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = ba.if(b, 1 - x, x);
@@ -1164,7 +1164,7 @@ declare description "@plugindef.description";
 %end
 
 import("stdfaust.lib");
-
+//TABLE
 process = pre : _<:*(dry),(*(wet) : fi.iir((@b_list),(@a_list))):>_ with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = ba.if(b, 1 - x, x);
@@ -1201,7 +1201,7 @@ b.closeBox();
 """)
 
 faust_simple_filter_dry_wet_template = Template("""\
-
+//TABLE
 process = pre : _<:*(dry),(*(wet) : fi.iir((@b_list),(@a_list))):>_ with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
     Inverted(b, x) = ba.if(b, 1 - x, x);
