@@ -73,13 +73,13 @@ GxNSMhandler::~GxNSMhandler() {
 
 bool GxNSMhandler::check_nsm(char *argv[]) {
 
-    std::string nsm_url = getenv( "NSM_URL" );
+    const char *nsm_url = getenv( "NSM_URL" );
 
-    if (!nsm_url.empty()) {
+    if (nsm_url) {
         nsm = nsm_new();
         nsm_set_open_callback( nsm, gx_nsm_open, static_cast<void*>(this));
         nsm_set_save_callback( nsm, gx_nsm_save, static_cast<void*>(this));
-        if ( 0 == nsm_init( nsm, nsm_url.c_str())) {
+        if ( 0 == nsm_init( nsm, nsm_url)) {
             nsm_send_announce( nsm, "Guitarix", "", argv[0]);
             nsm_check_wait(nsm, 200);
             return true;
