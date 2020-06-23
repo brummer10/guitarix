@@ -26,6 +26,7 @@
 #define SRC_HEADERS_GX_PRESET_H_
 
 class PosixSignals;
+class GxNSMhandler;
 
 namespace gx_preset {
 
@@ -155,6 +156,7 @@ private:
     static bool check_create_config_dir(const Glib::ustring& dir);
     static GxSettings *instance;
     friend class ::PosixSignals;
+    friend class ::GxNSMhandler;
     Glib::ustring sync_name;
     void preset_sync_start();
     static void *preset_sync_run(void *p);

@@ -2438,6 +2438,14 @@ bool MainWindow::on_key_press_event(GdkEventKey *event) {
     return false;
 }
 
+bool MainWindow::on_nsm_quit() {
+    options.set_hideonquit(false);
+    delete_ladspalist_window();
+    machine.stop_socket();
+    Gtk::Main::quit();
+    return false;
+}
+
 bool MainWindow::on_quit() {
     if (options.get_hideonquit()) {
         machine.save_to_state();
@@ -2472,10 +2480,11 @@ void MainWindow::amp_controls_visible(Gtk::Range *rr) {
 }
 
 MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
-		       GxTheme& theme_, Gtk::Window *splash, const Glib::ustring& title)
+		       PosixSignals& posixsig_ ,GxTheme& theme_, Gtk::Window *splash, const Glib::ustring& title)
     : sigc::trackable(),
       options(options_),
       machine(machine_),
+      posixsig(posixsig_),
       theme(theme_),
       bld(options_, machine_),
       freezer(),
@@ -2511,6 +2520,9 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       status_icon(Gtk::StatusIcon::create(gx_head_icon)),
       keyswitch(machine, sigc::mem_fun(this, &MainWindow::display_preset_msg)),
       ladspalist_window() {
+
+    posixsig.signal_trigger_nsm_exit().connect(
+        sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_nsm_quit)));
 
     /*
     ** create actions and some parameters

@@ -70,7 +70,9 @@ struct GdkSpanFunc;
 #endif
 #include <gtkmm.h>
 #include <curl/curl.h>
+#include <thread>
 
+#include "nsm.h"
 #include "engine.h"
 #include "jsonrpc.h"
 #include "machine.h"

@@ -28,12 +28,135 @@
 #include <gtkmm/main.h>     // NOLINT
 #include <gxwmm/init.h>     // NOLINT
 #include <string>           // NOLINT
-#include <thread>
 #include "jsonrpc.h"
 
 #ifdef HAVE_AVAHI
 #include "avahi_discover.h"
 #endif
+
+
+/****************************************************************
+ ** class GxNSMhandler
+ */
+
+class GxNSMhandler {
+  private:
+    gx_system::CmdlineOptions *options;
+    PosixSignals *posixsig;
+    int _nsm_open (const char *name, const char *display_name,
+            const char *client_id, char **out_msg);
+    int _nsm_save ( char **out_msg);
+    void _nsm_start_poll();
+    bool _poll_nsm();
+    nsm_client_t *nsm;
+
+ public:
+    bool check_nsm(char *argv[]);
+    static int gx_nsm_open (const char *name, const char *display_name,
+            const char *client_id, char **out_msg,  void *userdata);
+    static int gx_nsm_save ( char **out_msg, void *userdata );
+    GxNSMhandler(gx_system::CmdlineOptions *options,PosixSignals *posixsig);
+    ~GxNSMhandler();
+};
+
+GxNSMhandler::GxNSMhandler(gx_system::CmdlineOptions *options_,PosixSignals *posixsig_)
+    : options(options_),
+      posixsig(posixsig_),
+      nsm(0) {}
+
+GxNSMhandler::~GxNSMhandler() {
+    if (nsm) {
+        nsm_free( nsm );
+        nsm = 0;
+    }
+}
+
+bool GxNSMhandler::check_nsm(char *argv[]) {
+
+    std::string nsm_url = getenv( "NSM_URL" );
+
+    if (!nsm_url.empty()) {
+        nsm = nsm_new();
+        nsm_set_open_callback( nsm, gx_nsm_open, static_cast<void*>(this));
+        nsm_set_save_callback( nsm, gx_nsm_save, static_cast<void*>(this));
+        if ( 0 == nsm_init( nsm, nsm_url.c_str())) {
+            nsm_send_announce( nsm, "Guitarix", "", argv[0]);
+            nsm_check_wait(nsm, 200);
+            return true;
+        } else {
+            nsm_free(nsm);
+            nsm = 0;
+        }
+    }
+    return false;
+}
+
+bool GxNSMhandler::_poll_nsm() {
+    if (nsm) {
+        nsm_check_nowait(nsm);
+        return true;
+    }
+    return false;
+    
+}
+
+void GxNSMhandler::_nsm_start_poll() {
+    Glib::signal_timeout().connect(
+        sigc::mem_fun(*this, &GxNSMhandler::_poll_nsm),
+        200, Glib::PRIORITY_LOW);
+}
+
+int GxNSMhandler::_nsm_open (const char *name, const char *display_name,
+                            const char *client_id, char **out_msg ) {
+
+    std::string dirpath = name;
+    if (dirpath[dirpath.size()-1] != '/') {
+        dirpath += "/";
+    }
+    options->set_user_dir(dirpath);
+    options->set_user_IR_dir( Glib::build_filename(dirpath, "IR/"));
+    options->set_preset_dir( Glib::build_filename(dirpath, "banks/"));
+    options->set_plugin_dir( Glib::build_filename(dirpath, "plugins/"));
+    options->set_pluginpreset_dir( Glib::build_filename(dirpath, "pluginpresets/"));
+    options->set_lv2_preset_dir( Glib::build_filename(dirpath, "pluginpresets/lv2/"));
+    options->set_loop_dir( Glib::build_filename(dirpath, "loops/"));
+    options->set_temp_dir( Glib::build_filename(dirpath, "temp/"));
+
+    options->set_hideonquit(true);
+    options->set_jack_instancename(client_id);
+    options->set_jack_noconnect(true);
+    options->set_jack_single(true);
+   // options->set_opt_autosave(true);
+    options->read_ui_vars();
+    gx_print_info(_("nsm startup"), name);
+    _nsm_start_poll();
+
+    return ERR_OK;
+}
+ 
+int GxNSMhandler::_nsm_save ( char **out_msg) {
+    if (gx_preset::GxSettings::instance && nsm) {
+        bool cur_state = gx_preset::GxSettings::instance->get_auto_save_state();
+        gx_preset::GxSettings::instance->disable_autosave(false);
+        gx_preset::GxSettings::instance->auto_save_state();
+        gx_preset::GxSettings::instance->disable_autosave(cur_state);
+    }    
+    return ERR_OK;
+}
+
+//static
+int GxNSMhandler::gx_nsm_open (const char *name, const char *display_name,
+            const char *client_id, char **out_msg, void *userdata ) {
+    GxNSMhandler * nsmhandler = static_cast<GxNSMhandler*>(userdata);
+    return nsmhandler->_nsm_open (name, display_name, client_id, out_msg);
+}
+            
+//static            
+int GxNSMhandler::gx_nsm_save ( char **out_msg, void *userdata ) {
+    GxNSMhandler * nsmhandler = static_cast<GxNSMhandler*>(userdata);
+    return nsmhandler->_nsm_save(out_msg);
+}
+
 
 /****************************************************************
  ** class GxTheme
@@ -42,37 +165,35 @@
 void GxTheme::init(gx_system::CmdlineOptions* options_) {
     options = options_;
     if (!options) {
-	return; // program exit, no cleanup needed
+        return; // program exit, no cleanup needed
     }
     std::string st_dir = options->get_style_dir();
     Gtk::IconTheme::get_default()->prepend_search_path(st_dir.substr(0, st_dir.size()-1));
     css_provider = Gtk::CssProvider::create();
     css_show_values = Gtk::CssProvider::create();
     style_context = Gtk::StyleContext::create();
-    style_context->add_provider_for_screen(
-	Gdk::Screen::get_default(), css_show_values,
-	GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    style_context->add_provider_for_screen(
-	Gdk::Screen::get_default(), css_provider,
-	GTK_STYLE_PROVIDER_PRIORITY_APPLICATION+1);
+    style_context->add_provider_for_screen(    Gdk::Screen::get_default(), css_show_values,
+        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    style_context->add_provider_for_screen(    Gdk::Screen::get_default(), css_provider,
+        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION+1);
 }
 
 bool GxTheme::set_new_skin(const Glib::ustring& skin_name) {
     if (!options) {
-	return false;
+        return false;
     }
     if (skin_name.empty()) {
-	options->skin.name = skin_name;
+        options->skin.name = skin_name;
     } else {
-	Glib::RefPtr<Gtk::IconTheme> deftheme = Gtk::IconTheme::get_default();
-	std::vector<Glib::ustring> pathlist = deftheme->get_search_path();
-	if (pathlist.empty() || pathlist.front() != options->get_style_filepath(options->skin.name)) {
-	    pathlist.insert(pathlist.cbegin(), "");
-	}
-	options->skin.name = skin_name;
-	*pathlist.begin() = options->get_style_filepath(skin_name);
-	deftheme->set_search_path(pathlist);
-	deftheme->rescan_if_needed();
+        Glib::RefPtr<Gtk::IconTheme> deftheme = Gtk::IconTheme::get_default();
+        std::vector<Glib::ustring> pathlist = deftheme->get_search_path();
+        if (pathlist.empty() || pathlist.front() != options->get_style_filepath(options->skin.name)) {
+            pathlist.insert(pathlist.cbegin(), "");
+        }
+        options->skin.name = skin_name;
+        *pathlist.begin() = options->get_style_filepath(skin_name);
+        deftheme->set_search_path(pathlist);
+        deftheme->rescan_if_needed();
     }
     css_provider->load_from_path(options->get_current_style_cssfile());
     return true;
@@ -88,19 +209,19 @@ void GxTheme::update_show_values() {
      * css style sheet, it will disable this update hack.
      */
     if (!options) {
-	return;
+        return;
     }
     boost::format fmt(
-	"gx-regler, gx-big-knob, gx-mid-knob, gx-small-knob, gx-small-knob-r, gx-value-display, gx-vslider, gx-hslider {\n"
-	"  -GxRegler-show-value: %1%;\n%2%"
-	"}\n");
+        "gx-regler, gx-big-knob, gx-mid-knob, gx-small-knob, gx-small-knob-r, gx-value-display, gx-vslider, gx-hslider {\n"
+        "  -GxRegler-show-value: %1%;\n%2%"
+        "}\n");
     fmt % gx_system::to_string(options->system_show_value);
     css_show_values->load_from_data((boost::format(fmt) % "  min-width: 1px\n").str());
     for (int i = 0; i < 50; i++) { // doesn't work reliable without this wait loop
-	while (Gtk::Main::events_pending()) {
-	    Gtk::Main::iteration(false);
-	}
-	usleep(1000);
+        while (Gtk::Main::events_pending()) {
+            Gtk::Main::iteration(false);
+        }
+        usleep(1000);
     }
     css_show_values->load_from_data((fmt % "").str());
 }
@@ -111,19 +232,18 @@ void GxTheme::reload_css_post() {
     window->move(window_x, window_y);
     window->set_focus_on_map(true);
     try {
-	css_provider->load_from_path(options->get_current_style_cssfile());
+        css_provider->load_from_path(options->get_current_style_cssfile());
     } catch (Gtk::CssProviderError& e) {
-	cerr << "CSS Style Error: " << e.what() << endl;
-	gx_gui::show_error_msg(e.what());
+        cerr << "CSS Style Error: " << e.what() << endl;
+        gx_gui::show_error_msg(e.what());
     }
-    style_context->add_provider_for_screen(
-	Gdk::Screen::get_default(), css_provider,
-	GTK_STYLE_PROVIDER_PRIORITY_APPLICATION+1);
+    style_context->add_provider_for_screen(    Gdk::Screen::get_default(), css_provider,
+        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION+1);
 }
 
 void GxTheme::reload_css() {
     if (!options) {
-	return;
+        return;
     }
     style_context->remove_provider_for_screen(Gdk::Screen::get_default(), css_provider);
     Glib::signal_idle().connect_once(sigc::mem_fun(this, &GxTheme::reload_css_post));
@@ -133,38 +253,18 @@ void GxTheme::reload_css() {
 }
 #endif
 
+
 /****************************************************************
  ** class PosixSignals
- **
- ** Block unix signals and catch them in a special thread.
- ** Blocking is inherited by all threads created after an
- ** instance of PosixSignals
  */
-
-class PosixSignals {
-private:
-    sigset_t waitset;
-    std::thread *thread;
-    bool gui;
-    GxTheme *theme;
-    volatile bool exit;
-    void signal_helper_thread();
-    void quit_slot();
-    void gx_ladi_handler();
-    void create_thread();
-    bool gtk_level();
-    static void relay_sigchld(int);
-public:
-    PosixSignals(bool gui, GxTheme *theme = nullptr);
-    ~PosixSignals();
-};
 
 PosixSignals::PosixSignals(bool gui_, GxTheme *theme_)
     : waitset(),
       thread(nullptr),
       gui(gui_),
       theme(theme_),
-      exit(false) {
+      exit(false),
+      nsm_session_control(false) {
     GxExit::get_instance().set_ui_thread();
     sigemptyset(&waitset);
     /* ----- block signal USR1 ---------
@@ -173,7 +273,7 @@ PosixSignals::PosixSignals(bool gui_, GxTheme *theme_)
     */
     sigaddset(&waitset, SIGUSR1);
     if (theme) {
-	sigaddset(&waitset, SIGUSR2);
+        sigaddset(&waitset, SIGUSR2);
     }
     sigaddset(&waitset, SIGCHLD);
     sigaddset(&waitset, SIGINT);
@@ -212,17 +312,21 @@ void PosixSignals::create_thread() {
 }
 
 void PosixSignals::quit_slot() {
-    GxExit::get_instance().exit_program();
+    if (nsm_session_control) {
+        trigger_nsm_exit();
+    } else {
+        GxExit::get_instance().exit_program();
+    }
 }
 
 void PosixSignals::gx_ladi_handler() {
     gx_print_warning(
-	_("signal_handler"), _("signal USR1 received, save settings"));
+        _("signal_handler"), _("signal USR1 received, save settings"));
     if (gx_preset::GxSettings::instance) {
-	bool cur_state = gx_preset::GxSettings::instance->get_auto_save_state();
-	gx_preset::GxSettings::instance->disable_autosave(false);
-	gx_preset::GxSettings::instance->auto_save_state();
-	gx_preset::GxSettings::instance->disable_autosave(cur_state);
+        bool cur_state = gx_preset::GxSettings::instance->get_auto_save_state();
+        gx_preset::GxSettings::instance->disable_autosave(false);
+        gx_preset::GxSettings::instance->auto_save_state();
+        gx_preset::GxSettings::instance->disable_autosave(cur_state);
     }
 }
 
@@ -232,9 +336,9 @@ void PosixSignals::relay_sigchld(int) {
 
 bool PosixSignals::gtk_level() {
     if (! gui) {
-	return 1;
+        return 1;
     } else {
-	return Gtk::Main::level();
+        return Gtk::Main::level();
     }
 }
 
@@ -248,85 +352,84 @@ void PosixSignals::signal_helper_thread() {
     pthread_sigmask(SIG_BLOCK, &waitset, NULL);
     bool seen = false;
     while (true) {
-	int sig;
+        int sig;
         int ret = sigwait(&waitset, &sig);
-	if (exit) {
-	    break;
-	}
+        if (exit) {
+            break;
+        }
         if (ret != 0) {
             assert(errno == EINTR);
-	    continue;
-	}
-	switch (sig) {
-	case SIGUSR1:
-	    if (gtk_level() < 1) {
-		gx_print_info(_("system startup"),
-					 _("signal usr1 skipped"));
-		break;
-	    }
-	    // do not add a new call if another one is already pending
-	    if (source_id_usr1 == 0 ||
-		g_main_context_find_source_by_id(NULL, source_id_usr1) == NULL) {
-		const Glib::RefPtr<Glib::IdleSource> idle_source = Glib::IdleSource::create();
-		idle_source->connect(
-		    sigc::bind_return<bool>(
-			sigc::mem_fun(*this, &PosixSignals::gx_ladi_handler),false));
-		idle_source->attach();
-		source_id_usr1 = idle_source->get_id();
-	    }
-	    break;
+            continue;
+        }
+        switch (sig) {
+        case SIGUSR1:
+            if (gtk_level() < 1) {
+                gx_print_info(_("system startup"),
+                        _("signal usr1 skipped"));
+            break;
+            }
+            // do not add a new call if another one is already pending
+            if (source_id_usr1 == 0 ||
+                g_main_context_find_source_by_id(NULL, source_id_usr1) == NULL) {
+                    const Glib::RefPtr<Glib::IdleSource> idle_source = Glib::IdleSource::create();
+                    idle_source->connect( sigc::bind_return<bool>(
+                        sigc::mem_fun(*this, &PosixSignals::gx_ladi_handler),false));
+                    idle_source->attach();
+                    source_id_usr1 = idle_source->get_id();
+                }
+            break;
 #ifndef NDEBUG
-	case SIGUSR2:
-	    if (gtk_level() < 1) {
-		gx_print_info(_("system startup"),
-					 _("signal usr2 skipped"));
-		break;
-	    }
-	    // do not add a new call if another one is already pending
-	    if (source_id_usr2 == 0 ||
-		g_main_context_find_source_by_id(NULL, source_id_usr2) == NULL) {
-		const Glib::RefPtr<Glib::IdleSource> idle_source = Glib::IdleSource::create();
-		idle_source->connect(
-		    sigc::bind_return<bool>(
-			sigc::mem_fun(*theme, &GxTheme::reload_css), false));
-		idle_source->attach();
-		source_id_usr2 = idle_source->get_id();
-	    }
-	    break;
+        case SIGUSR2:
+            if (gtk_level() < 1) {
+                gx_print_info(_("system startup"),
+                        _("signal usr2 skipped"));
+                break;
+            }
+            // do not add a new call if another one is already pending
+            if (source_id_usr2 == 0 ||
+                g_main_context_find_source_by_id(NULL, source_id_usr2) == NULL) {
+                    const Glib::RefPtr<Glib::IdleSource> idle_source = Glib::IdleSource::create();
+                idle_source->connect(
+                sigc::bind_return<bool>(
+                sigc::mem_fun(*theme, &GxTheme::reload_css), false));
+                idle_source->attach();
+                source_id_usr2 = idle_source->get_id();
+            }
+            break;
 #endif
-	case SIGCHLD:
-	    Glib::signal_idle().connect_once(
-		sigc::ptr_fun(gx_child_process::gx_sigchld_handler));
-	    break;
-	case SIGINT:
-	case SIGQUIT:
-	case SIGTERM:
-	case SIGHUP:
-	    switch (sig) {
-	    case SIGINT:
-		signame = _("ctrl-c");
-		break;
-	    case SIGQUIT:
-		signame = "SIGQUIT";
-		break;
-	    case SIGTERM:
-		signame = "SIGTERM";
-		break;
-	    case SIGHUP:
-		signame = "SIGHUP";
-		break;
-	    }
-	    if (!seen && gtk_level() == 1) {
-		printf("\nquit (%s)\n", signame);
-		Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PosixSignals::quit_slot));
-	    } else {
-		GxExit::get_instance().exit_program(
-		    (boost::format("\nQUIT (%1%)\n") % signame).str());
-	    }
-	    seen = true;
-	    break;
-	default:
-	    assert(false);
+        case SIGCHLD:
+            Glib::signal_idle().connect_once(
+                sigc::ptr_fun(gx_child_process::gx_sigchld_handler));
+            break;
+        case SIGINT:
+        case SIGQUIT:
+        case SIGTERM:
+        case SIGHUP:
+            switch (sig) {
+            case SIGINT:
+                signame = _("ctrl-c");
+                break;
+            case SIGQUIT:
+                signame = "SIGQUIT";
+                break;
+            case SIGTERM:
+                signame = "SIGTERM";
+                break;
+            case SIGHUP:
+                signame = "SIGHUP";
+                break;
+            }
+            if (!seen && gtk_level() == 1) {
+                printf("\nquit (%s)\n", signame);
+                Glib::signal_idle().connect_once(sigc::mem_fun(*this, &PosixSignals::quit_slot));
+            } else {
+                GxExit::get_instance().exit_program(
+                    (boost::format("\nQUIT (%1%)\n") % signame).str());
+            }
+            seen = true;
+            break;
+        default:
+            assert(false);
         }
     }
 }
@@ -362,22 +465,22 @@ ErrorPopup::~ErrorPopup() {
 
 void ErrorPopup::on_message(const Glib::ustring& msg_, GxLogger::MsgType tp, bool plugged) {
     if (plugged) {
-	return;
+        return;
     }
     if (tp == GxLogger::kError) {
-	if (active) {
-	    msg += "\n" + msg_;
-	    if (msg.size() > 1000) {
-		msg.substr(msg.size()-1000);
-	    }
-	    if (dialog) {
-		dialog->set_message(msg);
-	    }
-	} else {
-	    msg = msg_;
-	    active = true;
-	    show_msg();
-	}
+        if (active) {
+            msg += "\n" + msg_;
+            if (msg.size() > 1000) {
+                msg.substr(msg.size()-1000);
+            }
+            if (dialog) {
+                dialog->set_message(msg);
+            }
+        } else {
+            msg = msg_;
+            active = true;
+            show_msg();
+        }
     }
 }
 
@@ -392,9 +495,10 @@ void ErrorPopup::show_msg() {
     dialog->set_keep_above(true);
     dialog->set_title(_("GUITARIX ERROR"));
     dialog->signal_response().connect(
-	sigc::mem_fun(*this, &ErrorPopup::on_response));
+        sigc::mem_fun(*this, &ErrorPopup::on_response));
     dialog->show();
 }
+
 
 /****************************************************************
  ** class GxSplashBox
@@ -444,15 +548,16 @@ void GxSplashBox::on_show() {
 /****************************************************************
  ** main()
  */
+ 
 #if 0
 #ifndef NDEBUG
 int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& options,
                         gx_engine::ParamMap& pmap, const string& fname) {
     pmap.set_init_values();
     if (!options.get_rcset().empty()) {
-	std::string rcfile = options.get_style_filepath("gx_head_"+options.get_rcset()+".rc");
-	gtk_rc_parse(rcfile.c_str());
-	gtk_rc_reset_styles(gtk_settings_get_default());
+        std::string rcfile = options.get_style_filepath("gx_head_"+options.get_rcset()+".rc");
+        gtk_rc_parse(rcfile.c_str());
+        gtk_rc_reset_styles(gtk_settings_get_default());
     }
     Gtk::Window *w = 0;
     gx_ui::GxUI ui;
@@ -460,8 +565,8 @@ int debug_display_glade(gx_engine::GxEngine& engine, gx_system::CmdlineOptions& 
     w = bld->get_first_window();
     gx_ui::GxUI::updateAllGuis(true);
     if (w) {
-	Gtk::Main::run(*w);
-	delete w;
+    Gtk::Main::run(*w);
+    delete w;
     }
     return 0;
 }
@@ -487,14 +592,14 @@ static void mainHeadless(int argc, char *argv[]) {
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
     if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
-	cerr << 
-	    _("old config directory found (.gx_head)."
-	      " state file and standard presets file have been copied to"
-	      " the new directory (.config/guitarix).\n"
-	      " Additional old preset files can be imported into the"
-	      " new bank scheme by mouse drag and drop with a file"
-	      " manager");
-	return;
+        cerr << 
+            _("old config directory found (.gx_head)."
+            " state file and standard presets file have been copied to"
+            " the new directory (.config/guitarix).\n"
+            " Additional old preset files can be imported into the"
+            " new bank scheme by mouse drag and drop with a file"
+            " manager");
+        return;
     }
 
     gx_engine::GxMachine machine(options);
@@ -502,15 +607,15 @@ static void mainHeadless(int argc, char *argv[]) {
     gx_jack::GxJack::rt_watchdog_set_limit(options.get_idle_thread_timeout());
     machine.loadstate();
     //if (!in_session) {
-    //	gx_settings.disable_autosave(options.get_opt_auto_save());
+    //    gx_settings.disable_autosave(options.get_opt_auto_save());
     //}
 
     if (! machine.get_jack()->gx_jack_connection(true, true, 0, options)) {
-	cerr << "can't connect to jack\n";
-	return;
+        cerr << "can't connect to jack\n";
+        return;
     }
     if (need_new_preset) {
-	machine.create_default_scratch_preset();
+        machine.create_default_scratch_preset();
     }
     // when midiout is requested we need to reload state in order to send midi feedback
     if (options.system_midiout) machine.loadstate();
@@ -520,91 +625,91 @@ static void mainHeadless(int argc, char *argv[]) {
     machine.get_jack()->shutdown.connect(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit));
     int port = options.get_rpcport();
     if (port == RPCPORT_DEFAULT) {
-	port = 7000;
+        port = 7000;
     }
     if (port != RPCPORT_NONE) {
-	machine.start_socket(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), options.get_rpcaddress(), port);
-	loop->run();
+        machine.start_socket(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit), options.get_rpcaddress(), port);
+        loop->run();
     } else {
-	loop->run();
+        loop->run();
     }
     gx_child_process::childprocs.killall();
 }
 
 static void exception_handler() {
     try {
-	throw; // re-throw current exception
+        throw; // re-throw current exception
     } catch (const GxFatalError& error) {
-	cerr << error.what() << endl;
-	gx_print_fatal(_("Guitarix fatal error"), error.what());
+        cerr << error.what() << endl;
+        gx_print_fatal(_("Guitarix fatal error"), error.what());
     } catch (const Glib::OptionError &error) {
-	cerr << error.what() << endl;
-	cerr << _("use \"guitarix -h\" to get a help text") << endl;
-	gx_print_fatal(_("Guitarix Commandline Option Error"),
-		       Glib::ustring::compose(
-			   "%1\n%2",
-			   error.what(),
-			   _("use \"guitarix -h\" to get a help text")));
+        cerr << error.what() << endl;
+        cerr << _("use \"guitarix -h\" to get a help text") << endl;
+        gx_print_fatal(_("Guitarix Commandline Option Error"),
+                Glib::ustring::compose(
+                "%1\n%2",
+                error.what(),
+                _("use \"guitarix -h\" to get a help text")));
     } catch (const Glib::Error& error) {
-	const GError *perr = error.gobj();
-	Glib::ustring msg = Glib::ustring::compose(
-	    "Glib::Error[%1/%2]: %3",
-	    g_quark_to_string(perr->domain),
-	    perr->code,
-	    (perr->message) ? perr->message : "(null)");
-	cerr << msg << endl;
-	gx_print_fatal(_("Guitarix fatal error"), msg);
+        const GError *perr = error.gobj();
+        Glib::ustring msg = Glib::ustring::compose(
+            "Glib::Error[%1/%2]: %3",
+            g_quark_to_string(perr->domain),
+            perr->code,
+            (perr->message) ? perr->message : "(null)");
+        cerr << msg << endl;
+        gx_print_fatal(_("Guitarix fatal error"), msg);
     } catch (const std::exception& except) {
-	Glib::ustring msg = Glib::ustring::compose(
-	    "std::exception: %1", except.what());
-	cerr << msg << endl;
-	gx_print_fatal(_("Guitarix fatal error"), msg);
+        Glib::ustring msg = Glib::ustring::compose(
+            "std::exception: %1", except.what());
+        cerr << msg << endl;
+        gx_print_fatal(_("Guitarix fatal error"), msg);
     } catch(...) {
-	cerr << _("unknown error") << endl;
-	gx_print_fatal(_("Guitarix fatal error"),_("unknown error"));
+        cerr << _("unknown error") << endl;
+        gx_print_fatal(_("Guitarix fatal error"),_("unknown error"));
     }
 }
 
 static bool is_headless(int argc, char *argv[]) {
     for (int i = 0; i < argc; ++i) {
-	if (strcmp(argv[i], "-N") == 0 || strcmp(argv[i], "--nogui") == 0) {
-	    return true;
-	}
+        if (strcmp(argv[i], "-N") == 0 || strcmp(argv[i], "--nogui") == 0) {
+            return true;
+        }
     }
     return false;
 }
 
 static bool is_frontend(int argc, char *argv[]) {
     for (int i = 0; i < argc; ++i) {
-	if (strcmp(argv[i], "-G") == 0 || strcmp(argv[i], "--onlygui") == 0) {
-	    return true;
-	}
+        if (strcmp(argv[i], "-G") == 0 || strcmp(argv[i], "--onlygui") == 0) {
+            return true;
+        }
     }
     return false;
 }
 
-static void mainGtk(gx_system::CmdlineOptions& options, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
+static void mainGtk(gx_system::CmdlineOptions& options, PosixSignals& posixsig, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
     gx_engine::GxMachine machine(options);
     while(Gtk::Main::events_pending()) {
-	// prevents crash in show_error_msg!dialog.run() when its
-	// called due to an early exception (like some icon file not
-	// found when the style-dir is bad). This is probably not the
-	// correct cure but it helps...
+        // prevents crash in show_error_msg!dialog.run() when its
+        // called due to an early exception (like some icon file not
+        // found when the style-dir is bad). This is probably not the
+        // correct cure but it helps...
         Gtk::Main::iteration(false);
     }
 #if 0
 #ifndef NDEBUG
     if (argc > 1) {
-	delete Splash;
-	debug_display_glade(engine, options, gx_engine::parameter_map, argv[1]);
-	return;
+        delete Splash;
+        debug_display_glade(engine, options, gx_engine::parameter_map, argv[1]);
+        return;
     }
 #endif
 #endif
     // ----------------------- init GTK interface----------------------
-    MainWindow gui(machine, options, theme, Splash, "");
+    MainWindow gui(machine, options, posixsig, theme, Splash, "");
     if (need_new_preset) {
-	gui.create_default_scratch_preset();
+        gui.create_default_scratch_preset();
     }
     // when midiout is requested we need to reload state in order to send midi feedback
     if (options.system_midiout) machine.loadstate();
@@ -612,42 +717,42 @@ static void mainGtk(gx_system::CmdlineOptions& options, GxTheme& theme, GxSplash
     gui.run();
 }
 
-static void mainFront(gx_system::CmdlineOptions& options, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
+static void mainFront(gx_system::CmdlineOptions& options, PosixSignals& posixsig, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
     Glib::ustring title;
 #ifdef HAVE_AVAHI
     if (options.get_rpcaddress().empty() && options.get_rpcport() == RPCPORT_DEFAULT) {
-	SelectInstance si(options, Splash);
-	if (Splash) {
-	    Splash->show();
-	}
-	Glib::ustring a;
-	int port;
-	Glib::ustring name;
-	Glib::ustring host;
-	if (!si.get_address_port(a, port, name, host)) {
-	    cerr << "Failed to get address" << endl;
-	    return;
-	}
-	options.set_rpcaddress(a);
-	options.set_rpcport(port);
-	title = Glib::ustring::compose("%1 / %2:%3", name, host, port);
+        SelectInstance si(options, Splash);
+        if (Splash) {
+            Splash->show();
+        }
+        Glib::ustring a;
+        int port;
+        Glib::ustring name;
+        Glib::ustring host;
+        if (!si.get_address_port(a, port, name, host)) {
+            cerr << "Failed to get address" << endl;
+            return;
+        }
+        options.set_rpcaddress(a);
+        options.set_rpcport(port);
+        title = Glib::ustring::compose("%1 / %2:%3", name, host, port);
     }
 #endif // HAVE_AVAHI
     if (options.get_rpcport() == RPCPORT_DEFAULT) {
-	options.set_rpcport(7000);
+        options.set_rpcport(7000);
     }
     if (options.get_rpcaddress().empty()) {
-	options.set_rpcaddress("localhost");
+        options.set_rpcaddress("localhost");
     }
     if (title.empty()) {
-	title = Glib::ustring::compose("%1:%2", options.get_rpcaddress(), options.get_rpcport());
+        title = Glib::ustring::compose("%1:%2", options.get_rpcaddress(), options.get_rpcport());
     }
     gx_engine::GxMachineRemote machine(options);
 
     // ----------------------- init GTK interface----------------------
-    MainWindow gui(machine, options, theme, Splash, title);
+    MainWindow gui(machine, options, posixsig,theme, Splash, title);
     if (need_new_preset) {
-	gui.create_default_scratch_preset();
+        gui.create_default_scratch_preset();
     }
     machine.set_init_values();
     delete Splash;
@@ -666,58 +771,63 @@ static void mainProg(int argc, char *argv[]) {
 #endif
     Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
     gx_system::CmdlineOptions options;
+    GxNSMhandler nsmhandler(&options, &posixsig);
+
     Gtk::Main main(argc, argv, options);
     Gxw::init();
     options.process(argc, argv);
+
+    posixsig.nsm_session_control = nsmhandler.check_nsm(argv);
+
     bool theme_ok = false;
     if (options.get_clear_rc()) {
-	options.skin.name = "";
+        options.skin.name = "";
     } else if (options.skin.name.empty()) {
-	options.skin.name = "Guitarix";
+        options.skin.name = "Guitarix";
     }
     theme.init(&options);
     try { // early theme init
-	theme.set_new_skin(options.skin.name);
-	theme_ok = false;
+        theme.set_new_skin(options.skin.name);
+        theme_ok = false;
     } catch (...) {
-	// try again later to display message dialog
+    // try again later to display message dialog
     }
     GxSplashBox * Splash = NULL;
 #ifdef NDEBUG
     Splash =  new GxSplashBox(options.get_pixmap_filepath("gx_splash.png"));
     GxLogger::get_logger().signal_message().connect(
-	sigc::mem_fun(Splash, &GxSplashBox::on_message));
+    sigc::mem_fun(Splash, &GxSplashBox::on_message));
     g_log_set_handler("Gtk",G_LOG_LEVEL_WARNING,null_handler,NULL);
 #endif
     GxExit::get_instance().signal_msg().connect(
-	sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
+    sigc::ptr_fun(gx_gui::show_error_msg));  // show fatal errors in UI
     ErrorPopup popup;
     GxLogger::get_logger().signal_message().connect(
-	sigc::mem_fun(popup, &ErrorPopup::on_message));
+    sigc::mem_fun(popup, &ErrorPopup::on_message));
     if (!theme_ok) {
-	theme.set_new_skin(options.skin.name); // try again, display error message
+        theme.set_new_skin(options.skin.name); // try again, display error message
     }
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
     if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
-	if (Splash) {
-	    Splash->hide();
-	}
-	Gtk::MessageDialog dialog(
-	    _("old config directory found (.gx_head)."
-	      " state file and standard presets file have been copied to"
-	      " the new directory (.config/guitarix).\n"
-	      " Additional old preset files can be imported into the"
-	      " new bank scheme by mouse drag and drop with a file"
-	      " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
-	dialog.set_title("Guitarix");
-	dialog.run();
+        if (Splash) {
+            Splash->hide();
+        }
+        Gtk::MessageDialog dialog(
+            _("old config directory found (.gx_head)."
+              " state file and standard presets file have been copied to"
+              " the new directory (.config/guitarix).\n"
+              " Additional old preset files can be imported into the"
+              " new bank scheme by mouse drag and drop with a file"
+              " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
+        dialog.set_title("Guitarix");
+        dialog.run();
     }
 
     if (frontend) {
-	mainFront(options, theme, Splash, need_new_preset);
+        mainFront(options, posixsig, theme, Splash, need_new_preset);
     } else {
-	mainGtk(options, theme, Splash, need_new_preset);
+        mainGtk(options, posixsig, theme, Splash, need_new_preset);
     }
 
     gx_child_process::childprocs.killall();
@@ -725,12 +835,12 @@ static void mainProg(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-	// This is a hack. If we start qjackctl, we want to make sure it scale
-	// automatically for HiDPI displays.
-	// Note: we don't change then environment if it is already set to *any* value.
-	if (!getenv("QT_AUTO_SCREEN_SCALE_FACTOR")) {
-		setenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1", 0);
-	}
+    // This is a hack. If we start qjackctl, we want to make sure it scale
+    // automatically for HiDPI displays.
+    // Note: we don't change then environment if it is already set to *any* value.
+    if (!getenv("QT_AUTO_SCREEN_SCALE_FACTOR")) {
+        setenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1", 0);
+    }
 #ifdef DISABLE_NLS
 // break
 #elif defined(IS_MACOSX)
@@ -742,19 +852,19 @@ int main(int argc, char *argv[]) {
 #endif
 
     try {
-	// ----------------------- init basic subsystems ----------------------
+    // ----------------------- init basic subsystems ----------------------
 #if (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION < 32)
-	if (!Glib::thread_supported()) {
-	    Glib::thread_init();
-	}
+    if (!Glib::thread_supported()) {
+        Glib::thread_init();
+    }
 #endif
-	if (is_headless(argc, argv)) {
-	    mainHeadless(argc, argv);
-	} else {
-	    mainProg(argc, argv);
-	}
+    if (is_headless(argc, argv)) {
+        mainHeadless(argc, argv);
+    } else {
+        mainProg(argc, argv);
+    }
     } catch (...) {
-	exception_handler();
+        exception_handler();
     }
     return 0;
 }

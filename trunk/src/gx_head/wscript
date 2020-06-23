@@ -180,7 +180,7 @@ def build(bld):
         sources_gui.append("gui/avahi_discover.cpp")
         sources_engine.append("engine/avahi_register.cpp")
     sources = sources_engine + sources_engine_shared + sources_gui
-    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT', 'CURL',
+    uselib = ['JACK', 'SNDFILE', 'GTHREAD', 'GMODULE_EXPORT', 'CURL', 'LIBLO',
               'GTK2', 'GTKMM', 'GIOMM', 'FFTW3', 'LRDF', 'LILV', 'BOOST_SYSTEM','BOOST_IOSTREAMS',
               'ZITA_CONVOLVER','ZITA_RESAMPLER']
     if bld.env.HAVE_AVAHI:

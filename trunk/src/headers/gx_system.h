@@ -372,6 +372,8 @@ public:
     std::string get_user_filepath(const std::string& basename) const { return user_dir + basename; }
     std::string get_user_ir_filepath(const std::string& basename) const { return user_IR_dir + basename; }
     std::string get_builder_filepath(const std::string& basename) const { return builder_dir + basename; }
+    void set_user_dir(std::string dir) { user_dir = dir; }
+    void set_user_IR_dir(std::string dir) { user_IR_dir = dir; }
     const std::string& get_user_dir() const { return user_dir; }
     const std::string& get_user_IR_dir() const { return user_IR_dir; }
     const std::string& get_sys_IR_dir() const { return sys_IR_dir; }
@@ -431,8 +433,6 @@ private:
     bool a_save;
     bool auto_save;
     std::string get_opskin();
-    void read_ui_vars();
-    void write_ui_vars();
 
 public:
 #ifndef NDEBUG
@@ -440,6 +440,8 @@ public:
 #endif
     SkinHandling skin;
 
+    void read_ui_vars();
+    void write_ui_vars();
     // saved in ui_rc:
     int mainwin_x;
     int mainwin_y;
@@ -481,6 +483,14 @@ public:
     const std::string& get_lv2_preset_dir() const { return lv2_preset_dir; }
     const std::string& get_loop_dir() const { return loop_dir; }
     const std::string& get_temp_dir() const { return temp_dir; }
+
+    void set_plugin_dir(std::string dir) { plugin_dir = dir; }
+    void set_preset_dir(std::string dir) { preset_dir = dir; }
+    void set_pluginpreset_dir(std::string dir) { pluginpreset_dir = dir; }
+    void set_lv2_preset_dir(std::string dir) { lv2_preset_dir = dir; }
+    void set_loop_dir(std::string dir) { loop_dir = dir; }
+    void set_temp_dir(std::string dir) { temp_dir = dir; }
+
     const std::string& get_factory_dir() const { return factory_dir; }
     const std::string& get_style_dir() const { return style_dir; }
     std::string get_ladspa_config_filename() const { return get_user_filepath("ladspa_defs.js"); }
@@ -491,6 +501,7 @@ public:
     bool get_nogui() const { return nogui; }
     bool get_liveplaygui() const { return liveplaygui; }
     bool get_hideonquit() const { return hideonquit; }
+    void set_hideonquit(bool set) { hideonquit = set; }
     bool get_mute() const { return mute; }
     const Glib::ustring& get_setbank() { return setbank; }
     void set_bank_preset(const Glib::ustring& bank, const Glib::ustring& preset) {
@@ -505,6 +516,7 @@ public:
     void set_rpcaddress(const Glib::ustring& address) { rpcaddress = address; }
     const std::string& get_loadfile() const { return load_file; }
     const Glib::ustring& get_jack_instancename() const { return jack_instance; }
+    void set_jack_instancename(std::string name) {  jack_instance = name; }
     const Glib::ustring& get_jack_uuid() const { return jack_uuid; }
     const Glib::ustring& get_jack_uuid2() const { return jack_uuid2; }
     const Glib::ustring& get_jack_midi() const { return jack_midi; }
@@ -512,8 +524,11 @@ public:
     const Glib::ustring& get_jack_servername() const { return jack_servername; }
     bool get_jack_noconnect() const { return jack_noconnect; }
     bool get_jack_single() const { return jack_single; }
+    void set_jack_noconnect(bool set) { jack_noconnect = set; }
+    void set_jack_single(bool set) { jack_single = set; }
     bool get_opt_save_on_exit() const { return a_save; }
     bool get_opt_autosave() const { return auto_save; }
+    void set_opt_autosave(bool set) { auto_save = set; }
     Glib::ustring get_jack_output(unsigned int n) const;
     int get_idle_thread_timeout() const { return idle_thread_timeout; }
     int get_sporadic_overload() const { return sporadic_overload; }

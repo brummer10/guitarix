@@ -49,6 +49,36 @@ public:
 };
 
 /****************************************************************
+ ** class PosixSignals
+ **
+ ** Block unix signals and catch them in a special thread.
+ ** Blocking is inherited by all threads created after an
+ ** instance of PosixSignals
+ */
+
+class PosixSignals {
+private:
+    sigset_t waitset;
+    std::thread *thread;
+    bool gui;
+    GxTheme *theme;
+    volatile bool exit;
+    void signal_helper_thread();
+    void quit_slot();
+    void gx_ladi_handler();
+    void create_thread();
+    bool gtk_level();
+    static void relay_sigchld(int);
+    sigc::signal<void > trigger_nsm_exit;
+    
+public:
+    bool nsm_session_control;
+    sigc::signal<void >& signal_trigger_nsm_exit() { return trigger_nsm_exit; }
+    PosixSignals(bool gui, GxTheme *theme = nullptr);
+    ~PosixSignals();
+};
+
+/****************************************************************
  ** Actions:
  ** class ToggleAction
  ** class RadioAction
@@ -796,6 +826,7 @@ class MainWindow: public sigc::trackable {
 private:
     gx_system::CmdlineOptions& options;
     gx_engine::GxMachineBase&  machine;
+    PosixSignals& posixsig;
     GxTheme& theme;
     MainWindowBuilder bld;
     Freezer freezer;
@@ -927,13 +958,14 @@ private:
     void on_ladspa_finished(bool reload, bool quit);
     bool delete_ladspalist_window();
     bool on_quit();
+    bool on_nsm_quit();
     void amp_controls_visible(Gtk::Range *rr);
     void gx_show_help();
     void show_forum_help();
     void set_midiout();
 public:
     Glib::RefPtr<Gtk::SizeGroup> left_column;
-    MainWindow(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options, GxTheme& theme,
+    MainWindow(gx_engine::GxMachineBase& machine, gx_system::CmdlineOptions& options, PosixSignals& posixsig, GxTheme& theme,
 	       Gtk::Window *splash, const Glib::ustring& title);
     ~MainWindow();
     PluginUI *get_plugin(const std::string& name) { return plugin_dict[name]; }
