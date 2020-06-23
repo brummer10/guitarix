@@ -81,6 +81,24 @@ void _draw_tuner(void *w_, void* user_data) {
     use_bg_color_scheme(w, NORMAL_);
     cairo_paint (w->crb);
 
+    cairo_pattern_t* pat = cairo_pattern_create_linear (0, 0,x0, 0);
+    cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
+    cairo_pattern_add_color_stop_rgb (pat, 1, 0.1, 0.8, 0.1);
+    cairo_pattern_add_color_stop_rgb (pat, 0.7, 0.8, 0.8, 0.1);
+    cairo_pattern_add_color_stop_rgb (pat, 0, 1, 0.1, 0.1);
+
+    cairo_set_source_rgb(w->crb,0.2,0.2,0.2);
+    int i = 0;
+    for (; i < width/20; ++i) {
+        cairo_rectangle(w->crb,(width/2)+i*10, 5, 5, 5);
+        cairo_fill(w->crb);
+    }
+    for (; i >0; --i) {
+        cairo_rectangle(w->crb,(width/2)-i*10, 5, 5, 5);
+        cairo_fill(w->crb);
+    }
+    
+
     cairo_set_source_rgb(w->crb,0.2,0.2,0.2);
     _tuner_triangle(w, width/5.8,y0 , 25/w->scale.ascale, 20/w->scale.ascale);
     _tuner_triangle(w, width/1.2, y0, -25/w->scale.ascale, 20/w->scale.ascale);
@@ -127,10 +145,10 @@ void _draw_tuner(void *w_, void* user_data) {
 
     if (value > 24.0 && value < 999.0) {
         float c = (extents.width/2)+10.0;
-        cairo_move_to(w->crb,x0-c , y0 );
+        cairo_move_to(w->crb,x0-c , y0+5 );
         cairo_show_text(w->crb, _get_note_set(w)[vis]);
         cairo_set_font_size(w->crb, (w->app->small_font*2)/w->scale.ascale);
-        cairo_move_to(w->crb,x0+c-10.0, y0+ extents.height/2 );
+        cairo_move_to(w->crb,x0+c-10.0, y0+5+ extents.height/2 );
         cairo_show_text(w->crb, octave[indicate_oc]);
 
         char s[64];
@@ -141,5 +159,32 @@ void _draw_tuner(void *w_, void* user_data) {
         cairo_text_extents(w->crb,s , &extents);
         cairo_move_to (w->crb, width/1.2-extents.width/2, height-extents.height );
         cairo_show_text(w->crb, s);
+    
+        cairo_set_source(w->crb,pat);
+        int m = 300*scale;
+        if (m==0 && xt->smove !=0) xt->move=width/20;
+        xt->smove = m;
+        xt->move +=m;
+        if(xt->move<-width/20) xt->move=width/20;
+        if(xt->move>width/20) xt->move=-width/20;
+        if (m==0) {
+        if(xt->move<0) xt->move+=1;
+        if(xt->move>0) xt->move-=1;
+            
+        }
+        for (int i = 0; i < 4; ++i) {
+            if (m==0) {
+                if(xt->move<0) xt->move+=1;
+                if(xt->move>0) xt->move-=1;
+                cairo_rectangle(w->crb,(width/2)+10 + (xt->move)*10, 5, 5, 5);
+                cairo_rectangle(w->crb,(width/2) + (xt->move)*10, 5, 5, 5);
+                cairo_rectangle(w->crb,(width/2)-10 - (xt->move)*10, 5, 5, 5);
+                cairo_rectangle(w->crb,(width/2)-20 - (xt->move)*10, 5, 5, 5);
+            } else {
+                cairo_rectangle(w->crb,(width/2)-20 + (xt->move+i)*10, 5, 5, 5);
+            }
+            cairo_fill(w->crb);
+        }
     }
+    cairo_pattern_destroy(pat);
 }

@@ -34,6 +34,8 @@ typedef struct {
     float ref_freq;
     float temperament;
     int temp_adjust;
+    int move;
+    int smove;
 } XTuner;
 
 void tuner_set_temperament (Widget_t *w, float temp);

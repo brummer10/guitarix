@@ -221,7 +221,7 @@ function make_ui() {
     done < enums1
     if (($match==1)); then
 
-      conts+='	ui->controls['${ACOUNTER}'] = {{ '${line[0]}', '${line[0]}', '${line[1]}', '${line[2]}', '${line[3]}'}, {'${PLACE}', 30, 61, 61}, false,\"'${line[4]}'\", '${MODEL}', '${line[4]}'};\n'
+      conts+='	ui->controls['${ACOUNTER}'] = (gx_controller) {{ '${line[0]}', '${line[0]}', '${line[1]}', '${line[2]}', '${line[3]}'}, {'${PLACE}', 30, 61, 61}, false,\"'${line[4]}'\", '${MODEL}', '${line[4]}'};\n'
       let COUNTER=COUNTER+1 
       let ACOUNTER=ACOUNTER+1 
       let PLACE=PLACE+70

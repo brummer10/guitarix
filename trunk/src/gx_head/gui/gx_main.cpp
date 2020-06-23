@@ -97,7 +97,6 @@ bool GxNSMhandler::_poll_nsm() {
         return true;
     }
     return false;
-    
 }
 
 void GxNSMhandler::_nsm_start_poll() {

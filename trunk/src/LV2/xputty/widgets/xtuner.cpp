@@ -48,13 +48,18 @@ Widget_t* add_tuner(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     XTuner *xt = (XTuner*)malloc(sizeof(XTuner));
+    xt->ref_freq = 440.0;
+    xt->temp_adjust = 3;
+    xt->temperament = 0;
+    xt->move = 0;
+    xt->smove = 0;
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
     wid->parent_struct = xt;
     wid->label = label;
     wid->adj_y = add_adjustment(wid,20.0, 20.0, 20.0, 20000.0,0.01, CL_CONTINUOS);
     wid->adj = wid->adj_y;
     wid->scale.gravity = CENTER;
-    wid->flags &= ~USE_TRANSPARENCY;
+   // wid->flags &= ~USE_TRANSPARENCY;
     wid->flags |= HAS_MEM;
     cairo_select_font_face (wid->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
                                CAIRO_FONT_WEIGHT_NORMAL);

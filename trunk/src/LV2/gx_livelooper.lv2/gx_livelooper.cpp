@@ -255,10 +255,10 @@ LV2_State_Status Gx_livelooper_::lrestore(LV2_Handle instance,
   const void* name = retrieve(handle, self->file_name, &size, &type, &flags);
 
   if (name) {
-    fprintf(stderr,"%s\n",(const char*)name);
+   // fprintf(stderr,"%s\n",(const char*)name);
     self->livelooper->set_preset_state((const char*)name , false, self->livelooper);
   } else {
-    fprintf(stderr,"fail to fetch state\n");
+   // fprintf(stderr,"fail to fetch state\n");
   }
   return LV2_STATE_SUCCESS;
 }

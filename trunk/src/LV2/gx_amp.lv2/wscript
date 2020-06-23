@@ -11,7 +11,7 @@ def build(bld):
         lv2_base = lv2_base,
         source   = ['gxamp.cpp', 'gx_amp.cc', 'gx_tonestack.cc'],
         includes = ['../faust','./', '../DSP', '../DSP/tube_tables'],
-        cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
+        cxxflags=['-fvisibility=hidden','-fno-lto','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
         use = ['LV2CORE','GLIBMM','GX_CONVOLVER'],
         ldscript = 'gx_amp.lds',
         mapfile = "gx_amp.map",

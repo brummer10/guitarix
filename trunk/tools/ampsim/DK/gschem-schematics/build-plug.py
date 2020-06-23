@@ -14,7 +14,7 @@ class ArgParser(argparse.ArgumentParser):
 
 parser = ArgParser(description='Build script to generate guitarix or LV2 plugins from schematic files.', usage='')
 #parser = argparse.ArgumentParser(description='Build script for guitarix plugins.')
-parser.add_argument('-i','--input', metavar='*.sch', nargs='+', help='Input schematic file(s) name [ONE REQUIRED]',required=True)
+parser.add_argument('-i','--input', metavar='*.sch', nargs='+', help='Input schematic file(s) name(s) [ONE REQUIRED]',required=True)
 parser.add_argument('-n','--name',help='Name for plugin [OPTIONAL]', required=False)
 parser.add_argument('-s','--shortname',help='Shortname for plugin [OPTIONAL]', required=False)
 parser.add_argument('-d','--description',help='Description for plugin [OPTIONAL]', required=False)
@@ -26,6 +26,7 @@ parser.add_argument('-l','--buildlv2',help='build lv2 plugin from the circuit [O
 parser.add_argument('-F','--buildfaust',help='build faust code only from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('--deploy',help='build C++ code only from the circuit [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-2','--stereo',help='build stereo plugin from the circuit [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('--switch', metavar='N=Name', nargs='+', help='add on/off switch with "Name" for the N\'t circuit [OPTIONAL]', required=False)
 parser.add_argument('-T','--faust_table', help='build faust, instead C based nonlinear response tables [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-t','--table', metavar='N', type=int, nargs='+', help='build nonlinear response table from the N\'t circuit [OPTIONAL]', required=False)
 parser.add_argument('-g','--table_neg', metavar='N', type=int, nargs='+', help='build negative nonlinear response table from the N\'t circuit (imply --table)[OPTIONAL]', required=False)
@@ -36,7 +37,9 @@ parser.add_argument('-o','--table_op', metavar='N', type=float, nargs='+', help=
 parser.add_argument('--oversample', metavar='N', type=int, help='set oversample rate [OPTIONAL]', required=False)
 parser.add_argument('--fixedrate', metavar='N', type=int, help='set fixed samplerate [OPTIONAL]', required=False)
 parser.add_argument('--samplerate', metavar='N', type=int, help='set samplerate to be used in sim (default 96000) [OPTIONAL]', required=False)
-parser.add_argument('-f','--freqsplit', help='use frequency splitter [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('--bypass',  help='add bypass switch  [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-f','--freqsplit', help='use frequency splitter for all filters [OPTIONAL]',action="store_true", required=False)
+parser.add_argument('-N','--nonlinsplit', help='use frequency splitter only for nonlinear response [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-v','--vectorize', help='generate vectorized loop [OPTIONAL]',action="store_true", required=False)
 parser.add_argument('-V','--vector_size', metavar='N', type=int, help='use vector size N [OPTIONAL]', required=False)
 parser.add_argument('-r','--reduce_gain', metavar='N=value', nargs='+', help='reduce gain output from the circuit N by value [OPTIONAL]', required=False)
@@ -82,6 +85,7 @@ faust_table_template = """
 /*******************************************************************************
   * 1-dimensional function table for linear interpolation
 *******************************************************************************/
+rd = library("reducemaps.lib");
 
 //-- Rdtable from waveform
 rtable(table, r) = (table, int(r)):rdtable;
@@ -93,7 +97,7 @@ ccopysign(f, x) = ma.fabs(f) * sign(x);
 sign(x) = x<0, 1, -1 : select2;
 
 //-- Check if value x is negative
-fsignbit(x) = x<0, 0, 1 : select2;
+fsignbit(x) = x<0;
 
 //-- Get fractal part of value n
 fractal(n) = n - int(n);
@@ -101,7 +105,10 @@ fractal(n) = n - int(n);
 //-- Interpolate value between i and i+1 in table with fractal coefficient f.
 interpolation(table, size, f, i) = select2(i<0,select2(i>size-2,
     rtable(table, i)*(1-f) + rtable(table,i+1)*f, rtable(table, size-1)),
-    rtable(table, 0));
+    rtable(table, 0)) : table_gate(table);
+
+//-- reduce dc-offset (noise) from table response for very low values
+table_gate(table,x) = select2(ma.fabs(x):rd.maxn(4096)<ma.fabs(rtable(table, 1))*(0.12), x, x*x*x);
 
 //-- Linear interpolation for value x in rdtable
 circuit_response(table, low, high, step, size, x) =
@@ -110,6 +117,9 @@ circuit_response(table, low, high, step, size, x) =
 
 //-- Calculate linear table index for value x
 linindex(step, x) = ma.fabs(x) * step;
+
+//-- predefined filterbank 
+freq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));
 """
 
 class Filter(object):
@@ -213,58 +223,113 @@ class Generators(object):
                 td = v.generate_table(p, y,"")
             v.plot(p,y)
 
-    def write_final_file(self, a, dspfile,fdata,dspfileui,fuidata,freqs,gain_stages,stereo=None,faust_table=None):
+    def write_final_file(self, a, dspfile,fdata,dspfileui,fuidata,freqs,gain_stages,switch=None,stereo=None,faust_table=None,bypass=None):
+        button = ''
         if not stereo:
             if not freqs:
-                process_line = "\nprocess = "
+                if (bypass):
+                    process_line = '\n\nbypass = checkbox("Enable[name:Enable");\n'
+                    process_line += "\nproc = "
+                else:
+                    process_line = "\nprocess = "
                 for x in xrange(1,a+1,1):
-                    process_line += ' p%s ' % x
+                    if str(x) in switch:
+                        process_line += 'ba.bypass_fade(ma.SR/10, 1 - b%s, p%s) ' % (x,x)
+                        button += '\nb%s = checkbox("%s[name:%s");' % (x,switch[str(x)],switch[str(x)])
+                    else:
+                        process_line += ' p%s ' % x
                     if str(x) in gain_stages:
-                        process_line += ': *(%s)' % gain_stages[str(x)]
+                        stage = 'p%s' % x
+                        gain_stage = ' : *(%s)' % gain_stages[str(x)]
+                        process_line = process_line.replace(stage,stage+gain_stage)
                     if a>x :
                         process_line += ':'
                     else :
-                        process_line += ';'
+                        process_line += ';\n'
+                fdata += button
+                if (bypass):
+                    process_line += '\nprocess = ba.bypass_fade(ma.SR/10, 1- bypass, proc);\n'
                 fdata += process_line
             else:
                 process_line = "\namp = "
                 for x in xrange(1,a+1,1):
-                    process_line += ' p%s ' % x
+                    if str(x) in switch:
+                        process_line += 'ba.bypass_fade(ma.SR/10, 1 - b%s, p%s) ' % (x,x)
+                        button += '\nb%s = checkbox("%s[name:%s");\n' % (x,switch[str(x)],switch[str(x)])
+                    else:
+                        process_line += ' p%s ' % x
                     if str(x) in gain_stages:
-                        process_line += ': *(%s)' % gain_stages[str(x)]
+                        stage = 'p%s' % x
+                        gain_stage = ' : *(%s)' % gain_stages[str(x)]
+                        process_line = process_line.replace(stage,stage+gain_stage)
                     if a>x :
                         process_line += ':'
                     else :
-                        process_line += ';'
-                process_line += '\nfreq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));'
-                process_line += '\n\nprocess    = freq_split: ( amp , amp , amp, amp, amp) :>_;\n'
+                        process_line += ';\n'
+                if not (faust_table):
+                    process_line += '\nfreq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));\n'
+                if (bypass):
+                    process_line += '\nbypass = checkbox("Enable[name:Enable");\n'
+                    process_line += "\nproc = freq_split: ( amp , amp , amp, amp, amp) :>_;\n"
+                else:
+                    process_line += '\n\nprocess    = freq_split: ( amp , amp , amp, amp, amp) :>_;\n'
+                fdata += button
+                if (bypass):
+                    process_line += '\nprocess = ba.bypass_fade(ma.SR/10, 1- bypass, proc);\n'
                 fdata += process_line
         else:
             if not freqs:
                 process_line = "\nchanel = "
                 for x in xrange(1,a+1,1):
-                    process_line += ' p%s ' % x
+                    if str(x) in switch:
+                        process_line += 'ba.bypass_fade(ma.SR/10, 1 - b%s, p%s) ' % (x,x)
+                        button += '\nb%s = checkbox("%s[name:%s");' % (x,switch[str(x)],switch[str(x)])
+                    else:
+                        process_line += ' p%s ' % x
                     if str(x) in gain_stages:
-                        process_line += ': *(%s)' % gain_stages[str(x)]
+                        stage = 'p%s' % x
+                        gain_stage = ' : *(%s)' % gain_stages[str(x)]
+                        process_line = process_line.replace(stage,stage+gain_stage)
                     if a>x :
                         process_line += ':'
                     else :
-                        process_line += ';'
-                process_line += '\nprocess = chanel , chanel ;'
+                        process_line += ';\n'
+                if (bypass):
+                    process_line += '\n\nbypass = checkbox("Enable[name:Enable");\n'
+                    process_line += "\nproc = chanel , chanel ;\n"
+                else:
+                    process_line += '\nprocess = chanel , chanel ;\n'
+                fdata += button
+                if (bypass):
+                    process_line += '\nprocess = ba.bypass_fade(ma.SR/10, 1- bypass, proc);\n'
                 fdata += process_line
             else:
                 process_line = "\namp = "
                 for x in xrange(1,a+1,1):
-                    process_line += ' p%s ' % x
+                    if str(x) in switch:
+                        process_line += 'ba.bypass_fade(ma.SR/10, 1 - b%s, p%s) ' % (x,x)
+                        button += '\nb%s = checkbox("%s[name:%s");' % (x,switch[str(x)],switch[str(x)])
+                    else:
+                        process_line += ' p%s ' % x
                     if str(x) in gain_stages:
-                        process_line += ': *(%s)' % gain_stages[str(x)]
+                        stage = 'p%s' % x
+                        gain_stage = ' : *(%s)' % gain_stages[str(x)]
+                        process_line = process_line.replace(stage,stage+gain_stage)
                     if a>x :
                         process_line += ':'
                     else :
-                        process_line += ';'
-                process_line += '\nfreq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));'
-                process_line += "\nchanel = freq_split: ( amp , amp , amp, amp, amp) :>_;"
-                process_line += '\n\nprocess    = chanel , chanel ;\n'
+                        process_line += ';\n'
+                if not (faust_table):
+                    process_line += '\nfreq_split = fi.filterbank(3, (86.0,210.0,1200.0,6531.0));\n'
+                process_line += "\nchanel = freq_split: ( amp , amp , amp, amp, amp) :>_;\n"
+                if (bypass):
+                    process_line += '\n\nbypass = checkbox("Enable[name:Enable");\n'
+                    process_line += "\nproc = chanel , chanel ;\n"
+                else:
+                    process_line += '\n\nprocess    = chanel , chanel ;\n'
+                fdata += button
+                if (bypass):
+                    process_line += '\nprocess = ba.bypass_fade(ma.SR/10, 1- bypass, proc);\n'
                 fdata += process_line
         if(faust_table):
             fdata = fdata.replace('import("stdfaust.lib");', 'import("stdfaust.lib");\n%s') % faust_table_template
@@ -272,6 +337,13 @@ class Generators(object):
         with open(dspfile, 'w') as f:
             f.write(fdata)
         f.close()
+        x = 1
+        for line in button.split('\n'):
+            if not len(line.strip()) == 0 :
+                fuidata = fuidata.replace('b.openHorizontalBox("");','b.openHorizontalBox("");\n\n    b.create_switch("minitoggle",PARAM("%s"), "%s");') % (switch[str(x)],switch[str(x)])
+                x = x+1
+        if (bypass):
+            fuidata = fuidata.replace('b.openHorizontalBox("");','b.openHorizontalBox("");\n\n    b.create_switch("switch",PARAM("Enable"), "Enable");')
 
         with open(dspfileui, 'w') as f:
             f.write(fuidata)
@@ -357,6 +429,7 @@ class DKbuilder(object):
     frs = False
     tablename = {}
     gain_stages = {}
+    switch = {}
 
     if (args.table_neg):
         if (not args.table):
@@ -383,6 +456,9 @@ class DKbuilder(object):
 
     if (args.reduce_gain):
         gain_stages = parse_vars(args.reduce_gain)
+
+    if (args.switch):
+        switch = parse_vars(args.switch)
 
     def index_exists(self,ls, i):
         return (0 <= i < len(ls)) or (-len(ls) <= i < 0)
@@ -523,22 +599,39 @@ class DKbuilder(object):
                         if (args.faust_table) :
                             faustdsp = faustdsp.replace('//TABLE', '%s\n%s') % (mytable,myneg_table)
                             faustdsp = faustdsp.replace('process', '%s\nprocess') % dlimer
-                            faustdsp +=  '\n{st}clip = _<: ba.if(fsignbit(_), {st}_neg_clip, {st}_clip) :>_ ; '.format(st=self.tablename[dsp_counter-1])
+                            if (args.nonlinsplit):
+                                faustdsp +=  '\n{st}p = _<: ba.if(fsignbit(_), {st}_neg_clip, {st}_clip) :>_ ;\n'.format(st=self.tablename[dsp_counter-1])
+                                faustdsp += '\n{st}clip = freq_split: ( {st}p , {st}p , {st}p, {st}p, {st}p) :>_;\n'.format(st=self.tablename[dsp_counter-1])
+                            else:
+                                faustdsp +=  '\n{st}clip = _<: ba.if(fsignbit(_), {st}_neg_clip, {st}_clip) :>_ ;\n'.format(st=self.tablename[dsp_counter-1])
                         else:
                             faustdsp = faustdsp.replace('//TABLE', '\n\n%s') % dlimer
-                            faustdsp +=  '\n{st}clip = _<: ba.if(signbit(_), {st}_neg_clip, {st}_clip) :>_  with  '.format(st=self.tablename[dsp_counter-1])
-                            faustdsp +=  '{\n'
-                            faustdsp +=  '\n    signbit = ffunction(int signbit(float), "math.h", "");\n'
-                            faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
-                            faustdsp +=  '\n    {st}_neg_clip = ffunction(float {st}_negclip(float), "{st}_neg_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
-                            faustdsp +=  '\n};\n'
+                            if (args.nonlinsplit):
+                                faustdsp +=  '\n{st}p = _<: ba.if(signbit(_), {st}_neg_clip, {st}_clip) :>_  with  '.format(st=self.tablename[dsp_counter-1])
+                                faustdsp +=  '{\n'
+                                faustdsp +=  '\n    signbit = ffunction(int signbit(float), "math.h", "");\n'
+                                faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
+                                faustdsp +=  '\n    {st}_neg_clip = ffunction(float {st}_negclip(float), "{st}_neg_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
+                                faustdsp +=  '\n};\n'
+                                faustdsp += '\n{st}clip = freq_split: ( {st}p , {st}p , {st}p, {st}p, {st}p) :>_;\n'.format(st=self.tablename[dsp_counter-1])                                
+                            else:
+                                faustdsp +=  '\n{st}clip = _<: ba.if(signbit(_), {st}_neg_clip, {st}_clip) :>_  with  '.format(st=self.tablename[dsp_counter-1])
+                                faustdsp +=  '{\n'
+                                faustdsp +=  '\n    signbit = ffunction(int signbit(float), "math.h", "");\n'
+                                faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
+                                faustdsp +=  '\n    {st}_neg_clip = ffunction(float {st}_negclip(float), "{st}_neg_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
+                                faustdsp +=  '\n};\n'
                     else :
                         faustdsp = faustdsp.replace('with', ': %s_clip with' ) % self.tablename[dsp_counter-1]
                         if (args.faust_table) :
                             faustdsp = faustdsp.replace('//TABLE', '\n%s') % mytable
                         else :
                             faustdsp = faustdsp.replace('//TABLE', '')
-                            faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
+                            if (args.nonlinsplit):
+                                faustdsp +=  '\n    {st}p = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
+                                faustdsp += '\n{st}_clip = freq_split: ( {st}p , {st}p , {st}p, {st}p, {st}p) :>_;\n'.format(st=self.tablename[dsp_counter-1])                                                               
+                            else:
+                                faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
                 else:
                     faustdsp = faustdsp.replace('//TABLE', '\n\n%s') % dlimer
                 faustdsp = faustdsp.replace('process', "p%s" % dsp_counter)
@@ -564,9 +657,9 @@ class DKbuilder(object):
                 fuidata += faustui
 
         if any ([args.build, args.buildlv2, args.buildfaust]):
-            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,self.gain_stages,args.stereo,args.faust_table)
+            g.write_final_file(dsp_counter,dspfile,fdata,dspfileui,fuidata,self.frs,self.gain_stages,self.switch,args.stereo,args.faust_table,args.bypass)
         # create a guitarix module
-        if args.build or (not args.table and not args.plot and not args.buildlv2 and not args.deploy) :
+        if args.build or (not args.table and not args.plot and not args.buildlv2 and not args.buildfaust and not args.deploy) :
             g.generate_gx_plugin(args.input, dspfile, self.rs, self.vec, self.vs, args.table)
         # create a LV2 module
         elif args.buildlv2 :

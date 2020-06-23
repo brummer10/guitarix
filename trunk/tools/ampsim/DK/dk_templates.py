@@ -1094,9 +1094,9 @@ process = pre : fi.iir((@b_list),(@a_list)) with {
 
 %for @sl in @sliders:
 %if (@sl.loga)
-    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
+    @sl.id = vslider("@sl.id[name:@sl.name][style:knob]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
 %else
-    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
+    @sl.id = vslider("@sl.id[name:@sl.name][style:knob]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
 %end
 %end
 
@@ -1128,9 +1128,9 @@ process = pre : fi.iir((@b_list),(@a_list)) with {
 
 %for @sl in @sliders:
 %if (@sl.loga)
-    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
+    @sl.id = vslider("@sl.id[name:@sl.name][style:knob]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
 %else
-    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
+    @sl.id = vslider("@sl.id[name:@sl.name][style:knob]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
 %end
 %end
 
@@ -1176,9 +1176,9 @@ process = pre : _<:*(dry),(*(wet) : fi.iir((@b_list),(@a_list))):>_ with {
 
 %for @sl in @sliders:
 %if (@sl.loga)
-    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
+    @sl.id = vslider("@sl.id[name:@sl.name][style:knob]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
 %else
-    @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
+    @sl.id = vslider("@sl.id[name:@sl.name][style:knob]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : si.smooth(s);
 %end
 %end
 
@@ -1212,7 +1212,7 @@ process = pre : _<:*(dry),(*(wet) : fi.iir((@b_list),(@a_list))):>_ with {
     dry = 1 - wet;
 
     %for @sl in @sliders:
-        @sl.id = vslider("@sl.id[name:@sl.name]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
+        @sl.id = vslider("@sl.id[name:@sl.name][style:knob]", 0.5, 0, 1, 0.01) : Inverted(@sl.inv) : LogPot(@sl.loga) : si.smooth(s);
     %end
 
     @coeffs

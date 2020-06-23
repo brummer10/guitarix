@@ -28,6 +28,7 @@
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 @prefix state:   <http://lv2plug.in/ns/ext/state#> .
 @prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
+@prefix pprop: <http://lv2plug.in/ns/ext/port-props#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -433,7 +434,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 40 ;
-        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:toggled, pprop:trigger;
         lv2:symbol "reset1" ;
         lv2:name "reset1" ;
         lv2:default 0.0 ;
@@ -443,7 +444,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 41 ;
-        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:toggled, pprop:trigger;
         lv2:symbol "reset2" ;
         lv2:name "reset2" ;
         lv2:default 0.0 ;
@@ -453,7 +454,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 42 ;
-        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:toggled, pprop:trigger;
         lv2:symbol "reset3" ;
         lv2:name "reset3" ;
         lv2:default 0.0 ;
@@ -463,7 +464,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 43 ;
-        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:toggled, pprop:trigger;
         lv2:symbol "reset4" ;
         lv2:name "reset4" ;
         lv2:default 0.0 ;
@@ -473,7 +474,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 44 ;
-        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:toggled, pprop:trigger;
         lv2:symbol "rback1" ;
         lv2:name "rback1" ;
         lv2:default 0.0 ;
@@ -483,7 +484,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 45 ;
-        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:toggled, pprop:trigger;
         lv2:symbol "rback2" ;
         lv2:name "rback2" ;
         lv2:default 0.0 ;
@@ -493,7 +494,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 46 ;
-        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:toggled, pprop:trigger;
         lv2:symbol "rback3" ;
         lv2:name "rback3" ;
         lv2:default 0.0 ;
@@ -503,7 +504,7 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 47 ;
-        lv2:portProperty lv2:integer;
+        lv2:portProperty lv2:toggled, pprop:trigger;
         lv2:symbol "rback4" ;
         lv2:name "rback4" ;
         lv2:default 0.0 ;

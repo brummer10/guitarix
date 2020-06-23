@@ -30,6 +30,7 @@
  */
 namespace livelooper {
 
+#define TAPESIZE 4194304 // 2097152 
 
 class LiveLooper {
 private:
@@ -238,28 +239,28 @@ inline void LiveLooper::clear_state_f()
 {
 	for (int i=0; i<2; i++) fRec0[i] = 0;
 	for (int i=0; i<2; i++) iVec0[i] = 0;
-	for (int i=0; i<4194304; i++) tape1[i] = 0;
+	for (int i=0; i<TAPESIZE; i++) tape1[i] = 0;
 	for (int i=0; i<2; i++) RecSize1[i] = 0;
 	for (int i=0; i<2; i++) fRec1[i] = 0;
 	for (int i=0; i<2; i++) fRec2[i] = 0;
 	for (int i=0; i<2; i++) iRec3[i] = 0;
 	for (int i=0; i<2; i++) iRec4[i] = 0;
 	for (int i=0; i<2; i++) iVec2[i] = 0;
-	for (int i=0; i<4194304; i++) tape2[i] = 0;
+	for (int i=0; i<TAPESIZE; i++) tape2[i] = 0;
 	for (int i=0; i<2; i++) RecSize2[i] = 0;
 	for (int i=0; i<2; i++) fRec6[i] = 0;
 	for (int i=0; i<2; i++) fRec7[i] = 0;
 	for (int i=0; i<2; i++) iRec8[i] = 0;
 	for (int i=0; i<2; i++) iRec9[i] = 0;
 	for (int i=0; i<2; i++) iVec4[i] = 0;
-	for (int i=0; i<4194304; i++) tape3[i] = 0;
+	for (int i=0; i<TAPESIZE; i++) tape3[i] = 0;
 	for (int i=0; i<2; i++) RecSize3[i] = 0;
 	for (int i=0; i<2; i++) fRec11[i] = 0;
 	for (int i=0; i<2; i++) fRec12[i] = 0;
 	for (int i=0; i<2; i++) iRec13[i] = 0;
 	for (int i=0; i<2; i++) iRec14[i] = 0;
 	for (int i=0; i<2; i++) iVec6[i] = 0;
-	for (int i=0; i<4194304; i++) tape4[i] = 0;
+	for (int i=0; i<TAPESIZE; i++) tape4[i] = 0;
 	for (int i=0; i<2; i++) RecSize4[i] = 0;
 	for (int i=0; i<2; i++) fRec16[i] = 0;
 	for (int i=0; i<2; i++) fRec17[i] = 0;
@@ -297,10 +298,10 @@ void LiveLooper::init_static(unsigned int samplingFreq, LiveLooper *p)
 void LiveLooper::mem_alloc()
 {
     try {
-        if (!tape1) tape1 = new float[4194304]{};
-        if (!tape2) tape2 = new float[4194304]{};
-        if (!tape3) tape3 = new float[4194304]{};
-        if (!tape4) tape4 = new float[4194304]{};
+        if (!tape1) tape1 = new float[TAPESIZE]{};
+        if (!tape2) tape2 = new float[TAPESIZE]{};
+        if (!tape3) tape3 = new float[TAPESIZE]{};
+        if (!tape4) tape4 = new float[TAPESIZE]{};
         } catch(...) {
             fprintf(stderr, "livelooper out of memory");
             return;
@@ -364,7 +365,7 @@ inline void LiveLooper::save_to_wave(std::string fname, float *tape, float fSize
     
     SNDFILE * sf = sf_open(fname.c_str(), SFM_WRITE, &sfinfo);
     if (sf) {
-        size_t lSize = 4194304 - int(fSize/fConst2);
+        size_t lSize = TAPESIZE - int(fSize/fConst2);
         sf_write_float(sf,tape, lSize);
         sf_write_sync(sf);
     }
@@ -524,22 +525,34 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
     if (freset3) {fclip3=100.0;fclips3=0.0;}
     if (freset4) {fclip4=100.0;fclips4=0.0;}
     if(sync_tapes || clear_buffers) {
-        if (clear_buffers ==3) {memset(tape4,0,4194304*sizeof(float)); clear_buffers =0;}
-        if (clear_buffers ==2) {memset(tape3,0,4194304*sizeof(float)); clear_buffers =3;}
-        if (clear_buffers ==1) {memset(tape2,0,4194304*sizeof(float)); clear_buffers =2;}
-        if (freset1) {memset(tape1,0,4194304*sizeof(float)); clear_buffers =1;}
+        if (clear_buffers ==3) {
+            memset(tape4,0,TAPESIZE*sizeof(float)); clear_buffers =0;
+            rectime3 = TAPESIZE*fConst2;
+        }
+        if (clear_buffers ==2) {
+            memset(tape3,0,TAPESIZE*sizeof(float)); clear_buffers =3;
+            rectime2 = TAPESIZE*fConst2;
+        }
+        if (clear_buffers ==1) {
+            memset(tape2,0,TAPESIZE*sizeof(float)); clear_buffers =2;
+            rectime1 = TAPESIZE*fConst2;
+        }
+        if (freset1) {
+            memset(tape1,0,TAPESIZE*sizeof(float)); clear_buffers =1;
+            rectime0 = TAPESIZE*fConst2;
+        }
     } 
     if (!clear_buffers) {
-        if (freset1) {memset(tape1,0,4194304*sizeof(float));}
-        if (freset2) {memset(tape2,0,4194304*sizeof(float));}
-        if (freset3) {memset(tape3,0,4194304*sizeof(float));}
-        if (freset4) {memset(tape4,0,4194304*sizeof(float));}
+        if (freset1) {memset(tape1,0,TAPESIZE*sizeof(float));}
+        if (freset2) {memset(tape2,0,TAPESIZE*sizeof(float));}
+        if (freset3) {memset(tape3,0,TAPESIZE*sizeof(float));}
+        if (freset4) {memset(tape4,0,TAPESIZE*sizeof(float));}
     }
     // switch off freset button when buffer is empty 
-    freset1     = (rectime0 < 4194304*fConst2)? freset1 : 0.0;
-	freset2     = (rectime1 < 4194304*fConst2)? freset2 : 0.0;
-	freset3     = (rectime2 < 4194304*fConst2)? freset3 : 0.0;
-	freset4     = (rectime3 < 4194304*fConst2)? freset4 : 0.0;
+    freset1     = (rectime0 < TAPESIZE*fConst2)? freset1 : 0.0;
+	freset2     = (rectime1 < TAPESIZE*fConst2)? freset2 : 0.0;
+	freset3     = (rectime2 < TAPESIZE*fConst2)? freset3 : 0.0;
+	freset4     = (rectime3 < TAPESIZE*fConst2)? freset4 : 0.0;
     // set fplay head position
     float ph1      = RecSize1[0] ? 1.0/(RecSize1[0] * 0.001) : 0.0;
     fplayh1 = (1-iVec0[0]) * fmin(1000,fmax(0,float(IOTAR1*ph1)));
@@ -598,10 +611,10 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		float fTemp0 = ((float)input0[i] * fRec0[0]);
 		iVec0[0] = iSlow3;
 		float fTemp1 = (iSlow3 * fTemp0);
-        RecSize1[0] = fmin(4194304, (int)(iSlow4 * (((iSlow3 - iVec0[1]) <= 0) * (iSlow3 + RecSize1[1]))));
-		int iTemp2 = (4194304 - RecSize1[0]);
+        RecSize1[0] = fmin(TAPESIZE, (int)(iSlow4 * (((iSlow3 - iVec0[1]) <= 0) * (iSlow3 + RecSize1[1]))));
+		int iTemp2 = (TAPESIZE - RecSize1[0]);
 		rectime0 = iTemp2*fConst2;
-        int iTemp3 = fmin(4194304-1, (int)(4194304 - iTemp2));
+        int iTemp3 = fmin(TAPESIZE-1, (int)(TAPESIZE - iTemp2));
 		if ((sync_tapes && (rfplay1 ||fplay1)) || iSlow3 == 1) {
         IOTA1 = IOTA1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTA1+1;
 		if (iSlow3 == 1) tape1[IOTA1] = fTemp1;
@@ -620,10 +633,10 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		iRec4[0] = ((int(((fRec2[1] <= 0.0f) & (iRec3[1] != iTemp3))))?iTemp3:iRec4[1]);
 		iVec2[0] = iSlow6;
 		float fTemp5 = (iSlow6 * fTemp0);
-		if (!sync_tapes) RecSize2[0] = fmin(4194304, (int)(iSlow7 * (((iSlow6 - iVec2[1]) <= 0) * (iSlow6 + RecSize2[1]))));
-		int iTemp6 = (4194304 - RecSize2[0]);
+		if (!sync_tapes) RecSize2[0] = fmin(TAPESIZE, (int)(iSlow7 * (((iSlow6 - iVec2[1]) <= 0) * (iSlow6 + RecSize2[1]))));
+		int iTemp6 = (TAPESIZE - RecSize2[0]);
 		rectime1 = iTemp6*fConst2;
-		int iTemp7 = fmin(4194304-1, (int)(4194304 - iTemp6));
+		int iTemp7 = fmin(TAPESIZE-1, (int)(TAPESIZE - iTemp6));
 		if ((sync_tapes && (rfplay1 ||fplay1)) || iSlow6 == 1) {
 		IOTA2 = IOTA2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTA2+1;
 		if (iSlow6 == 1) tape2[IOTA2] = fTemp5;
@@ -642,10 +655,10 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		iRec9[0] = ((int(((fRec7[1] <= 0.0f) & (iRec8[1] != iTemp7))))?iTemp7:iRec9[1]);
 		iVec4[0] = iSlow9;
 		float fTemp9 = (iSlow9 * fTemp0);
-		if (!sync_tapes) RecSize3[0] = fmin(4194304, (int)(iSlow10 * (((iSlow9 - iVec4[1]) <= 0) * (iSlow9 + RecSize3[1]))));
-		int iTemp10 = (4194304 - RecSize3[0]);
+		if (!sync_tapes) RecSize3[0] = fmin(TAPESIZE, (int)(iSlow10 * (((iSlow9 - iVec4[1]) <= 0) * (iSlow9 + RecSize3[1]))));
+		int iTemp10 = (TAPESIZE - RecSize3[0]);
 		rectime2 = iTemp10*fConst2;
-		int iTemp11 = fmin(4194304-1, (int)(4194304 - iTemp10));
+		int iTemp11 = fmin(TAPESIZE-1, (int)(TAPESIZE - iTemp10));
 		if ((sync_tapes && (rfplay1 ||fplay1)) || iSlow9 == 1) {
 		IOTA3 = IOTA3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTA3+1;
 		if (iSlow9 == 1) tape3[IOTA3] = fTemp9;
@@ -664,10 +677,10 @@ void always_inline LiveLooper::compute(int count, float *input0, float *output0)
 		iRec14[0] = ((int(((fRec12[1] <= 0.0f) & (iRec13[1] != iTemp11))))?iTemp11:iRec14[1]);
 		iVec6[0] = iSlow12;
 		float fTemp13 = (iSlow12 * fTemp0);
-		if (!sync_tapes) RecSize4[0] = fmin(4194304, (int)(iSlow13 * (((iSlow12 - iVec6[1]) <= 0) * (iSlow12 + RecSize4[1]))));
-		int iTemp14 = (4194304 - RecSize4[0]);
+		if (!sync_tapes) RecSize4[0] = fmin(TAPESIZE, (int)(iSlow13 * (((iSlow12 - iVec6[1]) <= 0) * (iSlow12 + RecSize4[1]))));
+		int iTemp14 = (TAPESIZE - RecSize4[0]);
 		rectime3 = iTemp14*fConst2;
-		int iTemp15 = fmin(4194304-1, (int)(4194304 - iTemp14));
+		int iTemp15 = fmin(TAPESIZE-1, (int)(TAPESIZE - iTemp14));
 		if ((sync_tapes && (rfplay1 ||fplay1)) || iSlow12 == 1) {
 		IOTA4 = IOTA4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTA4+1;
 		if (iSlow12 == 1) tape4[IOTA4] = fTemp13;

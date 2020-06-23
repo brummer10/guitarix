@@ -41,7 +41,7 @@ class PitchTracker {
     void            reset();
     void            set_threshold(float v);
     void            set_fast_note_detection(bool v);
-    Glib::Dispatcher new_freq;
+   // Glib::Dispatcher new_freq;
  private:
     bool            setParameters(int priority, int policy, int sampleRate, int fftSize );
     void            run();

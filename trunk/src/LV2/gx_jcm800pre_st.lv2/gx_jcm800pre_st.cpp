@@ -258,10 +258,18 @@ Gx_jcm800pre_::instantiate(const LV2_Descriptor* descriptor,
   else
     {
       LV2_URID bufsz_max = self->map->map(self->map->handle, LV2_BUF_SIZE__maxBlockLength);
+      LV2_URID bufsz_    = self->map->map(self->map->handle,"http://lv2plug.in/ns/ext/buf-size#nominalBlockLength");
       LV2_URID atom_Int = self->map->map(self->map->handle, LV2_ATOM__Int);
 
       for (const LV2_Options_Option* o = options; o->key; ++o)
         {
+          if (o->context == LV2_OPTIONS_INSTANCE &&
+              o->key == bufsz_ &&
+              o->type == atom_Int)
+            {
+              bufsize = *(const int32_t*)o->value;
+              break;
+            }
           if (o->context == LV2_OPTIONS_INSTANCE &&
               o->key == bufsz_max &&
               o->type == atom_Int)

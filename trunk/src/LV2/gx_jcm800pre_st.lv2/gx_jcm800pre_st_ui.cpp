@@ -282,8 +282,8 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor * descriptor,
     ui->win->func.expose_callback = draw_window;
     // create knob widgets
     ui->widget[0] = add_my_knob(ui->widget[0], P6v,"Pre-Amp", ui,40, 25, 100, 125);
-    set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
-    adj_set_scale(ui->widget[0]->adj, 2.0);
+    set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.005, CL_CONTINUOS);
+    //adj_set_scale(ui->widget[0]->adj, 2.0);
 
     ui->widget[1] = add_my_knob(ui->widget[1], BASS,"Bass", ui,150, 45, 60, 85);
     set_adjustment(ui->widget[1]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
@@ -295,10 +295,10 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor * descriptor,
     set_adjustment(ui->widget[3]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
     ui->widget[4] = add_my_knob(ui->widget[4], WET_DRY,"Presence", ui,360, 35, 80, 105);
-    set_adjustment(ui->widget[4]->adj,100.0, 100.0, 0.0, 100.0, 1.0, CL_CONTINUOS);
+    set_adjustment(ui->widget[4]->adj,100.0, 100.0, 0.0, 100.0, 0.5, CL_CONTINUOS);
 
     ui->widget[5] = add_my_knob(ui->widget[5], GAIN,"Master", ui,450, 25, 100, 125);
-    set_adjustment(ui->widget[5]->adj,0.0, 0.0, -20.0, 20.0, 1.0, CL_CONTINUOS);
+    set_adjustment(ui->widget[5]->adj,0.0, 0.0, -20.0, 20.0, 0.2, CL_CONTINUOS);
 
     // map all widgets into the toplevel Widget_t
     widget_show_all(ui->win);

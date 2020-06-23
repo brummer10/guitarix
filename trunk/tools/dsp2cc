@@ -471,6 +471,8 @@ class Parser(object):
                 continue
             if line.startswith('	return (value * value);'):
                 continue
+            if line.startswith('	return ((value * value) * value);'):
+                continue
             if line.startswith('}') and not line.startswith('};'):
                 continue
             cp.append(line)
@@ -1905,6 +1907,13 @@ class Output(object):
             m = re.search(r'(?:[a-z_0-9]+\s*,\s*)?(.*)', rest)
             rest = m.group(1)
             m = re.match(r'"([^"]*)', rest)
+            # if param is a switch we need to remove the sw_type
+            # to avoid false error message.
+            if m:
+                if ('PARAM' in rest):
+                    index = rest.find(',')
+                    rest = rest[index+1:len(rest)]
+                    m = re.match(r'"([^"]*)', rest)
             if m:
                 yield m.group(1)
                 continue

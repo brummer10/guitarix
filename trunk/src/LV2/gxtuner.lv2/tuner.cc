@@ -31,7 +31,7 @@
  ** class tuner
  */
 
-class tuner: public PluginLV2, public sigc::trackable {
+class tuner: public PluginLV2 {
 private:
     static void feed_tuner(int count, float *input, float *output, PluginLV2*);
     static int activate(bool start, PluginLV2 *plugin);
@@ -42,7 +42,7 @@ private:
     enum { tuner_use = 0x01, livetuner_use = 0x02, switcher_use = 0x04, midi_use = 0x08 };
     void set_and_check(int use, bool on);
 public:
-    Glib::Dispatcher& signal_freq_changed() { return pitch_tracker.new_freq; }
+   // Glib::Dispatcher& signal_freq_changed() { return pitch_tracker.new_freq; }
     static float get_freq(tuner& self) { return self.pitch_tracker.get_estimated_freq(); }
     static float get_note(tuner& self) { return self.pitch_tracker.get_estimated_note(); }
     static inline float db2power(float db) {return pow(10.,db*0.05);}
@@ -54,7 +54,7 @@ public:
 
 tuner::tuner()
     : PluginLV2(),
-      trackable(),
+     // trackable(),
       pitch_tracker(),
       state() {
     version = PLUGINLV2_VERSION;
