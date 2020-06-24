@@ -38,6 +38,7 @@
 /****************************************************************
  ** class GxNSMhandler
  */
+#ifdef HAVE_LIBLO
 
 class GxNSMhandler {
   private:
@@ -156,6 +157,7 @@ int GxNSMhandler::gx_nsm_save ( char **out_msg, void *userdata ) {
     return nsmhandler->_nsm_save(out_msg);
 }
 
+#endif
 
 /****************************************************************
  ** class GxTheme
@@ -770,13 +772,15 @@ static void mainProg(int argc, char *argv[]) {
 #endif
     Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
     gx_system::CmdlineOptions options;
-    GxNSMhandler nsmhandler(&options, &posixsig);
 
     Gtk::Main main(argc, argv, options);
     Gxw::init();
     options.process(argc, argv);
 
+#ifdef HAVE_LIBLO
+    GxNSMhandler nsmhandler(&options, &posixsig);
     posixsig.nsm_session_control = nsmhandler.check_nsm(argv);
+#endif
 
     bool theme_ok = false;
     if (options.get_clear_rc()) {

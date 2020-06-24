@@ -72,7 +72,10 @@ struct GdkSpanFunc;
 #include <curl/curl.h>
 #include <thread>
 
+#ifdef HAVE_LIBLO
 #include "nsm.h"
+#endif
+
 #include "engine.h"
 #include "jsonrpc.h"
 #include "machine.h"

@@ -319,7 +319,6 @@ def configure(conf):
         conf.env['STANDALONE'] = True
         conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
         conf.check_cfg(package='libcurl', atleast_version='7.26.0', args='--cflags --libs', uselib_store='CURL', mandatory=1)
-        conf.check_cfg(package='liblo', args='--cflags --libs', uselib_store='LIBLO', mandatory=1)
         conf.gxload('robotofont')
         conf.gxload('sassc')
     else:
@@ -449,6 +448,7 @@ def configure(conf):
     display_feature("Use prebuild gresouce file", not conf.env["HAVE_GLIB"])
     display_feature("Avahi service discovery", conf.env["HAVE_AVAHI"])
     display_feature("Bluetooth rfcomm", conf.env["HAVE_BLUEZ"])
+    display_feature("Build with NSM support", conf.env["HAVE_LIBLO"])
     display_feature("Use internal zita-resampler", not conf.env['HAVE_ZITA_RESAMPLER'])
     if conf.env['HAVE_CONVOLVER_FFMPEG']:
         display_feature("Use zita-convolver-ffmpeg", True)

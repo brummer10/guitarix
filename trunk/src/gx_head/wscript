@@ -16,6 +16,10 @@ def options(opt):
         '--no-bluez', action='store_const', default=False, const=True,
         help=('Do not build with bluez support for remote'
               ' / connection to Guitarix server instances  [Default: no]'))
+    guitarix_prog.add_option(
+        '--no-nsm', action='store_const', default=False, const=True,
+        help=('Do not build with nsm support for remote'
+              ' / connection to NSM server instances  [Default: no]'))
 
 def configure(conf):
     if not Options.options.no_avahi:
@@ -26,6 +30,8 @@ def configure(conf):
         conf.define("HAVE_AVAHI", 1)
     if not Options.options.no_bluez:
         conf.check_cfg(package='bluez', args='--cflags --libs', uselib_store='BLUEZ', mandatory=0)
+    if not Options.options.no_nsm:
+        conf.check_cfg(package='liblo', args='--cflags --libs', uselib_store='LIBLO', mandatory=0)
 
 def gperf2cc(task):
     def generated(node):
