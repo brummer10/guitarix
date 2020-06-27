@@ -137,8 +137,10 @@ struct CmdConnection::methodnames;
 
 "get_tuning", true
 "get_tuner_freq", true
+"get_tuner_note", true
 "switch_tuner", false
 "tuner_used_for_display", false
+"tuner_used_by_midi", false
 
 
 /* Oscilloscope */

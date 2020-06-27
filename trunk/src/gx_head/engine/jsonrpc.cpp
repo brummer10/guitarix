@@ -654,6 +654,10 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
         jw.write(serv.jack.get_engine().tuner.get_freq());
     }
 
+    FUNCTION(get_tuner_note) {
+        jw.write(serv.jack.get_engine().tuner.get_note());
+    }
+
     FUNCTION(get_oscilloscope_mul_buffer) {
         jw.write(serv.jack.get_engine().oscilloscope.get_mul_buffer());
     }
@@ -1152,6 +1156,10 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(tuner_used_for_display) {
         serv.jack.get_engine().tuner.used_for_display(params[0]->getInt());
+    }
+
+    PROCEDURE(tuner_used_by_midi) {
+        serv.jack.get_engine().tuner.used_by_midi(params[0]->getInt());
     }
 
     PROCEDURE(set_oscilloscope_mul_buffer) {

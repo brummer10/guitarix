@@ -830,6 +830,12 @@ void MainWindow::maybe_shrink_horizontally(bool preset_no_rack) {
     }
 }
 
+void MainWindow::on_midiout_tuner() {
+    bool v = actions.tunermidiout->get_active();
+    if (v) machine.tuner_used_by_midi(true);
+    else machine.tuner_used_by_midi(false);
+}
+
 void MainWindow::on_move_tuner() {
     bool v = actions.tuner->get_active();
     if(bld.tunerbox->get_parent() == bld.upper_rackbox) {
@@ -1780,6 +1786,9 @@ void MainWindow::create_actions() {
     actions.tunermove = uimanager.add_ui_bool_action(machine, "system.stick_tuner", "Tunermove");
     actions.tunermove->signal_toggled().connect(
         sigc::mem_fun(*this, &MainWindow::on_move_tuner));
+    actions.tunermidiout = uimanager.add_ui_bool_action(machine, "system.midiout_tuner", "Tunermidiout");
+    actions.tunermidiout->signal_toggled().connect(
+        sigc::mem_fun(*this, &MainWindow::on_midiout_tuner));
 
     actions.rack_config = uimanager.add_toggle_action("RackConfig");
     actions.rack_config->signal_toggled().connect(

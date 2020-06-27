@@ -727,6 +727,7 @@ public:
     Glib::RefPtr<ToggleAction> show_rack;
     Glib::RefPtr<UiBoolToggleAction> tuner;
     Glib::RefPtr<UiBoolToggleAction> tunermove;
+    Glib::RefPtr<UiBoolToggleAction> tunermidiout;
     Glib::RefPtr<UiBoolToggleAction> livetuner;
     Glib::RefPtr<ToggleAction> show_values;
     Glib::RefPtr<ToggleAction> tooltips;
@@ -870,6 +871,7 @@ private:
     void maybe_shrink_horizontally(bool preset_no_rack=false);
     void on_show_tuner();
     void on_move_tuner();
+    void on_midiout_tuner();
     bool is_variable_size();
     void maybe_change_resizable(void);
     void on_show_rack();

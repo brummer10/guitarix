@@ -82,6 +82,7 @@ public:
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) = 0;
     virtual void pluginlist_append_rack(UiBuilderBase& ui) = 0;
     virtual float get_tuner_freq() = 0;
+    virtual float get_tuner_note() = 0;
     virtual void set_oscilloscope_mul_buffer(int a) = 0;
     virtual int get_oscilloscope_mul_buffer() = 0;
     virtual gx_system::CmdlineOptions& get_options() const = 0;
@@ -89,6 +90,7 @@ public:
     virtual void stop_socket() = 0;
     virtual sigc::signal<void,GxEngineState>& signal_state_change() = 0;
     virtual void tuner_used_for_display(bool on) = 0;
+    virtual void tuner_used_by_midi(bool on) = 0;
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type) = 0;
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed() = 0;
     virtual void remove_rack_unit(const std::string& unit, PluginType type) = 0;
@@ -185,6 +187,7 @@ public:
     virtual int midi_param2controller(Parameter& param, const MidiController** p) = 0;
     virtual void set_midi_channel(int s) = 0;
     virtual void midi_feedback(int c, int v) = 0;
+    virtual void on_tuner_freq_changed() = 0;
     // Convolver
     virtual void reload_impresp_list(const std::string& path) = 0;
     sigc::signal<void,const std::string&, std::vector<gx_system::FileName> >& signal_impresp_list() {
@@ -267,6 +270,7 @@ public:
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
     virtual float get_tuner_freq();
+    virtual float get_tuner_note();
     virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
     virtual gx_system::CmdlineOptions& get_options() const;
@@ -274,6 +278,7 @@ public:
     virtual void stop_socket();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
     virtual void tuner_used_for_display(bool on);
+    virtual void tuner_used_by_midi(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed();
     virtual void remove_rack_unit(const std::string& unit, PluginType type);
@@ -368,6 +373,7 @@ public:
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
     virtual void set_midi_channel(int s);
     virtual void midi_feedback(int c, int v);
+    virtual void on_tuner_freq_changed();
     // Convolver
     virtual void reload_impresp_list(const std::string& path);
     virtual void load_impresp_dirs(std::vector<gx_system::FileName>& dirs);
@@ -447,6 +453,7 @@ public:
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
     virtual void pluginlist_append_rack(UiBuilderBase& ui);
     virtual float get_tuner_freq();
+    virtual float get_tuner_note();
     virtual void set_oscilloscope_mul_buffer(int a);
     virtual int get_oscilloscope_mul_buffer();
     virtual gx_system::CmdlineOptions& get_options() const;
@@ -454,6 +461,7 @@ public:
     virtual void stop_socket();
     virtual sigc::signal<void,GxEngineState>& signal_state_change();
     virtual void tuner_used_for_display(bool on);
+    virtual void tuner_used_by_midi(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed();
     virtual void remove_rack_unit(const std::string& unit, PluginType type);
@@ -548,6 +556,7 @@ public:
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
     virtual void set_midi_channel(int s);
     virtual void midi_feedback(int c, int v);
+    virtual void on_tuner_freq_changed();
     // Convolver
     virtual void reload_impresp_list(const std::string& path);
     virtual void load_impresp_dirs(std::vector<gx_system::FileName>& dirs);

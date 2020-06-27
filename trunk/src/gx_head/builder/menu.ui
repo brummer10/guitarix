@@ -125,6 +125,13 @@
 	  <attribute name="label">Tuner stic_k</attribute>
 	  <attribute name="accel">&lt;Control&gt;k</attribute>
 	</item>
+	<item>
+	  <attribute name="action">Tunermidiout</attribute>
+	  <attribute name="label">Tu_ner midi out</attribute>
+	  <attribute name="accel">&lt;Control&gt;n</attribute>
+	</item>
+      </section>
+      <section>
 	<submenu>
 	  <attribute name="action">MonoPlugins</attribute>
 	  <attribute name="label">_Mono Plugins</attribute>

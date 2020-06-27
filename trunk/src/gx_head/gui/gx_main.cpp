@@ -51,7 +51,7 @@ class GxNSMhandler {
     bool _poll_nsm();
     nsm_client_t *nsm;
 
- public:
+  public:
     bool check_nsm(char *argv[]);
     static int gx_nsm_open (const char *name, const char *display_name,
             const char *client_id, char **out_msg,  void *userdata);
