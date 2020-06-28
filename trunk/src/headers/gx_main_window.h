@@ -73,6 +73,14 @@ private:
     
 public:
     bool nsm_session_control;
+    sigc::signal<void > trigger_nsm_gui_is_shown;
+    sigc::signal<void > trigger_nsm_gui_is_hidden;
+    sigc::signal<void >& signal_trigger_nsm_gui_is_shown() { return trigger_nsm_gui_is_shown; }
+    sigc::signal<void >& signal_trigger_nsm_gui_is_hidden() { return trigger_nsm_gui_is_hidden; }
+    sigc::signal<void > trigger_nsm_show_gui;
+    sigc::signal<void > trigger_nsm_hide_gui;
+    sigc::signal<void >& signal_trigger_nsm_show_gui() { return trigger_nsm_show_gui; }
+    sigc::signal<void >& signal_trigger_nsm_hide_gui() { return trigger_nsm_hide_gui; }
     sigc::signal<void >& signal_trigger_nsm_exit() { return trigger_nsm_exit; }
     PosixSignals(bool gui, GxTheme *theme = nullptr);
     ~PosixSignals();
@@ -961,6 +969,8 @@ private:
     bool delete_ladspalist_window();
     bool on_quit();
     bool on_nsm_quit();
+    void on_nsm_show();
+    void on_nsm_hide();
     void amp_controls_visible(Gtk::Range *rr);
     void gx_show_help();
     void show_forum_help();

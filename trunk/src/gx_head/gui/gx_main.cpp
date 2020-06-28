@@ -47,6 +47,10 @@ class GxNSMhandler {
     int _nsm_open (const char *name, const char *display_name,
             const char *client_id, char **out_msg);
     int _nsm_save ( char **out_msg);
+    void _nsm_show ();
+    void _nsm_hide ();
+    void _on_nsm_is_shown();
+    void _on_nsm_is_hidden();
     void _nsm_start_poll();
     bool _poll_nsm();
     nsm_client_t *nsm;
@@ -56,6 +60,8 @@ class GxNSMhandler {
     static int gx_nsm_open (const char *name, const char *display_name,
             const char *client_id, char **out_msg,  void *userdata);
     static int gx_nsm_save ( char **out_msg, void *userdata );
+    static void gx_nsm_show ( void *userdata );
+    static void gx_nsm_hide ( void *userdata );
     GxNSMhandler(gx_system::CmdlineOptions *options,PosixSignals *posixsig);
     ~GxNSMhandler();
 };
@@ -63,7 +69,14 @@ class GxNSMhandler {
 GxNSMhandler::GxNSMhandler(gx_system::CmdlineOptions *options_,PosixSignals *posixsig_)
     : options(options_),
       posixsig(posixsig_),
-      nsm(0) {}
+      nsm(0) {
+    posixsig->signal_trigger_nsm_gui_is_shown().connect(
+        sigc::hide_return(sigc::mem_fun(this, &::GxNSMhandler::_on_nsm_is_shown)));
+
+    posixsig->signal_trigger_nsm_gui_is_hidden().connect(
+        sigc::hide_return(sigc::mem_fun(this, &GxNSMhandler::_on_nsm_is_hidden)));
+
+    }
 
 GxNSMhandler::~GxNSMhandler() {
     if (nsm) {
@@ -80,8 +93,10 @@ bool GxNSMhandler::check_nsm(char *argv[]) {
         nsm = nsm_new();
         nsm_set_open_callback( nsm, gx_nsm_open, static_cast<void*>(this));
         nsm_set_save_callback( nsm, gx_nsm_save, static_cast<void*>(this));
+        nsm_set_show_callback( nsm, gx_nsm_show, static_cast<void*>(this));
+        nsm_set_hide_callback( nsm, gx_nsm_hide, static_cast<void*>(this));
         if ( 0 == nsm_init( nsm, nsm_url)) {
-            nsm_send_announce( nsm, "Guitarix", "", argv[0]);
+            nsm_send_announce( nsm, "Guitarix", ":optional-gui:", argv[0]);
             nsm_check_wait(nsm, 200);
             return true;
         } else {
@@ -143,7 +158,23 @@ int GxNSMhandler::_nsm_save ( char **out_msg) {
     }    
     return ERR_OK;
 }
+ 
+void GxNSMhandler::_nsm_show () {
+    posixsig->trigger_nsm_show_gui();
+}
 
+void GxNSMhandler::_nsm_hide () {
+    posixsig->trigger_nsm_hide_gui();
+}
+  
+void GxNSMhandler::_on_nsm_is_shown () {
+    nsm_send_is_shown(nsm);
+}
+  
+void GxNSMhandler::_on_nsm_is_hidden () {
+    nsm_send_is_hidden(nsm);
+}
+ 
 //static
 int GxNSMhandler::gx_nsm_open (const char *name, const char *display_name,
             const char *client_id, char **out_msg, void *userdata ) {
@@ -155,6 +186,18 @@ int GxNSMhandler::gx_nsm_open (const char *name, const char *display_name,
 int GxNSMhandler::gx_nsm_save ( char **out_msg, void *userdata ) {
     GxNSMhandler * nsmhandler = static_cast<GxNSMhandler*>(userdata);
     return nsmhandler->_nsm_save(out_msg);
+}
+            
+//static            
+void GxNSMhandler::gx_nsm_show (void *userdata ) {
+    GxNSMhandler * nsmhandler = static_cast<GxNSMhandler*>(userdata);
+    return nsmhandler->_nsm_show();
+}
+            
+//static            
+void GxNSMhandler::gx_nsm_hide (void *userdata ) {
+    GxNSMhandler * nsmhandler = static_cast<GxNSMhandler*>(userdata);
+    return nsmhandler->_nsm_hide();
 }
 
 #endif

@@ -2393,24 +2393,40 @@ void MainWindow::hide_extended_settings() {
 	 & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
         bld.window->move(options.mainwin_x, options.mainwin_y);
         bld.window->present();
+        if (posixsig.nsm_session_control) posixsig.trigger_nsm_gui_is_shown();
        // bld.window->deiconify();
     } else {
         bld.window->hide();
+        if (posixsig.nsm_session_control) posixsig.trigger_nsm_gui_is_hidden();
        // bld.window->iconify();
     }
+}
+
+void MainWindow::on_nsm_show() {
+    bld.window->show();
+    posixsig.trigger_nsm_gui_is_shown();
+}
+
+void MainWindow::on_nsm_hide() {
+    bld.window->hide();
+    posixsig.trigger_nsm_gui_is_hidden();
 }
 
 void MainWindow::run() {
     int port = options.get_rpcport();
     if (machine.get_jack() && port != RPCPORT_DEFAULT && port != RPCPORT_NONE) {
-	machine.start_socket(sigc::ptr_fun(Gtk::Main::quit), options.get_rpcaddress(), port);
-	bld.window->show();
+        machine.start_socket(sigc::ptr_fun(Gtk::Main::quit), options.get_rpcaddress(), port);
+        bld.window->show();
     if (options.get_liveplaygui()) bld.liveplay_button->set_active();
-	Gtk::Main::run();
+        Gtk::Main::run();
     } else {
-	bld.window->show();
+        if (!posixsig.nsm_session_control) {
+            bld.window->show();
+        } else {
+            posixsig.trigger_nsm_gui_is_hidden();
+        }
     if (options.get_liveplaygui()) bld.liveplay_button->set_active();
-	Gtk::Main::run();
+    Gtk::Main::run();
     }
 }
 
@@ -2532,6 +2548,12 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 
     posixsig.signal_trigger_nsm_exit().connect(
         sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_nsm_quit)));
+
+    posixsig.signal_trigger_nsm_show_gui().connect(
+        sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_nsm_show)));
+
+    posixsig.signal_trigger_nsm_hide_gui().connect(
+        sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_nsm_hide)));
 
     /*
     ** create actions and some parameters
