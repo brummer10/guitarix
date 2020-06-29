@@ -54,6 +54,7 @@ class GxNSMhandler {
     void _nsm_start_poll();
     bool _poll_nsm();
     nsm_client_t *nsm;
+    bool wait_id;
 
   public:
     bool check_nsm(char *argv[]);
@@ -69,7 +70,8 @@ class GxNSMhandler {
 GxNSMhandler::GxNSMhandler(gx_system::CmdlineOptions *options_,PosixSignals *posixsig_)
     : options(options_),
       posixsig(posixsig_),
-      nsm(0) {
+      nsm(0),
+      wait_id(true) {
     posixsig->signal_trigger_nsm_gui_is_shown().connect(
         sigc::hide_return(sigc::mem_fun(this, &::GxNSMhandler::_on_nsm_is_shown)));
 
@@ -97,7 +99,13 @@ bool GxNSMhandler::check_nsm(char *argv[]) {
         nsm_set_hide_callback( nsm, gx_nsm_hide, static_cast<void*>(this));
         if ( 0 == nsm_init( nsm, nsm_url)) {
             nsm_send_announce( nsm, "Guitarix", ":optional-gui:", argv[0]);
-            nsm_check_wait(nsm, 200);
+            int wait_count = 0;
+            while(wait_id) {
+                nsm_check_wait(nsm,500);
+                wait_count +=1;
+                if (wait_count > 200)
+                    GxExit::get_instance().exit_program("NSM didn't response, exit now");
+            }
             return true;
         } else {
             nsm_free(nsm);
@@ -143,6 +151,7 @@ int GxNSMhandler::_nsm_open (const char *name, const char *display_name,
     options->set_jack_single(true);
    // options->set_opt_autosave(true);
     options->read_ui_vars();
+    wait_id = false;
     gx_print_info(_("nsm startup"), name);
     _nsm_start_poll();
 
