@@ -969,8 +969,6 @@ private:
     bool delete_ladspalist_window();
     bool on_quit();
     bool on_nsm_quit();
-    void on_nsm_show();
-    void on_nsm_hide();
     void amp_controls_visible(Gtk::Range *rr);
     void gx_show_help();
     void show_forum_help();

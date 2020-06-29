@@ -443,6 +443,7 @@ public:
     void read_ui_vars();
     void write_ui_vars();
     // saved in ui_rc:
+    int mainwin_visible;
     int mainwin_x;
     int mainwin_y;
     int mainwin_height;

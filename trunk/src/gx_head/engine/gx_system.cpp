@@ -494,6 +494,7 @@ CmdlineOptions::CmdlineOptions()
       dump_parameter(false),
 #endif
       skin(style_dir),
+      mainwin_visible(1),
       mainwin_x(-1),
       mainwin_y(-1),
       mainwin_height(-1),
@@ -770,7 +771,10 @@ void CmdlineOptions::read_ui_vars() {
         jp.next(JsonParser::begin_object);
         while (jp.peek() != JsonParser::end_object) {
             jp.next(JsonParser::value_key);
-            if (jp.current_value() == "system.mainwin_x") {
+            if (jp.current_value() == "system.mainwin_visible") {
+                jp.next(JsonParser::value_number);
+                mainwin_visible = jp.current_value_int();
+            } else if (jp.current_value() == "system.mainwin_x") {
                 jp.next(JsonParser::value_number);
                 mainwin_x = jp.current_value_int();
             } else if (jp.current_value() == "system.mainwin_y") {
@@ -842,6 +846,7 @@ void CmdlineOptions::write_ui_vars() {
     JsonWriter jw(&o);
     try {
 	jw.begin_object(true);
+	jw.write_kv("system.mainwin_visible", mainwin_visible);
 	jw.write_kv("system.mainwin_x", mainwin_x);
 	jw.write_kv("system.mainwin_y", mainwin_y);
 	jw.write_kv("system.mainwin_height", mainwin_height);

@@ -2382,34 +2382,29 @@ void MainWindow::systray_menu(guint button, guint32 activate_time) {
 
 bool MainWindow::on_window_state_changed(GdkEventWindowState* event) {
     if (event->changed_mask & event->new_window_state & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) {
-	bld.window->get_window()->get_root_origin(options.mainwin_x, options.mainwin_y);
+        bld.window->get_window()->get_root_origin(options.mainwin_x, options.mainwin_y);
     }
     return false;
 }
 
 void MainWindow::hide_extended_settings() {
-    if (!is_visible ||
-	(bld.window->get_window()->get_state()
-	 & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
+    if (!is_visible || (bld.window->get_window()->get_state()
+        & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
         bld.window->move(options.mainwin_x, options.mainwin_y);
         bld.window->present();
-        if (posixsig.nsm_session_control) posixsig.trigger_nsm_gui_is_shown();
+        if (posixsig.nsm_session_control) {
+            posixsig.trigger_nsm_gui_is_shown();
+            options.mainwin_visible = 1;
+        }
        // bld.window->deiconify();
     } else {
         bld.window->hide();
-        if (posixsig.nsm_session_control) posixsig.trigger_nsm_gui_is_hidden();
+        if (posixsig.nsm_session_control) {
+            posixsig.trigger_nsm_gui_is_hidden();
+            options.mainwin_visible = 0;
+        }
        // bld.window->iconify();
     }
-}
-
-void MainWindow::on_nsm_show() {
-    bld.window->show();
-    posixsig.trigger_nsm_gui_is_shown();
-}
-
-void MainWindow::on_nsm_hide() {
-    bld.window->hide();
-    posixsig.trigger_nsm_gui_is_hidden();
 }
 
 void MainWindow::run() {
@@ -2420,7 +2415,7 @@ void MainWindow::run() {
     if (options.get_liveplaygui()) bld.liveplay_button->set_active();
         Gtk::Main::run();
     } else {
-        if (!posixsig.nsm_session_control) {
+        if (!posixsig.nsm_session_control || options.mainwin_visible) {
             bld.window->show();
         } else {
             posixsig.trigger_nsm_gui_is_hidden();
@@ -2550,10 +2545,10 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
         sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_nsm_quit)));
 
     posixsig.signal_trigger_nsm_show_gui().connect(
-        sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_nsm_show)));
+        sigc::hide_return(sigc::mem_fun(this, &MainWindow::hide_extended_settings)));
 
     posixsig.signal_trigger_nsm_hide_gui().connect(
-        sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_nsm_hide)));
+        sigc::hide_return(sigc::mem_fun(this, &MainWindow::hide_extended_settings)));
 
     /*
     ** create actions and some parameters
