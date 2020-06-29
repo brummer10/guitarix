@@ -2417,8 +2417,9 @@ void MainWindow::run() {
     } else {
         if (!posixsig.nsm_session_control || options.mainwin_visible) {
             bld.window->show();
+            if (posixsig.nsm_session_control) posixsig.trigger_nsm_gui_is_shown();
         } else {
-            posixsig.trigger_nsm_gui_is_hidden();
+            if (posixsig.nsm_session_control) posixsig.trigger_nsm_gui_is_hidden();
         }
     if (options.get_liveplaygui()) bld.liveplay_button->set_active();
     Gtk::Main::run();
