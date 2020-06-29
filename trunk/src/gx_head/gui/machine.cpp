@@ -233,7 +233,9 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     ep->signal_changed_int().connect(sigc::mem_fun(this, &GxMachineBase::set_midi_channel));
 
     pmap.reg_par("ui.live_play_switcher", "Liveplay preset mode" , (bool*)0, false, false)->setSavable(false);
-    pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, false, false);
+    BoolParameter& up = pmap.reg_par("ui.racktuner", N_("Tuner on/off"), (bool*)0, false, false)->getBool();
+    up.signal_changed().connect(
+        sigc::mem_fun(this, &GxMachineBase::tuner_switch));
     pmap.reg_non_midi_par("system.show_tuner", (bool*)0, false);
     pmap.reg_non_midi_par("system.stick_tuner", (bool*)0, false);
     BoolParameter& mp = pmap.reg_par("system.midiout_tuner", "Tuner midi output",(bool*)0, false, false)->getBool();
@@ -524,7 +526,17 @@ void GxMachine::tuner_used_for_display(bool on) {
 }
 
 void GxMachine::tuner_used_by_midi(bool on) {
-    engine.tuner.used_by_midi(on);
+    if ((on && get_parameter("ui.racktuner").getBool().get_value()) || !on) {
+        engine.tuner.used_by_midi(on);
+    }
+}
+
+void GxMachine::tuner_switch(bool on) {
+    if (!on && get_parameter("system.midiout_tuner").getBool().get_value()) {
+        engine.tuner.used_by_midi(false);
+    } else if (on && get_parameter("system.midiout_tuner").getBool().get_value()) {
+        engine.tuner.used_by_midi(true);
+    }
 }
 
 const std::vector<std::string>& GxMachine::get_rack_unit_order(PluginType type) {
@@ -570,9 +582,10 @@ void GxMachine::on_tuner_freq_changed() {
     if (get_parameter("system.midiout_tuner").getBool().get_value()) {
         float fnote = engine.tuner.get_note();
         if (fnote < 999.0) {
+            //float tet = get_parameter("racktuner.temperament").getFloat().get_value();
             int note = static_cast<int>(round(fnote));
             uint8_t midi_note = static_cast<uint8_t>(note+69);
-            uint8_t vel = static_cast<uint8_t>(((fnote - note) * 63) +63);
+            uint8_t vel = static_cast<uint8_t>(((fnote - note) * 127) +63);
 
             msend_midi_cc(0x90, midi_note,vel, 3);
         } else {
@@ -1958,9 +1971,19 @@ void GxMachineRemote::tuner_used_for_display(bool on) {
 }
 
 void GxMachineRemote::tuner_used_by_midi(bool on) {
-    START_NOTIFY(tuner_used_by_midi);
-    jw->write(on);
-    SEND();
+    if ((on && get_parameter("ui.racktuner").getBool().get_value()) || !on) {
+        START_NOTIFY(tuner_used_by_midi);
+        jw->write(on);
+        SEND();
+    }
+}
+
+void GxMachineRemote::tuner_switch(bool on) {
+    if (!on && get_parameter("system.midiout_tuner").getBool().get_value()) {
+        tuner_used_by_midi(false);
+    } else if (on && get_parameter("system.midiout_tuner").getBool().get_value()) {
+        tuner_used_by_midi(true);
+    }
 }
 
 const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(PluginType type) {
@@ -2038,7 +2061,7 @@ void GxMachineRemote::on_tuner_freq_changed() {
         if (fnote < 999.0) {
             int note = static_cast<int>(round(fnote));
             uint8_t midi_note = static_cast<uint8_t>(note+69);
-            uint8_t vel = static_cast<uint8_t>(((fnote - note) * 63) +63);
+            uint8_t vel = static_cast<uint8_t>(((fnote - note) * 127) +63);
 
             msend_midi_cc(0x90, midi_note,vel, 3);
         } else {
