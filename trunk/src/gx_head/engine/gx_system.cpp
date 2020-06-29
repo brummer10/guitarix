@@ -531,7 +531,11 @@ CmdlineOptions::CmdlineOptions()
 	jack_outputs.push_back(tmp);
     }
 
-    read_ui_vars();
+    const char *nsm_url = getenv( "NSM_URL" );
+
+    if (!nsm_url) {
+        read_ui_vars();
+    }
 
     // ---- parse command line arguments
     set_summary(
