@@ -34,8 +34,8 @@ namespace gx_engine {
 
 // downsampling factor
 static const int DOWNSAMPLE = 2;
-static const float SIGNAL_THRESHOLD_ON = 0.009;
-static const float SIGNAL_THRESHOLD_OFF = 0.008;
+static const float SIGNAL_THRESHOLD_ON = 0.001;
+static const float SIGNAL_THRESHOLD_OFF = 0.0009;
 static const float TRACKER_PERIOD = 0.1;
 // The size of the read buffer
 static const int FFT_SIZE = 2048;

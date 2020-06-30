@@ -164,8 +164,10 @@ int TunerAdapter::activate(bool start, PluginDef *plugin) {
 }
 
 void TunerAdapter::feed_tuner(int count, float* input, float*, PluginDef* plugin) {
-    static_cast<TunerAdapter*>(plugin)->lhc.compute(count, input, input);
-    static_cast<TunerAdapter*>(plugin)->pitch_tracker.add(count, input);
+    float t_input[count];
+    memcpy(t_input, input, count*sizeof(float));
+    static_cast<TunerAdapter*>(plugin)->lhc.compute(count, t_input, t_input);
+    static_cast<TunerAdapter*>(plugin)->pitch_tracker.add(count, t_input);
 }
 
 int TunerAdapter::regparam(const ParamReg& reg) {
