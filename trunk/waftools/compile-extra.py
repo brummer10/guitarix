@@ -10,6 +10,7 @@ def add_ldscript(self):
         if isinstance(ldscript, str):
             ldscript = self.path.find_resource(self.ldscript)
             self.ldscript = ldscript
+        self.ldflags.append('-fno-lto')
         self.ldflags.append('-Wl,%s' % ldscript.bldpath())
 
 @feature('cxx','c')
@@ -17,6 +18,7 @@ def add_ldscript(self):
 def add_mapfile(self):
     if hasattr(self, 'mapfile'):
         mapfile = self.path.find_or_declare(self.mapfile)
+        self.ldflags.append('-fno-lto')
         self.ldflags.append('-Wl,-Map=%s' % mapfile.bldpath())
 
 @feature('cxx','c')
