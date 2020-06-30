@@ -589,7 +589,7 @@ void GxMachine::on_tuner_freq_changed() {
 
             msend_midi_cc(0x90, midi_note,vel, 3);
         } else {
-            msend_midi_cc(0xB0, 120, 0, 3);
+            msend_midi_cc(0xB0, 123, 0, 3);
         }
     }
 #endif
@@ -2065,7 +2065,7 @@ void GxMachineRemote::on_tuner_freq_changed() {
 
             msend_midi_cc(0x90, midi_note,vel, 3);
         } else {
-            msend_midi_cc(0xB0, 120, 0, 3);
+            msend_midi_cc(0xB0, 123, 0, 3);
         }
     }
 #endif

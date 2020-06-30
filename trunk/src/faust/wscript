@@ -43,6 +43,7 @@ def build(bld):
         'preamp_impulse_former.dsp',
         'preamp_impulse_former_st.dsp',
         'drumseq.dsp',
+        'low_high_cut.dsp',
         ]
 
     sources_static = [

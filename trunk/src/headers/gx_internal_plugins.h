@@ -70,12 +70,15 @@ public:
  ** class TunerAdapter
  */
 
+#include "faust/low_high_cut.h"
+
 class TunerAdapter: public ModuleSelector, private PluginDef, public sigc::trackable {
 private:
     static void feed_tuner(int count, float *input, float *output, PluginDef*);
     static int regparam(const ParamReg& reg);
     static int activate(bool start, PluginDef *plugin);
     static void init(unsigned int samplingFreq, PluginDef *plugin);
+    low_high_cut::Dsp lhc;
     PitchTracker pitch_tracker;
     int state;
     ModuleSequencer& engine;

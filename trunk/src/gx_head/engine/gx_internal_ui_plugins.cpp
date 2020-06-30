@@ -108,10 +108,14 @@ int MaxLevel::activate(bool start, PluginDef *plugin) {
  ** class TunerAdapter
  */
 
+#include "gx_faust_support.h"
+#include "faust/low_high_cut.cc"
+
 TunerAdapter::TunerAdapter(ModuleSequencer& engine_)
     : ModuleSelector(engine_),
       PluginDef(),
       trackable(),
+      lhc(),
       pitch_tracker(),
       state(),
       engine(engine_),
@@ -133,6 +137,7 @@ void TunerAdapter::init(unsigned int samplingFreq, PluginDef *plugin) {
     int priority, policy;
     // zita-convoler uses 5 levels, so substract 6
     self.engine.get_sched_priority(policy, priority, 6);
+    self.lhc.init(samplingFreq);
     self.pitch_tracker.init(policy, priority, samplingFreq);
 }
 
@@ -159,6 +164,7 @@ int TunerAdapter::activate(bool start, PluginDef *plugin) {
 }
 
 void TunerAdapter::feed_tuner(int count, float* input, float*, PluginDef* plugin) {
+    static_cast<TunerAdapter*>(plugin)->lhc.compute(count, input, input);
     static_cast<TunerAdapter*>(plugin)->pitch_tracker.add(count, input);
 }
 
