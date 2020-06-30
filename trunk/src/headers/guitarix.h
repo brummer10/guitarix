@@ -70,7 +70,6 @@ struct GdkSpanFunc;
 #endif
 #include <gtkmm.h>
 #include <curl/curl.h>
-#include <thread>
 
 #ifdef HAVE_LIBLO
 #include "nsm.h"

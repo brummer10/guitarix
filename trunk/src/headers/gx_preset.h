@@ -27,7 +27,7 @@
 
 class PosixSignals;
 #ifdef HAVE_LIBLO
-class GxNSMhandler;
+class GxNsmHandler;
 #endif
 
 namespace gx_preset {
@@ -159,7 +159,7 @@ private:
     static GxSettings *instance;
     friend class ::PosixSignals;
 #ifdef HAVE_LIBLO
-    friend class ::GxNSMhandler;
+    friend class ::GxNsmHandler;
 #endif
     Glib::ustring sync_name;
     void preset_sync_start();

@@ -2380,6 +2380,13 @@ void MainWindow::systray_menu(guint button, guint32 activate_time) {
     assert(false);
 }
 
+void MainWindow::on_nsm_save() {
+    bld.window->get_window()->get_root_origin(options.mainwin_x, options.mainwin_y);
+    int mainwin_width;
+    bld.window->get_size(mainwin_width, options.mainwin_height);
+    options.write_ui_vars();
+}
+
 bool MainWindow::on_window_state_changed(GdkEventWindowState* event) {
     if (event->changed_mask & event->new_window_state & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) {
         bld.window->get_window()->get_root_origin(options.mainwin_x, options.mainwin_y);
@@ -2392,15 +2399,15 @@ void MainWindow::hide_extended_settings() {
         & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN))) {
         bld.window->move(options.mainwin_x, options.mainwin_y);
         bld.window->present();
-        if (posixsig.nsm_session_control) {
-            posixsig.trigger_nsm_gui_is_shown();
+        if (nsmsig.nsm_session_control) {
+            nsmsig.trigger_nsm_gui_is_shown();
             options.mainwin_visible = 1;
         }
        // bld.window->deiconify();
     } else {
         bld.window->hide();
-        if (posixsig.nsm_session_control) {
-            posixsig.trigger_nsm_gui_is_hidden();
+        if (nsmsig.nsm_session_control) {
+            nsmsig.trigger_nsm_gui_is_hidden();
             options.mainwin_visible = 0;
         }
        // bld.window->iconify();
@@ -2415,11 +2422,11 @@ void MainWindow::run() {
     if (options.get_liveplaygui()) bld.liveplay_button->set_active();
         Gtk::Main::run();
     } else {
-        if (!posixsig.nsm_session_control || options.mainwin_visible) {
+        if (!nsmsig.nsm_session_control || options.mainwin_visible) {
             bld.window->show();
-            if (posixsig.nsm_session_control) posixsig.trigger_nsm_gui_is_shown();
+            if (nsmsig.nsm_session_control) nsmsig.trigger_nsm_gui_is_shown();
         } else {
-            if (posixsig.nsm_session_control) posixsig.trigger_nsm_gui_is_hidden();
+            if (nsmsig.nsm_session_control) nsmsig.trigger_nsm_gui_is_hidden();
         }
     if (options.get_liveplaygui()) bld.liveplay_button->set_active();
     Gtk::Main::run();
@@ -2459,12 +2466,11 @@ bool MainWindow::on_key_press_event(GdkEventKey *event) {
     return false;
 }
 
-bool MainWindow::on_nsm_quit() {
+void MainWindow::on_nsm_quit() {
     options.set_hideonquit(false);
     delete_ladspalist_window();
     machine.stop_socket();
     Gtk::Main::quit();
-    return false;
 }
 
 bool MainWindow::on_quit() {
@@ -2501,11 +2507,11 @@ void MainWindow::amp_controls_visible(Gtk::Range *rr) {
 }
 
 MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOptions& options_,
-		       PosixSignals& posixsig_ ,GxTheme& theme_, Gtk::Window *splash, const Glib::ustring& title)
+		       NsmSignals& nsmsig_ ,GxTheme& theme_, Gtk::Window *splash, const Glib::ustring& title)
     : sigc::trackable(),
       options(options_),
       machine(machine_),
-      posixsig(posixsig_),
+      nsmsig(nsmsig_),
       theme(theme_),
       bld(options_, machine_),
       freezer(),
@@ -2542,14 +2548,14 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
       keyswitch(machine, sigc::mem_fun(this, &MainWindow::display_preset_msg)),
       ladspalist_window() {
 
-    posixsig.signal_trigger_nsm_exit().connect(
-        sigc::hide_return(sigc::mem_fun(this, &MainWindow::on_nsm_quit)));
+    nsmsig.signal_trigger_nsm_show_gui().connect(
+        sigc::mem_fun(this, &MainWindow::hide_extended_settings));
 
-    posixsig.signal_trigger_nsm_show_gui().connect(
-        sigc::hide_return(sigc::mem_fun(this, &MainWindow::hide_extended_settings)));
+    nsmsig.signal_trigger_nsm_hide_gui().connect(
+        sigc::mem_fun(this, &MainWindow::hide_extended_settings));
 
-    posixsig.signal_trigger_nsm_hide_gui().connect(
-        sigc::hide_return(sigc::mem_fun(this, &MainWindow::hide_extended_settings)));
+    nsmsig.signal_trigger_nsm_save_gui().connect(
+        sigc::mem_fun(this, &MainWindow::on_nsm_save));
 
     /*
     ** create actions and some parameters

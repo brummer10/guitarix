@@ -28,22 +28,37 @@
 #include <gtkmm/main.h>     // NOLINT
 #include <gxwmm/init.h>     // NOLINT
 #include <string>           // NOLINT
+#include <thread>
+
 #include "jsonrpc.h"
 
 #ifdef HAVE_AVAHI
 #include "avahi_discover.h"
 #endif
 
+/****************************************************************
+ ** class NsmSignals
+ **
+ ** signal messages from GxNsmHandler to MainWindow
+ */
+
+NsmSignals::NsmSignals()
+    : nsm_session_control(false) {
+}
+
 
 /****************************************************************
- ** class GxNSMhandler
+ ** class GxNsmHandler
+ **
+ ** watch for messages from NSM 
  */
+
 #ifdef HAVE_LIBLO
 
-class GxNSMhandler {
+class GxNsmHandler {
   private:
     gx_system::CmdlineOptions *options;
-    PosixSignals *posixsig;
+    NsmSignals *nsmsig;
     int _nsm_open (const char *name, const char *display_name,
             const char *client_id, char **out_msg);
     int _nsm_save ( char **out_msg);
@@ -63,31 +78,30 @@ class GxNSMhandler {
     static int gx_nsm_save ( char **out_msg, void *userdata );
     static void gx_nsm_show ( void *userdata );
     static void gx_nsm_hide ( void *userdata );
-    GxNSMhandler(gx_system::CmdlineOptions *options,PosixSignals *posixsig);
-    ~GxNSMhandler();
+    GxNsmHandler(gx_system::CmdlineOptions *options,NsmSignals *nsmsig);
+    ~GxNsmHandler();
 };
 
-GxNSMhandler::GxNSMhandler(gx_system::CmdlineOptions *options_,PosixSignals *posixsig_)
+GxNsmHandler::GxNsmHandler(gx_system::CmdlineOptions *options_,NsmSignals *nsmsig_)
     : options(options_),
-      posixsig(posixsig_),
+      nsmsig(nsmsig_),
       nsm(0),
       wait_id(true) {
-    posixsig->signal_trigger_nsm_gui_is_shown().connect(
-        sigc::hide_return(sigc::mem_fun(this, &::GxNSMhandler::_on_nsm_is_shown)));
+    nsmsig->signal_trigger_nsm_gui_is_shown().connect(
+        sigc::mem_fun(this, &::GxNsmHandler::_on_nsm_is_shown));
 
-    posixsig->signal_trigger_nsm_gui_is_hidden().connect(
-        sigc::hide_return(sigc::mem_fun(this, &GxNSMhandler::_on_nsm_is_hidden)));
+    nsmsig->signal_trigger_nsm_gui_is_hidden().connect(
+        sigc::mem_fun(this, &GxNsmHandler::_on_nsm_is_hidden));
+}
 
-    }
-
-GxNSMhandler::~GxNSMhandler() {
+GxNsmHandler::~GxNsmHandler() {
     if (nsm) {
         nsm_free( nsm );
         nsm = 0;
     }
 }
 
-bool GxNSMhandler::check_nsm(char *argv[]) {
+bool GxNsmHandler::check_nsm(char *argv[]) {
 
     const char *nsm_url = getenv( "NSM_URL" );
 
@@ -103,8 +117,10 @@ bool GxNSMhandler::check_nsm(char *argv[]) {
             while(wait_id) {
                 nsm_check_wait(nsm,500);
                 wait_count +=1;
-                if (wait_count > 200)
+                if (wait_count > 200) {
+                    gx_gui::gx_message_popup("NSM didn't response in time, \nGuitarix will exit now");
                     GxExit::get_instance().exit_program("NSM didn't response, exit now");
+                }
             }
             return true;
         } else {
@@ -115,7 +131,7 @@ bool GxNSMhandler::check_nsm(char *argv[]) {
     return false;
 }
 
-bool GxNSMhandler::_poll_nsm() {
+bool GxNsmHandler::_poll_nsm() {
     if (nsm) {
         nsm_check_nowait(nsm);
         return true;
@@ -123,13 +139,13 @@ bool GxNSMhandler::_poll_nsm() {
     return false;
 }
 
-void GxNSMhandler::_nsm_start_poll() {
+void GxNsmHandler::_nsm_start_poll() {
     Glib::signal_timeout().connect(
-        sigc::mem_fun(*this, &GxNSMhandler::_poll_nsm),
+        sigc::mem_fun(*this, &GxNsmHandler::_poll_nsm),
         200, Glib::PRIORITY_LOW);
 }
 
-int GxNSMhandler::_nsm_open (const char *name, const char *display_name,
+int GxNsmHandler::_nsm_open (const char *name, const char *display_name,
                             const char *client_id, char **out_msg ) {
 
     std::string dirpath = name;
@@ -158,54 +174,55 @@ int GxNSMhandler::_nsm_open (const char *name, const char *display_name,
     return ERR_OK;
 }
  
-int GxNSMhandler::_nsm_save ( char **out_msg) {
+int GxNsmHandler::_nsm_save ( char **out_msg) {
     if (gx_preset::GxSettings::instance && nsm) {
         bool cur_state = gx_preset::GxSettings::instance->get_auto_save_state();
         gx_preset::GxSettings::instance->disable_autosave(false);
         gx_preset::GxSettings::instance->auto_save_state();
         gx_preset::GxSettings::instance->disable_autosave(cur_state);
+        nsmsig->trigger_nsm_save_gui();
     }    
     return ERR_OK;
 }
  
-void GxNSMhandler::_nsm_show () {
-    posixsig->trigger_nsm_show_gui();
+void GxNsmHandler::_nsm_show () {
+    nsmsig->trigger_nsm_show_gui();
 }
 
-void GxNSMhandler::_nsm_hide () {
-    posixsig->trigger_nsm_hide_gui();
+void GxNsmHandler::_nsm_hide () {
+    nsmsig->trigger_nsm_hide_gui();
 }
   
-void GxNSMhandler::_on_nsm_is_shown () {
+void GxNsmHandler::_on_nsm_is_shown () {
     nsm_send_is_shown(nsm);
 }
   
-void GxNSMhandler::_on_nsm_is_hidden () {
+void GxNsmHandler::_on_nsm_is_hidden () {
     nsm_send_is_hidden(nsm);
 }
  
 //static
-int GxNSMhandler::gx_nsm_open (const char *name, const char *display_name,
+int GxNsmHandler::gx_nsm_open (const char *name, const char *display_name,
             const char *client_id, char **out_msg, void *userdata ) {
-    GxNSMhandler * nsmhandler = static_cast<GxNSMhandler*>(userdata);
+    GxNsmHandler * nsmhandler = static_cast<GxNsmHandler*>(userdata);
     return nsmhandler->_nsm_open (name, display_name, client_id, out_msg);
 }
             
 //static            
-int GxNSMhandler::gx_nsm_save ( char **out_msg, void *userdata ) {
-    GxNSMhandler * nsmhandler = static_cast<GxNSMhandler*>(userdata);
+int GxNsmHandler::gx_nsm_save ( char **out_msg, void *userdata ) {
+    GxNsmHandler * nsmhandler = static_cast<GxNsmHandler*>(userdata);
     return nsmhandler->_nsm_save(out_msg);
 }
             
 //static            
-void GxNSMhandler::gx_nsm_show (void *userdata ) {
-    GxNSMhandler * nsmhandler = static_cast<GxNSMhandler*>(userdata);
+void GxNsmHandler::gx_nsm_show (void *userdata ) {
+    GxNsmHandler * nsmhandler = static_cast<GxNsmHandler*>(userdata);
     return nsmhandler->_nsm_show();
 }
             
 //static            
-void GxNSMhandler::gx_nsm_hide (void *userdata ) {
-    GxNSMhandler * nsmhandler = static_cast<GxNSMhandler*>(userdata);
+void GxNsmHandler::gx_nsm_hide (void *userdata ) {
+    GxNsmHandler * nsmhandler = static_cast<GxNsmHandler*>(userdata);
     return nsmhandler->_nsm_hide();
 }
 
@@ -309,15 +326,38 @@ void GxTheme::reload_css() {
 
 /****************************************************************
  ** class PosixSignals
+ **
+ ** Block unix signals and catch them in a special thread.
+ ** Blocking is inherited by all threads created after an
+ ** instance of PosixSignals
  */
+
+class PosixSignals {
+private:
+    sigset_t waitset;
+    std::thread *thread;
+    bool gui;
+    GxTheme *theme;
+    volatile bool exit;
+    void signal_helper_thread();
+    void quit_slot();
+    void gx_ladi_handler();
+    void create_thread();
+    bool gtk_level();
+    static void relay_sigchld(int);
+    
+public:
+    PosixSignals(bool gui, GxTheme *theme = nullptr);
+    ~PosixSignals();
+};
+
 
 PosixSignals::PosixSignals(bool gui_, GxTheme *theme_)
     : waitset(),
       thread(nullptr),
       gui(gui_),
       theme(theme_),
-      exit(false),
-      nsm_session_control(false) {
+      exit(false) {
     GxExit::get_instance().set_ui_thread();
     sigemptyset(&waitset);
     /* ----- block signal USR1 ---------
@@ -365,11 +405,7 @@ void PosixSignals::create_thread() {
 }
 
 void PosixSignals::quit_slot() {
-    if (nsm_session_control) {
-        trigger_nsm_exit();
-    } else {
-        GxExit::get_instance().exit_program();
-    }
+    GxExit::get_instance().exit_program();
 }
 
 void PosixSignals::gx_ladi_handler() {
@@ -741,7 +777,7 @@ static bool is_frontend(int argc, char *argv[]) {
     return false;
 }
 
-static void mainGtk(gx_system::CmdlineOptions& options, PosixSignals& posixsig, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
+static void mainGtk(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
     gx_engine::GxMachine machine(options);
     while(Gtk::Main::events_pending()) {
         // prevents crash in show_error_msg!dialog.run() when its
@@ -760,7 +796,7 @@ static void mainGtk(gx_system::CmdlineOptions& options, PosixSignals& posixsig, 
 #endif
 #endif
     // ----------------------- init GTK interface----------------------
-    MainWindow gui(machine, options, posixsig, theme, Splash, "");
+    MainWindow gui(machine, options, nsmsig, theme, Splash, "");
     if (need_new_preset) {
         gui.create_default_scratch_preset();
     }
@@ -770,7 +806,7 @@ static void mainGtk(gx_system::CmdlineOptions& options, PosixSignals& posixsig, 
     gui.run();
 }
 
-static void mainFront(gx_system::CmdlineOptions& options, PosixSignals& posixsig, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
+static void mainFront(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
     Glib::ustring title;
 #ifdef HAVE_AVAHI
     if (options.get_rpcaddress().empty() && options.get_rpcport() == RPCPORT_DEFAULT) {
@@ -803,7 +839,7 @@ static void mainFront(gx_system::CmdlineOptions& options, PosixSignals& posixsig
     gx_engine::GxMachineRemote machine(options);
 
     // ----------------------- init GTK interface----------------------
-    MainWindow gui(machine, options, posixsig,theme, Splash, title);
+    MainWindow gui(machine, options, nsmsig,theme, Splash, title);
     if (need_new_preset) {
         gui.create_default_scratch_preset();
     }
@@ -825,13 +861,15 @@ static void mainProg(int argc, char *argv[]) {
     Glib::add_exception_handler(sigc::ptr_fun(exception_handler));
     gx_system::CmdlineOptions options;
 
+    NsmSignals nsmsig;
+
     Gtk::Main main(argc, argv, options);
     Gxw::init();
     options.process(argc, argv);
 
 #ifdef HAVE_LIBLO
-    GxNSMhandler nsmhandler(&options, &posixsig);
-    posixsig.nsm_session_control = nsmhandler.check_nsm(argv);
+    GxNsmHandler nsmhandler(&options, &nsmsig);
+    nsmsig.nsm_session_control = nsmhandler.check_nsm(argv);
 #endif
 
     bool theme_ok = false;
@@ -880,9 +918,9 @@ static void mainProg(int argc, char *argv[]) {
     }
 
     if (frontend) {
-        mainFront(options, posixsig, theme, Splash, need_new_preset);
+        mainFront(options, nsmsig, theme, Splash, need_new_preset);
     } else {
-        mainGtk(options, posixsig, theme, Splash, need_new_preset);
+        mainGtk(options, nsmsig, theme, Splash, need_new_preset);
     }
 
     gx_child_process::childprocs.killall();
