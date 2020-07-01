@@ -345,8 +345,8 @@ void Gxtuner::init_dsp_mono(uint32_t rate)
   vu_adapter->set_samplerate(rate, vu_adapter);
   lhcut->set_samplerate(rate, lhcut);
   bow->set_samplerate(rate, bow);
- // tuner& self = *static_cast<tuner*>(tuner_adapter);
- // self.signal_freq_changed().connect(sigc::mem_fun(this, &Gxtuner::freq_changed_handler));
+  tuner& self = *static_cast<tuner*>(tuner_adapter);
+  self.signal_freq_changed().connect(sigc::mem_fun(this, &Gxtuner::freq_changed_handler));
 }
 
 // connect the Ports used by the plug-in class
@@ -446,7 +446,7 @@ void Gxtuner::run_dsp_mono(uint32_t n_samples)
     if (bpm > 0) frames_period = sample_set/ bpm;
     else frames_period = 0;
   }
-  freq_changed_handler();
+  //freq_changed_handler();
   float buf[n_samples];
   memcpy(buf, input, n_samples * sizeof(float));
   lhcut->mono_audio(static_cast<int>(n_samples), buf, buf, lhcut);

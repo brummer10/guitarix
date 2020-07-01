@@ -42,6 +42,7 @@ class PitchTracker {
     void            set_threshold(float v);
     void            set_fast_note_detection(bool v);
    // Glib::Dispatcher new_freq;
+    sigc::signal<void > new_freq;
  private:
     bool            setParameters(int priority, int policy, int sampleRate, int fftSize );
     void            run();

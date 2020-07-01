@@ -117,28 +117,28 @@ void _draw_tuner(void *w_, void* user_data) {
         indicate_oc = octsz - 1;
     }
 
-    scale = (fvis-vis) / 2;
+    scale = (fvis-vis) / 4;
     vis = vis % _get_tuner_temperament(w);
     if (vis < 0) {
         vis += _get_tuner_temperament(w);
     }
     
     if (value > 24.0 && value < 999.0) {
-        if (scale < 0.003) {
+        if (scale < 0.004) {
             cairo_set_source_rgb(w->crb,0.80,0.79,0.01);
             _tuner_triangle(w, (width/5.8),y0 , 25/w->scale.ascale, 20/w->scale.ascale);
-            _tuner_triangle(w, (width/5.8)-(140*scale)/w->scale.ascale,y0 , 25/w->scale.ascale, 20/w->scale.ascale);
-            _tuner_triangle(w, (width/5.8)-(280*scale)/w->scale.ascale,y0 , 25/w->scale.ascale, 20/w->scale.ascale);
+            _tuner_triangle(w, (width/5.8)-(300*scale)/w->scale.ascale,y0 , 25/w->scale.ascale, 20/w->scale.ascale);
+            _tuner_triangle(w, (width/5.8)-(600*scale)/w->scale.ascale,y0 , 25/w->scale.ascale, 20/w->scale.ascale);
         }
-        if (scale > -0.003) {
+        if (scale > -0.004) {
             cairo_set_source_rgb(w->crb,0.80,0.79,0.01);
             _tuner_triangle(w, (width/1.2), y0, -25/w->scale.ascale, 20/w->scale.ascale);
-            _tuner_triangle(w, (width/1.2)-(140*scale)/w->scale.ascale, y0, -25/w->scale.ascale, 20/w->scale.ascale);
-            _tuner_triangle(w, (width/1.2)-(280*scale)/w->scale.ascale, y0, -25/w->scale.ascale, 20/w->scale.ascale);
+            _tuner_triangle(w, (width/1.2)-(300*scale)/w->scale.ascale, y0, -25/w->scale.ascale, 20/w->scale.ascale);
+            _tuner_triangle(w, (width/1.2)-(600*scale)/w->scale.ascale, y0, -25/w->scale.ascale, 20/w->scale.ascale);
         }
     }
     // display note
-    cairo_set_source_rgba(w->crb, fabsf(scale)*2, 1-(scale*scale*4), 0.2,1-(fabsf(scale)*2));
+    cairo_set_source_rgba(w->crb, fabsf(scale)*2, 1-(scale*scale*4), 0.2,max(0,1-(fabsf(scale)*6)));
     cairo_set_font_size(w->crb, (w->app->big_font*2)/w->scale.ascale);
     cairo_text_extents_t extents;
     cairo_text_extents(w->crb,_get_note_set(w)[vis] , &extents);
@@ -161,7 +161,7 @@ void _draw_tuner(void *w_, void* user_data) {
         cairo_show_text(w->crb, s);
     
         cairo_set_source(w->crb,pat);
-        int m = 300*scale;
+        int m = 100*scale;
         if (m==0 && xt->smove !=0) xt->move=width/20;
         xt->smove = m;
         xt->move +=m;
