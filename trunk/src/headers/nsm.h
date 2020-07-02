@@ -108,6 +108,7 @@ struct _nsm_client_t
     int nsm_is_active;
     char *nsm_client_id;
     char *_session_manager_name;
+    char *_session_manager_features;
 
     nsm_open_callback *open;
     void *open_userdata;
@@ -159,6 +160,13 @@ nsm_get_session_manager_name ( nsm_client_t *nsm )
 }
 
 NSM_EXPORT
+const char *
+nsm_get_session_manager_features ( nsm_client_t *nsm )
+{
+    return _NSM()->_session_manager_features;
+}
+
+NSM_EXPORT
 nsm_client_t *
 nsm_new ( void )
 {
@@ -173,6 +181,7 @@ nsm_new ( void )
     nsm->_st = 0;
     nsm->nsm_addr = 0;
     nsm->_session_manager_name = 0;
+    nsm->_session_manager_features = 0;
 
     nsm->open = 0;
     nsm->save = 0;
@@ -313,6 +322,11 @@ nsm_free ( nsm_client_t *nsm )
         lo_server_thread_free( _NSM()->_st );
     else
         lo_server_free( _NSM()->_server );
+
+    lo_address_free(_NSM()->nsm_addr);
+    free(_NSM()->nsm_client_id);
+    free(_NSM()->_session_manager_name);
+    free(_NSM()->_session_manager_features);
 
     free( _NSM() );
 }
@@ -459,10 +473,12 @@ NSM_EXPORT int _nsm_osc_announce_reply ( const char *path, const char *types, lo
 
     struct _nsm_client_t *nsm = (struct _nsm_client_t*)user_data;
 
-    fprintf( stderr, "NSM: Successfully registered. NSM says: %s", &argv[1]->s );
+    fprintf( stderr, "NSM: Successfully registered. NSM says: %s\n", &argv[1]->s );
+
 
     nsm->nsm_is_active = 1;
     nsm->_session_manager_name = strdup( &argv[2]->s );
+    nsm->_session_manager_features = strdup( &argv[3]->s );
     nsm->nsm_addr = lo_address_new_from_url( lo_address_get_url( lo_message_get_source( msg ) ));
 
     if ( nsm->active )
