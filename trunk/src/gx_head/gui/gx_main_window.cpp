@@ -1450,9 +1450,11 @@ void MainWindow::change_latency(const Glib::VariantBase& value) {
                 sigc::mem_fun(*actions.latency.get(), &RadioAction::set_current_value),
                 jack->get_jack_bs()));
     } else {
-        if (jack_set_buffer_size(jack->client, buf_size) != 0)
+        if (jack_set_buffer_size(jack->client, buf_size) != 0) {
             gx_print_warning(_("Setting Jack Buffer Size"),
                              _("Could not change latency"));
+            actions.latency->set_current_value(jack->get_jack_bs());
+        }
     }
     gx_print_info(
         _("Jack Buffer Size"),
