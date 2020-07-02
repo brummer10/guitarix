@@ -152,6 +152,7 @@ int GxNsmHandler::_nsm_open (const char *name, const char *display_name,
     if (dirpath[dirpath.size()-1] != '/') {
         dirpath += "/";
     }
+
     options->set_user_dir(dirpath);
     options->set_user_IR_dir( Glib::build_filename(dirpath, "IR/"));
     options->set_preset_dir( Glib::build_filename(dirpath, "banks/"));
@@ -167,6 +168,10 @@ int GxNsmHandler::_nsm_open (const char *name, const char *display_name,
     options->set_jack_single(true);
    // options->set_opt_autosave(true);
     options->read_ui_vars();
+    if (!strstr(nsm_get_session_manager_features(nsm), ":optional-gui:")) {
+        options->mainwin_visible = 1;
+        gx_print_info(_("nsm startup"), _("optional-gui not supported by server"));
+    }
     wait_id = false;
     gx_print_info(_("nsm startup"), name);
     _nsm_start_poll();

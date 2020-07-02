@@ -494,7 +494,7 @@ CmdlineOptions::CmdlineOptions()
       dump_parameter(false),
 #endif
       skin(style_dir),
-      mainwin_visible(1),
+      mainwin_visible(0),
       mainwin_x(-1),
       mainwin_y(-1),
       mainwin_height(-1),
