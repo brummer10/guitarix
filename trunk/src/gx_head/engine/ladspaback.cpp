@@ -1270,7 +1270,8 @@ LadspaPluginList::LadspaPluginList()
       lv2_ControlPort(lilv_new_uri(world, LV2_CORE__ControlPort)),
       lv2_InputPort(lilv_new_uri(world, LV2_CORE__InputPort)),
       lv2_OutputPort(lilv_new_uri(world, LV2_CORE__OutputPort)),
-      lv2_connectionOptional(lilv_new_uri(world, LV2_CORE__connectionOptional)) {
+      lv2_connectionOptional(lilv_new_uri(world, LV2_CORE__connectionOptional)),
+      lv2_AtomPort(lilv_new_uri(world, LV2_ATOM__AtomPort)) {
     LilvNode* false_val = lilv_new_bool(world, false);
     lilv_world_set_option(world,LILV_OPTION_DYN_MANIFEST, false_val);
     lilv_world_load_all(world);
@@ -1564,6 +1565,19 @@ void LadspaPluginList::add_plugin(const LilvPlugin* plugin, pluginmap& d, gx_sys
         
 	    ctrl_ports.push_back(pdesc);
 	    pos += 1;
+#if 0
+	} else if (lilv_port_is_a(plugin, port, lv2_AtomPort)) {
+	    LADSPA_PortRangeHint hint;
+	    hint.HintDescriptor = 0;
+	    hint.LowerBound = hint.UpperBound = 0;
+	    LilvNode* nm = lilv_port_get_name(plugin, port);
+	    PortDesc *pdesc = new PortDesc(n, pos, lilv_port_is_a(plugin, port, lv2_OutputPort), lilv_node_as_string(nm), hint);
+	    lilv_node_free(nm);
+ 		pdesc->factory.set_tp(tp_atom);
+	    ctrl_ports.push_back(pdesc);
+ 	    pos += 1;
+      // NOT supported
+#endif
 	} else {
 	    if (!lilv_port_has_property(plugin, port, lv2_connectionOptional)) {
 		n_out = 0; // fail
@@ -1841,6 +1855,7 @@ LadspaPluginList::~LadspaPluginList() {
     lilv_node_free(lv2_InputPort);
     lilv_node_free(lv2_OutputPort);
     lilv_node_free(lv2_connectionOptional);
+    lilv_node_free(lv2_AtomPort);
     lilv_world_free(world);
 }
 

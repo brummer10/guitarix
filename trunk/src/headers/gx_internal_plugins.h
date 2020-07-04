@@ -655,7 +655,7 @@ public:
  ** class LadspaLoader
  */
 
-enum widget_type { tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int, tp_enabled };
+enum widget_type { tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int, tp_enabled, tp_atom };
 
 struct paradesc: boost::noncopyable {
     int index;
@@ -714,6 +714,7 @@ private:
     LilvNode* lv2_ControlPort;
     LilvNode* lv2_InputPort;
     LilvNode* lv2_OutputPort;
+    LilvNode* lv2_AtomPort;
 private:
     void read_module_config(const std::string& filename, plugdesc *p);
     void read_module_list(pluginarray& p);

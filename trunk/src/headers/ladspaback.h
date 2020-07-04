@@ -25,7 +25,7 @@ namespace ladspa {
  */
 
 enum DisplayType {
-    tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int, tp_enabled,
+    tp_scale, tp_scale_log, tp_toggle, tp_enum, tp_display, tp_display_toggle, tp_none, tp_int, tp_enabled, tp_atom,
 };
 
 class ChangeableValues {
@@ -208,6 +208,7 @@ private:
     LilvNode* lv2_InputPort;
     LilvNode* lv2_OutputPort;
     LilvNode* lv2_connectionOptional;
+    LilvNode* lv2_AtomPort;
 private:
     bool feature_is_supported(const char* uri);
     static void get_preset_values(const char* port_symbol, void* user_data, const void* value, uint32_t size, uint32_t type);

@@ -30,7 +30,7 @@ using gx_system::JsonException;
 namespace ladspa {
 
 const char *step_type_names[] = { "coarse", "normal", "fine" };
-const char *display_type_names[] = { "Scale", "Log. Scale", "Toggle", "Enum", "Display", "Led", "Hide", "Int", "Toggle" };
+const char *display_type_names[] = { "Scale", "Log. Scale", "Toggle", "Enum", "Display", "Led", "Hide", "Int", "Toggle" ,"Atom"};
 
 
 /****************************************************************
@@ -217,14 +217,17 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     append_displaytype(display_type_list, tp_int);
     append_displaytype(display_type_list, tp_enum);
     append_displaytype(display_type_list, tp_none);
+    append_displaytype(display_type_list, tp_atom);
     display_type_list_sr = Gtk::ListStore::create(recdef);
     append_displaytype(display_type_list_sr, tp_scale);
     append_displaytype(display_type_list_sr, tp_scale_log);
     append_displaytype(display_type_list_sr, tp_none);
+    append_displaytype(display_type_list_sr, tp_atom);
     output_type_list = Gtk::ListStore::create(recdef);
     append_displaytype(output_type_list, tp_display);
     append_displaytype(output_type_list, tp_display_toggle);
     append_displaytype(output_type_list, tp_none);
+    append_displaytype(output_type_list, tp_atom);
 
     treeview1->signal_row_activated().connect(sigc::mem_fun(this, &PluginDisplay::on_row_activated));
     treeview1->set_search_equal_func(sigc::mem_fun(this,&PluginDisplay::search_equal));
@@ -389,7 +392,7 @@ void PluginDisplay::display_default(Gtk::CellRenderer *cell, const Gtk::TreeIter
     tcell->property_foreground_set().set_value(false);
     tcell->property_background_set().set_value(false);
     DisplayType tp = q->get_tp();
-    if (tp == tp_display || tp == tp_display_toggle || tp == tp_none) {
+    if (tp == tp_display || tp == tp_display_toggle || tp == tp_none || tp == tp_atom ) {
         cell->property_visible().set_value(false);
         return;
     }
@@ -407,7 +410,7 @@ void PluginDisplay::display_lower(Gtk::CellRenderer *cell, const Gtk::TreeIter& 
     tcell->property_foreground_set().set_value(false);
     tcell->property_background_set().set_value(false);
     DisplayType tp = q->get_tp();
-    if (tp == tp_enabled || tp == tp_toggle || tp == tp_display_toggle || tp == tp_none) {
+    if (tp == tp_enabled || tp == tp_toggle || tp == tp_display_toggle || tp == tp_none || tp == tp_atom) {
         cell->property_visible().set_value(false);
         return;
     }
@@ -425,7 +428,7 @@ void PluginDisplay::display_upper(Gtk::CellRenderer *cell, const Gtk::TreeIter& 
     tcell->property_foreground_set().set_value(false);
     tcell->property_background_set().set_value(false);
     DisplayType tp = q->get_tp();
-    if (tp == tp_enabled ||tp == tp_toggle ||  tp == tp_display_toggle || tp == tp_none) {
+    if (tp == tp_enabled ||tp == tp_toggle ||  tp == tp_display_toggle || tp == tp_none || tp == tp_atom) {
         cell->property_visible().set_value(false);
         return;
     }
