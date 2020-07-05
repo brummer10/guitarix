@@ -166,28 +166,35 @@ void PluginUI::set_config_mode(bool state) {
 
 void PluginUI::update_rackbox() {
     if (!rackbox) {
-	return;
+        return;
     }
-    if (!plugin->get_box_visible()) {
-	delete rackbox;
-	rackbox = 0;
-    }
-    RackContainer *container = rackbox->get_parent();
-    RackContainer::rackbox_list l = container->get_children();
+    bool reorder = true;
+    RackContainer *container = NULL;
     string before;
-    for (RackContainer::rackbox_list::iterator i = l.begin(); i != l.end(); ++i) {
-	if (*i == rackbox) {
-	    if (++i != l.end()) {
-		before = (*i)->get_id();
-	    }
-	    break;
-	}
+    if (!plugin->get_box_visible()) {
+        delete rackbox;
+        rackbox = 0;
+        reorder = false;
+    } else {
+        container = rackbox->get_parent();
+        RackContainer::rackbox_list l = container->get_children();
+        for (RackContainer::rackbox_list::iterator i = l.begin(); i != l.end(); ++i) {
+        if (*i == rackbox) {
+            if (++i != l.end()) {
+            before = (*i)->get_id();
+            }
+            break;
+        }
+        }
+        if (rackbox) {
+            hide(false);
+            delete rackbox;
+            rackbox = 0;
+        }
     }
-    hide(false);
-    delete rackbox;
     rackbox = plugin_dict.add_rackbox(*this, plugin->get_plug_visible(), -1, false);
     show(false);
-    container->reorder(get_id(), before);
+    if (reorder) container->reorder(get_id(), before);
 }
 
 bool plugins_by_name_less(PluginUI *a, PluginUI *b) {
