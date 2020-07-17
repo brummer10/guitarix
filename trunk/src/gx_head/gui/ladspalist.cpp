@@ -30,7 +30,7 @@ using gx_system::JsonException;
 namespace ladspa {
 
 const char *step_type_names[] = { "coarse", "normal", "fine" };
-const char *display_type_names[] = { "Scale", "Log. Scale", "Toggle", "Enum", "Display", "Led", "Hide", "Int", "Toggle" ,"Atom"};
+const char *display_type_names[] = { "Scale", "Log. Scale", "Toggle", "Enum", "Display", "Led", "Hide", "Int", "Bypass" ,"Atom"};
 
 
 /****************************************************************
@@ -212,22 +212,22 @@ PluginDisplay::PluginDisplay(gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gd
     display_type_list = Gtk::ListStore::create(recdef);
     append_displaytype(display_type_list, tp_scale);
     append_displaytype(display_type_list, tp_scale_log);
-    append_displaytype(display_type_list, tp_enabled);
+    append_displaytype(display_type_list, tp_enabled); // -> toggle
     append_displaytype(display_type_list, tp_toggle);
     append_displaytype(display_type_list, tp_int);
     append_displaytype(display_type_list, tp_enum);
     append_displaytype(display_type_list, tp_none);
-    append_displaytype(display_type_list, tp_atom);
+    //append_displaytype(display_type_list, tp_atom); // -> NOT SUUPPORTED
     display_type_list_sr = Gtk::ListStore::create(recdef);
     append_displaytype(display_type_list_sr, tp_scale);
     append_displaytype(display_type_list_sr, tp_scale_log);
     append_displaytype(display_type_list_sr, tp_none);
-    append_displaytype(display_type_list_sr, tp_atom);
+    //append_displaytype(display_type_list_sr, tp_atom); // -> NOT SUUPPORTED
     output_type_list = Gtk::ListStore::create(recdef);
     append_displaytype(output_type_list, tp_display);
     append_displaytype(output_type_list, tp_display_toggle);
     append_displaytype(output_type_list, tp_none);
-    append_displaytype(output_type_list, tp_atom);
+   // append_displaytype(output_type_list, tp_atom); // -> NOT SUUPPORTED
 
     treeview1->signal_row_activated().connect(sigc::mem_fun(this, &PluginDisplay::on_row_activated));
     treeview1->set_search_equal_func(sigc::mem_fun(this,&PluginDisplay::search_equal));
