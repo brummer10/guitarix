@@ -1,3 +1,20 @@
+guitarix2 (0.41.0) unstable; urgency=low
+
+  * Add Slovak translation by Jozef Riha
+  * Fix issue #104 lv2 plugins contains executable stack, patch by Alexander Tsoy
+  * Fix issue #105 Compile error on 0.40.0
+  * Fix issue #109 cannot initialize a variable of type 'char ' with an rvalue of type 'void '
+  * Fix issue #110 error: unknown type name 'va_list'
+  * Add NSM support
+  * Add midi out for tuner
+  * Add low/high cut filter before tuner
+  * GxTuner set to use same precision then the tuner in guitarix
+  * Use tabbox for LV2 plugs with to much controlls
+  * Disable GxVibe, because it is brocken
+  * Fix several Bug's and hopefully don't introduce to much new one's
+
+ -- brummer <brummer-@web.de>  Wed, 17 Jul 2020 08:50:42 +0200
+
 guitarix2 (0.40.0) unstable; urgency=low
 
   * Port GUI and underlying lib's (gxw/gxwmm) to GTK3 (gtkmm3)
