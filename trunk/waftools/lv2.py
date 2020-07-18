@@ -101,7 +101,7 @@ def configure(conf):
     env.LV2GUI = opt.lv2_gui
     env.MODGUI = opt.mod_lv2
     env.NOSSE =  opt.disable_sse
-    conf.check_cfg(package='lv2', atleast_version='1.2.0',args='--cflags --libs', uselib_store='LV2CORE', mandatory=1)
+    conf.check_cfg(package='lv2', args=['--cflags','--libs','lv2 >= 1.2.0'], uselib_store='LV2CORE', mandatory=1)
     conf.define_with_env('GX_LV2_STYLE_DIR', os.path.join(env.GX_STYLE_DIR,'LV2'))
     if opt.lv2dir:
         env.LV2DIR = opt.lv2dir

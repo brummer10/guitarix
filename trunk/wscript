@@ -17,7 +17,7 @@ srcdir = '.'
 blddir = 'build'
 
 # used by waf dist and waf build
-VERSION='0.41.0'
+VERSION='0.41.0git'
 APPNAME='guitarix'
 
 Options.OptionsContext.gxload = \
@@ -301,24 +301,24 @@ def configure(conf):
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
 
     # needed libaries
-    conf.check_cfg(package='sndfile', atleast_version='1.0.17', args='--cflags --libs', uselib_store='SNDFILE', mandatory=1)
-    conf.check_cfg(package='gthread-2.0', atleast_version='2.24', args='--cflags --libs', uselib_store='GTHREAD', mandatory=1)
-    conf.check_cfg(package='glibmm-2.4', atleast_version='2.38', args='--cflags --libs', uselib_store='GLIBMM', mandatory=1)
+    conf.check_cfg(package='sndfile', args=['--cflags','--libs','sndfile >= 1.0.17'], uselib_store='SNDFILE', mandatory=1)
+    conf.check_cfg(package='gthread-2.0', args=['--cflags','--libs','gthread-2.0 >= 2.24'], uselib_store='GTHREAD', mandatory=1)
+    conf.check_cfg(package='glibmm-2.4', args=['--cflags','--libs','glibmm-2.4 >= 2.38'], uselib_store='GLIBMM', mandatory=1)
     conf.check(header_name='fftw3.h', mandatory=1)
-    conf.check_cfg(package='fftw3f', atleast_version='3.3.8', args='--cflags --libs', uselib_store='FFTW3', mandatory=1)
+    conf.check_cfg(package='fftw3f', args=['--cflags','--libs','fftw3f >= 3.3.8'], uselib_store='FFTW3', mandatory=1)
 
     if opt.standalone or opt.new_ladspa:
         try:
-            conf.check_cfg(package='jack', atleast_version='0.116.2', max_version='1.8.0', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+            conf.check_cfg(package='jack', args=['--cflags','--libs','jack >= 0.116.2','jack <= 1.8.0'], uselib_store='JACK', msg="Checking for 'jackd1'", mandatory=1)
         except ConfigurationError:
-            conf.check_cfg(package='jack', atleast_version='1.9.2', args='--cflags --libs', uselib_store='JACK', mandatory=1)
+            conf.check_cfg(package='jack', args=['--cflags','--libs','jack >= 1.9.2'], uselib_store='JACK', msg="Checking for 'jackd2'", mandatory=1)
         # jack_session support
         code = "#include <jack/session.h>\nint main(){return JackSessionID != 0;}"
         conf.check_cxx(fragment=code, msg="Checking for jack session support", define_name='HAVE_JACK_SESSION')
     if opt.standalone:
         conf.env['STANDALONE'] = True
         conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)
-        conf.check_cfg(package='libcurl', atleast_version='7.26.0', args='--cflags --libs', uselib_store='CURL', mandatory=1)
+        conf.check_cfg(package='libcurl', args=['--cflags','--libs','libcurl >= 7.26.0'], uselib_store='CURL', mandatory=1)
         conf.gxload('robotofont')
         conf.gxload('sassc')
     else:
@@ -326,9 +326,9 @@ def configure(conf):
         opt.no_desktop_update = True
 
     if opt.standalone:
-        conf.check_cfg(package='gtk+-3.0', atleast_version='3.22', args='--cflags --libs', uselib_store='GTK2', mandatory=1)
-        conf.check_cfg(package='gtkmm-3.0', atleast_version='3.22', args='--cflags --libs', uselib_store='GTKMM', mandatory=1)
-        conf.check_cfg(package='giomm-2.4', atleast_version='2.24', args='--cflags --libs', uselib_store='GIOMM', mandatory=1)
+        conf.check_cfg(package='gtk+-3.0', args=['--cflags','--libs','gtk+-3.0 >= 3.22'], uselib_store='GTK2', mandatory=1)
+        conf.check_cfg(package='gtkmm-3.0', args=['--cflags','--libs','gtkmm-3.0 >= 3.22'], uselib_store='GTKMM', mandatory=1)
+        conf.check_cfg(package='giomm-2.4', args=['--cflags','--libs','giomm-2.4 >= 2.24'], uselib_store='GIOMM', mandatory=1)
 
     if opt.standalone or opt.ladspa or opt.new_ladspa:
         conf.check(header_name='ladspa.h', errmsg="ladspar.h not found, using included version now", mandatory=0)
