@@ -100,9 +100,9 @@ void destroy_widget(Widget_t * w, Xputty *main) {
         cairo_surface_destroy(w->buffer);
         cairo_destroy(w->cr);
         cairo_surface_destroy(w->surface);
-        
-        XDestroyIC(w->xic);
-        XCloseIM(w->xim);
+
+        if (w->xic) XDestroyIC(w->xic);
+        if (w->xim) XCloseIM(w->xim);
         XUnmapWindow(w->app->dpy, w->widget);
         XDestroyWindow(w->app->dpy, w->widget);
         free(w->childlist);
