@@ -155,7 +155,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     pstore->signal_row_deleted().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_reordered));
     preset_treeview->get_selection()->set_select_function(
 	sigc::mem_fun(*this, &PresetWindow::select_func));
-    preset_treeview->signal_row_clicked().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_changed));
+    preset_treeview->signal_cursor_changed 	().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_changed));
     preset_cellrenderer->signal_edited().connect(sigc::mem_fun(*this, &PresetWindow::on_preset_edited));
     preset_cellrenderer->signal_editing_canceled().connect(
 	sigc::bind(sigc::mem_fun(*this, &PresetWindow::on_edit_canceled), preset_column_preset));
@@ -1154,6 +1154,7 @@ bool PresetWindow::on_preset_button_release(GdkEventButton *ev) {
     Glib::ustring nm = pstore->get_iter(pt)->get_value(pstore->col.name);
     if (nm.empty()) {  // "<new>"
 	if (col == preset_column_preset) {
+        organize_presets->set_active();
 	    start_edit(pt, *preset_column_preset, *preset_cellrenderer);
 	}
 	return false;
