@@ -596,6 +596,9 @@ void PresetWindow::reset_edit(Gtk::TreeViewColumn& col) {
     col.set_min_width(0);
     col.queue_resize();
     in_edit = false;
+    if (!organize_presets->get_active()) {
+        actions.save_changes->set_enabled(true);
+    }
     dynamic_cast<Gtk::Window*>(main_vpaned->get_toplevel())->add_accel_group(accelgroup);
 }
 
@@ -1154,7 +1157,11 @@ bool PresetWindow::on_preset_button_release(GdkEventButton *ev) {
     Glib::ustring nm = pstore->get_iter(pt)->get_value(pstore->col.name);
     if (nm.empty()) {  // "<new>"
 	if (col == preset_column_preset) {
-        organize_presets->set_active();
+        if (!organize_presets->get_active()) {
+            Glib::RefPtr<Gtk::TreeSelection> sel = preset_treeview->get_selection();
+            sel->set_mode(Gtk::SELECTION_SINGLE);
+            actions.save_changes->set_enabled(false);
+        }
 	    start_edit(pt, *preset_column_preset, *preset_cellrenderer);
 	}
 	return false;
