@@ -7,6 +7,7 @@ declare description "Push Pull EL84";
 declare samplerate "96000";
 
 import("stdfaust.lib");
+import("guitarix.lib");
 
 p1 = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) : orangedarkterrorp3clip with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -47,4 +48,4 @@ orangedarkterrorp3clip = _<: ba.if(signbit(_), orangedarkterrorp3_neg_clip, oran
 
 };
 
-process =  p1 : *(0.6);
+process =  *(poweramp_ctrl.ingain) : p1 : *(0.6) : *(poweramp_ctrl.outgain);

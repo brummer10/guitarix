@@ -7,6 +7,7 @@ declare description "Single ended EL84";
 declare samplerate "96000";
 
 import("stdfaust.lib");
+import("guitarix.lib");
 
 p1 = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) : epiphone_jr_outclip with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -39,4 +40,4 @@ epiphone_jr_outclip = _<: ba.if(signbit(_), epiphone_jr_out_neg_clip, epiphone_j
 
 };
 
-process =  p1 : *(2.0);
+process = *(poweramp_ctrl.ingain) : p1 : *(2.0) : *(poweramp_ctrl.outgain);

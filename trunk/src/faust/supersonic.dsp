@@ -7,6 +7,7 @@ declare description "Push Pull 6L6";
 declare samplerate "96000";
 
 import("stdfaust.lib");
+import("guitarix.lib");
 
 p1 = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,a4/a0,a5/a0)) : supersonicclip with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -51,4 +52,4 @@ supersonicclip = _<: ba.if(signbit(_), supersonic_neg_clip, supersonic_clip) :>_
 
 };
 
-process =  p1 : *(0.8);
+process =  *(poweramp_ctrl.ingain) : p1 : *(0.8) : *(poweramp_ctrl.outgain);

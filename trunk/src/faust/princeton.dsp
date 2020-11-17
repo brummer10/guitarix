@@ -7,6 +7,7 @@ declare description "Single ended 6V6";
 declare samplerate "96000";
 
 import("stdfaust.lib");
+import("guitarix.lib");
 
 p1 = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) : princeton_clip with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -31,4 +32,4 @@ p1 = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) : princeton_clip with {
 
     princeton_clip = ffunction(float princetonclip(float), "princeton_table.h", "");
 
-process =  p1 : *(0.2);
+process =  *(poweramp_ctrl.ingain) : p1 : *(0.2) : *(poweramp_ctrl.outgain);

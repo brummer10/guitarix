@@ -201,6 +201,12 @@ vibe_mono_lfo_ctrl = environment {
     freq = vslider(".univibe_mono.freq[name:Tempo][tooltip:LFO frequency (Hz)][alias]", 4.4, 0.1, 10, 0.1) * 16;
 };
 
+poweramp_ctrl = environment {
+    ingain =  vslider(".poweramp.Pregain[alias]",0,-20,20,0.1) : ba.db2linear : smoothi(0.999);
+    outgain = vslider(".poweramp.Gain[alias]", 0, -20.0, 20.0, 0.1) : ba.db2linear : smoothi(0.999);
+};
+
+
 /****************************************************************
 ** reverb building blocks
 */

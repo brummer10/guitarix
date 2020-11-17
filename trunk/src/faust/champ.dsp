@@ -7,6 +7,7 @@ declare description "Single ended 6V6GT";
 declare samplerate "96000";
 
 import("stdfaust.lib");
+import("guitarix.lib");
 
 p1 = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : tweedchampclip with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -43,4 +44,4 @@ tweedchampclip = _<: ba.if(signbit(_), tweedchamp_neg_clip, tweedchamp_clip) :>_
 
 };
 
-process =  p1 : *(0.2);
+process = *(poweramp_ctrl.ingain) : p1 : *(0.2) : *(poweramp_ctrl.outgain) ;

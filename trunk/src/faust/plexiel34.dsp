@@ -7,6 +7,7 @@ declare description "PlexiEL34";
 declare samplerate "96000";
 
 import("stdfaust.lib");
+import("guitarix.lib");
 
 p1 = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a4/a0)) : plexipowerampel34clip with {
     LogPot(a, x) = ba.if(a, (exp(a * x) - 1) / (exp(a) - 1), x);
@@ -47,4 +48,4 @@ plexipowerampel34clip = _<: ba.if(signbit(_), plexipowerampel34_neg_clip, plexip
 
 };
 
-process =  p1 ;
+process =  *(poweramp_ctrl.ingain) : p1 : *(poweramp_ctrl.outgain) ;

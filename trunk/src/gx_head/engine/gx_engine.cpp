@@ -216,6 +216,12 @@ static const char* ampstack_groups[] = {
     0
 };
 
+static const char* poweramp_groups[] = {
+    ".poweramp.Pregain",  N_("Gain"),
+    ".poweramp.Gain",  N_("Out"),
+    0
+};
+
 static plugindef_creator builtin_poweramp_plugins[] = {
     gx_poweramps::champ::plugin,
     gx_poweramps::epiphone::plugin,
@@ -273,7 +279,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
 	  "tube.select", _("select"), 0, ampstack_groups),
       poweramps(
 	  *this, "poweramp", _("PowerAmp"), N_("Guitar Effects"), builtin_poweramp_plugins,
-	  "poweramp.mode", _("select"),load_poweramp_ui , 0, PGN_POST_PRE),
+	  "poweramp.mode", _("select"),load_poweramp_ui , poweramp_groups, PGN_POST_PRE),
       // internal audio modules
       noisegate(),
       monomute(),

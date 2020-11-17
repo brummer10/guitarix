@@ -12,12 +12,18 @@ private:
 	gx_resample::FixedRateResampler smp;
 	int sample_rate;
 	int fSampleRate;
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	double fRec0[2];
 	double fConst0;
 	double fConst1;
 	double fConst2;
 	double fConst3;
 	double fConst4;
 	double fConst5;
+	FAUSTFLOAT fVslider1;
+	FAUSTFLOAT	*fVslider1_;
+	double fRec2[2];
 	double fConst6;
 	double fConst7;
 	double fConst8;
@@ -25,7 +31,7 @@ private:
 	double fConst10;
 	double fConst11;
 	double fConst12;
-	double fRec0[5];
+	double fRec1[5];
 	double fConst13;
 	double fConst14;
 	double fConst15;
@@ -74,7 +80,9 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 5); l0 = (l0 + 1)) fRec0[l0] = 0.0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec0[l0] = 0.0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec2[l1] = 0.0;
+	for (int l2 = 0; (l2 < 5); l2 = (l2 + 1)) fRec1[l2] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -115,17 +123,27 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
+#define fVslider0 (*fVslider0_)
+#define fVslider1 (*fVslider1_)
 	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
+	double fSlow0 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider0))));
+	double fSlow1 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider1))));
 	for (int i = 0; (i < ReCount); i = (i + 1)) {
-		fRec0[0] = (double(buf[i]) - (fConst6 * ((((fConst9 * fRec0[1]) + (fConst10 * fRec0[2])) + (fConst11 * fRec0[3])) + (fConst12 * fRec0[4]))));
-		double fTemp0 = (fConst3 * (((((fConst5 * fRec0[0]) + (fConst14 * fRec0[1])) + (fConst15 * fRec0[2])) + (fConst16 * fRec0[3])) + (fConst17 * fRec0[4])));
-		buf[i] = FAUSTFLOAT((int(signbit(double(fTemp0))) ? double(plexipowerampel34_negclip(double(fTemp0))) : double(plexipowerampel34clip(double(fTemp0)))));
+		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
+		fRec2[0] = (fSlow1 + (0.999 * fRec2[1]));
+		fRec1[0] = ((double(buf[i]) * fRec2[0]) - (fConst6 * ((((fConst9 * fRec1[1]) + (fConst10 * fRec1[2])) + (fConst11 * fRec1[3])) + (fConst12 * fRec1[4]))));
+		double fTemp0 = (fConst3 * (((((fConst5 * fRec1[0]) + (fConst14 * fRec1[1])) + (fConst15 * fRec1[2])) + (fConst16 * fRec1[3])) + (fConst17 * fRec1[4])));
+		buf[i] = FAUSTFLOAT((fRec0[0] * (int(signbit(double(fTemp0))) ? double(plexipowerampel34_negclip(double(fTemp0))) : double(plexipowerampel34clip(double(fTemp0))))));
+		fRec0[1] = fRec0[0];
+		fRec2[1] = fRec2[0];
 		for (int j0 = 4; (j0 > 0); j0 = (j0 - 1)) {
-			fRec0[j0] = fRec0[(j0 - 1)];
+			fRec1[j0] = fRec1[(j0 - 1)];
 		}
 	}
 	smp.down(buf, output0);
+#undef fVslider0
+#undef fVslider1
 }
 
 void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginDef *p)
@@ -135,6 +153,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	fVslider0_ = reg.registerFloatVar("poweramp.Gain","","SA","",&fVslider0, 0.0, -20.0, 20.0, 0.10000000000000001, 0);
+	fVslider1_ = reg.registerFloatVar("poweramp.Pregain","","SA","",&fVslider1, 0.0, -20.0, 20.0, 0.10000000000000001, 0);
 	return 0;
 }
 
