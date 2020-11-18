@@ -158,6 +158,7 @@ void Gx_vibe_::run_dsp_(uint32_t n_samples)
 
 void Gx_vibe_::run_dsp_mono(uint32_t n_samples)
 {
+  if (n_samples< 1) return;
   vibe->mono_audio(static_cast<int>(n_samples), input, output, vibe);
 }
 

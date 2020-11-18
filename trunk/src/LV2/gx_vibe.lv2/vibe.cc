@@ -629,7 +629,7 @@ void Vibe::out(int PERIOD, float *smpsl, float *smpsr, float * efxoutl, float * 
         } else {  //if(Pstereo)
 	    efxoutl[i] = fact_w * outl + fact_d * smpsl[i];
 	} 
-    };
+    }
 };
 
 void Vibe::init_vibes(unsigned int samplerate) {

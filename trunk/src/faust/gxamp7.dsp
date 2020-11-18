@@ -27,8 +27,8 @@ process = hgroup("stage1", stage1)
     preamp =  vslider(".amp2.stage1.Pregain[alias]",0,-20,20,0.1) : ba.db2linear : smoothi(0.999);
 */
     atten = 0.6;
-    stage1 = ef.speakerbp(310.0, 12000.0)
-     : *(preamp): (tubestage(TB_12AX7_68k,86.0,2700.0,1.581656) : + ~ (atten*tubestage(TB_12AX7_250k,132.0,1500.0,1.204285)))
+    stage1 =
+    *(preamp): (tubestage(TB_12AX7_68k,86.0,2700.0,1.581656) : + ~ (atten*tubestage(TB_12AX7_250k,132.0,1500.0,1.204285)))
      : fi.lowpass(1,6531.0) : (tubestage(TB_12AX7_250k,132.0,1500.0,1.204285) : + ~ (atten*tubestage(TB_12AX7_250k,194.0,820.0,0.840703))) : tubestage(TB_12AX7_250k,194.0,820.0,0.840703); 
     stage2 = fi.lowpass(1,6531.0) : *(gain1)  <: ((min(0.7,tubestage(TB_6V6_250k,6531.0,410.0,0.659761))),(max(-0.75,tubestage(TB_6V6_68k,6531.0,410.0,0.664541)))) :> 
     peak1
