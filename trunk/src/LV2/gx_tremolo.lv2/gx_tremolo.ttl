@@ -26,6 +26,7 @@
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
 @prefix time: <http://lv2plug.in/ns/ext/time#>.
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
+@prefix pprop: <http://lv2plug.in/ns/ext/port-props#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -115,6 +116,16 @@ Model of a vactrol tremolo unit by "transmogrify"
         lv2:index 5 ;
         lv2:symbol "in" ;
         lv2:name "In" ;
+    ]      , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:portProperty lv2:integer, pprop:trigger;
+        lv2:symbol "reset" ;
+        lv2:name "Reset" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gx_tremolo#gui>

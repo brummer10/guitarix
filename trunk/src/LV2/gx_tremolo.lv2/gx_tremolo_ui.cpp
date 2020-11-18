@@ -31,7 +31,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 4
+#define CONTROLS 5
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -72,10 +72,15 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_adjustment(ui->widget[2]->adj,50.0, 50.0, 0.0, 100.0, 0.1, CL_CONTINUOS);
     adj_set_scale(ui->widget[2]->adj, 5.0);
 
+    ui->widget[4] = add_button(ui->win, "Reset",40, 215,40,30);
+    ui->widget[4]->parent_struct = ui;
+    ui->widget[4]->data = RESET;
+    ui->widget[4]->func.value_changed_callback = value_changed;
+
     // create combobox widgets
     const char* model[] = {"triangle","sine"};
     size_t len = sizeof(model) / sizeof(model[0]);
-    ui->widget[3] = add_my_combobox(ui->widget[3], SINE, "Mode", model, len, 0, ui, 40, 215, 180, 30);
+    ui->widget[3] = add_my_combobox(ui->widget[3], SINE, "Mode", model, len, 0, ui, 80, 215, 140, 30);
 }
 
 void plugin_cleanup(X11_UI *ui) {

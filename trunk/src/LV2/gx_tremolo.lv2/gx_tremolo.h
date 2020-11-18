@@ -35,6 +35,7 @@ typedef enum
   FREQ,
   EFFECTS_OUTPUT,
   EFFECTS_INPUT,
+  RESET,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

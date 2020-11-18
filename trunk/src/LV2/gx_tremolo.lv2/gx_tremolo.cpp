@@ -33,6 +33,7 @@ private:
   // pointer to buffer
   float*                       output;
   float*                       input;
+  float*                       reset;
   // pointer to dsp class
   PluginLV2*                   tremolo_st;
   // private functions
@@ -97,6 +98,9 @@ void Gx_tremolo::connect_mono(uint32_t port,void* data)
     case EFFECTS_INPUT:
       input = static_cast<float*>(data);
       break;
+    case RESET:
+      reset = static_cast<float*>(data);
+      break;
     default:
       break;
     }
@@ -131,6 +135,7 @@ void Gx_tremolo::run_dsp_mono(uint32_t n_samples)
   if (n_samples< 1) return;
   tremolo_st->mono_audio(static_cast<int>(n_samples), input,
                         output, tremolo_st);
+  if ((*reset)>0) tremolo_st->clear_state(tremolo_st);
 }
 
 void Gx_tremolo::connect_all_mono_ports(uint32_t port, void* data)
