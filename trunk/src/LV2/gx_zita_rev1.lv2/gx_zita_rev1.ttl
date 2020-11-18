@@ -61,7 +61,6 @@ rdfs:comment """
         a lv2:InputPort ,
             lv2:ControlPort ;
         lv2:index 0 ;
-        lv2:portProperty log:logarithmic ;
         lv2:symbol "level" ;
         lv2:name "LEVEL";
         lv2:default 0.0 ;
