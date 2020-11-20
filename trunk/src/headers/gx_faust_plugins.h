@@ -154,6 +154,7 @@ declare(supersonic)
 }
 
 declare(balance)
+declare(dcblocker)
 
 } // namespace gx_engine
 

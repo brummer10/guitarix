@@ -351,6 +351,7 @@ void GxEngine::load_static_plugins() {
 
     // * mono amp input position *
 
+    pl.add(dcblocker::plugin(),                   PLUGIN_POS_START, PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);
     pl.add(&tuner.plugin,                         PLUGIN_POS_START, PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);
     pl.add(&noisegate.inputlevel,                 PLUGIN_POS_START, PGN_GUI|PGN_FIXED_GUI|PGN_PRE);
     pl.add(gx_effects::noise_shaper::plugin(),    PLUGIN_POS_START, PGN_GUI|PGN_FIXED_GUI|PGN_PRE);

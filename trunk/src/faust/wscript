@@ -184,6 +184,7 @@ def build(bld):
 
         # bypass mode
         'balance.dsp',
+        'dcblocker.dsp',
         ]
 
     if bld.env['FAUST']:
