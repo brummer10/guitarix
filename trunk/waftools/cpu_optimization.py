@@ -78,7 +78,7 @@ def append_optimization_flags(conf, cxxflags):
     except IOError:
         pass
     if cpu_model is None or x86_flags is None:
-        conf.display_msg("Checking CPU Architecture",
+        conf.display_msg_1("Checking CPU Architecture",
                          "cpu model not found in /proc/cpuinfo",
                          "YELLOW")
         return None

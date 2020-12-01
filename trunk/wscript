@@ -158,6 +158,17 @@ def display_msg(msg, status = None, color = None):
     else:
         print_msg("%s" % msg.ljust(g_maxlen))
 
+@Configure.conf
+def display_msg_1(self, msg, status = None, color = None):
+    sr = msg
+    global g_maxlen
+    g_maxlen = max(g_maxlen, len(msg))
+    if status is not None:
+        print_msg("%s :" % msg.ljust(g_maxlen),False)
+        Logs.pprint(color, status)
+    else:
+        print_msg("%s" % msg.ljust(g_maxlen))
+
 def error_msg(msg):
     Utils.eprint('RED', msg)
 
