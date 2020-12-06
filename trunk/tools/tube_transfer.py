@@ -23,8 +23,9 @@
 #
 
 import sys
-from pylab import *
+import matplotlib
 from scipy.optimize import newton
+from numpy import linspace, vectorize, exp, log, sqrt, arctan
 
 #
 #                                 o V+         
@@ -146,19 +147,20 @@ class Circuit(object):
         self.set_param()
         error = False
         if tube not in tubes:
-            print "tube '%s' not found" % tube
+            print("tube '%s' not found" % tube)
             error = True
         if ipk_func not in self.ipk_tab:
-            print "plate current function '%s' not found" % ipk_func
+            print("plate current function '%s' not found" % ipk_func)
             error = True
         if error:
-            print
+            print()
             usage()
         for n, f, v in zip(names, factor, tubes[tube]):
             if v is not None:
                 setattr(self, n, f*v)
         self.Ipk = getattr(self, self.ipk_tab[ipk_func])
         self.FtubeV = vectorize(self.Ftube)
+        self.RanodeV = vectorize(self.Ranode)
 
     def set_param(self):
         # Parameters for circuit / approximation peer tube model
@@ -238,6 +240,22 @@ class Circuit(object):
 
         return newton(fp, self.Vp/2, args=(Vgk,self.Ipk))   # Vpk(Vgk)
 
+    def Ranode(self, Vi, Ri):
+        # dVp/dIp ohms
+        def fi(Vgk, Vi, Ri):
+            return Vi - Vgk - Ri * self.Igk_Vgk(Vgk) # sum of voltages -> zero
+
+        h = 0.1
+        Vgk = newton(fi, self.Igk_Vgk(0), args=(Vi, Ri))   # Vgk(Vi)
+        Vp = self.Ftube(Vi, Ri)
+        Vph = self.Ftube(Vi + h, Ri)
+
+        i = self.Ipk(Vgk, Vph) - self.Ipk(Vgk, Vp)
+        if i == 0:
+            return 0.0;
+        return (Vph - Vp) / i
+
+
     def Vk0(self, Ri, Rk):
         v0 = 0
         def f(v):
@@ -254,6 +272,19 @@ class Circuit(object):
                 sys.stdout.write(s+"\n\t")
                 s = ""
             sys.stdout.write(s+str(Vp[i]))
+            s = ","
+        sys.stdout.write("\n\t}}")
+
+    def write_ranode_table(self, Ri, Vi, Rp):
+        """write C source"""
+        sys.stdout.write("\t{ // Ri = %dk\n" % (Ri/1e3))
+        sys.stdout.write('\t%g,%g,%g,%d, {' % (Vi[0], Vi[-1], (len(Vi)-1)/(Vi[-1]-Vi[0]), self.table_size))
+        s = ""
+        for i, v in enumerate(Vi):
+            if i % 5 == 0:
+                sys.stdout.write(s+"\n\t")
+                s = ""
+            sys.stdout.write(s+str(Rp[i]))
             s = ","
         sys.stdout.write("\n\t}}")
 
@@ -274,6 +305,16 @@ class Circuit(object):
             self.write_ftube_table(Ri, self.Vi, Vp)
         sys.stdout.write("\n};\n")
 
+        sys.stdout.write("table1d_imp<%d> tubetable2_%s[%d] __rt_data = {\n"
+                         % (self.table_size, self.tube, len(self.Ri_values)))
+        s = ""
+        for Ri in self.Ri_values:
+            sys.stdout.write(s)
+            s = ",\n"
+            Rp = self.RanodeV(self.Vi, Ri)
+            self.write_ranode_table(Ri, self.Vi, Rp)
+        sys.stdout.write("\n};\n")
+
     def R_name(self, r):
         for f, n in (1e6,"M"),(1e3,"k"),(1,""):
             if r >= f:
@@ -287,7 +328,7 @@ class Circuit(object):
             try:
                 while True:
                     vl = ["%d: %s" % (i, self.R_name(r)) for i, r in enumerate(self.Ri_values)]
-                    i = raw_input("Ri [%s]: " % ", ".join(vl))
+                    i = input("Ri [%s]: " % ", ".join(vl))
                     try:
                         i = int(i)
                     except ValueError:
@@ -296,17 +337,17 @@ class Circuit(object):
                         if 0 <= i < len(self.Ri_values):
                             Ri = self.Ri_values[i]
                             break
-                    print "error: illegal input"
+                    print("error: illegal input")
                 while True:
                     try:
-                        Rk = float(raw_input("Rk: "))
+                        Rk = float(input("Rk: "))
                         break
                     except ValueError:
-                        print "error: please enter float value"
+                        print("error: please enter float value")
             except KeyboardInterrupt:
-                print
+                print()
                 return
-        print "%f" % self.Vk0(Ri,Rk)
+        print("%f" % self.Vk0(Ri,Rk))
 
     def check_table_accuracy(self, Ri):
         """maximal relative table error at half interval"""
@@ -319,7 +360,7 @@ class Circuit(object):
 
     def display_accuracy(self):
         for Ri in self.Ri_values:
-            print "Ri=%dk: %g" % (Ri/1e3, self.check_table_accuracy(Ri))
+            print("Ri=%dk: %g" % (Ri/1e3, self.check_table_accuracy(Ri)))
     
     def plot_Ftube(self):
         title(self.tube)
@@ -346,9 +387,9 @@ class Circuit(object):
 
 
 def usage():
-    print "usage: %s plot|s_plot|accuracy|table|vk0 tube-name plate-func" % sys.argv[0]
-    print Circuit.help()
-    raise SystemExit, 1
+    print("usage: %s plot|s_plot|accuracy|table|vk0 tube-name plate-func" % sys.argv[0])
+    print(Circuit.help())
+    raise SystemExit(1)
 
 def main():
     if len(sys.argv) < 4:

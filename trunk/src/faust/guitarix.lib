@@ -74,6 +74,7 @@ nonlin1 = nonlin(2,1,0.5);
 // simple triode circuit emulation
 
 Ftube = ffunction(float Ftube(int,float), "valve.h", "");
+Ranode = ffunction(float Ranode(int,float), "valve.h", "");
 
 TB_12AX7_68k  = fconstant(int TUBE_TABLE_12AX7_68k,  "valve.h");
 TB_12AX7_250k = fconstant(int TUBE_TABLE_12AX7_250k, "valve.h");
@@ -93,7 +94,9 @@ tubestageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : tube with {
     anti_aliase = fi.lowpass(3,ma.SR/2.1);
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
-    tube = (+ : -(Vk0) : Ftube(tb) : +(VkC-vplus)) ~ (*(Rk/Rp) : lpfk) : /(divider);
+    tubeVp = -(Vk0) : Ftube(tb) : +(VkC-vplus);
+    tubeRa = -(Vk0) : Ranode(tb);
+    tube = (+ : (tubeVp)) ~ (Rk/(Rp + tubeRa) : lpfk) : /(divider);
     // hpf = fi.highpass(1,31.0);
 };
 
