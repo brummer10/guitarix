@@ -90,14 +90,12 @@ TB_6C16_68k   = fconstant(int TUBE_TABLE_6C16_68k,   "valve.h");
 TB_6C16_250k  = fconstant(int TUBE_TABLE_6C16_250k,  "valve.h");
 
 tubestageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : tube with {
-    lpfk = fi.lowpass(1,fck);
     anti_aliase = fi.lowpass(3,ma.SR/2.1);
     Rp = 100.0e3;
     VkC = Vk0 * (Rp/Rk);
     tubeVp = -(Vk0) : Ftube(tb) : +(VkC-vplus);
-    tubeRa = -(Vk0) : Ranode(tb);
-    tube = (+ : (tubeVp)) ~ (Rk/(Rp + tubeRa) : lpfk) : /(divider);
-    // hpf = fi.highpass(1,31.0);
+    tube = (+ : (tubeVp)) ~ (Rk/(Rp + Ranode(tb))) : /(divider);
+    // FIXME: 6V6 tube Ranode() lookup tables are wrong!
 };
 
 tubestage(tb,fck,Rk,Vk0)  = tubestageF(tb,250.0,40.0,fck,Rk,Vk0);
