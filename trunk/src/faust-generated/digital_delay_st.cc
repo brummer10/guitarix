@@ -610,8 +610,8 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerFloatVar("didest.bpm",N_("BPM"),"S",N_("Delay in Beats per Minute"),&fHslider1, 120.0f, 24.0f, 360.0f, 1.0f, 0);
 	reg.registerFloatVar("didest.feedback",N_("Feedback"),"S",N_("Percentage of the feedback level in the de.delay loop"),&fVslider2, 50.0f, 1.0f, 100.0f, 1.0f, 0);
 	reg.registerFloatVar("didest.gain",N_("Gain"),"S",N_("Overall gain of the de.delay line in percent"),&fVslider0, 100.0f, 0.0f, 120.0f, 1.0f, 0);
-	reg.registerFloatVar("didest.highpass",N_("Hipass"),"S",N_("Highpass filter frequency in the feddback loop"),&fHslider4, 120.0f, 20.0f, 20000.0f, 1.0f, 0);
-	reg.registerFloatVar("didest.howpass",N_("Lopass"),"S",N_("Lowpass filter frequency in the feddback loop"),&fHslider3, 12000.0f, 20.0f, 20000.0f, 1.0f, 0);
+	reg.registerFloatVar("didest.highpass",N_("Hipass"),"S",N_("Highpass filter frequency in the feedback loop"),&fHslider4, 120.0f, 20.0f, 20000.0f, 1.0f, 0);
+	reg.registerFloatVar("didest.howpass",N_("Lopass"),"S",N_("Lowpass filter frequency in the feedback loop"),&fHslider3, 12000.0f, 20.0f, 20000.0f, 1.0f, 0);
 	reg.registerFloatVar("didest.level",N_("Level"),"S",N_("Percentage of the de.delay gain level"),&fVslider1, 50.0f, 1.0f, 100.0f, 1.0f, 0);
 	static const value_pair fHslider2_values[] = {{"plain"},{"presence"},{"tape"},{"tape2"},{0}};
 	reg.registerFloatVar("didest.mode",N_("Mode"),"S","",&fHslider2, 0.0f, 0.0f, 3.0f, 1.0f, fHslider2_values);
