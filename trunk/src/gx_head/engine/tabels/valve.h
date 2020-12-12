@@ -97,6 +97,21 @@ table1d *tubetab[TUBE_TABLE_SIZE] = {
     &static_cast<table1d&>(tubetable_6C16[1]),
 };
 
+table1d *tubetab2[TUBE_TABLE_SIZE] = {
+    &static_cast<table1d&>(tubetable2_12AX7[0]),
+    &static_cast<table1d&>(tubetable2_12AX7[1]),
+    &static_cast<table1d&>(tubetable_6V6[0]),   //FIXME
+    &static_cast<table1d&>(tubetable_6V6[1]),   //FIXME
+    &static_cast<table1d&>(tubetable2_12AU7[0]),
+    &static_cast<table1d&>(tubetable2_12AU7[1]),
+    &static_cast<table1d&>(tubetable2_6DJ8[0]),
+    &static_cast<table1d&>(tubetable2_6DJ8[1]),
+    &static_cast<table1d&>(tubetable2_12AT7[0]),
+    &static_cast<table1d&>(tubetable2_12AT7[1]),
+    &static_cast<table1d&>(tubetable2_6C16[0]),
+    &static_cast<table1d&>(tubetable2_6C16[1]),
+};
+
 /*
  *  definitions for ffunction(float Ftube(int,float), "valve.h", "");
  *  in gx_amp.dsp - gx_ampmodul.dsp
@@ -104,6 +119,18 @@ table1d *tubetab[TUBE_TABLE_SIZE] = {
 
 static inline double Ftube(int table, double Vgk) {
     const table1d& tab = *tubetab[table];
+    double f = (Vgk - tab.low) * tab.istep;
+    int i = static_cast<int>(f);
+    if (i < 0)
+        return tab.data[0];
+    if (i >= tab.size-1)
+        return tab.data[tab.size-1];
+    f -= i;
+    return tab.data[i]*(1-f) + tab.data[i+1]*f;
+}
+
+static inline double Ranode(int table, double Vgk) {
+    const table1d& tab = *tubetab2[table];
     double f = (Vgk - tab.low) * tab.istep;
     int i = static_cast<int>(f);
     if (i < 0)
