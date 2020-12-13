@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2009, 2010 Hermann Meyer, James Warden, Andreas Degert
@@ -24,6 +25,7 @@
 
 import sys
 import matplotlib
+import matplotlib.pyplot as plt
 from scipy.optimize import newton
 from numpy import linspace, vectorize, exp, log, sqrt, arctan
 
@@ -370,15 +372,20 @@ class Circuit(object):
             print("Ri=%dk: %g" % (Ri/1e3, self.check_table_accuracy(Ri)))
     
     def plot_Ftube(self):
-        title(self.tube)
+        fig, ax = plt.subplots()
+        #title(self.tube)
         for Ri in self.Ri_values:
             Vp = self.FtubeV(self.Vi, Ri)
-            plot(self.Vi, Vp, label="Ri=%dk " % (Ri/1e3))
-        xlabel("Vik")
-        ylabel("Vp")
-        legend()
-        axis
-        show()
+            ax.plot(self.Vi, Vp, label="Ri=%dk " % (Ri/1e3))
+        legend = ax.legend(loc='upper right', shadow=True, fontsize='x-large')
+        ax.set(xlabel="Vik",ylabel="Vp", title=self.tube)
+        ax.grid()
+        #xlabel("Vik")
+        #ylabel("Vp")
+        #legend()
+        #axis
+        
+        plt.show()
     
     def s_plot_Ftube(self):
         title("%s-%s" % (self.tube, self.ipk_func))
