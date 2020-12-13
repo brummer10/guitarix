@@ -100,8 +100,8 @@ table1d *tubetab[TUBE_TABLE_SIZE] = {
 table1d *tubetab2[TUBE_TABLE_SIZE] = {
     &static_cast<table1d&>(tubetable2_12AX7[0]),
     &static_cast<table1d&>(tubetable2_12AX7[1]),
-    &static_cast<table1d&>(tubetable_6V6[0]),   //FIXME
-    &static_cast<table1d&>(tubetable_6V6[1]),   //FIXME
+    &static_cast<table1d&>(tubetable2_6V6[0]),
+    &static_cast<table1d&>(tubetable2_6V6[1]),
     &static_cast<table1d&>(tubetable2_12AU7[0]),
     &static_cast<table1d&>(tubetable2_12AU7[1]),
     &static_cast<table1d&>(tubetable2_6DJ8[0]),
