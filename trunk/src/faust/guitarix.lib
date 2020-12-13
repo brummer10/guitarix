@@ -92,8 +92,9 @@ TB_6C16_250k  = fconstant(int TUBE_TABLE_6C16_250k,  "valve.h");
 tubestageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : tube : dcblock with {
     anti_aliase = fi.lowpass(3,ma.SR/2.1);
     Rp = 100.0e3;
-    VkC = Vk0 * (Rp/Rk);
-    tubeVp = -(Vk0) : Ftube(tb) : +(VkC-vplus);
+    VkC = Vk0 * (Rp + Ranode(tb)) / Rk;
+    Vp = -(Vk0) : Ftube(tb);
+    tubeVp = Vp <: +(VkC - vplus);
     tube(x) = x : (+ : (tubeVp)) ~ (x*Rk/(Rp + Ranode(tb))) : /(divider);
     dcblock = fi.dcblockerat(1.0);
 };
