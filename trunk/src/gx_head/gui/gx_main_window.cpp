@@ -1528,7 +1528,7 @@ void gx_show_about() {
             "\nwith the marvelous faust compiler.Yann Orlary"
             "\n(http://faust.grame.fr/)"
             "\n\nA large part is based on the work of Julius Orion Smith"
-            "\n(htttp://ccrma.stanford.edu/realsimple/faust/)"
+            "\n(http://ccrma.stanford.edu/realsimple/faust/)"
             "\nand Albert Graef\n(http://q-lang.sourceforge.net/examples.html#Faust)"
             "\n\n");
 

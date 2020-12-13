@@ -51,8 +51,8 @@ Dotted 1/64 note|1/64 note|1/64 note triplets][tooltip:Note setting for bpm]",4,
 
     level    = vslider("level[name:Level][tooltip:Percentage of the de.delay gain level]", 50, 1, 100, 1)/100 ;
     feedback = vslider("feedback[name:Feedback][tooltip:Percentage of the feedback level in the de.delay loop]", 50, 1, 100, 1)/100 ;
-    hifr1    = hslider("highpass[name:Hipass][tooltip: Highpass filter frequency in the feddback loop]" ,120 , 20, 20000, 1);
-    lofr1    = hslider("howpass [name:Lopass][tooltip: Lowpass filter frequency in the feddback loop]" ,12000 , 20, 20000, 1);
+    hifr1    = hslider("highpass[name:Hipass][tooltip: Highpass filter frequency in the feedback loop]" ,120 , 20, 20000, 1);
+    lofr1    = hslider("howpass [name:Lopass][tooltip: Lowpass filter frequency in the feedback loop]" ,12000 , 20, 20000, 1);
   };
 
   wet        = vslider("gain[name:Gain][tooltip:Overall gain of the de.delay line in percent]",  100, 0, 120, 1) : /(100);

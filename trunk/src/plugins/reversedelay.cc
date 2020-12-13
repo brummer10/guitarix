@@ -144,7 +144,7 @@ int ReverseDelay::registerparam(const ParamReg& reg) {
     reg.registerFloatVar("reversedelay.time", N_("Time (ms)"), "S", N_("Delay time in milliseconds"), &self.time, 500, 200, 2000, 1, 0);
     reg.registerFloatVar("reversedelay.feedback", N_("Feedback"), "S", N_("Feedback"), &self.feedback, 0, 0, 1, 0.05, 0);
     reg.registerFloatVar("reversedelay.window", N_("Window (%)"), "S", N_("Crossfade between delayed chunks in percents"), &self.window, 50, 0, 100, 1, 0);
-    reg.registerFloatVar("reversedelay.drywet", N_("Dry/Wet"), "S", N_("Dey/Wet"), &self.drywet, 0.5, 0, 1, 0.05, 0);
+    reg.registerFloatVar("reversedelay.drywet", N_("Dry/Wet"), "S", N_("Dry/Wet"), &self.drywet, 0.5, 0, 1, 0.05, 0);
 
     reg.registerFloatVar("reversedelay.buf_indication", "", "SNO", "", &self.buf_indication, 0.0, 0.0, 1.0, 0.01, 0);
     self.buf_indication = 0;

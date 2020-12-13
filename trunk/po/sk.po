@@ -638,7 +638,7 @@ msgstr ""
 
 #: ../src/faust-generated/digital_delay.cc:485
 #: ../src/faust-generated/digital_delay_st.cc:622
-msgid "Highpass filter frequency in the feddback loop"
+msgid "Highpass filter frequency in the feedback loop"
 msgstr ""
 
 #: ../src/faust-generated/digital_delay.cc:486
@@ -648,7 +648,7 @@ msgstr ""
 
 #: ../src/faust-generated/digital_delay.cc:486
 #: ../src/faust-generated/digital_delay_st.cc:623
-msgid "Lowpass filter frequency in the feddback loop"
+msgid "Lowpass filter frequency in the feedback loop"
 msgstr ""
 
 #: ../src/faust-generated/digital_delay.cc:487
@@ -3622,7 +3622,7 @@ msgid ""
 "(http://faust.grame.fr/)\n"
 "\n"
 "A large part is based on the work of Julius Orion Smith\n"
-"(htttp://ccrma.stanford.edu/realsimple/faust/)\n"
+"(http://ccrma.stanford.edu/realsimple/faust/)\n"
 "and Albert Graef\n"
 "(http://q-lang.sourceforge.net/examples.html#Faust)\n"
 "\n"
