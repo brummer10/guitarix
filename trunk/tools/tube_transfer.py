@@ -185,12 +185,6 @@ class Circuit(object):
             self.Uin_max   = 10
             self.Vp        = 370
             self.Rp        = 3.5e3
-        elif self.tube == "6V6" and self.ipk_func == "pentode":
-            #self.Uin_range = (-20.0, 20.0)
-            self.Uin_min   = -20
-            self.Uin_max   = 20
-            self.Vp        = 495
-            self.Rp        = 3.5e3
         else: # triode tubes 
             #self.Uin_range = (-5.0, 5.0)
             self.Uin_min   = -5
