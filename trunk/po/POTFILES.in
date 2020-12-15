@@ -133,7 +133,7 @@ src/gx_head/builder/jackstarter.glade
 src/gx_head/builder/ladspaliste.glade
 src/gx_head/builder/liveplay.glade
 src/gx_head/builder/mainpanel.glade
-src/gx_head/builder/menu.ui
+[type: gettext/glade] src/gx_head/builder/menu.ui 
 src/gx_head/builder/midi.glade
 src/gx_head/builder/pluginpreset_inputwindow.glade
 src/gx_head/builder/pluginpreset_listwindow.glade

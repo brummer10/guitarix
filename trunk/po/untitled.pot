@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-13 20:15+0100\n"
+"POT-Creation-Date: 2020-12-15 15:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,7 +39,7 @@ msgstr ""
 #: ../src/faust-generated/dattorros_progenitor.cc:962
 #: ../src/faust-generated/flanger_mono.cc:361
 #: ../src/faust-generated/freeverb.cc:461
-#: ../src/faust-generated/gx_ampmodul.cc:723
+#: ../src/faust-generated/gx_ampmodul.cc:759
 #: ../src/faust-generated/gx_distortion.cc:430
 #: ../src/faust-generated/phaser_mono.cc:389
 #: ../src/faust-generated/stereoverb.cc:668
@@ -112,7 +112,7 @@ msgstr ""
 #: ../src/faust-generated/peak_eq.cc:58 ../src/faust-generated/selecteq.cc:90
 #: ../src/faust-generated/tonecontroll.cc:102
 #: ../src/gx_head/builder/ladspaliste.glade.h:4
-#: ../src/gx_head/engine/gx_engine.cpp:268
+#: ../src/gx_head/engine/gx_engine.cpp:274
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:1123
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:1261
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:1446
@@ -175,7 +175,7 @@ msgstr ""
 #: ../src/faust-generated/digital_delay_st.cc:615
 #: ../src/faust-generated/flanger.cc:154
 #: ../src/faust-generated/flanger_mono.cc:129
-#: ../src/faust-generated/gx_ampmodul.cc:378
+#: ../src/faust-generated/gx_ampmodul.cc:414
 #: ../src/faust-generated/gx_ampout.cc:91
 #: ../src/faust-generated/gx_ampout_ladspa.cc:100
 #: ../src/faust-generated/gx_distortion.cc:359
@@ -275,8 +275,8 @@ msgstr ""
 #: ../src/faust-generated/flanger.cc:541
 #: ../src/faust-generated/flanger_mono.cc:353
 #: ../src/faust-generated/flanger_mono.cc:359
-#: ../src/faust-generated/gx_ampmodul.cc:717
-#: ../src/faust-generated/gx_ampmodul.cc:724
+#: ../src/faust-generated/gx_ampmodul.cc:753
+#: ../src/faust-generated/gx_ampmodul.cc:760
 #: ../src/faust-generated/phaser.cc:687
 #: ../src/faust-generated/phaser_mono.cc:381
 #: ../src/faust-generated/phaser_mono.cc:387
@@ -308,7 +308,7 @@ msgstr ""
 
 #: ../src/faust-generated/chorus_mono.cc:221
 #: ../src/faust-generated/dattorros_progenitor.cc:363
-#: ../src/faust-generated/gx_ampmodul.cc:381
+#: ../src/faust-generated/gx_ampmodul.cc:417
 #: ../src/faust-generated/gx_feedback.cc:101
 #: ../src/faust-generated/gx_feedback.cc:292
 #: ../src/faust-generated/overdrive.cc:104
@@ -351,9 +351,9 @@ msgstr ""
 #: ../src/faust-generated/compressor.cc:54
 #: ../src/faust-generated/expander.cc:54
 #: ../src/gx_head/builder/ladspaliste.glade.h:10
-#: ../src/gx_head/engine/gx_engine.cpp:262
-#: ../src/gx_head/engine/gx_engine.cpp:265
-#: ../src/gx_head/engine/gx_engine.cpp:275 ../src/gx_head/gui/rack.cpp:785
+#: ../src/gx_head/engine/gx_engine.cpp:268
+#: ../src/gx_head/engine/gx_engine.cpp:271
+#: ../src/gx_head/engine/gx_engine.cpp:281 ../src/gx_head/gui/rack.cpp:785
 #: ../src/ladspa/ladspa_guitarix.cpp:926 ../src/ladspa/ladspa_guitarix.cpp:936
 #: ../src/plugins/generated/mbc.cc:146 ../src/plugins/generated/mbcs.cc:172
 msgid "Guitar Effects"
@@ -572,6 +572,7 @@ msgstr ""
 #: ../src/faust-generated/gx_distortion.cc:356
 #: ../src/faust-generated/jconv_post.cc:101
 #: ../src/faust-generated/jconv_post_mono.cc:39
+#: ../src/gx_head/engine/gx_engine.cpp:220
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:685
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:819
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:2218
@@ -981,94 +982,94 @@ msgstr ""
 msgid "gain (dB) at 8 kHz"
 msgstr ""
 
-#: ../src/faust-generated/gxamp10.cc:161
+#: ../src/faust-generated/gxamp10.cc:168
 msgid "6DJ8"
 msgstr ""
 
-#: ../src/faust-generated/gxamp11.cc:176
+#: ../src/faust-generated/gxamp11.cc:184
 msgid "12AU7 feedback"
 msgstr ""
 
-#: ../src/faust-generated/gxamp12.cc:166
+#: ../src/faust-generated/gxamp12.cc:174
 msgid "pre 6DJ8/ master 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp13.cc:176
+#: ../src/faust-generated/gxamp13.cc:184
 msgid "6DJ8 feedback"
 msgstr ""
 
-#: ../src/faust-generated/gxamp14.cc:158
+#: ../src/faust-generated/gxamp14.cc:164
 msgid "12AT7"
 msgstr ""
 
-#: ../src/faust-generated/gxamp15.cc:166
+#: ../src/faust-generated/gxamp15.cc:174
 msgid "pre 12AT7/ master 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp16.cc:206
+#: ../src/faust-generated/gxamp16.cc:199
 msgid "pre 12AT7/ push pull 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp17.cc:176
+#: ../src/faust-generated/gxamp17.cc:184
 msgid "12AT7 feedback"
 msgstr ""
 
-#: ../src/faust-generated/gxamp18.cc:158
+#: ../src/faust-generated/gxamp18.cc:164
 msgid "6C16"
 msgstr ""
 
-#: ../src/faust-generated/gxamp2.cc:161
+#: ../src/faust-generated/gxamp2.cc:167
 msgid "6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp3.cc:158
+#: ../src/faust-generated/gxamp3.cc:164
 msgid "12AU7"
 msgstr ""
 
-#: ../src/faust-generated/gxamp4.cc:166
+#: ../src/faust-generated/gxamp4.cc:174
 msgid "pre 12AU7/ master 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp5.cc:166
+#: ../src/faust-generated/gxamp5.cc:174
 msgid "pre 12ax7/ master 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp6.cc:206
+#: ../src/faust-generated/gxamp6.cc:199
 msgid "pre 6DJ8/ push-pull 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp7.cc:206
+#: ../src/faust-generated/gxamp7.cc:199
 msgid "pre 12ax7/ push-pull 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp8.cc:206
+#: ../src/faust-generated/gxamp8.cc:199
 msgid "pre 12AU7/ push-pull 6V6"
 msgstr ""
 
-#: ../src/faust-generated/gxamp9.cc:176
+#: ../src/faust-generated/gxamp9.cc:184
 msgid "12ax7 feedback"
 msgstr ""
 
-#: ../src/faust-generated/gxamp.cc:158
+#: ../src/faust-generated/gxamp.cc:164
 msgid "12ax7"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:108
+#: ../src/faust-generated/gx_ampmodul.cc:111
 msgid "Postamp Tube2"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:109
+#: ../src/faust-generated/gx_ampmodul.cc:112
 msgid "Postamp Tube1"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:118
+#: ../src/faust-generated/gx_ampmodul.cc:121
 msgid "Postamp"
 msgstr ""
 
 #. description (tooltip)
 #. category
 #. description (tooltip)
-#: ../src/faust-generated/gx_ampmodul.cc:121
+#: ../src/faust-generated/gx_ampmodul.cc:124
 #: ../src/faust-generated/gx_distortion.cc:108
 #: ../src/faust-generated/gx_distortion.cc:109
 #: ../src/faust-generated/overdrive.cc:42
@@ -1077,35 +1078,35 @@ msgstr ""
 msgid "Distortion"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:376
+#: ../src/faust-generated/gx_ampmodul.cc:412
 msgid "Dry/FB"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:377
+#: ../src/faust-generated/gx_ampmodul.cc:413
 msgid "Wet/FB"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:379
+#: ../src/faust-generated/gx_ampmodul.cc:415
 msgid "Tube I"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:380
+#: ../src/faust-generated/gx_ampmodul.cc:416
 msgid "Tube II"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:722
+#: ../src/faust-generated/gx_ampmodul.cc:758
 msgid "dry/feedback  "
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:725
+#: ../src/faust-generated/gx_ampmodul.cc:761
 msgid "tube1"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:726
+#: ../src/faust-generated/gx_ampmodul.cc:762
 msgid "tube2"
 msgstr ""
 
-#: ../src/faust-generated/gx_ampmodul.cc:727
+#: ../src/faust-generated/gx_ampmodul.cc:763
 msgid "  wet/feedback"
 msgstr ""
 
@@ -1919,7 +1920,7 @@ msgstr ""
 #: ../src/gx_head/builder/crybaby_ui.glade.h:1
 #: ../src/gx_head/engine/gx_engine.cpp:96
 #: ../src/gx_head/engine/gx_engine.cpp:111
-#: ../src/gx_head/engine/gx_engine.cpp:265
+#: ../src/gx_head/engine/gx_engine.cpp:271
 #: ../src/ladspa/ladspa_guitarix.cpp:926
 msgid "Wah"
 msgstr ""
@@ -2145,6 +2146,7 @@ msgid "fine"
 msgstr ""
 
 #: ../src/gx_head/builder/ladspaliste.glade.h:16
+#: ../src/gx_head/builder/menu.ui .h:17
 msgid "--"
 msgstr ""
 
@@ -2437,6 +2439,191 @@ msgid ""
 "  red:         errors occurred"
 msgstr ""
 
+#: ../src/gx_head/builder/menu.ui .h:1
+msgid "_Engine"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:2
+msgid "Engine _Mute"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:3
+msgid "Engine _Bypass"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:4
+msgid "Jack Server _Connection"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:5
+msgid "Jack _Ports"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:6
+msgid "_Latency"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:7
+msgid "M_idi Controller"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:8
+msgid "_Quit"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:9
+msgid "_Presets"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:10
+msgid "_Preset Selection"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:11
+msgid "Next Preset"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:12
+msgid "Previous Preset"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:13
+msgid "Next Preset Midi Switch"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:14
+msgid "Previous Preset Midi Switch"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:15
+msgid "_Organize"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:16
+msgid "_Save changes"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:18
+msgid "P_lugins"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:19
+msgid "Show Plugin _Bar"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:20
+msgid "R_ack Configuration"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:21
+msgid "Order Rack _Horizontally"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:22
+msgid "_Tuner show"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:23
+msgid "Tuner stic_k"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:24
+msgid "_Mono Plugins"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:25
+msgid "_Stereo Plugins"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:26
+msgid "LADSPA/LV2 Pl_ugins"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:27
+msgid "C_ompress all"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:28
+msgid "E_xpand all"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:29
+msgid "_Tube"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:30
+msgid "_Options"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:31
+msgid "Live _Display"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:32
+msgid "Show _Logging Box"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:33
+msgid "_Meterbridge"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:34
+msgid "Show _Values"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:35
+msgid "_Skin..."
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:36
+msgid "_Jack Startup Control"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:37
+#: ../src/gx_head/gui/gx_main_window.cpp:1821
+msgid "Include MIDI in _presets"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:38
+msgid "Reset _All Parameters"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:39
+msgid "_Use Animations"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:40
+msgid "L_iveplay Midi Switch"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:41
+msgid "B_ypass Midi Switch"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:42
+msgid "Set Midi Channel"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:43
+msgid "Send Midi Feedback"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:44
+msgid "Osc. Buffer-size"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:45
+msgid "_About"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:46
+msgid "_Help"
+msgstr ""
+
+#: ../src/gx_head/builder/menu.ui .h:47
+msgid "Show _Tooltips"
+msgstr ""
+
 #: ../src/gx_head/builder/midi.glade.h:1
 msgid "guitarix: Set MIDI Controller"
 msgstr ""
@@ -2535,8 +2722,8 @@ msgid "  dry/wet  "
 msgstr ""
 
 #: ../src/gx_head/engine/gx_engine.cpp:103
-#: ../src/gx_head/engine/gx_engine.cpp:236
-#: ../src/gx_head/engine/gx_engine.cpp:243
+#: ../src/gx_head/engine/gx_engine.cpp:242
+#: ../src/gx_head/engine/gx_engine.cpp:249
 msgid "Model"
 msgstr ""
 
@@ -2559,32 +2746,36 @@ msgstr ""
 msgid "Tube 1"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:262
+#: ../src/gx_head/engine/gx_engine.cpp:221
+msgid "Out"
+msgstr ""
+
+#: ../src/gx_head/engine/gx_engine.cpp:268
 #: ../src/ladspa/ladspa_guitarix.cpp:923
 msgid "Crybaby"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:263
-#: ../src/gx_head/engine/gx_engine.cpp:266
-#: ../src/gx_head/engine/gx_engine.cpp:270
-#: ../src/gx_head/engine/gx_engine.cpp:273
+#: ../src/gx_head/engine/gx_engine.cpp:269
+#: ../src/gx_head/engine/gx_engine.cpp:272
 #: ../src/gx_head/engine/gx_engine.cpp:276
+#: ../src/gx_head/engine/gx_engine.cpp:279
+#: ../src/gx_head/engine/gx_engine.cpp:282
 #: ../src/ladspa/ladspa_guitarix.cpp:924 ../src/ladspa/ladspa_guitarix.cpp:927
 #: ../src/ladspa/ladspa_guitarix.cpp:931 ../src/ladspa/ladspa_guitarix.cpp:934
 #: ../src/ladspa/ladspa_guitarix.cpp:937
 msgid "select"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:268
+#: ../src/gx_head/engine/gx_engine.cpp:274
 #: ../src/ladspa/ladspa_guitarix.cpp:929
 msgid "Tonestack"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:272
+#: ../src/gx_head/engine/gx_engine.cpp:278
 msgid "Amp"
 msgstr ""
 
-#: ../src/gx_head/engine/gx_engine.cpp:275
+#: ../src/gx_head/engine/gx_engine.cpp:281
 #: ../src/ladspa/ladspa_guitarix.cpp:936
 msgid "PowerAmp"
 msgstr ""
@@ -3778,10 +3969,6 @@ msgid ""
 "website: http://guitarix.org/\n"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_main_window.cpp:1821
-msgid "Include MIDI in _presets"
-msgstr ""
-
 #: ../src/gx_head/gui/gx_main_window.cpp:1925
 msgid "I really tried to get jack up and running, sorry ... "
 msgstr ""
@@ -3834,7 +4021,7 @@ msgstr ""
 msgid "click to delete the bank"
 msgstr ""
 
-#: ../src/gx_head/gui/gx_preset_window.cpp:813
+#: ../src/gx_head/gui/gx_preset_window.cpp:816
 msgid "can't download preset from https://musical-artifacts.com/"
 msgstr ""
 
@@ -4337,10 +4524,6 @@ msgstr ""
 
 #: ../src/plugins/reversedelay.cc:146
 msgid "Crossfade between delayed chunks in percents"
-msgstr ""
-
-#: ../src/plugins/reversedelay.cc:147
-msgid "Dry/Wet"
 msgstr ""
 
 #: ../src/plugins/reversedelay.cc:231

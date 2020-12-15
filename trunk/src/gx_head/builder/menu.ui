@@ -2,105 +2,105 @@
   <menu id="menubar">
     <submenu>
       <attribute name="action">EngineMenu</attribute>
-      <attribute name="label">_Engine</attribute>
+      <attribute name="label" translatable="yes">_Engine</attribute>
       <section>
 	<item>
 	  <attribute name="action">EngineMute</attribute>
-	  <attribute name="label">Engine _Mute</attribute>
+	  <attribute name="label" translatable="yes">Engine _Mute</attribute>
 	  <attribute name="accel">space</attribute>
 	</item>
 	<item>
 	  <attribute name="action">EngineBypass</attribute>
-	  <attribute name="label">Engine _Bypass</attribute>
+	  <attribute name="label" translatable="yes">Engine _Bypass</attribute>
 	  <attribute name="accel">&lt;Control&gt;y</attribute>
 	</item>
       </section>
       <section>
 	<item>
 	  <attribute name="action">JackServerConnection</attribute>
-	  <attribute name="label">Jack Server _Connection</attribute>
+	  <attribute name="label" translatable="yes">Jack Server _Connection</attribute>
 	  <attribute name="accel">&lt;Control&gt;c</attribute>
 	</item>
 	<item>
 	  <attribute name="action">JackPorts</attribute>
-	  <attribute name="label">Jack _Ports</attribute>
+	  <attribute name="label" translatable="yes">Jack _Ports</attribute>
 	  <attribute name="accel">&lt;Control&gt;p</attribute>
 	</item>
 	<submenu>
 	  <attribute name="action">JackLatency</attribute>
-	  <attribute name="label">_Latency</attribute>
+	  <attribute name="label" translatable="yes">_Latency</attribute>
 	</submenu>
       </section>
       <section>
 	<item>
 	  <attribute name="action">MidiController</attribute>
-	  <attribute name="label">M_idi Controller</attribute>
+	  <attribute name="label" translatable="yes">M_idi Controller</attribute>
 	  <attribute name="accel">&lt;Control&gt;i</attribute>
 	</item>
       </section>
       <section>
 	<item>
 	  <attribute name="action">Quit</attribute>
-	  <attribute name="label">_Quit</attribute>
+	  <attribute name="label" translatable="yes">_Quit</attribute>
 	  <attribute name="accel">&lt;Control&gt;q</attribute>
 	</item>
       </section>
     </submenu>
     <submenu>
       <attribute name="action">PresetsMenu</attribute>
-      <attribute name="label">_Presets</attribute>
+      <attribute name="label" translatable="yes">_Presets</attribute>
       <section>
 	<item>
 	  <attribute name="action">Presets</attribute>
-	  <attribute name="label">_Preset Selection</attribute>
+	  <attribute name="label" translatable="yes">_Preset Selection</attribute>
 	  <attribute name="accel">&lt;Control&gt;x</attribute>
 	</item>
 	<item>
 	  <attribute name="action">NextPreset</attribute>
-	  <attribute name="label">Next Preset</attribute>
+	  <attribute name="label" translatable="yes">Next Preset</attribute>
 	  <attribute name="accel">&lt;Control&gt;plus</attribute>
 	</item>
 	<item>
 	  <attribute name="action">PreviusPreset</attribute>
-	  <attribute name="label">Previous Preset</attribute>
+	  <attribute name="label" translatable="yes">Previous Preset</attribute>
 	  <attribute name="accel">&lt;Control&gt;minus</attribute>
 	</item>
 	<item>
 	  <attribute name="action">SetNextPresetSwitcher</attribute>
-	  <attribute name="label">Next Preset Midi Switch</attribute>
+	  <attribute name="label" translatable="yes">Next Preset Midi Switch</attribute>
 	</item>
 	<item>
 	  <attribute name="action">SetPreviusPresetSwitcher</attribute>
-	  <attribute name="label">Previous Preset Midi Switch</attribute>
+	  <attribute name="label" translatable="yes">Previous Preset Midi Switch</attribute>
 	</item>
 	<item>
 	  <attribute name="action">Organize</attribute>
-	  <attribute name="label">_Organize</attribute>
+	  <attribute name="label" translatable="yes">_Organize</attribute>
 	  <attribute name="accel">&lt;Control&gt;o</attribute>
 	</item>
 	<item>
 	  <attribute name="action">Save</attribute>
-	  <attribute name="label">_Save changes</attribute>
+	  <attribute name="label" translatable="yes">_Save changes</attribute>
 	  <attribute name="accel">&lt;Control&gt;s</attribute>
 	</item>
 	<submenu>
 	  <attribute name="action">PresetListMenu</attribute>
-	  <attribute name="label">--</attribute>
+	  <attribute name="label" translatable="yes">--</attribute>
 	</submenu>
       </section>
     </submenu>
     <submenu>
       <attribute name="action">PluginsMenu</attribute>
-      <attribute name="label">P_lugins</attribute>
+      <attribute name="label" translatable="yes">P_lugins</attribute>
       <section>
 	<item>
 	  <attribute name="action">ShowPluginBar</attribute>
-	  <attribute name="label">Show Plugin _Bar</attribute>
+	  <attribute name="label" translatable="yes">Show Plugin _Bar</attribute>
 	  <attribute name="accel">&lt;Control&gt;b</attribute>
 	</item>
 	<item>
 	  <attribute name="action">RackConfig</attribute>
-	  <attribute name="label">R_ack Configuration</attribute>
+	  <attribute name="label" translatable="yes">R_ack Configuration</attribute>
 	  <attribute name="accel">&lt;Control&gt;a</attribute>
 	</item>
 	<item>
@@ -110,19 +110,19 @@
 	</item>
 	<item>
 	  <attribute name="action">RackH</attribute>
-	  <attribute name="label">Order Rack _Horizontally</attribute>
+	  <attribute name="label" translatable="yes">Order Rack _Horizontally</attribute>
 	  <attribute name="accel">&lt;Control&gt;h</attribute>
 	</item>
       </section>
       <section>
 	<item>
 	  <attribute name="action">Tuner</attribute>
-	  <attribute name="label">_Tuner show</attribute>
+	  <attribute name="label" translatable="yes">_Tuner show</attribute>
 	  <attribute name="accel">&lt;Control&gt;t</attribute>
 	</item>
 	<item>
 	  <attribute name="action">Tunermove</attribute>
-	  <attribute name="label">Tuner stic_k</attribute>
+	  <attribute name="label" translatable="yes">Tuner stic_k</attribute>
 	  <attribute name="accel">&lt;Control&gt;k</attribute>
 	</item>
 	<item>
@@ -134,118 +134,118 @@
       <section>
 	<submenu>
 	  <attribute name="action">MonoPlugins</attribute>
-	  <attribute name="label">_Mono Plugins</attribute>
+	  <attribute name="label" translatable="yes">_Mono Plugins</attribute>
 	</submenu>
 	<submenu>
 	  <attribute name="action">StereoPlugins</attribute>
-	  <attribute name="label">_Stereo Plugins</attribute>
+	  <attribute name="label" translatable="yes">_Stereo Plugins</attribute>
 	</submenu>
 	<item>
 	  <attribute name="action">LoadLADSPA</attribute>
-	  <attribute name="label">LADSPA/LV2 Pl_ugins</attribute>
+	  <attribute name="label" translatable="yes">LADSPA/LV2 Pl_ugins</attribute>
 	  <attribute name="accel">&lt;Control&gt;u</attribute>
 	</item>
       </section>
       <section>
 	<item>
 	  <attribute name="action">Compress</attribute>
-	  <attribute name="label">C_ompress all</attribute>
+	  <attribute name="label" translatable="yes">C_ompress all</attribute>
 	  <attribute name="accel">&lt;Control&gt;m</attribute>
 	</item>
 	<item>
 	  <attribute name="action">Expand</attribute>
-	  <attribute name="label">E_xpand all</attribute>
+	  <attribute name="label" translatable="yes">E_xpand all</attribute>
 	  <attribute name="accel">&lt;Control&gt;e</attribute>
 	</item>
       </section>
     </submenu>
     <submenu>
       <attribute name="action">TubeMenu</attribute>
-      <attribute name="label">_Tube</attribute>
+      <attribute name="label" translatable="yes">_Tube</attribute>
     </submenu>
     <submenu>
       <attribute name="action">OptionsMenu</attribute>
-      <attribute name="label">_Options</attribute>
+      <attribute name="label" translatable="yes">_Options</attribute>
       <section>
 	<item>
 	  <attribute name="action">Liveplay</attribute>
-	  <attribute name="label">Live _Display</attribute>
+	  <attribute name="label" translatable="yes">Live _Display</attribute>
 	  <attribute name="accel">&lt;Control&gt;d</attribute>
 	</item>
 	<item>
 	  <attribute name="action">LoggingBox</attribute>
-	  <attribute name="label">Show _Logging Box</attribute>
+	  <attribute name="label" translatable="yes">Show _Logging Box</attribute>
 	  <attribute name="accel">&lt;Control&gt;l</attribute>
 	</item>
 	<item>
 	  <attribute name="action">Meterbridge</attribute>
-	  <attribute name="label">_Meterbridge</attribute>
+	  <attribute name="label" translatable="yes">_Meterbridge</attribute>
 	  <attribute name="accel">&lt;Alt&gt;&lt;Shift&gt;m</attribute>
 	</item>
 	<item>
 	  <attribute name="action">ShowValues</attribute>
-	  <attribute name="label">Show _Values</attribute>
+	  <attribute name="label" translatable="yes">Show _Values</attribute>
 	  <attribute name="accel">&lt;Alt&gt;&lt;Shift&gt;s</attribute>
 	</item>
 	<submenu>
 	  <attribute name="action">ChangeSkin</attribute>
-	  <attribute name="label">_Skin...</attribute>
+	  <attribute name="label" translatable="yes">_Skin...</attribute>
 	</submenu>
 	<item>
 	  <attribute name="action">JackStartup</attribute>
-	  <attribute name="label">_Jack Startup Control</attribute>
+	  <attribute name="label" translatable="yes">_Jack Startup Control</attribute>
 	  <attribute name="accel">&lt;Control&gt;j</attribute>
 	</item>
 	<item>
 	  <attribute name="action">MidiInPresets</attribute>
-	  <attribute name="label">Include MIDI in _presets</attribute>
+	  <attribute name="label" translatable="yes">Include MIDI in _presets</attribute>
 	</item>
 	<item>
 	  <attribute name="action">ResetAll</attribute>
-	  <attribute name="label">Reset _All Parameters</attribute>
+	  <attribute name="label" translatable="yes">Reset _All Parameters</attribute>
 	</item>
 	<item>
 	  <attribute name="action">Animations</attribute>
-	  <attribute name="label">_Use Animations</attribute>
+	  <attribute name="label" translatable="yes">_Use Animations</attribute>
 	</item>
 	<item>
 	  <attribute name="action">SetPresetSwitcher</attribute>
-	  <attribute name="label">L_iveplay Midi Switch</attribute>
+	  <attribute name="label" translatable="yes">L_iveplay Midi Switch</attribute>
 	</item>
 	<item>
 	  <attribute name="action">SetBypassSwitcher</attribute>
-	  <attribute name="label">B_ypass Midi Switch</attribute>
+	  <attribute name="label" translatable="yes">B_ypass Midi Switch</attribute>
 	</item>
 	<item>
 	  <attribute name="action">SetMidiChannel</attribute>
-	  <attribute name="label">Set Midi Channel</attribute>
+	  <attribute name="label" translatable="yes">Set Midi Channel</attribute>
 	</item>
 	<item>
 	  <attribute name="action">MidiFeedback</attribute>
-	  <attribute name="label">Send Midi Feedback</attribute>
+	  <attribute name="label" translatable="yes">Send Midi Feedback</attribute>
 	</item>
 	<submenu>
 	  <attribute name="action">OscBufferSize</attribute>
-	  <attribute name="label">Osc. Buffer-size</attribute>
+	  <attribute name="label" translatable="yes">Osc. Buffer-size</attribute>
 	</submenu>
       </section>
     </submenu>
     <submenu>
       <attribute name="action">AboutMenu</attribute>
-      <attribute name="label">_About</attribute>
+      <attribute name="label" translatable="yes">_About</attribute>
       <section>
 	<item>
 	  <attribute name="action">About</attribute>
-	  <attribute name="label">_About</attribute>
+	  <attribute name="label" translatable="yes">_About</attribute>
 	</item>
 	<item>
 	  <attribute name="action">Help</attribute>
-	  <attribute name="label">_Help</attribute>
+	  <attribute name="label" translatable="yes">_Help</attribute>
 	  <attribute name="accel">F1</attribute>
 	</item>
 	<item>
 	  <attribute name="action">ShowTooltips</attribute>
-	  <attribute name="label">Show _Tooltips</attribute>
+	  <attribute name="label" translatable="yes">Show _Tooltips</attribute>
 	</item>
       </section>
     </submenu>
