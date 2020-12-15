@@ -6,6 +6,16 @@ tables=(
   "6V6 pentode2 6V6.cc"
   "6DJ8 triode 6DJ8.cc"
   "6C16 triode 6C16.cc"
+  "7199P pentode 7199P.cc"
+  "KT88 pentode KT88.cc"
+  "12AY7 triode 12AY7.cc"
+  "6L6CG pentode2 6L6CG.cc"
+  "EF86 pentode EF86.cc"
+  "EL34 pentode EL34.cc"
+  "EL84 pentode EL84.cc"
+  "JJECC83S triode JJECC83S.cc"
+  "JJECC99 pentode JJECC99.cc"
+  "SVEL34 pentode SVEL34.cc"
 )
 for f in "${tables[@]}"; do
   set -- $f
