@@ -174,6 +174,12 @@ class Circuit(object):
             self.Uin_max   = 20
             self.Vp        = 495
             self.Rp        = 3.5e3
+        elif self.tube == "SVEL34" and self.ipk_func == "pentode":
+            #self.Uin_range = ( -25, 25 )
+            self.Uin_min   = -25
+            self.Uin_max   = 25
+            self.Vp        = 250
+            self.Rp        = 2.0e3
         elif self.tube == "6L6CG" and self.ipk_func == "pentode":
             #self.Uin_range = ( -21, 21 )
             self.Uin_min   = -21
