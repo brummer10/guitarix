@@ -4492,10 +4492,6 @@ msgstr "Fenêtre (%)"
 msgid "Crossfade between delayed chunks in percents"
 msgstr "Fondu entre les différents délais en %"
 
-#: ../src/plugins/reversedelay.cc:147
-msgid "Dry/Wet"
-msgstr "Originel/traité"
-
 #: ../src/plugins/reversedelay.cc:231
 msgid "Buf state"
 msgstr "État du tampon"
