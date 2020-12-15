@@ -5,7 +5,7 @@ declare name "Colorsound Tone Blender";
 declare category "Fuzz";
 declare shortname "CS Tone";
 declare description "Colorsound Tone Blender";
-declare insert_p "tranyclipper3";
+declare insert_p "tranyclipper";
 declare drywetbox "true";
 
 import("stdfaust.lib");
