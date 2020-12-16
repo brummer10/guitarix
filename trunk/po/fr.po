@@ -2575,15 +2575,15 @@ msgstr "Ordonner le rack _horizontalement"
 
 #: ../src/gx_head/builder/menu.ui.h:23
 msgid "_Tuner show"
-msgstr "Afficher l'a_ccordeur"
+msgstr "A_fficher l'accordeur"
 
 #: ../src/gx_head/builder/menu.ui.h:24
 msgid "Tuner stic_k"
-msgstr "_Barre d'accordeur"
+msgstr "Barre d'accor_deur"
 
 #: ../src/gx_head/builder/menu.ui.h:25
 msgid "Tu_ner midi out"
-msgstr "Sortie MIDI de l'accor_deur"
+msgstr "Sor_tie MIDI de l'accordeur"
 
 #: ../src/gx_head/builder/menu.ui.h:26
 msgid "_Mono Plugins"
@@ -2603,7 +2603,7 @@ msgstr "Tout pl_ier"
 
 #: ../src/gx_head/builder/menu.ui.h:30
 msgid "E_xpand all"
-msgstr "Tout _déplier"
+msgstr "Tout dépli_er"
 
 #: ../src/gx_head/builder/menu.ui.h:31
 msgid "_Tube"
