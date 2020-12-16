@@ -2615,7 +2615,7 @@ msgstr "_Options"
 
 #: ../src/gx_head/builder/menu.ui.h:33
 msgid "Live _Display"
-msgstr "Affichage Live"
+msgstr "A_ffichage Live"
 
 #: ../src/gx_head/builder/menu.ui.h:34
 msgid "Show _Logging Box"
@@ -2652,11 +2652,11 @@ msgstr "_Utiliser les animations"
 
 #: ../src/gx_head/builder/menu.ui.h:42
 msgid "L_iveplay Midi Switch"
-msgstr "MIDI switch en _live"
+msgstr "MIDI switch en l_ive"
 
 #: ../src/gx_head/builder/menu.ui.h:43
 msgid "B_ypass Midi Switch"
-msgstr "Court-circuiter le MIDI switch"
+msgstr "_Court-circuiter le MIDI switch"
 
 #: ../src/gx_head/builder/menu.ui.h:44
 msgid "Set Midi Channel"
