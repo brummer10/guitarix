@@ -2535,7 +2535,7 @@ msgstr "Préréglage suivant"
 
 #: ../src/gx_head/builder/menu.ui.h:12
 msgid "Previous Preset"
-msgstr "Préréglage précédant"
+msgstr "Préréglage précédent"
 
 #: ../src/gx_head/builder/menu.ui.h:13
 msgid "Next Preset Midi Switch"
@@ -2543,7 +2543,7 @@ msgstr "Basculer vers le préréglage MIDI suivant"
 
 #: ../src/gx_head/builder/menu.ui.h:14
 msgid "Previous Preset Midi Switch"
-msgstr "Basculer vers le préréglage MIDI précédant"
+msgstr "Basculer vers le préréglage MIDI précédent"
 
 #: ../src/gx_head/builder/menu.ui.h:15
 msgid "_Organize"
@@ -2993,7 +2993,7 @@ msgstr "Charger l'unité suivante préréglée"
 
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:2153
 msgid "Load previous unit preset"
-msgstr "Charger l'unité précédante préréglée"
+msgstr "Charger l'unité précédente préréglée"
 
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:2157
 msgid "Set stepper one Beat back"
