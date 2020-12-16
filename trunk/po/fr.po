@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.41.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-13 20:15+0100\n"
-"PO-Revision-Date: 2020-12-13 20:21+0100\n"
+"POT-Creation-Date: 2020-12-15 17:26+0100\n"
+"PO-Revision-Date: 2020-12-15 21:19+0100\n"
 "Last-Translator: Olivier Humbert <trebmuh@tuxfamily.org>\n"
 "Language-Team: français <>\n"
 "Language: fr\n"
@@ -1186,15 +1186,15 @@ msgstr "résonat"
 
 #: ../src/faust-generated/gx_distortion.cc:367
 msgid "Split Hi"
-msgstr ""
+msgstr "Séparer les aigus"
 
 #: ../src/faust-generated/gx_distortion.cc:368
 msgid "Split Lo"
-msgstr ""
+msgstr "Séparer les graves"
 
 #: ../src/faust-generated/gx_distortion.cc:369
 msgid "Split Mid"
-msgstr ""
+msgstr "Séparer les médiums"
 
 #: ../src/faust-generated/gx_distortion.cc:370
 msgid "Trigger"
@@ -1480,7 +1480,7 @@ msgstr "largeur de bande (Hz)"
 #: ../src/faust-generated/peak_eq.cc:198
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:2682
 msgid "Sub"
-msgstr ""
+msgstr "Sub"
 
 #: ../src/faust-generated/peak_eq.cc:199
 #: ../src/gx_head/engine/gx_internal_plugins.cpp:2683
@@ -2176,6 +2176,7 @@ msgid "fine"
 msgstr "fin"
 
 #: ../src/gx_head/builder/ladspaliste.glade.h:16
+#: ../src/gx_head/builder/menu.ui.h:17
 msgid "--"
 msgstr "--"
 
@@ -2202,7 +2203,7 @@ msgstr "_Tout"
 
 #: ../src/gx_head/builder/ladspaliste.glade.h:22
 msgid "Ladspa _only"
-msgstr "Ladspa _uniquement"
+msgstr "LADSPA _uniquement"
 
 #: ../src/gx_head/builder/ladspaliste.glade.h:23
 msgid "L_V2 only"
@@ -2268,11 +2269,11 @@ msgstr "_Restaurer les défauts"
 
 #: ../src/gx_head/builder/ladspaliste.glade.h:38
 msgid "use dry/wet Box"
-msgstr "utiliser la boîte originel/traité "
+msgstr "Utiliser la boîte originel/traité "
 
 #: ../src/gx_head/builder/ladspaliste.glade.h:39
 msgid "use mono Box"
-msgstr "utiliser la boîte mono"
+msgstr "Utiliser la boîte mono"
 
 #: ../src/gx_head/builder/ladspaliste.glade.h:40
 msgid "Quirks: "
@@ -2375,7 +2376,7 @@ msgstr "Replier"
 
 #: ../src/gx_head/builder/mainpanel.glade.h:8
 msgid "Show"
-msgstr "Afficher"
+msgstr "Déplier"
 
 #: ../src/gx_head/builder/mainpanel.glade.h:9
 msgid "Live"
@@ -2488,13 +2489,206 @@ msgstr ""
 "  jaune :     avertissements\n"
 "  rouge :         des erreurs sont survenues"
 
+#: ../src/gx_head/builder/menu.ui.h:1
+msgid "_Engine"
+msgstr "_Moteur"
+
+#: ../src/gx_head/builder/menu.ui.h:2
+msgid "Engine _Mute"
+msgstr "_Silencer le moteur"
+
+#: ../src/gx_head/builder/menu.ui.h:3
+msgid "Engine _Bypass"
+msgstr "_Court-circuiter le moteur"
+
+#: ../src/gx_head/builder/menu.ui.h:4
+msgid "Jack Server _Connection"
+msgstr "_Connexion du serveur JACK"
+
+#: ../src/gx_head/builder/menu.ui.h:5
+msgid "Jack _Ports"
+msgstr "_Ports JACK"
+
+#: ../src/gx_head/builder/menu.ui.h:6
+msgid "_Latency"
+msgstr "_Latence"
+
+#: ../src/gx_head/builder/menu.ui.h:7
+msgid "M_idi Controller"
+msgstr "Contrôleur M_IDI"
+
+#: ../src/gx_head/builder/menu.ui.h:8
+msgid "_Quit"
+msgstr "_Quitter"
+
+#: ../src/gx_head/builder/menu.ui.h:9
+msgid "_Presets"
+msgstr "_Préréglages"
+
+#: ../src/gx_head/builder/menu.ui.h:10
+msgid "_Preset Selection"
+msgstr "Sélection de _préréglages"
+
+#: ../src/gx_head/builder/menu.ui.h:11
+msgid "Next Preset"
+msgstr "Préréglage suivant"
+
+#: ../src/gx_head/builder/menu.ui.h:12
+msgid "Previous Preset"
+msgstr "Préréglage précédant"
+
+#: ../src/gx_head/builder/menu.ui.h:13
+msgid "Next Preset Midi Switch"
+msgstr "Basculer vers le préréglage MIDI suivant"
+
+#: ../src/gx_head/builder/menu.ui.h:14
+msgid "Previous Preset Midi Switch"
+msgstr "Basculer vers le préréglage MIDI précédant"
+
+#: ../src/gx_head/builder/menu.ui.h:15
+msgid "_Organize"
+msgstr "_Organiser"
+
+#: ../src/gx_head/builder/menu.ui.h:16
+msgid "_Save changes"
+msgstr "_Sauvegarder les modifications"
+
+#: ../src/gx_head/builder/menu.ui.h:18
+msgid "P_lugins"
+msgstr "_Greffons"
+
+#: ../src/gx_head/builder/menu.ui.h:19
+msgid "Show Plugin _Bar"
+msgstr "Afficher la _barre des greffons"
+
+#: ../src/gx_head/builder/menu.ui.h:20
+msgid "R_ack Configuration"
+msgstr "Configuration du r_ack"
+
+#: ../src/gx_head/builder/menu.ui.h:21
+msgid "Show _Rack"
+msgstr "Afficher le _Rack"
+
+#: ../src/gx_head/builder/menu.ui.h:22
+msgid "Order Rack _Horizontally"
+msgstr "Ordonner le rack _horizontalement"
+
+#: ../src/gx_head/builder/menu.ui.h:23
+msgid "_Tuner show"
+msgstr "Afficher l'a_ccordeur"
+
+#: ../src/gx_head/builder/menu.ui.h:24
+msgid "Tuner stic_k"
+msgstr "_Barre d'accordeur"
+
+#: ../src/gx_head/builder/menu.ui.h:25
+msgid "Tu_ner midi out"
+msgstr "Sortie MIDI de l'accor_deur"
+
+#: ../src/gx_head/builder/menu.ui.h:26
+msgid "_Mono Plugins"
+msgstr "Greffons _mono"
+
+#: ../src/gx_head/builder/menu.ui.h:27
+msgid "_Stereo Plugins"
+msgstr "Greffons _stéréo"
+
+#: ../src/gx_head/builder/menu.ui.h:28
+msgid "LADSPA/LV2 Pl_ugins"
+msgstr "Greff_ons LADSPA/LV2"
+
+#: ../src/gx_head/builder/menu.ui.h:29
+msgid "C_ompress all"
+msgstr "Tout pl_ier"
+
+#: ../src/gx_head/builder/menu.ui.h:30
+msgid "E_xpand all"
+msgstr "Tout _déplier"
+
+#: ../src/gx_head/builder/menu.ui.h:31
+msgid "_Tube"
+msgstr "_Lampe"
+
+#: ../src/gx_head/builder/menu.ui.h:32
+msgid "_Options"
+msgstr "_Options"
+
+#: ../src/gx_head/builder/menu.ui.h:33
+msgid "Live _Display"
+msgstr "Affichage Live"
+
+#: ../src/gx_head/builder/menu.ui.h:34
+msgid "Show _Logging Box"
+msgstr "Afficher le journa_l"
+
+#: ../src/gx_head/builder/menu.ui.h:35
+msgid "_Meterbridge"
+msgstr "_Meterbridge"
+
+#: ../src/gx_head/builder/menu.ui.h:36
+msgid "Show _Values"
+msgstr "Afficher les _valeurs"
+
+#: ../src/gx_head/builder/menu.ui.h:37
+msgid "_Skin..."
+msgstr "_Habillage..."
+
+#: ../src/gx_head/builder/menu.ui.h:38
+msgid "_Jack Startup Control"
+msgstr "Contrôle du lanceur _JACK"
+
+#: ../src/gx_head/builder/menu.ui.h:39
+#: ../src/gx_head/gui/gx_main_window.cpp:1821
+msgid "Include MIDI in _presets"
+msgstr "Inclure le MIDI dans les _préréglages"
+
+#: ../src/gx_head/builder/menu.ui.h:40
+msgid "Reset _All Parameters"
+msgstr "Réinitialiser tous les p_aramètres"
+
+#: ../src/gx_head/builder/menu.ui.h:41
+msgid "_Use Animations"
+msgstr "_Utiliser les animations"
+
+#: ../src/gx_head/builder/menu.ui.h:42
+msgid "L_iveplay Midi Switch"
+msgstr "MIDI switch en _live"
+
+#: ../src/gx_head/builder/menu.ui.h:43
+msgid "B_ypass Midi Switch"
+msgstr "Court-circuiter le MIDI switch"
+
+#: ../src/gx_head/builder/menu.ui.h:44
+msgid "Set Midi Channel"
+msgstr "Paramétrer le canal MIDI"
+
+#: ../src/gx_head/builder/menu.ui.h:45
+msgid "Send Midi Feedback"
+msgstr "Envoyer le retour MIDI"
+
+#: ../src/gx_head/builder/menu.ui.h:46
+msgid "Osc. Buffer-size"
+msgstr "Taille du tampon osc."
+
+#: ../src/gx_head/builder/menu.ui.h:47
+msgid "_About"
+msgstr "À _propos"
+
+#: ../src/gx_head/builder/menu.ui.h:48
+msgid "_Help"
+msgstr "_Aide"
+
+#: ../src/gx_head/builder/menu.ui.h:49
+msgid "Show _Tooltips"
+msgstr "Afficher les _infobulles"
+
 #: ../src/gx_head/builder/midi.glade.h:1
 msgid "guitarix: Set MIDI Controller"
 msgstr "guitarix : paramétrer le contrôleur MIDI"
 
 #: ../src/gx_head/builder/midi.glade.h:2
 msgid "operate a MIDI controller to set the controller number"
-msgstr "manipuler un contrôleur MIDI pour paramétrer le numéro de contrôleur"
+msgstr "Manipuler un contrôleur MIDI pour paramétrer le numéro de contrôleur"
 
 #: ../src/gx_head/builder/midi.glade.h:3
 msgid "Parameter Range"
@@ -2506,7 +2700,7 @@ msgstr "Numéro de contrôleur MIDI"
 
 #: ../src/gx_head/builder/midi.glade.h:5
 msgid "toggle parameter"
-msgstr "basculer le paramètre"
+msgstr "Basculer le paramètre"
 
 #: ../src/gx_head/builder/midi.glade.h:6
 msgid "type"
@@ -3906,10 +4100,6 @@ msgstr ""
 "auteurs : Pete Shorthose &lt;pshorthose@gmail.com&gt;\n"
 "auteurs : Markus Schmidt &lt;schmidt@boomshop.net&gt;\n"
 "site ouèbe : http://guitarix.org/\n"
-
-#: ../src/gx_head/gui/gx_main_window.cpp:1821
-msgid "Include MIDI in _presets"
-msgstr "Inclure le MIDI dans les _préréglages"
 
 #: ../src/gx_head/gui/gx_main_window.cpp:1925
 msgid "I really tried to get jack up and running, sorry ... "
