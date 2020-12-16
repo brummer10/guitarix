@@ -2672,7 +2672,7 @@ msgstr "Taille du tampon osc."
 
 #: ../src/gx_head/builder/menu.ui.h:47
 msgid "_About"
-msgstr "À _propos"
+msgstr "À p_ropos"
 
 #: ../src/gx_head/builder/menu.ui.h:48
 msgid "_Help"
