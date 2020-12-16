@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: 0.41.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-12-15 17:26+0100\n"
-"PO-Revision-Date: 2020-12-16 16:31+0100\n"
+"PO-Revision-Date: 2020-12-16 17:17+0100\n"
 "Last-Translator: Olivier Humbert <trebmuh@tuxfamily.org>\n"
 "Language-Team: français <>\n"
 "Language: fr\n"
@@ -2567,7 +2567,7 @@ msgstr "Configuration du r_ack"
 
 #: ../src/gx_head/builder/menu.ui.h:21
 msgid "Show _Rack"
-msgstr "Afficher le _Rack"
+msgstr "Afficher le _rack"
 
 #: ../src/gx_head/builder/menu.ui.h:22
 msgid "Order Rack _Horizontally"
