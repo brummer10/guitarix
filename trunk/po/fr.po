@@ -2499,7 +2499,7 @@ msgstr "_Silencer le moteur"
 
 #: ../src/gx_head/builder/menu.ui.h:3
 msgid "Engine _Bypass"
-msgstr "_Court-circuiter le moteur"
+msgstr "Court-circuiter le _moteur"
 
 #: ../src/gx_head/builder/menu.ui.h:4
 msgid "Jack Server _Connection"
