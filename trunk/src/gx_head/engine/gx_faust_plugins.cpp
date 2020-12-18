@@ -155,5 +155,6 @@ namespace gx_poweramps {
 }
 #include "faust/balance.cc"
 #include "faust/dcblocker.cc"
+#include "faust/hardlim.cc"
 
 }

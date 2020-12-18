@@ -93,9 +93,11 @@ tubestageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : tube : dcblock with {
     lpfk = fi.lowpass(1,fck);
     anti_aliase = fi.lowpass(3,ma.SR/2.1);
     Rp = 100.0e3;
-    VkC = Vk0 * (Rp + Ranode(tb)) / Rk;
-    Vp = -(Vk0) : Ftube(tb);
-    tubeVp = Vp <: +(VkC - vplus);
+    //VkC = Vk0 * (Rp + Ranode(tb)) / Rk;
+    //Vp = -(Vk0) : Ftube(tb);
+    //tubeVp = Vp <: +(VkC - vplus);
+    VkC = Vk0 * (Rp/Rk);
+    tubeVp = -(Vk0) : Ftube(tb) : +(VkC-vplus);
     tube(x) = x : (+ : (tubeVp)) ~ (x*Rk/(Rp + Ranode(tb)) : lpfk) : /(divider);
     dcblock = fi.dcblockerat(1.0);
 };
