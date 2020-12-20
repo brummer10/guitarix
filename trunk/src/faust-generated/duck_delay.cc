@@ -18,8 +18,8 @@ private:
 	double fRec1[2];
 	double fRec0[2];
 	FAUSTFLOAT fHslider2;
-	double fConst4;
 	FAUSTFLOAT fHslider3;
+	double fConst4;
 	FAUSTFLOAT fHslider4;
 	double fRec4[2];
 	double fRec3[2];
@@ -105,10 +105,14 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow0 = double(fHslider0);
 	double fSlow1 = (fConst3 * double(fHslider1));
 	double fSlow2 = std::pow(10.0, (0.050000000000000003 * double(fHslider2)));
-	double fSlow3 = std::exp((0.0 - (fConst4 / double(fHslider3))));
-	double fSlow4 = (1.0 - fSlow3);
-	double fSlow5 = std::exp((0.0 - (fConst4 / double(fHslider4))));
-	double fSlow6 = (1.0 - fSlow5);
+	double fSlow3 = double(fHslider3);
+	int iSlow4 = (std::fabs(fSlow3) < 2.2204460492503131e-16);
+	double fSlow5 = (iSlow4 ? 0.0 : std::exp((0.0 - (fConst4 / (iSlow4 ? 1.0 : fSlow3)))));
+	double fSlow6 = double(fHslider4);
+	int iSlow7 = (std::fabs(fSlow6) < 2.2204460492503131e-16);
+	double fSlow8 = (iSlow7 ? 0.0 : std::exp((0.0 - (fConst4 / (iSlow7 ? 1.0 : fSlow6)))));
+	double fSlow9 = (1.0 - fSlow8);
+	double fSlow10 = (1.0 - fSlow5);
 	for (int i = 0; (i < count); i = (i + 1)) {
 		double fTemp0 = double(input0[i]);
 		double fTemp1 = (fTemp0 + (fSlow0 * fRec0[1]));
@@ -119,8 +123,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp4 = std::floor(fTemp2);
 		fRec0[0] = ((fVec0[((IOTA - std::min<int>(393217, std::max<int>(0, iTemp3))) & 524287)] * (fTemp4 + (1.0 - fTemp2))) + ((fTemp2 - fTemp4) * fVec0[((IOTA - std::min<int>(393217, std::max<int>(0, (iTemp3 + 1)))) & 524287)]));
 		double fTemp5 = std::fabs(fTemp0);
-		fRec4[0] = std::max<double>(fTemp5, ((fSlow5 * fRec4[1]) + (fSlow6 * fTemp5)));
-		fRec3[0] = ((fSlow3 * fRec3[1]) + (fSlow4 * fRec4[0]));
+		fRec4[0] = std::max<double>(fTemp5, ((fRec4[1] * fSlow8) + (fTemp5 * fSlow9)));
+		fRec3[0] = ((fRec3[1] * fSlow5) + (fRec4[0] * fSlow10));
 		fRec2[0] = ((fConst2 * fRec2[1]) + (fConst3 * double((1 - ((fSlow2 * fRec3[0]) > 1.0)))));
 		output0[i] = FAUSTFLOAT((fTemp0 + (fRec0[0] * fRec2[0])));
 		IOTA = (IOTA + 1);

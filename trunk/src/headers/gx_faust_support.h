@@ -2,6 +2,8 @@
 #include <algorithm>
 #include "gx_resampler.h"
 
+using std::signbit;
+
 #define max(x, y) (((x) > (y)) ? (x) : (y))
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 

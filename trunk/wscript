@@ -17,7 +17,7 @@ srcdir = '.'
 blddir = 'build'
 
 # used by waf dist and waf build
-VERSION='0.41.0git'
+VERSION='0.42.0'
 APPNAME='guitarix'
 
 Options.OptionsContext.gxload = \
@@ -25,8 +25,8 @@ Options.OptionsContext.gxload = \
         Build.BuildContext.gxload = \
             lambda ctx, tool: ctx.load(tool, tooldir='waftools')
 
-check_in_faust_version = '2.20.2'  # this Faust should be used for checked in generated files
-other_faust_versions = ['2.15.11'] # other Faust versions known to work
+check_in_faust_version = '2.27.2'  # this Faust should be used for checked in generated files
+other_faust_versions = ['2.15.11','2.20.2'] # other Faust versions known to work
 
 g_maxlen = 40 # maximum width of message for 2-column display
 
@@ -314,7 +314,7 @@ def configure(conf):
     # needed libaries
     conf.check_cfg(package='sndfile', args=['--cflags','--libs','sndfile >= 1.0.17'], uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', args=['--cflags','--libs','gthread-2.0 >= 2.24'], uselib_store='GTHREAD', mandatory=1)
-    conf.check_cfg(package='glibmm-2.4', args=['--cflags','--libs','glibmm-2.4 >= 2.38'], uselib_store='GLIBMM', mandatory=1)
+    conf.check_cfg(package='glibmm-2.4', args=['--cflags','--libs','glibmm-2.4 >= 2.56'], uselib_store='GLIBMM', mandatory=1)
     conf.check(header_name='fftw3.h', mandatory=1)
     conf.check_cfg(package='fftw3f', args=['--cflags','--libs','fftw3f >= 3.3.8'], uselib_store='FFTW3', mandatory=1)
 
