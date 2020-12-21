@@ -3,6 +3,7 @@ declare name "MultiBand Distortion";
 declare shortname "MB Distortion";
 declare category "Distortion";
 declare description "MultiBand Distortion";
+declare samplerate "96000";
 
 import("stdfaust.lib");
 import("reducemaps.lib");
@@ -39,10 +40,10 @@ vmeter5(x)		= attach(x, envelop(x) : vbargraph("v5[log][nomidi]", -70, +5));
 envelop         = abs : max ~ (1.0/ma.SR) : mean(4096); // : max(ba.db2linear(-70)) : ba.linear2db;
 
 process    = _: +(anti_denormal_ac): geq: ( dist5s , dist4s , dist3s, dist2s, dist1s) :> *(gain1) with { 
-    dist1s = ef.cubicnl_nodc(drive1,offset1: si.smooth(0.999)) : vmeter1;
-    dist2s = ef.cubicnl_nodc(drive2,offset2: si.smooth(0.999)) : vmeter2;
-    dist3s = ef.cubicnl_nodc(drive3,offset3: si.smooth(0.999)) : vmeter3;
-    dist4s = ef.cubicnl_nodc(drive4,offset4: si.smooth(0.999)) : vmeter4;
-    dist5s = ef.cubicnl_nodc(drive5,offset5: si.smooth(0.999)) : vmeter5;
+    dist1s = ef.cubicnl(drive1,offset1: si.smooth(0.999)) : fi.dcblockerat(1.0) : vmeter1;
+    dist2s = ef.cubicnl(drive2,offset2: si.smooth(0.999)) : fi.dcblockerat(1.0) : vmeter2;
+    dist3s = ef.cubicnl(drive3,offset3: si.smooth(0.999)) : fi.dcblockerat(1.0) : vmeter3;
+    dist4s = ef.cubicnl(drive4,offset4: si.smooth(0.999)) : fi.dcblockerat(1.0) : vmeter4;
+    dist5s = ef.cubicnl(drive5,offset5: si.smooth(0.999)) : fi.dcblockerat(1.0) : vmeter5;
     
 };
