@@ -13,6 +13,12 @@ def options(opt):
                    const=True,
                    help=('build shared library'),
                    )
+    grp.add_option('--static-lib',
+                   action='store_const',
+                   default=False,
+                   const=True,
+                   help=('build static library'),
+                   )
     grp.add_option('--lib-dev',
                    action='store_const',
                    default=False,
@@ -52,6 +58,10 @@ def configure(conf):
         env.USE_GENERATED_CPP = True
     if opt.shared_lib or opt.standalone:
         env.GX_LIB_SHARED = True
+    if opt.static_lib :
+        env.GX_LIB_SHARED = False
+        env.GX_LIB_DEV = False
+        env.GX_LIB_STATIC = True
     if opt.lib_dev:
         env.GX_LIB_SHARED = True
         env.GX_LIB_DEV = True
