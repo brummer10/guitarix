@@ -207,8 +207,8 @@ vibe_mono_lfo_ctrl = environment {
 };
 
 poweramp_ctrl = environment {
-    ingain =  vslider(".poweramp.Pregain[alias]",0,-20,20,0.1) : ba.db2linear : smoothi(0.999);
-    outgain = vslider(".poweramp.Gain[alias]", 0, -20.0, 20.0, 0.1) : ba.db2linear : smoothi(0.999);
+    ingain =  vslider(".poweramp.Pregain[alias]",0,-30,30,0.1) : ba.db2linear : smoothi(0.999);
+    outgain = vslider(".poweramp.Gain[alias]", 0, -30.0, 30.0, 0.1) : ba.db2linear : smoothi(0.999);
 };
 
 
