@@ -74,7 +74,7 @@ with {
 
 vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi][log]", 0, 40));
 
-envelop         = abs : max ~ (1.0/ma.SR) : rd.mean(2048); // : max(ba.db2linear(-70)) : ba.linear2db;
+envelop         = abs : max ~ (1.0/ma.SR) : rd.maxn(2048); // : max(ba.db2linear(-70)) : ba.linear2db;
 
 process(x)	= g(x)*x
 with {

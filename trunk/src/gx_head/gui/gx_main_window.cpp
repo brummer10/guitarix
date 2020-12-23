@@ -2885,11 +2885,13 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 
     machine.set_update_parameter(this, "maxlevel.left", true);
     machine.set_update_parameter(this, "maxlevel.right", true);
+    machine.set_update_parameter(this, "hardlim.v1", true);
  }
 
 MainWindow::~MainWindow() {
     machine.set_update_parameter(this, "maxlevel.left", false);
     machine.set_update_parameter(this, "maxlevel.right", false);
+    machine.set_update_parameter(this, "hardlim.v1", false);
 #if false   // set true to generate a new keyboard accel file
     gtk_accel_map_add_filter("<Actions>/Main/ChangeSkin_*");
     gtk_accel_map_add_filter("<Actions>/Main/Enum_tube.select.*");

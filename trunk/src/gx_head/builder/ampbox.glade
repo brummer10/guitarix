@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
+<!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <requires lib="gxwidgets" version="0.0"/>
   <object class="GtkWindow" id="AmpContainer">
     <property name="name">AmpContainer</property>
     <property name="can_focus">False</property>
-    <child>
+    <child type="titlebar">
       <placeholder/>
     </child>
     <child>
@@ -508,6 +508,57 @@
                     <property name="left_attach">0</property>
                     <property name="top_attach">0</property>
                   </packing>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="halign">center</property>
+                        <property name="valign">start</property>
+                        <property name="margin_top">6</property>
+                        <property name="label" translatable="yes">Limiter</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GxFastMeter" id="gxfastmeter">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="halign">center</property>
+                        <property name="margin_top">6</property>
+                        <property name="margin_bottom">46</property>
+                        <property name="orientation">vertical</property>
+                        <property name="hold">10</property>
+                        <property name="dimen">0</property>
+                        <property name="var_id">hardlim.v1</property>
+                        <property name="falloff">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
               <packing>

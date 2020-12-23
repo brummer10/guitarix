@@ -113,9 +113,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp4 = std::min<double>(1.0, std::max<double>(0.0, (fSlow5 * fTemp3)));
 		double fTemp5 = (fSlow0 * ((fTemp3 * fTemp4) / (1.0 - (fSlow0 * fTemp4))));
 		double fTemp6 = std::max<double>(fConst1, std::fabs(fTemp5));
-		fRec0[0] = (iTemp1 ? (fTemp6 + fRec0[1]) : fTemp6);
+		fRec0[0] = (iTemp1 ? std::max<double>(fRec0[1], fTemp6) : fTemp6);
 		iRec1[0] = (iTemp1 ? (iRec1[1] + 1) : 1);
-		fRec2[0] = (iTemp1 ? fRec2[1] : (0.00048828125 * fRec0[1]));
+		fRec2[0] = (iTemp1 ? fRec2[1] : fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
 		output0[i] = FAUSTFLOAT((fTemp0 * std::pow(10.0, (0.050000000000000003 * fTemp5))));
 		fRec4[1] = fRec4[0];

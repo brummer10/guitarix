@@ -12,9 +12,14 @@ private:
 	double fConst2;
 	double fConst3;
 	double fConst4;
-	double fRec2[2];
-	double fRec1[2];
+	double fConst5;
+	double fRec5[2];
+	double fRec4[2];
+	double fRec3[2];
 	double fRec0[2];
+	int iRec1[2];
+	double fRec2[2];
+	FAUSTFLOAT fVbargraph0;
 
 	void clear_state_f();
 	void init(unsigned int sample_rate);
@@ -38,10 +43,10 @@ Dsp::Dsp()
 	version = PLUGINDEF_VERSION;
 	flags = 0;
 	id = "hardlim";
-	name = N_("limiter");
+	name = N_("?limiter");
 	groups = 0;
 	description = ""; // description (tooltip)
-	category = N_("Guitar Effects");       // category
+	category = "";       // category
 	shortname = "";     // shortname
 	mono_audio = 0;
 	stereo_audio = compute_static;
@@ -58,9 +63,12 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec2[l0] = 0.0;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0;
-	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec0[l2] = 0.0;
+	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec5[l0] = 0.0;
+	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec4[l1] = 0.0;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec3[l2] = 0.0;
+	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec0[l3] = 0.0;
+	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) iRec1[l4] = 0;
+	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec2[l5] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -72,10 +80,11 @@ inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
 	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = std::exp((0.0 - (2500.0 / fConst0)));
-	fConst2 = (1.0 - fConst1);
-	fConst3 = std::exp((0.0 - (1250.0 / fConst0)));
-	fConst4 = std::exp((0.0 - (2.0 / fConst0)));
+	fConst1 = (1.0 / fConst0);
+	fConst2 = std::exp((0.0 - (2500.0 / fConst0)));
+	fConst3 = (1.0 - fConst2);
+	fConst4 = std::exp((0.0 - (1250.0 / fConst0)));
+	fConst5 = std::exp((0.0 - (2.0 / fConst0)));
 	clear_state_f();
 }
 
@@ -88,18 +97,27 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 {
 	for (int i = 0; (i < count); i = (i + 1)) {
 		double fTemp0 = double(input0[i]);
-		double fTemp1 = double(input1[i]);
-		double fTemp2 = std::fabs((std::fabs(fTemp1) + std::fabs(fTemp0)));
-		double fTemp3 = ((fRec1[1] > fTemp2) ? fConst4 : fConst3);
-		fRec2[0] = ((fRec2[1] * fTemp3) + (fTemp2 * (1.0 - fTemp3)));
-		fRec1[0] = fRec2[0];
-		fRec0[0] = ((fConst1 * fRec0[1]) + (fConst2 * (0.0 - (0.75 * std::max<double>(((20.0 * std::log10(fRec1[0])) + 6.0), 0.0)))));
-		double fTemp4 = std::pow(10.0, (0.050000000000000003 * fRec0[0]));
-		output0[i] = FAUSTFLOAT((fTemp0 * fTemp4));
-		output1[i] = FAUSTFLOAT((fTemp1 * fTemp4));
-		fRec2[1] = fRec2[0];
-		fRec1[1] = fRec1[0];
+		int iTemp1 = (iRec1[1] < 1024);
+		double fTemp2 = double(input1[i]);
+		double fTemp3 = std::fabs(std::max<double>(std::fabs(fTemp0), std::fabs(fTemp2)));
+		double fTemp4 = ((fRec4[1] > fTemp3) ? fConst5 : fConst4);
+		fRec5[0] = ((fRec5[1] * fTemp4) + (fTemp3 * (1.0 - fTemp4)));
+		fRec4[0] = fRec5[0];
+		fRec3[0] = ((fConst2 * fRec3[1]) + (fConst3 * (0.0 - (0.75 * std::max<double>(((20.0 * std::log10(fRec4[0])) + 6.0), 0.0)))));
+		double fTemp5 = std::pow(10.0, (0.050000000000000003 * fRec3[0]));
+		double fTemp6 = std::max<double>(fConst1, std::fabs((1.0 - fTemp5)));
+		fRec0[0] = (iTemp1 ? std::max<double>(fRec0[1], fTemp6) : fTemp6);
+		iRec1[0] = (iTemp1 ? (iRec1[1] + 1) : 1);
+		fRec2[0] = (iTemp1 ? fRec2[1] : fRec0[1]);
+		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
+		output0[i] = FAUSTFLOAT((fTemp0 * fTemp5));
+		output1[i] = FAUSTFLOAT((fTemp2 * fTemp5));
+		fRec5[1] = fRec5[0];
+		fRec4[1] = fRec4[0];
+		fRec3[1] = fRec3[0];
 		fRec0[1] = fRec0[0];
+		iRec1[1] = iRec1[0];
+		fRec2[1] = fRec2[0];
 	}
 }
 
@@ -110,6 +128,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
+	reg.registerFloatVar("hardlim.v1","","SON",N_("Rack output Limiter"),&fVbargraph0, 0, 0.0, 1.0, 0, 0);
 	return 0;
 }
 
