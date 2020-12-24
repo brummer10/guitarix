@@ -103,7 +103,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp4 = ((fRec4[1] > fTemp3) ? fConst5 : fConst4);
 		fRec5[0] = ((fRec5[1] * fTemp4) + (fTemp3 * (1.0 - fTemp4)));
 		fRec4[0] = fRec5[0];
-		fRec3[0] = ((fConst2 * fRec3[1]) + (fConst3 * (0.0 - (0.75 * std::max<double>(((20.0 * std::log10(fRec4[0])) + 6.0), 0.0)))));
+		fRec3[0] = ((fConst2 * fRec3[1]) + (fConst3 * (0.0 - (0.98999999999999999 * std::max<double>((20.0 * std::log10(fRec4[0])), 0.0)))));
 		double fTemp5 = std::pow(10.0, (0.050000000000000003 * fRec3[0]));
 		double fTemp6 = std::max<double>(fConst1, std::fabs((1.0 - fTemp5)));
 		fRec0[0] = (iTemp1 ? std::max<double>(fRec0[1], fTemp6) : fTemp6);

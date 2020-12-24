@@ -22,12 +22,12 @@ with {
   // compression gain in dB:
    outminusindb(ratio,thresh,level) = max(level-thresh,0.0) * (1.0/float(ratio)-1.0) ;
   // Note: "float(ratio)" REQUIRED when ratio is an integer > 1!
-vmeter1(x)		= attach(x, envelop(1.0-x) : vbargraph("v1[nomidi][tooltip:Rack output Limiter]", 0.0, 1.0));
-
-envelop         = abs : max ~ (1.0/ma.SR) : rd.maxn(1024); // : max(ba.db2linear(-70)) : ba.linear2db;
+  // compression meter indicate when the limiter kicks in
+  vmeter1(x) = attach(x, envelop(1.0-x) : vbargraph("v1[nomidi][tooltip:Rack output Limiter]", 0.0, 1.0));
+  envelop    = abs : max ~ (1.0/ma.SR) : rd.maxn(1024); 
 };
 
 
-lim = compressor_stereo(4,-6,0.0008,0.5);
+lim = compressor_stereo(100,0,0.0008,0.5);
 
 process = lim;
