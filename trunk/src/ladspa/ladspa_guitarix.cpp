@@ -1559,6 +1559,7 @@ void StereoEngine::load_static_plugins() {
 
     // rack stereo modules inserted here
 
+    pl.add(hardlim::plugin(),                     PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(gx_outputlevel_ladspa::plugin(),       PLUGIN_POS_END);
 
     // * fx amp output *
@@ -1575,7 +1576,7 @@ void StereoEngine::load_static_plugins() {
     pl.add(gx_effects::tonecontroll::plugin(),    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::digital_delay_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&stereo_convolver.plugin,              PLUGIN_POS_RACK, PGN_GUI);
-    pl.add(&record_st.plugin,                   PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&record_st.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::stereoverb::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::zita_rev1::plugin(),        PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_stereo(),      PLUGIN_POS_RACK);
