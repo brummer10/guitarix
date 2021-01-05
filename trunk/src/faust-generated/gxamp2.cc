@@ -388,7 +388,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp17 = ((fTemp16 + fTemp15) / (double(Ranode(int(TUBE_TABLE_6V6_68k), double(fRec13[1]))) + 100000.0));
 		fVec5[0] = fTemp17;
 		fRec36[0] = (fConst63 * ((2700.0 * (fTemp17 + fVec5[1])) - (fConst64 * fRec36[1])));
-		fRec13[0] = (double(Ftube(int(TUBE_TABLE_6V6_68k), double(((fTemp15 + (fRec36[0] + fTemp16)) + -2.2961499999999999)))) + -164.9574074074074);
+		fRec13[0] = (double(Ftube(int(TUBE_TABLE_6V6_68k), double(((fTemp15 + (fRec36[0] + fTemp16)) + -1.7844169999999999)))) + -183.9104814814815);
 		fRec12[0] = (fConst2 * ((fConst3 * fRec12[1]) + (0.025000000000000001 * (fRec13[0] - fRec13[1]))));
 		fRec11[0] = (fConst5 * ((0.77000000000000002 * (fRec12[0] + fRec12[1])) - (fConst6 * fRec11[1])));
 		double fTemp18 = (fRec10[0] * fRec11[0]);
@@ -400,7 +400,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp21 = ((fTemp20 + fTemp19) / (double(Ranode(int(TUBE_TABLE_6V6_250k), double(fRec7[1]))) + 100000.0));
 		fVec7[0] = fTemp21;
 		fRec37[0] = (fConst66 * ((1500.0 * (fTemp21 + fVec7[1])) - (fConst67 * fRec37[1])));
-		fRec7[0] = (double(Ftube(int(TUBE_TABLE_6V6_250k), double(((fTemp19 + (fRec37[0] + fTemp20)) + -1.6755869999999999)))) + -138.29419999999999);
+		fRec7[0] = (double(Ftube(int(TUBE_TABLE_6V6_250k), double(((fTemp19 + (fRec37[0] + fTemp20)) + -1.3646160000000001)))) + -159.0256);
 		fRec6[0] = (fConst2 * ((fConst3 * fRec6[1]) + (0.025000000000000001 * (fRec7[0] - fRec7[1]))));
 		fRec5[0] = (fConst5 * ((0.77000000000000002 * (fRec6[0] + fRec6[1])) - (fConst6 * fRec5[1])));
 		fRec38[0] = (fSlow3 + (0.999 * fRec38[1]));
@@ -414,7 +414,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp25 = ((fTemp24 + fTemp23) / (double(Ranode(int(TUBE_TABLE_6V6_250k), double(fRec1[1]))) + 100000.0));
 		fVec9[0] = fTemp25;
 		fRec39[0] = (fConst71 * ((820.0 * (fTemp25 + fVec9[1])) - (fConst72 * fRec39[1])));
-		fRec1[0] = (double(Ftube(int(TUBE_TABLE_6V6_250k), double(((fTemp23 + (fRec39[0] + fTemp24)) + -1.1304620000000001)))) + -112.13878048780487);
+		fRec1[0] = (double(Ftube(int(TUBE_TABLE_6V6_250k), double(((fTemp23 + (fRec39[0] + fTemp24)) + -0.96213199999999999)))) + -132.6668292682927);
 		fRec0[0] = (fConst2 * ((fConst3 * fRec0[1]) + (0.025000000000000001 * (fRec1[0] - fRec1[1]))));
 		buf[i] = FAUSTFLOAT((0.77000000000000002 * fRec0[0]));
 		fRec10[1] = fRec10[0];

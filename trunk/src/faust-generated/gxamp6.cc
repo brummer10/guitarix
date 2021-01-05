@@ -520,12 +520,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp44 = (fTemp43 / (double(Ranode(int(TUBE_TABLE_6V6_250k), double(fRec9[1]))) + 100000.0));
 		fVec13[0] = fTemp44;
 		fRec66[0] = (fConst5 * ((410.0 * (fTemp44 + fVec13[1])) - (fConst6 * fRec66[1])));
-		fRec9[0] = (double(Ftube(int(TUBE_TABLE_6V6_250k), double(((fTemp41 + (fRec66[0] + fTemp42)) + -0.65976100000000004)))) + -89.08268292682925);
+		fRec9[0] = (double(Ftube(int(TUBE_TABLE_6V6_250k), double(((fTemp41 + (fRec66[0] + fTemp42)) + -0.57272100000000004)))) + -110.3119512195122);
 		fRec8[0] = (fConst2 * ((fConst3 * fRec8[1]) + (0.025000000000000001 * (fRec9[0] - fRec9[1]))));
 		double fTemp45 = (fTemp43 / (double(Ranode(int(TUBE_TABLE_6V6_68k), double(fRec68[1]))) + 100000.0));
 		fVec14[0] = fTemp45;
 		fRec69[0] = (fConst5 * ((410.0 * (fTemp45 + fVec14[1])) - (fConst6 * fRec69[1])));
-		fRec68[0] = (double(Ftube(int(TUBE_TABLE_6V6_68k), double(((fTemp41 + (fRec69[0] + fTemp42)) + -0.66454100000000005)))) + -87.916829268292673);
+		fRec68[0] = (double(Ftube(int(TUBE_TABLE_6V6_68k), double(((fTemp41 + (fRec69[0] + fTemp42)) + -0.58127399999999996)))) + -108.22585365853661);
 		fRec67[0] = (fConst2 * ((fConst3 * fRec67[1]) + (0.025000000000000001 * (fRec68[0] - fRec68[1]))));
 		double fTemp46 = (std::min<double>(0.69999999999999996, fRec8[0]) + std::max<double>(-0.75, fRec67[0]));
 		double fTemp47 = (0.5 * fRec0[1]);

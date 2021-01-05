@@ -30,7 +30,7 @@ process = hgroup("stage1", stage1) :
     stage1 =
      *(preamp) : (tubestage(TB_12AT7_68k,86.0,2700.0,2.617753) : + ~ (atten*tubestage(TB_12AT7_250k,132.0,1500.0,1.887333))):
     fi.lowpass(1,6531.0) : (tubestage(TB_12AT7_250k,132.0,1500.0,1.887333) : + ~ (atten*tubestage(TB_12AT7_250k,194.0,820.0,1.256962))) : tubestage(TB_12AT7_250k,194.0,820.0,1.256962); 
-    stage2 = fi.lowpass(1,6531.0) : *(gain1)  <: ((min(0.7,tubestage(TB_6V6_250k,6531.0,410.0,0.659761))),(max(-0.75,tubestage(TB_6V6_68k,6531.0,410.0,0.664541)))) :> 
+    stage2 = fi.lowpass(1,6531.0) : *(gain1)  <: ((min(0.7,tubestage(TB_6V6_250k,6531.0,410.0,0.572721))),(max(-0.75,tubestage(TB_6V6_68k,6531.0,410.0,0.581274)))) :> 
     peak1
     with {
         gain1 = ampctrl.gain1;

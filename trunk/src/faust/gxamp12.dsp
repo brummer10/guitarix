@@ -29,7 +29,7 @@ process = hgroup("stage1", stage1) : component("gxdistortion.dsp").dist(drive,we
 */
     stage1 = *(preamp): tubestage130_20(TB_6DJ8_68k,86.0,2700.0,1.863946) :
     fi.lowpass(1,6531.0) : tubestage130_20(TB_6DJ8_250k,132.0,1500.0,1.271609) :tubestage130_20(TB_6DJ8_250k,194.0,820.0,0.797043); 
-    stage2 = fi.lowpass(1,6531.0) : *(gain1)  <: (tubestage(TB_6V6_250k,6531.0,820.0,1.130462),tubestage(TB_6V6_68k,6531.0,820.0,1.130740)) :> _ 
+    stage2 = fi.lowpass(1,6531.0) : *(gain1)  <: (tubestage(TB_6V6_250k,6531.0,820.0,0.962132),tubestage(TB_6V6_68k,6531.0,820.0,0.963342)) :> _ 
     with {
         gain1 = ampctrl.gain1;
         /*
