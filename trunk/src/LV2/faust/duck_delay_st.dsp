@@ -5,7 +5,7 @@ declare category "Echo / Delay";
 //------------------------------------
 //Description:
 //The delayed signal added to output dependent of input signal amplitude. 
-//If the input signal is high. The delayed signall turned off, and vise versa.
+//If the input signal is high. The delayed signal turned off, and vise versa.
 //The switching controlled by envelope follower 
 //(parameters: "attack", "release", and main - "amount", what is controls envelope follower influence).
 //

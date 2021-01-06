@@ -237,8 +237,8 @@ Widget_t* add_my_slider(Widget_t *w, PortIndex index, const char * label,
 }
 
 void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
-    (*w) = 840; //set initial widht of main window
-    (*h) = 180; //set initial heigth of main window
+    (*w) = 840; //set initial width of main window
+    (*h) = 180; //set initial height of main window
 }
 
 const char* plugin_set_name() {

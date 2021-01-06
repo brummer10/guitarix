@@ -93,7 +93,7 @@ extern "C" {
 ----------------------------------------------------------------------*/
 
 /**
- * @brief IS_UTF8         - check if a char contain UTF 8 formated signs
+ * @brief IS_UTF8         - check if a char contain UTF 8 formatted signs
  */
 
 #define IS_UTF8(c) (((c)&0xc0)==0xc0)
@@ -166,7 +166,7 @@ extern "C" {
  * \n When the toplevel window call destroy_widget(), Xputty call
  * destroy_widget() for all remaining Widget_t's in the main childlist.
  * \n So any allocated memory should be released before the
- * toplevel window finaly close.
+ * toplevel window finally close.
  * @param *childlist         - pointer to the main childlist
  * @param *dpy               - pointer to the display in use
  * @param run                - bool to quit the main loop
@@ -204,11 +204,11 @@ struct Xputty{
  * before the first Widget_t get created.
  * \n Any Widget_t created afterwards will be added to the main childlist.
  * \n The main childlist is used to check if a Widget_t is valid to receive a Event.
- * \n Xputty check if a Widget_t is registerd in the main childlist, and only forward
+ * \n Xputty check if a Widget_t is registered in the main childlist, and only forward
  * events when it found the Widget_t in the list.
  * \n When a Widget_t call destroy_widget() any childs of this Widget_t receive
  * a call to destroy_widget() to release there memory, they get removed from the main childlist
- * and finaly the Widget_t itself will be removed from the main childlist as well.
+ * and finally the Widget_t itself will be removed from the main childlist as well.
  * On main_quit() any remaining Widget_t from the main childlist will be destroyed,
  * to ensure that we leave the memory clean.
  * @param *main             - pointer to the main Xputty struct

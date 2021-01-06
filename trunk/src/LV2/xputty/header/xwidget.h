@@ -216,7 +216,7 @@ typedef struct {
 
 /**
  * 
- * @brief anonymous enum       - flags to set Widget_t propertys
+ * @brief anonymous enum       - flags to set Widget_t properties
  * @param IS_WIDGET            - Widget_t is a sub widget
  * @param IS_WINDOW            - Widget_t has no Widget_t parent 
  * @param IS_POPUP             - Widget_t is a pop up widget
@@ -356,12 +356,12 @@ struct Widget_t {
 
 /**
  * @brief *create_window     - create a Window 
- * \n You need to create as least minimun one Window to get started.
+ * \n You need to create as least minimum one Window to get started.
  * \n The first created Window is the top_level_widget()
  * \n A Window could be created on the DefaultRootWindow() or embeded
  * into a other XWindow
  * @param *app               - pointer to the Xputty *main struct to use
- * @param win                - pointer to the Parrent Window (may be Root)
+ * @param win                - pointer to the Parent Window (may be Root)
  * @param x,y,width,height   - the position/geometry to create the window
  * @return Widget_t *        - pointer to the Widget_t struct
  */
@@ -375,7 +375,7 @@ Widget_t *create_window(Xputty *app, Window win,
  * \n To create a Widget_t you need to create a Widget_t with create_window()
  * before.
  * @param *app                - pointer to the Xputty *main struct to use
- * @param *parent             - pointer to the Parrent Widget_t
+ * @param *parent             - pointer to the Parent Widget_t
  * @param x,y,width,height    - the position/geometry to create the widget
  * @return Widget_t*          - pointer to the Widget_t struct
  */
@@ -478,7 +478,7 @@ void quit_widget(Widget_t *w);
 
 /**
  * @brief transparent_draw  - copy parent surface to child surface
- * \n you usaualy didn't need to call this, it's used automaticaly
+ * \n you usaualy didn't need to call this, it's used automatically
  * when a Widget_t have set the flag USE_TRANSPARENCY
  * \n this is the default setting for Widget_t
  * @param *wid              - pointer to the Widget_t receiving the event

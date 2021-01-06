@@ -67,7 +67,7 @@ typedef enum {
  * 
  * @brief Adjustment_t     - struct to hold a controller adjustment
  * @param *w               - pointer to the Widget_t contain the adjustment
- * @param std_value        - the standart value for the adjustment
+ * @param std_value        - the standard value for the adjustment
  * @param value            - the current value of the adjustment
  * @param min_value        - the minimal value of the adjustment
  * @param max_value        - the maximal value of the adjustment
@@ -80,7 +80,7 @@ typedef enum {
 struct  Adjustment_t {
 /** pointer to the Widget_t contain the adjustment */
     Widget_t *w;
-/** the standart value for the adjustment */
+/** the standard value for the adjustment */
     float std_value;
 /** the current value of the adjustment */
     float value;
@@ -118,7 +118,7 @@ Adjustment_t *add_adjustment(Widget_t *w, float std_value, float value,
 
 /**
  * @brief *set_adjustment    - set a new range to a existing Adjustment_t
- * it will be created if it not exsits yet
+ * it will be created if it not exists yet
  * @param *w                 - pointer to the Widget_t request a Adjustment_t
  * @param std_value          - standard value of the Adjustment_t
  * @param value              - current value of the Adjustment_t
@@ -175,7 +175,7 @@ float adj_get_value(Adjustment_t *adj);
 void adj_set_value(Adjustment_t *adj, float value);
 
 /**
- * @brief adj_set_start_value - internal use to store the value when pointer movment starts
+ * @brief adj_set_start_value - internal use to store the value when pointer movement starts
  * @param *w                  - pointer to Widget_t containing the Adjustment_t
  * @return void
  */
@@ -185,7 +185,7 @@ void adj_set_start_value(void *w);
 /**
  * @brief adj_set_scale      - internal use to scale the pointer movement (0.1 -1.0)
  * @param *adj               - pointer to the Adjustment_t
- * @param value              - value to set the scaleing factor to 
+ * @param value              - value to set the scaling factor to 
  * @return void
  */
 
@@ -194,7 +194,7 @@ void adj_set_scale(Adjustment_t *adj, float value);
 /**
  * @brief adj_set_log_scale  - internal use to set the logarithmic scale 
  * @param *adj               - pointer to the Adjustment_t
- * @param value              - value to set the scaleing factor to 
+ * @param value              - value to set the scaling factor to 
  * @return void
  */
 
@@ -202,9 +202,9 @@ void adj_set_log_scale(Adjustment_t *adj, float value);
 
 /**
  * @brief adj_set_motion_state   - internal use to set value and state of the Adjustment_t
- * on mouse pointer movment
+ * on mouse pointer movement
  * @param *w                     - pointer to Widget_t containing Adjustment_t
- * @param x                      - movment on the x-axis
+ * @param x                      - movement on the x-axis
  * @param y                      - movement on the y-axis
  * @return void
  */

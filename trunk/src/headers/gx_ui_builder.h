@@ -72,7 +72,7 @@ bool ui_connect(gx_engine::GxMachineBase& machine, Gtk::Widget *w, const std::st
 class GxBuilder: public Gtk::Builder {
 private:
     static bool show_tooltips;
-    // only implemented for base class, make inaccessable
+    // only implemented for base class, make inaccessible
     static Glib::RefPtr<GxBuilder> create_from_file(const std::string& filename, const char* object_id);
     static Glib::RefPtr<GxBuilder> create_from_file(const std::string& filename, const Glib::ustring& object_id);
     static Glib::RefPtr<GxBuilder> create_from_file(const std::string& filename, const Glib::StringArrayHandle& object_ids);

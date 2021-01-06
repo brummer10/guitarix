@@ -48,7 +48,7 @@ void _draw_hmeter_scale(void *w_, void* user_data);
 
 /**
  * @brief _log_meter           - logaritmic meter deflection
- * @param db                   - mesured db
+ * @param db                   - measured db
  * @return float               - state to show on the meter
  */
 

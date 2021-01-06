@@ -240,7 +240,7 @@ static int findMaxima(float *input, int len, int *maxPositions, int *length, int
     int overallMaxIndex = 0;
 
     while (pos < (len-1)/3 && input[pos] > 0.0) {
-        pos += 1;  // find the first negitive zero crossing
+        pos += 1;  // find the first negative zero crossing
     }
     while (pos < len-1 && input[pos] <= 0.0) {
         pos += 1;  // loop over all the values below zero
@@ -348,7 +348,7 @@ void PitchTracker::run() {
         int count = (m_buffersize + 1) / 2;
         for (int k = 0; k < count; k++) {
             sumSq  -= sq(m_input[m_buffersize-1-k]) + sq(m_input[k]);
-            // dividing by zero is very slow, so deal with it seperately
+            // dividing by zero is very slow, so deal with it separately
             if (sumSq > 0.0) {
                 m_fftwBufferTime[k] *= 2.0 / sumSq;
             } else {

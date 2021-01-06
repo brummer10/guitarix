@@ -29,7 +29,7 @@ import("stdfaust.lib");
 /****************************************************************
  ** Guitar tone stacks
  ** values from CAPS plugin tonestack (based on work from D.T. Yeh)
- ** this version use only one controler like the Big Muff
+ ** this version use only one controller like the Big Muff
  */
  
 ts = environment {

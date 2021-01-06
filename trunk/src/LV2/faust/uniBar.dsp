@@ -80,7 +80,7 @@ baseGainApp = 0.8999999999999999 + (0.1);
 velocityInputApp = 0.8;
 velocityInput = velocityInputApp + _*baseGainApp,par(i,(nModes-1),(_*baseGainApp)) :> +;
 
-//Bow velocity is controled by an ADSR envelope
+//Bow velocity is controlled by an ADSR envelope
 maxVelocity = 0.03 + 0.1*gain;
 bowVelocity = maxVelocity*en.adsr(0.02,0.005,90,0.01,gate);
 

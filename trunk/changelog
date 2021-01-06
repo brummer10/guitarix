@@ -31,7 +31,7 @@ guitarix2 (0.41.0) unstable; urgency=low
   * Add midi out for tuner
   * Add low/high cut filter before tuner
   * GxTuner set to use same precision then the tuner in guitarix
-  * Use tabbox for LV2 plugs with to much controlls
+  * Use tabbox for LV2 plugs with to much controls
   * Disable GxVibe, because it is brocken
   * Fix several Bug's and hopefully don't introduce to much new one's
 
@@ -523,7 +523,7 @@ guitarix (0.04.6-1) unstable; urgency=low
   * use boost libary for cmd commands
   * varios code cleanups by James
   * new tube model
-  * add scrollwheel controlls
+  * add scrollwheel controls
      
  -- brummer <brummer-@web.de>  Wed, 24 Jun 2009 14:24:42 +0200
 
@@ -619,7 +619,7 @@ guitarix (0.03.3-1) unstable; urgency=low
   * add experimental tuner
   * add jack midi out port
   * add pitch tracker/beatdetector to midi converter
-  * add midi controlls for velocity, channel choose, program choose, okatve switch and sensity
+  * add midi controls for velocity, channel choose, program choose, okatve switch and sensity
   * add more midi out channels (3), clean up the processing
   * add controll interface for pitch tracker/beatdetector
   * add extra tread for midi processing

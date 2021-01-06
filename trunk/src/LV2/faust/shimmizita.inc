@@ -5,7 +5,7 @@ import("filter.lib");
 //------------------------------- par_ps --------------------------------------
 // Wariable delay lines based pitch shifter with parametric controller. 
 // Pitch shifter implementation borrowed from faust examples : pitch_shifter.dsp 
-// Paramertric conroller represented by oscillator with frequency dependent of
+// Paramertric controller represented by oscillator with frequency dependent of
 // envelope of input signal.
 //
 // USAGE:

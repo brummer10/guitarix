@@ -53,7 +53,7 @@ void _toggle_event(Widget_t * wid);
 
 /**
  * @brief _check_enum       - internal check if Adjustment_t is of type CL_ENUM
- * and handle events acordingly
+ * and handle events accordingly
  * @param *wid              - pointer to the Widget_t receiving a event
  * @param *xbutton          - pointer to the XButtonEvent
  * @return void 
@@ -127,7 +127,7 @@ void _has_pointer(Widget_t *w, XButtonEvent *button);
 void _set_adj_value(void *w_, bool x, int direction);
 
 /**
- * @brief _dummy1_callback   - default debuging callback for evfunc's
+ * @brief _dummy1_callback   - default debugging callback for evfunc's
  * @param *w                 - pointer to the Widget_t receive the event
  * @param user_data          - void pointer to attached user_data
  * @return void 
@@ -136,7 +136,7 @@ void _set_adj_value(void *w_, bool x, int direction);
 void _dummy1_callback(void *w_, void* _data, void* user_data);
 
 /**
- * @brief _dummy1_callback    - default debuging callback for xevfunc's
+ * @brief _dummy1_callback    - default debugging callback for xevfunc's
  * @param *w                 - pointer to the Widget_t receive the event
  * @param user_data          - void pointer to attached user_data
  * @return void 

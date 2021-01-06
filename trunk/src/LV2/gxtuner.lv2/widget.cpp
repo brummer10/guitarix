@@ -26,7 +26,7 @@
  *  this function is used by make_selector() make_controller_box()
  *  set_value() and on_value_changed()
  *  so controller widgets needs only here asined to a port, 
- *  and all functions which need acess to the controller widget pointer 
+ *  and all functions which need access to the controller widget pointer 
  *  can receive them by port number
  */
 Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
@@ -115,7 +115,7 @@ plug_name(plugname)
   //m_bigknob.set_value_position(Gtk::POS_RIGHT);
   make_controller_box(&m_vbox4, "Verify Level", 1, 12, 1, VERIFY);
   
-  // set propertys for the tuner widget
+  // set properties for the tuner widget
   m_tuner.set_size_request( 440, 65 ) ;
   m_tuner.set_streaming(true);
   m_tuner.set_display_flat(false);
@@ -143,7 +143,7 @@ plug_name(plugname)
   m_paintbox1.pack_start(m_vbox2);
   m_hbox2_.pack_start(m_vbox3,Gtk::PACK_SHRINK);
 
-  // set propertys for the main paintbox holding the skin
+  // set properties for the main paintbox holding the skin
   m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(0);
   m_paintbox.set_homogeneous(false);

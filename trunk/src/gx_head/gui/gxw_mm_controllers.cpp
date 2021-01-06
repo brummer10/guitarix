@@ -31,7 +31,7 @@
 
 namespace gx_gui
 {
-// -------------------------- gxwmm library controlers -----------------------------------
+// -------------------------- gxwmm library controllers -----------------------------------
 
 void set_accessible(Gtk::Widget& widget,Gtk::Label& label) {
     Glib::RefPtr<Atk::Object> atk_widget, atk_label;

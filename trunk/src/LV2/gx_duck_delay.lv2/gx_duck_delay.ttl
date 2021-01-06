@@ -55,7 +55,7 @@
 rdfs:comment """
 
 The delayed signal added to output dependent of input signal amplitude. 
-If the input signal is high. The delayed signall turned off, and vise versa.
+If the input signal is high. The delayed signal turned off, and vise versa.
 The switching controlled by envelope follower
 
 *Unofficial documentation

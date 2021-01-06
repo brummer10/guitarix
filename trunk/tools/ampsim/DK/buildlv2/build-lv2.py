@@ -103,7 +103,7 @@ if not prefilter:
 else:
     c1.create_faust_module(pre_filter=prefilter)
 
-# finaly build the lv2 bundle
+# finally build the lv2 bundle
 import subprocess
 os.chdir(scriptPath)
 subprocess.check_call(['./make_lv2_bundle.sh -p ./ %s' % dspfile], shell=True)
