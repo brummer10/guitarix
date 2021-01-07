@@ -1,6 +1,6 @@
 The Debian Package guitarfx
 ----------------------------
-guitarix a simple mono amplifier with one input and two output's. Designed to get trashguitar sounds. Avaliable are the controls for bass, treble, gain, balance, distortion and freeverb. A resonator and a small echo is fixed because I dont wont to overload the interface.
+guitarix a simple mono amplifier with one input and two output's. Designed to get trashguitar sounds. Available are the controls for bass, treble, gain, balance, distortion and freeverb. A resonator and a small echo is fixed because I dont want to overload the interface.
 
 It comes with a GTK Interface and as Ladspa plugin.
 

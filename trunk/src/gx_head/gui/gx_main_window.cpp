@@ -1517,7 +1517,7 @@ void MainWindow::gx_show_help() {
     Glib::signal_idle().connect_once(sigc::mem_fun(this, &MainWindow::show_forum_help));
 }
 
-// ----menu funktion about
+// ----menu function about
 void gx_show_about() {
     static string about;
     if (about.empty()) {

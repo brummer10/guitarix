@@ -20,7 +20,7 @@ Dynamically linked plugins:
    $ guitarix -P <guitarix-build-dir>/default/src/plugins
 
 
-How to create glade interface defintions:
+How to create glade interface definitions:
 
  - you need to configure with --glade-support
 

@@ -310,7 +310,7 @@ void Gxtuner::play_midi(tuner& self)
 	    }
         send_midi_data(2, 0xE0| channel, pitch_wheel & 127, (pitch_wheel&16256) >> 7);
       }
-      // previus note off
+      // previous note off
       if (*(singlenote_)>0)
         send_midi_data(3, 0x80| channel,lastnote,velocity);
       lastnote = note;
@@ -327,7 +327,7 @@ void Gxtuner::play_midi(tuner& self)
     noteoff = false;
   }
   if(noteoff) fallback *= 0.9;
-  // when channel changed, send all note off to previus channel
+  // when channel changed, send all note off to previous channel
   if (prevchannel !=channel) {
     send_midi_data(4, 0xB0| prevchannel, 123, velocity);
     // and clear pitch wheel

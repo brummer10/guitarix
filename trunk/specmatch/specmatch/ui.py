@@ -552,7 +552,7 @@ class SpecWindow(object):
             f = open_sndfile(name)
             rate = self.get_sample_rate()
             if rate != f.samplerate:
-                raise ValueError("%s: rate missmatch (%d / %d)" % (name, f.samplerate, rate))
+                raise ValueError("%s: rate mismatch (%d / %d)" % (name, f.samplerate, rate))
             self.original_sound_filename = name
             self.original_sound_name.set_text(name)
             self.calc.original_sound_file = f
@@ -561,7 +561,7 @@ class SpecWindow(object):
                 f = open_sndfile(name)
                 rate = self.get_sample_rate()
                 if rate != f.samplerate:
-                    raise ValueError("%s: rate missmatch (%d / %d)" % (fname, f.samplerate, rate))
+                    raise ValueError("%s: rate mismatch (%d / %d)" % (fname, f.samplerate, rate))
                 a = f.read_frames(f.nframes)
                 if len(a.shape) == 1:
                     a = a.reshape((len(a), 1))

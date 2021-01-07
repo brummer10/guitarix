@@ -60,7 +60,7 @@ function create_tuner()
     tuner.target_oc = 0;
     tuner.target_note = 0;
     tuner.strng = 0;
-    // caculated layout
+    // calculated layout
     tuner.led_count = 0;
     tuner.width = 0;
     tuner.padding = 0;

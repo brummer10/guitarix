@@ -60,7 +60,7 @@ mod :
 
 check :
 ifdef ARMCPU
-	@echo $(RED)ARM CPU DEDECTED, please check the optimization flags
+	@echo $(RED)ARM CPU DETECTED, please check the optimization flags
 	@echo $(NONE)
 endif
 

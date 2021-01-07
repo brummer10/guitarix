@@ -51,7 +51,7 @@ struct _GxRackTunerPrivate
 	gint     target_temperament;
 	gint     target_adjust;
 	gint     strng;   // number of current string (1 == string with highest pitch)
-	// caculated layout
+	// calculated layout
 	gint    led_count;
 	gint    width;
 	gint    padding;
@@ -219,7 +219,7 @@ static void gx_rack_tuner_init (GxRackTuner *tuner)
 	tuner->priv->target_temperament = 12;
 	tuner->priv->target_adjust = 3;
 	tuner->priv->strng = 0;
-	// caculated layout
+	// calculated layout
 	tuner->priv->led_count = 0;
 	tuner->priv->width = 0;
 	tuner->priv->padding = 0;

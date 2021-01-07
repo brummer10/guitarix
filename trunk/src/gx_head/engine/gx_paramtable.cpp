@@ -1409,7 +1409,7 @@ float FloatEnumParameter::idx_from_id(string v_id) {
 void FloatEnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     gx_system::JsonParser::token tok = jp.next();
     if (tok == gx_system::JsonParser::value_number) {
-        // old version compatability
+        // old version compatibility
         json_value = jp.current_value_int();
         return;
     }
@@ -1583,7 +1583,7 @@ void EnumParameter::writeJSON(gx_system::JsonWriter& jw) const {
 void EnumParameter::readJSON_value(gx_system::JsonParser& jp) {
     gx_system::JsonParser::token tok = jp.next();
     if (tok == gx_system::JsonParser::value_number) {
-        // old version compatability
+        // old version compatibility
         json_value = jp.current_value_int();
         return;
     }

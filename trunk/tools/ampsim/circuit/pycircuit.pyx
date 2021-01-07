@@ -226,7 +226,7 @@ cdef class CalcBase:
             if not self.pbase.set_range(i, l[0], l[1], l[2]):
                 raise ValueError("can't set range nr %d" % i)
         if len(self.u0) != self.pbase.NEQ:
-            raise ValueError("lenght %d expected for u0" % self.pbase.NEQ)
+            raise ValueError("length %d expected for u0" % self.pbase.NEQ)
         for i, v in enumerate(self.u0):
             NV_DATA_S(self.outp)[i] = v
         if "AMPSIM_CACHE" in os.environ:

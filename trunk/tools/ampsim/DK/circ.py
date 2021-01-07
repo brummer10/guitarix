@@ -812,7 +812,7 @@ class WahWah_ss(WahWah_test): # wah-wah small signal model
         else:
             return "Fail"
 
-class Transistor_test(Test): # transitor test
+class Transistor_test(Test): # transistor test
     S = ((R(1), "Vcc", "Vc"),
          (R(2), "Ve", GND),
          (R(3), "Vi", "Vb"),

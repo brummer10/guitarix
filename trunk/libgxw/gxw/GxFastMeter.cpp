@@ -635,7 +635,7 @@ inline int calc_top(float level, bool hrz, GdkRectangle& b, int lh, int lb)
     if (pos == 0) {
         return 0;
     }
-    return pos * (lh + lb) - lb; // substract missing first led border
+    return pos * (lh + lb) - lb; // subtract missing first led border
 }
 
 void queue_redraw (GxFastMeter* fm)

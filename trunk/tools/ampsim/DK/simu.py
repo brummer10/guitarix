@@ -1114,7 +1114,7 @@ def create_filter(g, tests, args):
     p = dk_simulator.Parser(v.S, v.V, v.FS, not args.backward_euler, create_filter=True, symbolic=args.filter_symbolic)
     if len(p.get_nonlin_funcs()) > 0:
         if args.filter_symbolic:
-            raise ArgumentError("ciruit is nonlinear: symbolic formula generation not supported")
+            raise ArgumentError("circuit is nonlinear: symbolic formula generation not supported")
         p1 = dk_simulator.Parser(v.S, v.V, v.FS, not args.backward_euler)
         sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p1), v.solver)
         J = sim.jacobi()
@@ -1279,7 +1279,7 @@ def main():
     parser.add_argument('--plot-variable',
                         help='display a set of curves by sweeping this the pot position for this variable from 0 to 1')
     parser.add_argument('--filter-s-coeffs', action='store_true',
-                        help='calculate s coefficients (Laplace tranform for analog circuit)')
+                        help='calculate s coefficients (Laplace transform for analog circuit)')
     parser.add_argument('--filter-symbolic', action='store_true',
                         help="use component symbols, don't replace by values (only valid for linear circuits)")
     parser.add_argument('--filter-samplerate', type=float,

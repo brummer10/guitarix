@@ -71,7 +71,7 @@ from numpy import linspace, vectorize, exp, log, sqrt, arctan
 # mu    Amplification factor.
 # kx    Exponent:
 # kg1   Inversely proportional to overall plate current
-# kp    Affects opration in region of large plate voltage and large negative grid voltage
+# kp    Affects operation in region of large plate voltage and large negative grid voltage
 # kvb   Knee volts
 #
 
