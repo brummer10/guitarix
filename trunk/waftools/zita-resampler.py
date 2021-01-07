@@ -5,7 +5,7 @@ def options(opt):
                     action='store_const',
                     default=False,
                     const=True,
-                    help='build with included local zita-resample libary (Default NO)')
+                    help='build with included local zita-resample library (Default NO)')
 
 def configure(conf):
     if conf.options.includeresampler:

@@ -412,7 +412,7 @@ class Circuit(object):
         self._ensure_parser(symbolic=symbolic, for_filter=True)
         if len(self.parser.get_nonlin_funcs()) > 0:
             if symbolic:
-                raise CircuitException("ciruit is nonlinear: symbolic formula generation not supported")
+                raise CircuitException("circuit is nonlinear: symbolic formula generation not supported")
             p = dk_simulator.Parser(self.S, self.V, self.FS, not self.backward_euler)
             sim = dk_simulator.SimulatePy(dk_simulator.EquationSystem(p), self.solver, self.dc_method)
             J = sim.jacobi()

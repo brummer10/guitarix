@@ -377,7 +377,7 @@ void PortMapWindow::on_expander(Gtk::Expander& expander) {
     */
     expander.set_expanded(expanded);
     if (!expanded) {
-        // when the expander is explicitely closed (so all expanders are
+        // when the expander is explicitly closed (so all expanders are
         // closed now) we want to shrink the portmap window with
         // gtk_window_resize().
         // But GtkExpander uses a timer before the child is made
@@ -431,7 +431,7 @@ void PortMapWindow::on_cell_toggle(Glib::ustring path, PortSection& p) {
 }
 
 /*
-** constuctor / destructor
+** constructor / destructor
 */
 
 inline bool getnumber(const Glib::ustring& p, long *pi) {  //  NOLINT

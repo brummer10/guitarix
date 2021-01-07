@@ -7,13 +7,13 @@ def options(opt):
                     action='store_const',
                     default=False,
                     const=True,
-                    help='build with included local zita-convolver libary (Default NO)')
+                    help='build with included local zita-convolver library (Default NO)')
 
     comp.add_option('--convolver-ffmpeg',
                     action='store_const',
                     default=False,
                     const=True,
-                    help='modified zita-convolver libary that uses ffmpeg instead of fftw3 for FFT (Default NO)')
+                    help='modified zita-convolver library that uses ffmpeg instead of fftw3 for FFT (Default NO)')
 
 def configure(conf):
     opt = conf.options

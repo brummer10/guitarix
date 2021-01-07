@@ -62,7 +62,7 @@ static void pyjack_importarray(void) {
 
 /*
 TODO's:
-- dettach on client on __del__
+- detach on client on __del__
 - free buffers
 - close sockets
 - hangup callback
@@ -99,10 +99,10 @@ typedef struct {
     int            input_buffer_size;               // buffer_size * num_inputs * sizeof(sample_t)
     int            output_buffer_size;              // buffer_size * num_outputs * sizeof(sample_t)
     int            iosync;                          // true when the python side synchronizing properly...
-    int            event_graph_ordering;            // true when a graph ordering event has occured
-    int            event_port_registration;         // true when a port registration event has occured
-    int            event_buffer_size;               // true when a buffer size change has occured
-    int            event_sample_rate;               // true when a sample rate change has occured
+    int            event_graph_ordering;            // true when a graph ordering event has occurred
+    int            event_port_registration;         // true when a port registration event has occurred
+    int            event_buffer_size;               // true when a buffer size change has occurred
+    int            event_sample_rate;               // true when a sample rate change has occurred
     int            event_xrun;                      // true when a xrun occurs
     int            event_shutdown;                  // true when the jack server is shutdown
     int            event_hangup;                    // true when client got hangup signal
@@ -147,7 +147,7 @@ void pyjack_init(pyjack_client_t * client) {
     client->doProcessing=1;
     client->a_b_volume = 1.0;
 
-    // Initialize unamed, raw datagram-type sockets...
+    // Initialize unnamed, raw datagram-type sockets...
     if (socketpair(PF_UNIX, SOCK_DGRAM, 0, client->input_pipe) == -1) {
         printf("ERROR: Failed to create socketpair input_pipe!!\n");
         client->doProcessing=0;

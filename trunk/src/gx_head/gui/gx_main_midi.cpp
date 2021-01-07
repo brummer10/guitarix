@@ -317,7 +317,7 @@ void MidiConnect::changed_text_handler(GtkEditable *editable, gpointer data) {
     }
     // prevent infinite loop because after it has changed the text
     // the handler will be called again (and make sure the text
-    // tranformation in this handler is idempotent!)
+    // transformation in this handler is idempotent!)
     if (str == p) {
         if (str.empty()) {
             gtk_dialog_set_response_sensitive(GTK_DIALOG(m->dialog), GTK_RESPONSE_OK, FALSE);

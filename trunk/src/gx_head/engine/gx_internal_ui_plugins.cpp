@@ -135,7 +135,7 @@ TunerAdapter::TunerAdapter(ModuleSequencer& engine_)
 void TunerAdapter::init(unsigned int samplingFreq, PluginDef *plugin) {
     TunerAdapter& self = *static_cast<TunerAdapter*>(plugin);
     int priority, policy;
-    // zita-convoler uses 5 levels, so substract 6
+    // zita-convoler uses 5 levels, so subtract 6
     self.engine.get_sched_priority(policy, priority, 6);
     self.lhc.init(samplingFreq);
     self.pitch_tracker.init(policy, priority, samplingFreq);

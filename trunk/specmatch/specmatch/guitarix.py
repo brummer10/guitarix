@@ -163,7 +163,7 @@ class Guitarix(object):
         """
         if d:
             if list(sorted(d.keys())) != self.parameterlist:
-                raise ValueError("Guitarix Settings: list of paramters differ from saved")
+                raise ValueError("Guitarix Settings: list of parameters differ from saved")
             for n in "jconv", "jconv_mono":
                 if d[n+".convolver"]["jconv.IRDir"] == tmpdir:
                     d[n+".on_off"] = 0

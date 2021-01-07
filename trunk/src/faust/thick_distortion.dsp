@@ -13,7 +13,7 @@ declare copyright "(c) 2018  Viacheslav Lotsmanov";
 	Main thing is that current sample depends on previous one, "Thickness" value
 	is a coefficient of how much previous sample will be dominating on current
 	one. Imagine N is a current sample and "Thickness" is set to 0.8 then N will
-	be multipled by 0.2 (1-0.8) and N-1 by 0.8 so it is N*0.2 + (N-1)*0.8.
+	be multiplied by 0.2 (1-0.8) and N-1 by 0.8 so it is N*0.2 + (N-1)*0.8.
 
 	Just turn input gain knob to extreme value to make signal clipping (it will
 	be hard limited to 0dB) and then make it being smooth by big "Thickness"

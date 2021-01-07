@@ -284,7 +284,7 @@ void always_inline SCapture::compute(int count, float *input0, float *output0)
                 savesize = MAXRECSIZE;
                 sem_post(&m_trig);
             }
-        } else if (IOTA) { // when record stoped, flush the rest to stream
+        } else if (IOTA) { // when record stopped, flush the rest to stream
             tape = iA ? fRec1 : fRec0;
             savesize = IOTA;
             keep_stream = false;
@@ -342,7 +342,7 @@ void always_inline SCapture::compute_st(int count, float *input0, float *input1,
                 savesize = MAXRECSIZE;
                 sem_post(&m_trig);
             }
-        } else if (IOTA) { // when record stoped, flush the rest to stream
+        } else if (IOTA) { // when record stopped, flush the rest to stream
             tape = iA ? fRec1 : fRec0;
             savesize = IOTA;
             keep_stream = false;

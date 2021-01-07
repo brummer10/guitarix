@@ -11,4 +11,4 @@ Change the setting of HAVE_DOT to NO in Doxyfile if you don't have
 graphviz installed (or if you don't need the pretty graphs and want to
 accelerate the doxygen pass).
 
-To view the generated documentaion, use a browser on html/index.html.
+To view the generated documentation, use a browser on html/index.html.

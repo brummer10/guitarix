@@ -8,7 +8,7 @@ The DK simulator uses the "DK method" and generates/compiles optimized C++ code 
 for signal calculations. it is based on the thesis
 "Real-time Digital Simulation of Guitar Amplifiers as Audio Effects" by JAROMÍR MAČÁK
  (see https://www.vutbr.cz/www_base/zav_prace_soubor_verejne.php?file_id=60090)
-Other useful informations can be found in the thesis
+Other useful information can be found in the thesis
 "Simulation Framework for Analog Audio Circuits based on Nodal DK Method" by Piero Rivera Benois
  (see https://www.researchgate.net/publication/263013830_Simulation_Framework_for_Analog_Audio_Circuits_based_on_Nodal_DK_Method)
 

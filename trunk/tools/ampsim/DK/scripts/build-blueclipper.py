@@ -43,7 +43,7 @@ c1.read_gschem(schema)
 # print netlist to get the element names
 #c1.print_netlist()
 
-# create intput circuit, therefor remove the output circuit
+# create input circuit, therefore remove the output circuit
 c0 = Circuit(c1)
 c0.plugindef = dk_simulator.PluginDef(module_id)
 c0.plugindef.category = category
@@ -59,7 +59,7 @@ c0.remove_element("P2")
 c0.join_net("V4", "V3")
 c0.save_faust_code(filename=str(dspfile_in))
 
-# create output circuit, therefor remove the input circuit
+# create output circuit, therefore remove the input circuit
 c1.remove_element("C1")
 c1.remove_element("R1")
 c1.remove_element("R2")

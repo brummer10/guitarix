@@ -53,7 +53,7 @@ name "node".)
 
 The script ./deploy.sh also creates the deploy/webui/ directory tree
 with a deployable version. You can move it anywhere to make it
-accessable by a web server (it should only use relative paths, you can
+accessible by a web server (it should only use relative paths, you can
 rename its top level directory "webui" to something else).
 
 The deployable version can also be loaded in the configuration

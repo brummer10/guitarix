@@ -432,7 +432,7 @@ void SEQWindow::append_plugin_preset_set(Glib::ustring name) {
         ++i;
     );
 
-    // reset controls to previus values
+    // reset controls to previous values
     reset_control("seq.bpm",bpmv);
     reset_control("seq.tact",tactv);
     reset_control("seq.gain",gainv);

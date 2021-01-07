@@ -542,7 +542,7 @@ static void bypass_expose(gx_sceletonUI *ui, gx_controller* switch_) {
 	cairo_new_path (ui->crf);
 }
 
-// select draw methode by controller type
+// select draw method by controller type
 static void draw_controller(gx_sceletonUI *ui, gx_controller* controller) {
 	if (controller->type == KNOB) knob_expose(ui, controller);
 	else if (controller->type == SWITCH) knob_expose(ui, controller);

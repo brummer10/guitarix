@@ -546,7 +546,7 @@ static void gtk_knob_class_init (GtkefnameKnobClass *klass)
 
     GtkObjectClass *object_class = (GtkObjectClass*) klass;
 
-//--------- connect the events with funktions
+//--------- connect the events with functions
     widget_class->enter_notify_event = gtk_knob_enter_in;
     widget_class->leave_notify_event = gtk_knob_leave_out;
     widget_class->expose_event = gtk_knob_expose;

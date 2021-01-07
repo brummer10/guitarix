@@ -11,7 +11,7 @@ C***DESCRIPTION
 C     Abstract
 C        XERMAX sets the maximum number of times any message
 C        is to be printed.  That is, non-fatal messages are
-C        not to be printed after they have occured MAX times.
+C        not to be printed after they have occurred MAX times.
 C        Such non-fatal messages may be printed less than
 C        MAX times even if they occur MAX times, if error
 C        suppression mode (KONTRL=0) is ever in effect.

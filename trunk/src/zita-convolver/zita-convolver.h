@@ -286,7 +286,7 @@ private:
     int                   _prio;           // relative priority
     unsigned int          _offs;           // offset from start of impulse response
     unsigned int          _npar;           // number of partitions
-    unsigned int          _parsize;        // partition and outbut buffer size
+    unsigned int          _parsize;        // partition and output buffer size
     unsigned int          _outsize;        // step size for output buffer
     unsigned int          _outoffs;        // offset into output buffer
     unsigned int          _inpsize;        // size of shared input buffer 

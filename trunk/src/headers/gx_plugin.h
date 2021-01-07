@@ -133,8 +133,8 @@ struct value_pair {
  * - L: logarithmic input / output, (Faust: [log])
  * - N: no midi controller connection possible, (Faust: [nomidi])
  * - o: output parameter (will be polled for changes by plugin)
- * - s: parameter not savable in preset / state file
- * - w: no warning (if a non savable parameter is found in a preset / state file)
+ * - s: parameter not saveable in preset / state file
+ * - w: no warning (if a non saveable parameter is found in a preset / state file)
  * - O: non-savable, no-midi output parameter (same as "Nos"), (Faust: vbargraph, hbargraph)
  * - M: maxlevel output variable (max value since last poll)
  */
