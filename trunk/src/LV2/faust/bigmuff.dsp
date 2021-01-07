@@ -15,7 +15,7 @@ import("stdfaust.lib");
 // Also as pot changes so do cutoff frequencies
 // Reduction moves both frequencies up by roughly 400Hz max
 // Increase moves both down by around same
-// So need +-400Hz calculated by curent tone position
+// So need +-400Hz calculated by current tone position
 // pot = 0  -> +400
 // pot = 1 -> -400
 

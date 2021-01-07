@@ -52,8 +52,8 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
 }
 
 void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
-    (*w) = 260; //initial widht of main window
-    (*h) = 300; //initial heigth of main window
+    (*w) = 260; //initial width of main window
+    (*h) = 300; //initial height of main window
 }
 
 const char* plugin_set_name() {

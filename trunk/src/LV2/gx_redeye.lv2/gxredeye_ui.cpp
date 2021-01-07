@@ -161,11 +161,11 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
 void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
     if(strcmp(GXPLUGIN_URI "#chump", plugin_uri) == 0 ||
       strcmp(GXPLUGIN_URI "#bigchump", plugin_uri) == 0) {
-        (*w) = 664; //initial widht of main window
-        (*h) = 301; //initial heigth of main window
+        (*w) = 664; //initial width of main window
+        (*h) = 301; //initial height of main window
     } else if(strcmp(GXPLUGIN_URI "#vibrochump", plugin_uri) == 0){
-        (*w) = 750; //initial widht of main window
-        (*h) = 280; //initial heigth of main window
+        (*w) = 750; //initial width of main window
+        (*h) = 280; //initial height of main window
     }
 }
 

@@ -98,7 +98,7 @@ filterbankN(lfreqs) = fi.filterbank(3,lfreqs);
 
 /**********************************************************************
 *** end for backward compatibility from 0.9.27 to
-*** 0.9.24 , it could removed when switch completly to > 0.9.27
+*** 0.9.24 , it could removed when switch completely to > 0.9.27
 ***********************************************************************/
 
 //----------distortion---------

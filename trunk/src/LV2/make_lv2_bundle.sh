@@ -2,8 +2,8 @@
 
 # use to copy the LV2 bundle gx_sceleton.lv2 to gx_${name}.lv2
 # generate a C++ file from the faust.dsp source (by dsp2cc)
-# generate a acording name.ttl file
-# were ${name} is the first arg on comandline, usualy the dsp file.
+# generate a according name.ttl file
+# were ${name} is the first arg on comandline, usually the dsp file.
 # the dsp file needs to be stored in the faust folder.
 
 ########################## functions ###################################
@@ -76,7 +76,7 @@ function check_dir() {
   if [ ! -d gx_${bname}.lv2 ]; then
     mkdir -p gx_${bname}.lv2
   else
-    echo -e $RED"Directory gx_${bname}.lv2 allready exist, should we remove it? Yes/No"$NONE
+    echo -e $RED"Directory gx_${bname}.lv2 already exist, should we remove it? Yes/No"$NONE
     select yn in "Yes" "No"; do
       case $yn in
         Yes ) rm -rf gx_${bname}.lv2; mkdir -p gx_${bname}.lv2; break;;

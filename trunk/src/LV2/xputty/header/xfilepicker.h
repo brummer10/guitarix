@@ -92,7 +92,7 @@ void fp_free(FilePicker *filepicker);
 
 /**
  * @brief fp_init                  - set default values used by the filepicker
- * @param *filepicker              - pointer to the struct to alocate
+ * @param *filepicker              - pointer to the struct to allocate
  * @param *path                    - the path to read from
  * @return void
  */

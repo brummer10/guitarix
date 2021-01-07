@@ -311,7 +311,7 @@ def configure(conf):
     conf.env.append_value('LDFLAGS', opt.ldflags.split())
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
 
-    # needed libaries
+    # needed libraries
     conf.check_cfg(package='sndfile', args=['--cflags','--libs','sndfile >= 1.0.17'], uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', args=['--cflags','--libs','gthread-2.0 >= 2.24'], uselib_store='GTHREAD', mandatory=1)
     conf.check_cfg(package='glibmm-2.4', args=['--cflags','--libs','glibmm-2.4 >= 2.56'], uselib_store='GLIBMM', mandatory=1)

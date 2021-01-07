@@ -32,7 +32,7 @@ extern "C" {
 
 /**
  * @brief power2db             - power (db) input to db output consider falloff
- * @param power                - mesured power
+ * @param power                - measured power
  * @return float               - calculated db
  */
 

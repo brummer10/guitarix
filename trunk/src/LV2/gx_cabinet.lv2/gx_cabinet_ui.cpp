@@ -108,8 +108,8 @@ void plugin_value_changed(X11_UI *ui, Widget_t *w, PortIndex index) {
 }
 
 void plugin_set_window_size(int *w,int *h,const char * plugin_uri) {
-    (*w) = 550; //set initial widht of main window
-    (*h) = 226; //set initial heigth of main window
+    (*w) = 550; //set initial width of main window
+    (*h) = 226; //set initial height of main window
 }
 
 const char* plugin_set_name() {
@@ -153,7 +153,7 @@ void plugin_cleanup(X11_UI *ui) {
     ui->private_ptr = NULL;
 }
 
-// disable cabinet controlls when worker threads not been supported
+// disable cabinet controls when worker threads not been supported
 static void set_sensitive_state(X11_UI* ui, float state) {
     X11_UI_Private_t *ps = (X11_UI_Private_t*)ui->private_ptr;
     if (fabs(state - ps->schedule)<0.1) {

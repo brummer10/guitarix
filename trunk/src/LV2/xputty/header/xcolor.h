@@ -61,7 +61,7 @@ typedef enum {
 /**
  * 
  * @brief Color_t               - struct used to set cairo color for Widget_t
- * @param fg[4]                 - forground {red, green, blue, alpha}
+ * @param fg[4]                 - foreground {red, green, blue, alpha}
  * @param bg[4]                 - background {red, green, blue, alpha}
  * @param base[4]               - base {red, green, blue, alpha}
  * @param text[4]               - text {red, green, blue, alpha}
@@ -130,7 +130,7 @@ Colors *get_color_scheme(Xputty *main, Color_state st);
 Color_state get_color_state(Widget_t *wid);
 
 /**
- * @brief use_fg_color_scheme  - use forground Colors to paint on Widget_t
+ * @brief use_fg_color_scheme  - use foreground Colors to paint on Widget_t
  * @param *w                   - the Widget_t to set the Colors
  * @param st                   - the Color_state to use
  * @return void

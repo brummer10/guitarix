@@ -27,7 +27,7 @@
  *  this function is used by make_selector() make_controller_box()
  *  set_value() and on_value_changed()
  *  so controller widgets needs only here asined to a port, 
- *  and all functions which need acess to the controller widget pointer 
+ *  and all functions which need access to the controller widget pointer 
  *  can receive them by port number
  */
 Gtk::Widget* Widget::get_controller_by_port(uint32_t port_index)
@@ -91,7 +91,7 @@ plug_name(plugname)
 
 // Rough layout Sat+Meter WOW FLUTTER HISS
   
-  // set propertys for the main paintbox holding the skin
+  // set properties for the main paintbox holding the skin
   m_paintbox.set_border_width(0);
   m_paintbox.set_spacing(0);
   m_paintbox.set_homogeneous(false);

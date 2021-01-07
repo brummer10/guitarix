@@ -27,7 +27,7 @@
  *  this function is used by make_selector() make_controller_box()
  *  set_value() and on_value_changed()
  *  so controller widgets needs only here asined to a port, 
- *  and all functions which need acess to the controller widget pointer 
+ *  and all functions which need access to the controller widget pointer 
  *  can receive them by port number
  */
 
@@ -57,7 +57,7 @@ logo(plugname)
   make_controller_box(&m_vboxc[1], "LEVEL", -2e+01, 12.0, 0.1, LEVEL);
   make_controller_box(&m_vboxc[2], "TONE", 0.0, 1.0, 0.01, TONE);
 
-  // set propertys for the main paintbox holding the skin
+  // set properties for the main paintbox holding the skin
   m_paintbox.set_border_width(10);
   m_paintbox.set_spacing(6);
   m_paintbox.set_homogeneous(false);
