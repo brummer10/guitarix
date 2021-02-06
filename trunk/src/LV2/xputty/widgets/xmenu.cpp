@@ -55,10 +55,21 @@ Widget_t* create_menu(Widget_t *parent, int height) {
     XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, 0, &x1, &y1, &child );
     Widget_t *wid = create_window(parent->app, DefaultRootWindow(parent->app->dpy), x1, y1, 10, height);
     create_viewport(wid, 10, 5*height);
+
+    XSetWindowAttributes attributes;
+    attributes.override_redirect = True;
+    XChangeWindowAttributes(parent->app->dpy, wid->widget, CWOverrideRedirect, &attributes);
+
     Atom window_type = XInternAtom(wid->app->dpy, "_NET_WM_WINDOW_TYPE", False);
-    long vale = XInternAtom(wid->app->dpy, "_NET_WM_WINDOW_TYPE_POPUP_MENU", False);
+    Atom window_type_popup = XInternAtom(wid->app->dpy, "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU", False);
     XChangeProperty(wid->app->dpy, wid->widget, window_type,
-        XA_ATOM, 32, PropModeReplace, (unsigned char *) &vale,1 );
+        XA_ATOM, 32, PropModeReplace, (unsigned char *) &window_type_popup,1 );
+
+    Atom window_state = XInternAtom(wid->app->dpy, "_NET_WM_STATE", False);
+    Atom window_state_modal = XInternAtom(wid->app->dpy, "_NET_WM_STATE_MODAL", False);
+    XChangeProperty(wid->app->dpy, wid->widget, window_state,
+        XA_ATOM, 32, PropModeReplace, (unsigned char *) &window_state_modal, 1);
+
     XSetTransientForHint(parent->app->dpy,wid->widget,parent->widget);
     wid->func.expose_callback = _draw_menu;
     wid->flags |= IS_POPUP;
@@ -78,7 +89,7 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
     float max_value = view_port->adj->max_value+1.0;
     set_adjustment(view_port->adj,0.0, 0.0, 0.0, max_value,1.0, CL_VIEWPORT);
     wid->scale.gravity = MENUITEM;
-    wid->flags &= ~USE_TRANSPARENCY;
+    //wid->flags &= ~USE_TRANSPARENCY;
     wid->label = label;
     wid->func.expose_callback = _draw_item;
     wid->func.enter_callback = transparent_draw;

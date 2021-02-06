@@ -128,10 +128,10 @@ static void draw_my_knob(void *w_, void* user_data) {
     /** get values for the knob **/
 
     int knobx = (width - knob_x) * 0.5;
-    int knobx1 = grow* 0.5;
+    int knobx1 = width* 0.5;
 
     int knoby = (height - knob_y) * 0.5;
-    int knoby1 = grow * 0.5;
+    int knoby1 = height * 0.5;
 
     double knobstate = adj_get_state(w->adj_y);
     double angle = scale_zero + knobstate * 2 * (M_PI - scale_zero);
