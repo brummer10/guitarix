@@ -845,8 +845,10 @@ void DragIcon::create_drag_icon_pixbuf(const PluginUI& plugin, Glib::RefPtr<Gdk:
     Gtk::Widget *r = RackBox::create_drag_widget(plugin, options);
     w.add(*r);
     w.show_all();
-    while (Gtk::Main::events_pending()) { // needed for style updates
+    int busy_wait = 0;
+    while (Gtk::Main::events_pending() && busy_wait < 25) { // needed for style updates
         Gtk::Main::iteration(false);
+        ++busy_wait;
     }
     w.get_window()->process_updates(true);
     drag_icon_pixbuf = w.get_pixbuf();
