@@ -1,0 +1,7 @@
+#! /bin/sh
+[ -n "$1" ] || { echo "arg expected: path to guitarix git"; exit 1; }
+GUITARIX_GIT="$1"
+mkdir -p ~/.gEDA
+cat >> ~/.gEDA/gafrc <<EOF
+(component-library "$GUITARIX_GIT/trunk/tools/ampsim/DK/gschem-symbols")
+EOF
