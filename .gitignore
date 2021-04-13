@@ -13,4 +13,7 @@ trunk/TAGS
 trunk/webui/build
 trunk/webui/deploy
 trunk/documentation/html
+trunk/html/
 .dir-locals.el
+**/.DS_Store
+**/._.DS_Store
