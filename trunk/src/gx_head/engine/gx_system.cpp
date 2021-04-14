@@ -687,7 +687,8 @@ CmdlineOptions::CmdlineOptions()
     opt_watchdog_convolver.set_long_name("no-convolver-overload");
     opt_watchdog_convolver.set_description(
 	"disable overload on convolver missed deadline");
-	Glib::OptionEntry opt_watchdog_warning;
+    opt_watchdog_convolver.set_flags(Glib::OptionEntry::FLAG_REVERSE);
+    Glib::OptionEntry opt_watchdog_warning;
     opt_watchdog_warning.set_short_name('W');
     opt_watchdog_warning.set_long_name("no-watchdog-warning");
     opt_watchdog_warning.set_description(
