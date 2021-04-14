@@ -304,6 +304,9 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
     if (!options.get_convolver_watchdog()) {
 	ov_disabled |= ov_Convolver;
     }
+    if (!options.get_watchdog_warning()) {
+		warn_disabled=true;
+	}
     if (!options.get_xrun_watchdog()) {
 	ov_disabled |= ov_XRun;
     }

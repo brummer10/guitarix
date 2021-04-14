@@ -750,7 +750,7 @@ void ModuleSequencer::check_overload() {
 	gx_print_error(
 	    "watchdog",
 	    boost::format(_("Overload (%s)")) % gx_system::atomic_get(overload_reason));
-    } else {
+    } else if (!warn_disabled) {
 	gx_print_error(
 	    "watchdog",
 	    boost::format(_("Overload ignored (%s)")) % gx_system::atomic_get(overload_reason));

@@ -302,6 +302,7 @@ protected:
     Glib::Dispatcher    overload_detected;
     const char         *overload_reason;   // name of unit which detected overload
     int                 ov_disabled;	   // bitmask of OverloadType
+    bool                warn_disabled=false;     // No warning pop-up when overload is diasabled
     static int         sporadic_interval; // seconds; overload if at least 2 events in the timespan
 protected:
     void check_overload();
