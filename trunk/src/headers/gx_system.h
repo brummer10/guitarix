@@ -428,6 +428,7 @@ private:
     int sporadic_overload;
     int idle_thread_timeout;
     bool convolver_watchdog;
+    bool watchdog_warning;
     bool xrun_watchdog;
     bool lterminal;
     bool a_save;
@@ -535,6 +536,7 @@ public:
     int get_sporadic_overload() const { return sporadic_overload; }
     bool get_xrun_watchdog() const { return xrun_watchdog; }
     bool get_convolver_watchdog() const { return convolver_watchdog; }
+    bool get_watchdog_warning() const { return watchdog_warning; }
 };
 
 inline BasicOptions& get_options() {

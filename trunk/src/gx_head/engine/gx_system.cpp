@@ -486,6 +486,7 @@ CmdlineOptions::CmdlineOptions()
       sporadic_overload(0),
       idle_thread_timeout(0),
       convolver_watchdog(true),
+      watchdog_warning(true),
       xrun_watchdog(false),
       lterminal(false),
       a_save(false),
@@ -687,6 +688,12 @@ CmdlineOptions::CmdlineOptions()
     opt_watchdog_convolver.set_description(
 	"disable overload on convolver missed deadline");
     opt_watchdog_convolver.set_flags(Glib::OptionEntry::FLAG_REVERSE);
+    Glib::OptionEntry opt_watchdog_warning;
+    opt_watchdog_warning.set_short_name('W');
+    opt_watchdog_warning.set_long_name("no-watchdog-warning");
+    opt_watchdog_warning.set_description(
+	"do not pop-up warning for bypassed overload condition");
+    opt_watchdog_warning.set_flags(Glib::OptionEntry::FLAG_REVERSE);
     Glib::OptionEntry opt_watchdog_xrun;
     opt_watchdog_xrun.set_short_name('X');
     opt_watchdog_xrun.set_long_name("xrun-overload");
@@ -700,6 +707,7 @@ CmdlineOptions::CmdlineOptions()
     opt_sporadic_overload.set_arg_description("SECONDS");
     optgroup_overload.add_entry(opt_watchdog_idle, idle_thread_timeout);
     optgroup_overload.add_entry(opt_watchdog_convolver, convolver_watchdog);
+    optgroup_overload.add_entry(opt_watchdog_warning, watchdog_warning);
     optgroup_overload.add_entry(opt_watchdog_xrun, xrun_watchdog);
     optgroup_overload.add_entry(opt_sporadic_overload, sporadic_overload);
 

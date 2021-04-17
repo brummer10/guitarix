@@ -696,6 +696,9 @@ void __rt_func ModuleSequencer::overload(OverloadType tp, const char *reason) {
     if ((tp & ov_disabled) == ov_XRun) {
 	return; // the xrun should show up in the log anyhow
     }
+    if ((tp & ov_disabled) == ov_NoWarn) {
+	return; // overload messages been switched off 
+    }
     bool ignore = false;
     if ((tp & ov_disabled) == ov_Convolver) {
 	ignore = true;

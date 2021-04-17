@@ -302,13 +302,16 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       detune(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
-	ov_disabled |= ov_Convolver;
+        ov_disabled |= ov_Convolver;
+    }
+    if (!options.get_watchdog_warning()) {
+        ov_disabled |= ov_NoWarn;
     }
     if (!options.get_xrun_watchdog()) {
-	ov_disabled |= ov_XRun;
+        ov_disabled |= ov_XRun;
     }
     if (options.get_mute()) {
-	set_state(kEngineOff);;
+        set_state(kEngineOff);;
     }
 #ifdef USE_MIDI_OUT
     tuner.set_dep_module(&midiaudiobuffer.plugin);

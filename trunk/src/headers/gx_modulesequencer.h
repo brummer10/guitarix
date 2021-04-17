@@ -254,7 +254,8 @@ public:
     enum OverloadType {		// type of overload condition
 	ov_User      = 0x1,	// idle thread probe starved
 	ov_Convolver = 0x2,	// convolver overload
-	ov_XRun      = 0x4	// jack audio loop overload
+	ov_XRun      = 0x4,	// jack audio loop overload
+    ov_NoWarn    = 0x8	// disable overlaod warning
     };
     PluginList pluginlist;  
     EngineControl();
