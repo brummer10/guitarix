@@ -7,7 +7,7 @@ gitpath="$1"
     curl -sO $mobyurl/default.json
     sed '/"pause",/a\\t\t\t\t"personality",' default.json > personality.json
 }
-docker build -qt guitarix-dkbuilder .
+docker build --progress=plain -t guitarix-dkbuilder .
 echo
 echo '----------------------------------------'
 echo 'example command:'

@@ -1,6 +1,6 @@
 FROM debian:10
 
-COPY python_venv add_dkbuilder_script /root/
+COPY python_venv add_dkbuilder_script add_geda_custom_symbols /root/
 
 RUN apt-get -y update &&\
     #
@@ -43,4 +43,6 @@ RUN apt-get -y update &&\
              && mkvirtualenv -r ~/python_venv guitarix" &&\
     #
     # add dkbuilder shell function to enter the virtual environment
-    ~/add_dkbuilder_script /mnt/data
+    ~/add_dkbuilder_script /mnt/data &&\
+    # add script to add custom geda symbols
+    ~/add_geda_custom_symbols /mnt/data
