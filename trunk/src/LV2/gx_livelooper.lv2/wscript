@@ -11,7 +11,7 @@ def build(bld):
         lv2_base = lv2_base,
         source   = ['gx_livelooper.cpp'],
         includes = ['../faust','./', '../DSP'],
-        use = ['LV2CORE','GLIBMM', 'SNDFILE'],
+        use = ['LV2CORE', 'SNDFILE'],
         )
     bld.lv2_gui(
         lv2_base = lv2_base,

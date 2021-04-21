@@ -19,7 +19,7 @@
 
 
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
-#include <glibmm.h>
+#include <glib.h>
 #include "gx_common.h"      // faust support and denormal protection (SSE)
 
 /****************************************************************

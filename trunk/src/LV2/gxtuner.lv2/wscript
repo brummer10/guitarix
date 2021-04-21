@@ -12,7 +12,7 @@ def build(bld):
         source   = ['gxtuner.cpp'],
         includes = ['../faust','./', '../DSP'],
         cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
-        use = ['LV2CORE','GLIBMM','GX_RESAMPLER','FFTW3'],
+        use = ['LV2CORE','GLIB','GX_RESAMPLER','FFTW3'],
         )
     bld.lv2_gui(
         lv2_base = lv2_base,

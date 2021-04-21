@@ -314,7 +314,6 @@ def configure(conf):
     # needed libraries
     conf.check_cfg(package='sndfile', args=['--cflags','--libs','sndfile >= 1.0.17'], uselib_store='SNDFILE', mandatory=1)
     conf.check_cfg(package='gthread-2.0', args=['--cflags','--libs','gthread-2.0 >= 2.24'], uselib_store='GTHREAD', mandatory=1)
-    conf.check_cfg(package='glibmm-2.4', args=['--cflags','--libs','glibmm-2.4 >= 2.56'], uselib_store='GLIBMM', mandatory=1)
     conf.check(header_name='fftw3.h', mandatory=1)
     conf.check_cfg(package='fftw3f', args=['--cflags','--libs','fftw3f >= 3.3.8'], uselib_store='FFTW3', mandatory=1)
 
@@ -337,9 +336,13 @@ def configure(conf):
         opt.no_desktop_update = True
 
     if opt.standalone:
+        conf.check_cfg(package='glibmm-2.4', args=['--cflags','--libs','glibmm-2.4 >= 2.56'], uselib_store='GLIBMM', mandatory=1)
         conf.check_cfg(package='gtk+-3.0', args=['--cflags','--libs','gtk+-3.0 >= 3.22'], uselib_store='GTK2', mandatory=1)
         conf.check_cfg(package='gtkmm-3.0', args=['--cflags','--libs','gtkmm-3.0 >= 3.22'], uselib_store='GTKMM', mandatory=1)
         conf.check_cfg(package='giomm-2.4', args=['--cflags','--libs','giomm-2.4 >= 2.24'], uselib_store='GIOMM', mandatory=1)
+    else:
+        conf.check_cfg(package='glib-2.0', args=['--cflags','--libs','glib-2.0 >= 2.24'], uselib_store='GLIB', mandatory=1)
+
 
     if opt.standalone or opt.ladspa or opt.new_ladspa:
         conf.check(header_name='ladspa.h', errmsg="ladspar.h not found, using included version now", mandatory=0)
@@ -414,9 +417,9 @@ def configure(conf):
         conf.recurse('src/LV2');
 
     # config subdirs
-    conf.recurse('pygxw')
-    conf.recurse('glade-gxw')
-    if conf.env['STANDALONE'] or conf.env['LV2GUI'] or conf.env.NEW_LADSPA or conf.env.GX_PYTHON_WRAPPER or conf.env.GX_GLADE_SUPPORT:
+    if conf.env['STANDALONE'] or conf.env.NEW_LADSPA or conf.env.GX_PYTHON_WRAPPER or conf.env.GX_GLADE_SUPPORT:
+        conf.recurse('pygxw')
+        conf.recurse('glade-gxw')
         conf.recurse('libgxwmm')
         conf.recurse('libgxw/gxw')
         conf.recurse('rcstyles')
@@ -471,7 +474,6 @@ def configure(conf):
     display_feature("Build LADSPA plugins", conf.env['LADSPA'])
     display_feature("Build new LADSPA plugins", conf.env['NEW_LADSPA'])
     display_feature("Build LV2 plugins", conf.env['LV2'])
-    display_feature("Build LV2 plugin GUI's", conf.env['LV2GUI'])
     display_feature("Build MOD LV2 plugin GUI's", conf.env['MODGUI'])
     if opt.lv2:
         display_feature("SSE2 support found", conf.env['SSE2'])

@@ -19,7 +19,6 @@
 
 
 #include <sndfile.hh>
-#include <glibmm.h>
 #include <sys/stat.h>
 #include <time.h>
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
