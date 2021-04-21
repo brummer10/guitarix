@@ -24,6 +24,9 @@
 
 #ifndef SRC_HEADERS_GX_PITCH_TRACKER_H_
 #define SRC_HEADERS_GX_PITCH_TRACKER_H_
+#undef max
+#undef min
+#include <boost/signals2/signal.hpp>
 #include <fftw3.h>
 #include <semaphore.h>
 
@@ -42,7 +45,7 @@ class PitchTracker {
     void            set_threshold(float v);
     void            set_fast_note_detection(bool v);
    // Glib::Dispatcher new_freq;
-    sigc::signal<void > new_freq;
+    boost::signals2::signal<void ()> new_freq;
  private:
     bool            setParameters(int priority, int policy, int sampleRate, int fftSize );
     void            run();

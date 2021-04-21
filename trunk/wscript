@@ -211,6 +211,7 @@ def check_boost(conf):
     code="""
     #include <boost/version.hpp>
     #include <boost/format.hpp>
+    #include <boost/signals2.hpp>
     #include <boost/thread.hpp>
     #if BOOST_VERSION < %d
     #error

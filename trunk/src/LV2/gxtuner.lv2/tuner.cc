@@ -26,6 +26,9 @@
  */
 
 #include "gx_pitch_tracker.h"
+#undef max
+#undef min
+#include <boost/signals2/signal.hpp>
 
 /****************************************************************
  ** class tuner
@@ -42,7 +45,7 @@ private:
     enum { tuner_use = 0x01, livetuner_use = 0x02, switcher_use = 0x04, midi_use = 0x08 };
     void set_and_check(int use, bool on);
 public:
-    sigc::signal<void >& signal_freq_changed() { return pitch_tracker.new_freq; }
+    boost::signals2::signal<void ()>& signal_freq_changed() { return pitch_tracker.new_freq; }
    // Glib::Dispatcher& signal_freq_changed() { return pitch_tracker.new_freq; }
     static float get_freq(tuner& self) { return self.pitch_tracker.get_estimated_freq(); }
     static float get_note(tuner& self) { return self.pitch_tracker.get_estimated_note(); }

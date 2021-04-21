@@ -346,7 +346,9 @@ void Gxtuner::init_dsp_mono(uint32_t rate)
   lhcut->set_samplerate(rate, lhcut);
   bow->set_samplerate(rate, bow);
   tuner& self = *static_cast<tuner*>(tuner_adapter);
-  self.signal_freq_changed().connect(sigc::mem_fun(this, &Gxtuner::freq_changed_handler));
+  self.signal_freq_changed().connect([this]() {
+    this->freq_changed_handler();
+  });
 }
 
 // connect the Ports used by the plug-in class
