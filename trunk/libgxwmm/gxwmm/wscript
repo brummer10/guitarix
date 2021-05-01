@@ -52,7 +52,6 @@ def configure(conf):
         conf.check_cfg(package='gtkmm-3.0', variables='gmmprocm4dir', uselib_store='GTK', mandatory=True)
         conf.check_cfg(package='atkmm-1.6', variables='gmmprocm4dir', uselib_store='ATK', mandatory=True)
         conf.check_cfg(package='pangomm-1.4', variables='gmmprocm4dir', uselib_store='PANGO', mandatory=True)
-        conf.check_cfg(package='pygobject-2.0', variables='codegendir', uselib_store='PYGOBJECT', mandatory=True)
         env.USE_GENERATED_CPP = False
     else:
         env.USE_GENERATED_CPP = True
@@ -128,8 +127,8 @@ def header2defs(task):
     path = task.generator.path
     dst = task.outputs[0].bldpath()
     flt = task.inputs[0].bldpath()
-    cmd = ("python2 '%s'/h2def.py -f '%s' -m gxw %s > '%s'"
-           % (task.env.PYGOBJECT_codegendir, flt, sources, dst))
+    cmd = ("python3 ../libgxwmm/gxwmm/tools/h2def.py -f '%s' -m gxw %s > '%s'"
+           % (flt, sources, dst))
     return task.exec_command(cmd, shell=True)
 
 def build_generate_wrapper(bld):

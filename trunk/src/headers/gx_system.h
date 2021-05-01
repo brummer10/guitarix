@@ -132,7 +132,7 @@ inline T *atomic_get(T*& p) {
 
 template <class T>
 inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv) {
-    return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), static_cast<void*>(oldv), newv);
+    return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void**>(p), static_cast<void*>(oldv), newv);
 }
 
 
