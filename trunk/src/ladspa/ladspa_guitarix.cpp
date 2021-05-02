@@ -1559,6 +1559,7 @@ void StereoEngine::load_static_plugins() {
 
     // rack stereo modules inserted here
 
+    pl.add(fizz_remover::plugin(),                PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(hardlim::plugin(),                     PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(gx_outputlevel_ladspa::plugin(),       PLUGIN_POS_END);
 

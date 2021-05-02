@@ -151,7 +151,7 @@ def build(bld):
         'colbwah.dsp',
         'rolwah.dsp',
         'jenbasswah.dsp',
-
+        'fizz_remover.dsp',
 
         # amps
         'gxamp.dsp',

@@ -156,6 +156,7 @@ declare(supersonic)
 declare(balance)
 declare(dcblocker)
 declare(hardlim)
+declare(fizz_remover)
 
 } // namespace gx_engine
 

@@ -382,6 +382,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::gx_outputlevel::plugin(),  PLUGIN_POS_END);
     pl.add(balance::plugin(),                     PLUGIN_POS_END, PGN_MODE_BYPASS);
     pl.add(&stereomute,                           PLUGIN_POS_END, PGN_MODE_MUTE);
+    pl.add(fizz_remover::plugin(),                PLUGIN_POS_END, PGN_GUI);
     pl.add(hardlim::plugin(),                     PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(&drumout.outputdrum,                   PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(&directout,                            PLUGIN_POS_END, PGN_MODE_NORMAL);
