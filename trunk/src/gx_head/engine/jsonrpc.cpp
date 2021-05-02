@@ -120,13 +120,13 @@ void JsonArray::append(gx_system::JsonParser& jp) {
         push_back(new JsonString(jp.current_value()));
     } else if (jp.peek() == gx_system::JsonParser::value_number) {
         jp.next();
-        const char *str = jp.current_value().c_str();
+        std::string str = jp.current_value();
         char *endptr;
-        int n = strtol(str, &endptr, 10);
+        int n = strtol(str.c_str(), &endptr, 10);
         if (*endptr == '\0') {
             push_back(new JsonInt(n));
         } else {
-            istringstream b(str);
+            istringstream b(str.c_str());
             float f;
             b >> f;
             push_back(new JsonFloat(f));

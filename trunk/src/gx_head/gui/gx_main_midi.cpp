@@ -68,12 +68,12 @@ void  MidiControllerTable::edited_cb(
     gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &ctrl, -1);
     gx_engine::midi_std_ctr.replace(ctrl, new_text);
     bool valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
-    const char *name = gx_engine::midi_std_ctr[ctrl].c_str();
+    std::string name = gx_engine::midi_std_ctr[ctrl];
     while (valid) {
         int n;
         gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, 0, &n, -1);
         if (n == ctrl) {
-            gtk_list_store_set(store, &iter, 1, name, -1);
+            gtk_list_store_set(store, &iter, 1, name.c_str(), -1);
         }
         valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
     }
