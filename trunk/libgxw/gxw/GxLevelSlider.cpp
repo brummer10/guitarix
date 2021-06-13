@@ -29,7 +29,7 @@ static gboolean gx_level_slider_button_press (GtkWidget *widget, GdkEventButton 
 static gboolean gx_level_slider_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
 static const char *get_stock_id(GtkWidget *widget);
 
-G_DEFINE_TYPE(GxLevelSlider, gx_level_slider, GX_TYPE_VSLIDER);
+G_DEFINE_TYPE(GxLevelSlider, gx_level_slider, GX_TYPE_VSLIDER)
 
 static void gx_level_slider_class_init(GxLevelSliderClass *klass)
 {

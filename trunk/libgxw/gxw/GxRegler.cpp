@@ -88,7 +88,7 @@ static void gx_regler_move_slider(GtkRange *range, GtkScrollType scroll);
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE(GxRegler, gx_regler, GTK_TYPE_RANGE,
 								 G_ADD_PRIVATE(GxRegler)
                                  G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
-                                                       gx_control_parameter_interface_init));
+                                                       gx_control_parameter_interface_init))
 
 static void gx_regler_value_changed(GtkRange *range)
 {

@@ -32,7 +32,7 @@ static gboolean gx_hslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 static void gx_hslider_set_pointer (GtkWidget *widget, GdkEventMotion *event);
 static void gx_hslider_render_pixbuf (GtkWidget *widget);
 
-G_DEFINE_TYPE(GxHSlider, gx_hslider, GX_TYPE_REGLER);
+G_DEFINE_TYPE(GxHSlider, gx_hslider, GX_TYPE_REGLER)
 
 #define get_stock_id(widget) (GX_HSLIDER_CLASS(GTK_WIDGET_GET_CLASS(widget))->stock_id)
 #define get_mouse_scale_factor(widget) (GX_HSLIDER_CLASS(GTK_WIDGET_GET_CLASS(widget))->mouse_scale_factor)

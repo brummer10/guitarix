@@ -27,7 +27,7 @@ static void gx_port_display_size_request (GtkWidget *widget, gint *width, gint *
 static void gx_port_display_state_flags_changed(GtkWidget*, GtkStateFlags);
 static const char *get_stock_id(GtkWidget *widget);
 
-G_DEFINE_TYPE(GxPortDisplay, gx_port_display, GX_TYPE_VSLIDER);
+G_DEFINE_TYPE(GxPortDisplay, gx_port_display, GX_TYPE_VSLIDER)
 
 static void gx_port_display_class_init(GxPortDisplayClass *klass)
 {

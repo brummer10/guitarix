@@ -232,4 +232,4 @@ static inline double symclip(double x) {
     return copysign(f, -x);
 }
 
-}; 
+}

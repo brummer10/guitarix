@@ -26,7 +26,7 @@ static void gx_play_head_get_preferred_height (GtkWidget *widget, gint *min_heig
 static void gx_play_head_size_request (GtkWidget *widget, gint *width, gint *height);
 static void gx_play_head_render_pixbuf (GtkWidget *widget);
 
-G_DEFINE_TYPE(GxPlayHead, gx_play_head, GX_TYPE_REGLER);
+G_DEFINE_TYPE(GxPlayHead, gx_play_head, GX_TYPE_REGLER)
 
 #define get_stock_id(widget) (GX_PLAYHEAD_CLASS(GTK_WIDGET_GET_CLASS(widget))->stock_id)
 

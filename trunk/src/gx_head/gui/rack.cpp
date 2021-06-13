@@ -264,6 +264,11 @@ Glib::ustring PluginUI::get_displayname(bool useshort) const {
     if (get_type() == PLUGIN_TYPE_STEREO) {
         name = "◗◖ " + name; //♾⚮⦅◗◖⦆⚭ ⧓ Ꝏꝏ ⦅◉⦆● ▷◁ ▶◀
     }
+    if (plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2) {
+        name += " (LV2)";
+    } else if (plugin->get_pdef()->flags & gx_engine::PGNI_IS_LADSPA) {
+        name += " (LADSPA)";
+    }
     return name;
 }
 
@@ -1442,6 +1447,13 @@ Gtk::Widget *RackBox::create_drag_widget(const PluginUI& plugin, gx_system::Cmdl
     RackBox::set_paintbox_unit_shrink(*pb, plugin.get_type());
     pb->set_name("drag_widget");
     Gtk::Widget *effect_label = RackBox::make_label(plugin, options);
+    if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2) {
+        pb->get_style_context()->add_class("PL-LV2");
+        pb->set_name("rack_unit_title_bar");
+    } else if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LADSPA) {
+        pb->get_style_context()->add_class("PL-LADSPA");
+        pb->set_name("rack_unit_title_bar");
+    }
     Gtk::Alignment *al = new Gtk::Alignment(0.0, 0.0, 0.0, 0.0);
     al->set_padding(0,0,4,20);
     al->add(*manage(RackBox::make_bar(4, 4, true))); // FIXME: fix style and remove sens parameter
@@ -1515,8 +1527,12 @@ RackBox::RackBox(PluginUI& plugin_, PluginDict& tl, Gtk::Widget* bare)
     context->add_class("rackbox");
     if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LV2) {
         context->add_class("PL-LV2");
+        fbox->get_style_context()->add_class("PL-LV2");
+        mbox.get_style_context()->add_class("PL-LV2");
     } else if (plugin.plugin->get_pdef()->flags & gx_engine::PGNI_IS_LADSPA) {
         context->add_class("PL-LADSPA");
+        fbox->get_style_context()->add_class("PL-LADSPA");
+        mbox.get_style_context()->add_class("PL-LADSPA");
     }
     on_off_switch.signal_toggled().connect(
         sigc::mem_fun(plugin, &PluginUI::on_state_change));

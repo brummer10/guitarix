@@ -48,7 +48,7 @@ static void gx_knob_size_request(GtkWidget *widget, gint *width, gint *height);
 static gboolean gx_knob_button_press(GtkWidget *widget, GdkEventButton *event);
 
 
-G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GxKnob, gx_knob, GX_TYPE_REGLER);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GxKnob, gx_knob, GX_TYPE_REGLER)
 
 #define get_stock_id(widget) (GX_KNOB_CLASS(GTK_WIDGET_GET_CLASS(widget))->stock_id)
 

@@ -32,7 +32,7 @@ static void gx_wheel_size_request (GtkWidget *widget, gint *width, gint *height)
 static gboolean gx_wheel_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_wheel_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
 
-G_DEFINE_TYPE_WITH_PRIVATE(GxWheel, gx_wheel, GX_TYPE_REGLER);
+G_DEFINE_TYPE_WITH_PRIVATE(GxWheel, gx_wheel, GX_TYPE_REGLER)
 
 static void gx_wheel_class_init(GxWheelClass *klass)
 {

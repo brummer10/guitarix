@@ -420,6 +420,42 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     -GxPaintBox-paint-func: "gx_rack_unit_expose";
 }
 
+.PL-LV2 {
+    -GxPaintBox-paint-func: "gx_lv2_unit_expose";
+    #rack_label,
+    .rack_label,
+    #Value, /* *Value */
+    #ampbox label,
+    #beffekt_label,
+    .tab_rack label,
+    #rack_effect_label {
+        font: condensed 8pt "Roboto";
+        color: #aaaaaa; /* #dadfe1 # #c9d5b9  # #ffffff */
+    }
+    #rack_unit_title_bar .effect_title {
+        font: condensed 10pt "Roboto";
+        color: #aaaaaa;
+    }
+}
+
+.PL-LADSPA {
+    -GxPaintBox-paint-func: "gx_ladspa_unit_expose";
+    #rack_label,
+    .rack_label,
+    #Value, /* *Value */
+    #ampbox label,
+    #beffekt_label,
+    .tab_rack label,
+    #rack_effect_label {
+        font: condensed 8pt "Roboto";
+        color: #aaaaaa; /* #dadfe1 # #c9d5b9  # #ffffff */
+    }
+    #rack_unit_title_bar .effect_title {
+        font: condensed 10pt "Roboto";
+        color: #aaaaaa;
+    }
+}
+
 #status_image {
     -gtk-icon-effect: dim;
 }

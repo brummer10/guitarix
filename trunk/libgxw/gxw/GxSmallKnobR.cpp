@@ -20,7 +20,7 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-G_DEFINE_TYPE(GxSmallKnobR, gx_small_knob_r, GX_TYPE_KNOB);
+G_DEFINE_TYPE(GxSmallKnobR, gx_small_knob_r, GX_TYPE_KNOB)
 
 static void gx_small_knob_r_class_init(GxSmallKnobRClass *klass)
 {

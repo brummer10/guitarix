@@ -404,7 +404,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow47 = (0.5 * fSlow46);
 	int iSlow48 = (std::fabs(fSlow47) < 2.2204460492503131e-16);
 	double fSlow49 = (iSlow48 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow48 ? 1.0 : fSlow47)))));
-	double fSlow50 = ((1.0 / std::max<double>(9.9999999999999995e-08, double(fHslider8))) + -1.0);
+	double fSlow50 = ((1.0 / std::max<double>(2.2204460492503131e-16, double(fHslider8))) + -1.0);
 	int iSlow51 = (std::fabs(fSlow46) < 2.2204460492503131e-16);
 	double fSlow52 = (iSlow51 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow51 ? 1.0 : fSlow46)))));
 	double fSlow53 = double(fHslider9);
@@ -428,7 +428,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow71 = (0.5 * fSlow70);
 	int iSlow72 = (std::fabs(fSlow71) < 2.2204460492503131e-16);
 	double fSlow73 = (iSlow72 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow72 ? 1.0 : fSlow71)))));
-	double fSlow74 = ((1.0 / std::max<double>(9.9999999999999995e-08, double(fHslider14))) + -1.0);
+	double fSlow74 = ((1.0 / std::max<double>(2.2204460492503131e-16, double(fHslider14))) + -1.0);
 	int iSlow75 = (std::fabs(fSlow70) < 2.2204460492503131e-16);
 	double fSlow76 = (iSlow75 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow75 ? 1.0 : fSlow70)))));
 	double fSlow77 = double(fHslider15);
@@ -452,7 +452,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow95 = (0.5 * fSlow94);
 	int iSlow96 = (std::fabs(fSlow95) < 2.2204460492503131e-16);
 	double fSlow97 = (iSlow96 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow96 ? 1.0 : fSlow95)))));
-	double fSlow98 = ((1.0 / std::max<double>(9.9999999999999995e-08, double(fHslider20))) + -1.0);
+	double fSlow98 = ((1.0 / std::max<double>(2.2204460492503131e-16, double(fHslider20))) + -1.0);
 	int iSlow99 = (std::fabs(fSlow94) < 2.2204460492503131e-16);
 	double fSlow100 = (iSlow99 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow99 ? 1.0 : fSlow94)))));
 	double fSlow101 = double(fHslider21);
@@ -475,7 +475,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow118 = (0.5 * fSlow117);
 	int iSlow119 = (std::fabs(fSlow118) < 2.2204460492503131e-16);
 	double fSlow120 = (iSlow119 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow119 ? 1.0 : fSlow118)))));
-	double fSlow121 = ((1.0 / std::max<double>(9.9999999999999995e-08, double(fHslider26))) + -1.0);
+	double fSlow121 = ((1.0 / std::max<double>(2.2204460492503131e-16, double(fHslider26))) + -1.0);
 	int iSlow122 = (std::fabs(fSlow117) < 2.2204460492503131e-16);
 	double fSlow123 = (iSlow122 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow122 ? 1.0 : fSlow117)))));
 	double fSlow124 = double(fHslider27);
@@ -492,7 +492,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow135 = (0.5 * fSlow134);
 	int iSlow136 = (std::fabs(fSlow135) < 2.2204460492503131e-16);
 	double fSlow137 = (iSlow136 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow136 ? 1.0 : fSlow135)))));
-	double fSlow138 = ((1.0 / std::max<double>(9.9999999999999995e-08, double(fHslider32))) + -1.0);
+	double fSlow138 = ((1.0 / std::max<double>(2.2204460492503131e-16, double(fHslider32))) + -1.0);
 	int iSlow139 = (std::fabs(fSlow134) < 2.2204460492503131e-16);
 	double fSlow140 = (iSlow139 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow139 ? 1.0 : fSlow134)))));
 	double fSlow141 = double(fHslider33);

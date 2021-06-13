@@ -610,7 +610,7 @@
                         <property name="can-focus">False</property>
                         <property name="halign">center</property>
                         <property name="margin-top">6</property>
-                        <property name="margin-bottom">46</property>
+                        <property name="margin-bottom">25</property>
                         <property name="orientation">vertical</property>
                         <property name="hold">10</property>
                         <property name="dimen">0</property>
@@ -625,11 +625,15 @@
                     </child>
                     <child>
                       <object class="GxSwitch" id="gxswitch4">
-                        <property name="name">gxswitch2</property>
+                        <property name="name">gxswitch4</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
                         <property name="halign">center</property>
+                        <property name="margin-left">5</property>
+                        <property name="margin-right">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="draw-indicator">True</property>
                         <property name="var-id">antyfizz.on_off</property>
                         <property name="base-name">minitoggle</property>

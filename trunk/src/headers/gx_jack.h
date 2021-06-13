@@ -248,6 +248,8 @@ public:
     Glib::Dispatcher&   signal_buffersize_change() { return buffersize_change; }
     void                send_connection_changes(bool v) { connection_queue.set_send(v); }
     static void         rt_watchdog_set_limit(int limit);
+    gx_engine::GxEngine& get_engine() { return engine; }
+    bool                single_client;
 #ifdef HAVE_JACK_SESSION
     jack_session_event_t *get_last_session_event() {
 	return gx_system::atomic_get(session_event);
@@ -258,8 +260,6 @@ public:
     int                 return_last_session_event();
     int                 return_last_session_event_ins();
     string              get_uuid_insert();
-    bool                single_client;
-    gx_engine::GxEngine& get_engine() { return engine; }
 #endif
 };
 

@@ -18,7 +18,7 @@
 
 #include "GxBigKnob.h"
 
-G_DEFINE_TYPE(GxBigKnob, gx_big_knob, GX_TYPE_KNOB);
+G_DEFINE_TYPE(GxBigKnob, gx_big_knob, GX_TYPE_KNOB)
 
 static void gx_big_knob_class_init(GxBigKnobClass *klass)
 {

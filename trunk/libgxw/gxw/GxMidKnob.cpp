@@ -18,7 +18,7 @@
 
 #include "GxMidKnob.h"
 
-G_DEFINE_TYPE(GxMidKnob, gx_mid_knob, GX_TYPE_KNOB);
+G_DEFINE_TYPE(GxMidKnob, gx_mid_knob, GX_TYPE_KNOB)
 
 static void gx_mid_knob_class_init(GxMidKnobClass *klass)
 {

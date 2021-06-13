@@ -42,7 +42,7 @@ static void gx_control_parameter_interface_init (GxControlParameterIface *iface)
 G_DEFINE_TYPE_WITH_CODE(GxSwitch, gx_switch, GTK_TYPE_CHECK_BUTTON,
                         G_ADD_PRIVATE(GxSwitch)
                         G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
-                                              gx_control_parameter_interface_init));
+                                              gx_control_parameter_interface_init))
 
 static void gx_switch_destroy(GtkWidget *object);
 static void gx_switch_set_property(

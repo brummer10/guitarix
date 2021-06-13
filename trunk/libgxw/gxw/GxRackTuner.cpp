@@ -96,7 +96,7 @@ static const int pad = 4;
 static const int tri_y0 = 25;  // center line of triangles
 static const int min_led = 32;
 
-G_DEFINE_TYPE_WITH_PRIVATE(GxRackTuner, gx_rack_tuner, GX_TYPE_TUNER);
+G_DEFINE_TYPE_WITH_PRIVATE(GxRackTuner, gx_rack_tuner, GX_TYPE_TUNER)
 
 static void gx_rack_tuner_map(GtkWidget*);
 static void gx_rack_tuner_unmap(GtkWidget*);

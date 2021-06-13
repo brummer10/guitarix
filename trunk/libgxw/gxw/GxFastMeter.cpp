@@ -101,7 +101,7 @@ G_DEFINE_TYPE_WITH_CODE(GxFastMeter, gx_fast_meter, GTK_TYPE_DRAWING_AREA,
                         G_ADD_PRIVATE(GxFastMeter)
                         G_IMPLEMENT_INTERFACE(GX_TYPE_CONTROL_PARAMETER,
                                               gx_control_parameter_interface_init)
-						G_IMPLEMENT_INTERFACE (GTK_TYPE_ORIENTABLE, NULL));
+						G_IMPLEMENT_INTERFACE (GTK_TYPE_ORIENTABLE, NULL))
 
 static void
 gx_fast_meter_cp_configure(GxControlParameter *self, const gchar* group, const gchar *name, gdouble lower, gdouble upper, gdouble step)

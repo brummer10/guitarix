@@ -144,7 +144,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec2[1] + fTemp1)));
 		fRec3[0] = (((fRec2[1] >= 1.0f) & (fRec4[1] != fSlow1)) ? fSlow1 : fRec3[1]);
 		fRec4[0] = (((fRec2[1] <= 0.0f) & (fRec3[1] != fSlow1)) ? fSlow1 : fRec4[1]);
-		output0[i] = FAUSTFLOAT((fTemp0 + (fRec0[0] * ((fVec0[((IOTA - int(std::min<float>(524288.0f, std::max<float>(0.0f, fRec3[0])))) & 1048575)] * (1.0f - fRec2[0])) + (fRec2[0] * fVec0[((IOTA - int(std::min<float>(524288.0f, std::max<float>(0.0f, fRec4[0])))) & 1048575)])))));
+		float fTemp2 = fVec0[((IOTA - int(std::min<float>(524288.0f, std::max<float>(0.0f, fRec3[0])))) & 1048575)];
+		output0[i] = FAUSTFLOAT((fTemp0 + (fRec0[0] * (fTemp2 + (fRec2[0] * (fVec0[((IOTA - int(std::min<float>(524288.0f, std::max<float>(0.0f, fRec4[0])))) & 1048575)] - fTemp2))))));
 		IOTA = (IOTA + 1);
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];

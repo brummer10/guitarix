@@ -223,7 +223,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow2 = (0.0010000000000000009 * double(fVslider0));
 	double fSlow3 = double(fCheckbox2);
 	double fSlow4 = double(fVslider1);
-	double fSlow5 = std::max<double>(9.9999999999999995e-08, std::fabs((0.90000000000000002 * fSlow4)));
+	double fSlow5 = std::max<double>(2.2204460492503131e-16, std::fabs((0.90000000000000002 * fSlow4)));
 	double fSlow6 = (fConst18 * fSlow5);
 	double fSlow7 = (1.0 - (fConst0 / fSlow5));
 	double fSlow8 = (0.65384615384615374 * fSlow4);

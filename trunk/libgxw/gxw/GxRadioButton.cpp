@@ -40,7 +40,7 @@ static void gx_radio_button_get_property(
 static void gx_radio_button_destroy (GtkWidget *obj);
 static void draw_indicator(GtkCheckButton *check_button, cairo_t *cr);
 
-G_DEFINE_TYPE_WITH_PRIVATE(GxRadioButton, gx_radio_button, GTK_TYPE_RADIO_BUTTON);
+G_DEFINE_TYPE_WITH_PRIVATE(GxRadioButton, gx_radio_button, GTK_TYPE_RADIO_BUTTON)
 
 static void gx_radio_button_class_init(GxRadioButtonClass *klass)
 {

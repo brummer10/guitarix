@@ -26,7 +26,7 @@ static void gx_simple_value_display_get_preferred_height (GtkWidget *widget, gin
 static void gx_simple_value_display_size_request (GtkWidget *widget, gint *width, gint *height);
 static gboolean gx_simple_value_display_button_press (GtkWidget *widget, GdkEventButton *event);
 
-G_DEFINE_TYPE(GxSimpleValueDisplay, gx_simple_value_display, GX_TYPE_REGLER);
+G_DEFINE_TYPE(GxSimpleValueDisplay, gx_simple_value_display, GX_TYPE_REGLER)
 
 static void gx_simple_value_display_class_init(GxSimpleValueDisplayClass *klass)
 {

@@ -12,16 +12,16 @@ private:
 	FAUSTFLOAT fVslider0;
 	int iVec1[2];
 	float fRec0[2];
-	FAUSTFLOAT fCheckbox0;
 	float fConst0;
 	float fConst1;
 	FAUSTFLOAT fHslider0;
 	float fRec1[2];
 	float fRec2[2];
-	float fConst2;
-	FAUSTFLOAT fHslider1;
 	float fRec3[2];
 	float fRec4[2];
+	FAUSTFLOAT fCheckbox0;
+	float fConst2;
+	FAUSTFLOAT fHslider1;
 	float fRec5[2];
 	float fRec6[2];
 	float *fVec2;
@@ -112,8 +112,8 @@ inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
 	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
-	fConst1 = (0.104719758f / fConst0);
-	fConst2 = (60.0f * fConst0);
+	fConst1 = (60.0f * fConst0);
+	fConst2 = (0.104719758f / fConst0);
 	IOTA = 0;
 }
 
@@ -157,35 +157,37 @@ int Dsp::activate_static(bool start, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 	float fSlow0 = (0.00100000005f * std::pow(10.0f, (0.0500000007f * float(fVslider0))));
-	float fSlow1 = float(fCheckbox0);
-	float fSlow2 = (fConst1 * float(fHslider0));
-	float fSlow3 = std::sin(fSlow2);
-	float fSlow4 = std::cos(fSlow2);
-	float fSlow5 = (fConst2 / float(fHslider1));
+	float fSlow1 = (fConst1 / float(fHslider0));
+	float fSlow2 = float(fCheckbox0);
+	float fSlow3 = (fConst2 * float(fHslider1));
+	float fSlow4 = std::sin(fSlow3);
+	float fSlow5 = std::cos(fSlow3);
 	float fSlow6 = (0.00100000005f * std::pow(10.0f, (0.0500000007f * float(fVslider1))));
-	float fSlow7 = (fConst2 / float(fHslider2));
+	float fSlow7 = (fConst1 / float(fHslider2));
 	for (int i = 0; (i < count); i = (i + 1)) {
 		float fTemp0 = float(input0[i]);
 		fVec0[(IOTA & 524287)] = fTemp0;
 		iVec1[0] = 1;
 		fRec0[0] = (fSlow0 + (0.999000013f * fRec0[1]));
-		fRec1[0] = ((fSlow3 * fRec2[1]) + (fSlow4 * fRec1[1]));
-		fRec2[0] = ((float((1 - iVec1[1])) + (fSlow4 * fRec2[1])) - (fSlow3 * fRec1[1]));
-		float fTemp1 = ((fRec3[1] != 0.0f) ? (((fRec4[1] > 0.0f) & (fRec4[1] < 1.0f)) ? fRec3[1] : 0.0f) : (((fRec4[1] == 0.0f) & (fSlow5 != fRec5[1])) ? 0.0009765625f : (((fRec4[1] == 1.0f) & (fSlow5 != fRec6[1])) ? -0.0009765625f : 0.0f)));
-		fRec3[0] = fTemp1;
-		fRec4[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec4[1] + fTemp1)));
-		fRec5[0] = (((fRec4[1] >= 1.0f) & (fRec6[1] != fSlow5)) ? fSlow5 : fRec5[1]);
-		fRec6[0] = (((fRec4[1] <= 0.0f) & (fRec5[1] != fSlow5)) ? fSlow5 : fRec6[1]);
-		output0[i] = FAUSTFLOAT((fTemp0 + ((fRec0[0] * (1.0f - (fSlow1 * fRec1[0]))) * ((fVec0[((IOTA - int(std::min<float>(262144.0f, std::max<float>(0.0f, fRec5[0])))) & 524287)] * (1.0f - fRec4[0])) + (fRec4[0] * fVec0[((IOTA - int(std::min<float>(262144.0f, std::max<float>(0.0f, fRec6[0])))) & 524287)])))));
-		float fTemp2 = float(input1[i]);
-		fVec2[(IOTA & 524287)] = fTemp2;
+		float fTemp1 = ((fRec1[1] != 0.0f) ? (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f) : (((fRec2[1] == 0.0f) & (fSlow1 != fRec3[1])) ? 0.0009765625f : (((fRec2[1] == 1.0f) & (fSlow1 != fRec4[1])) ? -0.0009765625f : 0.0f)));
+		fRec1[0] = fTemp1;
+		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec2[1] + fTemp1)));
+		fRec3[0] = (((fRec2[1] >= 1.0f) & (fRec4[1] != fSlow1)) ? fSlow1 : fRec3[1]);
+		fRec4[0] = (((fRec2[1] <= 0.0f) & (fRec3[1] != fSlow1)) ? fSlow1 : fRec4[1]);
+		float fTemp2 = fVec0[((IOTA - int(std::min<float>(262144.0f, std::max<float>(0.0f, fRec3[0])))) & 524287)];
+		fRec5[0] = ((fSlow4 * fRec6[1]) + (fSlow5 * fRec5[1]));
+		fRec6[0] = ((float((1 - iVec1[1])) + (fSlow5 * fRec6[1])) - (fSlow4 * fRec5[1]));
+		output0[i] = FAUSTFLOAT((fTemp0 + ((fRec0[0] * (fTemp2 + (fRec2[0] * (fVec0[((IOTA - int(std::min<float>(262144.0f, std::max<float>(0.0f, fRec4[0])))) & 524287)] - fTemp2)))) * (1.0f - (fSlow2 * fRec5[0])))));
+		float fTemp3 = float(input1[i]);
+		fVec2[(IOTA & 524287)] = fTemp3;
 		fRec7[0] = (fSlow6 + (0.999000013f * fRec7[1]));
-		float fTemp3 = ((fRec8[1] != 0.0f) ? (((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f)) ? fRec8[1] : 0.0f) : (((fRec9[1] == 0.0f) & (fSlow7 != fRec10[1])) ? 0.0009765625f : (((fRec9[1] == 1.0f) & (fSlow7 != fRec11[1])) ? -0.0009765625f : 0.0f)));
-		fRec8[0] = fTemp3;
-		fRec9[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec9[1] + fTemp3)));
+		float fTemp4 = ((fRec8[1] != 0.0f) ? (((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f)) ? fRec8[1] : 0.0f) : (((fRec9[1] == 0.0f) & (fSlow7 != fRec10[1])) ? 0.0009765625f : (((fRec9[1] == 1.0f) & (fSlow7 != fRec11[1])) ? -0.0009765625f : 0.0f)));
+		fRec8[0] = fTemp4;
+		fRec9[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec9[1] + fTemp4)));
 		fRec10[0] = (((fRec9[1] >= 1.0f) & (fRec11[1] != fSlow7)) ? fSlow7 : fRec10[1]);
 		fRec11[0] = (((fRec9[1] <= 0.0f) & (fRec10[1] != fSlow7)) ? fSlow7 : fRec11[1]);
-		output1[i] = FAUSTFLOAT((fTemp2 + ((fRec7[0] * (1.0f - (fSlow1 * (0.0f - fRec1[0])))) * ((fVec2[((IOTA - int(std::min<float>(262144.0f, std::max<float>(0.0f, fRec10[0])))) & 524287)] * (1.0f - fRec9[0])) + (fRec9[0] * fVec2[((IOTA - int(std::min<float>(262144.0f, std::max<float>(0.0f, fRec11[0])))) & 524287)])))));
+		float fTemp5 = fVec2[((IOTA - int(std::min<float>(262144.0f, std::max<float>(0.0f, fRec10[0])))) & 524287)];
+		output1[i] = FAUSTFLOAT((fTemp3 + ((fRec7[0] * (fTemp5 + (fRec9[0] * (fVec2[((IOTA - int(std::min<float>(262144.0f, std::max<float>(0.0f, fRec11[0])))) & 524287)] - fTemp5)))) * (1.0f - (fSlow2 * (0.0f - fRec5[0]))))));
 		IOTA = (IOTA + 1);
 		iVec1[1] = iVec1[0];
 		fRec0[1] = fRec0[0];
@@ -213,8 +215,8 @@ int Dsp::register_par(const ParamReg& reg)
 	static const value_pair fCheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	reg.registerFloatVar("stereodelay.invert","","B","",&fCheckbox0, 0.0, 0.0, 1.0, 1.0, fCheckbox0_values);
 	reg.registerFloatVar("stereodelay.l_gain",N_("Gain L"),"S","",&fVslider0, 0.0f, -20.0f, 20.0f, 0.100000001f, 0);
-	reg.registerFloatVar("stereodelay.lbpm",N_("Delay L"),"S",N_("Left Delay in Beats per Minute"),&fHslider1, 120.0f, 24.0f, 360.0f, 1.0f, 0);
-	reg.registerFloatVar("stereodelay.lfobpm",N_("LFO Freq"),"S",N_("LFO in Beats per Minute"),&fHslider0, 24.0f, 24.0f, 360.0f, 1.0f, 0);
+	reg.registerFloatVar("stereodelay.lbpm",N_("Delay L"),"S",N_("Left Delay in Beats per Minute"),&fHslider0, 120.0f, 24.0f, 360.0f, 1.0f, 0);
+	reg.registerFloatVar("stereodelay.lfobpm",N_("LFO Freq"),"S",N_("LFO in Beats per Minute"),&fHslider1, 24.0f, 24.0f, 360.0f, 1.0f, 0);
 	reg.registerFloatVar("stereodelay.r_gain",N_("Gain R"),"S","",&fVslider1, 0.0f, -20.0f, 20.0f, 0.100000001f, 0);
 	reg.registerFloatVar("stereodelay.rbpm",N_("Delay R"),"S",N_("Right Delay in Beats per Minute"),&fHslider2, 120.0f, 24.0f, 360.0f, 1.0f, 0);
 	return 0;

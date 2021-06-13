@@ -20,7 +20,7 @@
 
 #define P_(s) (s)   // FIXME -> gettext
 
-G_DEFINE_TYPE(GxMiniSlider, gx_mini_slider, GX_TYPE_HSLIDER);
+G_DEFINE_TYPE(GxMiniSlider, gx_mini_slider, GX_TYPE_HSLIDER)
 
 static void gx_mini_slider_class_init(GxMiniSliderClass *klass)
 {

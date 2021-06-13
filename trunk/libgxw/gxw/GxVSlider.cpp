@@ -32,7 +32,7 @@ static gboolean gx_vslider_leave_out (GtkWidget *widget, GdkEventCrossing *event
 static void gx_vslider_set_pointer (GtkWidget *widget, GdkEventMotion *event);
 static void gx_vslider_render_pixbuf (GtkWidget *widget);
 
-G_DEFINE_TYPE(GxVSlider, gx_vslider, GX_TYPE_REGLER);
+G_DEFINE_TYPE(GxVSlider, gx_vslider, GX_TYPE_REGLER)
 
 #define get_stock_id(widget) (GX_VSLIDER_CLASS(GTK_WIDGET_GET_CLASS(widget))->stock_id)
 

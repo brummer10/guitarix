@@ -59,7 +59,7 @@ static void gx_wave_view_set_property(
 static void gx_wave_view_get_property(
 	GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 
-G_DEFINE_TYPE_WITH_PRIVATE(GxWaveView, gx_wave_view, GTK_TYPE_DRAWING_AREA);
+G_DEFINE_TYPE_WITH_PRIVATE(GxWaveView, gx_wave_view, GTK_TYPE_DRAWING_AREA)
 
 static const int background_width = 282;
 static const int background_height = 82;

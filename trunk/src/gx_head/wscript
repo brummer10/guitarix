@@ -20,6 +20,9 @@ def options(opt):
         '--no-nsm', action='store_const', default=False, const=True,
         help=('Do not build with nsm support for remote'
               ' / connection to NSM server instances  [Default: no]'))
+    guitarix_prog.add_option(
+        '--no-jack-session', action='store_const', default=False, const=True,
+        help=('Do not build with jack session support  [Default: no]'))
 
 def configure(conf):
     if not Options.options.no_avahi:

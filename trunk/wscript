@@ -324,8 +324,9 @@ def configure(conf):
         except ConfigurationError:
             conf.check_cfg(package='jack', args=['--cflags','--libs','jack >= 1.9.2'], uselib_store='JACK', msg="Checking for 'jackd2'", mandatory=1)
         # jack_session support
-        code = "#include <jack/session.h>\nint main(){return JackSessionID != 0;}"
-        conf.check_cxx(fragment=code, msg="Checking for jack session support", define_name='HAVE_JACK_SESSION')
+        if not opt.no_jack_session:
+            code = "#include <jack/session.h>\nint main(){return JackSessionID != 0;}"
+            conf.check_cxx(fragment=code, msg="Checking for jack session support", define_name='HAVE_JACK_SESSION')
     if opt.standalone:
         conf.env['STANDALONE'] = True
         conf.check_cfg(package='gmodule-export-2.0', args='--cflags --libs', uselib_store='GMODULE_EXPORT', mandatory=1)

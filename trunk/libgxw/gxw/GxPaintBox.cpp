@@ -611,6 +611,13 @@ static void gx_lv2_unit_expose(GtkWidget *wi, cairo_t *cr)
     draw_screws(wi, cr);
 }
 
+static void gx_ladspa_unit_expose(GtkWidget *wi, cairo_t *cr)
+{
+    draw_tiled(wi, cr, "gxhead");
+    draw_handles(wi, cr);
+    draw_screws(wi, cr);
+}
+
 
 static void rectangle_skin_color_expose(GtkWidget *wi, cairo_t *cr)
 {
@@ -1665,6 +1672,8 @@ static void set_expose_func(GxPaintBox *paint_box, const gchar *paint_func)
 		paint_box->priv->draw_func = gx_rack_amp_expose;
 	} else if (strcmp(paint_func, "gx_lv2_unit_expose") == 0) {
 		paint_box->priv->draw_func = gx_lv2_unit_expose;
+	} else if (strcmp(paint_func, "gx_ladspa_unit_expose") == 0) {
+		paint_box->priv->draw_func = gx_ladspa_unit_expose;
 	} else if (strcmp(paint_func, "draw_skin") == 0) {
 		paint_box->priv->draw_func = draw_skin;
 	} else if (strcmp(paint_func, "rack_expose") == 0) {

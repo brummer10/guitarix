@@ -66,7 +66,7 @@ static const double dash_ind[] = {
 	100.0					/* skip */
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(GxTuner, gx_tuner, GTK_TYPE_DRAWING_AREA);
+G_DEFINE_TYPE_WITH_PRIVATE(GxTuner, gx_tuner, GTK_TYPE_DRAWING_AREA)
 
 static void gx_tuner_class_init(GxTunerClass *klass)
 {

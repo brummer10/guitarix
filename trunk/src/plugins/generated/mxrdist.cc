@@ -110,14 +110,14 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	fConst5 = (1.0 / ((fConst0 * (fConst4 + 2.2111922274142e-08)) + 2.14637179908193e-08));
 	fConst6 = (4.2927435981638601e-10 * fConst0);
 	fConst7 = (fConst0 * (fConst6 + 6.4391153972457898e-10));
-	fConst8 = mydsp_faustpower2_f(fConst0);
-	fConst9 = (4.29274359816386e-08 - (8.6713420682910003e-10 * fConst8));
-	fConst10 = ((fConst0 * (fConst4 + -2.2111922274142e-08)) + 2.14637179908193e-08);
-	fConst11 = (0.0 - (8.5854871963277201e-10 * fConst8));
+	fConst8 = ((fConst0 * (fConst4 + -2.2111922274142e-08)) + 2.14637179908193e-08);
+	fConst9 = mydsp_faustpower2_f(fConst0);
+	fConst10 = (4.29274359816386e-08 - (8.6713420682910003e-10 * fConst9));
+	fConst11 = (0.0 - (8.5854871963277201e-10 * fConst9));
 	fConst12 = (fConst0 * (fConst6 + -6.4391153972457898e-10));
 	fConst13 = (9.3999999999999995e-08 * fConst0);
 	fConst14 = (1.0 / fConst2);
-	fConst15 = (0.00070334369593045296 - (2.8133747837218101e-10 * fConst8));
+	fConst15 = (0.00070334369593045296 - (2.8133747837218101e-10 * fConst9));
 	fConst16 = ((fConst0 * (fConst1 + -1.40739073555684e-05)) + 0.00035167184796522702);
 	clear_state_f();
 }
@@ -134,7 +134,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow0 = (0.0070000000000000062 * ((0.25 * double(fHslider0)) + 0.75));
 	double fSlow1 = (0.0070000000000000062 * double(fVslider0));
 	for (int i = 0; (i < ReCount); i = (i + 1)) {
-		fRec1[0] = (double(buf[i]) - (fConst5 * ((fConst9 * fRec1[1]) + (fConst10 * fRec1[2]))));
+		fRec1[0] = (double(buf[i]) - (fConst5 * ((fConst8 * fRec1[2]) + (fConst10 * fRec1[1]))));
 		double fTemp0 = (((fConst7 * fRec1[0]) + (fConst11 * fRec1[1])) + (fConst12 * fRec1[2]));
 		fVec0[0] = fTemp0;
 		double fTemp1 = (fConst5 * fTemp0);

@@ -32,7 +32,7 @@ static void gx_wheel_vertical_size_request (GtkWidget *widget, gint *width, gint
 static gboolean gx_wheel_vertical_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_wheel_vertical_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
 
-G_DEFINE_TYPE_WITH_PRIVATE(GxWheelVertical, gx_wheel_vertical, GX_TYPE_REGLER);
+G_DEFINE_TYPE_WITH_PRIVATE(GxWheelVertical, gx_wheel_vertical, GX_TYPE_REGLER)
 
 static void gx_wheel_vertical_class_init(GxWheelVerticalClass *klass)
 {

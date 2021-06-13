@@ -29,7 +29,7 @@ static void gx_eq_slider_size_request (GtkWidget *widget, gint *width, gint *hei
 static gboolean gx_eq_slider_button_press (GtkWidget *widget, GdkEventButton *event);
 static gboolean gx_eq_slider_pointer_motion (GtkWidget *widget, GdkEventMotion *event);
 
-G_DEFINE_TYPE(GxEQSlider, gx_eq_slider, GX_TYPE_VSLIDER);
+G_DEFINE_TYPE(GxEQSlider, gx_eq_slider, GX_TYPE_VSLIDER)
 
 static void gx_eq_slider_class_init(GxEQSliderClass *klass)
 {

@@ -69,7 +69,7 @@ void gx_cclosure_marshal_VOID__INT_INT(GClosure *closure,
 }
 
 
-G_DEFINE_TYPE(GxIREdit, gx_ir_edit, GTK_TYPE_DRAWING_AREA);
+G_DEFINE_TYPE(GxIREdit, gx_ir_edit, GTK_TYPE_DRAWING_AREA)
 
 static void gx_ir_edit_destroy(GtkWidget*);
 static gboolean ir_edit_event_draw(GtkWidget*, cairo_t*);
