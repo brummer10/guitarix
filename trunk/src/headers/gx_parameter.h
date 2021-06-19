@@ -774,6 +774,7 @@ private:
     volatile gint          program_change; //RT
     volatile gint          mute_change; //RT
     volatile gint          bank_change; //RT
+    int                    bank_changed;
     int                    channel_select;
     timespec               ts1;
     double                 time0;
