@@ -152,4 +152,4 @@ antialiasing = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0),(a1/a0,a2/a0,a3/a0,a
     symclip = ffunction(float symclip(float), "clipping.h", "");
     sclip = symclip(_);
 
-process = bpmin : bpmamp1 : sclip  : bpmamp2 : sclip  : bpmtone : bpmout;
+process = bpmin : bpmamp1 : sclip  : bpmamp2 : sclip  : bpmtone : bpmout : fi.peak_eq_cq(-8.5,12000,8.5);
