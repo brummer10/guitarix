@@ -155,7 +155,7 @@ void Dsp::init_static(unsigned int samplingFreq, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double 	fSlow0 = double(fslider0);
+	double 	fSlow0 = double(fslider0) * 20.0;
 	double 	fSlow5 = (0.03 + fSlow0);
 	double 	fSlow6 = (60/(fslider1))*fSamplingFreq ;
 	double 	fSlow1 = 0; 
