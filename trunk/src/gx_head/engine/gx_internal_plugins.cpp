@@ -2106,7 +2106,7 @@ void always_inline DrumSequencer::compute(int count, FAUSTFLOAT *input0, FAUSTFL
         }
         int m = ftact;
         int r = rand()%(m+1 - (-m))+ (-m);
-        counter = 0; //int(r*fsliderhum);
+        counter -= iSlow15; //int(r*fsliderhum);
         
         if (step<seq_size) step = fmin(seq_size,fmax(0,step + 1.0 + int(r*fsliderhum)));
         else step = 0.0;
