@@ -2204,6 +2204,7 @@ bool GxService::idle_broadcast_handler() {
         broadcast_list.pop();
         usleep(2000);
     }
+    usleep(2000);
     return true;
 }
 
