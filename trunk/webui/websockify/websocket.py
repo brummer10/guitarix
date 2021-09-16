@@ -259,10 +259,10 @@ Sec-WebSocket-Accept: %s\r
             mask = buf[hlen:hlen+4]
             data = array.array('B')
             mask = s2a(mask)
-            data.fromstring(buf[pstart:pend])
+            data.fromsbytes(buf[pstart:pend])
             for i in range(len(data)):
                 data[i] ^= mask[i % 4]
-            return data.tostring()
+            return data.tobytes()
 
     @staticmethod
     def encode_hybi(buf, opcode, base64=False):
@@ -500,7 +500,7 @@ Sec-WebSocket-Accept: %s\r
     def send_close(self, code=1000, reason=''):
         """ Send a WebSocket orderly close frame. """
 
-        msg = pack(">H%ds" % len(reason), code, reason)
+        msg = pack(">H%ds" % len(reason), code, reason.encode('utf-8'))
         buf, h, t = self.encode_hybi(msg, opcode=0x08, base64=False)
         self.client.send(buf)
 

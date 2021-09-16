@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
 A WebSocket to TCP socket proxy with support for "wss://" encryption.
@@ -13,14 +13,14 @@ as taken from http://docs.python.org/dev/library/ssl.html#certificates
 
 import signal, socket, optparse, time, os, sys, subprocess
 from select import select
-import websocket
+import websockify.websocket
 try:
     from urllib.parse import parse_qs, urlparse
 except:
     from cgi import parse_qs
     from urlparse import urlparse
 
-class WebSocketProxy(websocket.WebSocketServer):
+class WebSocketProxy(websockify.websocket.WebSocketServer):
     """
     Proxy traffic to and from a WebSockets client to a normal TCP
     socket server target. All traffic to/from the client is base64
@@ -83,7 +83,7 @@ Traffic Legend:
         if self.target_cfg:
             self.target_cfg = os.path.abspath(self.target_cfg)
 
-        websocket.WebSocketServer.__init__(self, *args, **kwargs)
+        websockify.websocket.WebSocketServer.__init__(self, *args, **kwargs)
 
     def run_wrap_cmd(self):
         print("Starting '%s'" % " ".join(self.wrap_cmd))
@@ -239,7 +239,7 @@ Traffic Legend:
         """
         Proxy client WebSocket to normal target socket.
         """
-        tail = ""
+        tail = b""
         cqueue = []
         c_pend = 0
         tqueue = []
@@ -273,10 +273,10 @@ Traffic Legend:
 
             if target in outs:
                 # Send queued client data to the target
-                dat = tqueue.pop(0)+"\n"
+                dat = tqueue.pop(0)+b"\n"
                 sent = target.send(dat)
                 if self.verbose:
-                    sys.stdout.write("> " + dat[:sent]); sys.stdout.flush()
+                    sys.stdout.write("> " + dat[:sent].decode('utf8')); sys.stdout.flush()
                 if sent == len(dat):
                     self.traffic(">")
                 else:
@@ -289,12 +289,12 @@ Traffic Legend:
                 # Receive target data, encode it and queue for client
                 buf = target.recv(self.buffer_size)
                 if self.verbose:
-                    sys.stdout.write("< " + buf); sys.stdout.flush()
+                    sys.stdout.write("< " + buf.decode('utf8')); sys.stdout.flush()
                 if len(buf) == 0:
                     self.vmsg("%s:%s: Target closed connection" %(
                         self.target_host, self.target_port))
                     raise self.CClose(1000, "Target closed")
-                lines = (tail+buf).split("\n")
+                lines = (tail+buf).split(b"\n")
                 tail = lines.pop()
                 for line in lines:
                     if line:
@@ -365,7 +365,7 @@ def websockify_init():
         if len(args) > 2:
             parser.error("Too many arguments")
 
-    if not websocket.ssl and opts.ssl_target:
+    if not websockify.websocket.ssl and opts.ssl_target:
         parser.error("SSL target requested and Python SSL module not loaded.");
 
     if opts.ssl_only and not os.path.exists(opts.cert):
