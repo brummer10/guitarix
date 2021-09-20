@@ -720,7 +720,7 @@ Sec-WebSocket-Accept: %s\r
                     self.msg("%s: %s" % (address[0], exc.args[0]))
             except Exception:
                 _, exc, _ = sys.exc_info()
-                self.msg("handler exception: %s" % str(exc))
+                self.vmsg("handler exception: %s" % str(exc))
                 if self.verbose:
                     self.msg(traceback.format_exc())
         finally:
