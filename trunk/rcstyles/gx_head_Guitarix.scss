@@ -393,6 +393,21 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     }
 }
 
+#tableampright,
+#ampdetails {
+    .gx_sw_minitoggle {
+	box-shadow: none;
+	background-color: $bg-button;
+	&:hover {
+	    background-color: $bg-button-hover;
+	}
+	min-height: 23px;
+	check {
+	    padding: 5px 5px 5px 5px;
+	}
+    }
+}
+
 #tunerbox {
     -GxPaintBox-alternate-box: 55 0 0 0;
 }
