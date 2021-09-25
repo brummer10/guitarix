@@ -596,7 +596,7 @@ CmdlineOptions::CmdlineOptions()
     opt_tuner_ref.set_description("set tuner reference pitch at startup");
     opt_tuner_ref.set_arg_description("tuner reference pitch (225 - 453)");
     Glib::OptionEntry opt_tuner_feedback;
-    opt_tuner_feedback.set_long_name("tuner_midi_feedback");
+    opt_tuner_feedback.set_long_name("tuner-midi-feedback");
     opt_tuner_feedback.set_description("send tuner midi feedback");
     main_group.add_entry(opt_version, version);
     main_group.add_entry(opt_nogui, nogui);
