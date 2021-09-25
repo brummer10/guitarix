@@ -713,6 +713,7 @@ static void mainHeadless(int argc, char *argv[]) {
     }
     // when midiout is requested we need to reload state in order to send midi feedback
     if (options.system_midiout) machine.loadstate();
+    if (options.system_tuner_midiout) machine.set_parameter_value("system.midiout_tuner", true);
     // ----------------------- Run Glib main loop ----------------------
     cout << "Ctrl-C to quit\n";
     Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create();
@@ -807,6 +808,7 @@ static void mainGtk(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTh
     }
     // when midiout is requested we need to reload state in order to send midi feedback
     if (options.system_midiout) machine.loadstate();
+    if (options.system_tuner_midiout) machine.set_parameter_value("system.midiout_tuner", true);
     delete Splash;
     gui.run();
 }

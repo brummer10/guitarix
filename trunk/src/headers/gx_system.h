@@ -460,6 +460,7 @@ public:
     bool system_show_toolbar;
     bool system_show_rack;
     bool system_midiout;
+    bool system_tuner_midiout;
     bool reload_lv2_presets;
 
 public:

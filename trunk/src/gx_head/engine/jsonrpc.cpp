@@ -630,6 +630,12 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
         jw.write(serv.jack.get_engine().controller_map.size());
     }
 
+    FUNCTION(get_midi_feedback) {
+        jw.begin_object();
+        jw.write(serv.settings.get_options().system_midiout);
+        jw.end_object();
+    }
+
     FUNCTION(getstate) {
         gx_engine::GxEngineState s = serv.jack.get_engine().get_state();
         jw.write(engine_state_to_string(s));
@@ -965,6 +971,10 @@ void CmdConnection::notify(gx_system::JsonStringWriter& jw, const methodnames *m
 
     PROCEDURE(set_last_midi_control_value) {
         serv.jack.get_engine().controller_map.set_last_midi_control_value(params[0]->getInt(),params[1]->getInt());
+    }
+
+    PROCEDURE(set_midi_feedback) {
+        serv.settings.get_options().system_midiout = params[0]->getInt();
     }
 
     PROCEDURE(set) {

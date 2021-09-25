@@ -56,7 +56,7 @@ Perfect_Hash::hash (const char *str, size_t len)
       169, 169, 169, 169, 169, 169, 169, 169, 169, 169,
       169, 169, 169, 169, 169, 169, 169, 169, 169, 169,
       169, 169, 169, 169, 169,  90, 169,  30,   5,   5,
-       55,   0, 169,   0,  45,  45,   0,  10,  40,  70,
+       55,   0, 169,   0,  55,  45,   0,  10,  40,  70,
        15,  50,  45,   5,  10,   5,  10, 110,   0,   0,
       169,   0, 169, 169, 169, 169, 169, 169
     };
@@ -83,7 +83,7 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
 {
   enum
     {
-      TOTAL_KEYWORDS = 83,
+      TOTAL_KEYWORDS = 85,
       MIN_WORD_LENGTH = 3,
       MAX_WORD_LENGTH = 29,
       MIN_HASH_VALUE = 13,
@@ -148,17 +148,17 @@ Perfect_Hash::in_word_set (const char *str, size_t len)
       {""},
       {"save_ladspalist", RPNM_save_ladspalist},
       {"save_preset", RPNM_save_preset},
-      {"switch_tuner", RPNM_switch_tuner},
+      {"get_midi_feedback", RPCM_get_midi_feedback},
       {"jack_cpu_load", RPCM_jack_cpu_load},
       {""},
       {"pf_insert_after", RPNM_pf_insert_after},
       {"listen", RPNM_listen},
-      {""},
+      {"set_midi_feedback", RPNM_set_midi_feedback},
       {"shutdown", RPNM_shutdown},
       {"bank_insert_content", RPCM_bank_insert_content},
       {"pluginlist", RPCM_pluginlist},
       {"insert_rack_unit", RPNM_insert_rack_unit},
-      {""},
+      {"switch_tuner", RPNM_switch_tuner},
       {"plugin_preset_list_save", RPNM_plugin_preset_list_save},
       {"midi_size", RPCM_midi_size},
       {"plugin_preset_list_remove", RPNM_plugin_preset_list_remove},
@@ -293,6 +293,8 @@ const jsonrpc_method_def jsonrpc_method_list[] = {
 	{ "request_midi_value_update", false },
 	{ "get_last_midi_control_value", true },
 	{ "set_last_midi_control_value", false },
+	{ "get_midi_feedback", true },
+	{ "set_midi_feedback", false },
 	{ "get_tuning", true },
 	{ "get_tuner_freq", true },
 	{ "get_tuner_note", true },

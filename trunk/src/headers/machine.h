@@ -188,6 +188,8 @@ public:
     virtual int midi_param2controller(Parameter& param, const MidiController** p) = 0;
     virtual void set_midi_channel(int s) = 0;
     virtual void midi_feedback(int c, int v) = 0;
+    virtual bool get_midi_feedback() = 0;
+    virtual void set_midi_feedback(int v) = 0;
     virtual void on_tuner_freq_changed() = 0;
     // Convolver
     virtual void reload_impresp_list(const std::string& path) = 0;
@@ -375,6 +377,8 @@ public:
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
     virtual void set_midi_channel(int s);
     virtual void midi_feedback(int c, int v);
+    virtual bool get_midi_feedback();
+    virtual void set_midi_feedback(int v);
     virtual void on_tuner_freq_changed();
     // Convolver
     virtual void reload_impresp_list(const std::string& path);
@@ -559,6 +563,8 @@ public:
     virtual int midi_param2controller(Parameter& param, const MidiController** p);
     virtual void set_midi_channel(int s);
     virtual void midi_feedback(int c, int v);
+    virtual bool get_midi_feedback();
+    virtual void set_midi_feedback(int v);
     virtual void on_tuner_freq_changed();
     // Convolver
     virtual void reload_impresp_list(const std::string& path);

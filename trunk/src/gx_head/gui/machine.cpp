@@ -1018,6 +1018,14 @@ void GxMachine::midi_feedback(int c, int v) {
 #endif
 }
 
+bool GxMachine::get_midi_feedback() {
+    return options.system_midiout;
+}
+
+void GxMachine::set_midi_feedback(int v) {
+    options.system_midiout = v;
+}
+
 // Convolver
 
 void GxMachine::on_impresp(const std::string& path) {
@@ -2881,6 +2889,22 @@ void GxMachineRemote::midi_feedback(int c, int v) {
         }
     }
 #endif
+}
+
+bool GxMachineRemote::get_midi_feedback() {
+    START_CALL(get_midi_feedback);
+    START_RECEIVE(false);
+    jp->next(gx_system::JsonParser::begin_object);
+    jp->next(gx_system::JsonParser::value_number);
+    return jp->current_value_int();
+    END_RECEIVE(return false);
+    
+}
+
+void GxMachineRemote::set_midi_feedback(int v) {
+    START_NOTIFY(set_midi_feedback);
+    jw->write(v);
+    SEND();
 }
 
 // Convolver

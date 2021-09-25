@@ -595,6 +595,9 @@ CmdlineOptions::CmdlineOptions()
     opt_tuner_ref.set_long_name("reference_pitch");
     opt_tuner_ref.set_description("set tuner reference pitch at startup");
     opt_tuner_ref.set_arg_description("tuner reference pitch (225 - 453)");
+    Glib::OptionEntry opt_tuner_feedback;
+    opt_tuner_feedback.set_long_name("tuner_midi_feedback");
+    opt_tuner_feedback.set_description("send tuner midi feedback");
     main_group.add_entry(opt_version, version);
     main_group.add_entry(opt_nogui, nogui);
     main_group.add_entry(opt_rpcport, rpcport);
@@ -606,6 +609,7 @@ CmdlineOptions::CmdlineOptions()
     main_group.add_entry(opt_bank, setbank);
     main_group.add_entry(opt_tuner_tet, tuner_tet);
     main_group.add_entry(opt_tuner_ref, tuner_ref);
+    main_group.add_entry(opt_tuner_feedback, system_tuner_midiout);
     set_main_group(main_group);
 
     // style options
@@ -637,6 +641,9 @@ CmdlineOptions::CmdlineOptions()
     opt_jack_midi.set_long_name("jack-midi");
     opt_jack_midi.set_description("Guitarix JACK midi control");
     opt_jack_midi.set_arg_description("PORT");
+    Glib::OptionEntry opt_jack_midi_feedback;
+    opt_jack_midi_feedback.set_long_name("jack-midi-feedback");
+    opt_jack_midi_feedback.set_description("Guitarix send JACK midi feedback");
     Glib::OptionEntry opt_jack_noconnect;
     opt_jack_noconnect.set_short_name('J');
     opt_jack_noconnect.set_long_name("jack-no-connect");
@@ -668,6 +675,7 @@ CmdlineOptions::CmdlineOptions()
     optgroup_jack.add_entry(opt_jack_input, jack_input);
     optgroup_jack.add_entry(opt_jack_output, jack_outputs);
     optgroup_jack.add_entry(opt_jack_midi, jack_midi);
+    optgroup_jack.add_entry(opt_jack_midi_feedback, system_midiout);
     optgroup_jack.add_entry(opt_jack_noconnect, jack_noconnect);
     optgroup_jack.add_entry(opt_jack_instance, jack_instance);
     optgroup_jack.add_entry(opt_jack_single, jack_single);

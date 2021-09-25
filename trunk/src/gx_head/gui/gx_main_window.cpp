@@ -1595,7 +1595,7 @@ void MainWindow::delete_select_midi_channel() {
 }
 
 void MainWindow::set_midiout() {
-    options.system_midiout = actions.midiout->get_active();
+    machine.set_midi_feedback(actions.midiout->get_active());
 }
 
 // show loggingbox
@@ -2824,7 +2824,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     actions.show_values->set_active(options.system_show_value);
     actions.tooltips->set_active(options.system_show_tooltips);
     actions.animations->set_active(options.system_animations);
-    actions.midiout->set_active(options.system_midiout);
+    actions.midiout->set_active(machine.get_midi_feedback());
 
     if (!title.empty()) {
 	bld.window->set_title(title);
