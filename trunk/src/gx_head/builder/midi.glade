@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
+<!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkDialog" id="MidiConnect">
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
+    <property name="can-focus">False</property>
+    <property name="border-width">5</property>
     <property name="title" translatable="yes">guitarix: Set MIDI Controller</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
-    <property name="window_position">mouse</property>
-    <property name="destroy_with_parent">True</property>
-    <property name="type_hint">dialog</property>
-    <child>
-      <placeholder/>
-    </child>
+    <property name="window-position">mouse</property>
+    <property name="destroy-with-parent">True</property>
+    <property name="type-hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
+            <property name="can-focus">False</property>
+            <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="button6">
                 <property name="label">Help</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -42,8 +39,8 @@
               <object class="GtkButton" id="button3">
                 <property name="label">Delete</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -55,9 +52,9 @@
               <object class="GtkButton" id="button2">
                 <property name="label">Cancel</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">True</property>
+                <property name="can-default">True</property>
+                <property name="receives-default">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -69,10 +66,10 @@
               <object class="GtkButton" id="button1">
                 <property name="label">OK</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="has_default">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">True</property>
+                <property name="can-default">True</property>
+                <property name="has-default">True</property>
+                <property name="receives-default">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -84,7 +81,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="pack_type">end</property>
+            <property name="pack-type">end</property>
             <property name="position">0</property>
           </packing>
         </child>
@@ -92,7 +89,7 @@
           <object class="GtkLabel" id="zone_name">
             <property name="name">midi-zone-name-header</property>
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -104,23 +101,23 @@
         <child>
           <object class="GtkAlignment" id="alignment2">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="xscale">0</property>
             <property name="yscale">0</property>
-            <property name="top_padding">4</property>
-            <property name="bottom_padding">4</property>
-            <property name="left_padding">4</property>
-            <property name="right_padding">4</property>
+            <property name="top-padding">4</property>
+            <property name="bottom-padding">4</property>
+            <property name="left-padding">4</property>
+            <property name="right-padding">4</property>
             <child>
               <object class="GtkBox" id="vbox1">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">6</property>
                 <child>
                   <object class="GtkLabel" id="label1">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes">operate a MIDI controller to set the controller number</property>
                     <property name="xalign">0</property>
                   </object>
@@ -131,45 +128,46 @@
                   </packing>
                 </child>
                 <child>
+                  <!-- n-columns=3 n-rows=3 -->
                   <object class="GtkGrid" id="table1">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="row_spacing">6</property>
-                    <property name="column_spacing">15</property>
+                    <property name="can-focus">False</property>
+                    <property name="row-spacing">6</property>
+                    <property name="column-spacing">15</property>
                     <child>
                       <object class="GtkLabel" id="range_label">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Parameter Range</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">1</property>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">1</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label3">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">MIDI Controller Number</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">0</property>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkBox" id="range_box">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="spacing">15</property>
                         <child>
                           <object class="GtkSpinButton" id="lower">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="activates_default">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="activates-default">True</property>
                             <property name="numeric">True</property>
                           </object>
                           <packing>
@@ -181,8 +179,8 @@
                         <child>
                           <object class="GtkSpinButton" id="upper">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="activates_default">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="activates-default">True</property>
                             <property name="numeric">True</property>
                           </object>
                           <packing>
@@ -193,36 +191,46 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">1</property>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">1</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkEntry" id="new">
+                        <property name="width-request">60</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="invisible_char">●</property>
-                        <property name="activates_default">True</property>
-                        <property name="width_chars">4</property>
+                        <property name="can-focus">True</property>
+                        <property name="invisible-char">●</property>
+                        <property name="activates-default">True</property>
+                        <property name="width-chars">4</property>
                         <property name="xalign">1</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
+                        <property name="primary-icon-activatable">False</property>
+                        <property name="secondary-icon-activatable">False</property>
                       </object>
                       <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">0</property>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">0</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="new_desc">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="xalign">0</property>
                       </object>
                       <packing>
-                        <property name="left_attach">2</property>
-                        <property name="top_attach">0</property>
+                        <property name="left-attach">2</property>
+                        <property name="top-attach">0</property>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>
@@ -236,82 +244,148 @@
                   </packing>
                 </child>
                 <child>
+                  <!-- n-columns=3 n-rows=3 -->
                   <object class="GtkGrid" id="table4">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <child>
+                      <!-- n-columns=3 n-rows=3 -->
                       <object class="GtkGrid" id="table2">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="column_spacing">10</property>
+                        <property name="can-focus">False</property>
+                        <property name="column-spacing">10</property>
                         <child>
                           <object class="GtkLabel" id="label5">
-                            <property name="width_request">100</property>
+                            <property name="width-request">100</property>
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">toggle parameter</property>
                             <property name="justify">right</property>
                             <property name="xalign">1</property>
                           </object>
                           <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">0</property>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkCheckButton" id="use_toggle">
                             <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">False</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">False</property>
                             <property name="relief">none</property>
-                            <property name="image_position">right</property>
-                            <property name="draw_indicator">True</property>
+                            <property name="image-position">right</property>
+                            <property name="draw-indicator">True</property>
                           </object>
                           <packing>
-                            <property name="left_attach">1</property>
-                            <property name="top_attach">0</property>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">0</property>
                           </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                       </object>
                       <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">0</property>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
                       </packing>
                     </child>
                     <child>
+                      <!-- n-columns=3 n-rows=3 -->
                       <object class="GtkGrid" id="table3">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="column_spacing">10</property>
+                        <property name="can-focus">False</property>
+                        <property name="column-spacing">10</property>
                         <child>
                           <object class="GtkLabel" id="label6">
-                            <property name="width_request">100</property>
+                            <property name="width-request">100</property>
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">type</property>
                             <property name="justify">right</property>
                             <property name="xalign">1</property>
                           </object>
                           <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">0</property>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkComboBox" id="toggle_behaviours">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                           </object>
                           <packing>
-                            <property name="left_attach">1</property>
-                            <property name="top_attach">0</property>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">0</property>
                           </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
                         </child>
                       </object>
                       <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">1</property>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">1</property>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                   </object>
                   <packing>
@@ -323,13 +397,13 @@
                 <child>
                   <object class="GtkFrame" id="desc_box">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label_xalign">0</property>
-                    <property name="shadow_type">in</property>
+                    <property name="can-focus">False</property>
+                    <property name="label-xalign">0</property>
+                    <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkLabel" id="desc">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">label</property>
                         <property name="wrap">True</property>
                         <attributes>
@@ -367,7 +441,7 @@
   </object>
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="stock">gtk-delete</property>
   </object>
   <object class="GtkListStore" id="liststore1">
@@ -392,34 +466,31 @@
   </object>
   <object class="GtkDialog" id="MidiControllerTable">
     <property name="name">MidiControllerTable</property>
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
+    <property name="can-focus">False</property>
+    <property name="border-width">5</property>
     <property name="title" translatable="yes">guitarix: MIDI Controller</property>
-    <property name="default_width">600</property>
-    <property name="default_height">400</property>
-    <property name="destroy_with_parent">True</property>
-    <property name="type_hint">dialog</property>
-    <child>
-      <placeholder/>
-    </child>
+    <property name="default-width">600</property>
+    <property name="default-height">400</property>
+    <property name="destroy-with-parent">True</property>
+    <property name="type-hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox2">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">6</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <child>
               <object class="GtkButton" id="button4">
                 <property name="label" translatable="yes">_Delete Selected</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
                 <property name="image">image1</property>
-                <property name="use_underline">True</property>
+                <property name="use-underline">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -431,8 +502,8 @@
               <object class="GtkButton" id="button5">
                 <property name="label">Close</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -444,16 +515,16 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="pack_type">end</property>
+            <property name="pack-type">end</property>
             <property name="position">2</property>
           </packing>
         </child>
         <child>
           <object class="GtkLabel" id="label2">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">MIDI Controller</property>
-            <property name="use_markup">True</property>
+            <property name="use-markup">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -464,15 +535,15 @@
         <child>
           <object class="GtkScrolledWindow" id="scroller">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">never</property>
+            <property name="can-focus">True</property>
+            <property name="hscrollbar-policy">never</property>
             <child>
               <object class="GtkTreeView" id="treeview1">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <property name="model">liststore1</property>
-                <property name="headers_clickable">False</property>
-                <property name="search_column">0</property>
+                <property name="headers-clickable">False</property>
+                <property name="search-column">0</property>
                 <child internal-child="selection">
                   <object class="GtkTreeSelection"/>
                 </child>
@@ -481,8 +552,8 @@
                     <property name="sizing">autosize</property>
                     <property name="title">MIDI CC</property>
                     <property name="clickable">True</property>
-                    <property name="sort_indicator">True</property>
-                    <property name="sort_column_id">0</property>
+                    <property name="sort-indicator">True</property>
+                    <property name="sort-column-id">0</property>
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext1">
                         <property name="xalign">1</property>
@@ -512,7 +583,7 @@
                     <property name="sizing">autosize</property>
                     <property name="title">Group</property>
                     <property name="clickable">True</property>
-                    <property name="sort_column_id">2</property>
+                    <property name="sort-column-id">2</property>
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext3"/>
                       <attributes>
@@ -526,7 +597,7 @@
                     <property name="sizing">autosize</property>
                     <property name="title">Parameter</property>
                     <property name="clickable">True</property>
-                    <property name="sort_column_id">3</property>
+                    <property name="sort-column-id">3</property>
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext4"/>
                       <attributes>
@@ -585,7 +656,7 @@
         <child>
           <object class="GtkLabel" id="label4">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="label" translatable="yes">Edit a MIDI name to choose your own</property>
           </object>
           <packing>
@@ -598,10 +669,10 @@
           <object class="GtkCheckButton" id="save_controller">
             <property name="label" translatable="yes">include MIDI controllers in _presets</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="use_underline">True</property>
-            <property name="draw_indicator">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">False</property>
+            <property name="use-underline">True</property>
+            <property name="draw-indicator">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
