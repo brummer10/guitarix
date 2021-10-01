@@ -1,37 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
+<!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <requires lib="gxwidgets" version="0.0"/>
   <object class="GtkWindow" id="window1">
-    <property name="can_focus">False</property>
-    <child>
-      <placeholder/>
-    </child>
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkBox" id="vbox1">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox" id="rackbox">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="spacing">4</property>
             <child>
               <object class="GtkBox" id="hbox1">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="spacing">10</property>
                 <child>
                   <object class="GtkBox" id="vbox2">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel" id="label1:rack_label">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">label</property>
                       </object>
                       <packing>
@@ -43,10 +40,10 @@
                     <child>
                       <object class="GxSmallKnobR" id="gxbigknob1">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="var_id">coverd.Bass</property>
-                        <property name="label_ref">label1:rack_label</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="var-id">coverd.Bass</property>
+                        <property name="label-ref">label1:rack_label</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -64,11 +61,12 @@
                 <child>
                   <object class="GtkBox" id="vbox3">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel" id="label2:rack_label">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">label</property>
                       </object>
                       <packing>
@@ -80,10 +78,10 @@
                     <child>
                       <object class="GxSmallKnobR" id="gxbigknob2">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="var_id">coverd.Treble</property>
-                        <property name="label_ref">label2:rack_label</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="var-id">coverd.Treble</property>
+                        <property name="label-ref">label2:rack_label</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -101,12 +99,12 @@
                 <child>
                   <object class="GtkBox" id="vbox4">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel" id="label3:rack_label">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">label</property>
                       </object>
                       <packing>
@@ -118,10 +116,10 @@
                     <child>
                       <object class="GxMidKnob" id="gxbigknob3">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="var_id">coverd.Volume</property>
-                        <property name="label_ref">label3:rack_label</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="var-id">coverd.Volume</property>
+                        <property name="label-ref">label3:rack_label</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -139,12 +137,12 @@
                 <child>
                   <object class="GtkBox" id="vbox5">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel" id="label4:rack_label">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">label</property>
                       </object>
                       <packing>
@@ -156,10 +154,10 @@
                     <child>
                       <object class="GxSmallKnobR" id="gxbigknob4">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="var_id">coverd.wet_dry</property>
-                        <property name="label_ref">label4:rack_label</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="var-id">coverd.wet_dry</property>
+                        <property name="label-ref">label4:rack_label</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -178,7 +176,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">False</property>
-                <property name="pack_type">end</property>
+                <property name="pack-type">end</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -192,19 +190,19 @@
         <child>
           <object class="GtkBox" id="minibox">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="spacing">4</property>
             <child>
               <object class="GxHSlider" id="gxhslider1">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="round_digits">0</property>
-                <property name="var_id">coverd.Volume</property>
-                <property name="show_value">False</property>
-                <property name="value_position">right</property>
-                <property name="value_xalign">0.52000000000000002</property>
-                <property name="label_ref">label0:rack_label</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="round-digits">0</property>
+                <property name="var-id">coverd.Volume</property>
+                <property name="show-value">False</property>
+                <property name="value-position">right</property>
+                <property name="value-xalign">0.52</property>
+                <property name="label-ref">label0:rack_label</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -215,7 +213,7 @@
             <child>
               <object class="GtkLabel" id="label0:rack_label">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Volume</property>
                 <property name="xalign">0</property>
               </object>
