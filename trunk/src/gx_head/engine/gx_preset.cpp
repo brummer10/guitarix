@@ -578,10 +578,10 @@ void PresetIO::commit_preset() {
         (*i)->setJSON_value();
         commit_midi_feedback((*i));
     }
+    clear();
     if (m) {
         mctrl.update_from_controllers();
     }
-    clear();
 }
 
 void PresetIO::write_intern(gx_system::JsonWriter &w, bool write_midi) {
