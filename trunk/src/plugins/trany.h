@@ -85,8 +85,6 @@ table1d *tranytab[TRANY_TABLE_SIZE] = {
 };
 
 table1d *tranytab2[TRANY_TABLE_SIZE] = {
-    &static_cast<table1d&>(tubetable2_KT88[0]),
-    &static_cast<table1d&>(tubetable2_KT88[1]),
     &static_cast<table1d&>(tubetable2_7199P[0]),
     &static_cast<table1d&>(tubetable2_7199P[1]),
     &static_cast<table1d&>(tubetable2_SVEL34[0]),
