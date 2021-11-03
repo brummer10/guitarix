@@ -80,7 +80,7 @@ plug_name(plugname)
   static const size_t _size = sizeof(modes) / sizeof(modes[0]);
   make_selector("Tunning Modes", modes, _size, 0, 1.0, TUNEMODE);
   m_vbox8.pack_start(tuner_tuning);
-  Glib::ustring temperament_modes[] = {"12-TET","19-TET","24-TET", "31-TET", "53-TET"};
+  Glib::ustring temperament_modes[] = {"12-TET","19-TET","24-TET", "31-TET", "41-TET", "53-TET"};
   static const size_t _size2 = sizeof(temperament_modes) / sizeof(modes[0]);
   make_selector("Tunning Scale", temperament_modes, _size2, 0, 1.0, TEMPERAMENT);
   m_vbox8.pack_start(tuner_temperament);

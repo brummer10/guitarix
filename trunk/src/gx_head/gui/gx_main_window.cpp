@@ -2100,7 +2100,8 @@ void MainWindow::set_tuner_tet(Gxw::RackTuner& tuner) {
     else if (tet.find("19") !=Glib::ustring::npos) t=1;
     else if (tet.find("24") !=Glib::ustring::npos) t=2;
     else if (tet.find("31") !=Glib::ustring::npos) t=3;
-    else if (tet.find("53") !=Glib::ustring::npos) t=4;
+    else if (tet.find("41") !=Glib::ustring::npos) t=4;
+    else if (tet.find("53") !=Glib::ustring::npos) t=5;
     else t = bld.tuner_temperament->get_value();
     machine.set_parameter_value("racktuner.temperament", t);
     tuner.set_temperament(bld.tuner_temperament->get_value());
