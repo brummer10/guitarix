@@ -189,6 +189,7 @@ static const char *note_flat[] = {"A","Bb","B","C","Db","D","Eb","E","F","Gb","G
 static const char* note_19[19] = {"A","A♯","B♭","B","B♯","C","C♯","D♭","D","D♯","E♭","E","E♯","F","F♯","G♭","G","G♯","A♭"};
 static const char* note_24[24] = {"A","A¼♯","A♯","A¾♯","B","B¼♯","C","C¼♯","C♯","C¾♯","D","D¼♯","D♯","D¾♯","E","E¼♯","F","F¼♯","F♯","F¾♯","G","G¼♯","G♯","G¾♯"};
 static const char* note_31[31] = {"A","B♭♭","A♯","B♭","A♯♯","B","C♭","B♯","C ","D♭♭","C♯","D♭","C♯♯","D","E♭♭","D♯","E♭","D♯♯","E","F♭","E♯","F","G♭♭","F♯","G♭","F♯♯","G","A♭♭","G♯","A♭","G♯♯"};
+static const char* note_41[41] = {"A","^A","vB♭","B♭","^B♭","vvB","vB","B","^B","vC","C","^C","^^C","vC♯","C♯","^C♯","vD","D","^D","vE♭","E♭","^E♭","vvE","vE","E","^E","vF","F","^F","^^F","vF♯","F♯","^F♯","vG","G","^G","vA♭","A♭","^A♭","vvA","vA"};
 static const char* note_53[53] = {"la","laa","lo","law","ta","teh","te","tu","tuh","ti","tih","to","taw","da","do","di","daw","ro","rih","ra","ru","ruh","reh","re ","ri","raw","ma","meh","me","mu","muh","mi","maa","mo","maw","fe","fa","fih","fu","fuh","fi","se","suh","su","sih","sol","si","saw","lo","leh","le","lu","luh"};
 static const char *octave[] = {"0","1","2","3","4","5"," "};
 
@@ -354,6 +355,11 @@ void gx_rack_tuner_set_temperament(GxRackTuner *tuner, gint temperament)
         tuner->priv->note = note_31;
         break;
     case 4:
+        tuner->priv->target_temperament = 41;
+        tuner->priv->target_adjust = 11;
+        tuner->priv->note = note_41;
+        break;
+    case 5:
         tuner->priv->target_temperament = 53;
         tuner->priv->target_adjust = 15;
         tuner->priv->note = note_53;

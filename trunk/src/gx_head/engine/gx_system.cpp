@@ -589,7 +589,7 @@ CmdlineOptions::CmdlineOptions()
     opt_tuner_tet.set_short_name('t');
     opt_tuner_tet.set_long_name("tuner_tet");
     opt_tuner_tet.set_description("set tuner temperament at startup");
-    opt_tuner_tet.set_arg_description("tuner temperament (12, 19, 24, 31, 53)");
+    opt_tuner_tet.set_arg_description("tuner temperament (12, 19, 24, 31, 41, 53)");
     Glib::OptionEntry opt_tuner_ref;
     opt_tuner_ref.set_short_name('F');
     opt_tuner_ref.set_long_name("reference_pitch");
