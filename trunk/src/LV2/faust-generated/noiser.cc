@@ -66,9 +66,9 @@ void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		iRec0[0] = ((1103515245 * iRec0[1]) + 12345);
-		output0[i] = FAUSTFLOAT((double(input0[i]) + (4.6566128752457968e-21 * double(iRec0[0]))));
+		output0[i0] = FAUSTFLOAT((double(input0[i0]) + (4.6566128752457968e-21 * double(iRec0[0]))));
 		iRec0[1] = iRec0[0];
 	}
 }

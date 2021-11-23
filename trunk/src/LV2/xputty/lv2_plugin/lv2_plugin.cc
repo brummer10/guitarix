@@ -495,6 +495,10 @@ static void cleanup(LV2UI_Handle handle) {
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+static void null_callback(void *w, void* user_data) {
+
+}
+
 // port value change message from host
 static void port_event(LV2UI_Handle handle, uint32_t port_index,
                         uint32_t buffer_size, uint32_t format,
@@ -504,11 +508,14 @@ static void port_event(LV2UI_Handle handle, uint32_t port_index,
     int i=0;
     for (;i<CONTROLS;i++) {
         if (ui->widget[i] && port_index == (uint32_t)ui->widget[i]->data) {
+            xevfunc store = ui->widget[i]->func.value_changed_callback;
+            ui->widget[i]->func.value_changed_callback = null_callback;
             // prevent event loop between host and plugin
-            ui->block_event = (int)port_index;
+            //ui->block_event = (int)port_index;
             // Xputty check if the new value differs from the old one
             // and set new one, when needed
             adj_set_value(ui->widget[i]->adj, value);
+            ui->widget[i]->func.value_changed_callback = store;
         }
    }
    plugin_port_event(handle, port_index, buffer_size, format, buffer);

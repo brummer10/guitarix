@@ -15,11 +15,8 @@ private:
 	double fRec0[6];
 	FAUSTFLOAT fHslider1;
 	FAUSTFLOAT	*fHslider1_;
-	double fConst0;
-	double fConst1;
 	double fConst2;
 	double fConst3;
-	double fConst4;
 	double fConst5;
 	double fConst6;
 	FAUSTFLOAT fVslider1;
@@ -28,7 +25,6 @@ private:
 	double fVec0[2];
 	double fRec15[2];
 	double fRec14[3];
-	double fConst7;
 	double fConst8;
 	double fVec1[2];
 	double fConst9;
@@ -42,7 +38,6 @@ private:
 	double fVec2[2];
 	double fRec10[2];
 	double fRec9[3];
-	double fConst10;
 	double fConst11;
 	double fVec3[2];
 	double fConst12;
@@ -56,7 +51,6 @@ private:
 	double fVec4[2];
 	double fRec5[2];
 	double fRec4[3];
-	double fConst13;
 	double fConst14;
 	double fVec5[2];
 	double fConst15;
@@ -195,20 +189,20 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = (3.1415926535897931 / fConst0);
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = (3.1415926535897931 / fConst0);
 	fConst2 = (1.0 / (fConst1 + 1.0));
 	fConst3 = (1.0 - fConst1);
-	fConst4 = (1.0 / std::tan((20517.741620594938 / fConst0)));
+	double fConst4 = (1.0 / std::tan((20517.741620594938 / fConst0)));
 	fConst5 = (1.0 / (fConst4 + 1.0));
 	fConst6 = (1.0 - fConst4);
-	fConst7 = (1.0 / std::tan((270.1769682087222 / fConst0)));
+	double fConst7 = (1.0 / std::tan((270.1769682087222 / fConst0)));
 	fConst8 = (1.0 / (fConst7 + 1.0));
 	fConst9 = (1.0 - fConst7);
-	fConst10 = (1.0 / std::tan((414.69023027385271 / fConst0)));
+	double fConst10 = (1.0 / std::tan((414.69023027385271 / fConst0)));
 	fConst11 = (1.0 / (fConst10 + 1.0));
 	fConst12 = (1.0 - fConst10);
-	fConst13 = (1.0 / std::tan((609.46897479641984 / fConst0)));
+	double fConst13 = (1.0 / std::tan((609.46897479641984 / fConst0)));
 	fConst14 = (1.0 / (fConst13 + 1.0));
 	fConst15 = (1.0 - fConst13);
 	clear_state_f();
@@ -235,8 +229,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow5 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider1))));
 	double fSlow6 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider2))));
 	double fSlow7 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider3))));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		fRec0[0] = (-1.0 * ((fSlow2 * fRec0[5]) - fTemp0));
 		fRec16[0] = (fSlow5 + (0.999 * fRec16[1]));
 		double fTemp1 = (fTemp0 * fRec16[0]);
@@ -277,8 +271,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec3[0] = (double(Ftube(int(TUBE_TABLE_6V6_250k), double(((fTemp10 + (fRec21[0] + fTemp11)) + -1.1304620000000001)))) + -112.13878048780487);
 		fRec2[0] = (fConst2 * ((fConst3 * fRec2[1]) + (0.025000000000000001 * (fRec3[0] - fRec3[1]))));
 		fRec1[0] = (-1.0 * ((fSlow4 * fRec1[5]) - fRec2[0]));
-		output0[i] = FAUSTFLOAT(((fSlow1 * fRec0[0]) + (fSlow3 * fRec1[0])));
-		double fTemp13 = double(input1[i]);
+		output0[i0] = FAUSTFLOAT(((fSlow1 * fRec0[0]) + (fSlow3 * fRec1[0])));
+		double fTemp13 = double(input1[i0]);
 		fRec22[0] = (-1.0 * ((fSlow2 * fRec22[5]) - fTemp13));
 		double fTemp14 = (fTemp13 * fRec16[0]);
 		fVec6[0] = fTemp14;
@@ -316,7 +310,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec25[0] = (double(Ftube(int(TUBE_TABLE_6V6_250k), double(((fTemp23 + (fRec40[0] + fTemp24)) + -1.1304620000000001)))) + -112.13878048780487);
 		fRec24[0] = (fConst2 * ((fConst3 * fRec24[1]) + (0.025000000000000001 * (fRec25[0] - fRec25[1]))));
 		fRec23[0] = (-1.0 * ((fSlow4 * fRec23[5]) - fRec24[0]));
-		output1[i] = FAUSTFLOAT(((fSlow1 * fRec22[0]) + (fSlow3 * fRec23[0])));
+		output1[i0] = FAUSTFLOAT(((fSlow1 * fRec22[0]) + (fSlow3 * fRec23[0])));
 		for (int j0 = 5; (j0 > 0); j0 = (j0 - 1)) {
 			fRec0[j0] = fRec0[(j0 - 1)];
 		}

@@ -7,13 +7,9 @@ namespace lowpass_down {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
-	double fConst0;
 	double fConst1;
-	double fConst2;
 	double fConst3;
-	double fConst4;
 	double fConst5;
-	double fConst6;
 	double fConst7;
 	double fConst8;
 	double fVec0[2];
@@ -79,13 +75,13 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
-	fConst2 = std::tan((251.32741228718345 / fConst0));
+	double fConst2 = std::tan((251.32741228718345 / fConst0));
 	fConst3 = (1.0 / fConst2);
-	fConst4 = (fConst3 + 1.0);
+	double fConst4 = (fConst3 + 1.0);
 	fConst5 = (0.0 - (1.0 / (fConst2 * fConst4)));
-	fConst6 = (1.0 / std::tan((17690.308232364125 / fConst0)));
+	double fConst6 = (1.0 / std::tan((17690.308232364125 / fConst0)));
 	fConst7 = (1.0 / (fConst6 + 1.0));
 	fConst8 = (1.0 - fConst6);
 	fConst9 = (1.0 / fConst4);
@@ -101,9 +97,9 @@ void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 #define fVbargraph0 (*fVbargraph0_)
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		int iTemp0 = (iRec1[1] < 4096);
-		double fTemp1 = double(input0[i]);
+		double fTemp1 = double(input0[i0]);
 		fVec0[0] = fTemp1;
 		fRec4[0] = (0.0 - (fConst7 * ((fConst8 * fRec4[1]) - (fTemp1 + fVec0[1]))));
 		fRec3[0] = ((fConst5 * fRec4[1]) - (fConst9 * ((fConst10 * fRec3[1]) - (fConst3 * fRec4[0]))));
@@ -112,7 +108,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec1[0] = (iTemp0 ? (iRec1[1] + 1) : 1);
 		fRec2[0] = (iTemp0 ? fRec2[1] : (0.000244140625 * fRec0[1]));
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
-		output0[i] = FAUSTFLOAT(fRec3[0]);
+		output0[i0] = FAUSTFLOAT(fRec3[0]);
 		fVec0[1] = fVec0[0];
 		fRec4[1] = fRec4[0];
 		fRec3[1] = fRec3[0];

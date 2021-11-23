@@ -348,7 +348,7 @@ GxPluginStereo::~GxPluginStereo()
 
 void GxPluginStereo::do_work_stereo()
 {
-  if (buffsize_changed()) 
+ /* if (buffsize_changed()) 
    {
      printf("buffersize changed to %u\n",cur_bufsize);
      if (cabconv.is_runnable())
@@ -388,7 +388,7 @@ void GxPluginStereo::do_work_stereo()
      while (!ampconv.checkstate());
      if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver update buffersize fail\n");
-   }
+   }*/
   if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())

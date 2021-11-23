@@ -342,7 +342,7 @@ GxPluginMono::~GxPluginMono()
 void GxPluginMono::do_work_mono()
 {
   
-  if (buffsize_changed()) 
+ /* if (buffsize_changed()) 
    {
      printf("buffersize changed to %u\n",cur_bufsize);
      if (cabconv.is_runnable())
@@ -382,7 +382,7 @@ void GxPluginMono::do_work_mono()
      while (!ampconv.checkstate());
      if(!ampconv.start(prio, SCHED_FIFO))
         printf("presence convolver update buffersize fail\n");
-   }
+   }*/
   if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())

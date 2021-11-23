@@ -100,25 +100,25 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 #define fHslider1 (*fHslider1_)
 	double fSlow0 = (0.0010000000000000009 * double(fHslider0));
 	double fSlow1 = double(fHslider1);
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		iVec0[0] = 1;
 		fRec5[0] = ((9.9999999999999995e-21 * double((1 - iVec0[1]))) - fRec5[1]);
 		fRec6[0] = (fSlow0 + (0.999 * fRec6[1]));
 		double fTemp0 = (fConst0 * fRec6[0]);
 		double fTemp1 = (1.0 - fTemp0);
-		fRec4[0] = ((double(input0[i]) + (fRec5[0] + (fTemp1 * fRec4[1]))) - (fSlow1 * fRec0[1]));
+		fRec4[0] = ((double(input0[i0]) + (fRec5[0] + (fTemp1 * fRec4[1]))) - (fSlow1 * fRec0[1]));
 		fRec3[0] = (fRec4[0] + (fTemp1 * fRec3[1]));
 		fRec2[0] = (fRec3[0] + (fTemp1 * fRec2[1]));
 		fRec1[0] = (fRec2[0] + (fRec1[1] * fTemp1));
 		double fTemp2 = mydsp_faustpower4_f(fTemp0);
 		fRec0[0] = (fRec1[0] * fTemp2);
-		output0[i] = FAUSTFLOAT(fRec0[0]);
-		fRec11[0] = ((double(input1[i]) + (fRec5[0] + (fTemp1 * fRec11[1]))) - (fSlow1 * fRec7[1]));
+		output0[i0] = FAUSTFLOAT(fRec0[0]);
+		fRec11[0] = ((double(input1[i0]) + (fRec5[0] + (fTemp1 * fRec11[1]))) - (fSlow1 * fRec7[1]));
 		fRec10[0] = (fRec11[0] + (fTemp1 * fRec10[1]));
 		fRec9[0] = (fRec10[0] + (fTemp1 * fRec9[1]));
 		fRec8[0] = (fRec9[0] + (fTemp1 * fRec8[1]));
 		fRec7[0] = (fRec8[0] * fTemp2);
-		output1[i] = FAUSTFLOAT(fRec7[0]);
+		output1[i0] = FAUSTFLOAT(fRec7[0]);
 		iVec0[1] = iVec0[0];
 		fRec5[1] = fRec5[0];
 		fRec6[1] = fRec6[0];

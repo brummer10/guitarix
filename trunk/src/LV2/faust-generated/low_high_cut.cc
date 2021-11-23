@@ -7,12 +7,8 @@ namespace low_high_cut {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
-	double fConst0;
-	double fConst1;
-	double fConst2;
 	double fConst3;
 	double fConst4;
-	double fConst5;
 	double fConst6;
 	int iVec0[2];
 	double fRec4[2];
@@ -79,12 +75,12 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = std::tan((3138.4510609362032 / fConst0));
-	fConst2 = (1.0 / fConst1);
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = std::tan((3138.4510609362032 / fConst0));
+	double fConst2 = (1.0 / fConst1);
 	fConst3 = (1.0 / (((fConst2 + 0.76536686473017945) / fConst1) + 1.0));
 	fConst4 = (1.0 / (((fConst2 + 1.8477590650225735) / fConst1) + 1.0));
-	fConst5 = (72.256631032565238 / fConst0);
+	double fConst5 = (72.256631032565238 / fConst0);
 	fConst6 = (1.0 / (fConst5 + 1.0));
 	fConst7 = (1.0 - fConst5);
 	fConst8 = (((fConst2 + -1.8477590650225735) / fConst1) + 1.0);
@@ -100,16 +96,16 @@ void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		iVec0[0] = 1;
 		fRec4[0] = ((9.9999999999999995e-21 * double((1 - iVec0[1]))) - fRec4[1]);
-		double fTemp0 = (double(input0[i]) + fRec4[0]);
+		double fTemp0 = (double(input0[i0]) + fRec4[0]);
 		fVec1[0] = fTemp0;
 		fRec3[0] = (fConst6 * ((fTemp0 - fVec1[1]) + (fConst7 * fRec3[1])));
 		fRec2[0] = (fConst6 * ((fRec3[0] - fRec3[1]) + (fConst7 * fRec2[1])));
 		fRec1[0] = (fRec2[0] - (fConst4 * ((fConst8 * fRec1[2]) + (fConst9 * fRec1[1]))));
 		fRec0[0] = ((fConst4 * (fRec1[2] + (fRec1[0] + (2.0 * fRec1[1])))) - (fConst3 * ((fConst10 * fRec0[2]) + (fConst9 * fRec0[1]))));
-		output0[i] = FAUSTFLOAT((fConst3 * (fRec0[2] + (fRec0[0] + (2.0 * fRec0[1])))));
+		output0[i0] = FAUSTFLOAT((fConst3 * (fRec0[2] + (fRec0[0] + (2.0 * fRec0[1])))));
 		iVec0[1] = iVec0[0];
 		fRec4[1] = fRec4[0];
 		fVec1[1] = fVec1[0];

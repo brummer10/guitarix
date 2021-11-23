@@ -7,12 +7,8 @@ namespace bmfp {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
-	double fConst0;
-	double fConst1;
 	double fConst2;
-	double fConst3;
 	double fConst4;
-	double fConst5;
 	double fConst6;
 	double fConst7;
 	FAUSTFLOAT fVslider0;
@@ -21,9 +17,6 @@ private:
 	FAUSTFLOAT	*fVslider1_;
 	FAUSTFLOAT fVslider2;
 	FAUSTFLOAT	*fVslider2_;
-	double fConst8;
-	double fConst9;
-	double fConst10;
 	double fConst11;
 	FAUSTFLOAT fVslider3;
 	FAUSTFLOAT	*fVslider3_;
@@ -33,7 +26,6 @@ private:
 	double fConst13;
 	double fConst14;
 	double fRec2[2];
-	double fConst15;
 	double fConst16;
 	double fConst17;
 	double fRec4[2];
@@ -96,22 +88,22 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = std::tan((251.32741228718345 / fConst0));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = std::tan((251.32741228718345 / fConst0));
 	fConst2 = (1.0 / fConst1);
-	fConst3 = (fConst2 + 1.0);
+	double fConst3 = (fConst2 + 1.0);
 	fConst4 = (0.0 - (1.0 / (fConst1 * fConst3)));
-	fConst5 = (1.0 / std::tan((17690.308232364125 / fConst0)));
+	double fConst5 = (1.0 / std::tan((17690.308232364125 / fConst0)));
 	fConst6 = (1.0 / (fConst5 + 1.0));
 	fConst7 = (1.0 - fConst5);
-	fConst8 = std::tan((5830.7959650626563 / fConst0));
-	fConst9 = (1.0 / fConst8);
-	fConst10 = (fConst9 + 1.0);
+	double fConst8 = std::tan((5830.7959650626563 / fConst0));
+	double fConst9 = (1.0 / fConst8);
+	double fConst10 = (fConst9 + 1.0);
 	fConst11 = (0.0 - (1.0 / (fConst8 * fConst10)));
 	fConst12 = (1.0 / fConst10);
 	fConst13 = (0.01 / fConst8);
 	fConst14 = (1.0 - fConst9);
-	fConst15 = (1.0 / std::tan((1281.7698026646356 / fConst0)));
+	double fConst15 = (1.0 / std::tan((1281.7698026646356 / fConst0)));
 	fConst16 = (1.0 / (fConst15 + 1.0));
 	fConst17 = (1.0 - fConst15);
 	fConst18 = (1.0 / fConst3);
@@ -141,8 +133,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow8 = (fConst13 * fSlow0);
 	double fSlow9 = (1.0 - fSlow6);
 	double fSlow10 = (0.25 * fSlow3);
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		fRec3[0] = (fSlow7 + (0.999 * fRec3[1]));
 		double fTemp1 = (fTemp0 * fRec3[0]);
 		double fTemp2 = (fSlow1 * fTemp1);
@@ -157,7 +149,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec1[0] = fTemp7;
 		fRec1[0] = (0.0 - (fConst6 * ((fConst7 * fRec1[1]) - (fTemp7 + fVec1[1]))));
 		fRec0[0] = ((fConst4 * fRec1[1]) - (fConst18 * ((fConst19 * fRec0[1]) - (fConst2 * fRec1[0]))));
-		output0[i] = FAUSTFLOAT(fRec0[0]);
+		output0[i0] = FAUSTFLOAT(fRec0[0]);
 		fRec3[1] = fRec3[0];
 		fVec0[1] = fVec0[0];
 		fRec2[1] = fRec2[0];

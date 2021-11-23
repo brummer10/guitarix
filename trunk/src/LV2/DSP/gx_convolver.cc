@@ -253,22 +253,34 @@ bool __rt_func GxSimpleConvolver::compute(int32_t count, float* input, float *ou
       flags = process(sync);
 
       memcpy(output, outdata(0), count * sizeof(float));
+    } else if (static_cast<uint32_t>(count) < buffersize) {
+      float in[buffersize];
+      memset(in, 0, buffersize * sizeof(float));
+      memcpy(in, input, count * sizeof(float));
+      memcpy(inpdata(0), in, buffersize * sizeof(float));
+      flags = process(sync);
+      memcpy(output, outdata(0), count * sizeof(float));
     } else {
       float *in, *out;
       in = inpdata(0);
       out = outdata(0);
       uint32_t b = 0;
       uint32_t c = 1;
+      uint32_t d = 0;
       for(int32_t i = 0; i<count; ++i){
         in[b] = input[i];
         if(++b == buffersize) {
           b=0;
           flags = process();
-          for(uint32_t d = 0; d<buffersize; ++d) {
+          for(d = 0; d<buffersize; ++d) {
             output[d*c] = out[d];
           }
           ++c;
         }
+      }
+      if (d*c < static_cast<uint32_t>(count)) {
+        uint32_t r = static_cast<uint32_t>(count) - (d*c);          
+        printf("convolver missing %u samples", r);
       }
     }
   return flags == 0;

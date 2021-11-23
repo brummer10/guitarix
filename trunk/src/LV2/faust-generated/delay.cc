@@ -122,11 +122,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	int iSlow5 = std::min<int>(262145, std::max<int>(0, iSlow4));
 	float fSlow6 = (fSlow1 - fSlow2);
 	int iSlow7 = std::min<int>(262145, std::max<int>(0, (iSlow4 + 1)));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		float fTemp0 = float(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		float fTemp0 = float(input0[i0]);
 		fVec0[(IOTA & 524287)] = fTemp0;
 		fRec0[0] = (fSlow0 + (0.999000013f * fRec0[1]));
-		output0[i] = FAUSTFLOAT((fTemp0 + (fRec0[0] * ((fSlow3 * fVec0[((IOTA - iSlow5) & 524287)]) + (fSlow6 * fVec0[((IOTA - iSlow7) & 524287)])))));
+		output0[i0] = FAUSTFLOAT((fTemp0 + (fRec0[0] * ((fSlow3 * fVec0[((IOTA - iSlow5) & 524287)]) + (fSlow6 * fVec0[((IOTA - iSlow7) & 524287)])))));
 		IOTA = (IOTA + 1);
 		fRec0[1] = fRec0[0];
 	}

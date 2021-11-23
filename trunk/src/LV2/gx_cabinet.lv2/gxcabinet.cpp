@@ -202,7 +202,7 @@ GxCabinet::~GxCabinet()
 
 void GxCabinet::do_work_mono()
 {
-  if (buffsize_changed()) 
+ /* if (buffsize_changed()) 
    {
      printf("buffersize changed to %u\n",cur_bufsize);
      if (cabconv.is_runnable())
@@ -223,7 +223,7 @@ void GxCabinet::do_work_mono()
      while (!cabconv.checkstate());
      if(!cabconv.start(prio, SCHED_FIFO))
         printf("cabinet convolver update buffersize fail\n");
-   }
+   }*/
   if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())

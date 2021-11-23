@@ -638,7 +638,7 @@ class DKbuilder(object):
                                 faustdsp +=  '\n    {st}p = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
                                 faustdsp += '\n    {st}_clip = freq_split: ( {st}p , {st}p , {st}p, {st}p, {st}p) :>_;\n'.format(st=self.tablename[dsp_counter-1])
                             else:
-                                faustdsp +=  '\n    {st}p = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
+                                faustdsp +=  '\n    {st}_clip = ffunction(float {st}clip(float), "{st}_table.h", "");\n'.format(st=self.tablename[dsp_counter-1])
                 else:
                     faustdsp = faustdsp.replace('//TABLE', '\n\n%s') % dlimer
                 faustdsp = faustdsp.replace('process', "p%s" % dsp_counter)
