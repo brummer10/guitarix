@@ -221,7 +221,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
         {"Augmented Fourths"},{"Slow Motion"},{"Admiral"},{"Buzzard"},{"Face"},{"Four and Twenty"},{"Ostrich"},{"Capo 200"},
         {"Balalaika"},{"Cittern One"},{"Cittern Two"},{"Dobro"},{"Lefty"},{"Mandoguitar"},{"Rusty Cage"},{"Hardcore"}, {0}};
     pmap.reg_non_midi_enum_par("racktuner.tuning", "Tuning", tuning_labels, (int*)0, false, 0);
-    static const value_pair tuning_temperament[] = {{"12-ET"},{"19-ET"},{"24-ET"},{"31-ET"},{"53-ET"}, {0}};
+    static const value_pair tuning_temperament[] = {{"12-ET"},{"19-ET"},{"24-ET"},{"31-ET"},{"41-ET"},{"53-ET"}, {0}};
     pmap.reg_non_midi_enum_par("racktuner.temperament", "Temperament", tuning_temperament, (int*)0, false, 0);
     pmap.reg_par_non_preset("racktuner.scale_lim", "Limit", 0, 3.0, 1.0, 10.0, 1.0);
     pmap.reg_par_non_preset("ui.tuner_reference_pitch", "?Tuner Reference Pitch", 0, 440, 225, 453, 0.1);
