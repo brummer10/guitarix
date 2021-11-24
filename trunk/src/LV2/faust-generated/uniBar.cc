@@ -8,7 +8,6 @@ class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
 	double fConst0;
-	double fConst1;
 	double fConst2;
 	double fConst3;
 	FAUSTFLOAT fCheckbox0;
@@ -116,13 +115,13 @@ inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
 	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = (1.0 - (100.53096491487338 / fConst0));
+	double fConst1 = (1.0 - (100.53096491487338 / fConst0));
 	fConst2 = mydsp_faustpower2_f(fConst1);
 	fConst3 = (0.5 * (1.0 - fConst2));
 	fConst4 = std::max<double>(1.0, (0.02 * fConst0));
 	fConst5 = (1.0 / fConst4);
 	fConst6 = (0.0 - (89.0 / std::max<double>(1.0, (0.0050000000000000001 * fConst0))));
-	fConst7 = (90.0 / std::max<double>(1.0, (0.01 * fConst0)));
+	fConst7 = (1.0 / std::max<double>(1.0, (0.01 * fConst0)));
 	fConst8 = (0.0 - (2.0 * fConst1));
 	fConst9 = (6.2831853071795862 / fConst0);
 	fConst10 = (0.36284470246734402 * fConst0);
@@ -159,11 +158,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow11 = (fConst8 * std::cos((fConst13 * fSlow5)));
 	int iSlow12 = int(std::min<double>(4096.0, std::max<double>(0.0, (fConst14 / fSlow5))));
 	double fSlow13 = (fConst8 * std::cos((fConst15 * fSlow5)));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		fVec0[0] = fSlow0;
 		fRec6[0] = (fSlow0 + (fRec6[1] * double((fVec0[1] >= fSlow0))));
 		iRec7[0] = (iSlow4 * (iRec7[1] + 1));
-		double fTemp0 = ((fSlow3 * std::max<double>(0.0, (std::min<double>((fConst5 * fRec6[0]), std::max<double>(((fConst6 * (fConst4 - fRec6[0])) + 1.0), 90.0)) - (fConst7 * double(iRec7[0]))))) + (-0.80000000000000004 - (0.99999999999999989 * ((fRec0[1] + fRec2[1]) + (fRec1[1] + fRec3[1])))));
+		double fTemp0 = ((fSlow3 * std::max<double>(0.0, (std::min<double>((fConst5 * fRec6[0]), std::max<double>(((fConst6 * (fConst4 - fRec6[0])) + 1.0), 90.0)) * (1.0 - (fConst7 * double(iRec7[0])))))) + (-0.80000000000000004 - (0.99999999999999989 * ((fRec0[1] + fRec2[1]) + (fRec1[1] + fRec3[1])))));
 		double fTemp1 = mydsp_faustpower4_f((std::fabs(fTemp0) + 0.75));
 		double fTemp2 = (1.0 / fTemp1);
 		double fTemp3 = (0.25 * (fTemp0 * (double((fTemp2 > 1.0)) + (double((fTemp2 <= 1.0)) / fTemp1))));
@@ -183,7 +182,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec13[0] = ((0.65610000000000002 * fVec4[((IOTA - iSlow12) & 2047)]) - ((fSlow13 * fRec13[1]) + (fConst2 * fRec13[2])));
 		fRec12[0] = (fConst3 * (fRec13[0] - fRec13[2]));
 		fRec3[0] = fRec12[0];
-		output0[i] = FAUSTFLOAT((double(input0[i]) + (((fRec0[0] + fRec1[0]) + fRec2[0]) + fRec3[0])));
+		output0[i0] = FAUSTFLOAT((double(input0[i0]) + (((fRec0[0] + fRec1[0]) + fRec2[0]) + fRec3[0])));
 		fVec0[1] = fVec0[0];
 		fRec6[1] = fRec6[0];
 		iRec7[1] = iRec7[0];

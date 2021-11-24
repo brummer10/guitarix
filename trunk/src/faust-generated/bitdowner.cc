@@ -92,14 +92,14 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow4 = (1.0 / fSlow3);
 	double fSlow5 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider3))));
 	int iSlow6 = (iSlow1 + -1);
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		fRec1[0] = (fSlow5 + (0.999 * fRec1[1]));
-		double fTemp0 = (fSlow4 * std::floor((fSlow3 * (double(input0[i]) * fRec1[0]))));
+		double fTemp0 = (fSlow4 * std::floor((fSlow3 * (double(input0[i0]) * fRec1[0]))));
 		double fTemp1 = ((fTemp0 > 1.0) ? 1.0 : ((fTemp0 < -1.0) ? -1.0 : fTemp0));
 		iRec3[0] = ((iRec3[1] < iSlow6) ? (iRec3[1] + 1) : 0);
 		fRec2[0] = ((iRec3[0] == 0) ? fTemp1 : fRec2[1]);
-		output0[i] = FAUSTFLOAT((fRec0[0] * (iSlow2 ? fRec2[0] : fTemp1)));
+		output0[i0] = FAUSTFLOAT((fRec0[0] * (iSlow2 ? fRec2[0] : fTemp1)));
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
 		iRec3[1] = iRec3[0];

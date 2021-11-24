@@ -7,6 +7,7 @@ class mydspSIG0 {
 	
   private:
 	
+	int iVec0[2];
 	int iRec0[2];
 	
   public:
@@ -17,41 +18,22 @@ class mydspSIG0 {
 	int getNumOutputsmydspSIG0() {
 		return 1;
 	}
-	int getInputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
-	int getOutputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			case 0: {
-				rate = 0;
-				break;
-			}
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
 	
 	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) {
-			iRec0[l0] = 0;
+			iVec0[l0] = 0;
+		}
+		for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) {
+			iRec0[l1] = 0;
 		}
 	}
 	
 	void fillmydspSIG0(int count, double* table) {
-		for (int i = 0; (i < count); i = (i + 1)) {
-			iRec0[0] = (iRec0[1] + 1);
-			table[i] = std::sin((9.5873799242852573e-05 * double((iRec0[0] + -1))));
+		for (int i1 = 0; (i1 < count); i1 = (i1 + 1)) {
+			iVec0[0] = 1;
+			iRec0[0] = ((iVec0[1] + iRec0[1]) % 65536);
+			table[i1] = std::sin((9.5873799242852573e-05 * double(iRec0[0])));
+			iVec0[1] = iVec0[0];
 			iRec0[1] = iRec0[0];
 		}
 	}
@@ -117,7 +99,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0;
+	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec1[l2] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -146,9 +128,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow0 = double(fHslider0);
 	double fSlow1 = (1.0 - fSlow0);
 	double fSlow2 = (fConst0 * double(fHslider1));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		fRec1[0] = (fSlow2 + (fRec1[1] - std::floor((fSlow2 + fRec1[1]))));
-		output0[i] = FAUSTFLOAT((double(input0[i]) * (fSlow1 + (fSlow0 * ftbl0mydspSIG0[int((65536.0 * fRec1[0]))]))));
+		output0[i0] = FAUSTFLOAT((double(input0[i0]) * (fSlow1 + (fSlow0 * ftbl0mydspSIG0[int((65536.0 * fRec1[0]))]))));
 		fRec1[1] = fRec1[0];
 	}
 }

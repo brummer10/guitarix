@@ -7,16 +7,10 @@ namespace fizz_remover {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
-	double fConst1;
-	double fConst2;
-	double fConst3;
-	double fConst4;
 	double fConst5;
 	double fConst6;
 	double fConst7;
 	double fRec0[3];
-	double fConst8;
 	double fConst9;
 	double fConst10;
 	double fRec1[3];
@@ -75,15 +69,15 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = std::tan((17454.688783344889 / fConst0));
-	fConst2 = (1.0 / fConst1);
-	fConst3 = (fConst0 * std::sin((34909.377566689778 / fConst0)));
-	fConst4 = (5463.7797478629354 / fConst3);
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = std::tan((17454.688783344889 / fConst0));
+	double fConst2 = (1.0 / fConst1);
+	double fConst3 = (fConst0 * std::sin((34909.377566689778 / fConst0)));
+	double fConst4 = (5463.7797478629354 / fConst3);
 	fConst5 = (1.0 / (((fConst2 + fConst4) / fConst1) + 1.0));
 	fConst6 = (2.0 * (1.0 - (1.0 / mydsp_faustpower2_f(fConst1))));
 	fConst7 = (((fConst2 - fConst4) / fConst1) + 1.0);
-	fConst8 = (2053.4927980405755 / fConst3);
+	double fConst8 = (2053.4927980405755 / fConst3);
 	fConst9 = (((fConst2 + fConst8) / fConst1) + 1.0);
 	fConst10 = (((fConst2 - fConst8) / fConst1) + 1.0);
 	clear_state_f();
@@ -96,13 +90,13 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		double fTemp0 = (fConst6 * fRec0[1]);
-		fRec0[0] = (double(input0[i]) - (fConst5 * ((fConst7 * fRec0[2]) + fTemp0)));
-		output0[i] = FAUSTFLOAT((fConst5 * ((fTemp0 + (fConst9 * fRec0[0])) + (fConst10 * fRec0[2]))));
+		fRec0[0] = (double(input0[i0]) - (fConst5 * ((fConst7 * fRec0[2]) + fTemp0)));
+		output0[i0] = FAUSTFLOAT((fConst5 * ((fTemp0 + (fConst9 * fRec0[0])) + (fConst10 * fRec0[2]))));
 		double fTemp1 = (fConst6 * fRec1[1]);
-		fRec1[0] = (double(input1[i]) - (fConst5 * ((fConst7 * fRec1[2]) + fTemp1)));
-		output1[i] = FAUSTFLOAT((fConst5 * ((fTemp1 + (fConst9 * fRec1[0])) + (fConst10 * fRec1[2]))));
+		fRec1[0] = (double(input1[i0]) - (fConst5 * ((fConst7 * fRec1[2]) + fTemp1)));
+		output1[i0] = FAUSTFLOAT((fConst5 * ((fTemp1 + (fConst9 * fRec1[0])) + (fConst10 * fRec1[2]))));
 		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];
 		fRec1[2] = fRec1[1];

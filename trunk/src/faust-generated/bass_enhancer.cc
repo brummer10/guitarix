@@ -7,7 +7,6 @@ namespace bass_enhancer {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	double fVec0[2];
@@ -22,7 +21,6 @@ private:
 	double fRec0[2];
 	FAUSTFLOAT fHslider1;
 	double fRec7[2];
-	double fConst2;
 	double fConst3;
 	double fConst4;
 	double fRec12[2];
@@ -122,9 +120,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (3.1415926535897931 / fConst0);
-	fConst2 = (62.831853071795862 / fConst0);
+	double fConst2 = (62.831853071795862 / fConst0);
 	fConst3 = (1.0 / (fConst2 + 1.0));
 	fConst4 = (1.0 - fConst2);
 	clear_state_f();
@@ -152,10 +150,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow12 = (((fSlow1 + -0.39018064403225594) / fSlow0) + 1.0);
 	double fSlow13 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fHslider1))));
 	double fSlow14 = (0.0 - (2.0 / fSlow7));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
-		double fTemp1 = double(input1[i]);
+		double fTemp1 = double(input1[i0]);
 		fVec1[0] = fTemp1;
 		double fTemp2 = (fTemp0 + fTemp1);
 		fVec2[0] = fTemp2;
@@ -181,13 +179,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec14[0] = ((fSlow4 * (fRec15[2] + (fRec15[0] + (2.0 * fRec15[1])))) - (fSlow3 * ((fSlow11 * fRec14[2]) + (fSlow9 * fRec14[1]))));
 		fRec13[0] = ((fSlow3 * (fRec14[2] + (fRec14[0] + (2.0 * fRec14[1])))) - (fSlow2 * ((fSlow12 * fRec13[2]) + (fSlow9 * fRec13[1]))));
 		double fTemp6 = (fRec13[2] + (fRec13[0] + (2.0 * fRec13[1])));
-		output0[i] = FAUSTFLOAT((fTemp5 + (fSlow2 * ((((fSlow8 * fRec8[0]) + (fSlow14 * fRec8[1])) + (fSlow8 * fRec8[2])) + fTemp6))));
+		output0[i0] = FAUSTFLOAT((fTemp5 + (fSlow2 * ((((fSlow8 * fRec8[0]) + (fSlow14 * fRec8[1])) + (fSlow8 * fRec8[2])) + fTemp6))));
 		fRec22[0] = (fConst3 * ((fTemp1 - fVec1[1]) + (fConst4 * fRec22[1])));
 		fRec21[0] = (fRec22[0] - (fSlow5 * ((fSlow6 * fRec21[2]) + (fSlow9 * fRec21[1]))));
 		fRec20[0] = ((fSlow5 * (((fSlow8 * fRec21[0]) + (fSlow14 * fRec21[1])) + (fSlow8 * fRec21[2]))) - (fSlow4 * ((fSlow10 * fRec20[2]) + (fSlow9 * fRec20[1]))));
 		fRec19[0] = ((fSlow4 * (((fSlow8 * fRec20[0]) + (fSlow14 * fRec20[1])) + (fSlow8 * fRec20[2]))) - (fSlow3 * ((fSlow11 * fRec19[2]) + (fSlow9 * fRec19[1]))));
 		fRec18[0] = ((fSlow3 * (((fSlow8 * fRec19[0]) + (fSlow14 * fRec19[1])) + (fSlow8 * fRec19[2]))) - (fSlow2 * ((fSlow12 * fRec18[2]) + (fSlow9 * fRec18[1]))));
-		output1[i] = FAUSTFLOAT((fTemp5 + (fSlow2 * (fTemp6 + (((fSlow8 * fRec18[0]) + (fSlow14 * fRec18[1])) + (fSlow8 * fRec18[2]))))));
+		output1[i0] = FAUSTFLOAT((fTemp5 + (fSlow2 * (fTemp6 + (((fSlow8 * fRec18[0]) + (fSlow14 * fRec18[1])) + (fSlow8 * fRec18[2]))))));
 		fVec0[1] = fVec0[0];
 		fVec1[1] = fVec1[0];
 		fVec2[1] = fVec2[0];

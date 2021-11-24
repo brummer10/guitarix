@@ -206,7 +206,7 @@ Gx_digital_delay_::instantiate(const LV2_Descriptor* descriptor,
   }
   if (!map) {
     fprintf(stderr, "Host does not support urid:map.\n");
-    free(self);
+    delete self;
     return NULL;
   }
 

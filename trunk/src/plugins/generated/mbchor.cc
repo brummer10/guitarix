@@ -20,30 +20,6 @@ class mydspSIG0 {
 	int getNumOutputsmydspSIG0() {
 		return 1;
 	}
-	int getInputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
-	int getOutputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			case 0: {
-				rate = 0;
-				break;
-			}
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
 	
 	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l9 = 0; (l9 < 2); l9 = (l9 + 1)) {
@@ -52,9 +28,9 @@ class mydspSIG0 {
 	}
 	
 	void fillmydspSIG0(int count, double* table) {
-		for (int i = 0; (i < count); i = (i + 1)) {
+		for (int i1 = 0; (i1 < count); i1 = (i1 + 1)) {
 			iRec10[0] = (iRec10[1] + 1);
-			table[i] = std::sin((9.5873799242852573e-05 * double((iRec10[0] + -1))));
+			table[i1] = std::sin((9.5873799242852573e-05 * double((iRec10[0] + -1))));
 			iRec10[1] = iRec10[0];
 		}
 	}
@@ -71,7 +47,6 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	double fVec0[2];
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	double fConst2;
@@ -277,7 +252,7 @@ inline void Dsp::init(unsigned int sample_rate)
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (3.1415926535897931 / fConst0);
 	fConst3 = (0.5 * fConst0);
@@ -373,8 +348,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow77 = (0.0010000000000000009 * double(fHslider21));
 	double fSlow78 = (0.10000000000000001 * double(fHslider22));
 	double fSlow79 = (fConst4 * double(fHslider23));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
 		int iTemp1 = (iRec1[1] < 4096);
 		fRec7[0] = ((fSlow8 * fVec0[1]) - (fSlow9 * ((fSlow10 * fRec7[1]) - (fSlow2 * fTemp0))));
@@ -498,7 +473,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec42[0] = (iTemp53 ? (iRec42[1] + 1) : 1);
 		fRec43[0] = (iTemp53 ? fRec43[1] : (0.000244140625 * fRec41[1]));
 		fVbargraph4 = FAUSTFLOAT(fRec43[0]);
-		output0[i] = FAUSTFLOAT((fTemp0 + ((((fTemp12 + fTemp26) + fTemp39) + fTemp51) + fTemp61)));
+		output0[i0] = FAUSTFLOAT((fTemp0 + ((((fTemp12 + fTemp26) + fTemp39) + fTemp51) + fTemp61)));
 		fVec0[1] = fVec0[0];
 		fRec7[1] = fRec7[0];
 		fRec6[2] = fRec6[1];

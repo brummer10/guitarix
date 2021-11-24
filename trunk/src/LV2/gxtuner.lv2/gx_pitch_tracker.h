@@ -26,6 +26,7 @@
 #define SRC_HEADERS_GX_PITCH_TRACKER_H_
 #include <fftw3.h>
 #include <semaphore.h>
+#include <sigc++/sigc++.h>
 
 /* ------------- Pitch Tracker ------------- */
 

@@ -13,11 +13,9 @@ private:
 	gx_resample::FixedRateResampler smp;
 	int sample_rate;
 	int fSampleRate;
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	double fVec0[2];
-	double fConst2;
 	double fConst3;
 	double fConst4;
 	double fConst5;
@@ -90,9 +88,9 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	sample_rate = 96000;
 	smp.setup(RsamplingFreq, sample_rate);
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (3.1415926535897931 / fConst0);
-	fConst2 = (0.00044179999999999995 * fConst0);
+	double fConst2 = (0.00044179999999999995 * fConst0);
 	fConst3 = (1.0 / (fConst2 + 1.0));
 	fConst4 = (1.0 - fConst2);
 	fConst5 = (9.3999999999999995e-08 * fConst0);
@@ -115,15 +113,15 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow4 = (fSlow3 + 1.0);
 	double fSlow5 = (1.0 - fSlow3);
 	double fSlow6 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fHslider2))));
-	for (int i = 0; (i < ReCount); i = (i + 1)) {
-		double fTemp0 = double(buf[i]);
+	for (int i0 = 0; (i0 < ReCount); i0 = (i0 + 1)) {
+		double fTemp0 = double(buf[i0]);
 		fVec0[0] = fTemp0;
 		fRec1[0] = (0.0 - (fConst3 * ((fConst4 * fRec1[1]) - ((fSlow4 * fTemp0) + (fSlow5 * fVec0[1])))));
 		double fTemp1 = (fTemp0 - double(ts9nonlin(double((fRec1[0] - fTemp0)))));
 		fVec1[0] = fTemp1;
 		fRec0[0] = (0.0 - (fSlow1 * ((fSlow2 * fRec0[1]) - (fTemp1 + fVec1[1]))));
 		fRec2[0] = (fSlow6 + (0.999 * fRec2[1]));
-		buf[i] = FAUSTFLOAT((fRec0[0] * fRec2[0]));
+		buf[i0] = FAUSTFLOAT((fRec0[0] * fRec2[0]));
 		fVec0[1] = fVec0[0];
 		fRec1[1] = fRec1[0];
 		fVec1[1] = fVec1[0];

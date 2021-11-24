@@ -118,9 +118,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow9 = std::sin(fSlow8);
 	double fSlow10 = std::cos(fSlow8);
 	double fSlow11 = (0.33333333333333331 * (double(fHslider5) * (std::fabs(fSlow1) + 2.0)));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		iVec0[0] = 1;
-		double fTemp0 = double(input0[i]);
+		double fTemp0 = double(input0[i0]);
 		fVec1[(IOTA & 2047)] = fTemp0;
 		fRec1[0] = ((fSlow9 * fRec2[1]) + (fSlow10 * fRec1[1]));
 		fRec2[0] = ((double((1 - iVec0[1])) + (fSlow10 * fRec2[1])) - (fSlow9 * fRec1[1]));
@@ -142,7 +142,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		int iTemp13 = int(fTemp12);
 		double fTemp14 = std::floor(fTemp12);
 		fRec3[0] = ((fVec3[((IOTA - std::min<int>(2049, std::max<int>(0, iTemp13))) & 4095)] * (fTemp14 + (1.0 - fTemp12))) + ((fTemp12 - fTemp14) * fVec3[((IOTA - std::min<int>(2049, std::max<int>(0, (iTemp13 + 1)))) & 4095)]));
-		output0[i] = FAUSTFLOAT((0.25 * ((fSlow3 * fTemp10) + (fSlow2 * fRec3[0]))));
+		output0[i0] = FAUSTFLOAT((0.25 * ((fSlow3 * fTemp10) + (fSlow2 * fRec3[0]))));
 		iVec0[1] = iVec0[0];
 		IOTA = (IOTA + 1);
 		fRec1[1] = fRec1[0];

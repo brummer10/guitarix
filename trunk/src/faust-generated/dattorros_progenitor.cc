@@ -7,6 +7,7 @@ class mydspSIG0 {
 	
   private:
 	
+	int iVec6[2];
 	int iRec22[2];
 	
   public:
@@ -17,41 +18,22 @@ class mydspSIG0 {
 	int getNumOutputsmydspSIG0() {
 		return 1;
 	}
-	int getInputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
-	int getOutputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			case 0: {
-				rate = 0;
-				break;
-			}
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
 	
 	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l15 = 0; (l15 < 2); l15 = (l15 + 1)) {
-			iRec22[l15] = 0;
+			iVec6[l15] = 0;
+		}
+		for (int l16 = 0; (l16 < 2); l16 = (l16 + 1)) {
+			iRec22[l16] = 0;
 		}
 	}
 	
 	void fillmydspSIG0(int count, double* table) {
-		for (int i = 0; (i < count); i = (i + 1)) {
-			iRec22[0] = (iRec22[1] + 1);
-			table[i] = std::sin((9.5873799242852573e-05 * double((iRec22[0] + -1))));
+		for (int i1 = 0; (i1 < count); i1 = (i1 + 1)) {
+			iVec6[0] = 1;
+			iRec22[0] = ((iVec6[1] + iRec22[1]) % 65536);
+			table[i1] = std::sin((9.5873799242852573e-05 * double(iRec22[0])));
+			iVec6[1] = iVec6[0];
 			iRec22[1] = iRec22[0];
 		}
 	}
@@ -73,7 +55,6 @@ private:
 	FAUSTFLOAT fHslider3;
 	int IOTA;
 	double fVec0[524288];
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider4;
 	double fConst2;
@@ -108,22 +89,22 @@ private:
 	int iConst10;
 	double fRec6[3];
 	FAUSTFLOAT fHslider9;
-	double fVec6[16384];
+	double fVec7[16384];
 	int iConst11;
 	double fRec4[2];
-	double fVec7[32768];
+	double fVec8[32768];
 	int iConst12;
 	double fRec0[2];
-	double fVec8[8192];
+	double fVec9[8192];
 	int iConst13;
 	double fRec27[2];
 	double fRec28[32768];
 	int iConst14;
 	double fRec26[3];
-	double fVec9[32768];
+	double fVec10[32768];
 	int iConst15;
 	double fRec24[2];
-	double fVec10[32768];
+	double fVec11[32768];
 	int iConst16;
 	double fRec1[2];
 
@@ -187,22 +168,22 @@ inline void Dsp::clear_state_f()
 	for (int l12 = 0; (l12 < 2048); l12 = (l12 + 1)) fVec4[l12] = 0.0;
 	for (int l13 = 0; (l13 < 2); l13 = (l13 + 1)) fRec9[l13] = 0.0;
 	for (int l14 = 0; (l14 < 8192); l14 = (l14 + 1)) fVec5[l14] = 0.0;
-	for (int l16 = 0; (l16 < 2); l16 = (l16 + 1)) fRec23[l16] = 0.0;
-	for (int l17 = 0; (l17 < 2); l17 = (l17 + 1)) fRec7[l17] = 0.0;
-	for (int l18 = 0; (l18 < 32768); l18 = (l18 + 1)) fRec8[l18] = 0.0;
-	for (int l19 = 0; (l19 < 3); l19 = (l19 + 1)) fRec6[l19] = 0.0;
-	for (int l20 = 0; (l20 < 16384); l20 = (l20 + 1)) fVec6[l20] = 0.0;
-	for (int l21 = 0; (l21 < 2); l21 = (l21 + 1)) fRec4[l21] = 0.0;
-	for (int l22 = 0; (l22 < 32768); l22 = (l22 + 1)) fVec7[l22] = 0.0;
-	for (int l23 = 0; (l23 < 2); l23 = (l23 + 1)) fRec0[l23] = 0.0;
-	for (int l24 = 0; (l24 < 8192); l24 = (l24 + 1)) fVec8[l24] = 0.0;
-	for (int l25 = 0; (l25 < 2); l25 = (l25 + 1)) fRec27[l25] = 0.0;
-	for (int l26 = 0; (l26 < 32768); l26 = (l26 + 1)) fRec28[l26] = 0.0;
-	for (int l27 = 0; (l27 < 3); l27 = (l27 + 1)) fRec26[l27] = 0.0;
-	for (int l28 = 0; (l28 < 32768); l28 = (l28 + 1)) fVec9[l28] = 0.0;
-	for (int l29 = 0; (l29 < 2); l29 = (l29 + 1)) fRec24[l29] = 0.0;
-	for (int l30 = 0; (l30 < 32768); l30 = (l30 + 1)) fVec10[l30] = 0.0;
-	for (int l31 = 0; (l31 < 2); l31 = (l31 + 1)) fRec1[l31] = 0.0;
+	for (int l17 = 0; (l17 < 2); l17 = (l17 + 1)) fRec23[l17] = 0.0;
+	for (int l18 = 0; (l18 < 2); l18 = (l18 + 1)) fRec7[l18] = 0.0;
+	for (int l19 = 0; (l19 < 32768); l19 = (l19 + 1)) fRec8[l19] = 0.0;
+	for (int l20 = 0; (l20 < 3); l20 = (l20 + 1)) fRec6[l20] = 0.0;
+	for (int l21 = 0; (l21 < 16384); l21 = (l21 + 1)) fVec7[l21] = 0.0;
+	for (int l22 = 0; (l22 < 2); l22 = (l22 + 1)) fRec4[l22] = 0.0;
+	for (int l23 = 0; (l23 < 32768); l23 = (l23 + 1)) fVec8[l23] = 0.0;
+	for (int l24 = 0; (l24 < 2); l24 = (l24 + 1)) fRec0[l24] = 0.0;
+	for (int l25 = 0; (l25 < 8192); l25 = (l25 + 1)) fVec9[l25] = 0.0;
+	for (int l26 = 0; (l26 < 2); l26 = (l26 + 1)) fRec27[l26] = 0.0;
+	for (int l27 = 0; (l27 < 32768); l27 = (l27 + 1)) fRec28[l27] = 0.0;
+	for (int l28 = 0; (l28 < 3); l28 = (l28 + 1)) fRec26[l28] = 0.0;
+	for (int l29 = 0; (l29 < 32768); l29 = (l29 + 1)) fVec10[l29] = 0.0;
+	for (int l30 = 0; (l30 < 2); l30 = (l30 + 1)) fRec24[l30] = 0.0;
+	for (int l31 = 0; (l31 < 32768); l31 = (l31 + 1)) fVec11[l31] = 0.0;
+	for (int l32 = 0; (l32 < 2); l32 = (l32 + 1)) fRec1[l32] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -217,7 +198,7 @@ inline void Dsp::init(unsigned int sample_rate)
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (0.001 * fConst0);
 	fConst2 = (10.0 / fConst0);
 	fConst3 = (0.0 - fConst2);
@@ -258,9 +239,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow10 = double(fHslider7);
 	double fSlow11 = (0.5 * double(fHslider8));
 	double fSlow12 = double(fHslider9);
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
-		double fTemp1 = double(input1[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
+		double fTemp1 = double(input1[i0]);
 		double fTemp2 = (fTemp0 + fTemp1);
 		fVec0[(IOTA & 524287)] = fTemp2;
 		double fTemp3 = ((fRec18[1] != 0.0) ? (((fRec19[1] > 0.0) & (fRec19[1] < 1.0)) ? fRec18[1] : 0.0) : (((fRec19[1] == 0.0) & (fSlow7 != fRec20[1])) ? fConst2 : (((fRec19[1] == 1.0) & (fSlow7 != fRec21[1])) ? fConst3 : 0.0)));
@@ -302,27 +283,27 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec8[(IOTA & 32767)] = (fRec7[1] - (fTemp10 + fTemp9));
 		fRec6[0] = ((fSlow3 * fRec6[2]) + (fSlow4 * fRec8[((IOTA - iConst10) & 32767)]));
 		double fTemp19 = ((fSlow2 * fRec6[0]) - (fSlow12 * fRec4[1]));
-		fVec6[(IOTA & 16383)] = fTemp19;
-		fRec4[0] = fVec6[((IOTA - iConst11) & 16383)];
+		fVec7[(IOTA & 16383)] = fTemp19;
+		fRec4[0] = fVec7[((IOTA - iConst11) & 16383)];
 		double fRec5 = (fSlow12 * fTemp19);
-		fVec7[(IOTA & 32767)] = (fRec5 + fRec4[1]);
-		fRec0[0] = (fSlow2 * fVec7[((IOTA - iConst12) & 32767)]);
+		fVec8[(IOTA & 32767)] = (fRec5 + fRec4[1]);
+		fRec0[0] = (fSlow2 * fVec8[((IOTA - iConst12) & 32767)]);
 		double fTemp20 = (0.5 * fRec0[1]);
 		double fTemp21 = (fTemp20 + (fTemp9 + (fSlow10 * fRec27[1])));
-		fVec8[(IOTA & 8191)] = fTemp21;
-		fRec27[0] = ((fTemp16 * fVec8[((IOTA - (iConst13 + iTemp14)) & 8191)]) + (fTemp17 * fVec8[((IOTA - (iConst13 + iTemp18)) & 8191)]));
+		fVec9[(IOTA & 8191)] = fTemp21;
+		fRec27[0] = ((fTemp16 * fVec9[((IOTA - (iConst13 + iTemp14)) & 8191)]) + (fTemp17 * fVec9[((IOTA - (iConst13 + iTemp18)) & 8191)]));
 		fRec28[(IOTA & 32767)] = (fRec27[1] - (fTemp9 + fTemp20));
 		fRec26[0] = ((fSlow3 * fRec26[2]) + (fSlow4 * fRec28[((IOTA - iConst14) & 32767)]));
 		double fTemp22 = ((fSlow2 * fRec26[0]) - (fSlow12 * fRec24[1]));
-		fVec9[(IOTA & 32767)] = fTemp22;
-		fRec24[0] = fVec9[((IOTA - iConst15) & 32767)];
+		fVec10[(IOTA & 32767)] = fTemp22;
+		fRec24[0] = fVec10[((IOTA - iConst15) & 32767)];
 		double fRec25 = (fSlow12 * fTemp22);
-		fVec10[(IOTA & 32767)] = (fRec25 + fRec24[1]);
-		fRec1[0] = (fSlow2 * fVec10[((IOTA - iConst16) & 32767)]);
+		fVec11[(IOTA & 32767)] = (fRec25 + fRec24[1]);
+		fRec1[0] = (fSlow2 * fVec11[((IOTA - iConst16) & 32767)]);
 		double fRec2 = fRec8[((IOTA - 0) & 32767)];
 		double fRec3 = fRec28[((IOTA - 0) & 32767)];
-		output0[i] = FAUSTFLOAT(((fSlow1 * fTemp0) + (fSlow0 * (fRec0[0] + fRec2))));
-		output1[i] = FAUSTFLOAT(((fSlow1 * fTemp1) + (fSlow0 * (fRec1[0] + fRec3))));
+		output0[i0] = FAUSTFLOAT(((fSlow1 * fTemp0) + (fSlow0 * (fRec0[0] + fRec2))));
+		output1[i0] = FAUSTFLOAT(((fSlow1 * fTemp1) + (fSlow0 * (fRec1[0] + fRec3))));
 		IOTA = (IOTA + 1);
 		fRec18[1] = fRec18[0];
 		fRec19[1] = fRec19[0];

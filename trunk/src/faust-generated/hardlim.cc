@@ -7,7 +7,6 @@ namespace hardlim {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
 	double fConst1;
 	double fConst2;
 	double fConst3;
@@ -79,7 +78,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = std::exp((0.0 - (2500.0 / fConst0)));
 	fConst3 = (1.0 - fConst2);
@@ -95,10 +94,10 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		int iTemp1 = (iRec1[1] < 1024);
-		double fTemp2 = double(input1[i]);
+		double fTemp2 = double(input1[i0]);
 		double fTemp3 = std::fabs(std::max<double>(std::fabs(fTemp0), std::fabs(fTemp2)));
 		double fTemp4 = ((fRec4[1] > fTemp3) ? fConst5 : fConst4);
 		fRec5[0] = ((fRec5[1] * fTemp4) + (fTemp3 * (1.0 - fTemp4)));
@@ -110,8 +109,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		iRec1[0] = (iTemp1 ? (iRec1[1] + 1) : 1);
 		fRec2[0] = (iTemp1 ? fRec2[1] : fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
-		output0[i] = FAUSTFLOAT((fTemp0 * fTemp5));
-		output1[i] = FAUSTFLOAT((fTemp2 * fTemp5));
+		double fTemp7 = fTemp5;
+		output0[i0] = FAUSTFLOAT((fTemp0 * fTemp7));
+		output1[i0] = FAUSTFLOAT((fTemp2 * fTemp7));
 		fRec5[1] = fRec5[0];
 		fRec4[1] = fRec4[0];
 		fRec3[1] = fRec3[0];

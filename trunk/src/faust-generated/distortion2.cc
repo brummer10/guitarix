@@ -8,10 +8,8 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	FAUSTFLOAT fVslider0;
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fVslider1;
-	double fConst2;
 	double fConst3;
 	double fConst4;
 	FAUSTFLOAT fVslider2;
@@ -87,9 +85,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (3.1415926535897931 / fConst0);
-	fConst2 = (1.0 / std::tan((20520.88321324853 / fConst0)));
+	double fConst2 = (1.0 / std::tan((20520.88321324853 / fConst0)));
 	fConst3 = (1.0 / (fConst2 + 1.0));
 	fConst4 = (1.0 - fConst2);
 	clear_state_f();
@@ -119,8 +117,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow14 = (0.0010000000000000009 * double(fVslider4));
 	double fSlow15 = (((fSlow3 + -1.4142135623730949) / fSlow2) + 1.0);
 	double fSlow16 = (2.0 * (1.0 - (1.0 / mydsp_faustpower2_f(fSlow2))));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		fRec3[0] = ((fSlow0 * fTemp0) - (fSlow7 * ((fSlow10 * fRec3[2]) + (fSlow11 * fRec3[1]))));
 		double fTemp1 = (fSlow7 * (((fSlow9 * fRec3[0]) + (fSlow12 * fRec3[1])) + (fSlow9 * fRec3[2])));
 		fVec0[0] = fTemp1;
@@ -132,7 +130,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp4 = (1.0 - fTemp3);
 		fRec1[0] = ((0.5 * fRec1[3]) + ((fTemp2 * ((2.0 * (fTemp3 / fTemp4)) + 1.0)) / ((2.0 * ((std::fabs(fTemp2) * fTemp3) / fTemp4)) + 1.0)));
 		fRec0[0] = (fRec1[0] - (fSlow4 * ((fSlow15 * fRec0[2]) + (fSlow16 * fRec0[1]))));
-		output0[i] = FAUSTFLOAT(((fSlow1 * fTemp0) + (fSlow4 * (fRec0[2] + (fRec0[0] + (2.0 * fRec0[1]))))));
+		output0[i0] = FAUSTFLOAT(((fSlow1 * fTemp0) + (fSlow4 * (fRec0[2] + (fRec0[0] + (2.0 * fRec0[1]))))));
 		fRec3[2] = fRec3[1];
 		fRec3[1] = fRec3[0];
 		fVec0[1] = fVec0[0];

@@ -76,10 +76,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 {
 #define fVslider0 (*fVslider0_)
 	double fSlow0 = (0.0010000000000000009 * double(fVslider0));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-		output0[i] = FAUSTFLOAT((double(input0[i]) * (1.0 - std::max<double>(0.0, fRec0[0]))));
-		output1[i] = FAUSTFLOAT((double(input1[i]) * (1.0 - std::max<double>(0.0, (-1.0 * fRec0[0])))));
+		output0[i0] = FAUSTFLOAT((double(input0[i0]) * (1.0 - std::max<double>(0.0, fRec0[0]))));
+		output1[i0] = FAUSTFLOAT((double(input1[i0]) * (1.0 - std::max<double>(0.0, (-1.0 * fRec0[0])))));
 		fRec0[1] = fRec0[0];
 	}
 #undef fVslider0

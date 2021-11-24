@@ -106,8 +106,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow1 = double(fVslider0);
 	double fSlow2 = (1.0 - std::max<double>(0.0, fSlow1));
 	double fSlow3 = (1.0 - std::max<double>(0.0, (-1.0 * fSlow1)));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input1[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input1[i0]);
 		double fTemp1 = (0.20000000000000001 * fTemp0);
 		double fTemp2 = (fTemp1 + (0.76400000000000001 * fRec6[1]));
 		fVec0[(IOTA & 2047)] = fTemp2;
@@ -137,9 +137,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fVec6[0] = fTemp8;
 		fRec0[0] = fVec6[11];
 		double fRec1 = (0.0 - (0.69999999999999996 * fTemp8));
-		double fTemp9 = (iSlow0 ? ((fSlow2 * fTemp0) + (fSlow3 * (fRec1 + fRec0[1]))) : double(input0[i]));
-		output0[i] = FAUSTFLOAT(fTemp9);
-		output1[i] = FAUSTFLOAT(fTemp9);
+		double fTemp9 = (iSlow0 ? ((fSlow2 * fTemp0) + (fSlow3 * (fRec1 + fRec0[1]))) : double(input0[i0]));
+		output0[i0] = FAUSTFLOAT(fTemp9);
+		output1[i0] = FAUSTFLOAT(fTemp9);
 		IOTA = (IOTA + 1);
 		fRec6[1] = fRec6[0];
 		fRec8[1] = fRec8[0];

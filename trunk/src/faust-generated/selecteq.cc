@@ -205,12 +205,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow57 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider29))));
 	double fSlow58 = ((fSlow0 * (fSlow0 + fSlow56)) + 1.0);
 	double fSlow59 = (1.0 - (fSlow0 * (fSlow56 - fSlow0)));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		fRec10[0] = (fSlow21 + (0.999 * fRec10[1]));
 		double fTemp0 = (fSlow20 / fRec10[0]);
 		double fTemp1 = (fSlow19 * fRec9[1]);
 		double fTemp2 = ((fSlow18 * (fSlow18 + fTemp0)) + 1.0);
-		fRec9[0] = (double(input0[i]) - ((((1.0 - (fSlow18 * (fTemp0 - fSlow18))) * fRec9[2]) + fTemp1) / fTemp2));
+		fRec9[0] = (double(input0[i0]) - ((((1.0 - (fSlow18 * (fTemp0 - fSlow18))) * fRec9[2]) + fTemp1) / fTemp2));
 		fRec11[0] = (fSlow25 + (0.999 * fRec11[1]));
 		double fTemp3 = (fSlow24 / fRec11[0]);
 		double fTemp4 = (fSlow17 * fRec8[1]);
@@ -256,7 +256,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp28 = (fSlow1 * fRec0[1]);
 		double fTemp29 = ((fSlow0 * (fSlow0 + fTemp27)) + 1.0);
 		fRec0[0] = ((((fTemp25 + (fSlow54 * fRec1[0])) + (fSlow55 * fRec1[2])) / fTemp26) - ((((1.0 - (fSlow0 * (fTemp27 - fSlow0))) * fRec0[2]) + fTemp28) / fTemp29));
-		output0[i] = FAUSTFLOAT((((fTemp28 + (fSlow58 * fRec0[0])) + (fSlow59 * fRec0[2])) / fTemp29));
+		output0[i0] = FAUSTFLOAT((((fTemp28 + (fSlow58 * fRec0[0])) + (fSlow59 * fRec0[2])) / fTemp29));
 		fRec10[1] = fRec10[0];
 		fRec9[2] = fRec9[1];
 		fRec9[1] = fRec9[0];

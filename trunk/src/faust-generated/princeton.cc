@@ -13,15 +13,11 @@ private:
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	double fRec0[2];
-	double fConst0;
-	double fConst1;
 	double fConst2;
-	double fConst3;
 	double fConst4;
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT	*fVslider1_;
 	double fRec2[2];
-	double fConst5;
 	double fConst6;
 	double fConst7;
 	double fRec1[3];
@@ -85,12 +81,12 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	sample_rate = 96000;
 	smp.setup(RsamplingFreq, sample_rate);
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = (4.3142917114013401e-10 * fConst0);
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = (4.3142917114013401e-10 * fConst0);
 	fConst2 = (1.0 / ((fConst0 * (fConst1 + 1.24411557886099e-07)) + 1.5434914598554401e-05));
-	fConst3 = (2.4638375260021699e-09 * fConst0);
+	double fConst3 = (2.4638375260021699e-09 * fConst0);
 	fConst4 = (fConst0 * (fConst3 + 1.1853646984522199e-07));
-	fConst5 = mydsp_faustpower2_f(fConst0);
+	double fConst5 = mydsp_faustpower2_f(fConst0);
 	fConst6 = (3.0869829197108802e-05 - (8.6285834228026802e-10 * fConst5));
 	fConst7 = ((fConst0 * (fConst1 + -1.24411557886099e-07)) + 1.5434914598554401e-05);
 	fConst8 = (0.0 - (4.9276750520043498e-09 * fConst5));
@@ -111,11 +107,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	int ReCount = smp.up(count, input0, buf);
 	double fSlow0 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider0))));
 	double fSlow1 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider1))));
-	for (int i = 0; (i < ReCount); i = (i + 1)) {
+	for (int i0 = 0; (i0 < ReCount); i0 = (i0 + 1)) {
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		fRec2[0] = (fSlow1 + (0.999 * fRec2[1]));
-		fRec1[0] = ((double(buf[i]) * fRec2[0]) - (fConst2 * ((fConst6 * fRec1[1]) + (fConst7 * fRec1[2]))));
-		buf[i] = FAUSTFLOAT((0.20000000000000001 * (fRec0[0] * double(princetonclip(double((fConst2 * (((fConst4 * fRec1[0]) + (fConst8 * fRec1[1])) + (fConst9 * fRec1[2])))))))));
+		fRec1[0] = ((double(buf[i0]) * fRec2[0]) - (fConst2 * ((fConst6 * fRec1[1]) + (fConst7 * fRec1[2]))));
+		buf[i0] = FAUSTFLOAT((0.20000000000000001 * (fRec0[0] * double(princetonclip(double((fConst2 * (((fConst4 * fRec1[0]) + (fConst8 * fRec1[1])) + (fConst9 * fRec1[2])))))))));
 		fRec0[1] = fRec0[0];
 		fRec2[1] = fRec2[0];
 		fRec1[2] = fRec1[1];

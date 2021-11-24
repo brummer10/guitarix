@@ -13,7 +13,6 @@ private:
 	int sample_rate;
 	int fSampleRate;
 	int iVec0[2];
-	double fConst0;
 	double fConst1;
 	double fConst2;
 	double fConst3;
@@ -213,7 +212,7 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	sample_rate = 96000;
 	smp.setup(RsamplingFreq, sample_rate);
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (3.1415926535897931 / fConst0);
 	fConst3 = (1.0 / (fConst2 + 1.0));
@@ -302,12 +301,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow69 = (0.0010000000000000009 * double(fHslider12));
 	double fSlow70 = (std::pow(10.0, (2.0 * double(fHslider13))) / fSlow61);
 	double fSlow71 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider0))));
-	for (int i = 0; (i < ReCount); i = (i + 1)) {
+	for (int i0 = 0; (i0 < ReCount); i0 = (i0 + 1)) {
 		iVec0[0] = 1;
 		int iTemp0 = (iRec1[1] < 4096);
 		fRec4[0] = (fSlow0 + (0.999 * fRec4[1]));
 		fRec10[0] = ((9.9999999999999995e-21 * double((1 - iVec0[1]))) - fRec10[1]);
-		double fTemp1 = (double(buf[i]) + fRec10[0]);
+		double fTemp1 = (double(buf[i0]) + fRec10[0]);
 		fVec1[0] = fTemp1;
 		fRec9[0] = ((fSlow9 * fVec1[1]) - (fSlow10 * ((fSlow11 * fRec9[1]) - (fSlow3 * fTemp1))));
 		fRec8[0] = (fRec9[0] - (fSlow5 * ((fSlow12 * fRec8[2]) + (fSlow13 * fRec8[1]))));
@@ -400,7 +399,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec43[0] = (iTemp29 ? fRec43[1] : (0.000244140625 * fRec41[1]));
 		fVbargraph4 = FAUSTFLOAT(fRec43[0]);
 		fRec48[0] = (fSlow71 + (0.999 * fRec48[1]));
-		buf[i] = FAUSTFLOAT((((((fRec3[0] + fRec14[0]) + fRec25[0]) + fRec35[0]) + fRec44[0]) * fRec48[0]));
+		buf[i0] = FAUSTFLOAT((((((fRec3[0] + fRec14[0]) + fRec25[0]) + fRec35[0]) + fRec44[0]) * fRec48[0]));
 		iVec0[1] = iVec0[0];
 		fRec4[1] = fRec4[0];
 		fRec10[1] = fRec10[0];

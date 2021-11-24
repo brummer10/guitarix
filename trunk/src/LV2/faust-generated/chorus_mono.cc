@@ -17,30 +17,6 @@ class mydspSIG0 {
 	int getNumOutputsmydspSIG0() {
 		return 1;
 	}
-	int getInputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
-	int getOutputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			case 0: {
-				rate = 0;
-				break;
-			}
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
 	
 	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) {
@@ -49,9 +25,9 @@ class mydspSIG0 {
 	}
 	
 	void fillmydspSIG0(int count, double* table) {
-		for (int i = 0; (i < count); i = (i + 1)) {
+		for (int i1 = 0; (i1 < count); i1 = (i1 + 1)) {
 			iRec6[0] = (iRec6[1] + 1);
-			table[i] = std::sin((9.5873799242852573e-05 * double((iRec6[0] + -1))));
+			table[i1] = std::sin((9.5873799242852573e-05 * double((iRec6[0] + -1))));
 			iRec6[1] = iRec6[0];
 		}
 	}
@@ -74,7 +50,6 @@ private:
 	FAUSTFLOAT	*fVslider0_;
 	int IOTA;
 	double fVec0[131072];
-	double fConst0;
 	double fConst1;
 	double fConst2;
 	FAUSTFLOAT fHslider1;
@@ -144,7 +119,7 @@ inline void Dsp::init(uint32_t sample_rate)
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (0.01 * fConst0);
 	fConst2 = (1.0 / fConst0);
 	fConst3 = (1000.0 / fConst0);
@@ -167,9 +142,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow1 = (0.01 * double(fVslider0));
 	double fSlow2 = (fConst2 * double(fHslider1));
 	double fSlow3 = (fSlow1 + (1.0 - fSlow1));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		fRec0[0] = (fSlow0 + (0.99299999999999999 * fRec0[1]));
-		double fTemp0 = double(input0[i]);
+		double fTemp0 = double(input0[i0]);
 		double fTemp1 = (fSlow1 * fTemp0);
 		fVec0[(IOTA & 131071)] = fTemp1;
 		fRec5[0] = (fSlow2 + (fRec5[1] - std::floor((fSlow2 + fRec5[1]))));
@@ -183,7 +158,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec3[0] = (((fRec2[1] >= 1.0) & (fRec4[1] != fTemp5)) ? fTemp5 : fRec3[1]);
 		fRec4[0] = (((fRec2[1] <= 0.0) & (fRec3[1] != fTemp5)) ? fTemp5 : fRec4[1]);
 		double fTemp7 = fVec0[((IOTA - int(std::min<double>(65536.0, std::max<double>(0.0, fRec3[0])))) & 131071)];
-		output0[i] = FAUSTFLOAT(((fRec0[0] * (fTemp7 + (fRec2[0] * (fVec0[((IOTA - int(std::min<double>(65536.0, std::max<double>(0.0, fRec4[0])))) & 131071)] - fTemp7)))) + (fSlow3 * fTemp0)));
+		output0[i0] = FAUSTFLOAT(((fRec0[0] * (fTemp7 + (fRec2[0] * (fVec0[((IOTA - int(std::min<double>(65536.0, std::max<double>(0.0, fRec4[0])))) & 131071)] - fTemp7)))) + (fSlow3 * fTemp0)));
 		fRec0[1] = fRec0[0];
 		IOTA = (IOTA + 1);
 		fRec5[1] = fRec5[0];

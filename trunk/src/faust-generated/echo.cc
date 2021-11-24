@@ -9,7 +9,6 @@ private:
 	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	float fRec1[2];
-	float fConst0;
 	float fConst1;
 	FAUSTFLOAT fHslider0;
 	float fConst2;
@@ -89,7 +88,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
+	float fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = (60.0f * fConst0);
 	fConst2 = (10.0f / fConst0);
 	fConst3 = (0.0f - fConst2);
@@ -135,7 +134,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	float fSlow0 = (9.99999975e-06f * float(fVslider0));
 	int iSlow1 = (int((fConst1 / float(fHslider0))) + -1);
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		fRec1[0] = (fSlow0 + (0.999000013f * fRec1[1]));
 		float fTemp0 = ((fRec2[1] != 0.0f) ? (((fRec3[1] > 0.0f) & (fRec3[1] < 1.0f)) ? fRec2[1] : 0.0f) : (((fRec3[1] == 0.0f) & (iSlow1 != iRec4[1])) ? fConst2 : (((fRec3[1] == 1.0f) & (iSlow1 != iRec5[1])) ? fConst3 : 0.0f)));
 		fRec2[0] = fTemp0;
@@ -143,8 +142,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec4[0] = (((fRec3[1] >= 1.0f) & (iRec5[1] != iSlow1)) ? iSlow1 : iRec4[1]);
 		iRec5[0] = (((fRec3[1] <= 0.0f) & (iRec4[1] != iSlow1)) ? iSlow1 : iRec5[1]);
 		float fTemp1 = fRec0[((IOTA - (std::min<int>(524288, std::max<int>(0, iRec4[0])) + 1)) & 1048575)];
-		fRec0[(IOTA & 1048575)] = (float(input0[i]) + (fRec1[0] * (fTemp1 + (fRec3[0] * (fRec0[((IOTA - (std::min<int>(524288, std::max<int>(0, iRec5[0])) + 1)) & 1048575)] - fTemp1)))));
-		output0[i] = FAUSTFLOAT(fRec0[((IOTA - 0) & 1048575)]);
+		fRec0[(IOTA & 1048575)] = (float(input0[i0]) + (fRec1[0] * (fTemp1 + (fRec3[0] * (fRec0[((IOTA - (std::min<int>(524288, std::max<int>(0, iRec5[0])) + 1)) & 1048575)] - fTemp1)))));
+		output0[i0] = FAUSTFLOAT(fRec0[((IOTA - 0) & 1048575)]);
 		fRec1[1] = fRec1[0];
 		fRec2[1] = fRec2[0];
 		fRec3[1] = fRec3[0];

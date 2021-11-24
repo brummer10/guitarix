@@ -19,7 +19,6 @@
 
 
 #include <sndfile.hh>
-#include <glibmm.h>
 #include <sys/stat.h>
 #include <time.h>
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
@@ -176,7 +175,7 @@ Gx_livelooper_::instantiate(const LV2_Descriptor* descriptor,
   if (!self->map)
     {
       fprintf(stderr, "Missing feature uri:map.\n");
-      free(self);
+      delete self;
       return NULL;
     }
 

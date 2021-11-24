@@ -7,7 +7,6 @@ namespace peak_eq {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT fVslider1;
@@ -86,7 +85,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (3.1415926535897931 / fConst0);
 	fConst2 = (6.2831853071795862 / fConst0);
 	clear_state_f();
@@ -163,16 +162,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow61 = (iSlow53 ? fSlow56 : fSlow57);
 	double fSlow62 = ((fSlow51 * (fSlow51 + fSlow61)) + 1.0);
 	double fSlow63 = (1.0 - (fSlow51 * (fSlow61 - fSlow51)));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		double fTemp0 = (fSlow11 * fRec3[1]);
-		fRec3[0] = (double(input0[i]) - (((fRec3[2] * fSlow20) + fTemp0) / fSlow21));
+		fRec3[0] = (double(input0[i0]) - (((fRec3[2] * fSlow20) + fTemp0) / fSlow21));
 		double fTemp1 = (fSlow8 * fRec2[1]);
 		fRec2[0] = ((((fTemp0 + (fRec3[0] * fSlow23)) + (fRec3[2] * fSlow24)) / fSlow21) - (((fRec2[2] * fSlow33) + fTemp1) / fSlow34));
 		double fTemp2 = (fSlow5 * fRec1[1]);
 		fRec1[0] = ((((fTemp1 + (fRec2[0] * fSlow36)) + (fRec2[2] * fSlow37)) / fSlow34) - (((fRec1[2] * fSlow46) + fTemp2) / fSlow47));
 		double fTemp3 = (fSlow2 * fRec0[1]);
 		fRec0[0] = ((((fTemp2 + (fRec1[0] * fSlow49)) + (fRec1[2] * fSlow50)) / fSlow47) - (((fRec0[2] * fSlow59) + fTemp3) / fSlow60));
-		output0[i] = FAUSTFLOAT((((fTemp3 + (fRec0[0] * fSlow62)) + (fRec0[2] * fSlow63)) / fSlow60));
+		output0[i0] = FAUSTFLOAT((((fTemp3 + (fRec0[0] * fSlow62)) + (fRec0[2] * fSlow63)) / fSlow60));
 		fRec3[2] = fRec3[1];
 		fRec3[1] = fRec3[0];
 		fRec2[2] = fRec2[1];

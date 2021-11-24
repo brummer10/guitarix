@@ -7,6 +7,7 @@ class mydspSIG0 {
 	
   private:
 	
+	int iVec0[2];
 	int iRec2[2];
 	
   public:
@@ -17,41 +18,22 @@ class mydspSIG0 {
 	int getNumOutputsmydspSIG0() {
 		return 1;
 	}
-	int getInputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
-	int getOutputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			case 0: {
-				rate = 0;
-				break;
-			}
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
 	
 	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) {
-			iRec2[l2] = 0;
+			iVec0[l2] = 0;
+		}
+		for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) {
+			iRec2[l3] = 0;
 		}
 	}
 	
 	void fillmydspSIG0(int count, double* table) {
-		for (int i = 0; (i < count); i = (i + 1)) {
-			iRec2[0] = (iRec2[1] + 1);
-			table[i] = std::sin((9.5873799242852573e-05 * double((iRec2[0] + -1))));
+		for (int i1 = 0; (i1 < count); i1 = (i1 + 1)) {
+			iVec0[0] = 1;
+			iRec2[0] = ((iVec0[1] + iRec2[1]) % 65536);
+			table[i1] = std::sin((9.5873799242852573e-05 * double(iRec2[0])));
+			iVec0[1] = iVec0[0];
 			iRec2[1] = iRec2[0];
 		}
 	}
@@ -71,7 +53,6 @@ private:
 	FAUSTFLOAT	*fVslider0_;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT	*fHslider0_;
-	double fConst0;
 	double fConst1;
 	double fConst2;
 	double fConst3;
@@ -135,13 +116,13 @@ inline void Dsp::clear_state_f()
 {
 	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec1[l0] = 0.0;
 	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0;
-	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec3[l3] = 0.0;
-	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec4[l4] = 0.0;
-	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec5[l5] = 0.0;
-	for (int l6 = 0; (l6 < 2); l6 = (l6 + 1)) fRec6[l6] = 0.0;
-	for (int l7 = 0; (l7 < 2); l7 = (l7 + 1)) fRec7[l7] = 0.0;
-	for (int l8 = 0; (l8 < 2); l8 = (l8 + 1)) fRec8[l8] = 0.0;
-	for (int l9 = 0; (l9 < 2); l9 = (l9 + 1)) fRec9[l9] = 0.0;
+	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec3[l4] = 0.0;
+	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec4[l5] = 0.0;
+	for (int l6 = 0; (l6 < 2); l6 = (l6 + 1)) fRec5[l6] = 0.0;
+	for (int l7 = 0; (l7 < 2); l7 = (l7 + 1)) fRec6[l7] = 0.0;
+	for (int l8 = 0; (l8 < 2); l8 = (l8 + 1)) fRec7[l8] = 0.0;
+	for (int l9 = 0; (l9 < 2); l9 = (l9 + 1)) fRec8[l9] = 0.0;
+	for (int l10 = 0; (l10 < 2); l10 = (l10 + 1)) fRec9[l10] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -156,7 +137,7 @@ inline void Dsp::init(uint32_t sample_rate)
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = std::exp((0.0 - (20.0 / fConst0)));
 	fConst2 = (1.0 - fConst1);
 	fConst3 = (1.0 / fConst0);
@@ -191,7 +172,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow10 = (fConst3 * double(fHslider5));
 	double fSlow11 = (4.0 / fSlow4);
 	double fSlow12 = (fConst3 * double(fHslider6));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		fRec1[0] = (fSlow3 + (fRec1[1] - std::floor((fSlow3 + fRec1[1]))));
 		fRec0[0] = ((fConst1 * fRec0[1]) + (fConst2 * double(((fRec1[0] <= fSlow5) * (fRec1[0] > 0.0)))));
 		fRec3[0] = (fSlow6 + (fRec3[1] - std::floor((fSlow6 + fRec3[1]))));
@@ -201,7 +182,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec7[0] = (fSlow10 + (fRec7[1] - std::floor((fSlow10 + fRec7[1]))));
 		fRec8[0] = ((fConst1 * fRec8[1]) + (fConst2 * double(((fRec1[0] <= fSlow11) * (fRec1[0] > fSlow9)))));
 		fRec9[0] = (fSlow12 + (fRec9[1] - std::floor((fSlow12 + fRec9[1]))));
-		output0[i] = FAUSTFLOAT((double(input0[i]) * (fSlow1 + (fSlow0 * ((fSlow2 * (((((fRec0[0] * ftbl0mydspSIG0[int((65536.0 * fRec3[0]))]) + (fRec4[0] * ftbl0mydspSIG0[int((65536.0 * fRec5[0]))])) + (fRec6[0] * ftbl0mydspSIG0[int((65536.0 * fRec7[0]))])) + (fRec8[0] * ftbl0mydspSIG0[int((65536.0 * fRec9[0]))])) + -1.0)) + 1.0)))));
+		output0[i0] = FAUSTFLOAT((double(input0[i0]) * (fSlow1 + (fSlow0 * ((fSlow2 * (((((fRec0[0] * ftbl0mydspSIG0[int((65536.0 * fRec3[0]))]) + (fRec4[0] * ftbl0mydspSIG0[int((65536.0 * fRec5[0]))])) + (fRec6[0] * ftbl0mydspSIG0[int((65536.0 * fRec7[0]))])) + (fRec8[0] * ftbl0mydspSIG0[int((65536.0 * fRec9[0]))])) + -1.0)) + 1.0)))));
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];
 		fRec3[1] = fRec3[0];

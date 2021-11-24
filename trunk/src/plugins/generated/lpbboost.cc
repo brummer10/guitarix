@@ -10,10 +10,6 @@ namespace lpbboost {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
-	double fConst1;
-	double fConst2;
-	double fConst3;
 	double fConst4;
 	double fConst5;
 	double fConst6;
@@ -79,10 +75,10 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = mydsp_faustpower2_f(fConst0);
-	fConst2 = (4.3305440765089802e-10 * fConst0);
-	fConst3 = ((fConst0 * (fConst2 + 4.6696250610376498e-08)) + 1.2247430320174101e-06);
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = mydsp_faustpower2_f(fConst0);
+	double fConst2 = (4.3305440765089802e-10 * fConst0);
+	double fConst3 = ((fConst0 * (fConst2 + 4.6696250610376498e-08)) + 1.2247430320174101e-06);
 	fConst4 = (fConst1 / fConst3);
 	fConst5 = (1.0 / fConst3);
 	fConst6 = (2.4494860640348201e-06 - (8.6610881530179697e-10 * fConst1));
@@ -98,11 +94,11 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double fSlow0 = (0.0070000000000000062 * double(fVslider0));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		fRec0[0] = (double(input0[i]) - (fConst5 * ((fConst6 * fRec0[1]) + (fConst7 * fRec0[2]))));
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		fRec0[0] = (double(input0[i0]) - (fConst5 * ((fConst6 * fRec0[1]) + (fConst7 * fRec0[2]))));
 		fRec1[0] = (fSlow0 + (0.99299999999999999 * fRec1[1]));
 		double fTemp0 = ((0.0 - (8.6803456392639806e-09 * fRec1[0])) + -8.6803456392639804e-11);
-		output0[i] = FAUSTFLOAT((fConst4 * (((fRec0[0] * fTemp0) + (fRec0[1] * ((1.7360691278528001e-08 * fRec1[0]) + 1.7360691278527999e-10))) + (fRec0[2] * fTemp0))));
+		output0[i0] = FAUSTFLOAT((fConst4 * (((fRec0[0] * fTemp0) + (fRec0[1] * ((1.7360691278528001e-08 * fRec1[0]) + 1.7360691278527999e-10))) + (fRec0[2] * fTemp0))));
 		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];

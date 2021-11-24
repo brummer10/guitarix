@@ -36,12 +36,12 @@ void compute(int count, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 	double fSlow3 = (6.2831853071795862 * double(fVslider1));
 	double fSlow4 = std::cos(fSlow3);
 	double fSlow5 = std::sin(fSlow3);
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		iVec0[0] = 1;
 		fRec0[0] = ((fSlow1 * fRec1[1]) + (fSlow2 * fRec0[1]));
 		fRec1[0] = ((double((1 - iVec0[1])) + (fSlow2 * fRec1[1])) - (fSlow1 * fRec0[1]));
-		output0[i] = FAUSTFLOAT((0.5 * (fRec0[0] + 1.0)));
-		output1[i] = FAUSTFLOAT((0.5 * (((fSlow4 * fRec0[0]) + (fSlow5 * fRec1[0])) + 1.0)));
+		output0[i0] = FAUSTFLOAT((0.5 * (fRec0[0] + 1.0)));
+		output1[i0] = FAUSTFLOAT((0.5 * (((fSlow4 * fRec0[0]) + (fSlow5 * fRec1[0])) + 1.0)));
 		iVec0[1] = iVec0[0];
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];

@@ -10,7 +10,6 @@ namespace mbcs {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fHslider1;
@@ -282,7 +281,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (3.1415926535897931 / fConst0);
 	clear_state_f();
@@ -440,10 +439,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	int iSlow142 = (std::fabs(fSlow141) < 2.2204460492503131e-16);
 	double fSlow143 = (iSlow142 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow142 ? 1.0 : fSlow141)))));
 	double fSlow144 = (1.0 - fSlow137);
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		int iTemp0 = (iRec1[1] < 4096);
 		fRec3[0] = (fSlow4 + (0.999 * fRec3[1]));
-		double fTemp1 = double(input0[i]);
+		double fTemp1 = double(input0[i0]);
 		fVec0[0] = fTemp1;
 		fRec8[0] = ((fSlow13 * fVec0[1]) - (fSlow14 * ((fSlow15 * fRec8[1]) - (fSlow7 * fTemp1))));
 		fRec7[0] = (fRec8[0] - (fSlow9 * ((fSlow16 * fRec7[2]) + (fSlow17 * fRec7[1]))));
@@ -455,7 +454,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec4[0] = ((fRec5[2] + (fSlow31 * (fTemp3 + (fSlow33 * fRec5[0])))) - (fSlow40 * ((fSlow42 * fRec4[2]) + fTemp4)));
 		double fTemp5 = (fRec4[2] + (fSlow40 * (fTemp4 + (fSlow42 * fRec4[0]))));
 		double fTemp6 = (iSlow5 ? 0.0 : fTemp5);
-		double fTemp7 = double(input1[i]);
+		double fTemp7 = double(input1[i0]);
 		fVec1[0] = fTemp7;
 		fRec16[0] = ((fSlow13 * fVec1[1]) - (fSlow14 * ((fSlow15 * fRec16[1]) - (fSlow7 * fTemp7))));
 		fRec15[0] = (fRec16[0] - (fSlow9 * ((fSlow16 * fRec15[2]) + (fSlow17 * fRec15[1]))));
@@ -614,8 +613,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		iRec69[0] = (iTemp70 ? (iRec69[1] + 1) : 1);
 		fRec70[0] = (iTemp70 ? fRec70[1] : (0.000244140625 * fRec68[1]));
 		fVbargraph4 = FAUSTFLOAT((0.5 * fRec70[0]));
-		output0[i] = FAUSTFLOAT(((((fTemp16 + fTemp35) + fTemp52) + fTemp67) + fTemp78));
-		output1[i] = FAUSTFLOAT((fTemp79 + (fTemp68 + (fTemp53 + (fTemp17 + fTemp36)))));
+		output0[i0] = FAUSTFLOAT(((((fTemp16 + fTemp35) + fTemp52) + fTemp67) + fTemp78));
+		output1[i0] = FAUSTFLOAT((fTemp79 + (fTemp68 + (fTemp53 + (fTemp17 + fTemp36)))));
 		fRec3[1] = fRec3[0];
 		fVec0[1] = fVec0[0];
 		fRec8[1] = fRec8[0];

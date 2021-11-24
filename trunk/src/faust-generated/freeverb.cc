@@ -149,8 +149,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow4 = (1.0 - fSlow3);
 	double fSlow5 = (1.0 - (0.01 * fSlow0));
 	double fSlow6 = (fSlow5 + (fSlow0 * ((0.01 * fSlow5) + 0.00014999999999999999)));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		double fTemp1 = (fSlow1 * fTemp0);
 		fRec9[0] = ((fSlow3 * fRec9[1]) + (fSlow4 * fRec8[1]));
 		fVec0[(IOTA & 2047)] = (fTemp1 + (fSlow2 * fRec9[0]));
@@ -189,7 +189,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec11[(IOTA & 255)] = (fRec3 + (0.5 * fRec0[1]));
 		fRec0[0] = fVec11[((IOTA - 248) & 255)];
 		double fRec1 = (fRec0[1] - fRec3);
-		output0[i] = FAUSTFLOAT((fRec1 + (fSlow6 * fTemp0)));
+		output0[i0] = FAUSTFLOAT((fRec1 + (fSlow6 * fTemp0)));
 		fRec9[1] = fRec9[0];
 		IOTA = (IOTA + 1);
 		fRec8[1] = fRec8[0];

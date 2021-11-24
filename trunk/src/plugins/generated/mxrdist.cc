@@ -13,15 +13,9 @@ private:
 	gx_resample::FixedRateResampler smp;
 	int sample_rate;
 	int fSampleRate;
-	double fConst0;
-	double fConst1;
-	double fConst2;
 	double fConst3;
-	double fConst4;
 	double fConst5;
-	double fConst6;
 	double fConst7;
-	double fConst8;
 	double fConst9;
 	double fConst10;
 	double fRec1[3];
@@ -102,22 +96,22 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	sample_rate = 96000;
 	smp.setup(RsamplingFreq, sample_rate);
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = (1.40668739186091e-10 * fConst0);
-	fConst2 = ((fConst0 * (fConst1 + 1.40739073555684e-05)) + 0.00035167184796522702);
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = (1.40668739186091e-10 * fConst0);
+	double fConst2 = ((fConst0 * (fConst1 + 1.40739073555684e-05)) + 0.00035167184796522702);
 	fConst3 = (fConst0 / fConst2);
-	fConst4 = (4.3356710341455001e-10 * fConst0);
+	double fConst4 = (4.3356710341455001e-10 * fConst0);
 	fConst5 = (1.0 / ((fConst0 * (fConst4 + 2.2111922274142e-08)) + 2.14637179908193e-08));
-	fConst6 = (4.2927435981638601e-10 * fConst0);
+	double fConst6 = (4.2927435981638601e-10 * fConst0);
 	fConst7 = (fConst0 * (fConst6 + 6.4391153972457898e-10));
-	fConst8 = ((fConst0 * (fConst4 + -2.2111922274142e-08)) + 2.14637179908193e-08);
-	fConst9 = mydsp_faustpower2_f(fConst0);
-	fConst10 = (4.29274359816386e-08 - (8.6713420682910003e-10 * fConst9));
-	fConst11 = (0.0 - (8.5854871963277201e-10 * fConst9));
+	double fConst8 = mydsp_faustpower2_f(fConst0);
+	fConst9 = (4.29274359816386e-08 - (8.6713420682910003e-10 * fConst8));
+	fConst10 = ((fConst0 * (fConst4 + -2.2111922274142e-08)) + 2.14637179908193e-08);
+	fConst11 = (0.0 - (8.5854871963277201e-10 * fConst8));
 	fConst12 = (fConst0 * (fConst6 + -6.4391153972457898e-10));
 	fConst13 = (9.3999999999999995e-08 * fConst0);
 	fConst14 = (1.0 / fConst2);
-	fConst15 = (0.00070334369593045296 - (2.8133747837218101e-10 * fConst9));
+	fConst15 = (0.00070334369593045296 - (2.8133747837218101e-10 * fConst8));
 	fConst16 = ((fConst0 * (fConst1 + -1.40739073555684e-05)) + 0.00035167184796522702);
 	clear_state_f();
 }
@@ -133,8 +127,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	int ReCount = smp.up(count, input0, buf);
 	double fSlow0 = (0.0070000000000000062 * ((0.25 * double(fHslider0)) + 0.75));
 	double fSlow1 = (0.0070000000000000062 * double(fVslider0));
-	for (int i = 0; (i < ReCount); i = (i + 1)) {
-		fRec1[0] = (double(buf[i]) - (fConst5 * ((fConst8 * fRec1[2]) + (fConst10 * fRec1[1]))));
+	for (int i0 = 0; (i0 < ReCount); i0 = (i0 + 1)) {
+		fRec1[0] = (double(buf[i0]) - (fConst5 * ((fConst9 * fRec1[1]) + (fConst10 * fRec1[2]))));
 		double fTemp0 = (((fConst7 * fRec1[0]) + (fConst11 * fRec1[1])) + (fConst12 * fRec1[2]));
 		fVec0[0] = fTemp0;
 		double fTemp1 = (fConst5 * fTemp0);
@@ -145,7 +139,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = (0.0 - (((fRec2[1] * (1.0 - fTemp3)) - (fConst5 * ((fTemp0 * (fTemp4 + 1.0)) + (fVec0[1] * (1.0 - fTemp4))))) / (fTemp3 + 1.0)));
 		fRec0[0] = (fTemp1 - (double(opamp2(double((fRec2[0] - fTemp1)))) + (fConst14 * ((fConst15 * fRec0[1]) + (fConst16 * fRec0[2])))));
 		fRec4[0] = (fSlow1 + (0.99299999999999999 * fRec4[1]));
-		buf[i] = FAUSTFLOAT((fConst3 * ((fRec0[2] * (0.0 - (7.0334369593045297e-06 * fRec4[0]))) + (7.0334369593045297e-06 * (fRec0[0] * fRec4[0])))));
+		buf[i0] = FAUSTFLOAT((fConst3 * ((fRec0[2] * (0.0 - (7.0334369593045297e-06 * fRec4[0]))) + (7.0334369593045297e-06 * (fRec0[0] * fRec4[0])))));
 		fRec1[2] = fRec1[1];
 		fRec1[1] = fRec1[0];
 		fVec0[1] = fVec0[0];

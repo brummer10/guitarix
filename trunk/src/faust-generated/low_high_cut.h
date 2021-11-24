@@ -8,12 +8,8 @@ namespace low_high_cut {
 class Dsp {
 private:
 	int fSampleRate;
-	double fConst0;
-	double fConst1;
-	double fConst2;
 	double fConst3;
 	double fConst4;
-	double fConst5;
 	double fConst6;
 	int iVec0[2];
 	double fRec4[2];

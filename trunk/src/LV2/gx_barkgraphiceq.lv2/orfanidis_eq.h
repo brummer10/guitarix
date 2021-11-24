@@ -1020,11 +1020,10 @@ public:
 		if (db > -min_max_gain_db_ && db < min_max_gain_db_) {
 			current_gain_db_ = db;
 			current_filter_index_ = get_flt_index(db);
-		 }
-		 else
-		 	return invalid_input_data_error;
-
-	    return no_error;
+		} else {
+			return invalid_input_data_error;
+		}
+		return no_error;
 	}
 	
 	eq_error_t sbs_process(eq_single_t *in, eq_single_t *out) {
@@ -1120,13 +1119,13 @@ public:
     
     eq_error_t change_band_gain_db(unsigned int band_number, 
 		eq_single_t band_gain) {
-		if(band_number < channels_.size())
-			    channels_[band_number]->set_gain_db(band_gain);
-		    else
-		    	return invalid_input_data_error;
-
-			return no_error;
-    }
+		if(band_number < channels_.size()) {
+			channels_[band_number]->set_gain_db(band_gain);
+		} else {
+			return invalid_input_data_error;
+		}
+		return no_error;
+	}
     
     eq_error_t sbs_process_band(unsigned int band_number, 
     	eq_single_t *in, eq_single_t *out) {

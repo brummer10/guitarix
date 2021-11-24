@@ -9,7 +9,6 @@ private:
 	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	int iVec0[2];
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT fCheckbox0;
@@ -86,7 +85,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (6.2831853071795862 / fConst0);
 	fConst3 = (0.5 * fConst0);
@@ -112,7 +111,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow9 = (fConst2 * fSlow7);
 	int iSlow10 = int((fConst3 / fSlow7));
 	double fSlow11 = (1.0 / double(iSlow10));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		iVec0[0] = 1;
 		double fTemp0 = (fRec0[1] * (1.0 - (fConst1 / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fRec0[1]))))))));
 		fRec1[0] = (fSlow8 + (fRec1[1] - std::floor((fSlow8 + fRec1[1]))));
@@ -122,7 +121,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec6[0] = ((iRec6[1] > 0) ? ((2 * (iRec5[1] < iSlow10)) + -1) : (1 - (2 * (iRec5[1] > 0))));
 		iRec5[0] = (iRec6[0] + iRec5[1]);
 		fRec0[0] = (fTemp0 + (fConst1 * (std::pow(((fSlow3 * ((iSlow5 ? (fSlow11 * double(iRec5[0])) : (iSlow6 ? std::max<double>(0.0, (0.5 * (fRec2[0] + 1.0))) : double((fRec1[0] <= 0.5)))) + -1.0)) + 1.0), 1.8999999999999999) / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
-		output0[i] = FAUSTFLOAT((double(input0[i]) * (fSlow1 + (fSlow2 / (std::exp((13.815510557964274 / std::log(((8.5519675079294171 * fRec0[0]) + 2.7182818284590451)))) + 2700.0)))));
+		output0[i0] = FAUSTFLOAT((double(input0[i0]) * (fSlow1 + (fSlow2 / (std::exp((13.815510557964274 / std::log(((8.5519675079294171 * fRec0[0]) + 2.7182818284590451)))) + 2700.0)))));
 		iVec0[1] = iVec0[0];
 		fRec1[1] = fRec1[0];
 		fRec4[1] = fRec4[0];

@@ -17,30 +17,6 @@ class mydspSIG0 {
 	int getNumOutputsmydspSIG0() {
 		return 1;
 	}
-	int getInputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
-	int getOutputRatemydspSIG0(int channel) {
-		int rate;
-		switch ((channel)) {
-			case 0: {
-				rate = 0;
-				break;
-			}
-			default: {
-				rate = -1;
-				break;
-			}
-		}
-		return rate;
-	}
 	
 	void instanceInitmydspSIG0(int sample_rate) {
 		for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) {
@@ -49,9 +25,9 @@ class mydspSIG0 {
 	}
 	
 	void fillmydspSIG0(int count, float* table) {
-		for (int i = 0; (i < count); i = (i + 1)) {
+		for (int i1 = 0; (i1 < count); i1 = (i1 + 1)) {
 			iRec2[0] = (iRec2[1] + 1);
-			table[i] = std::sin((9.58738019e-05f * float((iRec2[0] + -1))));
+			table[i1] = std::sin((9.58738019e-05f * float((iRec2[0] + -1))));
 			iRec2[1] = iRec2[0];
 		}
 	}
@@ -70,7 +46,6 @@ private:
 	int IOTA;
 	float *fVec0;
 	FAUSTFLOAT fHslider0;
-	float fConst0;
 	float fConst1;
 	FAUSTFLOAT fHslider1;
 	float fRec0[2];
@@ -151,7 +126,7 @@ inline void Dsp::init(unsigned int sample_rate)
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
-	fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
+	float fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = (0.5f * fConst0);
 	fConst2 = (1.0f / fConst0);
 	IOTA = 0;
@@ -200,8 +175,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	float fSlow1 = (0.00100000005f * float(fHslider1));
 	float fSlow2 = float(fHslider2);
 	float fSlow3 = (fConst2 * float(fHslider3));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		float fTemp0 = float(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		float fTemp0 = float(input0[i0]);
 		fVec0[(IOTA & 131071)] = fTemp0;
 		fRec0[0] = (fSlow1 + (0.999000013f * fRec0[1]));
 		fRec1[0] = (fSlow3 + (fRec1[1] - std::floor((fSlow3 + fRec1[1]))));
@@ -211,8 +186,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp4 = (fConst1 * (fRec0[0] * ((fSlow2 * (((fTemp2 + (1.0f - fTemp1)) * ftbl0mydspSIG0[(iTemp3 & 65535)]) + ((fTemp1 - fTemp2) * ftbl0mydspSIG0[((iTemp3 + 1) & 65535)]))) + 1.0f)));
 		int iTemp5 = int(fTemp4);
 		float fTemp6 = std::floor(fTemp4);
-		output0[i] = FAUSTFLOAT((fTemp0 + (fSlow0 * ((fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp5))) & 131071)] * (fTemp6 + (1.0f - fTemp4))) + ((fTemp4 - fTemp6) * fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp5 + 1)))) & 131071)])))));
-		float fTemp7 = float(input1[i]);
+		output0[i0] = FAUSTFLOAT((fTemp0 + (fSlow0 * ((fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp5))) & 131071)] * (fTemp6 + (1.0f - fTemp4))) + ((fTemp4 - fTemp6) * fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp5 + 1)))) & 131071)])))));
+		float fTemp7 = float(input1[i0]);
 		fVec1[(IOTA & 131071)] = fTemp7;
 		float fTemp8 = (65536.0f * (fRec1[0] + (0.25f - std::floor((fRec1[0] + 0.25f)))));
 		float fTemp9 = std::floor(fTemp8);
@@ -220,7 +195,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp11 = (fConst1 * (fRec0[0] * ((fSlow2 * (((fTemp9 + (1.0f - fTemp8)) * ftbl0mydspSIG0[(iTemp10 & 65535)]) + ((fTemp8 - fTemp9) * ftbl0mydspSIG0[((iTemp10 + 1) & 65535)]))) + 1.0f)));
 		int iTemp12 = int(fTemp11);
 		float fTemp13 = std::floor(fTemp11);
-		output1[i] = FAUSTFLOAT((fTemp7 + (fSlow0 * ((fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp12))) & 131071)] * (fTemp13 + (1.0f - fTemp11))) + ((fTemp11 - fTemp13) * fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp12 + 1)))) & 131071)])))));
+		output1[i0] = FAUSTFLOAT((fTemp7 + (fSlow0 * ((fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp12))) & 131071)] * (fTemp13 + (1.0f - fTemp11))) + ((fTemp11 - fTemp13) * fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp12 + 1)))) & 131071)])))));
 		IOTA = (IOTA + 1);
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];

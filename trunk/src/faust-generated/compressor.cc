@@ -7,7 +7,6 @@ namespace compressor {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fEntry0;
 	FAUSTFLOAT fEntry1;
@@ -83,7 +82,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = std::exp((0.0 - (10.0 / fConst0)));
 	fConst3 = (1.0 - fConst2);
@@ -103,8 +102,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow3 = std::exp((0.0 - (fConst1 / std::max<double>(fConst1, double(fHslider1)))));
 	double fSlow4 = double(fEntry2);
 	double fSlow5 = (1.0 / (fSlow1 + 0.001));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		int iTemp1 = (iRec1[1] < 2048);
 		fRec4[0] = ((fConst2 * fRec4[1]) + (fConst3 * std::fabs((fTemp0 + 9.9999999999999995e-21))));
 		double fTemp2 = ((fSlow2 * double((fRec3[1] < fRec4[0]))) + (fSlow3 * double((fRec3[1] >= fRec4[0]))));
@@ -117,7 +116,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec1[0] = (iTemp1 ? (iRec1[1] + 1) : 1);
 		fRec2[0] = (iTemp1 ? fRec2[1] : fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
-		output0[i] = FAUSTFLOAT((fTemp0 * std::pow(10.0, (0.050000000000000003 * fTemp5))));
+		output0[i0] = FAUSTFLOAT((fTemp0 * std::pow(10.0, (0.050000000000000003 * fTemp5))));
 		fRec4[1] = fRec4[0];
 		fRec3[1] = fRec3[0];
 		fRec0[1] = fRec0[0];

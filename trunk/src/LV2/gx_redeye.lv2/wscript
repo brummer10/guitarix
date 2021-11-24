@@ -12,7 +12,7 @@ def build(bld):
         source   = ['gxredeye.cpp'],
         includes = ['../faust','./', '../DSP', '../DSP/tube_tables', '../DSP/circuit_tables'],
         cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
-        use = ['LV2CORE','GX_CONVOLVER','GX_RESAMPLER','GLIBMM'],
+        use = ['LV2CORE','GX_CONVOLVER','GX_RESAMPLER'],
         )
     bld.lv2_gui(
         lv2_base = lv2_base,

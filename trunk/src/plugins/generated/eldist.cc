@@ -14,7 +14,6 @@ private:
 	int sample_rate;
 	int fSampleRate;
 	double fConst0;
-	double fConst1;
 	double fConst2;
 	FAUSTFLOAT fVslider0;
 	double fRec1[2];
@@ -82,7 +81,7 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	smp.setup(RsamplingFreq, sample_rate);
 	fSampleRate = sample_rate;
 	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = (3.9949101411109002e-05 * fConst0);
+	double fConst1 = (3.9949101411109002e-05 * fConst0);
 	fConst2 = (fConst1 + -8.66687668918243e-05);
 	fConst3 = (4.0795552554224603e-05 * fConst0);
 	fConst4 = (-8.66687668918243e-05 - fConst1);
@@ -99,12 +98,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
 	double fSlow0 = (0.0070000000000000062 * double(fVslider0));
-	for (int i = 0; (i < ReCount); i = (i + 1)) {
+	for (int i0 = 0; (i0 < ReCount); i0 = (i0 + 1)) {
 		fRec1[0] = (fSlow0 + (0.99299999999999999 * fRec1[1]));
 		double fTemp0 = (fConst3 + ((fConst4 * fRec1[0]) + 0.000635245647283505));
-		fRec0[0] = (double(buf[i]) - ((fRec0[1] * (((fConst2 * fRec1[0]) + 0.000635245647283505) - fConst3)) / fTemp0));
+		fRec0[0] = (double(buf[i0]) - ((fRec0[1] * (((fConst2 * fRec1[0]) + 0.000635245647283505) - fConst3)) / fTemp0));
 		double fTemp1 = (8.1468640874319694e-08 * fRec1[0]);
-		buf[i] = FAUSTFLOAT(double(asymclip(double((fConst0 * (((fRec0[0] * ((0.0 - fTemp1) + -0.00018716364572377001)) + (fRec0[1] * (fTemp1 + 0.00018716364572377001))) / fTemp0))))));
+		buf[i0] = FAUSTFLOAT(double(asymclip(double((fConst0 * (((fRec0[0] * ((0.0 - fTemp1) + -0.00018716364572377001)) + (fRec0[1] * (fTemp1 + 0.00018716364572377001))) / fTemp0))))));
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];
 	}

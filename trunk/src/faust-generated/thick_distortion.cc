@@ -7,7 +7,9 @@ namespace thick_distortion {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	double fConst0;
 	FAUSTFLOAT fVslider0;
+	double fConst1;
 	double fRec1[2];
 	FAUSTFLOAT fVslider1;
 	double fRec2[2];
@@ -74,6 +76,8 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
+	fConst0 = (44.100000000000001 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
+	fConst1 = (1.0 - fConst0);
 	clear_state_f();
 }
 
@@ -84,15 +88,15 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider0))));
-	double fSlow1 = (0.0010000000000000009 * double(fVslider1));
-	double fSlow2 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider2))));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		fRec1[0] = (fSlow0 + (0.999 * fRec1[1]));
-		fRec2[0] = (fSlow1 + (0.999 * fRec2[1]));
-		fRec0[0] = ((std::max<double>(-1.0, std::min<double>(1.0, (double(input0[i]) * fRec1[0]))) * (1.0 - fRec2[0])) + (fRec2[0] * fRec0[1]));
-		fRec3[0] = (fSlow2 + (0.999 * fRec3[1]));
-		output0[i] = FAUSTFLOAT((fRec0[0] * fRec3[0]));
+	double fSlow0 = (fConst0 * std::pow(10.0, (0.050000000000000003 * double(fVslider0))));
+	double fSlow1 = (fConst0 * double(fVslider1));
+	double fSlow2 = (fConst0 * std::pow(10.0, (0.050000000000000003 * double(fVslider2))));
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		fRec1[0] = (fSlow0 + (fConst1 * fRec1[1]));
+		fRec2[0] = (fSlow1 + (fConst1 * fRec2[1]));
+		fRec0[0] = ((std::max<double>(-1.0, std::min<double>(1.0, (double(input0[i0]) * fRec1[0]))) * (1.0 - fRec2[0])) + (fRec2[0] * fRec0[1]));
+		fRec3[0] = (fSlow2 + (fConst1 * fRec3[1]));
+		output0[i0] = FAUSTFLOAT((fRec0[0] * fRec3[0]));
 		fRec1[1] = fRec1[0];
 		fRec2[1] = fRec2[0];
 		fRec0[1] = fRec0[0];

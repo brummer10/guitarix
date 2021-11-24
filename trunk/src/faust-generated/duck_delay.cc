@@ -10,7 +10,6 @@ private:
 	FAUSTFLOAT fHslider0;
 	int IOTA;
 	double fVec0[524288];
-	double fConst0;
 	double fConst1;
 	double fConst2;
 	double fConst3;
@@ -86,7 +85,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (0.001 * fConst0);
 	fConst2 = std::exp((0.0 - (10.0 / fConst0)));
 	fConst3 = (1.0 - fConst2);
@@ -113,8 +112,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow8 = (iSlow7 ? 0.0 : std::exp((0.0 - (fConst4 / (iSlow7 ? 1.0 : fSlow6)))));
 	double fSlow9 = (1.0 - fSlow8);
 	double fSlow10 = (1.0 - fSlow5);
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		double fTemp1 = (fTemp0 + (fSlow0 * fRec0[1]));
 		fVec0[(IOTA & 524287)] = fTemp1;
 		fRec1[0] = (fSlow1 + (fConst2 * fRec1[1]));
@@ -126,7 +125,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec4[0] = std::max<double>(fTemp5, ((fRec4[1] * fSlow8) + (fTemp5 * fSlow9)));
 		fRec3[0] = ((fRec3[1] * fSlow5) + (fRec4[0] * fSlow10));
 		fRec2[0] = ((fConst2 * fRec2[1]) + (fConst3 * double((1 - ((fSlow2 * fRec3[0]) > 1.0)))));
-		output0[i] = FAUSTFLOAT((fTemp0 + (fRec0[0] * fRec2[0])));
+		output0[i0] = FAUSTFLOAT((fTemp0 + (fRec0[0] * fRec2[0])));
 		IOTA = (IOTA + 1);
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];

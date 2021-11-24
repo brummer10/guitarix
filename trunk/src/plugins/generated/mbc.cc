@@ -10,7 +10,6 @@ namespace mbc {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fHslider1;
@@ -230,7 +229,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (3.1415926535897931 / fConst0);
 	clear_state_f();
@@ -388,10 +387,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	int iSlow142 = (std::fabs(fSlow141) < 2.2204460492503131e-16);
 	double fSlow143 = (iSlow142 ? 0.0 : std::exp((0.0 - (fConst1 / (iSlow142 ? 1.0 : fSlow141)))));
 	double fSlow144 = (1.0 - fSlow137);
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		int iTemp0 = (iRec1[1] < 4096);
 		fRec3[0] = (fSlow4 + (0.999 * fRec3[1]));
-		double fTemp1 = double(input0[i]);
+		double fTemp1 = double(input0[i0]);
 		fVec0[0] = fTemp1;
 		fRec8[0] = ((fSlow13 * fVec0[1]) - (fSlow14 * ((fSlow15 * fRec8[1]) - (fSlow7 * fTemp1))));
 		fRec7[0] = (fRec8[0] - (fSlow9 * ((fSlow16 * fRec7[2]) + (fSlow17 * fRec7[1]))));
@@ -503,7 +502,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec49[0] = (iTemp41 ? (iRec49[1] + 1) : 1);
 		fRec50[0] = (iTemp41 ? fRec50[1] : (0.000244140625 * fRec48[1]));
 		fVbargraph4 = FAUSTFLOAT(fRec50[0]);
-		output0[i] = FAUSTFLOAT(((((fTemp9 + fTemp20) + fTemp30) + fTemp39) + fTemp46));
+		output0[i0] = FAUSTFLOAT(((((fTemp9 + fTemp20) + fTemp30) + fTemp39) + fTemp46));
 		fRec3[1] = fRec3[0];
 		fVec0[1] = fVec0[0];
 		fRec8[1] = fRec8[0];

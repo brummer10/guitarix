@@ -7,10 +7,6 @@ namespace scream {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
-	double fConst0;
-	double fConst1;
-	double fConst2;
-	double fConst3;
 	double fConst4;
 	double fConst5;
 	double fConst6;
@@ -68,10 +64,10 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = mydsp_faustpower2_f(fConst0);
-	fConst2 = (3.6443426611082201e-10 * fConst0);
-	fConst3 = ((fConst0 * (fConst2 + 3.23311541086178e-06)) + 0.0051539111593004797);
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = mydsp_faustpower2_f(fConst0);
+	double fConst2 = (3.6443426611082201e-10 * fConst0);
+	double fConst3 = ((fConst0 * (fConst2 + 3.23311541086178e-06)) + 0.0051539111593004797);
 	fConst4 = (fConst1 / fConst3);
 	fConst5 = (1.0 / fConst3);
 	fConst6 = (0.010307822318600999 - (7.2886853222164402e-10 * fConst1));
@@ -88,11 +84,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fVslider0 (*fVslider0_)
 	double fSlow0 = (0.0070000000000000062 * double(fVslider0));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		fRec0[0] = (double(input0[i]) - (fConst5 * ((fConst6 * fRec0[1]) + (fConst7 * fRec0[2]))));
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		fRec0[0] = (double(input0[i0]) - (fConst5 * ((fConst6 * fRec0[1]) + (fConst7 * fRec0[2]))));
 		fRec1[0] = (fSlow0 + (0.99299999999999999 * fRec1[1]));
 		double fTemp0 = ((0.0 - (6.8207644943852797e-09 * fRec1[0])) + -6.8207644943852799e-10);
-		output0[i] = FAUSTFLOAT(std::min<double>(0.45140000000000002, std::max<double>(-0.25140000000000001, (fConst4 * (((fRec0[0] * fTemp0) + (fRec0[1] * ((1.3641528988770601e-08 * fRec1[0]) + 1.3641528988770599e-09))) + (fRec0[2] * fTemp0))))));
+		output0[i0] = FAUSTFLOAT(std::min<double>(0.45140000000000002, std::max<double>(-0.25140000000000001, (fConst4 * (((fRec0[0] * fTemp0) + (fRec0[1] * ((1.3641528988770601e-08 * fRec1[0]) + 1.3641528988770599e-09))) + (fRec0[2] * fTemp0))))));
 		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];

@@ -11,7 +11,6 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	double fVec0[2];
-	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fVslider0;
 	double fRec3[2];
@@ -234,7 +233,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (3.1415926535897931 / fConst0);
 	fConst3 = (60.0 * fConst0);
@@ -321,8 +320,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow67 = (fConst3 / double(fHslider7));
 	double fSlow68 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider4))));
 	double fSlow69 = (fConst3 / double(fHslider8));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
 		int iTemp1 = (iRec1[1] < 4096);
 		fRec3[0] = (fSlow0 + (0.999 * fRec3[1]));
@@ -441,7 +440,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		iRec53[0] = (iTemp37 ? (iRec53[1] + 1) : 1);
 		fRec54[0] = (iTemp37 ? fRec54[1] : (0.000244140625 * fRec52[1]));
 		fVbargraph4 = FAUSTFLOAT(fRec54[0]);
-		output0[i] = FAUSTFLOAT((fTemp0 + ((((fTemp8 + fTemp18) + fTemp27) + fTemp35) + fTemp41)));
+		output0[i0] = FAUSTFLOAT((fTemp0 + ((((fTemp8 + fTemp18) + fTemp27) + fTemp35) + fTemp41)));
 		fVec0[1] = fVec0[0];
 		fRec3[1] = fRec3[0];
 		fRec8[1] = fRec8[0];

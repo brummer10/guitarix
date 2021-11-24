@@ -21,11 +21,11 @@ inline void Dsp::clear_state_f()
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = (15079.644737231007 / fConst0);
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = (15079.644737231007 / fConst0);
 	fConst2 = (1.4142135623730951 * std::sin(fConst1));
 	fConst3 = std::cos(fConst1);
-	fConst4 = (1884.9555921538758 / fConst0);
+	double fConst4 = (1884.9555921538758 / fConst0);
 	fConst5 = (1.4142135623730951 * std::sin(fConst4));
 	fConst6 = std::cos(fConst4);
 	clear_state_f();
@@ -60,12 +60,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow21 = (fSlow11 + (1.0 - (fSlow12 + fSlow13)));
 	double fSlow22 = ((0.0 - (2.0 * fSlow2)) * ((fSlow2 + fSlow7) + -1.0));
 	double fSlow23 = (fSlow2 * (fSlow9 + (1.0 - fSlow3)));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
 		fRec1[0] = (0.0 - (fSlow15 * (((fSlow17 * fRec1[1]) + (fSlow18 * fRec1[2])) - (fSlow11 * (((fSlow19 * fTemp0) + (fSlow20 * fVec0[1])) + (fSlow21 * fVec0[2]))))));
 		fRec0[0] = (fSlow5 * ((0.0 - ((fSlow6 * fRec0[2]) + (fSlow8 * fRec0[1]))) + (((fSlow10 * fRec1[0]) + (fSlow22 * fRec1[1])) + (fSlow23 * fRec1[2]))));
-		output0[i] = FAUSTFLOAT((fSlow1 * fRec0[0]));
+		output0[i0] = FAUSTFLOAT((fSlow1 * fRec0[0]));
 		fVec0[2] = fVec0[1];
 		fVec0[1] = fVec0[0];
 		fRec1[2] = fRec1[1];

@@ -114,9 +114,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fVslider1 (*fVslider1_)
 	float fSlow0 = (0.00999999978f * float(fVslider0));
 	int iSlow1 = (std::min<int>(131072, std::max<int>(0, (int((fConst0 * float(fVslider1))) + -1))) + 1);
-	for (int i = 0; (i < count); i = (i + 1)) {
-		fRec0[(IOTA & 262143)] = (float(input0[i]) + (fSlow0 * fRec0[((IOTA - iSlow1) & 262143)]));
-		output0[i] = FAUSTFLOAT(fRec0[((IOTA - 0) & 262143)]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		fRec0[(IOTA & 262143)] = (float(input0[i0]) + (fSlow0 * fRec0[((IOTA - iSlow1) & 262143)]));
+		output0[i0] = FAUSTFLOAT(fRec0[((IOTA - 0) & 262143)]);
 		IOTA = (IOTA + 1);
 	}
 #undef fVslider0

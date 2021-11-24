@@ -7,7 +7,6 @@ namespace duck_delay_st {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
 	double fConst1;
 	double fConst2;
 	FAUSTFLOAT fHslider0;
@@ -19,13 +18,10 @@ private:
 	double fRec0[2];
 	FAUSTFLOAT fHslider3;
 	double fRec3[2];
-	double fConst4;
 	double fConst5;
 	double fConst6;
-	double fConst7;
 	double fConst8;
 	double fConst9;
-	double fConst10;
 	double fConst11;
 	FAUSTFLOAT fHslider4;
 	FAUSTFLOAT fHslider5;
@@ -52,16 +48,13 @@ private:
 	double fRec14[2];
 	double fRec13[3];
 	double fRec12[3];
-	double fConst19;
 	double fConst20;
 	double fConst21;
 	double fConst22;
-	double fConst23;
 	double fConst24;
 	double fConst25;
 	double fRec17[2];
 	double fConst26;
-	double fConst27;
 	double fConst28;
 	double fConst29;
 	double fRec16[3];
@@ -181,17 +174,17 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = std::exp((0.0 - (10.0 / fConst0)));
 	fConst2 = (1.0 - fConst1);
 	fConst3 = (1.0 / fConst0);
-	fConst4 = std::tan((1382.3007675795091 / fConst0));
+	double fConst4 = std::tan((1382.3007675795091 / fConst0));
 	fConst5 = (1.0 / fConst4);
 	fConst6 = (1.0 / (((fConst5 + 0.61803398874989468) / fConst4) + 1.0));
-	fConst7 = mydsp_faustpower2_f(fConst4);
+	double fConst7 = mydsp_faustpower2_f(fConst4);
 	fConst8 = (1.0 / fConst7);
 	fConst9 = (1.0 / (((fConst5 + 1.6180339887498947) / fConst4) + 1.0));
-	fConst10 = (fConst5 + 1.0);
+	double fConst10 = (fConst5 + 1.0);
 	fConst11 = (0.0 - (1.0 / (fConst4 * fConst10)));
 	fConst12 = (0.001 * fConst0);
 	fConst13 = (1.0 / fConst10);
@@ -200,15 +193,15 @@ inline void Dsp::init(unsigned int sample_rate)
 	fConst16 = (2.0 * (1.0 - fConst8));
 	fConst17 = (0.0 - (2.0 / fConst7));
 	fConst18 = (((fConst5 + -0.61803398874989468) / fConst4) + 1.0);
-	fConst19 = std::tan((2764.6015351590181 / fConst0));
+	double fConst19 = std::tan((2764.6015351590181 / fConst0));
 	fConst20 = (1.0 / fConst19);
 	fConst21 = (1.0 / (((fConst20 + 0.61803398874989468) / fConst19) + 1.0));
 	fConst22 = (1.0 / (((fConst20 + 1.6180339887498947) / fConst19) + 1.0));
-	fConst23 = (fConst20 + 1.0);
+	double fConst23 = (fConst20 + 1.0);
 	fConst24 = (1.0 / fConst23);
 	fConst25 = (1.0 - fConst20);
 	fConst26 = (((fConst20 + -1.6180339887498947) / fConst19) + 1.0);
-	fConst27 = mydsp_faustpower2_f(fConst19);
+	double fConst27 = mydsp_faustpower2_f(fConst19);
 	fConst28 = (1.0 / fConst27);
 	fConst29 = (2.0 * (1.0 - fConst28));
 	fConst30 = (((fConst20 + -0.61803398874989468) / fConst19) + 1.0);
@@ -243,8 +236,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow15 = double(fHslider7);
 	double fSlow16 = std::pow(10.0, (0.59999999999999998 * (1.0 - fSlow15)));
 	double fSlow17 = std::pow(10.0, (0.59999999999999998 * fSlow15));
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		double fTemp1 = std::fabs(fTemp0);
 		fRec2[0] = std::max<double>(fTemp1, ((fRec2[1] * fSlow6) + (fTemp1 * fSlow7)));
 		fRec1[0] = ((fRec1[1] * fSlow3) + (fRec2[0] * fSlow8));
@@ -262,7 +255,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		int iTemp9 = std::min<int>(393217, std::max<int>(0, (iTemp4 + 1)));
 		fRec9[0] = ((fVec0[((IOTA - iTemp5) & 524287)] * fTemp7) + (fTemp8 * fVec0[((IOTA - iTemp9) & 524287)]));
 		fRec7[0] = fRec9[0];
-		double fTemp10 = double(input1[i]);
+		double fTemp10 = double(input1[i0]);
 		double fTemp11 = ((fSlow14 * fTemp10) + (fSlow10 * ((fSlow12 * fRec11[1]) + (fSlow11 * fRec7[1]))));
 		fVec1[(IOTA & 524287)] = fTemp11;
 		fRec11[0] = ((fTemp7 * fVec1[((IOTA - iTemp5) & 524287)]) + (fTemp8 * fVec1[((IOTA - iTemp9) & 524287)]));
@@ -280,7 +273,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec20[0] = ((fConst31 * fRec7[1]) - (fConst24 * ((fConst25 * fRec20[1]) - (fConst20 * fRec7[0]))));
 		fRec19[0] = (fRec20[0] - (fConst22 * ((fConst26 * fRec19[2]) + (fConst29 * fRec19[1]))));
 		fRec18[0] = ((fConst22 * (((fConst28 * fRec19[0]) + (fConst32 * fRec19[1])) + (fConst28 * fRec19[2]))) - (fConst21 * ((fConst30 * fRec18[2]) + (fConst29 * fRec18[1]))));
-		output0[i] = FAUSTFLOAT((fTemp0 + (0.17782794100389229 * ((fRec0[0] * fRec3[0]) * ((fConst6 * ((((fConst8 * fRec4[0]) + (fConst17 * fRec4[1])) + (fConst8 * fRec4[2])) + (fSlow16 * (fRec12[2] + (fRec12[0] + (2.0 * fRec12[1])))))) + (fConst21 * ((fRec15[2] + (fRec15[0] + (2.0 * fRec15[1]))) + (fSlow17 * (((fConst28 * fRec18[0]) + (fConst32 * fRec18[1])) + (fConst28 * fRec18[2]))))))))));
+		output0[i0] = FAUSTFLOAT((fTemp0 + (0.17782794100389229 * ((fRec0[0] * fRec3[0]) * ((fConst6 * ((((fConst8 * fRec4[0]) + (fConst17 * fRec4[1])) + (fConst8 * fRec4[2])) + (fSlow16 * (fRec12[2] + (fRec12[0] + (2.0 * fRec12[1])))))) + (fConst21 * ((fRec15[2] + (fRec15[0] + (2.0 * fRec15[1]))) + (fSlow17 * (((fConst28 * fRec18[0]) + (fConst32 * fRec18[1])) + (fConst28 * fRec18[2]))))))))));
 		double fTemp13 = std::fabs(fTemp10);
 		fRec23[0] = std::max<double>(fTemp13, ((fSlow6 * fRec23[1]) + (fTemp13 * fSlow7)));
 		fRec22[0] = ((fSlow3 * fRec22[1]) + (fRec23[0] * fSlow8));
@@ -298,7 +291,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec35[0] = ((fConst31 * fRec8[1]) - (fConst24 * ((fConst25 * fRec35[1]) - (fConst20 * fRec8[0]))));
 		fRec34[0] = (fRec35[0] - (fConst22 * ((fConst26 * fRec34[2]) + (fConst29 * fRec34[1]))));
 		fRec33[0] = ((fConst22 * (((fConst28 * fRec34[0]) + (fConst32 * fRec34[1])) + (fConst28 * fRec34[2]))) - (fConst21 * ((fConst30 * fRec33[2]) + (fConst29 * fRec33[1]))));
-		output1[i] = FAUSTFLOAT((fTemp10 + (0.17782794100389229 * ((fRec3[0] * fRec21[0]) * ((fConst6 * ((((fConst8 * fRec24[0]) + (fConst17 * fRec24[1])) + (fConst8 * fRec24[2])) + (fSlow16 * (fRec27[2] + (fRec27[0] + (2.0 * fRec27[1])))))) + (fConst21 * ((fRec30[2] + (fRec30[0] + (2.0 * fRec30[1]))) + (fSlow17 * (((fConst28 * fRec33[0]) + (fConst32 * fRec33[1])) + (fConst28 * fRec33[2]))))))))));
+		output1[i0] = FAUSTFLOAT((fTemp10 + (0.17782794100389229 * ((fRec3[0] * fRec21[0]) * ((fConst6 * ((((fConst8 * fRec24[0]) + (fConst17 * fRec24[1])) + (fConst8 * fRec24[2])) + (fSlow16 * (fRec27[2] + (fRec27[0] + (2.0 * fRec27[1])))))) + (fConst21 * ((fRec30[2] + (fRec30[0] + (2.0 * fRec30[1]))) + (fSlow17 * (((fConst28 * fRec33[0]) + (fConst32 * fRec33[1])) + (fConst28 * fRec33[2]))))))))));
 		fRec2[1] = fRec2[0];
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];

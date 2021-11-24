@@ -17,51 +17,7 @@
  * --------------------------------------------------------------------------
  */
 
-#include <glibmm.h>
 #include "gx_common.h"
-
-/****************************************************************
- ** "atomic" value access
- */
-
-inline void atomic_set(volatile int32_t* p, int32_t v)
-{
-  g_atomic_int_set(p, v);
-}
-
-inline int32_t atomic_get(volatile int32_t& p)
-{
-  return g_atomic_int_get(&p);
-}
-
-inline bool atomic_compare_and_exchange(volatile int32_t *p, int32_t oldv, int32_t newv)
-{
-  return g_atomic_int_compare_and_exchange(p, oldv, newv);
-}
-
-template <class T>
-inline void atomic_set(T **p, T *v)
-{
-  g_atomic_pointer_set(p, v);
-}
-
-template <class T>
-inline void atomic_set_0(T **p)
-{
-  g_atomic_pointer_set(p, 0);
-}
-
-template <class T>
-inline T *atomic_get(T*& p)
-{
-  return static_cast<T*>(g_atomic_pointer_get(&p));
-}
-
-template <class T>
-inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
-{
-  return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
-}
 
 #include "gxredeye.h"
 #include "gx_resampler.h"

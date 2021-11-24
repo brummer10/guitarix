@@ -19,53 +19,8 @@
 
 
 ////////////////////////////// LOCAL INCLUDES //////////////////////////
-#include <glibmm.h>
+#include <atomic>
 #include "gx_common.h"      // faust support and denormal protection (SSE)
-
-/****************************************************************
- ** "atomic" value access
- */
-
-inline void atomic_set(volatile int32_t* p, int32_t v)
-{
-  g_atomic_int_set(p, v);
-}
-
-inline int32_t atomic_get(volatile int32_t& p)
-{
-  return g_atomic_int_get(&p);
-}
-
-inline bool atomic_compare_and_exchange(volatile int32_t *p, int32_t oldv, int32_t newv)
-{
-  return g_atomic_int_compare_and_exchange(p, oldv, newv);
-}
-
-template <class T>
-inline void atomic_set(T **p, T *v)
-{
-  g_atomic_pointer_set(p, v);
-}
-
-template <class T>
-inline void atomic_set_0(T **p)
-{
-  g_atomic_pointer_set(p, 0);
-}
-
-template <class T>
-inline T *atomic_get(T*& p)
-{
-  return static_cast<T*>(g_atomic_pointer_get(&p));
-}
-
-template <class T>
-inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
-{
-  return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
-}
-
-
 
 #include "gxtuner.h"        // define struct PortIndex
 #include "gx_pluginlv2.h"   // define struct PluginLV2
@@ -152,7 +107,7 @@ private:
 
   void                         freq_changed_handler(); 
   inline bool                  verify_freq(float newf, float old);
-  volatile int32_t             note_verified;
+  std::atomic<bool>            note_verified;
   float                        freq_old;
   float                        freq_new;
   uint32_t                     verifielevel;
@@ -196,7 +151,7 @@ Gxtuner::Gxtuner() :
   lhcut(low_high_cut::plugin()),
   bow(uniBar::plugin())
   {
-    atomic_set(&note_verified,0);
+    note_verified.store(false, std::memory_order_release);
   };
 
 // destructor
@@ -232,7 +187,7 @@ void Gxtuner::freq_changed_handler()
   if (freq_new != 0 && verify_freq(freq_new, freq_old)) {
     verifielevel++;
     if(verifielevel>static_cast<uint32_t>(fastnote)+verify) {
-      atomic_set(&note_verified,1);
+      note_verified.store(true, std::memory_order_release);
       fnote = self.get_note(self);
      // *(synthfreq_) = self.get_freq(self);
       verifielevel =0;
@@ -282,9 +237,9 @@ void Gxtuner::play_midi(tuner& self)
     if((*(gate_)>0) ? (*(gate_)=0) : (*(gate_)=1)) ;
     play = false;
   } 
-  if ((fnote  < 999.) && (level > nolevel)  && atomic_get(note_verified)) {
+  if ((fnote  < 999.) && (level > nolevel)  && note_verified.load(std::memory_order_acquire)) {
     //play = false;
-    atomic_set(&note_verified,0);
+    note_verified.store(false, std::memory_order_release);
     note = static_cast<uint8_t>(round(fnote)+69);
     fallback = level;
     //fprintf(stderr,"note %i",note);

@@ -178,9 +178,9 @@ private:
 	bool RP2;
 	bool RP3;
 	bool RP4;
-    Glib::ustring pfreset_name;
-    Glib::ustring cur_name;
-    Glib::ustring loop_dir;
+    std::string pfreset_name;
+    std::string cur_name;
+    std::string loop_dir;
     bool save_p;
 	bool mem_allocated;
 	volatile bool ready;
@@ -195,7 +195,7 @@ private:
     void load_array(std::string name);
     void save_to_wave(std::string fname, float *tape, float fSize);
     int load_from_wave(std::string fname, float *tape);
-    void set_p_state(Glib::ustring preset_file_name, bool save_file);
+    void set_p_state(std::string preset_file_name, bool save_file);
     
 public:
 	static void clear_state_f_static(LiveLooper*);
@@ -204,7 +204,7 @@ public:
 	static void compute_static(int count, float *input0, float *output0, LiveLooper*);
 	static void del_instance(LiveLooper *p);
 	static void connect_static(uint32_t port,void* data, LiveLooper *p);
-    static void set_preset_state(Glib::ustring preset_file_name, bool save_file, LiveLooper*);
+    static void set_preset_state(std::string preset_file_name, bool save_file, LiveLooper*);
 	LiveLooper();
 	~LiveLooper();
 };
@@ -421,7 +421,7 @@ int LiveLooper::activate_static(bool start, LiveLooper *p)
 	return (p)->activate(start);
 }
 
-void LiveLooper::set_p_state(Glib::ustring preset_file_name, bool save_file) {
+void LiveLooper::set_p_state(std::string preset_file_name, bool save_file) {
     if (!preset_file_name.empty()) {
         pfreset_name = preset_file_name;
         save_p = save_file;
@@ -441,7 +441,7 @@ void LiveLooper::set_p_state(Glib::ustring preset_file_name, bool save_file) {
     }
 }
 
-void LiveLooper::set_preset_state(Glib::ustring preset_file_name, bool save_file,LiveLooper* p) {
+void LiveLooper::set_preset_state(std::string preset_file_name, bool save_file,LiveLooper* p) {
 	(p)->set_p_state(preset_file_name, save_file);
 }
 

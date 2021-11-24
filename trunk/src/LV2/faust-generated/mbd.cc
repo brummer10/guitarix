@@ -8,7 +8,6 @@ class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
 	int iVec0[2];
-	double fConst0;
 	double fConst1;
 	double fConst2;
 	double fConst3;
@@ -227,7 +226,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = (1.0 / fConst0);
 	fConst2 = (3.1415926535897931 / fConst0);
 	fConst3 = (1.0 / (fConst2 + 1.0));
@@ -333,13 +332,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow68 = (0.0010000000000000009 * double(fHslider12));
 	double fSlow69 = (0.0010000000000000009 * double(fHslider13));
 	double fSlow70 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider0))));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		iVec0[0] = 1;
 		int iTemp0 = (iRec1[1] < 4096);
 		fRec4[0] = (fSlow0 + (0.999 * fRec4[1]));
 		fRec5[0] = (fSlow1 + (0.999 * fRec5[1]));
 		fRec11[0] = ((9.9999999999999995e-21 * double((1 - iVec0[1]))) - fRec11[1]);
-		double fTemp1 = (double(input0[i]) + fRec11[0]);
+		double fTemp1 = (double(input0[i0]) + fRec11[0]);
 		fVec1[0] = fTemp1;
 		fRec10[0] = ((fSlow9 * fVec1[1]) - (fSlow10 * ((fSlow11 * fRec10[1]) - (fSlow3 * fTemp1))));
 		fRec9[0] = (fRec10[0] - (fSlow5 * ((fSlow12 * fRec9[2]) + (fSlow13 * fRec9[1]))));
@@ -436,7 +435,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec47[0] = (iTemp29 ? fRec47[1] : fRec45[1]);
 		fVbargraph4 = FAUSTFLOAT(fRec47[0]);
 		fRec53[0] = (fSlow70 + (0.999 * fRec53[1]));
-		output0[i] = FAUSTFLOAT((((((fRec3[0] + fRec15[0]) + fRec27[0]) + fRec38[0]) + fRec48[0]) * fRec53[0]));
+		output0[i0] = FAUSTFLOAT((((((fRec3[0] + fRec15[0]) + fRec27[0]) + fRec38[0]) + fRec48[0]) * fRec53[0]));
 		iVec0[1] = iVec0[0];
 		fRec4[1] = fRec4[0];
 		fRec5[1] = fRec5[0];

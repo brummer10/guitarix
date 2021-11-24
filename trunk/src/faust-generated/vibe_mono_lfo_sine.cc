@@ -30,12 +30,12 @@ void compute(int count, FAUSTFLOAT *output0)
 {
 #define fVslider0 (*fVslider0_)
 	double fSlow0 = (fConst0 * double(fVslider0));
-	for (int i = 0; (i < count); i = (i + 1)) {
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		iVec0[0] = 1;
 		fRec2[0] = (fRec2[1] + (fSlow0 * (0.0 - fRec0[1])));
 		fRec1[0] = ((fSlow0 * fRec2[0]) + (double((1 - iVec0[1])) + fRec1[1]));
 		fRec0[0] = fRec1[0];
-		output0[i] = FAUSTFLOAT((0.5 * (fRec0[0] + 1.0)));
+		output0[i0] = FAUSTFLOAT((0.5 * (fRec0[0] + 1.0)));
 		iVec0[1] = iVec0[0];
 		fRec2[1] = fRec2[0];
 		fRec1[1] = fRec1[0];

@@ -8,9 +8,6 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	FAUSTFLOAT fVslider0;
-	double fConst0;
-	double fConst1;
-	double fConst2;
 	double fConst3;
 	double fConst4;
 	double fConst5;
@@ -70,9 +67,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = (2.0813260177610198e-05 * fConst0);
-	fConst2 = (fConst1 + 0.00096351147470983395);
+	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = (2.0813260177610198e-05 * fConst0);
+	double fConst2 = (fConst1 + 0.00096351147470983395);
 	fConst3 = (1.0 / fConst2);
 	fConst4 = (2.0631256435103301e-05 * fConst0);
 	fConst5 = (0.0 - fConst4);
@@ -89,10 +86,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	double fSlow0 = (0.01 * double(fVslider0));
 	double fSlow1 = (1.0 - fSlow0);
-	for (int i = 0; (i < count); i = (i + 1)) {
-		double fTemp0 = double(input0[i]);
+	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+		double fTemp0 = double(input0[i0]);
 		fRec0[0] = ((fSlow0 * fTemp0) - (fConst6 * fRec0[1]));
-		output0[i] = FAUSTFLOAT(((fSlow1 * fTemp0) + (fConst3 * ((fConst5 * fRec0[1]) + (fConst4 * fRec0[0])))));
+		output0[i0] = FAUSTFLOAT(((fSlow1 * fTemp0) + (fConst3 * ((fConst5 * fRec0[1]) + (fConst4 * fRec0[0])))));
 		fRec0[1] = fRec0[0];
 	}
 }
