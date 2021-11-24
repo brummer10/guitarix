@@ -12,7 +12,7 @@ def build(bld):
         source   = ['gxcabinet.cpp'],
         includes = ['../faust','./', '../DSP', '../DSP/tube_tables'],
         cxxflags=['-fvisibility=hidden','-fno-lto','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
-        use = ['LV2CORE','GLIBMM','GX_CONVOLVER'],
+        use = ['LV2CORE','GX_CONVOLVER'],
         ldscript = 'gx_cabinet.lds',
         mapfile = "gx_cabinet.map",
         )

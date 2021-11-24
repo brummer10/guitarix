@@ -17,52 +17,9 @@
  * --------------------------------------------------------------------------
  */
 
-#include <glibmm.h>
+#include <atomic>
 #include "gx_common.h"
 #include "gx_bypass.cc"
-
-/****************************************************************
- ** "atomic" value access
- */
-
-inline void atomic_set(volatile int32_t* p, int32_t v)
-{
-  g_atomic_int_set(p, v);
-}
-
-inline int32_t atomic_get(volatile int32_t& p)
-{
-  return g_atomic_int_get(&p);
-}
-
-inline bool atomic_compare_and_exchange(volatile int32_t *p, int32_t oldv, int32_t newv)
-{
-  return g_atomic_int_compare_and_exchange(p, oldv, newv);
-}
-
-template <class T>
-inline void atomic_set(T **p, T *v)
-{
-  g_atomic_pointer_set(p, v);
-}
-
-template <class T>
-inline void atomic_set_0(T **p)
-{
-  g_atomic_pointer_set(p, 0);
-}
-
-template <class T>
-inline T *atomic_get(T*& p)
-{
-  return static_cast<T*>(g_atomic_pointer_get(&p));
-}
-
-template <class T>
-inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
-{
-  return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
-}
 
 #include "gxcabinet.h"
 #include "gx_resampler.h"
@@ -107,12 +64,10 @@ private:
   bool                         doit;
   float*                       schedule_ok;
   float                        schedule_ok_;
-  volatile int32_t             schedule_wait;
+  std::atomic<bool>            _execute;
 
   inline bool cab_changed() 
     {return std::abs(cab_bass - cbass_) > 0.1 || std::abs(cab_treble - ctreble_) > 0.1 || std::abs(cab_level - clevel_) > 0.1;}
-  inline bool buffsize_changed() 
-    {return bufsize != cur_bufsize;}
   inline void update_cab() 
     {cab_bass = cbass_; cab_treble = ctreble_; cab_level = clevel_; c_old_model_ = c_model_;}
   inline bool change_cab() 
@@ -189,7 +144,6 @@ GxCabinet::GxCabinet() :
   schedule_ok(NULL),
   schedule_ok_(0)
 {
-  atomic_set(&schedule_wait,0);
 };
   // destructor
 GxCabinet::~GxCabinet()
@@ -202,28 +156,6 @@ GxCabinet::~GxCabinet()
 
 void GxCabinet::do_work_mono()
 {
- /* if (buffsize_changed()) 
-   {
-     printf("buffersize changed to %u\n",cur_bufsize);
-     if (cabconv.is_runnable())
-        {
-          cabconv.set_not_runnable();
-          cabconv.stop_process();
-        }
-     bufsize = cur_bufsize;
-
-	 cabconv.cleanup();
-     CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
-     cabconv.cab_count = cab.ir_count;
-     cabconv.cab_sr = cab.ir_sr;
-     cabconv.cab_data = cab.ir_data;
-     cabconv.set_samplerate(s_rate);
-     cabconv.set_buffersize(bufsize);
-     cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
-     while (!cabconv.checkstate());
-     if(!cabconv.start(prio, SCHED_FIFO))
-        printf("cabinet convolver update buffersize fail\n");
-   }*/
   if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())
@@ -261,7 +193,7 @@ void GxCabinet::do_work_mono()
       //printf("cabinet convolver updated\n");
     } // else printf("cabinet convolver disabled\n");
     }
-  atomic_set(&schedule_wait,0);
+  _execute.store(false, std::memory_order_release);
 }
 
 void GxCabinet::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
@@ -300,6 +232,7 @@ void GxCabinet::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
       printf("convolver disabled\n");
       schedule_ok_ = 1.;
     }
+    _execute.store(false, std::memory_order_release);
 }
 
 
@@ -361,13 +294,13 @@ void GxCabinet::run_dsp_mono(uint32_t n_samples)
   bp.post_check_bypass(buf, output, n_samples);
 
   // work ?
-  if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed()))
+  if (!_execute.load(std::memory_order_acquire) && val_changed())
     {
       clevel_ = (*clevel);
       cbass_ = (*cbass);
       ctreble_ = (*ctreble);
       c_model_= (*c_model);
-      atomic_set(&schedule_wait,1);
+      _execute.store(true, std::memory_order_release);
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
     }
   MXCSR.reset_();
@@ -451,7 +384,7 @@ LV2_Handle GxCabinet::instantiate(const LV2_Descriptor*     descriptor,
   if (!self->schedule)
     {
       fprintf(stderr, "Missing feature work:schedule.\n");
-      atomic_set(&self->schedule_wait,1);
+      self->_execute.store(true, std::memory_order_release);
       self->schedule_ok_ = 1.;
       //delete self;
       //return NULL;
@@ -461,14 +394,10 @@ LV2_Handle GxCabinet::instantiate(const LV2_Descriptor*     descriptor,
   if (!self->map)
     {
       fprintf(stderr, "Missing feature uri:map.\n");
-      //atomic_set(&self->schedule_wait,1);
-      //self->schedule_ok_ = 1.;
     }
   else if (!options)
     {
       fprintf(stderr, "Missing feature options.\n");
-      //atomic_set(&self->schedule_wait,1);
-      //self->schedule_ok_ = 1.;
     }
   else
     {
@@ -496,8 +425,6 @@ LV2_Handle GxCabinet::instantiate(const LV2_Descriptor*     descriptor,
       if (bufsize == 0)
         {
           fprintf(stderr, "No maximum buffer size given.\n");
-          //atomic_set(&self->schedule_wait,1);
-          //self->schedule_ok_ = 1.;
         }
       printf("using block size: %d\n", bufsize);
       self->schedule_ok_ = 0.;

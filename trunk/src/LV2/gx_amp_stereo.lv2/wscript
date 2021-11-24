@@ -12,7 +12,7 @@ def build(bld):
         source   = ['gxamp_stereo.cpp', 'gx_amp_stereo.cc', 'gx_tonestack_stereo.cc'],
         includes = ['../faust','./', '../DSP', '../DSP/tube_tables'],
         cxxflags=['-fvisibility=hidden','-fno-lto','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
-        use = ['LV2CORE','GLIBMM','GX_CONVOLVER'],
+        use = ['LV2CORE','GX_CONVOLVER'],
         ldscript = 'gxamp_stereo.lds',
         mapfile = "gxamp_stereo.map",
         )

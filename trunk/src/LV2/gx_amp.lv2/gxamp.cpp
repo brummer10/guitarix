@@ -17,52 +17,8 @@
  * --------------------------------------------------------------------------
  */
 
-#include <glibmm.h>
+#include <atomic>
 #include "gx_common.h"
-
-/****************************************************************
- ** "atomic" value access
- */
-
-inline void atomic_set(volatile int32_t* p, int32_t v)
-{
-  g_atomic_int_set(p, v);
-}
-
-inline int32_t atomic_get(volatile int32_t& p)
-{
-  return g_atomic_int_get(&p);
-}
-
-inline bool atomic_compare_and_exchange(volatile int32_t *p, int32_t oldv, int32_t newv)
-{
-  return g_atomic_int_compare_and_exchange(p, oldv, newv);
-}
-
-template <class T>
-inline void atomic_set(T **p, T *v)
-{
-  g_atomic_pointer_set(p, v);
-}
-
-template <class T>
-inline void atomic_set_0(T **p)
-{
-  g_atomic_pointer_set(p, 0);
-}
-
-template <class T>
-inline T *atomic_get(T*& p)
-{
-  return static_cast<T*>(g_atomic_pointer_get(&p));
-}
-
-template <class T>
-inline bool atomic_compare_and_exchange(T **p, T *oldv, T *newv)
-{
-  return g_atomic_pointer_compare_and_exchange(reinterpret_cast<void* volatile*>(p), oldv, newv);
-}
-
 
 #include "gxamp.h"
 #include "gx_resampler.h"
@@ -236,12 +192,10 @@ private:
   bool                         doit;
   float*                       schedule_ok;
   float                        schedule_ok_;
-  volatile int32_t             schedule_wait;
+  std::atomic<bool>            _execute;
 
   inline bool cab_changed() 
     {return std::abs(cab - clevel_ ) > 0.1;}
-  inline bool buffsize_changed() 
-    {return bufsize != cur_bufsize;}
   inline void update_cab() 
     {cab = clevel_ ; c_old_model_ = c_model_;}
   inline bool change_cab() 
@@ -326,7 +280,7 @@ GxPluginMono::GxPluginMono() :
   schedule_ok(NULL),
   schedule_ok_(0)
 {
-  atomic_set(&schedule_wait,0);
+
 };
   // destructor
 GxPluginMono::~GxPluginMono()
@@ -341,48 +295,6 @@ GxPluginMono::~GxPluginMono()
 
 void GxPluginMono::do_work_mono()
 {
-  
- /* if (buffsize_changed()) 
-   {
-     printf("buffersize changed to %u\n",cur_bufsize);
-     if (cabconv.is_runnable())
-        {
-          cabconv.set_not_runnable();
-          cabconv.stop_process();
-        }
-     if (ampconv.is_runnable())
-        {
-          ampconv.set_not_runnable();
-          ampconv.stop_process();
-        }
-     bufsize = cur_bufsize;
-
-	 cabconv.cleanup();
-     CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
-     cabconv.cab_count = cab.ir_count;
-     cabconv.cab_sr = cab.ir_sr;
-     cabconv.set_samplerate(s_rate);
-     cabconv.set_buffersize(bufsize);
-     float cab_irdata_c[cabconv.cab_count];
-     float adjust_1x8 = 1;
-     if ( c_model_ == 17.0) adjust_1x8 = 0.5;
-     impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, (clevel_ * adjust_1x8) );
-     cabconv.cab_data_new = cab_irdata_c;
-     cabconv.configure(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr);
-     while (!cabconv.checkstate());
-     if(!cabconv.start(prio, SCHED_FIFO))
-        printf("cabinet convolver update buffersize fail\n");
-
-     ampconv.cleanup();
-     ampconv.set_samplerate(s_rate);
-     ampconv.set_buffersize(bufsize);
-     float pre_irdata_c[contrast_ir_desc.ir_count];
-     ampf.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c, alevel_);
-     ampconv.configure(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr);
-     while (!ampconv.checkstate());
-     if(!ampconv.start(prio, SCHED_FIFO))
-        printf("presence convolver update buffersize fail\n");
-   }*/
   if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())
@@ -434,7 +346,7 @@ void GxPluginMono::do_work_mono()
         printf("presence convolver disabled\n");
       update_pre();
     }
-  atomic_set(&schedule_wait,0);
+  _execute.store(false, std::memory_order_release);
 }
 
 void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
@@ -491,6 +403,7 @@ void GxPluginMono::init_dsp_mono(uint32_t rate, uint32_t bufsize_)
       printf("convolver disabled\n");
       schedule_ok_ = 1.;
     }
+    _execute.store(false, std::memory_order_release);
 }
 
 
@@ -568,12 +481,12 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 
   MXCSR.reset_();
   // work ?
-  if (!atomic_get(schedule_wait) && (val_changed() || buffsize_changed())) 
+  if (!_execute.load(std::memory_order_acquire) && val_changed()) 
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
       c_model_= (*c_model);
-      atomic_set(&schedule_wait,1);
+      _execute.store(true, std::memory_order_release);
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
     }
 }
@@ -672,7 +585,7 @@ LV2_Handle GxPluginMono::instantiate(const LV2_Descriptor*     descriptor,
   if (!self->schedule)
     {
       fprintf(stderr, "Missing feature work:schedule.\n");
-      atomic_set(&self->schedule_wait,1);
+      self->_execute.store(true, std::memory_order_release);
       self->schedule_ok_ = 1.;
       //delete self;
       //return NULL;
@@ -682,14 +595,10 @@ LV2_Handle GxPluginMono::instantiate(const LV2_Descriptor*     descriptor,
   if (!self->map)
     {
       fprintf(stderr, "Missing feature uri:map.\n");
-      //atomic_set(&self->schedule_wait,1);
-      //self->schedule_ok_ = 1.;
     }
   else if (!options)
     {
       fprintf(stderr, "Missing feature options.\n");
-      //atomic_set(&self->schedule_wait,1);
-     // self->schedule_ok_ = 1.;
     }
   else
     {
@@ -717,8 +626,6 @@ LV2_Handle GxPluginMono::instantiate(const LV2_Descriptor*     descriptor,
       if (bufsize == 0)
         {
           fprintf(stderr, "No maximum buffer size given.\n");
-          //atomic_set(&self->schedule_wait,1);
-          //self->schedule_ok_ = 1.;
         }
       printf("using block size: %d\n", bufsize);
       self->schedule_ok_ = 0.;
