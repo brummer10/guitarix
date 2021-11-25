@@ -41,6 +41,7 @@
 #include "gxamp16_stereo.cc"
 #include "gxamp17_stereo.cc"
 #include "gxamp18_stereo.cc"
+#include "gxnoamp_stereo.cc"
 
 
 

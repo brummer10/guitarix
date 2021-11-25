@@ -158,7 +158,7 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:symbol "Presence" ;
         lv2:name "Presence";
         lv2:default 5.0 ;
-        lv2:minimum 1.0 ;
+        lv2:minimum 0.0 ;
         lv2:maximum 10.0 ;
     ] , [
         a lv2:InputPort ,
@@ -189,6 +189,7 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:scalePoint [rdfs:label "pre 12AU7/ push-pull 6V6"; rdf:value 15];
         lv2:scalePoint [rdfs:label "pre 12AT7/ push pull 6V6"; rdf:value 16];
         lv2:scalePoint [rdfs:label "pre 6DJ8/ push-pull 6V6"; rdf:value 17];
+        lv2:scalePoint [rdfs:label "--"; rdf:value 18];
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;

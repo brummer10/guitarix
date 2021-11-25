@@ -58,6 +58,7 @@ declare(gxamp15);
 declare(gxamp16);
 declare(gxamp17);
 declare(gxamp18);
+declare(gxnoamp);
 
 static plug amp_model [] = {
     gxamp::plugin, //0
@@ -82,6 +83,8 @@ static plug amp_model [] = {
     gxamp8::plugin, //15
     gxamp16::plugin, //16
     gxamp6::plugin, //17
+
+    gxnoamp::plugin, //18
 };
 
 static const size_t AMP_COUNT = sizeof(amp_model) / sizeof(amp_model[0]);
@@ -469,7 +472,8 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
     a_model_ = min(a_max, static_cast<uint32_t>(*(a_model)));
     amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
     // run presence convolver
-    ampconv.run_static(n_samples, &ampconv, output);
+    if (*(alevel) >= 1.0)
+        ampconv.run_static(n_samples, &ampconv, output);
     // run selected tonestack
     t_model_ =  static_cast<uint32_t>(*(t_model));
     if (t_model_<=t_max)

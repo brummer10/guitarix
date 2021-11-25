@@ -40,6 +40,7 @@
 #include "gxamp16.cc"
 #include "gxamp17.cc"
 #include "gxamp18.cc"
+#include "gxnoamp.cc"
 
 
 

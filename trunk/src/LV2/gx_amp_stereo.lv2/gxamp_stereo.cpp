@@ -57,6 +57,7 @@ declare(gxamp15_stereo);
 declare(gxamp16_stereo);
 declare(gxamp17_stereo);
 declare(gxamp18_stereo);
+declare(gxnoamp_stereo);
 
 static plug amp_model [] = {
     gxamp_stereo::plugin, //0
@@ -81,6 +82,8 @@ static plug amp_model [] = {
     gxamp8_stereo::plugin, //15
     gxamp16_stereo::plugin, //16
     gxamp6_stereo::plugin, //17
+
+    gxnoamp_stereo::plugin, //18
 };
 
 static const size_t AMP_COUNT = sizeof(amp_model) / sizeof(amp_model[0]);
@@ -486,7 +489,8 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
     a_model_ = min(a_max, static_cast<uint32_t>(*(a_model)));
     amplifier[a_model_]->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1, amplifier[a_model_]);
     // run presence convolver
-    ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+    if (*(alevel) >= 1.0)
+        ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
     // run selected tonestack
     t_model_ = static_cast<uint32_t>(*(t_model));
     if (t_model_ <= t_max)

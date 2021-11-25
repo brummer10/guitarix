@@ -140,7 +140,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_adjustment(ui->widget[6]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
     ui->widget[7] = add_my_knob(ui->widget[7], ALevel,"Presence", ui,580, 70, 70, 95);
-    set_adjustment(ui->widget[7]->adj,1.0, 1.0, 1.0, 10.0, 0.1, CL_CONTINUOS);
+    set_adjustment(ui->widget[7]->adj,5.0, 5.0, 0.0, 10.0, 0.1, CL_CONTINUOS);
 
     ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,660, 67, 75, 100);
     set_adjustment(ui->widget[8]->adj,1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
@@ -169,7 +169,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     const char* tubes[] = {"12ax7","12AU7","12AT7","6DJ8","6C16","6V6","12ax7 feedback",
     "12AU7 feedback","12AT7 feedback","6DJ8 feedback","pre 12ax7/ master 6V6","pre 12AU7/ master 6V6",
     "pre 12AT7/ master 6V6","pre 6DJ8/ master 6V6","pre 12ax7/ push-pull 6V6","pre 12AU7/ push-pull 6V6",
-    "pre 12AT7/ push pull 6V6","pre 6DJ8/ push-pull 6V6" };
+    "pre 12AT7/ push pull 6V6","pre 6DJ8/ push-pull 6V6","--" };
     len = sizeof(tubes) / sizeof(tubes[0]);
     ui->widget[11] = add_my_combobox(ui->widget[11], MODEL, "Tubes", tubes, len, 0, ui, 120, 30, 210, 30);
 }

@@ -235,6 +235,7 @@ def build(bld):
         'gxamp16_stereo.dsp',
         'gxamp17_stereo.dsp',
         'gxamp18_stereo.dsp',
+        'gxnoamp_stereo.dsp',
 
         # bypass mode
         'balance.dsp',

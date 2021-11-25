@@ -1,8 +1,8 @@
-// generated from file '../src/LV2/faust/gxnoamp.dsp' by dsp2cc:
+// generated from file '../src/LV2/faust/gxnoamp_stereo.dsp' by dsp2cc:
 // Code generated with Faust (https://faust.grame.fr)
 
 
-namespace gxnoamp {
+namespace gxnoamp_stereo {
 
 class Dsp: public PluginLV2 {
 private:
@@ -17,11 +17,11 @@ private:
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
 	void init(uint32_t sample_rate);
-	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
+	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 
 	static void clear_state_f_static(PluginLV2*);
 	static void init_static(uint32_t sample_rate, PluginLV2*);
-	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2*);
+	static void compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2*);
 	static void del_instance(PluginLV2 *p);
 	static void connect_static(uint32_t port,void* data, PluginLV2 *p);
 public:
@@ -34,10 +34,10 @@ public:
 Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;
-	id = "noamp";
+	id = "noampstereo";
 	name = N_("---");
-	mono_audio = compute_static;
-	stereo_audio = 0;
+	mono_audio = 0;
+	stereo_audio = compute_static;
 	set_samplerate = init_static;
 	activate_plugin = 0;
 	connect_ports = connect_static;
@@ -70,7 +70,7 @@ void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 	static_cast<Dsp*>(p)->init(sample_rate);
 }
 
-void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
+void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
@@ -80,6 +80,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
 		fRec1[0] = (fSlow1 + (0.999 * fRec1[1]));
 		output0[i0] = FAUSTFLOAT(((double(input0[i0]) * fRec0[0]) * fRec1[0]));
+		output1[i0] = FAUSTFLOAT(((double(input1[i0]) * fRec0[0]) * fRec1[0]));
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
 	}
@@ -87,9 +88,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #undef fVslider1
 }
 
-void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0, PluginLV2 *p)
+void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1, PluginLV2 *p)
 {
-	static_cast<Dsp*>(p)->compute(count, input0, output0);
+	static_cast<Dsp*>(p)->compute(count, input0, input1, output0, output1);
 }
 
 
@@ -131,4 +132,4 @@ typedef enum
 } PortIndex;
 */
 
-} // end namespace gxnoamp
+} // end namespace gxnoamp_stereo
