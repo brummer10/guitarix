@@ -1256,6 +1256,9 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case BRIGHT_L: 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
 	case BASS_L: 
 		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
@@ -1270,9 +1273,6 @@ void Dsp::connect(uint32_t port,void* data)
 		break;
 	case VOLUME_L: 
 		fVslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
-		break;
-	case BRIGHT_L: 
-		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	default:
 		break;

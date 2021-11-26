@@ -320,6 +320,16 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:maximum 1.0 ;
         lv2:designation lv2:enabled;
         lv2:portProperty lv2:toggled;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 20 ;
+        lv2:symbol "HIGHGAIN" ;
+        lv2:name "HIGHGAIN" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+        lv2:portProperty lv2:toggled;
     ] .
 
 

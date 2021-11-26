@@ -374,6 +374,10 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	// static const value_pair fCheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
+	case INVERT: 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
 	case LFOFREQ: 
 		fHslider0_ = (float*)data; // , 0.20000000000000001, 0.0, 5.0, 0.01 
 		break;
@@ -382,10 +386,6 @@ void Dsp::connect(uint32_t port,void* data)
 		break;
 	case DAMP: 
 		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.025000000000000001 
-		break;
-	// static const value_pair fCheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
-	case INVERT: 
-		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case WET_DRY: 
 		fVslider0_ = (float*)data; // , 50.0, 0.0, 100.0, 1.0 

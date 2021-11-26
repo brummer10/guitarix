@@ -219,11 +219,11 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case GAIN: 
-		fHslider0_ = (float*)data; // , 0.80000000000000004, 0.0, 10.0, 0.01 
-		break;
 	case GATE: 
 		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case GAIN: 
+		fHslider0_ = (float*)data; // , 0.80000000000000004, 0.0, 10.0, 0.01 
 		break;
 	case SYNTHFREQ: 
 		fHslider1_ = (float*)data; // , 440.0, 20.0, 20000.0, 1.0 

@@ -56,6 +56,7 @@ typedef enum
   AMP_OUTPUT,
   AMP_INPUT,
   BYPASS,
+  HIGHGAIN,
   AMP_OUTPUT1,
   AMP_INPUT1,
 } PortIndex;

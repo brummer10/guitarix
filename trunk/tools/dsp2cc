@@ -53,7 +53,7 @@ class UIDefs(object):
                 fp.write('%(variable)s_ = ' %d)
             fp.write('%(prefix)sregisterFloatVar("%(id)s",%(N_name)s,"%(type)s",%(N_tooltip)s,&%(variable)s%(tail)s, %(ename)s);\n' % d)
 
-        def write_port(self, fp, v, prefix):
+        def write_port(self, fp, v, prefix, ports, dp):
             d = {}
             d.update(self)
             d["tail"] = "".join([", "+x for x in d["value"]])
@@ -67,7 +67,15 @@ class UIDefs(object):
             if "enum" not in d:
                 if "alias" in d:
                     assert "enum" not in d
-                    fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+                    if d["port"] in ports:
+                        fp.write('		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+                        dp.append(1)
+                        print (ports)
+                    else:
+                        if dp[-1 ] == 2:
+                            fp.write('		break;\n')
+                        fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n' % d)
+                        dp.append(2)
             elif "enum" in d:
                 def value_pair(s):
                     m = re.match(r"(.*)\[(.*)\]$", s)
@@ -79,15 +87,20 @@ class UIDefs(object):
                 d["ename"] = ename = d["variable"] + "_values"
                 fp.write('\t// static const value_pair %s[] = {%s};\n' % (ename, enumvals))
                 fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+                dp.append(0)
             else:
                 fp.write('	case %(port)s: \n		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
+                dp.append(0)
+            ports.append(d["port"])
 
-        def write_port_head(self, fp, v, prefix):
+        def write_port_head(self, fp, v, prefix, ports):
             d = {}
             d.update(self)
             ast = d["id"].split(".")
             d["port"] = re.sub(r'\s+', '',ast[-1].upper())
-            fp.write('   %(port)s, \n' % d)
+            if not d["port"] in ports:
+                fp.write('   %(port)s, \n' % d)
+            ports.append(d["port"])
 
         def __getitem__(self, n):
             try:
@@ -125,12 +138,22 @@ class UIDefs(object):
             r.write(fp, v, prefix)
 
     def write_port(self, fp, prefix=""):
-        for v, r in self.ui.items():
-            r.write_port(fp, v, prefix)
+        self.items=sorted(self.ui.items(), key=lambda d: d[0][4])
+        ports = []
+        dp = []
+        dp.append(0)
+        for v, r in self.items:
+            r.write_port(fp, v, prefix, ports, dp)
+        ports = []
+        if dp[-1] == 2:
+            fp.write('		break;\n')
+        dp = []
 
     def write_port_head(self, fp, prefix=""):
+        ports = []
         for v, r in self.ui.items():
-            r.write_port_head(fp, v, prefix)
+            r.write_port_head(fp, v, prefix, ports)
+        ports = []
 
     def check_parameter(self, fname, uiname, l, only_warn):
         s1 = set(l)

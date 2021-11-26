@@ -43,6 +43,7 @@ typedef enum
   GAIN1, 
   EFFECTS_OUTPUT,
   EFFECTS_INPUT,
+  HIGHGAIN,
 } PortIndex;
 
 #endif //SRC_HEADERS_GXEFFECTS_H_

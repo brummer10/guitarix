@@ -149,8 +149,9 @@ table1d *tubetab2[TUBE_TABLE_SIZE] = {
     &static_cast<table1d&>(tubetable2_12AT7[1]),
     &static_cast<table1d&>(tubetable2_6C16[0]),
     &static_cast<table1d&>(tubetable2_6C16[1]),
-    &static_cast<table1d&>(tubetable2_6L6CG[0]),
-    &static_cast<table1d&>(tubetable2_6L6CG[1]),
+    // using old tube table in gxmetal_head!!
+    //&static_cast<table1d&>(tubetable2_6L6CG[0]),
+    //&static_cast<table1d&>(tubetable2_6L6CG[1]),
     &static_cast<table1d&>(tubetable2_EL34[0]),
     &static_cast<table1d&>(tubetable2_EL34[1]),
     &static_cast<table1d&>(tubetable2_12AY7[0]),

@@ -99,7 +99,7 @@ TB_EF86_250k     = fconstant(int TUBE_TABLE_EF86_250k,  "valve.h");
 TB_SVEL34_68k    = fconstant(int TUBE_TABLE_SVEL34_68k,   "valve.h");
 TB_SVEL34_250k   = fconstant(int TUBE_TABLE_SVEL34_250k,  "valve.h");
 
-tubestageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : tube : dcblock with {
+tubestageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : tube : hpf with {
     lpfk = fi.lowpass(1,fck);
     anti_aliase = fi.lowpass(3,ma.SR/2.1);
     Rp = 100.0e3;
@@ -109,7 +109,8 @@ tubestageF(tb,vplus,divider,fck,Rk,Vk0) = anti_aliase : tube : dcblock with {
     VkC = Vk0 * (Rp/Rk);
     tubeVp = -(Vk0) : Ftube(tb) : +(VkC-vplus);
     tube(x) = x : (+ : (tubeVp)) ~ (x*Rk/(Rp + Ranode(tb)) : lpfk) : /(divider);
-    dcblock = fi.dcblockerat(1.0);
+    switch1 = checkbox(".amp.highgain[tooltip:Allow frequencies below 31Hz][alias]");
+    hpf = _<: select2(switch1, fi.highpass(1,31.0), fi.dcblockerat(1.0));
 };
 
 // SHP : This version allows user setting of Vplus and Divider
@@ -354,6 +355,7 @@ ampctrl = environment {
     wet_dry = vslider(".gxdistortion.wet_dry[alias]",  100, 0, 100, 1) : /(100) : smoothi(0.999);
     preamp =  vslider(".amp2.stage1.Pregain[alias]",-6,-20,20,0.1) : ba.db2linear : smoothi(0.999);
     gain1 = vslider(".amp2.stage2.gain1[alias]", -6, -20.0, 20.0, 0.1) : ba.db2linear : smoothi(0.999);
+    filter = checkbox(".amp2.highgain[tooltip:Allow frequencies below 31Hz][alias]");
 };
 
 crybaby_ctrl = environment {

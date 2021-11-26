@@ -249,7 +249,6 @@ void Dsp::connect(uint32_t port,void* data)
 		break;
 	case FREQ: 
 		fVslider2_ = (float*)data; // , 24.0, 24.0, 360.0, 1.0 
-		break;
 	// static const value_pair fVslider1_values[] = {{"manual"},{"auto"},{"alien"},{0}};
 	case MODE: 
 		fVslider1_ = (float*)data; // , 0.0, 0.0, 2.0, 1.0 

@@ -1147,21 +1147,6 @@ void Dsp::connect(uint32_t port,void* data)
 	case DAMP5: 
 		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.025000000000000001 
 		break;
-	case V1: 
-		fVbargraph4_ = (float*)data; // , 0, -70.0, 5.0, 0 
-		break;
-	case V2: 
-		fVbargraph3_ = (float*)data; // , 0, -70.0, 5.0, 0 
-		break;
-	case V3: 
-		fVbargraph2_ = (float*)data; // , 0, -70.0, 5.0, 0 
-		break;
-	case V4: 
-		fVbargraph1_ = (float*)data; // , 0, -70.0, 5.0, 0 
-		break;
-	case V5: 
-		fVbargraph0_ = (float*)data; // , 0, -70.0, 5.0, 0 
-		break;
 	case WET_DRY1: 
 		fVslider12_ = (float*)data; // , 50.0, 0.0, 100.0, 1.0 
 		break;
@@ -1176,6 +1161,21 @@ void Dsp::connect(uint32_t port,void* data)
 		break;
 	case WET_DRY5: 
 		fVslider0_ = (float*)data; // , 50.0, 0.0, 100.0, 1.0 
+		break;
+	case V1: 
+		fVbargraph4_ = (float*)data; // , 0, -70.0, 5.0, 0 
+		break;
+	case V2: 
+		fVbargraph3_ = (float*)data; // , 0, -70.0, 5.0, 0 
+		break;
+	case V3: 
+		fVbargraph2_ = (float*)data; // , 0, -70.0, 5.0, 0 
+		break;
+	case V4: 
+		fVbargraph1_ = (float*)data; // , 0, -70.0, 5.0, 0 
+		break;
+	case V5: 
+		fVbargraph0_ = (float*)data; // , 0, -70.0, 5.0, 0 
 		break;
 	default:
 		break;

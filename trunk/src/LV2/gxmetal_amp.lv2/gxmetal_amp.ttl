@@ -25,6 +25,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix guiext: <http://lv2plug.in/ns/extensions/ui#>.
+@prefix pprop: <http://lv2plug.in/ns/ext/port-props#> .
 
 <http://guitarix.sourceforge.net#me>
 	a foaf:Person ;
@@ -108,6 +109,17 @@ rdfs:comment """
         lv2:index 5 ;
         lv2:symbol "in" ;
         lv2:name "In" ;
+    ] , [
+        a lv2:InputPort ,
+            lv2:ControlPort ;
+        lv2:index 6 ;
+        lv2:symbol "HIGHGAIN" ;
+        lv2:name "HIGHGAIN" ;
+        lv2:default 0.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
+        lv2:portProperty pprop:notOnGUI;
+        lv2:portProperty lv2:toggled;
     ] .
 
 <http://guitarix.sourceforge.net/plugins/gxmetal_amp#gui>

@@ -394,6 +394,9 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case ON_OFF: 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
 	case DRIVE: 
 		fVslider2_ = (float*)data; // , 0.64000000000000001, 0.0, 1.0, 0.01 
 		break;
@@ -427,8 +430,14 @@ void Dsp::connect(uint32_t port,void* data)
 	case MIDDLE_L_GAIN: 
 		fVslider9_ = (float*)data; // , 10.0, -10.0, 20.0, 0.10000000000000001 
 		break;
-	case ON_OFF: 
-		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+	case TRIGGER: 
+		fVslider5_ = (float*)data; // , 0.12, 0.0, 1.0, 0.01 
+		break;
+	case VIBRATO: 
+		fVslider6_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
+		break;
+	case WET_DRY: 
+		fVslider4_ = (float*)data; // , 100.0, 0.0, 100.0, 1.0 
 		break;
 	case SPLIT_HIGH_FREQ: 
 		fEntry0_ = (float*)data; // , 1250.0, 1250.0, 12000.0, 10.0 
@@ -438,15 +447,6 @@ void Dsp::connect(uint32_t port,void* data)
 		break;
 	case SPLIT_MIDDLE_FREQ: 
 		fEntry1_ = (float*)data; // , 650.0, 600.0, 1250.0, 10.0 
-		break;
-	case TRIGGER: 
-		fVslider5_ = (float*)data; // , 0.12, 0.0, 1.0, 0.01 
-		break;
-	case VIBRATO: 
-		fVslider6_ = (float*)data; // , 1.0, 0.0, 1.0, 0.01 
-		break;
-	case WET_DRY: 
-		fVslider4_ = (float*)data; // , 100.0, 0.0, 100.0, 1.0 
 		break;
 	default:
 		break;

@@ -182,23 +182,18 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case ON_OFF: 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
 	case HIGH_FREQ: 
 		fVslider0_ = (float*)data; // , 5000.0, 1000.0, 12000.0, 10.0 
 		break;
 	case LOW_FREQ: 
 		fVslider1_ = (float*)data; // , 130.0, 20.0, 1000.0, 10.0 
-		break;
-	case ON_OFF: 
-		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
-	case HIGH_FREQ: 
 		fEntry0_ = (float*)data; // , 130.0, 20.0, 7040.0, 10.0 
 		break;
-	case LOW_FREQ: 
 		fEntry1_ = (float*)data; // , 5000.0, 20.0, 12000.0, 10.0 
-		break;
-	case ON_OFF: 
-		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	default:
 		break;
@@ -223,9 +218,6 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   HIGH_FREQ, 
-   LOW_FREQ, 
-   ON_OFF, 
    HIGH_FREQ, 
    LOW_FREQ, 
    ON_OFF, 

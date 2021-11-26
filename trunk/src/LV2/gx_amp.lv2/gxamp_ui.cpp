@@ -32,7 +32,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 13
+#define CONTROLS 14
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -98,11 +98,14 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,660, 67, 75, 100);
     set_adjustment(ui->widget[8]->adj,1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[12] = add_on_off_button(ui->win, "Power", 40, 60, 40, 80);
+    ui->widget[12] = add_on_off_button(ui->win, "Power", 40, 80, 40, 80);
     ui->widget[12]->scale.gravity = ASPECT;
     ui->widget[12]->data = BYPASS;
     ui->widget[12]->parent_struct = ui;
     ui->widget[12]->func.value_changed_callback = value_changed;
+
+    ui->widget[13] = add_my_bypass_switch(ui->widget[13], HIGHGAIN, "Guitar", ui, 40, 20, 40, 55);
+    strcpy(ui->widget[13]->input_label, "Bass");
 
     // create combobox widgets
     const char* tonestacks[] = {"default","Bassman Style","Twin Reverb Style","Princeton Style","JCM-800 Style",

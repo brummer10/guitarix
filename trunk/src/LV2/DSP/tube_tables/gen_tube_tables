@@ -9,7 +9,8 @@ tables=(
   "7199P pentode 7199P.cc"
   "KT88 pentode2 KT88.cc"
   "12AY7 triode 12AY7.cc"
-  "6L6CG pentode2 6L6CG.cc"
+  # using old tube table in gxmetal_head!!
+  #"6L6CG pentode2 6L6CG.cc"
   "EF86 pentode EF86.cc"
   "EL34 pentode EL34.cc"
   "EL84 pentode EL84.cc"

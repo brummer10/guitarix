@@ -294,14 +294,14 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case ON: 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
 	case BASS: 
 		fVslider2_ = (float*)data; // , 0.0, -5.0, 5.0, 0.01 
 		break;
 	case MIDDLE: 
 		fVslider1_ = (float*)data; // , 0.0, -5.0, 5.0, 0.01 
-		break;
-	case ON: 
-		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case TREBLE: 
 		fVslider0_ = (float*)data; // , 0.0, -5.0, 5.0, 0.01 

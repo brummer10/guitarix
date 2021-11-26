@@ -457,12 +457,12 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case DRIVE: 
-		fVslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
-		break;
 	// static const value_pair fCheckbox0_values[] = {{"os.triangle"},{"sine"},{0}};
 	case SINEWAVE: 
 		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case DRIVE: 
+		fVslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case DEPTH: 
 		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 

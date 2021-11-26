@@ -213,12 +213,12 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case LFOFREQ: 
-		fHslider0_ = (float*)data; // , 0.200000003f, 0.0f, 5.0f, 0.00999999978f 
-		break;
 	// static const value_pair fCheckbox0_values[] = {{"linear"},{"pingpong"},{0}};
 	case INVERT: 
 		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case LFOFREQ: 
+		fHslider0_ = (float*)data; // , 0.200000003f, 0.0f, 5.0f, 0.00999999978f 
 		break;
 	case PERCENT_L: 
 		fVslider0_ = (float*)data; // , 0.0f, 0.0f, 100.0f, 0.100000001f 

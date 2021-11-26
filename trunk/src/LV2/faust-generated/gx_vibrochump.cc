@@ -615,6 +615,14 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	// static const value_pair fCheckbox1_values[] = {{"os.triangle"},{"sine"},{0}};
+	case SINEWAVE: 
+		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	// static const value_pair fCheckbox0_values[] = {{"Off"},{"On"},{0}};
+	case VIBE: 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
 	case VOLUME: 
 		fVslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
@@ -624,19 +632,11 @@ void Dsp::connect(uint32_t port,void* data)
 	case TONE: 
 		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
-	// static const value_pair fCheckbox1_values[] = {{"os.triangle"},{"sine"},{0}};
-	case SINEWAVE: 
-		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
 	case INTENSITY: 
 		fVslider3_ = (float*)data; // , 5.0, 0.0, 10.0, 0.10000000000000001 
 		break;
 	case SPEED: 
 		fVslider4_ = (float*)data; // , 5.0, 0.10000000000000001, 10.0, 0.10000000000000001 
-		break;
-	// static const value_pair fCheckbox0_values[] = {{"Off"},{"On"},{0}};
-	case VIBE: 
-		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	default:
 		break;

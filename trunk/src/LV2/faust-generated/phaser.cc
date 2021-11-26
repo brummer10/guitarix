@@ -215,6 +215,14 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	// static const value_pair fCheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
+	case VIBRATOMODE: 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	// static const value_pair fCheckbox1_values[] = {{"linear"},{"invert"},{0}};
+	case INVERT: 
+		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
 	case MAXNOTCH1FREQ: 
 		fHslider6_ = (float*)data; // , 800.0f, 20.0f, 10000.0f, 1.0f 
 		break;
@@ -230,19 +238,11 @@ void Dsp::connect(uint32_t port,void* data)
 	case SPEED: 
 		fHslider7_ = (float*)data; // , 0.5f, 0.0f, 10.0f, 0.00999999978f 
 		break;
-	// static const value_pair fCheckbox0_values[] = {{"direct "},{" vibrato"},{0}};
-	case VIBRATOMODE: 
-		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
 	case DEPTH: 
 		fHslider1_ = (float*)data; // , 1.0f, 0.0f, 1.0f, 0.00999999978f 
 		break;
 	case FEEDBACKGAIN: 
 		fHslider3_ = (float*)data; // , 0.0f, 0.0f, 1.0f, 0.00999999978f 
-		break;
-	// static const value_pair fCheckbox1_values[] = {{"linear"},{"invert"},{0}};
-	case INVERT: 
-		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case LEVEL: 
 		fHslider0_ = (float*)data; // , 0.0f, -60.0f, 10.0f, 0.100000001f 

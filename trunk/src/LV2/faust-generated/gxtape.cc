@@ -1487,6 +1487,12 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case ON: 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case SPEED: 
+		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
 	case DRIVE: 
 		fVslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
@@ -1499,17 +1505,11 @@ void Dsp::connect(uint32_t port,void* data)
 	case GAIN: 
 		fVslider7_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
-	case ON: 
-		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
 	case WOWDEPTH: 
 		fVslider3_ = (float*)data; // , 0.0, 0.0, 0.029999999999999999, 0.001 
 		break;
 	case WOWFREQ: 
 		fVslider4_ = (float*)data; // , 0.0, 0.0, 4.0, 0.10000000000000001 
-		break;
-	case SPEED: 
-		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case TAPEHISS: 
 		fVslider2_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 

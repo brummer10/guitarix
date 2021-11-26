@@ -988,6 +988,15 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
+	case HEAD1: 
+		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case HEAD2: 
+		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case HEAD3: 
+		fCheckbox2_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
 	case SUSTAIN: 
 		fVslider2_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
 		break;
@@ -1002,15 +1011,6 @@ void Dsp::connect(uint32_t port,void* data)
 		break;
 	case BPM: 
 		fVslider3_ = (float*)data; // , 120.0, 24.0, 360.0, 0.10000000000000001 
-		break;
-	case HEAD1: 
-		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
-	case HEAD2: 
-		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
-		break;
-	case HEAD3: 
-		fCheckbox2_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	default:
 		break;

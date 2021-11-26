@@ -127,14 +127,14 @@ void Dsp::connect(uint32_t port,void* data)
 	case ATTACK: 
 		fHslider0_ = (float*)data; // , 0.001, 0.0, 1.0, 0.001 
 		break;
+	case RELEASE: 
+		fHslider1_ = (float*)data; // , 0.10000000000000001, 0.0, 10.0, 0.01 
+		break;
 	case KNEE: 
 		fEntry1_ = (float*)data; // , 3.0, 0.0, 20.0, 0.10000000000000001 
 		break;
 	case RATIO: 
 		fEntry0_ = (float*)data; // , 2.0, 1.0, 20.0, 0.10000000000000001 
-		break;
-	case RELEASE: 
-		fHslider1_ = (float*)data; // , 0.10000000000000001, 0.0, 10.0, 0.01 
 		break;
 	case THRESHOLD: 
 		fEntry2_ = (float*)data; // , -40.0, -96.0, 10.0, 0.10000000000000001 
