@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.guitarix.guitarix</id>
+  
+  <name>guitarix</name>
+  <summary>virtual versatile amplification for Jack/Linux </summary>
+  
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-2.0-or-later</project_license>
+  
+  <recommends>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </recommends>
+  
+  <description>
+    <p>
+      guitarix is a virtual guitar amplifier for Linux running on Jack Audio Connection Kit. guitarix takes the signal from your guitar as any real amp would do: as a mono-signal from your sound card. The input is processed by a main amp and a rack-section. Both can be routed separately and deliver a processed stereo-signal via Jack. You may fill the rack with effects from more than 25 built-in modules including stuff from a simple noise gate to brain-slashing modulation f/x like flanger, phaser or auto-wah.
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">guitarix.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://guitarix.org/images/screenshots/Guitarix_0.35.0.jpg</image>
+    </screenshot>
+    <screenshot>
+      <image>https://guitarix.org/images/screenshots/Guitarix_0.35.0_2.jpg</image>
+    </screenshot>
+    <screenshot>
+      <image>https://guitarix.org/images/screenshots/Guitarix_0.35.0_Skin_Dark.jpg</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://guitarix.org</url>
+</component>

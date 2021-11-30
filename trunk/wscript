@@ -616,26 +616,46 @@ def build(bld):
         bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
         bld.install_files(bld.env['GX_SOUND_BPB_DIR'], bld.path.ant_glob('IR/BestPlugins_Bands/*'), chmod=0o664)
         bld.install_files(bld.env['GX_SOUND_BPA_DIR'], bld.path.ant_glob('IR/BestPlugins_Amps/*'), chmod=0o664)
+        bld.install_files('/usr/share/metainfo/', 'org.guitarix.guitarix.metainfo.xml', chmod=0o664)
 
         if not bld.env['DISABLE_NLS']:
-            gen_desktop = bld(
-                name      = 'nls',
-                features  = "intltool_in",
-                podir     = "po",
-                flags     = ["-d", "-q", "-u"],
-                source    = 'guitarix.desktop.in',
-                target    = 'guitarix.desktop',
-                install_path = "${DESKAPPS_DIR}/",
-            )
-
+            if bld.env['HAVE_LIBLO']:
+                gen_desktop = bld(
+                    name      = 'nls',
+                    features  = "intltool_in",
+                    podir     = "po",
+                    flags     = ["-d", "-q", "-u"],
+                    source    = 'guitarix.desktop.in_nsm',
+                    target    = 'guitarix.desktop',
+                    install_path = "${DESKAPPS_DIR}/",
+                )
+            else:
+                gen_desktop = bld(
+                    name      = 'nls',
+                    features  = "intltool_in",
+                    podir     = "po",
+                    flags     = ["-d", "-q", "-u"],
+                    source    = 'guitarix.desktop.in',
+                    target    = 'guitarix.desktop',
+                    install_path = "${DESKAPPS_DIR}/",
+                )
         else:
-            bld(name     = "guitarix_desktop",
-                rule     = sub_file,
-                source   = 'guitarix.desktop.in',
-                target   = 'guitarix.desktop',
-                sub_list = [('^_', '%s' % "")],
-                install_path = "${DESKAPPS_DIR}/",
-            )
+            if bld.env['HAVE_LIBLO']:
+                bld(name     = "guitarix_desktop",
+                    rule     = sub_file,
+                    source   = 'guitarix.desktop.in_nsm',
+                    target   = 'guitarix.desktop',
+                    sub_list = [('^_', '%s' % "")],
+                    install_path = "${DESKAPPS_DIR}/",
+                )
+            else:
+                bld(name     = "guitarix_desktop",
+                    rule     = sub_file,
+                    source   = 'guitarix.desktop.in',
+                    target   = 'guitarix.desktop',
+                    sub_list = [('^_', '%s' % "")],
+                    install_path = "${DESKAPPS_DIR}/",
+                )
         if bld.is_install and not Options.options.destdir \
            and not bld.env["NO_UPDATE_DESKTOP_DATA_BASE"] \
            and not Options.options.no_desktop_update:
