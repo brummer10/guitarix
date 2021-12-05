@@ -228,10 +228,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow0 = std::pow(10.0, (0.050000000000000003 * double(fHslider0)));
 	double fSlow1 = double(fHslider1);
 	int iSlow2 = (std::fabs(fSlow1) < 2.2204460492503131e-16);
-	double fSlow3 = (iSlow2 ? 0.0 : std::exp((0.0 - (fConst3 / (iSlow2 ? 1.0 : fSlow1)))));
+	double fThen1 = std::exp((0.0 - (fConst3 / (iSlow2 ? 1.0 : fSlow1))));
+	double fSlow3 = (iSlow2 ? 0.0 : fThen1);
 	double fSlow4 = double(fHslider2);
 	int iSlow5 = (std::fabs(fSlow4) < 2.2204460492503131e-16);
-	double fSlow6 = (iSlow5 ? 0.0 : std::exp((0.0 - (fConst3 / (iSlow5 ? 1.0 : fSlow4)))));
+	double fThen3 = std::exp((0.0 - (fConst3 / (iSlow5 ? 1.0 : fSlow4))));
+	double fSlow6 = (iSlow5 ? 0.0 : fThen3);
 	double fSlow7 = (1.0 - fSlow6);
 	double fSlow8 = (1.0 - fSlow3);
 	double fSlow9 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fHslider3))));

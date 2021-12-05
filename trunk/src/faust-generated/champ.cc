@@ -122,7 +122,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = (fSlow1 + (0.999 * fRec2[1]));
 		fRec1[0] = ((double(buf[i0]) * fRec2[0]) - (fConst6 * (((fConst8 * fRec1[1]) + (fConst9 * fRec1[2])) + (fConst10 * fRec1[3]))));
 		double fTemp0 = (fConst3 * ((((fConst5 * fRec1[0]) + (fConst12 * fRec1[1])) + (fConst13 * fRec1[2])) + (fConst14 * fRec1[3])));
-		buf[i0] = FAUSTFLOAT((0.20000000000000001 * (fRec0[0] * (int(signbit(double(fTemp0))) ? double(tweedchamp_negclip(double(fTemp0))) : double(tweedchampclip(double(fTemp0)))))));
+		double fThen0 = double(tweedchampclip(double(fTemp0)));
+		double fElse0 = double(tweedchamp_negclip(double(fTemp0)));
+		buf[i0] = FAUSTFLOAT((0.20000000000000001 * (fRec0[0] * (int(signbit(double(fTemp0))) ? fElse0 : fThen0))));
 		fRec0[1] = fRec0[0];
 		fRec2[1] = fRec2[0];
 		for (int j0 = 3; (j0 > 0); j0 = (j0 - 1)) {

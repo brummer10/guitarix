@@ -17,7 +17,7 @@ srcdir = '.'
 blddir = 'build'
 
 # used by waf dist and waf build
-VERSION='0.42.1'
+VERSION='0.43.0'
 APPNAME='guitarix'
 
 Options.OptionsContext.gxload = \
@@ -25,8 +25,8 @@ Options.OptionsContext.gxload = \
         Build.BuildContext.gxload = \
             lambda ctx, tool: ctx.load(tool, tooldir='waftools')
 
-check_in_faust_version = '2.33.1'  # this Faust should be used for checked in generated files
-other_faust_versions = ['2.15.11', '2.30.5', '2.27.2'] # other Faust versions known to work
+check_in_faust_version = '2.37.3'  # this Faust should be used for checked in generated files
+other_faust_versions = ['2.33.1', '2.30.5', '2.27.2'] # other Faust versions known to work
 
 g_maxlen = 40 # maximum width of message for 2-column display
 

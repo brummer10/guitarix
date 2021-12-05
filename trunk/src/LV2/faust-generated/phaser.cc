@@ -126,7 +126,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 #define fHslider7 (*fHslider7_)
 #define fCheckbox1 (*fCheckbox1_)
 	float fSlow0 = std::pow(10.0f, (0.0500000007f * float(fHslider0)));
-	float fSlow1 = (0.5f * (int(float(fCheckbox0)) ? 2.0f : float(fHslider1)));
+	float fThen0 = float(fHslider1);
+	float fSlow1 = (0.5f * (int(float(fCheckbox0)) ? 2.0f : fThen0));
 	float fSlow2 = (1.0f - fSlow1);
 	float fSlow3 = std::exp((fConst1 * (0.0f - (3.14159274f * float(fHslider2)))));
 	float fSlow4 = mydsp_faustpower2_f(fSlow3);
@@ -142,7 +143,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	float fSlow14 = mydsp_faustpower2_f(fSlow7);
 	float fSlow15 = mydsp_faustpower3_f(fSlow7);
 	float fSlow16 = mydsp_faustpower4_f(fSlow7);
-	float fSlow17 = (int(float(fCheckbox1)) ? (-1.0f * fSlow1) : fSlow1);
+	float fElse1 = (-1.0f * fSlow1);
+	float fSlow17 = (int(float(fCheckbox1)) ? fElse1 : fSlow1);
 	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		float fTemp0 = float(input0[i0]);
 		iVec0[0] = 1;

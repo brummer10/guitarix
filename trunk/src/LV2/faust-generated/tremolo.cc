@@ -109,12 +109,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		iVec0[0] = 1;
 		double fTemp0 = (fRec0[1] * (1.0 - (fConst1 / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fRec0[1]))))))));
-		iRec2[0] = ((iRec2[1] > 0) ? ((2 * (iRec1[1] < iSlow6)) + -1) : (1 - (2 * (iRec1[1] > 0))));
+		int iThen0 = (1 - (2 * (iRec1[1] > 0)));
+		int iElse0 = ((2 * (iRec1[1] < iSlow6)) + -1);
+		iRec2[0] = ((iRec2[1] > 0) ? iElse0 : iThen0);
 		iRec1[0] = (iRec2[0] + iRec1[1]);
 		fRec5[0] = (fRec5[1] + (fSlow8 * (0.0 - fRec3[1])));
 		fRec4[0] = ((fSlow8 * fRec5[0]) + (double((1 - iVec0[1])) + fRec4[1]));
 		fRec3[0] = fRec4[0];
-		fRec0[0] = (fTemp0 + (fConst1 * (std::pow(((fSlow3 * ((iSlow4 ? std::max<double>(0.0, (0.5 * (fRec3[0] + 1.0))) : (fSlow7 * double(iRec1[0]))) + -1.0)) + 1.0), 1.8999999999999999) / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
+		double fThen1 = (fSlow7 * double(iRec1[0]));
+		double fElse1 = std::max<double>(0.0, (0.5 * (fRec3[0] + 1.0)));
+		fRec0[0] = (fTemp0 + (fConst1 * (std::pow(((fSlow3 * ((iSlow4 ? fElse1 : fThen1) + -1.0)) + 1.0), 1.8999999999999999) / (fConst1 + (0.059999999999999998 * std::exp((0.0 - (2.4849066497880004 * fTemp0))))))));
 		output0[i0] = FAUSTFLOAT((double(input0[i0]) * (fSlow1 + (fSlow2 / (std::exp((13.815510557964274 / std::log(((8.5519675079294171 * fRec0[0]) + 2.7182818284590451)))) + 2700.0)))));
 		iVec0[1] = iVec0[0];
 		iRec2[1] = iRec2[0];

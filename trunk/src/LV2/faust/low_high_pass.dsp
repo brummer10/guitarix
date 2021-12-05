@@ -13,9 +13,9 @@ import("stdfaust.lib");
 import("guitarix.lib");
 
 //-speaker emulation
-sbp1    		= vslider("low_freq[name:low freq][tooltip:low-freq cutoff Hz]",130,20,1000,10);
-sbp2    		= vslider("high_freq[name:high freq][tooltip:high-freq cutoff Hz]",5000,1000,12000,10);
-switch1 		= checkbox("on_off[name:low highcutoff]");
+sbp1    		= vslider("lowfreq[name:low freq][tooltip:low-freq cutoff Hz]",130,20,1000,10);
+sbp2    		= vslider("highfreq[name:high freq][tooltip:high-freq cutoff Hz]",5000,1000,12000,10);
+switch1 		= checkbox("onoff[name:low highcutoff]");
 sbp 			= hgroup(".low_high_pass.lhc", bypass(switch1, +(anti_denormal_ac) : ef.speakerbp(sbp1,sbp2)));
 
 //------------------------------ low/high-passfilters --------------------------------------

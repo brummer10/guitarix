@@ -213,7 +213,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp3 = std::floor(fTemp2);
 		int iTemp4 = int(fTemp3);
 		float fTemp5 = (fConst1 * (fRec5[0] * ((fRec6[0] * (((fTemp3 + (1.0f - fTemp2)) * ftbl0mydspSIG0[(iTemp4 & 65535)]) + ((fTemp2 - fTemp3) * ftbl0mydspSIG0[((iTemp4 + 1) & 65535)]))) + 1.0f)));
-		float fTemp6 = ((fRec1[1] != 0.0f) ? (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f) : (((fRec2[1] == 0.0f) & (fTemp5 != fRec3[1])) ? fConst3 : (((fRec2[1] == 1.0f) & (fTemp5 != fRec4[1])) ? fConst4 : 0.0f)));
+		float fThen1 = (((fRec2[1] == 1.0f) & (fTemp5 != fRec4[1])) ? fConst4 : 0.0f);
+		float fThen3 = (((fRec2[1] == 0.0f) & (fTemp5 != fRec3[1])) ? fConst3 : fThen1);
+		float fElse3 = (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f);
+		float fTemp6 = ((fRec1[1] != 0.0f) ? fElse3 : fThen3);
 		fRec1[0] = fTemp6;
 		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec2[1] + fTemp6)));
 		fRec3[0] = (((fRec2[1] >= 1.0f) & (fRec4[1] != fTemp5)) ? fTemp5 : fRec3[1]);
@@ -226,7 +229,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp10 = std::floor(fTemp9);
 		int iTemp11 = int(fTemp10);
 		float fTemp12 = (fConst1 * (fRec5[0] * ((fRec6[0] * (((fTemp10 + (1.0f - fTemp9)) * ftbl0mydspSIG0[(iTemp11 & 65535)]) + ((fTemp9 - fTemp10) * ftbl0mydspSIG0[((iTemp11 + 1) & 65535)]))) + 1.0f)));
-		float fTemp13 = ((fRec10[1] != 0.0f) ? (((fRec11[1] > 0.0f) & (fRec11[1] < 1.0f)) ? fRec10[1] : 0.0f) : (((fRec11[1] == 0.0f) & (fTemp12 != fRec12[1])) ? fConst3 : (((fRec11[1] == 1.0f) & (fTemp12 != fRec13[1])) ? fConst4 : 0.0f)));
+		float fThen7 = (((fRec11[1] == 1.0f) & (fTemp12 != fRec13[1])) ? fConst4 : 0.0f);
+		float fThen9 = (((fRec11[1] == 0.0f) & (fTemp12 != fRec12[1])) ? fConst3 : fThen7);
+		float fElse9 = (((fRec11[1] > 0.0f) & (fRec11[1] < 1.0f)) ? fRec10[1] : 0.0f);
+		float fTemp13 = ((fRec10[1] != 0.0f) ? fElse9 : fThen9);
 		fRec10[0] = fTemp13;
 		fRec11[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec11[1] + fTemp13)));
 		fRec12[0] = (((fRec11[1] >= 1.0f) & (fRec13[1] != fTemp12)) ? fTemp12 : fRec12[1]);

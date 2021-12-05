@@ -215,9 +215,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp4 = std::max<double>(1.0, std::fabs(fTemp3));
 		double fTemp5 = ((fConst29 * double((fRec12[1] < fTemp4))) + (fConst30 * double((fRec12[1] >= fTemp4))));
 		fRec12[0] = ((fRec12[1] * fTemp5) + (fTemp4 * (1.0 - fTemp5)));
-		double fTemp6 = std::max<double>(0.0, (fSlow5 + (20.0 * std::log10(fRec12[0]))));
+		double fTemp6 = std::max<double>(0.0, (fSlow5 + (20.0 * std::log10(std::max<double>(2.2250738585072014e-308, fRec12[0])))));
 		double fTemp7 = (2.0 * std::min<double>(1.0, std::max<double>(0.0, (0.095229025807065992 * fTemp6))));
-		output0[i0] = FAUSTFLOAT((iSlow0 ? (fTemp3 * std::pow(10.0, (0.050000000000000003 * (fSlow4 + ((fTemp6 * (0.0 - fTemp7)) / (fTemp7 + 1.0)))))) : fTemp3));
+		double fElse0 = (fTemp3 * std::pow(10.0, (0.050000000000000003 * (fSlow4 + ((fTemp6 * (0.0 - fTemp7)) / (fTemp7 + 1.0))))));
+		output0[i0] = FAUSTFLOAT((iSlow0 ? fElse0 : fTemp3));
 		double fTemp8 = double(input1[i0]);
 		fVec2[0] = fTemp8;
 		fRec15[0] = ((fConst7 * fVec2[1]) - (fConst8 * ((fConst9 * fRec15[1]) - (fConst2 * fTemp8))));
@@ -236,9 +237,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp12 = std::max<double>(1.0, std::fabs(fTemp11));
 		double fTemp13 = ((fConst29 * double((fRec22[1] < fTemp12))) + (fConst30 * double((fRec22[1] >= fTemp12))));
 		fRec22[0] = ((fRec22[1] * fTemp13) + (fTemp12 * (1.0 - fTemp13)));
-		double fTemp14 = std::max<double>(0.0, (fSlow5 + (20.0 * std::log10(fRec22[0]))));
+		double fTemp14 = std::max<double>(0.0, (fSlow5 + (20.0 * std::log10(std::max<double>(2.2250738585072014e-308, fRec22[0])))));
 		double fTemp15 = (2.0 * std::min<double>(1.0, std::max<double>(0.0, (0.095229025807065992 * fTemp14))));
-		output1[i0] = FAUSTFLOAT((iSlow0 ? (fTemp11 * std::pow(10.0, (0.050000000000000003 * (fSlow4 + ((fTemp14 * (0.0 - fTemp15)) / (fTemp15 + 1.0)))))) : fTemp11));
+		double fElse1 = (fTemp11 * std::pow(10.0, (0.050000000000000003 * (fSlow4 + ((fTemp14 * (0.0 - fTemp15)) / (fTemp15 + 1.0))))));
+		output1[i0] = FAUSTFLOAT((iSlow0 ? fElse1 : fTemp11));
 		fRec0[1] = fRec0[0];
 		fVec0[1] = fVec0[0];
 		fRec3[1] = fRec3[0];

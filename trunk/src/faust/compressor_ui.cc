@@ -10,5 +10,6 @@ b.openHorizontalTableBox("");
 
     b.create_small_rackknob(PARAM("attack"), N_("attack"));
     b.create_small_rackknob(PARAM("release"), N_("release"));
+    b.create_simple_meter(PARAM("v1"));
 }
 b.closeBox();

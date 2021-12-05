@@ -114,7 +114,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = (fSlow1 + (0.999 * fRec2[1]));
 		fRec1[0] = ((double(buf[i0]) * fRec2[0]) - (fConst2 * ((fConst6 * fRec1[1]) + (fConst7 * fRec1[2]))));
 		double fTemp0 = (fConst2 * (((fConst4 * fRec1[0]) + (fConst8 * fRec1[1])) + (fConst9 * fRec1[2])));
-		buf[i0] = FAUSTFLOAT((2.0 * (fRec0[0] * (int(signbit(double(fTemp0))) ? double(epiphone_jr_out_negclip(double(fTemp0))) : double(epiphone_jr_outclip(double(fTemp0)))))));
+		double fThen0 = double(epiphone_jr_outclip(double(fTemp0)));
+		double fElse0 = double(epiphone_jr_out_negclip(double(fTemp0)));
+		buf[i0] = FAUSTFLOAT((2.0 * (fRec0[0] * (int(signbit(double(fTemp0))) ? fElse0 : fThen0))));
 		fRec0[1] = fRec0[0];
 		fRec2[1] = fRec2[0];
 		fRec1[2] = fRec1[1];

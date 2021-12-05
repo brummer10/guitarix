@@ -70,7 +70,7 @@ class UIDefs(object):
                     if d["port"] in ports:
                         fp.write('		%(variable)s_ = (float*)data; // %(tail)s \n		break;\n' % d)
                         dp.append(1)
-                        print (ports)
+                        #print (ports)
                     else:
                         if dp[-1 ] == 2:
                             fp.write('		break;\n')
@@ -338,6 +338,13 @@ class Parser(object):
 
         nextbox = {}
         for line in self.lines:
+            if "FAUSTFLOAT(" in line:
+                count = 0
+                while line.find("FAUSTFLOAT(") != -1:
+                    line = line.replace("FAUSTFLOAT(", "", 1)
+                    count += 1
+                line = line.replace(")","",count)
+
             if not line.strip():
                 continue
             if stop(line):

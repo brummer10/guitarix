@@ -80,7 +80,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		output0[i0] = FAUSTFLOAT(((1.0f - std::max<float>(0.0f, fRec0[0])) * ((fSlow2 * float(input0[i0])) + ((fRec1[0] * (1.0f - std::max<float>(0.0f, fRec2[0]))) * ((fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp2))) & 131071)] * (fTemp3 + (1.0f - fTemp1))) + ((fTemp1 - fTemp3) * fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp2 + 1)))) & 131071)]))))));
 		float fTemp4 = (fSlow1 * float(input3[i0]));
 		fVec1[(IOTA & 131071)] = fTemp4;
-		float fTemp5 = ((fRec3[0] > 0.0f) ? 0.0f : (-1.0f * fRec3[0]));
+		float fThen1 = (-1.0f * fRec3[0]);
+		float fTemp5 = ((fRec3[0] > 0.0f) ? 0.0f : fThen1);
 		int iTemp6 = int(fTemp5);
 		float fTemp7 = std::floor(fTemp5);
 		output1[i0] = FAUSTFLOAT((((fSlow2 * float(input1[i0])) + ((fRec1[0] * ((fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp6))) & 131071)] * (fTemp7 + (1.0f - fTemp5))) + ((fTemp5 - fTemp7) * fVec1[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp6 + 1)))) & 131071)]))) * (1.0f - std::max<float>(0.0f, (-1.0f * fRec2[0]))))) * (1.0f - std::max<float>(0.0f, (-1.0f * fRec0[0])))));

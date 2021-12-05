@@ -369,8 +369,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp3 = std::fabs(fTemp2);
 		fRec15[0] = std::max<double>(fTemp3, ((fConst67 * fRec15[1]) + (fConst68 * fTemp3)));
 		fRec14[0] = ((fConst65 * fRec14[1]) + (fConst66 * fRec15[0]));
+		double fThen0 = (1.0 - std::max<double>(0.089999999999999997, std::min<double>(0.90000000000000002, (0.5 * (fRec11[0] + 1.0)))));
+		double fElse0 = std::max<double>(0.089999999999999997, std::min<double>(0.90000000000000002, fRec14[0]));
 		fRec16[0] = (fSlow6 + (0.99299999999999999 * fRec16[1]));
-		double fTemp4 = (iSlow3 ? fRec16[0] : (iSlow4 ? std::max<double>(0.089999999999999997, std::min<double>(0.90000000000000002, fRec14[0])) : (1.0 - std::max<double>(0.089999999999999997, std::min<double>(0.90000000000000002, (0.5 * (fRec11[0] + 1.0)))))));
+		double fThen1 = (iSlow4 ? fElse0 : fThen0);
+		double fTemp4 = (iSlow3 ? fRec16[0] : fThen1);
 		double fTemp5 = ((fConst0 * (fConst94 + (fTemp4 * (fConst95 + (fConst96 * fTemp4))))) + 8.0512642716343297e-17);
 		fRec8[0] = (fTemp2 - (((((((fRec8[1] * ((fConst0 * (fConst63 + (fTemp4 * (fConst70 + (fConst72 * fTemp4))))) + 4.8307585629805998e-16)) + (fRec8[2] * ((fConst0 * (fConst74 + (fTemp4 * (fConst76 + (fConst78 * fTemp4))))) + 1.2076896407451501e-15))) + (fRec8[3] * ((fConst5 * (fConst79 + (fTemp4 * (fConst80 + (fConst81 * fTemp4))))) + 1.6102528543268701e-15))) + (fRec8[4] * ((fConst0 * (fConst82 + (fTemp4 * (fConst83 + (fConst84 * fTemp4))))) + 1.2076896407451501e-15))) + (fRec8[5] * ((fConst0 * (fConst85 + (fTemp4 * (fConst86 + (fConst87 * fTemp4))))) + 4.8307585629805998e-16))) + (fRec8[6] * ((fConst0 * (fConst89 + (fTemp4 * (fConst91 + (fConst93 * fTemp4))))) + 8.0512642716343297e-17))) / fTemp5));
 		double fTemp6 = ((((((((fRec8[0] * (fConst98 + (fTemp4 * (fConst100 + (fConst102 * fTemp4))))) + (fRec8[1] * (fConst104 + (fTemp4 * (fConst106 + (fConst108 * fTemp4)))))) + (fRec8[2] * (fConst110 + (fTemp4 * (fConst112 + (fConst114 * fTemp4)))))) + (fRec8[3] * (fConst115 + (fTemp4 * (fConst116 + (fConst117 * fTemp4)))))) + (fRec8[4] * (fConst118 + (fTemp4 * (fConst119 + (fConst120 * fTemp4)))))) + (fRec8[5] * (fConst121 + (fTemp4 * (fConst122 + (fConst123 * fTemp4)))))) + (fRec8[6] * (fConst124 + (fTemp4 * (fConst125 + (fConst126 * fTemp4)))))) / fTemp5);

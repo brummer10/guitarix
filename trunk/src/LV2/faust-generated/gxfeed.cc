@@ -135,7 +135,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fVec6[0] = fTemp8;
 		fRec0[0] = fVec6[11];
 		double fRec1 = (0.0 - (0.69999999999999996 * fTemp8));
-		double fTemp9 = (iSlow0 ? ((fSlow2 * fTemp0) + (fSlow3 * (fRec1 + fRec0[1]))) : double(input0[i0]));
+		double fThen0 = double(input0[i0]);
+		double fElse0 = ((fSlow2 * fTemp0) + (fSlow3 * (fRec1 + fRec0[1])));
+		double fTemp9 = (iSlow0 ? fElse0 : fThen0);
 		output0[i0] = FAUSTFLOAT(fTemp9);
 		output1[i0] = FAUSTFLOAT(fTemp9);
 		IOTA = (IOTA + 1);

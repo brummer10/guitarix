@@ -108,12 +108,14 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec4[0] = ((fConst2 * fRec4[1]) + (fConst3 * std::fabs((fTemp0 + 9.9999999999999995e-21))));
 		double fTemp2 = ((fSlow2 * double((fRec3[1] < fRec4[0]))) + (fSlow3 * double((fRec3[1] >= fRec4[0]))));
 		fRec3[0] = ((fRec3[1] * fTemp2) + (fRec4[0] * (1.0 - fTemp2)));
-		double fTemp3 = std::max<double>(0.0, (fSlow1 + ((20.0 * std::log10(fRec3[0])) - fSlow4)));
+		double fTemp3 = std::max<double>(0.0, (fSlow1 + ((20.0 * std::log10(std::max<double>(2.2250738585072014e-308, fRec3[0]))) - fSlow4)));
 		double fTemp4 = std::min<double>(1.0, std::max<double>(0.0, (fSlow5 * fTemp3)));
 		double fTemp5 = (fSlow0 * ((fTemp3 * fTemp4) / (1.0 - (fSlow0 * fTemp4))));
 		double fTemp6 = std::max<double>(fConst1, std::fabs(fTemp5));
-		fRec0[0] = (iTemp1 ? std::max<double>(fRec0[1], fTemp6) : fTemp6);
-		iRec1[0] = (iTemp1 ? (iRec1[1] + 1) : 1);
+		double fElse0 = std::max<double>(fRec0[1], fTemp6);
+		fRec0[0] = (iTemp1 ? fElse0 : fTemp6);
+		int iElse1 = (iRec1[1] + 1);
+		iRec1[0] = (iTemp1 ? iElse1 : 1);
 		fRec2[0] = (iTemp1 ? fRec2[1] : fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
 		output0[i0] = FAUSTFLOAT((fTemp0 * std::pow(10.0, (0.050000000000000003 * fTemp5))));
@@ -491,6 +493,7 @@ b.openHorizontalTableBox("");
 
     b.create_small_rackknob(PARAM("attack"), N_("attack"));
     b.create_small_rackknob(PARAM("release"), N_("release"));
+    b.create_simple_meter(PARAM("v1"));
 }
 b.closeBox();
 

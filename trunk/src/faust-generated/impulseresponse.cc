@@ -93,7 +93,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
-		fRec0[0] = ((fSlow0 * (((iSlow1 ? std::max<double>(-0.59999999999999998, std::min<double>(0.59999999999999998, fTemp0)) : fSlow2) * fRec0[1]) - (fSlow0 * fRec0[2]))) + (fSlow3 * (fTemp0 - fVec0[2])));
+		double fElse0 = std::max<double>(-0.59999999999999998, std::min<double>(0.59999999999999998, fTemp0));
+		fRec0[0] = ((fSlow0 * (((iSlow1 ? fElse0 : fSlow2) * fRec0[1]) - (fSlow0 * fRec0[2]))) + (fSlow3 * (fTemp0 - fVec0[2])));
 		output0[i0] = FAUSTFLOAT((fTemp0 + fRec0[0]));
 		fVec0[2] = fVec0[1];
 		fVec0[1] = fVec0[0];

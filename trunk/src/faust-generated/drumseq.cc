@@ -295,7 +295,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		int iTemp21 = (fTemp20 < 0.0);
 		double fTemp22 = (fSlow6 + fRec25[1]);
 		fRec25[0] = (iTemp21 ? fTemp22 : fTemp20);
-		double fRec26 = (iTemp21 ? fTemp22 : (fSlow6 + (fRec25[1] + (fSlow7 * fTemp20))));
+		double fThen1 = (fSlow6 + (fRec25[1] + (fSlow7 * fTemp20)));
+		double fRec26 = (iTemp21 ? fTemp22 : fThen1);
 		fRec27[0] = ((fSlow10 * fRec28[1]) + (fSlow11 * fRec27[1]));
 		fRec28[0] = ((fTemp4 + (fSlow11 * fRec28[1])) - (fSlow10 * fRec27[1]));
 		double fTemp23 = (fConst9 * (((2.0 * fRec26) + (fSlow8 * fRec27[0])) + -1.0));
@@ -400,7 +401,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec81[0] = (fSlow22 + (0.999 * fRec81[1]));
 		fRec82[0] = (fSlow23 + (0.999 * fRec82[1]));
 		double fTemp63 = (((2.0 * ((((fConst3 * (fRec1[0] * (fRec3[2] + (fRec3[0] + (2.0 * fRec3[1]))))) + ((fRec11[0] * (fRec13[2] + (fRec13[0] + (2.0 * fRec13[1])))) / fTemp15)) * std::pow(10.0, (0.050000000000000003 * fRec19[0]))) + (((0.25 * (fRec21[0] * ((5.0 * fRec23[0]) + (0.5 * (fRec29[0] + fRec31[0]))))) + (3.0 * fRec34[0])) * std::pow(10.0, (0.050000000000000003 * fRec35[0]))))) + ((((fRec37[0] * (fRec39[0] - fRec39[2])) + ((std::sqrt(fRec59[0]) * (((fRec60[1] * (0.0 - (2.0 / fTemp54))) + (fRec60[0] / fTemp54)) + (fRec60[2] / fTemp54))) / fTemp55)) * std::pow(10.0, (0.050000000000000003 * fRec63[0]))) + ((((fRec65[0] * (fRec67[0] + 0.25)) + (fRec70[0] * (fRec71[0] + 0.25))) + (0.20000000000000001 * ((fConst76 * (fRec74[0] * (fRec75[2] + (fRec75[0] + (2.0 * fRec75[1]))))) + (fConst84 * (fRec78[0] * (((fConst87 * fRec79[0]) + (fConst94 * fRec79[1])) + (fConst87 * fRec79[2]))))))) * std::pow(10.0, (0.050000000000000003 * fRec81[0]))))) * std::pow(10.0, (0.050000000000000003 * fRec82[0])));
-		output0[i0] = FAUSTFLOAT((iSlow0 ? fTemp63 : (double(input0[i0]) + fTemp63)));
+		double fThen2 = (double(input0[i0]) + fTemp63);
+		output0[i0] = FAUSTFLOAT((iSlow0 ? fTemp63 : fThen2));
 		fVec0[1] = fVec0[0];
 		iVec1[1] = iVec1[0];
 		fRec2[1] = fRec2[0];

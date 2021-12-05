@@ -152,7 +152,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp3 = std::floor(fTemp2);
 		int iTemp4 = int(fTemp3);
 		double fTemp5 = (fConst1 * ((0.02 * (((fTemp3 + (1.0 - fTemp2)) * ftbl0mydspSIG0[(iTemp4 & 65535)]) + ((fTemp2 - fTemp3) * ftbl0mydspSIG0[((iTemp4 + 1) & 65535)]))) + 1.0));
-		double fTemp6 = ((fRec1[1] != 0.0) ? (((fRec2[1] > 0.0) & (fRec2[1] < 1.0)) ? fRec1[1] : 0.0) : (((fRec2[1] == 0.0) & (fTemp5 != fRec3[1])) ? fConst3 : (((fRec2[1] == 1.0) & (fTemp5 != fRec4[1])) ? fConst4 : 0.0)));
+		double fThen1 = (((fRec2[1] == 1.0) & (fTemp5 != fRec4[1])) ? fConst4 : 0.0);
+		double fThen3 = (((fRec2[1] == 0.0) & (fTemp5 != fRec3[1])) ? fConst3 : fThen1);
+		double fElse3 = (((fRec2[1] > 0.0) & (fRec2[1] < 1.0)) ? fRec1[1] : 0.0);
+		double fTemp6 = ((fRec1[1] != 0.0) ? fElse3 : fThen3);
 		fRec1[0] = fTemp6;
 		fRec2[0] = std::max<double>(0.0, std::min<double>(1.0, (fRec2[1] + fTemp6)));
 		fRec3[0] = (((fRec2[1] >= 1.0) & (fRec4[1] != fTemp5)) ? fTemp5 : fRec3[1]);

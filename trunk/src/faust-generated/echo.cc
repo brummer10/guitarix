@@ -136,7 +136,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	int iSlow1 = (int((fConst1 / float(fHslider0))) + -1);
 	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
 		fRec1[0] = (fSlow0 + (0.999000013f * fRec1[1]));
-		float fTemp0 = ((fRec2[1] != 0.0f) ? (((fRec3[1] > 0.0f) & (fRec3[1] < 1.0f)) ? fRec2[1] : 0.0f) : (((fRec3[1] == 0.0f) & (iSlow1 != iRec4[1])) ? fConst2 : (((fRec3[1] == 1.0f) & (iSlow1 != iRec5[1])) ? fConst3 : 0.0f)));
+		float fThen1 = (((fRec3[1] == 1.0f) & (iSlow1 != iRec5[1])) ? fConst3 : 0.0f);
+		float fThen3 = (((fRec3[1] == 0.0f) & (iSlow1 != iRec4[1])) ? fConst2 : fThen1);
+		float fElse3 = (((fRec3[1] > 0.0f) & (fRec3[1] < 1.0f)) ? fRec2[1] : 0.0f);
+		float fTemp0 = ((fRec2[1] != 0.0f) ? fElse3 : fThen3);
 		fRec2[0] = fTemp0;
 		fRec3[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec3[1] + fTemp0)));
 		iRec4[0] = (((fRec3[1] >= 1.0f) & (iRec5[1] != iSlow1)) ? iSlow1 : iRec4[1]);

@@ -1,3 +1,20 @@
+guitarix2 (0.43.0) unstable; urgency=low
+
+  * Fix build on gcc 11
+  * Add Fizz Remover
+  * Implement option to disable jack session support (--no-jack-session)
+  * Fix Unnatural decay at high gain (palm mutes) 
+  * Fix Fuzz Face Mayer
+  * Add 41 tet tuner option (by Tristan Tarrant) 
+  * Fix GxAmplifiers cycling through cabinets/pre-amps/tubes is skipping items
+  * Remove glibmm dependency from LV2 plugs
+  * Update used faust version to 2.33.1
+  * Add option in GxAmplifiers to allow switch between Bass/Guitar input
+  * Add metadat.xml file
+  * Add X-NSM-Capable entry in .desktop file
+
+ -- brummer <brummer-@web.de>  Wed, 01 Dec 2021 05:40:42 +0200
+
 guitarix2 (0.42.1) unstable; urgency=low
 
   * Make new Output Limiter less conservative

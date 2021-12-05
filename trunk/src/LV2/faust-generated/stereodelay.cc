@@ -171,7 +171,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fVec0[(IOTA & 524287)] = fTemp0;
 		iVec1[0] = 1;
 		fRec0[0] = (fSlow0 + (0.999000013f * fRec0[1]));
-		float fTemp1 = ((fRec1[1] != 0.0f) ? (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f) : (((fRec2[1] == 0.0f) & (fSlow1 != fRec3[1])) ? 0.0009765625f : (((fRec2[1] == 1.0f) & (fSlow1 != fRec4[1])) ? -0.0009765625f : 0.0f)));
+		float fThen1 = (((fRec2[1] == 1.0f) & (fSlow1 != fRec4[1])) ? -0.0009765625f : 0.0f);
+		float fThen3 = (((fRec2[1] == 0.0f) & (fSlow1 != fRec3[1])) ? 0.0009765625f : fThen1);
+		float fElse3 = (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f);
+		float fTemp1 = ((fRec1[1] != 0.0f) ? fElse3 : fThen3);
 		fRec1[0] = fTemp1;
 		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec2[1] + fTemp1)));
 		fRec3[0] = (((fRec2[1] >= 1.0f) & (fRec4[1] != fSlow1)) ? fSlow1 : fRec3[1]);
@@ -183,7 +186,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		float fTemp3 = float(input1[i0]);
 		fVec2[(IOTA & 524287)] = fTemp3;
 		fRec7[0] = (fSlow6 + (0.999000013f * fRec7[1]));
-		float fTemp4 = ((fRec8[1] != 0.0f) ? (((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f)) ? fRec8[1] : 0.0f) : (((fRec9[1] == 0.0f) & (fSlow7 != fRec10[1])) ? 0.0009765625f : (((fRec9[1] == 1.0f) & (fSlow7 != fRec11[1])) ? -0.0009765625f : 0.0f)));
+		float fThen7 = (((fRec9[1] == 1.0f) & (fSlow7 != fRec11[1])) ? -0.0009765625f : 0.0f);
+		float fThen9 = (((fRec9[1] == 0.0f) & (fSlow7 != fRec10[1])) ? 0.0009765625f : fThen7);
+		float fElse9 = (((fRec9[1] > 0.0f) & (fRec9[1] < 1.0f)) ? fRec8[1] : 0.0f);
+		float fTemp4 = ((fRec8[1] != 0.0f) ? fElse9 : fThen9);
 		fRec8[0] = fTemp4;
 		fRec9[0] = std::max<float>(0.0f, std::min<float>(1.0f, (fRec9[1] + fTemp4)));
 		fRec10[0] = (((fRec9[1] >= 1.0f) & (fRec11[1] != fSlow7)) ? fSlow7 : fRec10[1]);

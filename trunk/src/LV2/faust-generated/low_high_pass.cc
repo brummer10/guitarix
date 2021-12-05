@@ -149,7 +149,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec5[0] = ((fSlow16 * (fRec6[0] + (fSlow17 * fRec5[1]))) - fVec3[1]);
 		fRec4[0] = (fRec5[0] - (fSlow14 * ((fSlow18 * fRec4[2]) + (fSlow19 * fRec4[1]))));
 		fRec3[0] = ((fSlow14 * (fRec4[2] + (fRec4[0] + (2.0 * fRec4[1])))) - (fSlow13 * ((fSlow20 * fRec3[2]) + (fSlow19 * fRec3[1]))));
-		output0[i0] = FAUSTFLOAT((iSlow0 ? (fSlow13 * (fRec3[2] + (fRec3[0] + (2.0 * fRec3[1])))) : fTemp2));
+		double fElse1 = (fSlow13 * (fRec3[2] + (fRec3[0] + (2.0 * fRec3[1]))));
+		output0[i0] = FAUSTFLOAT((iSlow0 ? fElse1 : fTemp2));
 		iVec0[1] = iVec0[0];
 		fRec2[1] = fRec2[0];
 		fVec1[1] = fVec1[0];
@@ -182,17 +183,22 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case ON_OFF: 
+	case ONOFF: 
 		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
+		break;
+	case ON_OFF: 
 		fCheckbox1_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
-	case HIGH_FREQ: 
+	case HIGHFREQ: 
 		fVslider0_ = (float*)data; // , 5000.0, 1000.0, 12000.0, 10.0 
 		break;
-	case LOW_FREQ: 
+	case LOWFREQ: 
 		fVslider1_ = (float*)data; // , 130.0, 20.0, 1000.0, 10.0 
+		break;
+	case HIGH_FREQ: 
 		fEntry0_ = (float*)data; // , 130.0, 20.0, 7040.0, 10.0 
 		break;
+	case LOW_FREQ: 
 		fEntry1_ = (float*)data; // , 5000.0, 20.0, 12000.0, 10.0 
 		break;
 	default:
@@ -218,6 +224,9 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
+   HIGHFREQ, 
+   LOWFREQ, 
+   ONOFF, 
    HIGH_FREQ, 
    LOW_FREQ, 
    ON_OFF, 

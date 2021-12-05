@@ -129,7 +129,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = (fSlow1 + (0.999 * fRec2[1]));
 		fRec1[0] = ((double(buf[i0]) * fRec2[0]) - (fConst2 * (((((fConst6 * fRec1[1]) + (fConst8 * fRec1[2])) + (fConst9 * fRec1[3])) + (fConst10 * fRec1[4])) + (fConst11 * fRec1[5]))));
 		double fTemp0 = (fConst2 * ((((((fConst4 * fRec1[0]) + (fConst13 * fRec1[1])) + (fConst15 * fRec1[2])) + (fConst16 * fRec1[3])) + (fConst17 * fRec1[4])) + (fConst18 * fRec1[5])));
-		buf[i0] = FAUSTFLOAT((0.80000000000000004 * (fRec0[0] * (int(signbit(double(fTemp0))) ? double(supersonic_negclip(double(fTemp0))) : double(supersonicclip(double(fTemp0)))))));
+		double fThen0 = double(supersonicclip(double(fTemp0)));
+		double fElse0 = double(supersonic_negclip(double(fTemp0)));
+		buf[i0] = FAUSTFLOAT((0.80000000000000004 * (fRec0[0] * (int(signbit(double(fTemp0))) ? fElse0 : fThen0))));
 		fRec0[1] = fRec0[0];
 		fRec2[1] = fRec2[0];
 		for (int j0 = 5; (j0 > 0); j0 = (j0 - 1)) {

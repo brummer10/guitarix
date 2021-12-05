@@ -311,6 +311,13 @@ class Parser(object):
 
         nextbox = {}
         for line in self.lines:
+            if "FAUSTFLOAT(" in line:
+                count = 0
+                while line.find("FAUSTFLOAT(") != -1:
+                    line = line.replace("FAUSTFLOAT(", "", 1)
+                    count += 1
+                line = line.replace(")","",count)
+
             if not line.strip():
                 continue
             if stop(line):
