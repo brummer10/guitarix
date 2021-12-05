@@ -499,7 +499,7 @@ const char *Dsp::glade_def = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can-focus\">True</property>\n\
                         <property name=\"receives-default\">True</property>\n\
-                        <property name=\"var-id\">coverd.Bass</property>\n\
+                        <property name=\"var_id\">coverd.Bass</property>\n\
                         <property name=\"label-ref\">label1:rack_label</property>\n\
                       </object>\n\
                       <packing>\n\
@@ -537,7 +537,7 @@ const char *Dsp::glade_def = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can-focus\">True</property>\n\
                         <property name=\"receives-default\">True</property>\n\
-                        <property name=\"var-id\">coverd.Treble</property>\n\
+                        <property name=\"var_id\">coverd.Treble</property>\n\
                         <property name=\"label-ref\">label2:rack_label</property>\n\
                       </object>\n\
                       <packing>\n\
@@ -575,7 +575,7 @@ const char *Dsp::glade_def = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can-focus\">True</property>\n\
                         <property name=\"receives-default\">True</property>\n\
-                        <property name=\"var-id\">coverd.Volume</property>\n\
+                        <property name=\"var_id\">coverd.Volume</property>\n\
                         <property name=\"label-ref\">label3:rack_label</property>\n\
                       </object>\n\
                       <packing>\n\
@@ -613,7 +613,7 @@ const char *Dsp::glade_def = "\
                         <property name=\"visible\">True</property>\n\
                         <property name=\"can-focus\">True</property>\n\
                         <property name=\"receives-default\">True</property>\n\
-                        <property name=\"var-id\">coverd.wet_dry</property>\n\
+                        <property name=\"var_id\">coverd.wet_dry</property>\n\
                         <property name=\"label-ref\">label4:rack_label</property>\n\
                       </object>\n\
                       <packing>\n\
@@ -655,7 +655,7 @@ const char *Dsp::glade_def = "\
                 <property name=\"can-focus\">True</property>\n\
                 <property name=\"receives-default\">True</property>\n\
                 <property name=\"round-digits\">0</property>\n\
-                <property name=\"var-id\">coverd.Volume</property>\n\
+                <property name=\"var_id\">coverd.Volume</property>\n\
                 <property name=\"show-value\">False</property>\n\
                 <property name=\"value-position\">right</property>\n\
                 <property name=\"value-xalign\">0.52</property>\n\

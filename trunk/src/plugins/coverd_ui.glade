@@ -42,7 +42,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
-                        <property name="var-id">coverd.Bass</property>
+                        <property name="var_id">coverd.Bass</property>
                         <property name="label-ref">label1:rack_label</property>
                       </object>
                       <packing>
@@ -80,7 +80,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
-                        <property name="var-id">coverd.Treble</property>
+                        <property name="var_id">coverd.Treble</property>
                         <property name="label-ref">label2:rack_label</property>
                       </object>
                       <packing>
@@ -118,7 +118,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
-                        <property name="var-id">coverd.Volume</property>
+                        <property name="var_id">coverd.Volume</property>
                         <property name="label-ref">label3:rack_label</property>
                       </object>
                       <packing>
@@ -156,7 +156,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
-                        <property name="var-id">coverd.wet_dry</property>
+                        <property name="var_id">coverd.wet_dry</property>
                         <property name="label-ref">label4:rack_label</property>
                       </object>
                       <packing>
@@ -198,7 +198,7 @@
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
                 <property name="round-digits">0</property>
-                <property name="var-id">coverd.Volume</property>
+                <property name="var_id">coverd.Volume</property>
                 <property name="show-value">False</property>
                 <property name="value-position">right</property>
                 <property name="value-xalign">0.52</property>
