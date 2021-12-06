@@ -49,7 +49,7 @@
     
   guiext:ui <http://guitarix.sourceforge.net/plugins/gxtubevibrato#gui>;
   
-    lv2:minorVersion 40;
+    lv2:minorVersion 43;
     lv2:microVersion 0;
 
 rdfs:comment """
@@ -129,6 +129,5 @@ Sounds very sweet with tubes wrapped
         lv2:extensionData guiext::idle ;
         lv2:extensionData guiext:resize ;
         lv2:extensionData guiext:idleInterface;
-        lv2:requiredFeature guiext:makeResident;
         lv2:requiredFeature guiext:idleInterface;
  .  

@@ -2,7 +2,7 @@ guitarix2 (0.43.0) unstable; urgency=low
 
   * Fix build on gcc 11
   * Add Fizz Remover
-  * Implement option to disable jack session support (--no-jack-session)
+  * Implement option to enable jack session support (--jack-session)
   * Fix Unnatural decay at high gain (palm mutes) 
   * Fix Fuzz Face Mayer
   * Add 41 tet tuner option (by Tristan Tarrant) 

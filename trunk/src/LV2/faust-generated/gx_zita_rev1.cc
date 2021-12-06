@@ -131,15 +131,6 @@ public:
 
 
 
-static const char* parm_groups[] = {
-	"decay_times", N_("Decay Times in Bands"),
-	"equalizer1", N_("RM Peaking Equalizer 1"),
-	"equalizer2", N_("RM Peaking Equalizer 2"),
-	"input", N_("Input"),
-	"output", N_("Output"),
-	0
-	};
-
 Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;

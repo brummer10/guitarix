@@ -207,7 +207,6 @@ const LV2_Descriptor Gx_oc_2_::descriptor =
 
 ////////////////////////// LV2 SYMBOL EXPORT ///////////////////////////
 
-extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
 lv2_descriptor(uint32_t index)

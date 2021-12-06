@@ -33,11 +33,6 @@ public:
 
 
 
-static const char* parm_groups[] = {
-	".bassbooster", N_("Bassbooster"),
-	0
-	};
-
 Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;

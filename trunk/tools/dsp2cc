@@ -161,9 +161,10 @@ class UIDefs(object):
         d = s2 - s1
         errlevel = 0
         if d:
-            print ("%s:warning: parameters in faust dsp not used in %s: %s"
-                   % (fname, uiname, ", ".join(d)))
-            errlevel = 1
+            if not "highgain" in ", ".join(d): # avoid warning for missing amp.highain in ampmodule
+                print ("%s:warning: parameters in faust dsp not used in %s: %s"
+                       % (fname, uiname, ", ".join(d)))
+                errlevel = 1
         d = s1 - s2
         if d:
             if only_warn:
@@ -2079,7 +2080,7 @@ class Output(object):
                              + "".join([self.outputcall % i for i in range(self.parser.getNumOutputs())]))
         plugin_id = self.parser.toplevel or self.parser.topname
         has_cc_ui, cc_ui, has_glade_ui, glade_ui = self.gen_load_ui(plugin_id)
-        if self.parser.groups:
+        if self.parser.groups and not has_lv2:
             groups_define = "\nstatic const char* parm_groups[] = {\n%s\t};\n" % self.parser.formatted_groups(plugin_id)
         else:
             groups_define = ""

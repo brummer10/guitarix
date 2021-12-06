@@ -101,11 +101,6 @@ public:
 
 
 
-static const char* parm_groups[] = {
-	"resonator", N_("Distortion resonator"),
-	0
-	};
-
 Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;

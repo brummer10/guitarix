@@ -319,7 +319,6 @@ const LV2_Descriptor Gxmetal_amp::descriptor =
 } // end namespace gx_metal
 ///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
 
-extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
 lv2_descriptor(uint32_t index)

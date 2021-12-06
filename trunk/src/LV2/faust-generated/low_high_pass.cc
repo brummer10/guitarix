@@ -49,12 +49,6 @@ public:
 
 
 
-static const char* parm_groups[] = {
-	".low_high_pass.lhp", N_("low_highpass"),
-	".low_high_pass.lhc", N_("low_highcutoff"),
-	0
-	};
-
 Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;

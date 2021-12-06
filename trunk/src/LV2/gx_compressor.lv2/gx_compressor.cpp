@@ -230,7 +230,6 @@ const LV2_Descriptor Gx_compressor::descriptor =
 
 ///////////////////////////// LV2 DESCRIPTOR ///////////////////////////
 
-extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
 lv2_descriptor(uint32_t index)

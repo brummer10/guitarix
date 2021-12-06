@@ -118,12 +118,6 @@ public:
 
 
 
-static const char* parm_groups[] = {
-	"amp2.stage2", N_("Postamp Tube2"),
-	"amp2.stage1", N_("Postamp Tube1"),
-	0
-	};
-
 Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;

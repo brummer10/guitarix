@@ -223,7 +223,6 @@ static const LV2_Descriptor descriptor =
 
 } // end namespace gx_echocat
 
-extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
 lv2_descriptor(uint32_t index)

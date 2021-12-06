@@ -710,7 +710,6 @@ const LV2_Descriptor GxPluginStereo::descriptor =
   extension_data
 };
 
-extern "C"
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*
 lv2_descriptor(uint32_t index)

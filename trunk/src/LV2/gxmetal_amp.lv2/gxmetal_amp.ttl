@@ -58,7 +58,7 @@ rdfs:comment """
 
 """;
   
-    lv2:minorVersion 40;
+    lv2:minorVersion 43;
     lv2:microVersion 0;
 
     lv2:port  [
@@ -128,7 +128,6 @@ rdfs:comment """
         lv2:extensionData guiext::idle ;
         lv2:extensionData guiext:resize ;
         lv2:extensionData guiext:idleInterface;
-        lv2:requiredFeature guiext:makeResident;
         lv2:requiredFeature guiext:idleInterface;
  .  
  

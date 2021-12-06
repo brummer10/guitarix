@@ -47,7 +47,7 @@
     lv2:project <http://guitarix.sourceforge.net/plugins/gx_oc_2_> ;
     lv2:optionalFeature lv2:hardRTCapable ;
       
-    lv2:minorVersion 40;
+    lv2:minorVersion 43;
     lv2:microVersion 0;
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_oc_2_gui#_oc_2_>;
@@ -106,6 +106,5 @@ rdfs:comment """
         lv2:extensionData guiext::idle ;
         lv2:extensionData guiext:resize ;
         lv2:extensionData guiext:idleInterface;
-        lv2:requiredFeature guiext:makeResident;
         lv2:requiredFeature guiext:idleInterface;
  .  

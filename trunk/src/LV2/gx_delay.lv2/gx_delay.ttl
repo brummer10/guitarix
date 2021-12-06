@@ -50,7 +50,7 @@
     
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_delay_stereo#gui>;
   
-    lv2:minorVersion 40;
+    lv2:minorVersion 43;
     lv2:microVersion 0;
     
 rdfs:comment """
@@ -175,7 +175,6 @@ A stereo delay plugin with independent delay time and delay gain for each channe
         lv2:extensionData guiext::idle ;
         lv2:extensionData guiext:resize ;
         lv2:extensionData guiext:idleInterface;
-        lv2:requiredFeature guiext:makeResident;
         lv2:requiredFeature guiext:idleInterface;
  .  
   

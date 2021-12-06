@@ -32,11 +32,6 @@ public:
 
 
 
-static const char* parm_groups[] = {
-	".amp", N_("Default"),
-	0
-	};
-
 Dsp::Dsp()
 	: PluginLV2() {
 	version = PLUGINLV2_VERSION;
