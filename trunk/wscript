@@ -370,6 +370,8 @@ def configure(conf):
                          os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'guitarix','icons')))
     conf.define_with_env('GX_PIXMAPS_DIR',
                          os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'pixmaps')))
+    conf.define_with_env('GX_METAINFO_DIR',
+                         os.path.normpath(os.path.join(conf.env['SHAREDIR'], 'metainfo')))
 
     conf.define('GX_VERSION', VERSION)
 
@@ -616,7 +618,7 @@ def build(bld):
         bld.install_files(bld.env['GX_SOUND_DIR'], './IR/greathall.wav', chmod=0o664)
         bld.install_files(bld.env['GX_SOUND_BPB_DIR'], bld.path.ant_glob('IR/BestPlugins_Bands/*'), chmod=0o664)
         bld.install_files(bld.env['GX_SOUND_BPA_DIR'], bld.path.ant_glob('IR/BestPlugins_Amps/*'), chmod=0o664)
-        bld.install_files('/usr/share/metainfo/', 'org.guitarix.guitarix.metainfo.xml', chmod=0o664)
+        bld.install_files(bld.env['GX_METAINFO_DIR'], 'org.guitarix.guitarix.metainfo.xml', chmod=0o664)
 
         if not bld.env['DISABLE_NLS']:
             if bld.env['HAVE_LIBLO']:
