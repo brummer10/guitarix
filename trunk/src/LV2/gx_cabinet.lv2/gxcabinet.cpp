@@ -68,6 +68,10 @@ private:
 
   inline bool cab_changed() 
     {return std::abs(cab_bass - cbass_) > 0.1 || std::abs(cab_treble - ctreble_) > 0.1 || std::abs(cab_level - clevel_) > 0.1;}
+  inline bool buffsize_changed() 
+    {return bufsize != cur_bufsize;}
+  inline bool IsPowerOfTwo(uint32_t x)
+    {return (x >= 64) && ((x & (x - 1)) == 0);}
   inline void update_cab() 
     {cab_bass = cbass_; cab_treble = ctreble_; cab_level = clevel_; c_old_model_ = c_model_;}
   inline bool change_cab() 
@@ -156,6 +160,28 @@ GxCabinet::~GxCabinet()
 
 void GxCabinet::do_work_mono()
 {
+  if (buffsize_changed() && IsPowerOfTwo(cur_bufsize)) 
+  {
+     printf("buffersize changed to %u\n",cur_bufsize);
+     if (cabconv.is_runnable())
+        {
+          cabconv.set_not_runnable();
+          cabconv.stop_process();
+        }
+     bufsize = cur_bufsize;
+
+	 cabconv.cleanup();
+     CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
+     cabconv.cab_count = cab.ir_count;
+     cabconv.cab_sr = cab.ir_sr;
+     cabconv.cab_data = cab.ir_data;
+     cabconv.set_samplerate(s_rate);
+     cabconv.set_buffersize(bufsize);
+     cabconv.configure(cabconv.cab_count, cabconv.cab_data, cabconv.cab_sr);
+     while (!cabconv.checkstate());
+     if(!cabconv.start(prio, SCHED_FIFO))
+        printf("cabinet convolver update buffersize fail\n");
+  }
   if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())
@@ -294,7 +320,7 @@ void GxCabinet::run_dsp_mono(uint32_t n_samples)
   bp.post_check_bypass(buf, output, n_samples);
 
   // work ?
-  if (!_execute.load(std::memory_order_acquire) && val_changed())
+  if (!_execute.load(std::memory_order_acquire) && (val_changed() || buffsize_changed()))
     {
       clevel_ = (*clevel);
       cbass_ = (*cbass);

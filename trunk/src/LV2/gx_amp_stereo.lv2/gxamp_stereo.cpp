@@ -200,6 +200,10 @@ private:
   
   bool cab_changed()
     {return std::abs(cab - clevel_ ) > 0.1;}
+  inline bool buffsize_changed() 
+    {return bufsize != cur_bufsize;}
+  inline bool IsPowerOfTwo(uint32_t x)
+    {return (x >= 64) && ((x & (x - 1)) == 0);}
   void update_cab()
     {cab = (clevel_ ); c_old_model_ = c_model_;}
   bool change_cab()
@@ -304,6 +308,47 @@ GxPluginStereo::~GxPluginStereo()
 
 void GxPluginStereo::do_work_stereo()
 {
+  if (buffsize_changed() && IsPowerOfTwo(cur_bufsize)) 
+  {
+     printf("buffersize changed to %u\n",cur_bufsize);
+     if (cabconv.is_runnable())
+        {
+          cabconv.set_not_runnable();
+          cabconv.stop_process();
+        }
+     if (ampconv.is_runnable())
+        {
+          ampconv.set_not_runnable();
+          ampconv.stop_process();
+        }
+     bufsize = cur_bufsize;
+
+	 cabconv.cleanup();
+     CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
+     cabconv.cab_count = cab.ir_count;
+     cabconv.cab_sr = cab.ir_sr;
+     cabconv.set_samplerate(s_rate);
+     cabconv.set_buffersize(bufsize);
+     float cab_irdata_c[cabconv.cab_count];
+     float adjust_1x8 = 1;
+     if ( c_model_ == 17.0) adjust_1x8 = 0.5;
+     impf.compute(cabconv.cab_count, cabconv.cab_data, cab_irdata_c, (clevel_ * adjust_1x8));
+     cabconv.cab_data_new = cab_irdata_c;
+     cabconv.configure_stereo(cabconv.cab_count, cabconv.cab_data_new, cabconv.cab_sr);
+     while (!cabconv.checkstate());
+     if(!cabconv.start(prio, SCHED_FIFO))
+        printf("cabinet convolver update buffersize fail\n");
+
+     ampconv.cleanup();
+     ampconv.set_samplerate(s_rate);
+     ampconv.set_buffersize(bufsize);
+     float pre_irdata_c[contrast_ir_desc.ir_count];
+     ampf.compute(contrast_ir_desc.ir_count,contrast_ir_desc.ir_data, pre_irdata_c, alevel_);
+     ampconv.configure_stereo(contrast_ir_desc.ir_count, pre_irdata_c, contrast_ir_desc.ir_sr);
+     while (!ampconv.checkstate());
+     if(!ampconv.start(prio, SCHED_FIFO))
+        printf("presence convolver update buffersize fail\n");
+  }
   if (cab_changed() || change_cab())
     {
       if (cabconv.is_runnable())
@@ -502,7 +547,7 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 
   MXCSR.reset_();
   // work ?
-  if (!_execute.load(std::memory_order_acquire) && val_changed() )
+  if (!_execute.load(std::memory_order_acquire) && (val_changed() || buffsize_changed()) )
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
