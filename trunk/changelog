@@ -1,3 +1,9 @@
+guitarix2 (0.43.1) unstable; urgency=low
+
+  * Fix Install metainfo in prefix (by Hubert Figuière)
+  * Fix GxAmplifierX produces weird noise after buffer size changes 
+ -- brummer <brummer-@web.de>  Fri, 10 Dec 2021 18:40:42 +0200
+
 guitarix2 (0.43.0) unstable; urgency=low
 
   * Fix build on gcc 11
