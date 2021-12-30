@@ -126,6 +126,7 @@ public:
     virtual void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name) = 0;
     virtual void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name) = 0;
     virtual void disable_autosave(bool v) = 0;
+    virtual void disable_save_on_exit(bool v) = 0;
     virtual sigc::signal<void>& signal_selection_changed() = 0;
     virtual sigc::signal<void>& signal_presetlist_changed() = 0;
     virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move, int position) = 0;
@@ -317,6 +318,7 @@ public:
     virtual void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name);
     virtual void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name);
     virtual void disable_autosave(bool v);
+    virtual void disable_save_on_exit(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
     virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move, int position);
@@ -503,6 +505,7 @@ public:
     virtual void plugin_preset_list_save(const PluginDef *pdef, const Glib::ustring& name);
     virtual void plugin_preset_list_remove(const PluginDef *pdef, const Glib::ustring& name);
     virtual void disable_autosave(bool v);
+    virtual void disable_save_on_exit(bool v);
     virtual sigc::signal<void>& signal_selection_changed();
     virtual sigc::signal<void>& signal_presetlist_changed();
     virtual gx_system::PresetFileGui *bank_insert_uri(const Glib::ustring& uri, bool move, int position);

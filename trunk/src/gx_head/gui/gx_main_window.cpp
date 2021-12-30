@@ -2431,6 +2431,7 @@ void MainWindow::run() {
         } else {
             if (nsmsig.nsm_session_control) nsmsig.trigger_nsm_gui_is_hidden();
         }
+    if (nsmsig.nsm_session_control) machine.disable_save_on_exit(true);
     if (options.get_liveplaygui()) bld.liveplay_button->set_active();
     Gtk::Main::run();
     }

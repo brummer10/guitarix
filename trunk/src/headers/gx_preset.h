@@ -144,6 +144,7 @@ private:
     gx_preset::StateIO    state_io;
     bool                  state_loaded;
     bool                  no_autosave;
+    bool                  no_save_on_exit;
     gx_jack::GxJack&      jack;
     gx_engine::MidiControllerList& mctrl;
     gx_system::CmdlineOptions& options;
@@ -183,6 +184,7 @@ public:
     void loadstate();
     bool get_auto_save_state() { return no_autosave;}
     void disable_autosave(bool v) { no_autosave = v; }
+    void disable_save_on_exit(bool v) { no_save_on_exit = v; }
     void auto_save_state();
     void plugin_preset_list_load(const PluginDef *pdef, UnitPresetList &presetnames);
     void plugin_preset_list_sync_set(const PluginDef *pdef, bool factory, const Glib::ustring& name);

@@ -1687,7 +1687,8 @@ class Parser(object):
                     expr = lambda a: 1-a
                 else:
                     expr = lambda a: a
-            attrlist.append((var, name, loga, inv, expr))
+            if not var in [item[0] for item in attrlist]:
+                attrlist.append((var, name, loga, inv, expr))
         return attrlist
 
     def get_variable_defaults(self):

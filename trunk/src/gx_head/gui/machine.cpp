@@ -694,6 +694,10 @@ void GxMachine::disable_autosave(bool v) {
     settings.disable_autosave(v);
 }
 
+void GxMachine::disable_save_on_exit(bool v) {
+    settings.disable_save_on_exit(v);
+}
+
 sigc::signal<void>& GxMachine::signal_selection_changed() {
     return settings.signal_selection_changed();
 }
@@ -2242,6 +2246,11 @@ void GxMachineRemote::plugin_preset_list_remove(const PluginDef *pdef, const Gli
 }
 
 void GxMachineRemote::disable_autosave(bool v) {
+    //FIXME: move inside machine
+    /* noop */
+}
+
+void GxMachineRemote::disable_save_on_exit(bool v) {
     //FIXME: move inside machine
     /* noop */
 }

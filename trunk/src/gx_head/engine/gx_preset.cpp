@@ -944,6 +944,7 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
       state_io(mctrl_, param, mstdctr, jack_, opt, rack_units),
       state_loaded(false),
       no_autosave(false),
+      no_save_on_exit(false),
       jack(jack_),
       mctrl(mctrl_),
       options(opt),
@@ -971,7 +972,8 @@ GxSettings *GxSettings::instance = 0;
 
 GxSettings::~GxSettings() {
     instance = 0;
-    auto_save_state();
+    if (!no_save_on_exit)
+        auto_save_state();
 }
 
 void GxSettings::auto_save_state() {
@@ -994,7 +996,8 @@ void GxSettings::exit_handler(bool otherthread) {
     if (otherthread) {
         return;
     }
-    auto_save_state();
+    if (!no_save_on_exit)
+        auto_save_state();
 }
 
 void GxSettings::jack_client_changed() {

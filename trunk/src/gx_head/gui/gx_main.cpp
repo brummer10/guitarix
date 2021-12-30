@@ -166,7 +166,7 @@ int GxNsmHandler::_nsm_open (const char *name, const char *display_name,
     options->set_jack_instancename(client_id);
     options->set_jack_noconnect(true);
     options->set_jack_single(true);
-   // options->set_opt_autosave(true);
+    options->set_opt_autosave(false);
     options->read_ui_vars();
     if (!strstr(nsm_get_session_manager_features(nsm), ":optional-gui:")) {
         options->mainwin_visible = 1;
