@@ -166,4 +166,8 @@ void plugin_cleanup(X11_UI *ui) {
 void plugin_port_event(LV2UI_Handle handle, uint32_t port_index,
                         uint32_t buffer_size, uint32_t format,
                         const void * buffer) {
+    X11_UI* ui = (X11_UI*)handle;
+    if (port_index == FREQ) {
+        tuner_set_ref_freq(ui->widget[0],adj_get_value(ui->widget[2]->adj));
+    }
 }
