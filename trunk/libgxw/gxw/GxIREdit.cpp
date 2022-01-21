@@ -1410,7 +1410,7 @@ static gboolean ir_edit_motion_notify(GtkWidget *widget, GdkEventMotion *event)
 	GdkModifierType m;
     gdk_window_get_device_position(
         window, gtk_get_current_event_device(), &x, &y, &m);
-	if (x != event->x || y != event->y) {
+	if ((x != event->x || y != event->y) && ((event->state & GDK_BUTTON1_MASK) != GDK_BUTTON1_MASK)) {
 		// there shound be another event in the queue which updates
 		// to the aktual pointer position, so skip this one
 		gdk_event_request_motions(event);
