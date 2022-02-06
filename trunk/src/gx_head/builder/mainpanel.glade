@@ -682,8 +682,8 @@
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GxSwitch" id="gxswitch1">
-                                                            <property name="name">gxswitch1</property>
+                                                            <object class="GxSwitch" id="gxswitch11">
+                                                            <property name="name">gxswitch11</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
@@ -752,8 +752,8 @@
                                                             </packing>
                                                             </child>
                                                             <child>
-                                                            <object class="GxSwitch" id="gxswitch4">
-                                                            <property name="name">gxswitch4</property>
+                                                            <object class="GxSwitch" id="gxswitch14">
+                                                            <property name="name">gxswitch14</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
