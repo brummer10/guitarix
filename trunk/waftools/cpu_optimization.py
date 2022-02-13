@@ -1,4 +1,5 @@
 import os
+from waflib import Utils
 
 def options(opt):
     comp = opt.get_option_group("Configuration options")
@@ -167,6 +168,10 @@ def configure(conf):
         if conf.env['NOOPT']:
             conf.env['OPT'] = False
             cpu_model = append_optimization_flags(conf, cxxflags)
+
+    if '-flto' in cxxflags:
+        cxxflags.append ("-ffat-lto-objects")
+
     cxxflags.append ("-std=c++11")
     conf.env['CXXFLAGS'] += cxxflags
     conf.cpu_model = cpu_model
