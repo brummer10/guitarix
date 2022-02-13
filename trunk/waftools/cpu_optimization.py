@@ -1,5 +1,4 @@
 import os
-from waflib import Utils
 
 def options(opt):
     comp = opt.get_option_group("Configuration options")
