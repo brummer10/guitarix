@@ -69,7 +69,7 @@ void NoiseGate::inputlevel_compute(int count, float *input, float *output, Plugi
     for (int i = 0; i < count; i++) {
         sumnoise += sqrf(input[i]);
     }
-    if (sumnoise/count > sqrf(fnglevel * 0.01)) {
+    if (sumnoise/count > sqrf(fnglevel * 0.1)) {
         ngate = 1; // -75db 0.001 = 65db
     } else if (ngate > 0.01) {
         ngate *= 0.996;
