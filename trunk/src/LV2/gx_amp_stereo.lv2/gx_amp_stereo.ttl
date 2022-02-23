@@ -168,7 +168,7 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:name "Model" ;
         lv2:default 0 ;
         lv2:minimum 0 ;
-        lv2:maximum 17 ;
+        lv2:maximum 18 ;
         lv2:portProperty lv2:integer;
         lv2:portProperty lv2:enumeration ;
         lv2:scalePoint [rdfs:label "12ax7"; rdf:value 0];
