@@ -2384,8 +2384,9 @@ void MainWindow::systray_menu(guint button, guint32 activate_time) {
 }
 
 void MainWindow::on_nsm_save() {
-    if (!is_visible || bld.window->get_window()->get_state()
-        & (Gdk::WINDOW_STATE_ICONIFIED|Gdk::WINDOW_STATE_WITHDRAWN)) return;
+    if (!bld.window->get_window()) {
+        return;
+    }
     bld.window->get_window()->get_root_origin(options.mainwin_x, options.mainwin_y);
     int mainwin_width;
     bld.window->get_size(mainwin_width, options.mainwin_height);
