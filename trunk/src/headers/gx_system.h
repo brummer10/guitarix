@@ -112,7 +112,7 @@ inline void atomic_inc(volatile unsigned int* p) {
 }
 
 inline bool atomic_compare_and_exchange(volatile int *p, int oldv, int newv) {
-    return g_atomic_int_compare_and_exchange(p, oldv, newv);
+    return g_atomic_int_compare_and_exchange((int*)p, oldv, newv);
 }
 
 template <class T>
