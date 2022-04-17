@@ -112,7 +112,11 @@ inline void atomic_inc(volatile unsigned int* p) {
 }
 
 inline bool atomic_compare_and_exchange(volatile int *p, int oldv, int newv) {
-    return g_atomic_int_compare_and_exchange((int*)p, oldv, newv);
+#if (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION < 68 && GLIB_MICRO_VERSION < 1)
+    return g_atomic_int_compare_and_exchange(p, oldv, newv);
+#else
+    return g_atomic_int_compare_and_exchange(const_cast<int*>(p), oldv, newv);
+#endif
 }
 
 template <class T>
