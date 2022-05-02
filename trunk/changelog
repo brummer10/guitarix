@@ -1,3 +1,8 @@
+guitarix2 (0.44.1) unstable; urgency=low
+
+  * Fix race condition when build with Faust
+ -- brummer <brummer-@web.de>  Mon, 02 May 2022 20:37:42 +0200
+
 guitarix2 (0.44.0) unstable; urgency=low
 
   * Fix save behavior under NSM control 
