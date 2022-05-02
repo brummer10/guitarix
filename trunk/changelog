@@ -1,3 +1,15 @@
+guitarix2 (0.44.0) unstable; urgency=low
+
+  * Fix save behavior under NSM control 
+  * Fix allow changing base frequency for tuner
+  * Re-enable gainline edit for convolver
+  * Remove dependency on glibmm for LV2 plugs (by Hubert Figuière)
+  * Fix build when LTO is in use
+  * Fix wrong max value for Tube Model in gx_amp LV2 plugins (by kramlie)
+  * Fix build with new glib version (issue with volatile keyword)
+  * Update to new Faust version 2.40.0
+ -- brummer <brummer-@web.de>  Mon, 02 May 2022 18:59:42 +0200
+
 guitarix2 (0.43.1) unstable; urgency=low
 
   * Fix Install metainfo in prefix (by Hubert Figuière)
