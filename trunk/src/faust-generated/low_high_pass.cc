@@ -77,17 +77,17 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) iVec0[l0] = 0;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec2[l1] = 0.0;
-	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fVec1[l2] = 0.0;
-	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec1[l3] = 0.0;
-	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec0[l4] = 0.0;
-	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fVec2[l5] = 0.0;
-	for (int l6 = 0; (l6 < 2); l6 = (l6 + 1)) fRec6[l6] = 0.0;
-	for (int l7 = 0; (l7 < 2); l7 = (l7 + 1)) fVec3[l7] = 0.0;
-	for (int l8 = 0; (l8 < 2); l8 = (l8 + 1)) fRec5[l8] = 0.0;
-	for (int l9 = 0; (l9 < 3); l9 = (l9 + 1)) fRec4[l9] = 0.0;
-	for (int l10 = 0; (l10 < 3); l10 = (l10 + 1)) fRec3[l10] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) iVec0[l0] = 0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec2[l1] = 0.0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fVec1[l2] = 0.0;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec1[l3] = 0.0;
+	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec0[l4] = 0.0;
+	for (int l5 = 0; l5 < 2; l5 = l5 + 1) fVec2[l5] = 0.0;
+	for (int l6 = 0; l6 < 2; l6 = l6 + 1) fRec6[l6] = 0.0;
+	for (int l7 = 0; l7 < 2; l7 = l7 + 1) fVec3[l7] = 0.0;
+	for (int l8 = 0; l8 < 2; l8 = l8 + 1) fRec5[l8] = 0.0;
+	for (int l9 = 0; l9 < 3; l9 = l9 + 1) fRec4[l9] = 0.0;
+	for (int l10 = 0; l10 < 3; l10 = l10 + 1) fRec3[l10] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -98,7 +98,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = (3.1415926535897931 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
+	fConst0 = 3.1415926535897931 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
 	clear_state_f();
 }
 
@@ -111,43 +111,43 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	int iSlow0 = int(double(fCheckbox0));
 	int iSlow1 = int(double(fCheckbox1));
-	double fSlow2 = std::tan((fConst0 * double(fEntry0)));
-	double fSlow3 = (1.0 / fSlow2);
-	double fSlow4 = (fSlow3 + 1.0);
-	double fSlow5 = (0.0 - (1.0 / (fSlow2 * fSlow4)));
-	double fSlow6 = (1.0 / std::tan((fConst0 * double(fEntry1))));
-	double fSlow7 = (1.0 / (fSlow6 + 1.0));
-	double fSlow8 = (1.0 - fSlow6);
-	double fSlow9 = (1.0 / fSlow4);
-	double fSlow10 = (1.0 - fSlow3);
-	double fSlow11 = std::tan((fConst0 * double(fVslider0)));
-	double fSlow12 = (1.0 / fSlow11);
-	double fSlow13 = (1.0 / (((fSlow12 + 0.76536686473017945) / fSlow11) + 1.0));
-	double fSlow14 = (1.0 / (((fSlow12 + 1.8477590650225735) / fSlow11) + 1.0));
-	double fSlow15 = (fConst0 * double(fVslider1));
-	double fSlow16 = (1.0 / (fSlow15 + 1.0));
-	double fSlow17 = (1.0 - fSlow15);
-	double fSlow18 = (((fSlow12 + -1.8477590650225735) / fSlow11) + 1.0);
-	double fSlow19 = (2.0 * (1.0 - (1.0 / mydsp_faustpower2_f(fSlow11))));
-	double fSlow20 = (((fSlow12 + -0.76536686473017945) / fSlow11) + 1.0);
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+	double fSlow2 = std::tan(fConst0 * double(fEntry0));
+	double fSlow3 = 1.0 / fSlow2;
+	double fSlow4 = fSlow3 + 1.0;
+	double fSlow5 = 0.0 - 1.0 / (fSlow2 * fSlow4);
+	double fSlow6 = 1.0 / std::tan(fConst0 * double(fEntry1));
+	double fSlow7 = 1.0 / (fSlow6 + 1.0);
+	double fSlow8 = 1.0 - fSlow6;
+	double fSlow9 = 1.0 / fSlow4;
+	double fSlow10 = 1.0 - fSlow3;
+	double fSlow11 = std::tan(fConst0 * double(fVslider0));
+	double fSlow12 = 1.0 / fSlow11;
+	double fSlow13 = 1.0 / ((fSlow12 + 0.76536686473017945) / fSlow11 + 1.0);
+	double fSlow14 = 1.0 / ((fSlow12 + 1.8477590650225735) / fSlow11 + 1.0);
+	double fSlow15 = fConst0 * double(fVslider1);
+	double fSlow16 = 1.0 / (fSlow15 + 1.0);
+	double fSlow17 = 1.0 - fSlow15;
+	double fSlow18 = (fSlow12 + -1.8477590650225735) / fSlow11 + 1.0;
+	double fSlow19 = 2.0 * (1.0 - 1.0 / mydsp_faustpower2_f(fSlow11));
+	double fSlow20 = (fSlow12 + -0.76536686473017945) / fSlow11 + 1.0;
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		iVec0[0] = 1;
-		fRec2[0] = ((9.9999999999999995e-21 * double((1 - iVec0[1]))) - fRec2[1]);
-		double fTemp1 = (fTemp0 + fRec2[0]);
+		fRec2[0] = 9.9999999999999995e-21 * double(1 - iVec0[1]) - fRec2[1];
+		double fTemp1 = fTemp0 + fRec2[0];
 		fVec1[0] = fTemp1;
-		fRec1[0] = (0.0 - (fSlow7 * ((fSlow8 * fRec1[1]) - (fTemp1 + fVec1[1]))));
-		fRec0[0] = ((fSlow5 * fRec1[1]) - (fSlow9 * ((fSlow10 * fRec0[1]) - (fSlow3 * fRec1[0]))));
-		double fTemp2 = (iSlow1 ? fRec0[0] : fTemp0);
-		double fTemp3 = (fRec2[0] + fTemp2);
-		fVec2[0] = (fSlow16 * fTemp3);
-		fRec6[0] = ((fSlow16 * (fTemp3 + (fSlow17 * fRec6[1]))) - fVec2[1]);
-		fVec3[0] = (fSlow16 * fRec6[0]);
-		fRec5[0] = ((fSlow16 * (fRec6[0] + (fSlow17 * fRec5[1]))) - fVec3[1]);
-		fRec4[0] = (fRec5[0] - (fSlow14 * ((fSlow18 * fRec4[2]) + (fSlow19 * fRec4[1]))));
-		fRec3[0] = ((fSlow14 * (fRec4[2] + (fRec4[0] + (2.0 * fRec4[1])))) - (fSlow13 * ((fSlow20 * fRec3[2]) + (fSlow19 * fRec3[1]))));
-		double fElse1 = (fSlow13 * (fRec3[2] + (fRec3[0] + (2.0 * fRec3[1]))));
-		output0[i0] = FAUSTFLOAT((iSlow0 ? fElse1 : fTemp2));
+		fRec1[0] = 0.0 - fSlow7 * (fSlow8 * fRec1[1] - (fTemp1 + fVec1[1]));
+		fRec0[0] = fSlow5 * fRec1[1] - fSlow9 * (fSlow10 * fRec0[1] - fSlow3 * fRec1[0]);
+		double fTemp2 = ((iSlow1) ? fRec0[0] : fTemp0);
+		double fTemp3 = fRec2[0] + fTemp2;
+		fVec2[0] = fSlow16 * fTemp3;
+		fRec6[0] = fSlow16 * (fTemp3 + fSlow17 * fRec6[1]) - fVec2[1];
+		fVec3[0] = fSlow16 * fRec6[0];
+		fRec5[0] = fSlow16 * (fRec6[0] + fSlow17 * fRec5[1]) - fVec3[1];
+		fRec4[0] = fRec5[0] - fSlow14 * (fSlow18 * fRec4[2] + fSlow19 * fRec4[1]);
+		fRec3[0] = fSlow14 * (fRec4[2] + fRec4[0] + 2.0 * fRec4[1]) - fSlow13 * (fSlow20 * fRec3[2] + fSlow19 * fRec3[1]);
+		double fElse1 = fSlow13 * (fRec3[2] + fRec3[0] + 2.0 * fRec3[1]);
+		output0[i0] = FAUSTFLOAT(((iSlow0) ? fElse1 : fTemp2));
 		iVec0[1] = iVec0[0];
 		fRec2[1] = fRec2[0];
 		fVec1[1] = fVec1[0];

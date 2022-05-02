@@ -8,7 +8,7 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	FAUSTFLOAT fHslider0;
-	int IOTA;
+	int IOTA0;
 	double fVec0[524288];
 	double fConst1;
 	double fConst2;
@@ -19,8 +19,8 @@ private:
 	FAUSTFLOAT fHslider2;
 	FAUSTFLOAT fHslider3;
 	double fConst4;
-	FAUSTFLOAT fHslider4;
 	double fRec4[2];
+	FAUSTFLOAT fHslider4;
 	double fRec3[2];
 	double fRec2[2];
 
@@ -69,12 +69,12 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 524288); l0 = (l0 + 1)) fVec0[l0] = 0.0;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0;
-	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec0[l2] = 0.0;
-	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec4[l3] = 0.0;
-	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec3[l4] = 0.0;
-	for (int l5 = 0; (l5 < 2); l5 = (l5 + 1)) fRec2[l5] = 0.0;
+	for (int l0 = 0; l0 < 524288; l0 = l0 + 1) fVec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec1[l1] = 0.0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec0[l2] = 0.0;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec4[l3] = 0.0;
+	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec3[l4] = 0.0;
+	for (int l5 = 0; l5 < 2; l5 = l5 + 1) fRec2[l5] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -86,11 +86,11 @@ inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = (0.001 * fConst0);
-	fConst2 = std::exp((0.0 - (10.0 / fConst0)));
-	fConst3 = (1.0 - fConst2);
-	fConst4 = (1.0 / fConst0);
-	IOTA = 0;
+	fConst1 = 0.001 * fConst0;
+	fConst2 = std::exp(0.0 - 10.0 / fConst0);
+	fConst3 = 1.0 - fConst2;
+	fConst4 = 1.0 / fConst0;
+	IOTA0 = 0;
 	clear_state_f();
 }
 
@@ -102,33 +102,33 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double fSlow0 = double(fHslider0);
-	double fSlow1 = (fConst3 * double(fHslider1));
-	double fSlow2 = std::pow(10.0, (0.050000000000000003 * double(fHslider2)));
+	double fSlow1 = fConst3 * double(fHslider1);
+	double fSlow2 = std::pow(10.0, 0.050000000000000003 * double(fHslider2));
 	double fSlow3 = double(fHslider3);
-	int iSlow4 = (std::fabs(fSlow3) < 2.2204460492503131e-16);
-	double fThen1 = std::exp((0.0 - (fConst4 / (iSlow4 ? 1.0 : fSlow3))));
-	double fSlow5 = (iSlow4 ? 0.0 : fThen1);
-	double fSlow6 = double(fHslider4);
-	int iSlow7 = (std::fabs(fSlow6) < 2.2204460492503131e-16);
-	double fThen3 = std::exp((0.0 - (fConst4 / (iSlow7 ? 1.0 : fSlow6))));
-	double fSlow8 = (iSlow7 ? 0.0 : fThen3);
-	double fSlow9 = (1.0 - fSlow8);
-	double fSlow10 = (1.0 - fSlow5);
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+	int iSlow4 = std::fabs(fSlow3) < 2.2204460492503131e-16;
+	double fThen1 = std::exp(0.0 - fConst4 / ((iSlow4) ? 1.0 : fSlow3));
+	double fSlow5 = ((iSlow4) ? 0.0 : fThen1);
+	double fSlow6 = 1.0 - fSlow5;
+	double fSlow7 = double(fHslider4);
+	int iSlow8 = std::fabs(fSlow7) < 2.2204460492503131e-16;
+	double fThen3 = std::exp(0.0 - fConst4 / ((iSlow8) ? 1.0 : fSlow7));
+	double fSlow9 = ((iSlow8) ? 0.0 : fThen3);
+	double fSlow10 = 1.0 - fSlow9;
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
-		double fTemp1 = (fTemp0 + (fSlow0 * fRec0[1]));
-		fVec0[(IOTA & 524287)] = fTemp1;
-		fRec1[0] = (fSlow1 + (fConst2 * fRec1[1]));
-		double fTemp2 = (fConst1 * fRec1[0]);
+		double fTemp1 = fTemp0 + fSlow0 * fRec0[1];
+		fVec0[IOTA0 & 524287] = fTemp1;
+		fRec1[0] = fSlow1 + fConst2 * fRec1[1];
+		double fTemp2 = fConst1 * fRec1[0];
 		int iTemp3 = int(fTemp2);
 		double fTemp4 = std::floor(fTemp2);
-		fRec0[0] = ((fVec0[((IOTA - std::min<int>(393217, std::max<int>(0, iTemp3))) & 524287)] * (fTemp4 + (1.0 - fTemp2))) + ((fTemp2 - fTemp4) * fVec0[((IOTA - std::min<int>(393217, std::max<int>(0, (iTemp3 + 1)))) & 524287)]));
+		fRec0[0] = fVec0[(IOTA0 - std::min<int>(393217, std::max<int>(0, iTemp3))) & 524287] * (fTemp4 + 1.0 - fTemp2) + (fTemp2 - fTemp4) * fVec0[(IOTA0 - std::min<int>(393217, std::max<int>(0, iTemp3 + 1))) & 524287];
 		double fTemp5 = std::fabs(fTemp0);
-		fRec4[0] = std::max<double>(fTemp5, ((fRec4[1] * fSlow8) + (fTemp5 * fSlow9)));
-		fRec3[0] = ((fRec3[1] * fSlow5) + (fRec4[0] * fSlow10));
-		fRec2[0] = ((fConst2 * fRec2[1]) + (fConst3 * double((1 - ((fSlow2 * fRec3[0]) > 1.0)))));
-		output0[i0] = FAUSTFLOAT((fTemp0 + (fRec0[0] * fRec2[0])));
-		IOTA = (IOTA + 1);
+		fRec4[0] = std::max<double>(fTemp5, fRec4[1] * fSlow5 + fTemp5 * fSlow6);
+		fRec3[0] = fRec4[0] * fSlow10 + fSlow9 * fRec3[1];
+		fRec2[0] = fConst3 * double(1 - (fSlow2 * fRec3[0] > 1.0)) + fConst2 * fRec2[1];
+		output0[i0] = FAUSTFLOAT(fTemp0 + fRec0[0] * fRec2[0]);
+		IOTA0 = IOTA0 + 1;
 		fRec1[1] = fRec1[0];
 		fRec0[1] = fRec0[0];
 		fRec4[1] = fRec4[0];
@@ -145,9 +145,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerFloatVar("duckDelay.amount",N_("Amount"),"S","",&fHslider2, 0.5, 0.0, 56.0, 0.050000000000000003, 0);
-	reg.registerFloatVar("duckDelay.attack",N_("Attack"),"S","",&fHslider3, 0.10000000000000001, 0.050000000000000003, 0.5, 0.050000000000000003, 0);
+	reg.registerFloatVar("duckDelay.attack",N_("Attack"),"S","",&fHslider4, 0.10000000000000001, 0.050000000000000003, 0.5, 0.050000000000000003, 0);
 	reg.registerFloatVar("duckDelay.feedback",N_("Feedback"),"S","",&fHslider0, 0.0, 0.0, 1.0, 0.050000000000000003, 0);
-	reg.registerFloatVar("duckDelay.relese",N_("Release"),"S","",&fHslider4, 0.10000000000000001, 0.050000000000000003, 2.0, 0.050000000000000003, 0);
+	reg.registerFloatVar("duckDelay.relese",N_("Release"),"S","",&fHslider3, 0.10000000000000001, 0.050000000000000003, 2.0, 0.050000000000000003, 0);
 	reg.registerFloatVar("duckDelay.time",N_("Delay"),"S","",&fHslider1, 500.0, 1.0, 2000.0, 1.0, 0);
 	return 0;
 }

@@ -61,10 +61,10 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec0[l0] = 0.0;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0;
-	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) iRec3[l2] = 0;
-	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec2[l3] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec1[l1] = 0.0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) iRec3[l2] = 0;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec2[l3] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -85,23 +85,23 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider0))));
+	double fSlow0 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fVslider0));
 	int iSlow1 = int(double(fVslider1));
-	int iSlow2 = (iSlow1 > 1);
-	double fSlow3 = std::pow(2.0, (double(fVslider2) + -1.0));
-	double fSlow4 = (1.0 / fSlow3);
-	double fSlow5 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * double(fVslider3))));
-	int iSlow6 = (iSlow1 + -1);
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
-		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-		fRec1[0] = (fSlow5 + (0.999 * fRec1[1]));
-		double fTemp0 = (fSlow4 * std::floor((fSlow3 * (double(input0[i0]) * fRec1[0]))));
+	int iSlow2 = iSlow1 > 1;
+	double fSlow3 = std::pow(2.0, double(fVslider2) + -1.0);
+	double fSlow4 = 1.0 / fSlow3;
+	double fSlow5 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fVslider3));
+	int iSlow6 = iSlow1 + -1;
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+		fRec0[0] = fSlow0 + 0.999 * fRec0[1];
+		fRec1[0] = fSlow5 + 0.999 * fRec1[1];
+		double fTemp0 = fSlow4 * std::floor(fSlow3 * double(input0[i0]) * fRec1[0]);
 		double fThen1 = ((fTemp0 < -1.0) ? -1.0 : fTemp0);
 		double fTemp1 = ((fTemp0 > 1.0) ? 1.0 : fThen1);
-		int iElse2 = (iRec3[1] + 1);
+		int iElse2 = iRec3[1] + 1;
 		iRec3[0] = ((iRec3[1] < iSlow6) ? iElse2 : 0);
 		fRec2[0] = ((iRec3[0] == 0) ? fTemp1 : fRec2[1]);
-		output0[i0] = FAUSTFLOAT((fRec0[0] * (iSlow2 ? fRec2[0] : fTemp1)));
+		output0[i0] = FAUSTFLOAT(fRec0[0] * ((iSlow2) ? fRec2[0] : fTemp1));
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
 		iRec3[1] = iRec3[0];

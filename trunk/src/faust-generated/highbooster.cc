@@ -60,8 +60,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fVec0[l0] = 0.0;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fVec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec0[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -72,12 +72,12 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::tan((4712.3889803846896 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)))));
-	fConst1 = (1.0 / fConst0);
-	double fConst2 = (fConst1 + 1.0);
-	fConst3 = (0.0 - (1.0 / (fConst0 * fConst2)));
-	fConst4 = (1.0 / fConst2);
-	fConst5 = (1.0 - fConst1);
+	double fConst0 = std::tan(4712.3889803846896 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
+	fConst1 = 1.0 / fConst0;
+	double fConst2 = fConst1 + 1.0;
+	fConst3 = 0.0 - 1.0 / (fConst0 * fConst2);
+	fConst4 = 1.0 / fConst2;
+	fConst5 = 1.0 - fConst1;
 	clear_state_f();
 }
 
@@ -88,12 +88,12 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = (std::pow(10.0, (0.050000000000000003 * double(fVslider0))) + -1.0);
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+	double fSlow0 = std::pow(10.0, 0.050000000000000003 * double(fVslider0)) + -1.0;
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
-		fRec0[0] = ((fConst3 * fVec0[1]) - (fConst4 * ((fConst5 * fRec0[1]) - (fConst1 * fTemp0))));
-		output0[i0] = FAUSTFLOAT((fTemp0 + (fSlow0 * fRec0[0])));
+		fRec0[0] = fConst3 * fVec0[1] - fConst4 * (fConst5 * fRec0[1] - fConst1 * fTemp0);
+		output0[i0] = FAUSTFLOAT(fTemp0 + fSlow0 * fRec0[0]);
 		fVec0[1] = fVec0[0];
 		fRec0[1] = fRec0[0];
 	}

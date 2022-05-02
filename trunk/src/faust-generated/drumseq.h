@@ -104,7 +104,7 @@ private:
 	double fConst42;
 	double fRec44[2];
 	double fVec6[2];
-	int IOTA;
+	int IOTA0;
 	double fVec7[64];
 	double fConst45;
 	int iConst46;

@@ -7,7 +7,7 @@ namespace delay {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
-	int IOTA;
+	int IOTA0;
 	float *fVec0;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
@@ -59,8 +59,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 524288); l0 = (l0 + 1)) fVec0[l0] = 0.0f;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0f;
+	for (int l0 = 0; l0 < 524288; l0 = l0 + 1) fVec0[l0] = 0.0f;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec0[l1] = 0.0f;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -71,8 +71,8 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = (0.00100000005f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate))));
-	IOTA = 0;
+	fConst0 = 0.00100000005f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
+	IOTA0 = 0;
 }
 
 void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
@@ -114,20 +114,20 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
-	float fSlow0 = (0.00100000005f * std::pow(10.0f, (0.0500000007f * float(fVslider0))));
-	float fSlow1 = (fConst0 * float(fVslider1));
+	float fSlow0 = 0.00100000005f * std::pow(10.0f, 0.0500000007f * float(fVslider0));
+	float fSlow1 = fConst0 * float(fVslider1);
 	float fSlow2 = std::floor(fSlow1);
-	float fSlow3 = (fSlow2 + (1.0f - fSlow1));
+	float fSlow3 = fSlow2 + 1.0f - fSlow1;
 	int iSlow4 = int(fSlow1);
 	int iSlow5 = std::min<int>(262145, std::max<int>(0, iSlow4));
-	float fSlow6 = (fSlow1 - fSlow2);
-	int iSlow7 = std::min<int>(262145, std::max<int>(0, (iSlow4 + 1)));
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+	float fSlow6 = fSlow1 - fSlow2;
+	int iSlow7 = std::min<int>(262145, std::max<int>(0, iSlow4 + 1));
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		float fTemp0 = float(input0[i0]);
-		fVec0[(IOTA & 524287)] = fTemp0;
-		fRec0[0] = (fSlow0 + (0.999000013f * fRec0[1]));
-		output0[i0] = FAUSTFLOAT((fTemp0 + (fRec0[0] * ((fSlow3 * fVec0[((IOTA - iSlow5) & 524287)]) + (fSlow6 * fVec0[((IOTA - iSlow7) & 524287)])))));
-		IOTA = (IOTA + 1);
+		fVec0[IOTA0 & 524287] = fTemp0;
+		fRec0[0] = fSlow0 + 0.999000013f * fRec0[1];
+		output0[i0] = FAUSTFLOAT(fTemp0 + fRec0[0] * (fSlow3 * fVec0[(IOTA0 - iSlow5) & 524287] + fSlow6 * fVec0[(IOTA0 - iSlow7) & 524287]));
+		IOTA0 = IOTA0 + 1;
 		fRec0[1] = fRec0[0];
 	}
 #undef fVslider0

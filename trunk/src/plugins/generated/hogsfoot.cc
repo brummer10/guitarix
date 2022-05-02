@@ -65,8 +65,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 4); l0 = (l0 + 1)) fRec0[l0] = 0.0;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0;
+	for (int l0 = 0; l0 < 4; l0 = l0 + 1) fRec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec1[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -78,14 +78,14 @@ inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = (8.9388784767912697e-15 * fConst0);
-	double fConst2 = ((fConst0 * ((fConst0 * (fConst1 + 4.9610614570897104e-12)) + 2.63723081667839e-11)) + 2.6773044958149099e-11);
-	fConst3 = (mydsp_faustpower2_f(fConst0) / fConst2);
-	fConst4 = (1.0 / fConst2);
-	double fConst5 = (2.6816635430373801e-14 * fConst0);
-	fConst6 = ((fConst0 * ((fConst0 * (-4.9610614570897104e-12 - fConst5)) + 2.63723081667839e-11)) + 8.0319134874447397e-11);
-	fConst7 = ((fConst0 * ((fConst0 * (fConst5 + -4.9610614570897104e-12)) + -2.63723081667839e-11)) + 8.0319134874447397e-11);
-	fConst8 = ((fConst0 * ((fConst0 * (4.9610614570897104e-12 - fConst1)) + -2.63723081667839e-11)) + 2.6773044958149099e-11);
+	double fConst1 = 8.9388784767912697e-15 * fConst0;
+	double fConst2 = fConst0 * (fConst0 * (fConst1 + 4.9610614570897104e-12) + 2.63723081667839e-11) + 2.6773044958149099e-11;
+	fConst3 = mydsp_faustpower2_f(fConst0) / fConst2;
+	fConst4 = 1.0 / fConst2;
+	double fConst5 = 2.6816635430373801e-14 * fConst0;
+	fConst6 = fConst0 * (fConst0 * (-4.9610614570897104e-12 - fConst5) + 2.63723081667839e-11) + 8.0319134874447397e-11;
+	fConst7 = fConst0 * (fConst0 * (fConst5 + -4.9610614570897104e-12) + -2.63723081667839e-11) + 8.0319134874447397e-11;
+	fConst8 = fConst0 * (fConst0 * (4.9610614570897104e-12 - fConst1) + -2.63723081667839e-11) + 2.6773044958149099e-11;
 	clear_state_f();
 }
 
@@ -96,19 +96,19 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = (0.01 * double(fVslider0));
-	double fSlow1 = (1.0 - fSlow0);
-	double fSlow2 = (0.0070000000000000062 * double(fVslider1));
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+	double fSlow0 = 0.01 * double(fVslider0);
+	double fSlow1 = 1.0 - fSlow0;
+	double fSlow2 = 0.0070000000000000062 * double(fVslider1);
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
-		fRec0[0] = ((fSlow0 * fTemp0) - (fConst4 * (((fConst6 * fRec0[1]) + (fConst7 * fRec0[2])) + (fConst8 * fRec0[3]))));
-		fRec1[0] = (fSlow2 + (0.99299999999999999 * fRec1[1]));
-		double fTemp1 = (9.6463226070993199e-11 * fRec1[0]);
-		double fTemp2 = ((0.0 - fTemp1) + -9.6463226070993207e-13);
-		double fTemp3 = (fTemp1 + 9.6463226070993207e-13);
-		output0[i0] = FAUSTFLOAT(((fSlow1 * fTemp0) + (fConst3 * ((((fRec0[0] * fTemp2) + (fRec0[1] * fTemp3)) + (fRec0[2] * fTemp3)) + (fRec0[3] * fTemp2)))));
-		for (int j0 = 3; (j0 > 0); j0 = (j0 - 1)) {
-			fRec0[j0] = fRec0[(j0 - 1)];
+		fRec0[0] = fSlow0 * fTemp0 - fConst4 * (fConst6 * fRec0[1] + fConst7 * fRec0[2] + fConst8 * fRec0[3]);
+		fRec1[0] = fSlow2 + 0.99299999999999999 * fRec1[1];
+		double fTemp1 = 9.6463226070993199e-11 * fRec1[0];
+		double fTemp2 = 0.0 - fTemp1 + -9.6463226070993207e-13;
+		double fTemp3 = fTemp1 + 9.6463226070993207e-13;
+		output0[i0] = FAUSTFLOAT(fSlow1 * fTemp0 + fConst3 * (fRec0[0] * fTemp2 + fRec0[1] * fTemp3 + fRec0[2] * fTemp3 + fRec0[3] * fTemp2));
+		for (int j0 = 3; j0 > 0; j0 = j0 - 1) {
+			fRec0[j0] = fRec0[j0 - 1];
 		}
 		fRec1[1] = fRec1[0];
 	}

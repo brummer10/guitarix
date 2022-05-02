@@ -496,11 +496,15 @@ class Parser(object):
         for line in self.lines:
             if stop(line):
                 return cp
+            if line.startswith('#'):
+                continue
             if line.startswith('static float mydsp_faustpower'):
                 continue
             if line.startswith('static double mydsp_faustpower'):
                 continue
             if line.startswith('	return (value * value);'):
+                continue
+            if line.startswith('	return value * value;'):
                 continue
             if line.startswith('	return ((value * value) * value);'):
                 continue
@@ -596,9 +600,9 @@ class Parser(object):
             self.headvers = headvers.group(1)
         else:
             self.headvers = headvers.group(2) + headvers.group(4).lstrip()
-        cl,self.l,s["includes"] = self.readIncludes(r"#ifndef FAUSTCLASS")
+        cl,self.l,s["includes"] = self.readIncludes(r"class mydsp : public dsp {")
         if cl:
-            s["incl_class"] = self.readClass(r"#ifndef FAUSTCLASS")
+            s["incl_class"] = self.readClass(r"class mydsp : public dsp {")
         else:
             s["incl_class"] = ""
         self.skip_until(r" private:")

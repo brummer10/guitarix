@@ -68,12 +68,12 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec3[l0] = 0.0f;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec2[l1] = 0.0f;
-	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec1[l2] = 0.0f;
-	for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) fRec4[l3] = 0.0f;
-	for (int l4 = 0; (l4 < 2); l4 = (l4 + 1)) fRec5[l4] = 0.0f;
-	for (int l5 = 0; (l5 < 3); l5 = (l5 + 1)) fRec0[l5] = 0.0f;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec3[l0] = 0.0f;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec2[l1] = 0.0f;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec1[l2] = 0.0f;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec4[l3] = 0.0f;
+	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec5[l4] = 0.0f;
+	for (int l5 = 0; l5 < 3; l5 = l5 + 1) fRec0[l5] = 0.0f;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -85,12 +85,12 @@ inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
 	float fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
-	fConst1 = std::exp((0.0f - (100.0f / fConst0)));
-	fConst2 = (1.0f - fConst1);
-	fConst3 = std::exp((0.0f - (10.0f / fConst0)));
-	fConst4 = (1.0f - fConst3);
-	fConst5 = (1413.71667f / fConst0);
-	fConst6 = (2827.43335f / fConst0);
+	fConst1 = std::exp(0.0f - 100.0f / fConst0);
+	fConst2 = 1.0f - fConst1;
+	fConst3 = std::exp(0.0f - 10.0f / fConst0);
+	fConst4 = 1.0f - fConst3;
+	fConst5 = 1413.71667f / fConst0;
+	fConst6 = 2827.43335f / fConst0;
 	clear_state_f();
 }
 
@@ -106,21 +106,21 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fVslider2 (*fVslider2_)
 	float fSlow0 = float(fVslider0);
 	float fSlow1 = float(fVslider1);
-	float fSlow2 = (0.00999999978f * (fSlow1 * float(fVslider2)));
-	float fSlow3 = ((1.0f - fSlow0) + (1.0f - (0.00999999978f * fSlow1)));
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+	float fSlow2 = 0.00999999978f * fSlow1 * float(fVslider2);
+	float fSlow3 = 1.0f - fSlow0 + 1.0f - 0.00999999978f * fSlow1;
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		float fTemp0 = float(input0[i0]);
 		float fTemp1 = std::fabs(fTemp0);
-		fRec3[0] = std::max<float>(fTemp1, ((fConst3 * fRec3[1]) + (fConst4 * fTemp1)));
-		fRec2[0] = ((fConst1 * fRec2[1]) + (fConst2 * fRec3[0]));
+		fRec3[0] = std::max<float>(fTemp1, fConst3 * fRec3[1] + fConst4 * fTemp1);
+		fRec2[0] = fConst2 * fRec3[0] + fConst1 * fRec2[1];
 		float fTemp2 = std::min<float>(1.0f, fRec2[0]);
-		fRec1[0] = ((0.999000013f * fRec1[1]) + (9.99999975e-05f * std::pow(4.0f, fTemp2)));
-		float fTemp3 = std::pow(2.0f, (2.29999995f * fTemp2));
-		float fTemp4 = (1.0f - (fConst5 * (fTemp3 / std::pow(2.0f, ((2.0f * (1.0f - fTemp2)) + 1.0f)))));
-		fRec4[0] = ((0.999000013f * fRec4[1]) - (0.00200000009f * (fTemp4 * std::cos((fConst6 * fTemp3)))));
-		fRec5[0] = ((0.999000013f * fRec5[1]) + (0.00100000005f * mydsp_faustpower2_f(fTemp4)));
-		fRec0[0] = ((fSlow2 * (fTemp0 * fRec1[0])) - ((fRec4[0] * fRec0[1]) + (fRec5[0] * fRec0[2])));
-		output0[i0] = FAUSTFLOAT(((fSlow0 * (fRec0[0] - fRec0[1])) + (fSlow3 * fTemp0)));
+		fRec1[0] = 9.99999975e-05f * std::pow(4.0f, fTemp2) + 0.999000013f * fRec1[1];
+		float fTemp3 = std::pow(2.0f, 2.29999995f * fTemp2);
+		float fTemp4 = 1.0f - fConst5 * fTemp3 / std::pow(2.0f, 2.0f * (1.0f - fTemp2) + 1.0f);
+		fRec4[0] = 0.999000013f * fRec4[1] - 0.00200000009f * fTemp4 * std::cos(fConst6 * fTemp3);
+		fRec5[0] = 0.00100000005f * mydsp_faustpower2_f(fTemp4) + 0.999000013f * fRec5[1];
+		fRec0[0] = fSlow2 * fTemp0 * fRec1[0] - (fRec4[0] * fRec0[1] + fRec5[0] * fRec0[2]);
+		output0[i0] = FAUSTFLOAT(fSlow0 * (fRec0[0] - fRec0[1]) + fSlow3 * fTemp0);
 		fRec3[1] = fRec3[0];
 		fRec2[1] = fRec2[0];
 		fRec1[1] = fRec1[0];

@@ -53,9 +53,9 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fVec0[l0] = 0.0;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec1[l1] = 0.0;
-	for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) fRec0[l2] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fVec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec1[l1] = 0.0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec0[l2] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -67,15 +67,15 @@ inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = std::tan((251.32741228718345 / fConst0));
-	fConst2 = (1.0 / fConst1);
-	double fConst3 = (fConst2 + 1.0);
-	fConst4 = (0.0 - (1.0 / (fConst1 * fConst3)));
-	double fConst5 = (1.0 / std::tan((17690.308232364125 / fConst0)));
-	fConst6 = (1.0 / (fConst5 + 1.0));
-	fConst7 = (1.0 - fConst5);
-	fConst8 = (1.0 / fConst3);
-	fConst9 = (1.0 - fConst2);
+	double fConst1 = std::tan(251.32741228718345 / fConst0);
+	fConst2 = 1.0 / fConst1;
+	double fConst3 = fConst2 + 1.0;
+	fConst4 = 0.0 - 1.0 / (fConst1 * fConst3);
+	double fConst5 = 1.0 / std::tan(17690.308232364125 / fConst0);
+	fConst6 = 1.0 / (fConst5 + 1.0);
+	fConst7 = 1.0 - fConst5;
+	fConst8 = 1.0 / fConst3;
+	fConst9 = 1.0 - fConst2;
 	clear_state_f();
 }
 
@@ -86,13 +86,13 @@ void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
-		fRec1[0] = (0.0 - (fConst6 * ((fConst7 * fRec1[1]) - (fTemp0 + fVec0[1]))));
-		fRec0[0] = ((fConst4 * fRec1[1]) - (fConst8 * ((fConst9 * fRec0[1]) - (fConst2 * fRec1[0]))));
-		double fThen0 = double(copysign(double(fRec0[0]), double((0.33333333333333331 * (3.0 - mydsp_faustpower2_f((2.0 - (3.0 * fRec0[0]))))))));
-		double fElse0 = (2.0 * fRec0[0]);
+		fRec1[0] = 0.0 - fConst6 * (fConst7 * fRec1[1] - (fTemp0 + fVec0[1]));
+		fRec0[0] = fConst4 * fRec1[1] - fConst8 * (fConst9 * fRec0[1] - fConst2 * fRec1[0]);
+		double fThen0 = double(copysign(double(fRec0[0]), double(0.33333333333333331 * (3.0 - mydsp_faustpower2_f(2.0 - 3.0 * fRec0[0])))));
+		double fElse0 = 2.0 * fRec0[0];
 		output0[i0] = FAUSTFLOAT(std::max<double>(-0.90000000000000002, std::min<double>(0.90000000000000002, ((std::fabs(fRec0[0]) < 0.33000000000000002) ? fElse0 : fThen0))));
 		fVec0[1] = fVec0[0];
 		fRec1[1] = fRec1[0];

@@ -9,10 +9,10 @@ private:
 	uint32_t fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
+	int IOTA0;
 	float fConst0;
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT	*fVslider1_;
-	int IOTA;
 	float *fRec0;
 
 	bool mem_allocated;
@@ -58,7 +58,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 262144); l0 = (l0 + 1)) fRec0[l0] = 0.0f;
+	for (int l0 = 0; l0 < 262144; l0 = l0 + 1) fRec0[l0] = 0.0f;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -69,8 +69,8 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = (0.00100000005f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate))));
-	IOTA = 0;
+	fConst0 = 0.00100000005f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
+	IOTA0 = 0;
 }
 
 void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
@@ -112,12 +112,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
-	float fSlow0 = (0.00999999978f * float(fVslider0));
-	int iSlow1 = (std::min<int>(131072, std::max<int>(0, (int((fConst0 * float(fVslider1))) + -1))) + 1);
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
-		fRec0[(IOTA & 262143)] = (float(input0[i0]) + (fSlow0 * fRec0[((IOTA - iSlow1) & 262143)]));
-		output0[i0] = FAUSTFLOAT(fRec0[((IOTA - 0) & 262143)]);
-		IOTA = (IOTA + 1);
+	float fSlow0 = 0.00999999978f * float(fVslider0);
+	int iSlow1 = std::min<int>(131072, std::max<int>(0, int(fConst0 * float(fVslider1)) + -1)) + 1;
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+		fRec0[IOTA0 & 262143] = float(input0[i0]) + fSlow0 * fRec0[(IOTA0 - iSlow1) & 262143];
+		output0[i0] = FAUSTFLOAT(fRec0[IOTA0 & 262143]);
+		IOTA0 = IOTA0 + 1;
 	}
 #undef fVslider0
 #undef fVslider1

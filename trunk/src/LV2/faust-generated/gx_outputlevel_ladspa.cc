@@ -49,7 +49,7 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) fRec0[l0] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -72,11 +72,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 {
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
-	double fSlow0 = (0.0010000000000000009 * std::pow(10.0, (0.050000000000000003 * (double(fVslider0) + double(fVslider1)))));
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
-		fRec0[0] = (fSlow0 + (0.999 * fRec0[1]));
-		output0[i0] = FAUSTFLOAT((double(input0[i0]) * fRec0[0]));
-		output1[i0] = FAUSTFLOAT((double(input1[i0]) * fRec0[0]));
+	double fSlow0 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * (double(fVslider0) + double(fVslider1)));
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+		fRec0[0] = fSlow0 + 0.999 * fRec0[1];
+		output0[i0] = FAUSTFLOAT(double(input0[i0]) * fRec0[0]);
+		output1[i0] = FAUSTFLOAT(double(input1[i0]) * fRec0[0]);
 		fRec0[1] = fRec0[0];
 	}
 #undef fVslider0

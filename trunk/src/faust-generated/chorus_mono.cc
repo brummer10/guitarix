@@ -19,15 +19,15 @@ class mydspSIG0 {
 	}
 	
 	void instanceInitmydspSIG0(int sample_rate) {
-		for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) {
+		for (int l2 = 0; l2 < 2; l2 = l2 + 1) {
 			iRec1[l2] = 0;
 		}
 	}
 	
 	void fillmydspSIG0(int count, float* table) {
-		for (int i1 = 0; (i1 < count); i1 = (i1 + 1)) {
-			iRec1[0] = (iRec1[1] + 1);
-			table[i1] = std::sin((9.58738019e-05f * float((iRec1[0] + -1))));
+		for (int i1 = 0; i1 < count; i1 = i1 + 1) {
+			iRec1[0] = iRec1[1] + 1;
+			table[i1] = std::sin(9.58738019e-05f * float(iRec1[0] + -1));
 			iRec1[1] = iRec1[0];
 		}
 	}
@@ -45,7 +45,7 @@ private:
 	int fSampleRate;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fVslider0;
-	int IOTA;
+	int IOTA0;
 	float *fVec0;
 	float fConst1;
 	float fConst2;
@@ -104,8 +104,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 131072); l0 = (l0 + 1)) fVec0[l0] = 0.0f;
-	for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) fRec0[l1] = 0.0f;
+	for (int l0 = 0; l0 < 131072; l0 = l0 + 1) fVec0[l0] = 0.0f;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec0[l1] = 0.0f;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -121,9 +121,9 @@ inline void Dsp::init(unsigned int sample_rate)
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
 	float fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
-	fConst1 = (0.00999999978f * fConst0);
-	fConst2 = (1.0f / fConst0);
-	IOTA = 0;
+	fConst1 = 0.00999999978f * fConst0;
+	fConst2 = 1.0f / fConst0;
+	IOTA0 = 0;
 }
 
 void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
@@ -164,22 +164,22 @@ int Dsp::activate_static(bool start, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	float fSlow0 = float(fHslider0);
-	float fSlow1 = (0.00999999978f * float(fVslider0));
-	float fSlow2 = (fConst2 * float(fHslider1));
-	float fSlow3 = (fSlow1 + (1.0f - fSlow1));
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+	float fSlow1 = 0.00999999978f * float(fVslider0);
+	float fSlow2 = fConst2 * float(fHslider1);
+	float fSlow3 = fSlow1 + 1.0f - fSlow1;
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		float fTemp0 = float(input0[i0]);
-		float fTemp1 = (fSlow1 * fTemp0);
-		fVec0[(IOTA & 131071)] = fTemp1;
-		fRec0[0] = (fSlow2 + (fRec0[1] - std::floor((fSlow2 + fRec0[1]))));
-		float fTemp2 = (65536.0f * (fRec0[0] - std::floor(fRec0[0])));
+		float fTemp1 = fSlow1 * fTemp0;
+		fVec0[IOTA0 & 131071] = fTemp1;
+		fRec0[0] = fSlow2 + fRec0[1] - std::floor(fSlow2 + fRec0[1]);
+		float fTemp2 = 65536.0f * (fRec0[0] - std::floor(fRec0[0]));
 		float fTemp3 = std::floor(fTemp2);
 		int iTemp4 = int(fTemp3);
-		float fTemp5 = (fConst1 * ((0.0199999996f * (((fTemp3 + (1.0f - fTemp2)) * ftbl0mydspSIG0[(iTemp4 & 65535)]) + ((fTemp2 - fTemp3) * ftbl0mydspSIG0[((iTemp4 + 1) & 65535)]))) + 1.0f));
+		float fTemp5 = fConst1 * (0.0199999996f * ((fTemp3 + 1.0f - fTemp2) * ftbl0mydspSIG0[iTemp4 & 65535] + (fTemp2 - fTemp3) * ftbl0mydspSIG0[(iTemp4 + 1) & 65535]) + 1.0f);
 		int iTemp6 = int(fTemp5);
 		float fTemp7 = std::floor(fTemp5);
-		output0[i0] = FAUSTFLOAT(((fSlow0 * ((fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, iTemp6))) & 131071)] * (fTemp7 + (1.0f - fTemp5))) + ((fTemp5 - fTemp7) * fVec0[((IOTA - std::min<int>(65537, std::max<int>(0, (iTemp6 + 1)))) & 131071)]))) + (fSlow3 * fTemp0)));
-		IOTA = (IOTA + 1);
+		output0[i0] = FAUSTFLOAT(fSlow0 * (fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6))) & 131071] * (fTemp7 + 1.0f - fTemp5) + (fTemp5 - fTemp7) * fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6 + 1))) & 131071]) + fSlow3 * fTemp0);
+		IOTA0 = IOTA0 + 1;
 		fRec0[1] = fRec0[0];
 	}
 }

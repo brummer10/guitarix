@@ -61,8 +61,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; (l0 < 3); l0 = (l0 + 1)) fVec0[l0] = 0.0;
-	for (int l1 = 0; (l1 < 3); l1 = (l1 + 1)) fRec0[l1] = 0.0;
+	for (int l0 = 0; l0 < 3; l0 = l0 + 1) fVec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 3; l1 = l1 + 1) fRec0[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -74,8 +74,8 @@ inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = (3.1415926535897931 / fConst0);
-	fConst2 = (6.2831853071795862 / fConst0);
+	fConst1 = 3.1415926535897931 / fConst0;
+	fConst2 = 6.2831853071795862 / fConst0;
 	clear_state_f();
 }
 
@@ -86,16 +86,16 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = std::exp((-1.0 * (fConst1 * double(fHslider0))));
+	double fSlow0 = std::exp(-1.0 * fConst1 * double(fHslider0));
 	int iSlow1 = int(std::max<double>(0.0, std::min<double>(1.0, double(fCheckbox0))));
-	double fSlow2 = (2.0 * std::cos((fConst2 * double(fHslider1))));
-	double fSlow3 = (0.5 * (double(fHslider2) * (1.0 - mydsp_faustpower2_f(fSlow0))));
-	for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
+	double fSlow2 = 2.0 * std::cos(fConst2 * double(fHslider1));
+	double fSlow3 = 0.5 * double(fHslider2) * (1.0 - mydsp_faustpower2_f(fSlow0));
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
 		double fElse0 = std::max<double>(-0.59999999999999998, std::min<double>(0.59999999999999998, fTemp0));
-		fRec0[0] = ((fSlow0 * (((iSlow1 ? fElse0 : fSlow2) * fRec0[1]) - (fSlow0 * fRec0[2]))) + (fSlow3 * (fTemp0 - fVec0[2])));
-		output0[i0] = FAUSTFLOAT((fTemp0 + fRec0[0]));
+		fRec0[0] = fSlow0 * (((iSlow1) ? fElse0 : fSlow2) * fRec0[1] - fSlow0 * fRec0[2]) + fSlow3 * (fTemp0 - fVec0[2]);
+		output0[i0] = FAUSTFLOAT(fTemp0 + fRec0[0]);
 		fVec0[2] = fVec0[1];
 		fVec0[1] = fVec0[0];
 		fRec0[2] = fRec0[1];

@@ -16,7 +16,7 @@ private:
 	float fRec1[2];
 	FAUSTFLOAT fVslider3;
 	float fRec2[2];
-	int IOTA;
+	int IOTA0;
 	float *fVec0;
 	float fConst0;
 	FAUSTFLOAT fVslider4;
