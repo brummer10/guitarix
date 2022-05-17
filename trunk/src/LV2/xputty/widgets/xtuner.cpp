@@ -61,7 +61,7 @@ Widget_t* add_tuner(Widget_t *parent, const char * label,
     wid->scale.gravity = CENTER;
    // wid->flags &= ~USE_TRANSPARENCY;
     wid->flags |= HAS_MEM;
-    cairo_select_font_face (wid->crb, "Sans", CAIRO_FONT_SLANT_NORMAL,
+    cairo_select_font_face (wid->crb, "FreeMono", CAIRO_FONT_SLANT_NORMAL,
                                CAIRO_FONT_WEIGHT_NORMAL);
     wid->func.mem_free_callback = xtuner_mem_free;
     wid->func.expose_callback = _draw_tuner;
