@@ -146,7 +146,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     ui->widget[0]->data = FREQ;
     //ui->widget[0]->func.value_changed_callback = value_changed;
 
-    const char* model[] = {"12-TET","19-TET","24-TET", "31-TET", "53-TET"};
+    const char* model[] = {"12-TET","19-TET","24-TET", "31-TET", "41-TET", "53-TET"};
     size_t len = sizeof(model) / sizeof(model[0]);
     ui->widget[1] = add_my_combobox(ui->widget[1], TEMPERAMENT, "Mode", model, len, 0, ui, 130, 20, 90, 25);
     ui->widget[1]->func.value_changed_callback = value_changed;

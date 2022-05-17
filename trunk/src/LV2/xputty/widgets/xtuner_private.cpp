@@ -69,6 +69,18 @@ static const char **_get_note_set(Widget_t *w) {
     
 }
 
+static float _adjust_scale(Widget_t *w, float fvis) {
+    XTuner *xt = (XTuner *)w->parent_struct;
+    if((int)xt->temperament == 0) return fvis;
+    else if((int)xt->temperament == 1) return fvis + 0.25;
+    else if((int)xt->temperament == 2) return fvis;
+    else if((int)xt->temperament == 3) return fvis + 0.23;
+    else if((int)xt->temperament == 4) return fvis;
+    else if((int)xt->temperament == 5) return fvis - 0.25;
+    else return fvis;
+   
+}
+
 void _draw_tuner(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
@@ -119,8 +131,9 @@ void _draw_tuner(void *w_, void* user_data) {
         // (pitch tracker output 23 .. 999 Hz)
         indicate_oc = octsz - 1;
     }
-
+    fvis = _adjust_scale(w, fvis);
     scale = (fvis-vis) / 4;
+
     vis = vis % _get_tuner_temperament(w);
     if (vis < 0) {
         vis += _get_tuner_temperament(w);
