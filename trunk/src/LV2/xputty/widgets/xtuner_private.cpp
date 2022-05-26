@@ -74,9 +74,9 @@ static float _adjust_scale(Widget_t *w, float fvis) {
     if((int)xt->temperament == 0) return fvis;
     else if((int)xt->temperament == 1) return fvis + 0.25;
     else if((int)xt->temperament == 2) return fvis;
-    else if((int)xt->temperament == 3) return fvis + 0.23;
-    else if((int)xt->temperament == 4) return fvis;
-    else if((int)xt->temperament == 5) return fvis - 0.25;
+    else if((int)xt->temperament == 3) return fvis + 0.05;
+    else if((int)xt->temperament == 4) return fvis + 0.02;
+    else if((int)xt->temperament == 5) return fvis + 0.095;
     else return fvis;
    
 }
