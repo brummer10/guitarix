@@ -144,6 +144,48 @@ void ProcessingChainBase::start_ramp_down() {
     }
 }
 
+#ifdef GUITARIX_AS_PLUGIN
+void __rt_func ProcessingChainBase::process_ramp(int count) {
+    RampMode rm = get_ramp_mode();
+    if (rm == ramp_mode_down_dead) {
+        return;
+    }
+    if (rm == ramp_mode_off) {
+        return;
+    }
+    int rv = get_ramp_value();
+    int rv1 = rv;
+    RampMode rm1 = rm;
+    int i = 0;
+    if (rm1 == ramp_mode_up_dead) {
+        for (; i < count; ++i) {
+            if (++rv1 > steps_up_dead) {
+                rm1 = ramp_mode_up;
+                rv1 = 0;
+                break;
+            }
+        }
+    }
+    if (rm1 == ramp_mode_up) {
+        for (; i < count; ++i) {
+            if (++rv1 >= steps_up) {
+                rm1 = ramp_mode_off;
+                break;
+            }
+        }
+    }
+    else if (rm1 == ramp_mode_down) {
+        for (i = 0; i < count; ++i) {
+            if (--rv1 == 0) {
+                rm1 = ramp_mode_down_dead;
+                break;
+            }
+        }
+    }
+    try_set_ramp_mode(rm, rm1, rv, rv1);
+}
+#endif
+
 void __rt_func ProcessingChainBase::try_set_ramp_mode(RampMode oldmode, RampMode newmode, int oldrv, int newrv) {
     if (oldmode != newmode) {
 	if (!gx_system::atomic_compare_and_exchange(&ramp_mode, oldmode, newmode)) {
@@ -324,7 +366,11 @@ void __rt_func MonoModuleChain::process(int count, float *input, float *output) 
     try_set_ramp_mode(rm, rm1, rv, rv1);
 }
 
+#ifdef GUITARIX_AS_PLUGIN
+void __rt_func StereoModuleChain::process(int count, float *input1, float *input2, float *output1, float *output2, bool feed) {
+#else
 void __rt_func StereoModuleChain::process(int count, float *input1, float *input2, float *output1, float *output2) {
+#endif
     // run stereo rack
     RampMode rm = get_ramp_mode();
     if (rm == ramp_mode_down_dead) {
@@ -334,9 +380,17 @@ void __rt_func StereoModuleChain::process(int count, float *input1, float *input
     }
     memcpy(output1, input1, count*sizeof(float));
     memcpy(output2, input2, count*sizeof(float));
+#ifdef GUITARIX_AS_PLUGIN
+    for (stereochain_data *p = get_rt_chain(); p->func; ++p) {
+		if (!feed)
+            { feed = true; continue; }//max:
+		(p->func)(count, output1, output2, output1, output2, p->plugin);
+    }
+#else
     for (stereochain_data *p = get_rt_chain(); p->func; ++p) {
 	(p->func)(count, output1, output2, output1, output2, p->plugin);
     }
+#endif
     if (rm == ramp_mode_off) {
 	return;
     }
@@ -608,10 +662,15 @@ bool ModuleSequencer::update_module_lists() {
 	commit_module_lists();
 	if (stateflags & SF_OVERLOAD) {
 	    // hack: jackd need some time for new load statistic
-	    Glib::signal_timeout().connect_once(
-		sigc::bind(
-		    sigc::mem_fun(this,&ModuleSequencer::clear_stateflag),
-		    SF_OVERLOAD), 1000);
+#if defined(_WINDOWS) || defined(__APPLE__)
+        clearoverride_conn=signal_timeout().connect(
+            sigc::mem_fun(*this, &ModuleSequencer::clear_override));
+#else
+        Glib::signal_timeout().connect_once(
+            sigc::bind(
+                sigc::mem_fun(*this,&ModuleSequencer::clear_stateflag),
+                SF_OVERLOAD), 1000);
+#endif
 	}
 	return true;
     }

@@ -258,6 +258,8 @@ public:
     virtual bool on_draw(const Cairo::RefPtr<Cairo::Context> &cr);
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuse-after-free"
 bool MyPaintBox::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
     call_paint_func(cr->cobj());
     cr->set_source_rgba(0.0, 0.0, 0.0, 1-background_adj->get_value());
@@ -265,6 +267,7 @@ bool MyPaintBox::on_draw(const Cairo::RefPtr<Cairo::Context> &cr) {
     foreach(sigc::bind(sigc::mem_fun(this, &MyPaintBox::propagate_draw), cr));
     return true;
 }
+#pragma GCC diagnostic pop
 
 
 Liveplay::Liveplay(

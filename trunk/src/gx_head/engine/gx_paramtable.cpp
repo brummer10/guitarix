@@ -773,6 +773,7 @@ void MidiControllerList::set_midi_channel(int s) {
 }
 
 void MidiControllerList::process_trans(int transport_state) {
+#ifndef GUITARIX_AS_PLUGIN
     unsigned int val = 0;
     switch (transport_state) {
         case JackTransportStopped:
@@ -797,10 +798,12 @@ void MidiControllerList::process_trans(int transport_state) {
     }
     MidiControllerList::set_last_midi_control_value(24, val);
     val_chg();
+#endif
 }
 
 // ----- jack process callback for the midi input
 void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
+#ifndef GUITARIX_AS_PLUGIN
     jack_midi_event_t in_event;
     jack_nframes_t event_count = jack_midi_get_event_count(midi_input_port_buf);
     unsigned int i;
@@ -856,6 +859,7 @@ void MidiControllerList::compute_midi_in(void* midi_input_port_buf, void *arg) {
             }
         }
     }
+#endif
 }
 
 /****************************************************************

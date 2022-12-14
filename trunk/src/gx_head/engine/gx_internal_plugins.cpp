@@ -466,8 +466,13 @@ void JConvParameter::setJSON_value() {
  ** class ConvolverAdapter
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/jconv_post.cc"
 #include "faust/jconv_post_mono.cc"
+#else
+#include "jconv_post.cc"
+#include "jconv_post_mono.cc"
+#endif
 
 ConvolverAdapter::ConvolverAdapter(
     EngineControl& engine_, sigc::slot<void> sync_)
@@ -1069,7 +1074,11 @@ static CabEntry& getCabEntry(unsigned int n) {
 
 static const float no_sum = 1e10;
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/cabinet_impulse_former.cc"
+#else
+#include "cabinet_impulse_former.cc"
+#endif
 
 static int cab_load_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
@@ -1206,7 +1215,11 @@ int CabinetConvolver::register_cab(const ParamReg& reg) {
 }
 
 //// STEREO /////
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/cabinet_impulse_former_st.cc"
+#else
+#include "cabinet_impulse_former_st.cc"
+#endif
 
 static int cab_load_stereo_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
@@ -1392,7 +1405,11 @@ static PreEntry& getPreEntry(unsigned int n) {
     return pre_table[n];
 }
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/preamp_impulse_former.cc"
+#else
+#include "preamp_impulse_former.cc"
+#endif
 
 static int pre_load_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
@@ -1529,7 +1546,11 @@ int PreampConvolver::register_pre(const ParamReg& reg) {
 }
 
 //// STEREO /////
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/preamp_impulse_former_st.cc"
+#else
+#include "preamp_impulse_former_st.cc"
+#endif
 
 static int pre_load_stereo_ui(const UiBuilder& builder, int format) {
     if (format & UI_FORM_GLADE) {
@@ -1674,7 +1695,11 @@ int PreampStereoConvolver::register_pre(const ParamReg& reg) {
  ** class ContrastConvolver
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/presence_level.cc"
+#else
+#include "presence_level.cc"
+#endif
 
 ContrastConvolver::ContrastConvolver(EngineControl& engine, sigc::slot<void> sync,
     gx_resample::BufferResampler& resamp)
@@ -1874,8 +1899,11 @@ void __rt_func Directout::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLO
  ** class DrumSequencer
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/drumseq.cc"
-
+#else
+#include "drumseq.cc"
+#endif
 
 float* Drumout::set = 0;
 float* Drumout::data = 0;

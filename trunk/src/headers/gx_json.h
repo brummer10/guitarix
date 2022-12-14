@@ -501,6 +501,10 @@ public:
     bool rename_bank(const Glib::ustring& oldname, const Glib::ustring& newname, const std::string& newfile);
     bool remove_bank(const Glib::ustring& bank);
     bool rename_preset(PresetFile& pf, const Glib::ustring& oldname, const Glib::ustring& newname);
+
+#ifdef GUITARIX_AS_PLUGIN
+	AbstractStateIO * get_state_io() { return state_io; }
+#endif
 };
 
 } /* end of gx_system namespace */

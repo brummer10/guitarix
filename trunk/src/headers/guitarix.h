@@ -32,6 +32,7 @@
 #ifndef SRC_HEADERS_GUITARIX_H_
 #define SRC_HEADERS_GUITARIX_H_
 
+#ifndef GUITARIX_AS_PLUGIN
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
@@ -62,7 +63,7 @@
 #define GDK_KEY_Up GDK_Up
 #define GDK_KEY_z GDK_z
 #define GDK_KEY_Z GDK_Z
-#endif
+#endif // GDK_KEY_0
 
 #ifdef GDK_DISABLE_DEPRECATED
 // Some Gdkmm 2.4 header need this defined
@@ -74,11 +75,14 @@ struct GdkSpanFunc;
 #ifdef HAVE_LIBLO
 #include "nsm.h"
 #endif
+#endif // GUITARIX_AS_PLUGIN
+
 
 #include "engine.h"
 #include "jsonrpc.h"
 #include "machine.h"
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "gx_gui_helpers.h"
 #include "gx_ui_builder.h"
 #include "gx_jack_options.h"
@@ -93,5 +97,6 @@ struct GdkSpanFunc;
 #include "gx_preset_window.h"
 #include "ladspalist.h"
 #include "gx_main_window.h"
+#endif // GUITARIX_AS_PLUGIN
 
 #endif  // SRC_HEADERS_GUITARIX_H_

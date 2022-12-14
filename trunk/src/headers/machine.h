@@ -21,10 +21,14 @@
 #ifndef SRC_HEADERS_MACHINE_H_
 #define SRC_HEADERS_MACHINE_H_
 
-// #include <ext/stdio_filebuf.h>
+//#include <ext/stdio_filebuf.h>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
+#ifndef GUITARIX_AS_PLUGIN
 #include "jsonrpc_methods.h"
+#else
+#include "jsonrpc_methods-generated.h"
+#endif
 #ifdef HAVE_AVAHI
 #include "avahi_register.h"
 #endif
@@ -269,6 +273,15 @@ public:
     virtual void load_ladspalist(std::vector<std::string>& old_not_found, ladspa::LadspaPluginList& pluginlist);
     virtual void save_ladspalist(ladspa::LadspaPluginList& pluginlist);
     virtual void commit_ladspa_changes();
+
+#ifdef GUITARIX_AS_PLUGIN
+	gx_preset::GxSettings& get_settings() {return settings;}
+
+	void timerUpdate();
+    void start_ramp_down() { engine.start_ramp_down(); }
+    void wait_ramp_down_finished() { engine.wait_ramp_down_finished(); }
+    void start_ramp_up() {engine.start_ramp_up();}
+#endif
     virtual sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed();
     virtual Plugin *pluginlist_lookup_plugin(const std::string& id) const;
     virtual bool load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef);
@@ -399,9 +412,9 @@ private:
     sigc::signal<void> selection_changed;
     sigc::signal<void> presetlist_changed;
     Glib::RefPtr<Gio::Socket> socket;
-    // __gnu_cxx::stdio_filebuf<char> *writebuf;
+    //__gnu_cxx::stdio_filebuf<char> *writebuf;
     boost::iostreams::file_descriptor_sink *writebuf;
-    // ostream *os;
+    //ostream *os;
     boost::iostreams::stream<boost::iostreams::file_descriptor_sink> *os;    
     gx_system::JsonWriter *jw;
     std::vector<gx_system::JsonStringParser*> notify_list;

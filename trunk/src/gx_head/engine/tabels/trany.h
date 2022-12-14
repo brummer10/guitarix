@@ -70,7 +70,7 @@ enum {
     TRANY_TABLE_SIZE
 };
 
-table1dt *tranytab[TRANY_TABLE_SIZE] = {
+static table1dt *tranytab[TRANY_TABLE_SIZE] = {
     &static_cast<table1dt&>(tranytable_KT88[0]),
     &static_cast<table1dt&>(tranytable_KT88[1]),
     &static_cast<table1dt&>(tranytable_7199P[0]),

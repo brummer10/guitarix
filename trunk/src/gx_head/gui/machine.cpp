@@ -18,18 +18,25 @@
 
 #include "guitarix.h"
 #include <sys/mman.h>
+#ifndef GUITARIX_AS_PLUGIN
 #include "jsonrpc_methods.h"
+#else
+#include "jsonrpc_methods-generated.h"
+#endif
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <giomm/resolver.h>
+#include <giomm/inetsocketaddress.h>
 #ifdef HAVE_BLUEZ
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
 #endif
 
-#if !defined(__APPLE__) && !defined(__FreeBSD__)
+
+#if !defined(__APPLE__) && !defined(__FreeBSD__) && !defined(_WINDOWS)
 #include <malloc.h>
 
 void set_memory_allocation() {
@@ -48,6 +55,7 @@ void set_memory_allocation() {}
 #endif
 
 void lock_rt_memory() {
+#ifndef GUITARIX_AS_PLUGIN
 #ifndef __APPLE__
     extern char __rt_text__start[], __rt_text__end[];
     extern char __rt_data__start[], __rt_data__end[];
@@ -72,9 +80,11 @@ void lock_rt_memory() {
     fprintf(stderr,"mlock %ld bytes\n",total_size);
 #endif
 #endif
+#endif
 }
 
 void unlock_rt_memory() {
+#ifndef GUITARIX_AS_PLUGIN
 #ifndef __APPLE__    
     extern char __rt_text__start[], __rt_text__end[];
     extern char __rt_data__start[], __rt_data__end[];
@@ -97,6 +107,7 @@ void unlock_rt_memory() {
 #ifndef NDEBUG
     fprintf(stderr,"munlock %ld bytes\n",total_size);
 #endif  
+#endif
 #endif
 }
 
@@ -160,6 +171,7 @@ void on_engine_bypass_changed(bool s, GxEngine& engine) {
 }
 
 void GxMachine::process_cmdline_bank_preset() {
+#ifndef GUITARIX_AS_PLUGIN
     Glib::ustring sbank = options.get_setbank();
     if (sbank.empty()) {
         return;
@@ -174,6 +186,7 @@ void GxMachine::process_cmdline_bank_preset() {
     Glib::ustring preset = get_bank_file(bank)->get_name(
         KeySwitcher::key_offset_to_idx(std::stoi(sbank.substr(i))));
     options.set_bank_preset(bank, preset);
+#endif
 }
 
 GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
@@ -433,6 +446,15 @@ void GxMachine::commit_ladspa_changes() {
     }
 }
 
+#ifdef GUITARIX_AS_PLUGIN
+void GxMachine::timerUpdate() 
+{
+	if (engine.get_rack_changed())
+		if (!engine.check_module_lists())
+			engine.clear_rack_changed();
+	engine.signal_timeout().emit();
+}
+#endif
 sigc::signal<void,Plugin*,PluginChange::pc>& GxMachine::signal_plugin_changed() {
     return engine.signal_plugin_changed();
 }
@@ -442,7 +464,11 @@ Plugin *GxMachine::pluginlist_lookup_plugin(const std::string& id) const {
 }
 
 bool GxMachine::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) {
+#ifndef GUITARIX_AS_PLUGIN
     return builder.load_unit(pdef);
+#else
+    return false;
+#endif
 }
 
 void GxMachine::pluginlist_append_rack(UiBuilderBase& ui) {
@@ -623,7 +649,11 @@ Glib::ustring GxMachine::get_bank_name(int n) {
 }
 
 bool GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
+#ifndef GUITARIX_AS_PLUGIN
 	return jack.send_midi_cc(cc, pgn, bgn, num);
+#else
+    return false;
+#endif
 }
 
 void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
@@ -1111,7 +1141,7 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
     writebuf = new  boost::iostreams::file_descriptor_sink;
     writebuf->open(socket->get_fd(),boost::iostreams::never_close_handle);
     
-    // os = new ostream(writebuf);
+    //os = new ostream(writebuf);
     os = new boost::iostreams::stream<boost::iostreams::file_descriptor_sink>(*writebuf);
     
     jw = new gx_system::JsonWriter(os, false);
@@ -1436,7 +1466,9 @@ void GxMachineRemote::handle_notify(gx_system::JsonStringParser *jp) {
     } else if (method == "plugins_changed") {
 	update_plugins(jp);
     } else if (method == "server_shutdown") {
+#ifndef GUITARIX_AS_PLUGIN
 	Gtk::Main::quit();
+#endif
     } else {
 	cerr << "> " << jp->get_string() << endl;
     }
@@ -1906,6 +1938,7 @@ int GxMachineRemote::load_remote_ui(const UiBuilder& builder, int form) {
 }
 
 bool GxMachineRemote::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef) {
+#ifndef GUITARIX_AS_PLUGIN
     pdef->load_ui = [](const UiBuilder& builder, int form) {
                         GxMachineRemote *m = dynamic_cast<GxMachineRemote*>(
                             &static_cast<const gx_gui::UiBuilderImpl*>(
@@ -1913,6 +1946,9 @@ bool GxMachineRemote::load_unit(gx_gui::UiBuilderImpl& builder, PluginDef* pdef)
                         return m->load_remote_ui(builder, form);
                     };
     return builder.load_unit(pdef);
+#else
+    return false;
+#endif
 }
 
 

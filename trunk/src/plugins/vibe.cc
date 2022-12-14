@@ -26,8 +26,13 @@
 #include "gx_plugin.h"
 
 #include "gx_faust_support.h"
+#ifndef GUITARIX_AS_PLUGIN
 #include "../faust/vibe_lfo_sine.cc"
 #include "../faust/vibe_mono_lfo_sine.cc"
+#else
+#include "vibe_lfo_sine.cc"
+#include "vibe_mono_lfo_sine.cc"
+#endif
 
 namespace pluginlib {
 namespace vibe {

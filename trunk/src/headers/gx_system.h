@@ -371,7 +371,11 @@ private:
 protected:
     static void make_ending_slash(std::string& dirpath);
 public:
+#ifdef GUITARIX_AS_PLUGIN
+    BasicOptions(const char *modulepath);
+#else
     BasicOptions();
+#endif
     ~BasicOptions();
     std::string get_user_filepath(const std::string& basename) const { return user_dir + basename; }
     std::string get_user_ir_filepath(const std::string& basename) const { return user_IR_dir + basename; }
@@ -468,7 +472,11 @@ public:
     bool reload_lv2_presets;
 
 public:
+#ifdef GUITARIX_AS_PLUGIN
+    CmdlineOptions(const char *modulepath);
+#else
     CmdlineOptions();
+#endif
     ~CmdlineOptions();
     void process(int argc, char** argv);
     const std::string& get_path_to_program() const { return path_to_program; }

@@ -26,7 +26,11 @@
 #include <bluetooth/rfcomm.h>
 #endif
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "jsonrpc_methods.cc"
+#else
+#include "jsonrpc_methods-generated.cc"
+#endif
 
 const char *engine_state_to_string(gx_engine::GxEngineState s) {
     switch (s) {

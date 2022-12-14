@@ -82,6 +82,9 @@ public:
     void sync() { set_latch(); wait_latch(); }
     inline bool check_release() { return !to_release.empty(); }
     void release();
+#ifdef GUITARIX_AS_PLUGIN
+    void process_ramp(int count);
+#endif
     void wait_ramp_down_finished();
     void start_ramp_up();
     void start_ramp_down();
@@ -226,7 +229,11 @@ public:
 class StereoModuleChain: public ThreadSafeChainPointer<stereochain_data> {
 public:
     StereoModuleChain(): ThreadSafeChainPointer<stereochain_data>() {}
+#ifndef GUITARIX_AS_PLUGIN
     void process(int count, float *input1, float *input2, float *output1, float *output2);
+#else
+    void process(int count, float *input1, float *input2, float *output1, float *output2, bool feed=true);
+#endif
     inline void print() { printlist("Stereo", modules); }
 };
 
@@ -280,6 +287,9 @@ public:
     void registerParameter(ParameterGroups& groups);
     void get_sched_priority(int &policy, int &priority, int prio_dim = 0);
     ParamMap& get_param() { return pmap; }
+#ifdef GUITARIX_AS_PLUGIN
+	virtual sigc::signal<bool ()>& signal_timeout()=0;
+#endif
 };
 
 
@@ -304,6 +314,10 @@ protected:
     const char         *overload_reason;   // name of unit which detected overload
     int                 ov_disabled;	   // bitmask of OverloadType
     static int         sporadic_interval; // seconds; overload if at least 2 events in the timespan
+#ifdef GUITARIX_AS_PLUGIN
+    sigc::signal<bool ()> _signal_timeout;
+    sigc::connection clearoverride_conn;
+#endif
 protected:
     void check_overload();
 public:
@@ -346,6 +360,9 @@ public:
     GxEngineState get_state();
     sigc::signal<void, GxEngineState>& signal_state_change() { return state_change; }
     static void set_overload_interval(int i)  { sporadic_interval = i; }
+#ifdef GUITARIX_AS_PLUGIN
+	sigc::signal<bool ()>& signal_timeout() override { return _signal_timeout; }
+#endif
 #ifndef NDEBUG
     void print_engine_state();
 #endif

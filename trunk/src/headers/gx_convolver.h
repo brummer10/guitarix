@@ -25,7 +25,11 @@
 #ifndef SRC_HEADERS_GX_CONVOLVER_H_
 #define SRC_HEADERS_GX_CONVOLVER_H_
 
+#ifndef GUITARIX_AS_PLUGIN
 #include <zita-convolver.h>
+#else
+#include "zita-convolver.h"
+#endif
 #include <gxwmm/gainline.h>
 
 #include <sndfile.hh>

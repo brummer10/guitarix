@@ -174,6 +174,8 @@ static void on_refresh_oscilloscope(Gxw::WaveView& fWaveView, const gx_engine::O
 /*
  * JConvolver
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuse-after-free"
 static void jconv_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine, bool stereo) {
     gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(
         &machine.get_parameter(stereo ? "jconv.convolver" : "jconv_mono.convolver"));
@@ -192,6 +194,7 @@ static void jconv_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMac
             return p;
         });
 }
+#pragma GCC diagnostic pop
 
 static void jconv_button(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine,
                          Glib::RefPtr<Gtk::AccelGroup>& accels, Glib::RefPtr<Gdk::Pixbuf>& window_icon,

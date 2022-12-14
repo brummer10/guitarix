@@ -70,7 +70,11 @@ public:
  ** class TunerAdapter
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/low_high_cut.h"
+#else
+#include "low_high_cut.h"
+#endif
 
 class TunerAdapter: public ModuleSelector, private PluginDef, public sigc::trackable {
 private:
@@ -366,8 +370,13 @@ public:
  ** class ConvolverStereoAdapter
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/jconv_post.h"
 #include "faust/jconv_post_mono.h"
+#else
+#include "jconv_post.h"
+#include "jconv_post_mono.h"
+#endif
 
 class ConvolverStereoAdapter: public ConvolverAdapter {
 private:
@@ -468,7 +477,11 @@ public:
  ** class CabinetConvolver
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/cabinet_impulse_former.h"
+#else
+#include "cabinet_impulse_former.h"
+#endif
 
 class CabinetConvolver: public FixedBaseConvolver {
 private:
@@ -496,7 +509,11 @@ public:
     ~CabinetConvolver();
 };
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/cabinet_impulse_former_st.h"
+#else
+#include "cabinet_impulse_former_st.h"
+#endif
 
 class CabinetStereoConvolver: public FixedBaseConvolver {
 private:
@@ -530,7 +547,11 @@ public:
  ** class PreampConvolver
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/preamp_impulse_former.h"
+#else
+#include "preamp_impulse_former.h"
+#endif
 
 class PreampConvolver: public FixedBaseConvolver {
 private:
@@ -558,7 +579,11 @@ public:
     ~PreampConvolver();
 };
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/preamp_impulse_former_st.h"
+#else
+#include "preamp_impulse_former_st.h"
+#endif
 
 class PreampStereoConvolver: public FixedBaseConvolver {
 private:
@@ -591,7 +616,11 @@ public:
  ** class ContrastConvolver
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/presence_level.h"
+#else
+#include "presence_level.h"
+#endif
 
 class ContrastConvolver: public FixedBaseConvolver {
 private:
@@ -1023,7 +1052,11 @@ public:
  ** class DrumSequencer
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/drumseq.h"
+#else
+#include "drumseq.h"
+#endif
 
 class Drumout {
 private:

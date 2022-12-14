@@ -25,8 +25,10 @@
 
 #include "guitarix.h"       // NOLINT
 
+#ifndef GUITARIX_AS_PLUGIN
 #include <gtkmm/main.h>     // NOLINT
 #include <gxwmm/init.h>     // NOLINT
+#endif
 #include <string>           // NOLINT
 #include <thread>
 
@@ -36,6 +38,103 @@
 #include "avahi_discover.h"
 #endif
 
+#ifdef GUITARIX_AS_PLUGIN
+#include <glibmm/init.h>
+
+volatile bool sInited = false;
+
+void run_mainloop() {
+	Glib::RefPtr<Glib::MainLoop> mainloop(Glib::MainLoop::create(/*Glib::MainContext::create()*/));
+	while (!sInited);
+	mainloop->run();
+}
+
+static gx_system::CmdlineOptions *options = 0;
+static volatile int opt_counter=0;
+
+namespace gx_jack { class GxJack; }
+gx_jack::GxJack* gx_start(int argc, char *argv[], gx_engine::GxMachine*& machine) {
+
+    Glib::init();
+    Gio::init();
+	
+	std::locale::global(std::locale("C"));
+
+    opt_counter++;
+    if(options==0)
+        options=new gx_system::CmdlineOptions(argc>=1?argv[0]:"");
+	//TODO MAX: make it multi-instance savvy
+    //MAX 220511 part of the work was done
+
+	machine = 0;
+
+	//   PosixSignals posixsig(false); // catch unix signals in special thread
+	options->parse(argc, argv);
+	options->process(argc, argv);
+	// ---------------- Check for working user directory  -------------
+	bool need_new_preset;
+	if (gx_preset::GxSettings::check_settings_dir(*options, &need_new_preset)) {
+		cerr <<
+			_("old config directory found (.gx_head)."
+				" state file and standard presets file have been copied to"
+				" the new directory (.config/guitarix).\n"
+				" Additional old preset files can be imported into the"
+				" new bank scheme by mouse drag and drop with a file"
+				" manager");
+		return 0;
+	}
+
+	machine=new gx_engine::GxMachine(*options);
+
+	//machine->loadstate();
+	gx_jack::GxJack *jack = machine->get_jack();
+/*	if (!jack->gx_jack_connection(true, true, 0, options)) {
+		cerr << "can't connect to jack\n";
+		return 0;
+	}*/
+	if (need_new_preset) {
+		machine->create_default_scratch_preset();
+	}
+
+	//machine->loadstate();
+
+	//g_thread_new(NULL, event_loop_thread, (gpointer)machine);
+	//mlthread = Glib::Thread::create(sigc::ptr_fun(run_mainloop), true);
+
+	return jack;
+}
+
+void gx_inited()
+{
+	sInited = true;
+}
+
+void gx_load_preset(gx_engine::GxMachine* machine, const char* bank_, const char* name_)
+{
+	Glib::ustring bank(bank_);
+	Glib::ustring name(name_);
+	gx_system::PresetFileGui *cpf = 0;
+	cpf = machine->get_bank_file(bank);
+	machine->load_preset(cpf, name);
+}
+
+void gx_save_preset(gx_engine::GxMachine* machine, const char* bank_, const char* name_)
+{
+	Glib::ustring bank(bank_);
+	Glib::ustring name(name_);
+	gx_system::PresetFileGui& cpf = *machine->get_bank_file(bank);
+	machine->pf_save(cpf, name);
+}
+
+void gx_stop(gx_engine::GxMachine* machine)
+{
+	delete machine;
+    opt_counter--;
+	if (opt_counter==0 && options)
+        {delete options; options = 0;}
+}
+
+#else
 /****************************************************************
  ** class NsmSignals
  **
@@ -968,3 +1067,4 @@ int main(int argc, char *argv[]) {
     }
     return 0;
 }
+#endif

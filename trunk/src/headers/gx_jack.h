@@ -27,6 +27,8 @@
 
 #include <atomic>
 
+#ifndef GUITARIX_AS_PLUGIN
+
 #include <jack/jack.h>          // NOLINT
 #include <jack/midiport.h>
 #include <jack/ringbuffer.h>
@@ -273,3 +275,4 @@ inline bool GxJack::send_midi_cc(int cc_num, int pgm_num, int bgn, int num) {
 } /* end of jack namespace */
 
 #endif  // SRC_HEADERS_GX_JACK_H_
+#endif

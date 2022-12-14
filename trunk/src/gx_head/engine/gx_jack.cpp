@@ -23,10 +23,11 @@
  */
 
 #include <errno.h>              // NOLINT
+#ifndef GUITARIX_AS_PLUGIN
 #include <jack/statistics.h>    // NOLINT
 #include <jack/jack.h>          // NOLINT
 #include <jack/thread.h>        // NOLINT
-
+#endif
 #include "engine.h"           // NOLINT
 
 #ifdef HAVE_JACK_SESSION
@@ -35,7 +36,7 @@
 
 
 namespace gx_jack {
-
+#ifndef GUITARIX_AS_PLUGIN
 /****************************************************************
  ** class GxJack
  ****************************************************************/
@@ -1123,6 +1124,6 @@ void GxJack::gx_jack_session_callback_ins(jack_session_event_t *event, void *arg
     }
     self.session_ins();
 }
-#endif
-
+#endif // HAVE_JACK_SESSION
+#endif // GUITARIX_AS_PLUGIN
 } /* end of gx_jack namespace */

@@ -679,9 +679,10 @@ void StateIO::write_state(gx_system::JsonWriter &jw, bool no_preset) {
         write_intern(jw, false);
     }
 
+#ifndef GUITARIX_AS_PLUGIN
     jw.write("jack_connections");
     jack.write_connections(jw);
-
+#endif
     jw.newline();
 }
 
@@ -962,8 +963,10 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
     instance = this;
     GxExit::get_instance().signal_exit().connect(
         sigc::mem_fun(*this, &GxSettings::exit_handler));
+#ifndef GUITARIX_AS_PLUGIN
     jack.signal_client_change().connect(
         sigc::mem_fun(*this, &GxSettings::jack_client_changed));
+#endif
     set_preset.connect(sigc::mem_fun(*this, &GxSettings::preset_sync_set));
     get_sequencer_p.connect(sigc::mem_fun(*this, &GxSettings::on_get_sequencer_pos));
 }

@@ -27,7 +27,11 @@
 #include <queue>
 #include <giomm/init.h>     // NOLINT
 #include <giomm/socketservice.h>
+#ifndef GUITARIX_AS_PLUGIN
 #include "jsonrpc_methods.h"
+#else
+#include "jsonrpc_methods-generated.h"
+#endif
 
 class GxService;
 

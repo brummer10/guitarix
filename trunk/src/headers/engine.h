@@ -23,6 +23,20 @@
 #ifndef SRC_HEADERS_ENGINE_H_
 #define SRC_HEADERS_ENGINE_H_
 
+#ifdef GUITARIX_AS_PLUGIN
+#define GX_DATA_FOLDER "gx_head/"
+#define GX_STYLE_DIR GX_DATA_FOLDER ""
+#define GX_FACTORY_DIR GX_DATA_FOLDER "factorysettings"
+#define GX_SOUND_DIR GX_DATA_FOLDER "sounds"
+#define GX_SOUND_BPB_DIR GX_DATA_FOLDER "sounds/bands"
+#define GX_SOUND_BPA_DIR GX_DATA_FOLDER "sounds/amps"
+#define GX_BUILDER_DIR GX_DATA_FOLDER ""
+#define GX_ICON_DIR GX_DATA_FOLDER ""
+#define GX_PIXMAPS_DIR GX_DATA_FOLDER ""
+#define GX_FONTS_DIR GX_DATA_FOLDER ""
+#define GX_VERSION "0.44.1"
+#endif // GUITARIX_AS_PLUGIN
+
 /* system header files */
 #include <semaphore.h>
 #include <cmath>
@@ -57,8 +71,10 @@
 #include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
 #include <lv2/lv2plug.in/ns/ext/port-props/port-props.h>
 
+#ifndef GUITARIX_AS_PLUGIN
 /* waf generated defines */
 #include "../config.h"
+#endif // GUITARIX_AS_PLUGIN
 
 // define USE_MIDI_OUT to create a midi output port and
 // make the MidiAudioBuffer plugin activatable
@@ -96,12 +112,37 @@ using namespace std;
 #include "gx_modulesequencer.h"
 #include "gx_json.h"
 
+#ifndef GUITARIX_AS_PLUGIN
 #include "gx_jack.h"
+#else
+#include "gx_jack_wrapper.h"
+#endif // GUITARIX_AS_PLUGIN
 #include "gx_internal_plugins.h"
 #include "gx_preset.h"
 #include "gx_engine.h"
 
 #include "tunerswitcher.h"
 #include "ladspaback.h"
+
+#ifdef GUITARIX_AS_PLUGIN
+#include <glibmm/i18n.h>     // NOLINT
+#include <glibmm/optioncontext.h>   // NOLINT
+#include <glibmm/dispatcher.h>
+#include <glibmm/miscutils.h>
+#include <giomm/file.h>
+#endif // GUITARIX_AS_PLUGIN
+
+#ifdef _WINDOWS
+#include <io.h>
+#define R_OK    4       /* Test for read permission.  */
+#define W_OK    2       /* Test for write permission.  */
+#define X_OK    1       /* execute permission - unsupported in windows*/
+#define F_OK    0       /* Test for existence.  */
+#define access _access
+
+#include <chrono>
+#include <thread>
+#undef _stat
+#endif // _WINDOWS
 
 #endif  // SRC_HEADERS_ENGINE_H_

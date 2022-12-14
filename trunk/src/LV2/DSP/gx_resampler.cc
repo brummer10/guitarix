@@ -195,14 +195,14 @@ float *BufferResampler::process(int32_t fs_inp, int32_t ilen, float *input, int3
   float *p = out_data = new float[out_count];
   if (Resampler::process() != 0)
     {
-      delete p;
+      delete[] p;
       return 0;
     }
   inp_data = 0;
   inp_count = k/2;
   if (Resampler::process() != 0)
     {
-      delete p;
+      delete[] p;
       return 0;
     }
   assert(inp_count == 0);

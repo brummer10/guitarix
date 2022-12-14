@@ -120,14 +120,15 @@ float *BufferResampler::process(int fs_inp, int ilen, float *input, int fs_outp,
 	int nout = out_count = (ilen * ratio_b + ratio_a - 1) / ratio_a;
     inp_data = input;
 	float *p = out_data = new float[out_count];
+    
 	if (Resampler::process() != 0) {
-		delete p;
+		delete[] p;
 		return 0;
 	}
 	inp_data = 0;
 	inp_count = k/2;
 	if (Resampler::process() != 0) {
-		delete p;
+		delete[] p;
 		return 0;
 	}
 	assert(inp_count == 0);

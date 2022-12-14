@@ -109,7 +109,11 @@ int MaxLevel::activate(bool start, PluginDef *plugin) {
  */
 
 #include "gx_faust_support.h"
+#ifndef GUITARIX_AS_PLUGIN
 #include "faust/low_high_cut.cc"
+#else
+#include "low_high_cut.cc"
+#endif
 
 TunerAdapter::TunerAdapter(ModuleSequencer& engine_)
     : ModuleSelector(engine_),

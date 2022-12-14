@@ -28,7 +28,11 @@
 #include "valve.h"
 
 #include "gx_faust_plugins.h"
+#ifndef GUITARIX_AS_PLUGIN
 #include "../plugins/pluginlib.h"
+#else
+#include "pluginlib.h"
+#endif
 
 namespace gx_engine {
 
@@ -243,13 +247,11 @@ static int load_poweramp_ui(const UiBuilder& builder, int format) {
 	builder.closeBox();
 	builder.openHorizontalBox("");
 	{
-		builder.openVerticalBox("");
-		{
+		builder.create_mid_rackknob("poweramp.Pregain", _("Input"));
 	    builder.insertSpacer();
 	    builder.create_selector("poweramp.mode", _("Model"));
 	    builder.insertSpacer();
-	    }
-	    builder.closeBox();
+		builder.create_mid_rackknob("poweramp.Gain", _("Output"));
 	}
 	builder.closeBox();
 	return 0;

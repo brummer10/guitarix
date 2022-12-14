@@ -390,16 +390,43 @@ void list_subdirs(PathList pl, std::vector<FileName>& dirs) {
 
 BasicOptions *BasicOptions::instance = 0;
 
+#ifdef GUITARIX_AS_PLUGIN
+BasicOptions::BasicOptions(const char *modulepath)
+#else
 BasicOptions::BasicOptions()
+#endif
     : user_dir(),
       user_IR_dir(),
       sys_IR_dir(GX_SOUND_DIR),
       IR_pathlist(),
       IR_prefixmap(),
     builder_dir(GX_BUILDER_DIR) {
+
+#ifdef GUITARIX_AS_PLUGIN
+#if defined(__APPLE__)
     user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
+
+    char ppath[2048];
+    GetPrefsPath(ppath, sizeof(ppath)/sizeof(ppath[0]));
+    user_dir = Glib::build_filename(ppath, "guitarix");
+#else
+    user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
+#endif
     user_IR_dir = Glib::build_filename(user_dir, "IR");
 
+#if defined(_WINDOWS)
+	std::string p = Glib::path_get_dirname(modulepath);
+	sys_IR_dir = Glib::build_filename(p, sys_IR_dir);
+#elif defined(__APPLE__)
+    sys_IR_dir = Glib::build_filename(modulepath, "Contents/Resources", sys_IR_dir);
+#else
+    std::string p = Glib::path_get_dirname(modulepath);
+    sys_IR_dir = Glib::build_filename(p, sys_IR_dir);
+#endif
+#else
+    user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
+    user_IR_dir = Glib::build_filename(user_dir, "IR");
+#endif
     make_ending_slash(user_dir);
     make_ending_slash(user_IR_dir);
     make_ending_slash(sys_IR_dir);
@@ -442,8 +469,13 @@ static inline const char *shellvar(const char *name) {
 #define TCLR(s)  "\033[1;32m" s "\033[0m" // light green
 #define TCLR2(s) TCLR(s), s
 
+#ifdef GUITARIX_AS_PLUGIN
+CmdlineOptions::CmdlineOptions(const char *modulepath)
+    : BasicOptions(modulepath),
+#else
 CmdlineOptions::CmdlineOptions()
     : BasicOptions(),
+#endif
       main_group("",""),
       optgroup_style("style", TCLR2("GTK style configuration options")),
       optgroup_jack("jack", TCLR2("JACK configuration options")),
@@ -782,6 +814,7 @@ CmdlineOptions::~CmdlineOptions() {
 }
 
 void CmdlineOptions::read_ui_vars() {
+#ifndef GUITARIX_AS_PLUGIN
     ifstream i(Glib::build_filename(get_user_dir(), "ui_rc").c_str());
     if (i.fail()) {
         return;
@@ -856,9 +889,11 @@ void CmdlineOptions::read_ui_vars() {
         gx_print_warning("main", "can't read/parse ui_rc");
     }
     i.close();
+#endif
 }
 
 void CmdlineOptions::write_ui_vars() {
+#ifndef GUITARIX_AS_PLUGIN
     ofstream o(Glib::build_filename(get_user_dir(), "ui_rc").c_str());
     if (o.fail()) {
 	return;
@@ -889,6 +924,7 @@ void CmdlineOptions::write_ui_vars() {
 	gx_print_warning("main", "can't write ui_rc");
     }
     o.close();
+#endif
 }
 
 Glib::ustring CmdlineOptions::get_jack_output(unsigned int n) const {
@@ -985,6 +1021,7 @@ void CmdlineOptions::process(int argc, char** argv) {
     make_ending_slash(plugin_dir);
 
     skin.set_styledir(style_dir);
+#ifndef GUITARIX_AS_PLUGIN
     unsigned int n = skin.skin_list.size();
     if (n < 1) {
         gx_print_fatal(_("main"), string(_("number of skins is 0")));
@@ -999,6 +1036,7 @@ void CmdlineOptions::process(int argc, char** argv) {
 		 % rcset).str());
 	}
     }
+#endif
     if (jack_outputs.size() > 2) {
 	gx_print_warning(
 	    _("main"),
