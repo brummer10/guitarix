@@ -287,8 +287,10 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       monomute(),
       stereomute(),
       tuner(*this),
+#ifndef GUITARIX_AS_PLUGIN
       drumout(),
       directout(*this, sigc::mem_fun(mono_chain, &StereoModuleChain::sync)),
+#endif
       maxlevel(),
       oscilloscope(*this),
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
@@ -298,8 +300,10 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+#ifndef GUITARIX_AS_PLUGIN
       loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
       record(*this, 1), record_st(*this, 2),
+#endif
       dseq(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
       detune(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
     set_overload_interval(options.get_sporadic_overload());
@@ -386,8 +390,10 @@ void GxEngine::load_static_plugins() {
     pl.add(&stereomute,                           PLUGIN_POS_END, PGN_MODE_MUTE);
     pl.add(fizz_remover::plugin(),                PLUGIN_POS_END, PGN_GUI);
     pl.add(hardlim::plugin(),                     PLUGIN_POS_END, PGN_MODE_NORMAL);
+#ifndef GUITARIX_AS_PLUGIN
     pl.add(&drumout.outputdrum,                   PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(&directout,                            PLUGIN_POS_END, PGN_MODE_NORMAL);
+#endif
     pl.add(&maxlevel,                             PLUGIN_POS_END, PGN_MODE_NORMAL|PGN_MODE_BYPASS);
 
     // * fx amp output *
@@ -407,8 +413,10 @@ void GxEngine::load_static_plugins() {
     pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&poweramps.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&wah.plugin,                           PLUGIN_POS_RACK, PGN_GUI);
+#ifndef GUITARIX_AS_PLUGIN
     pl.add(&loop.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&record.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
+#endif
     pl.add(&detune.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&dseq.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
@@ -427,7 +435,9 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::delay::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&mono_convolver.plugin,                PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::freeverb::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+#ifndef GUITARIX_AS_PLUGIN
     pl.add(&oscilloscope.plugin,                  PLUGIN_POS_RACK, PGN_GUI);
+#endif
     pl.add(gx_effects::biquad::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::tremolo::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::phaser_mono::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
@@ -451,7 +461,9 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::mbclipper::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::bassboom::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbchor::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+#ifndef DEBUG
     pl.add(pluginlib::jcm800pre::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+#endif
     pl.add(pluginlib::gcb_95::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(gx_effects::duck_delay::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::reversedelay::plugin(),     PLUGIN_POS_RACK, PGN_GUI);
@@ -485,7 +497,9 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::bfuzz::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::axface::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::metronome::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
+#ifndef GUITARIX_AS_PLUGIN
 	pl.add(pluginlib::vumeter::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
+#endif
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
@@ -497,7 +511,9 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::tonecontroll::plugin(),    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::digital_delay_st::plugin(),PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&stereo_convolver.plugin,              PLUGIN_POS_RACK, PGN_GUI);
+#ifndef GUITARIX_AS_PLUGIN
     pl.add(&record_st.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
+#endif
     pl.add(gx_effects::stereoverb::plugin(),      PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::zita_rev1::plugin(),        PLUGIN_POS_RACK);
     pl.add(pluginlib::vibe::plugin_stereo(),      PLUGIN_POS_RACK);
@@ -509,7 +525,9 @@ void GxEngine::load_static_plugins() {
 	pl.add(gx_effects::duck_delay_st::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet_st.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&preamp_st.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
+#ifndef GUITARIX_AS_PLUGIN
 	pl.add(pluginlib::vumeter_st::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
+#endif
 }
 
 static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {

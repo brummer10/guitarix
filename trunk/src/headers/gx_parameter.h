@@ -70,6 +70,7 @@ class ParameterGroups {
     }
     bool group_exist(const string& id);
     inline void erase(const string& id) {
+         if (!group_exist(id)) return;
 #ifndef NDEBUG // avoid unused variable warning in release mode
 	size_t n = groups.erase(id);
 	assert(n == 1);

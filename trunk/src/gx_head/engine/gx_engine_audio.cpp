@@ -698,7 +698,7 @@ bool ModuleSequencer::check_module_lists() {
 }
 
 void ModuleSequencer::set_rack_changed() {
-    if (rack_changed.connected()) {
+    if (rack_changed.connected() || stateflags == SF_INITIALIZING) {
 	return;
     }
     rack_changed = Glib::signal_idle().connect(

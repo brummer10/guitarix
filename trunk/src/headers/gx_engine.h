@@ -85,8 +85,10 @@ public:
     MonoMute monomute;
     StereoMute stereomute;
     TunerAdapter tuner;
+#ifndef GUITARIX_AS_PLUGIN
     Drumout drumout;
     Directout directout;
+#endif
     MaxLevel maxlevel;
     OscilloscopeAdapter oscilloscope;
     ConvolverMonoAdapter mono_convolver;
@@ -96,9 +98,11 @@ public:
     PreampConvolver preamp;
     PreampStereoConvolver preamp_st;
     ContrastConvolver contrast;
+#ifndef GUITARIX_AS_PLUGIN
     LiveLooper loop;
     SCapture record;
     SCapture record_st;
+#endif
     DrumSequencer dseq;
     smbPitchShift detune;
     //
