@@ -104,6 +104,8 @@ def configure(conf):
     if not conf.env.NOSSE:
         conf.env.SSE2 = append_sse_flags()
 
+    if conf.env['OS'] == 'win32':
+        subdirs.remove('gx_livelooper.lv2')
     for x in subdirs:
         conf.recurse(x);
     conf.recurse('xputty/resources')
@@ -139,6 +141,8 @@ def build(bld):
                     (', <modgui.ttl>', ' '),
                     (', <modguis.ttl>', ' '),
                     ]
+    if bld.env['OS'] == 'win32':
+        subdirs.remove('gx_livelooper.lv2')
     for x in subdirs:
         bld(rule     = g_module.sub_file,
             source   = '%s/manifest.ttl.in' % x,

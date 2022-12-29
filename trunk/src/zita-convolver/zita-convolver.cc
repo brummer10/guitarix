@@ -24,6 +24,12 @@
 #include <stdio.h>
 #include "zita-convolver.h"
 
+#ifdef _WIN32
+#define posix_memalign_free _aligned_free
+#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
+#else
+#define posix_memalign_free free
+#endif
 
 
 int zita_convolver_major_version (void)
@@ -657,7 +663,7 @@ void Convlevel::cleanup (void)
     X = _inp_list;
     while (X)
     {
-        for (i = 0; i < _npar; i++) free (X->_ffta [i]);
+        for (i = 0; i < _npar; i++) posix_memalign_free (X->_ffta [i]);
 	delete[] X->_ffta;
 	X1 = X->_next;
 	delete X;
@@ -675,7 +681,7 @@ void Convlevel::cleanup (void)
 	    {
 	        for (i = 0; i < _npar; i++) 
 		{
-                    free (M->_fftb [i]);
+                    posix_memalign_free (M->_fftb [i]);
 		}
 	        delete[] M->_fftb;
 	    }
@@ -683,7 +689,7 @@ void Convlevel::cleanup (void)
 	    delete M;
 	    M = M1;
 	}
-	for (i = 0; i < 3; i++) free (Y->_buff [i]);
+	for (i = 0; i < 3; i++) posix_memalign_free (Y->_buff [i]);
 	Y1 = Y->_next;
 	delete Y;
 	Y = Y1;
@@ -692,9 +698,9 @@ void Convlevel::cleanup (void)
 
     fftwf_destroy_plan (_plan_r2c);
     fftwf_destroy_plan (_plan_c2r);
-    free (_time_data);
-    free (_prep_data);
-    free (_freq_data);
+    posix_memalign_free (_time_data);
+    posix_memalign_free (_prep_data);
+    posix_memalign_free (_freq_data);
     _plan_r2c = 0;
     _plan_c2r = 0;
     _time_data = 0;

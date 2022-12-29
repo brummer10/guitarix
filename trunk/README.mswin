@@ -1,0 +1,32 @@
+The guitarix LV2 plugins can be compiled as DSP-only plugins for MSWindows
+(i.e. only the effect part without a nice GUI)
+
+To compile the guitarix LV2 plugins on MS-Windows:
+
+- Download and install MSYS2 from https://www.msys2.org/
+- Start a MinGW64 shell from the install location (e.g. "C:\MSYS64\MinGW64.exe")
+- Inside the shell, install the required packages using pacman:
+  # pacman -Syu
+  # pacman -S unzip pkg-config mingw-w64-x86_64-pkgconf mingw64/mingw-w64-x86_64-libsndfile mingw64/mingw-w64-x86_64-fftw mingw64/mingw-w64-x86_64-libsigc++ mingw64/mingw-w64-x86_64-eigen3 mingw64/mingw-w64-x86_64-libffi libffi-devel
+- Download the guitarix sources, change into its "trunk" directory (where the "waf" file resides)
+  # wget https://github.com/brummer10/guitarix/archive/refs/heads/master.zip
+  # unzip master.zip
+  # cd guitarix-master/trunk
+- Configure and build the plugins:
+  # ./waf configure  		\
+      --check-cxx-compiler=g++	\
+      --no-standalone		\
+      --no-lv2-gui		\
+      --no-faust		\
+      --includeresampler	\
+      --includeconvolver	\
+      --no-avahi		\
+      --no-bluez		\
+      --no-nsm			\
+      --no-desktop-update	\
+      --static-lib		\
+      --ldflags="-shared -static -Wl,-Bstatic -lstdc++ -lpthread -lfftw3f" \
+      --cxxflags="-Wall -DGSEAL_ENABLE -fpermissive -D_USE_MATH_DEFINES" \
+      && ./waf build && ./waf install --destdir=_bin
+- The compiled plugins should show up in the "trunk/_bin/" folder
+- Untested: To compile 32bit versions, start the MinGW32 shell and install the 32bit libraries (in the pacman clause, replace all "mingw64" by "mingw32" and all "x86_64" by "i686")
