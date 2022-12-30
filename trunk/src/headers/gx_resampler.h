@@ -25,7 +25,11 @@
 #ifndef SRC_HEADERS_GX_RESAMPLER_H_
 #define SRC_HEADERS_GX_RESAMPLER_H_
 
+#ifndef GUITARIX_AS_PLUGIN
 #include <zita-resampler/resampler.h>
+#else
+#include "zita-resampler/resampler.h"
+#endif
 
 namespace gx_resample {
 
