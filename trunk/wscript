@@ -537,7 +537,7 @@ def sub_file(task):
     dst_fname = task.outputs[0].abspath()
     lst = task.generator.sub_list
 
-    with open(src_fname, 'rU') as f:
+    with open(src_fname, 'r') as f:
         txt = f.read()
     for (key, val) in lst:
         re_pat = re.compile(key, re.M)
