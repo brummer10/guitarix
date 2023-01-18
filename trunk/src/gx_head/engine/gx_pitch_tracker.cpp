@@ -175,6 +175,7 @@ void PitchTracker::start_thread(int priority, int policy) {
 		"PitchTracker",
 		_("error creating realtime thread - tuner not started"));
 	}
+        m_pthr = 0;
     }
     pthread_attr_destroy(&attr);
 }
