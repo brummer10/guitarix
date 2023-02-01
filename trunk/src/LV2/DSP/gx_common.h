@@ -22,7 +22,7 @@
 #ifndef SRC_HEADERS_GX_COMMON_H_
 #define SRC_HEADERS_GX_COMMON_H_
 
-
+#include <cstdint>
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
