@@ -300,8 +300,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-#ifndef GUITARIX_AS_PLUGIN
       loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
+#ifndef GUITARIX_AS_PLUGIN
       record(*this, 1), record_st(*this, 2),
 #endif
       dseq(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
@@ -413,8 +413,8 @@ void GxEngine::load_static_plugins() {
     pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&poweramps.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&wah.plugin,                           PLUGIN_POS_RACK, PGN_GUI);
-#ifndef GUITARIX_AS_PLUGIN
     pl.add(&loop.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
+#ifndef GUITARIX_AS_PLUGIN
     pl.add(&record.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
 #endif
     pl.add(&detune.plugin,                        PLUGIN_POS_RACK, PGN_GUI);

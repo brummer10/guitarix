@@ -1137,13 +1137,14 @@ GxMachineRemote::GxMachineRemote(gx_system::CmdlineOptions& options_)
 	create_tcp_socket();
     }
     socket->set_blocking(true);
-    //writebuf = new __gnu_cxx::stdio_filebuf<char>(socket->get_fd(), std::ios::out);
+#ifdef GUITARIX_AS_PLUGIN
+    writebuf = new __gnu_cxx::stdio_filebuf<char>(socket->get_fd(), std::ios::out);
+    os = new ostream(writebuf);
+#else
     writebuf = new  boost::iostreams::file_descriptor_sink;
     writebuf->open(socket->get_fd(),boost::iostreams::never_close_handle);
-    
-    //os = new ostream(writebuf);
     os = new boost::iostreams::stream<boost::iostreams::file_descriptor_sink>(*writebuf);
-    
+#endif
     jw = new gx_system::JsonWriter(os, false);
 
     START_CALL(parameterlist);
