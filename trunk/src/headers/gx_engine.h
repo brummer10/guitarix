@@ -81,8 +81,7 @@ public:
     ModuleSelectorFromList ampstack;
     ModuleSelectorFromList poweramps;
     // internal audio modules
-    //NoiseGate noisegate;
-    OutPutGate outputgate;
+    NoiseGate noisegate;
     MonoMute monomute;
     StereoMute stereomute;
     TunerAdapter tuner;

@@ -108,37 +108,22 @@ public:
  ** class NoiseGate
  */
 
-class NoiseGate : public PluginDef {
+class NoiseGate {
 private:
-    inline void inputlevel_process(int count, float *input0, float *output0);
-    inline int noisegate_register(const ParamReg& reg);
-    static int noisegate_params_static(const ParamReg& reg);
+    static PluginDef inputdef;
+    static float fnglevel;
+    static float ngate;
+    static bool off;
+    static int noisegate_register(const ParamReg& reg);
     static void inputlevel_compute(int count, float *input0, float *output0, PluginDef*);
-public:
-    float fnglevel;
-    float ngate;
-    PluginDef inputdef;
-    Plugin inputlevel;
-    NoiseGate();
-};
-
-/****************************************************************
- ** class OutPutGate
- */
-
-class OutPutGate : public PluginDef {
-private:
-    bool off;
-    inline void outputgate_process(int count, float *input, float *output);
-    inline int outputgate_start(bool start);
     static void outputgate_compute(int count, float *input, float *output, PluginDef*);
     static int outputgate_activate(bool start, PluginDef *pdef);
 public:
-    NoiseGate noisegate;
-    PluginDef outputdef;
-    Plugin outputlevel;
-    OutPutGate();
+    static Plugin inputlevel;
+    static PluginDef outputgate;
+    NoiseGate();
 };
+
 
 /****************************************************************
  ** class OscilloscopeAdapter
