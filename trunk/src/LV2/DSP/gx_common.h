@@ -142,6 +142,7 @@ template<class T> inline T mydsp_faustpower3_f(T x) {return ((x * x) * x);}
 template<class T> inline T mydsp_faustpower4_f(T x) {return (((x * x) * x) * x);}
 template<class T> inline T mydsp_faustpower5_f(T x) {return ((((x * x) * x) * x) * x);}
 template<class T> inline T mydsp_faustpower6_f(T x) {return (((((x * x) * x) * x) * x) * x);}
+template<class T> inline T mydsp_faustpower7_f(T x) {return x * x * x * x * x * x * x;}
 
 #endif  //SRC_HEADERS_GX_COMMON_H_
 

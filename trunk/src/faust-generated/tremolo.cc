@@ -7,12 +7,10 @@ namespace tremolo {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	FAUSTFLOAT fVslider0;
 	int iVec0[2];
 	double fConst1;
-	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT fCheckbox0;
-	FAUSTFLOAT fVslider2;
+	FAUSTFLOAT fVslider0;
 	double fRec1[2];
 	double fConst2;
 	double fRec4[2];
@@ -21,7 +19,9 @@ private:
 	double fConst3;
 	int iRec6[2];
 	int iRec5[2];
+	FAUSTFLOAT fVslider1;
 	double fRec0[2];
+	FAUSTFLOAT fVslider2;
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -85,9 +85,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
-	fConst2 = 6.2831853071795862 / fConst0;
+	fConst2 = 6.283185307179586 / fConst0;
 	fConst3 = 0.5 * fConst0;
 	clear_state_f();
 }
@@ -99,35 +99,29 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = double(fVslider0);
-	double fSlow1 = 1.0 - 0.01 * fSlow0;
-	double fSlow2 = 27.0 * fSlow0;
-	double fSlow3 = double(fVslider1);
-	int iSlow4 = int(double(fCheckbox0));
-	int iSlow5 = iSlow4 == 0;
-	int iSlow6 = iSlow4 == 1;
-	double fSlow7 = double(fVslider2);
-	double fSlow8 = fConst1 * fSlow7;
-	double fSlow9 = fConst2 * fSlow7;
-	int iSlow10 = int(fConst3 / fSlow7);
-	double fSlow11 = 1.0 / double(iSlow10);
+	double fSlow0 = double(fCheckbox0);
+	int iSlow1 = fSlow0 == 0.0;
+	int iSlow2 = fSlow0 == 1.0;
+	double fSlow3 = double(fVslider0);
+	double fSlow4 = fConst1 * fSlow3;
+	double fSlow5 = fConst2 * fSlow3;
+	int iSlow6 = int(fConst3 / fSlow3);
+	double fSlow7 = 1.0 / double(iSlow6);
+	double fSlow8 = double(fVslider1);
+	double fSlow9 = double(fVslider2);
+	double fSlow10 = 27.0 * fSlow9;
+	double fSlow11 = 1.0 - 0.01 * fSlow9;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		iVec0[0] = 1;
-		double fTemp0 = fRec0[1] * (1.0 - fConst1 / (fConst1 + 0.059999999999999998 * std::exp(0.0 - 2.4849066497880004 * fRec0[1])));
-		fRec1[0] = fSlow8 + fRec1[1] - std::floor(fSlow8 + fRec1[1]);
-		fRec4[0] = fRec4[1] + fSlow9 * (0.0 - fRec2[1]);
-		fRec3[0] = fSlow9 * fRec4[0] + double(1 - iVec0[1]) + fRec3[1];
+		double fTemp0 = fRec0[1] * (1.0 - fConst1 / (fConst1 + 0.06 * std::exp(0.0 - 2.4849066497880004 * fRec0[1])));
+		fRec1[0] = fSlow4 + (fRec1[1] - std::floor(fSlow4 + fRec1[1]));
+		fRec4[0] = fRec4[1] + fSlow5 * (0.0 - fRec2[1]);
+		fRec3[0] = fSlow5 * fRec4[0] + double(1 - iVec0[1]) + fRec3[1];
 		fRec2[0] = fRec3[0];
-		double fThen0 = double(fRec1[0] <= 0.5);
-		double fElse0 = std::max<double>(0.0, 0.5 * (fRec2[0] + 1.0));
-		int iThen1 = 1 - 2 * (iRec5[1] > 0);
-		int iElse1 = 2 * (iRec5[1] < iSlow10) + -1;
-		iRec6[0] = ((iRec6[1] > 0) ? iElse1 : iThen1);
+		iRec6[0] = ((iRec6[1] > 0) ? 2 * (iRec5[1] < iSlow6) + -1 : 1 - 2 * (iRec5[1] > 0));
 		iRec5[0] = iRec6[0] + iRec5[1];
-		double fThen2 = ((iSlow6) ? fElse0 : fThen0);
-		double fElse2 = fSlow11 * double(iRec5[0]);
-		fRec0[0] = fTemp0 + fConst1 * std::pow(fSlow3 * (((iSlow5) ? fElse2 : fThen2) + -1.0) + 1.0, 1.8999999999999999) / (fConst1 + 0.059999999999999998 * std::exp(0.0 - 2.4849066497880004 * fTemp0));
-		output0[i0] = FAUSTFLOAT(double(input0[i0]) * (fSlow1 + fSlow2 / (std::exp(13.815510557964274 / std::log(8.5519675079294171 * fRec0[0] + 2.7182818284590451)) + 2700.0)));
+		fRec0[0] = fTemp0 + fConst1 * (std::pow(1.0 - fSlow8 * (1.0 - ((iSlow1) ? fSlow7 * double(iRec5[0]) : ((iSlow2) ? std::max<double>(0.0, 0.5 * (fRec2[0] + 1.0)) : double(fRec1[0] <= 0.5)))), 1.9) / (fConst1 + 0.06 * std::exp(0.0 - 2.4849066497880004 * fTemp0)));
+		output0[i0] = FAUSTFLOAT(double(input0[i0]) * (fSlow11 + fSlow10 / (std::exp(13.815510557964274 / std::log(8.551967507929417 * fRec0[0] + 2.718281828459045)) + 2.7e+03)));
 		iVec0[1] = iVec0[0];
 		fRec1[1] = fRec1[0];
 		fRec4[1] = fRec4[0];
@@ -149,8 +143,8 @@ int Dsp::register_par(const ParamReg& reg)
 	static const value_pair fCheckbox0_values[] = {{"triangle"},{"sine"},{"square"},{0}};
 	reg.registerFloatVar("tremolo.SINE","","B","",&fCheckbox0, 0.0, 0.0, 1.0, 1.0, fCheckbox0_values);
 	reg.registerFloatVar("tremolo.depth",N_("Depth"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01, 0);
-	reg.registerFloatVar("tremolo.freq",N_("Freq"),"S","",&fVslider2, 5.0, 0.10000000000000001, 50.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("tremolo.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("tremolo.freq",N_("Freq"),"S","",&fVslider0, 5.0, 0.1, 5e+01, 0.1, 0);
+	reg.registerFloatVar("tremolo.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider2, 1e+02, 0.0, 1e+02, 1.0, 0);
 	return 0;
 }
 

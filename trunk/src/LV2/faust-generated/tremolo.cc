@@ -7,24 +7,24 @@ namespace tremolo {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
-	FAUSTFLOAT fVslider0;
-	FAUSTFLOAT	*fVslider0_;
 	int iVec0[2];
 	double fConst1;
-	FAUSTFLOAT fVslider1;
-	FAUSTFLOAT	*fVslider1_;
 	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT	*fCheckbox0_;
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
 	double fConst2;
-	FAUSTFLOAT fVslider2;
-	FAUSTFLOAT	*fVslider2_;
 	int iRec2[2];
 	int iRec1[2];
 	double fConst3;
 	double fRec5[2];
 	double fRec4[2];
 	double fRec3[2];
+	FAUSTFLOAT fVslider1;
+	FAUSTFLOAT	*fVslider1_;
 	double fRec0[2];
+	FAUSTFLOAT fVslider2;
+	FAUSTFLOAT	*fVslider2_;
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -79,10 +79,10 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
 	fConst2 = 0.5 * fConst0;
-	fConst3 = 6.2831853071795862 / fConst0;
+	fConst3 = 6.283185307179586 / fConst0;
 	clear_state_f();
 }
 
@@ -93,33 +93,29 @@ void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
+#define fCheckbox0 (*fCheckbox0_)
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
-#define fCheckbox0 (*fCheckbox0_)
 #define fVslider2 (*fVslider2_)
-	double fSlow0 = double(fVslider0);
-	double fSlow1 = 1.0 - 0.01 * fSlow0;
-	double fSlow2 = 27.0 * fSlow0;
-	double fSlow3 = double(fVslider1);
-	int iSlow4 = int(double(fCheckbox0));
-	double fSlow5 = double(fVslider2);
-	int iSlow6 = int(fConst2 / fSlow5);
-	double fSlow7 = 1.0 / double(iSlow6);
-	double fSlow8 = fConst3 * fSlow5;
+	int iSlow0 = int(double(fCheckbox0));
+	double fSlow1 = double(fVslider0);
+	int iSlow2 = int(fConst2 / fSlow1);
+	double fSlow3 = 1.0 / double(iSlow2);
+	double fSlow4 = fConst3 * fSlow1;
+	double fSlow5 = double(fVslider1);
+	double fSlow6 = double(fVslider2);
+	double fSlow7 = 27.0 * fSlow6;
+	double fSlow8 = 1.0 - 0.01 * fSlow6;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		iVec0[0] = 1;
-		double fTemp0 = fRec0[1] * (1.0 - fConst1 / (fConst1 + 0.059999999999999998 * std::exp(0.0 - 2.4849066497880004 * fRec0[1])));
-		int iThen0 = 1 - 2 * (iRec1[1] > 0);
-		int iElse0 = 2 * (iRec1[1] < iSlow6) + -1;
-		iRec2[0] = ((iRec2[1] > 0) ? iElse0 : iThen0);
+		double fTemp0 = fRec0[1] * (1.0 - fConst1 / (fConst1 + 0.06 * std::exp(0.0 - 2.4849066497880004 * fRec0[1])));
+		iRec2[0] = ((iRec2[1] > 0) ? 2 * (iRec1[1] < iSlow2) + -1 : 1 - 2 * (iRec1[1] > 0));
 		iRec1[0] = iRec2[0] + iRec1[1];
-		fRec5[0] = fRec5[1] + fSlow8 * (0.0 - fRec3[1]);
-		fRec4[0] = fSlow8 * fRec5[0] + double(1 - iVec0[1]) + fRec4[1];
+		fRec5[0] = fRec5[1] + fSlow4 * (0.0 - fRec3[1]);
+		fRec4[0] = fSlow4 * fRec5[0] + double(1 - iVec0[1]) + fRec4[1];
 		fRec3[0] = fRec4[0];
-		double fThen1 = fSlow7 * double(iRec1[0]);
-		double fElse1 = std::max<double>(0.0, 0.5 * (fRec3[0] + 1.0));
-		fRec0[0] = fTemp0 + fConst1 * std::pow(fSlow3 * (((iSlow4) ? fElse1 : fThen1) + -1.0) + 1.0, 1.8999999999999999) / (fConst1 + 0.059999999999999998 * std::exp(0.0 - 2.4849066497880004 * fTemp0));
-		output0[i0] = FAUSTFLOAT(double(input0[i0]) * (fSlow1 + fSlow2 / (std::exp(13.815510557964274 / std::log(8.5519675079294171 * fRec0[0] + 2.7182818284590451)) + 2700.0)));
+		fRec0[0] = fTemp0 + fConst1 * (std::pow(1.0 - fSlow5 * (1.0 - ((iSlow0) ? std::max<double>(0.0, 0.5 * (fRec3[0] + 1.0)) : fSlow3 * double(iRec1[0]))), 1.9) / (fConst1 + 0.06 * std::exp(0.0 - 2.4849066497880004 * fTemp0)));
+		output0[i0] = FAUSTFLOAT(double(input0[i0]) * (fSlow8 + fSlow7 / (std::exp(13.815510557964274 / std::log(8.551967507929417 * fRec0[0] + 2.718281828459045)) + 2.7e+03)));
 		iVec0[1] = iVec0[0];
 		iRec2[1] = iRec2[0];
 		iRec1[1] = iRec1[0];
@@ -128,9 +124,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec3[1] = fRec3[0];
 		fRec0[1] = fRec0[0];
 	}
+#undef fCheckbox0
 #undef fVslider0
 #undef fVslider1
-#undef fCheckbox0
 #undef fVslider2
 }
 
@@ -152,10 +148,10 @@ void Dsp::connect(uint32_t port,void* data)
 		fVslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case FREQ: 
-		fVslider2_ = (float*)data; // , 5.0, 0.10000000000000001, 50.0, 0.10000000000000001 
+		fVslider0_ = (float*)data; // , 5.0, 0.1, 5e+01, 0.1 
 		break;
 	case WET_DRY: 
-		fVslider0_ = (float*)data; // , 100.0, 0.0, 100.0, 1.0 
+		fVslider2_ = (float*)data; // , 1e+02, 0.0, 1e+02, 1.0 
 		break;
 	default:
 		break;

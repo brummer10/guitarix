@@ -8,12 +8,12 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	double fVec0[2];
-	FAUSTFLOAT fVslider0;
 	double fConst1;
-	double fConst3;
+	double fConst2;
 	double fConst4;
 	double fConst5;
 	double fRec0[2];
+	FAUSTFLOAT fVslider0;
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -72,12 +72,12 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::tan(4712.3889803846896 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
+	double fConst0 = std::tan(4712.38898038469 / std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate))));
 	fConst1 = 1.0 / fConst0;
-	double fConst2 = fConst1 + 1.0;
-	fConst3 = 0.0 - 1.0 / (fConst0 * fConst2);
-	fConst4 = 1.0 / fConst2;
-	fConst5 = 1.0 - fConst1;
+	fConst2 = 1.0 - fConst1;
+	double fConst3 = fConst1 + 1.0;
+	fConst4 = 1.0 / fConst3;
+	fConst5 = 0.0 - 1.0 / (fConst0 * fConst3);
 	clear_state_f();
 }
 
@@ -88,11 +88,11 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = std::pow(10.0, 0.050000000000000003 * double(fVslider0)) + -1.0;
+	double fSlow0 = std::pow(1e+01, 0.05 * double(fVslider0)) + -1.0;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
-		fRec0[0] = fConst3 * fVec0[1] - fConst4 * (fConst5 * fRec0[1] - fConst1 * fTemp0);
+		fRec0[0] = fConst5 * fVec0[1] - fConst4 * (fConst2 * fRec0[1] - fConst1 * fTemp0);
 		output0[i0] = FAUSTFLOAT(fTemp0 + fSlow0 * fRec0[0]);
 		fVec0[1] = fVec0[0];
 		fRec0[1] = fRec0[0];
@@ -106,7 +106,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("highbooster.Level",N_("Level"),"S","",&fVslider0, 0.5, 0.0, 20.0, 0.5, 0);
+	reg.registerFloatVar("highbooster.Level",N_("Level"),"S","",&fVslider0, 0.5, 0.0, 2e+01, 0.5, 0);
 	return 0;
 }
 

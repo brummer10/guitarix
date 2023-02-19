@@ -509,6 +509,8 @@ class Parser(object):
                 continue
             if line.startswith('	return ((value * value) * value);'):
                 continue
+            if line.startswith('	return value * value * value;'):
+                continue
             if line.startswith('}') and not line.startswith('};'):
                 continue
             cp.append(line)

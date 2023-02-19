@@ -8,13 +8,13 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	FAUSTFLOAT fVslider0;
-	double fRec0[2];
 	FAUSTFLOAT fVslider1;
+	double fRec0[2];
 	FAUSTFLOAT fVslider2;
-	FAUSTFLOAT fVslider3;
+	int iRec2[2];
 	double fRec1[2];
-	int iRec3[2];
-	double fRec2[2];
+	FAUSTFLOAT fVslider3;
+	double fRec3[2];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -62,9 +62,9 @@ Dsp::~Dsp() {
 inline void Dsp::clear_state_f()
 {
 	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec1[l1] = 0.0;
-	for (int l2 = 0; l2 < 2; l2 = l2 + 1) iRec3[l2] = 0;
-	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec2[l3] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) iRec2[l1] = 0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec1[l2] = 0.0;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec3[l3] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -85,27 +85,25 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fVslider0));
-	int iSlow1 = int(double(fVslider1));
-	int iSlow2 = iSlow1 > 1;
+	int iSlow0 = int(double(fVslider0));
+	int iSlow1 = iSlow0 > 1;
+	double fSlow2 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
 	double fSlow3 = std::pow(2.0, double(fVslider2) + -1.0);
 	double fSlow4 = 1.0 / fSlow3;
-	double fSlow5 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fVslider3));
-	int iSlow6 = iSlow1 + -1;
+	int iSlow5 = iSlow0 + -1;
+	double fSlow6 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider3));
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec0[0] = fSlow0 + 0.999 * fRec0[1];
-		fRec1[0] = fSlow5 + 0.999 * fRec1[1];
-		double fTemp0 = fSlow4 * std::floor(fSlow3 * double(input0[i0]) * fRec1[0]);
-		double fThen1 = ((fTemp0 < -1.0) ? -1.0 : fTemp0);
-		double fTemp1 = ((fTemp0 > 1.0) ? 1.0 : fThen1);
-		int iElse2 = iRec3[1] + 1;
-		iRec3[0] = ((iRec3[1] < iSlow6) ? iElse2 : 0);
-		fRec2[0] = ((iRec3[0] == 0) ? fTemp1 : fRec2[1]);
-		output0[i0] = FAUSTFLOAT(fRec0[0] * ((iSlow2) ? fRec2[0] : fTemp1));
+		fRec0[0] = fSlow2 + 0.999 * fRec0[1];
+		double fTemp0 = fSlow4 * std::floor(fSlow3 * double(input0[i0]) * fRec0[0]);
+		double fTemp1 = ((fTemp0 > 1.0) ? 1.0 : ((fTemp0 < -1.0) ? -1.0 : fTemp0));
+		iRec2[0] = ((iRec2[1] < iSlow5) ? iRec2[1] + 1 : 0);
+		fRec1[0] = ((iRec2[0] == 0) ? fTemp1 : fRec1[1]);
+		fRec3[0] = fSlow6 + 0.999 * fRec3[1];
+		output0[i0] = FAUSTFLOAT(fRec3[0] * ((iSlow1) ? fRec1[0] : fTemp1));
 		fRec0[1] = fRec0[0];
+		iRec2[1] = iRec2[0];
 		fRec1[1] = fRec1[0];
-		iRec3[1] = iRec3[0];
-		fRec2[1] = fRec2[0];
+		fRec3[1] = fRec3[0];
 	}
 }
 
@@ -116,10 +114,10 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("bitdowner.bit_down",N_("Bit Down"),"S","",&fVslider2, 16.0, 1.0, 16.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("bitdowner.downsampling",N_("Smpl Down"),"S",N_("Downsampling (samples to skip ba.count)"),&fVslider1, 1.0, 1.0, 200.0, 1.0, 0);
-	reg.registerFloatVar("bitdowner.input_gain",N_("Input"),"S",N_("Gain (dB)"),&fVslider3, 0.0, -40.0, 40.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("bitdowner.volume",N_("Volume"),"S",N_("Volume (dB)"),&fVslider0, 0.0, -90.0, 12.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("bitdowner.bit_down",N_("Bit Down"),"S","",&fVslider2, 16.0, 1.0, 16.0, 0.1, 0);
+	reg.registerFloatVar("bitdowner.downsampling",N_("Smpl Down"),"S",N_("Downsampling (samples to skip ba.count)"),&fVslider0, 1.0, 1.0, 2e+02, 1.0, 0);
+	reg.registerFloatVar("bitdowner.input_gain",N_("Input"),"S",N_("Gain (dB)"),&fVslider1, 0.0, -4e+01, 4e+01, 0.1, 0);
+	reg.registerFloatVar("bitdowner.volume",N_("Volume"),"S",N_("Volume (dB)"),&fVslider3, 0.0, -9e+01, 12.0, 0.1, 0);
 	return 0;
 }
 

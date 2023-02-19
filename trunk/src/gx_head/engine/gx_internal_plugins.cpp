@@ -34,37 +34,27 @@ namespace gx_engine {
  **  class NoiseGate
  */
 
-PluginDef NoiseGate::inputdef = PluginDef();
-float NoiseGate::fnglevel = 0;
-float NoiseGate::ngate = 1;
-bool NoiseGate::off = true;
-Plugin NoiseGate::inputlevel = Plugin();
-PluginDef NoiseGate::outputgate = PluginDef();
+NoiseGate::NoiseGate() : inputdef() , inputlevel() {
 
-NoiseGate::NoiseGate() {
-
-    inputdef.version = PLUGINDEF_VERSION;
-    inputdef.flags = PGN_SNOOP;
-    inputdef.id = "noise_gate";
-    inputdef.name = N_("Noise Gate");
-    inputdef.mono_audio = inputlevel_compute;
-    inputdef.register_params = noisegate_register;
+    fnglevel = 0;
+    ngate = 1;
+    
+    version = PLUGINDEF_VERSION;
+    flags = PGN_SNOOP;
+    id = "noise_gate";
+    name = N_("Noise Gate");
+    mono_audio = inputlevel_compute;
+    register_params = noisegate_params_static;
 
     inputlevel.set_pdef(&inputdef);
-
-    outputgate.version = PLUGINDEF_VERSION;
-    outputgate.id = "noiseshut";
-    outputgate.name = "?noiseshut";
-    outputgate.mono_audio = outputgate_compute;
-    outputgate.activate_plugin = outputgate_activate;
-
+    inputlevel = this;
 }
 
 inline float sqrf(float x) {
     return x * x;
 }
 
-void NoiseGate::inputlevel_compute(int count, float *input, float *output, PluginDef*) {
+void NoiseGate::inputlevel_process(int count, float *input, float *output) {
     float sumnoise = 0;
     for (int i = 0; i < count; i++) {
         sumnoise += sqrf(input[i]);
@@ -75,6 +65,9 @@ void NoiseGate::inputlevel_compute(int count, float *input, float *output, Plugi
         ngate *= 0.996;
     }
 }
+void NoiseGate::inputlevel_compute(int count, float *input, float *output, PluginDef* p) {
+    static_cast<NoiseGate*>(p)->inputlevel_process(count, input, output);
+}
 
 int NoiseGate::noisegate_register(const ParamReg& reg) {
     reg.registerFloatVar("noise_gate.threshold", N_("Threshold"), "S", "", &fnglevel,
@@ -82,20 +75,48 @@ int NoiseGate::noisegate_register(const ParamReg& reg) {
     return 0;
 }
 
-void NoiseGate::outputgate_compute(int count, float *input, float *output, PluginDef*) {
+int NoiseGate::noisegate_params_static(const ParamReg& reg) {
+    return static_cast<NoiseGate*>(reg.plugin)->noisegate_register(reg);
+}
+
+/****************************************************************
+ **  class OutPutGate
+ */
+
+OutPutGate::OutPutGate() : noisegate(), outputdef(), outputlevel() {
+
+    off = true;
+    version = PLUGINDEF_VERSION;
+    id = "noiseshut";
+    name = "?noiseshut";
+    mono_audio = outputgate_compute;
+    activate_plugin = outputgate_activate;
+    outputlevel.set_pdef(&outputdef);
+    outputlevel = this;
+}
+
+void OutPutGate::outputgate_process(int count, float *input, float *output) {
     if (off) {
         return;
     }
     while (count--) {
-        *output++ = ngate * *input++;
+        *output++ = noisegate.ngate * *input++;
     }
 }
 
-int NoiseGate::outputgate_activate(bool start, PluginDef *pdef) {
+void OutPutGate::outputgate_compute(int count, float *input, float *output, PluginDef*p) {
+    static_cast<OutPutGate*>(p)->outputgate_process(count, input, output);
+}
+
+int OutPutGate::outputgate_start(bool start) {
     if (start) {
-        off = !inputlevel.get_on_off();
+        off = !noisegate.inputlevel.get_on_off();
     }
     return 0;
+}
+
+int OutPutGate::outputgate_activate(bool start, PluginDef *p) {
+    return static_cast<OutPutGate*>(p)->outputgate_start(start);
 }
 
 /****************************************************************

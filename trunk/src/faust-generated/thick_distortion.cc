@@ -8,14 +8,14 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	double fConst0;
-	FAUSTFLOAT fVslider0;
 	double fConst1;
-	double fRec1[2];
+	FAUSTFLOAT fVslider0;
+	double fRec0[2];
 	FAUSTFLOAT fVslider1;
 	double fRec2[2];
-	double fRec0[2];
 	FAUSTFLOAT fVslider2;
 	double fRec3[2];
+	double fRec1[2];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -62,10 +62,10 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
 	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec2[l1] = 0.0;
-	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec0[l2] = 0.0;
-	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec3[l3] = 0.0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec3[l2] = 0.0;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec1[l3] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -76,7 +76,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = 44.100000000000001 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = 44.1 / std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 - fConst0;
 	clear_state_f();
 }
@@ -88,19 +88,19 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = fConst0 * std::pow(10.0, 0.050000000000000003 * double(fVslider0));
-	double fSlow1 = fConst0 * double(fVslider1);
-	double fSlow2 = fConst0 * std::pow(10.0, 0.050000000000000003 * double(fVslider2));
+	double fSlow0 = fConst0 * std::pow(1e+01, 0.05 * double(fVslider0));
+	double fSlow1 = fConst0 * std::pow(1e+01, 0.05 * double(fVslider1));
+	double fSlow2 = fConst0 * double(fVslider2);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec1[0] = fSlow0 + fConst1 * fRec1[1];
+		fRec0[0] = fSlow0 + fConst1 * fRec0[1];
 		fRec2[0] = fSlow1 + fConst1 * fRec2[1];
-		fRec0[0] = std::max<double>(-1.0, std::min<double>(1.0, double(input0[i0]) * fRec1[0])) * (1.0 - fRec2[0]) + fRec2[0] * fRec0[1];
 		fRec3[0] = fSlow2 + fConst1 * fRec3[1];
-		output0[i0] = FAUSTFLOAT(fRec0[0] * fRec3[0]);
-		fRec1[1] = fRec1[0];
-		fRec2[1] = fRec2[0];
+		fRec1[0] = fRec3[0] * fRec1[1] + (1.0 - fRec3[0]) * std::max<double>(-1.0, std::min<double>(1.0, double(input0[i0]) * fRec2[0]));
+		output0[i0] = FAUSTFLOAT(fRec1[0] * fRec0[0]);
 		fRec0[1] = fRec0[0];
+		fRec2[1] = fRec2[0];
 		fRec3[1] = fRec3[0];
+		fRec1[1] = fRec1[0];
 	}
 }
 
@@ -111,9 +111,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("thick_distortion.input_gain",N_("Input"),"S",N_("Gain (dB)"),&fVslider0, 0.0, 0.0, 120.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("thick_distortion.thickness",N_("Thickness"),"S","",&fVslider1, 0.80000000000000004, 0.0, 1.0, 0.01, 0);
-	reg.registerFloatVar("thick_distortion.volume",N_("Volume"),"S",N_("Volume (dB)"),&fVslider2, 0.0, -90.0, 40.0, 0.10000000000000001, 0);
+	reg.registerFloatVar("thick_distortion.input_gain",N_("Input"),"S",N_("Gain (dB)"),&fVslider1, 0.0, 0.0, 1.2e+02, 0.1, 0);
+	reg.registerFloatVar("thick_distortion.thickness",N_("Thickness"),"S","",&fVslider2, 0.8, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("thick_distortion.volume",N_("Volume"),"S",N_("Volume (dB)"),&fVslider0, 0.0, -9e+01, 4e+01, 0.1, 0);
 	return 0;
 }
 
@@ -340,24 +340,12 @@ b.create_master_slider("thick_distortion.volume", _(" Volume "));
 b.closeBox();
 b.openHorizontalBox("");
 {
-	b.openVerticalBox("");
-	{
-		b.openFlipLabelBox("");
-		{
-			b.openHorizontalBox("");
-			{
-				b.create_small_rackknobr(
-					"thick_distortion.input_gain", _(" Input Gain "));
-				b.create_small_rackknobr(
-					"thick_distortion.thickness", _(" Thickness "));
-				b.create_small_rackknobr(
-					"thick_distortion.volume", _(" Volume "));
-			}
-			b.closeBox();
-		}
-		b.closeBox();
-	}
-	b.closeBox();
+    b.create_small_rackknobr(
+        "thick_distortion.input_gain", _(" Input Gain "));
+    b.create_small_rackknobr(
+        "thick_distortion.thickness", _(" Thickness "));
+    b.create_small_rackknobr(
+        "thick_distortion.volume", _(" Volume "));
 }
 b.closeBox();
 

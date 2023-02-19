@@ -8,16 +8,16 @@ class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
 	double fVec0[3];
-	double fConst1;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT	*fHslider0_;
-	FAUSTFLOAT fCheckbox0;
-	FAUSTFLOAT	*fCheckbox0_;
-	double fConst2;
+	double fConst1;
 	FAUSTFLOAT fHslider1;
 	FAUSTFLOAT	*fHslider1_;
+	FAUSTFLOAT fCheckbox0;
+	FAUSTFLOAT	*fCheckbox0_;
 	FAUSTFLOAT fHslider2;
 	FAUSTFLOAT	*fHslider2_;
+	double fConst2;
 	double fRec0[3];
 
 	void connect(uint32_t port,void* data);
@@ -68,9 +68,9 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = 3.1415926535897931 / fConst0;
-	fConst2 = 6.2831853071795862 / fConst0;
+	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = 3.141592653589793 / fConst0;
+	fConst2 = 6.283185307179586 / fConst0;
 	clear_state_f();
 }
 
@@ -82,18 +82,17 @@ void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 #define fHslider0 (*fHslider0_)
-#define fCheckbox0 (*fCheckbox0_)
 #define fHslider1 (*fHslider1_)
+#define fCheckbox0 (*fCheckbox0_)
 #define fHslider2 (*fHslider2_)
 	double fSlow0 = std::exp(-1.0 * fConst1 * double(fHslider0));
-	int iSlow1 = int(std::max<double>(0.0, std::min<double>(1.0, double(fCheckbox0))));
-	double fSlow2 = 2.0 * std::cos(fConst2 * double(fHslider1));
-	double fSlow3 = 0.5 * double(fHslider2) * (1.0 - mydsp_faustpower2_f(fSlow0));
+	double fSlow1 = 0.5 * double(fHslider1) * (1.0 - mydsp_faustpower2_f(fSlow0));
+	int iSlow2 = int(std::max<double>(0.0, std::min<double>(1.0, double(fCheckbox0))));
+	double fSlow3 = 2.0 * std::cos(fConst2 * double(fHslider2));
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		fVec0[0] = fTemp0;
-		double fElse0 = std::max<double>(-0.59999999999999998, std::min<double>(0.59999999999999998, fTemp0));
-		fRec0[0] = fSlow0 * (((iSlow1) ? fElse0 : fSlow2) * fRec0[1] - fSlow0 * fRec0[2]) + fSlow3 * (fTemp0 - fVec0[2]);
+		fRec0[0] = fSlow0 * (((iSlow2) ? std::max<double>(-0.6, std::min<double>(0.6, fTemp0)) : fSlow3) * fRec0[1] - fSlow0 * fRec0[2]) + fSlow1 * (fTemp0 - fVec0[2]);
 		output0[i0] = FAUSTFLOAT(fTemp0 + fRec0[0]);
 		fVec0[2] = fVec0[1];
 		fVec0[1] = fVec0[0];
@@ -101,8 +100,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec0[1] = fRec0[0];
 	}
 #undef fHslider0
-#undef fCheckbox0
 #undef fHslider1
+#undef fCheckbox0
 #undef fHslider2
 }
 
@@ -121,13 +120,13 @@ void Dsp::connect(uint32_t port,void* data)
 		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case BANDWIDTH: 
-		fHslider0_ = (float*)data; // , 100.0, 20.0, 20000.0, 10.0 
+		fHslider0_ = (float*)data; // , 1e+02, 2e+01, 2e+04, 1e+01 
 		break;
 	case FREQ: 
-		fHslider1_ = (float*)data; // , 440.0, 20.0, 12000.0, 10.0 
+		fHslider2_ = (float*)data; // , 4.4e+02, 2e+01, 1.2e+04, 1e+01 
 		break;
 	case PEAK: 
-		fHslider2_ = (float*)data; // , 1.0, 0.0, 10.0, 0.20000000000000001 
+		fHslider1_ = (float*)data; // , 1.0, 0.0, 1e+01, 0.2 
 		break;
 	default:
 		break;

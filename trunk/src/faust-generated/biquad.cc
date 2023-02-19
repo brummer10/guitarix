@@ -7,8 +7,8 @@ namespace biquad {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst0;
 	FAUSTFLOAT fVslider0;
+	double fConst0;
 	double fRec0[3];
 
 	void clear_state_f();
@@ -67,7 +67,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = 6.2831853071795862 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = 6.283185307179586 / std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	clear_state_f();
 }
 
@@ -79,10 +79,10 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double fSlow0 = std::log(fConst0 * double(fVslider0));
-	double fSlow1 = 0.0 - 1.8442000000000001 * std::cos(std::exp(fSlow0 * (fSlow0 * (fSlow0 * (fSlow0 * (0.0050615800000000004 * fSlow0 + 0.064468059999999994) + 0.27547621) + 0.43359432999999997) + 1.3128224799999999) + 0.072388869999999994));
+	double fSlow1 = 0.0 - 1.8442 * std::cos(std::exp(0.43359433 * mydsp_faustpower2_f(fSlow0) + 0.27547621 * mydsp_faustpower3_f(fSlow0) + 0.06446806 * mydsp_faustpower4_f(fSlow0) + 0.00506158 * mydsp_faustpower5_f(fSlow0) + 1.31282248 * fSlow0 + 0.07238887));
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec0[0] = double(input0[i0]) - (fSlow1 * fRec0[1] + 0.85026841000000009 * fRec0[2]);
-		output0[i0] = FAUSTFLOAT(0.31622776601683794 * (fRec0[0] - 1.0589999999999999 * fRec0[1]));
+		fRec0[0] = double(input0[i0]) - (fSlow1 * fRec0[1] + 0.8502684100000001 * fRec0[2]);
+		output0[i0] = FAUSTFLOAT(0.31622776601683794 * (fRec0[0] - 1.059 * fRec0[1]));
 		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];
 	}
@@ -95,7 +95,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("biquad.Freq",N_("Frequency"),"S","",&fVslider0, 1200.0, 300.0, 3000.0, 5.0, 0);
+	reg.registerFloatVar("biquad.Freq",N_("Frequency"),"S","",&fVslider0, 1.2e+03, 3e+02, 3e+03, 5.0, 0);
 	return 0;
 }
 

@@ -12,24 +12,24 @@ private:
 	gx_resample::FixedRateResampler smp;
 	int sample_rate;
 	int fSampleRate;
+	double fConst0;
+	double fConst2;
+	double fConst5;
+	double fConst6;
+	double fConst7;
+	double fConst8;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
-	double fRec0[2];
-	double fConst3;
-	double fConst5;
+	double fRec1[2];
+	double fRec0[5];
+	double fConst10;
+	double fConst12;
+	double fConst13;
+	double fConst14;
+	double fConst15;
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT	*fVslider1_;
 	double fRec2[2];
-	double fConst6;
-	double fConst9;
-	double fConst10;
-	double fConst11;
-	double fConst12;
-	double fRec1[5];
-	double fConst14;
-	double fConst15;
-	double fConst16;
-	double fConst17;
 
 	void clear_state_f();
 	void init(unsigned int sample_rate);
@@ -73,9 +73,9 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec2[l1] = 0.0;
-	for (int l2 = 0; l2 < 5; l2 = l2 + 1) fRec1[l2] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
+	for (int l1 = 0; l1 < 5; l1 = l1 + 1) fRec0[l1] = 0.0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec2[l2] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -88,24 +88,22 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	sample_rate = 96000;
 	smp.setup(RsamplingFreq, sample_rate);
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 1.8269373389389401e-19 * fConst0;
-	double fConst2 = fConst0 * (fConst0 * (fConst0 * (fConst1 + 2.7124352361658701e-16) + 8.16290535602033e-14) + 4.6414729817426102e-12) + 4.0015810287500304e-12;
-	fConst3 = fConst0 / fConst2;
-	double fConst4 = 3.87560926163844e-19 * fConst0;
-	fConst5 = fConst0 * (fConst0 * (fConst4 + 4.3080090312012499e-16) + 3.1750970560917398e-17) + 5.3495467261266997e-19;
-	fConst6 = 1.0 / fConst2;
-	double fConst7 = mydsp_faustpower2_f(fConst0);
-	double fConst8 = 7.3077493557557401e-19 * fConst0;
-	fConst9 = fConst0 * (fConst7 * (-5.4248704723317303e-16 - fConst8) + 9.2829459634852301e-12) + 1.6006324115000099e-11;
-	fConst10 = fConst7 * (1.0961624033633601e-18 * fConst7 + -1.63258107120407e-13) + 2.40094861725002e-11;
-	fConst11 = fConst0 * (fConst7 * (5.4248704723317303e-16 - fConst8) + -9.2829459634852301e-12) + 1.6006324115000099e-11;
-	fConst12 = fConst0 * (fConst0 * (fConst0 * (fConst1 + -2.7124352361658701e-16) + 8.16290535602033e-14) + -4.6414729817426102e-12) + 4.0015810287500304e-12;
-	double fConst13 = 1.5502437046553801e-18 * fConst0;
-	fConst14 = fConst7 * (-8.6160180624025097e-16 - fConst13) + 1.0699093452253399e-18;
-	fConst15 = fConst0 * (2.32536555698307e-18 * fConst7 + -6.3501941121834698e-17);
-	fConst16 = fConst7 * (8.6160180624025097e-16 - fConst13) + -1.0699093452253399e-18;
-	fConst17 = fConst0 * (fConst0 * (fConst4 + -4.3080090312012499e-16) + 3.1750970560917398e-17) + -5.3495467261266997e-19;
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = 1.82693733893894e-19 * fConst0;
+	fConst2 = fConst0 * (fConst0 * (fConst0 * (fConst1 + -2.71243523616587e-16) + 8.16290535602033e-14) + -4.64147298174261e-12) + 4.00158102875003e-12;
+	double fConst3 = 7.30774935575574e-19 * fConst0;
+	double fConst4 = mydsp_faustpower2_f(fConst0);
+	fConst5 = fConst0 * (fConst4 * (5.42487047233173e-16 - fConst3) + -9.28294596348523e-12) + 1.60063241150001e-11;
+	fConst6 = fConst4 * (1.09616240336336e-18 * fConst4 + -1.63258107120407e-13) + 2.40094861725002e-11;
+	fConst7 = fConst0 * (fConst4 * (-5.42487047233173e-16 - fConst3) + 9.28294596348523e-12) + 1.60063241150001e-11;
+	fConst8 = 1.0 / (fConst0 * (fConst0 * (fConst0 * (fConst1 + 2.71243523616587e-16) + 8.16290535602033e-14) + 4.64147298174261e-12) + 4.00158102875003e-12);
+	double fConst9 = 3.87560926163844e-19 * fConst0;
+	fConst10 = fConst0 * (fConst0 * (fConst0 * (fConst9 + -4.30800903120125e-16) + 3.17509705609174e-17) + -5.3495467261267e-19);
+	double fConst11 = 1.55024370465538e-18 * fConst0;
+	fConst12 = fConst0 * (fConst4 * (8.61601806240251e-16 - fConst11) + -1.06990934522534e-18);
+	fConst13 = fConst4 * (2.32536555698307e-18 * fConst4 + -6.35019411218347e-17);
+	fConst14 = fConst4 * (-8.61601806240251e-16 - fConst11) + 1.06990934522534e-18;
+	fConst15 = fConst0 * (fConst0 * (fConst9 + 4.30800903120125e-16) + 3.17509705609174e-17) + 5.3495467261267e-19;
 	clear_state_f();
 }
 
@@ -120,21 +118,19 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fVslider1 (*fVslider1_)
 	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
-	double fSlow0 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fVslider0));
-	double fSlow1 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fVslider1));
+	double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
+	double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
 	for (int i0 = 0; i0 < ReCount; i0 = i0 + 1) {
-		fRec0[0] = fSlow0 + 0.999 * fRec0[1];
+		fRec1[0] = fSlow0 + 0.999 * fRec1[1];
+		fRec0[0] = double(buf[i0]) * fRec1[0] - fConst8 * (fConst7 * fRec0[1] + fConst6 * fRec0[2] + fConst5 * fRec0[3] + fConst2 * fRec0[4]);
+		double fTemp0 = fConst8 * (fConst0 * (fConst15 * fRec0[0] + fConst14 * fRec0[1]) + fConst13 * fRec0[2] + fConst12 * fRec0[3] + fConst10 * fRec0[4]);
 		fRec2[0] = fSlow1 + 0.999 * fRec2[1];
-		fRec1[0] = double(buf[i0]) * fRec2[0] - fConst6 * (fConst9 * fRec1[1] + fConst10 * fRec1[2] + fConst11 * fRec1[3] + fConst12 * fRec1[4]);
-		double fTemp0 = fConst3 * (fConst5 * fRec1[0] + fConst14 * fRec1[1] + fConst15 * fRec1[2] + fConst16 * fRec1[3] + fConst17 * fRec1[4]);
-		double fThen0 = double(plexipowerampel34clip(double(fTemp0)));
-		double fElse0 = double(plexipowerampel34_negclip(double(fTemp0)));
-		buf[i0] = FAUSTFLOAT(fRec0[0] * ((int(signbit(double(fTemp0)))) ? fElse0 : fThen0));
-		fRec0[1] = fRec0[0];
-		fRec2[1] = fRec2[0];
+		buf[i0] = FAUSTFLOAT(fRec2[0] * ((signbit(fTemp0)) ? plexipowerampel34_negclip(fTemp0) : plexipowerampel34clip(fTemp0)));
+		fRec1[1] = fRec1[0];
 		for (int j0 = 4; j0 > 0; j0 = j0 - 1) {
-			fRec1[j0] = fRec1[j0 - 1];
+			fRec0[j0] = fRec0[j0 - 1];
 		}
+		fRec2[1] = fRec2[0];
 	}
 	smp.down(buf, output0);
 #undef fVslider0
@@ -148,8 +144,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fVslider0_ = reg.registerFloatVar("poweramp.Gain","","SA","",&fVslider0, 0.0, -30.0, 30.0, 0.10000000000000001, 0);
-	fVslider1_ = reg.registerFloatVar("poweramp.Pregain","","SA","",&fVslider1, 0.0, -30.0, 30.0, 0.10000000000000001, 0);
+	fVslider1_ = reg.registerFloatVar("poweramp.Gain","","SA","",&fVslider1, 0.0, -3e+01, 3e+01, 0.1, 0);
+	fVslider0_ = reg.registerFloatVar("poweramp.Pregain","","SA","",&fVslider0, 0.0, -3e+01, 3e+01, 0.1, 0);
 	return 0;
 }
 

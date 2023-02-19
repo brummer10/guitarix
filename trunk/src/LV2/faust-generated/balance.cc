@@ -90,7 +90,7 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case BALANCE: 
-		fVslider0_ = (float*)data; // , 0.0, -1.0, 1.0, 0.10000000000000001 
+		fVslider0_ = (float*)data; // , 0.0, -1.0, 1.0, 0.1 
 		break;
 	default:
 		break;

@@ -280,6 +280,7 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
       "engine.insert", N_("switch insert ports on/off"), (bool*)0, false, false)->getBool();
     ip.signal_changed().connect(
 	sigc::mem_fun(this, &GxMachineBase::set_jack_insert));
+    pmap.reg_par("engine.set_stereo", N_("Stereo on/off"), (bool*)0, false, true);
 
     gx_preset::UnitPresetList presetnames;
     plugin_preset_list_load(pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);

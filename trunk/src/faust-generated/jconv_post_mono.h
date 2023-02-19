@@ -9,8 +9,8 @@ class Dsp {
 private:
 	int fSampleRate;
 	FAUSTFLOAT fVslider0;
-	FAUSTFLOAT fVslider1;
 	double fRec0[2];
+	FAUSTFLOAT fVslider1;
 
 
 public:

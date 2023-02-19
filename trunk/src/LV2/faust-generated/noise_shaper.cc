@@ -7,11 +7,11 @@ namespace noise_shaper {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
-	FAUSTFLOAT fVslider0;
-	FAUSTFLOAT	*fVslider0_;
 	double fConst1;
 	double fConst2;
 	double fRec0[2];
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -60,9 +60,9 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = std::exp(0.0 - 200.0 / fConst0);
-	fConst2 = std::exp(0.0 - 0.10000000000000001 / fConst0);
+	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = std::exp(0.0 - 0.1 / fConst0);
+	fConst2 = std::exp(0.0 - 2e+02 / fConst0);
 	clear_state_f();
 }
 
@@ -79,11 +79,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		double fTemp1 = std::max<double>(1.0, std::fabs(fTemp0));
-		double fTemp2 = fConst1 * double(fRec0[1] < fTemp1) + fConst2 * double(fRec0[1] >= fTemp1);
+		double fTemp2 = fConst2 * double(fRec0[1] < fTemp1) + fConst1 * double(fRec0[1] >= fTemp1);
 		fRec0[0] = fRec0[1] * fTemp2 + fTemp1 * (1.0 - fTemp2);
-		double fTemp3 = std::max<double>(0.0, fSlow1 + 20.0 * std::log10(std::max<double>(2.2250738585072014e-308, fRec0[0])));
-		double fTemp4 = 0.5 * std::min<double>(1.0, std::max<double>(0.0, 0.095229025807065992 * fTemp3));
-		output0[i0] = FAUSTFLOAT(fTemp0 * std::pow(10.0, 0.050000000000000003 * (fSlow0 + (fTemp3 * (0.0 - fTemp4)) / (fTemp4 + 1.0))));
+		double fTemp3 = std::max<double>(0.0, fSlow1 + 2e+01 * std::log10(std::max<double>(2.2250738585072014e-308, fRec0[0])));
+		double fTemp4 = 0.5 * std::min<double>(1.0, std::max<double>(0.0, 0.09522902580706599 * fTemp3));
+		output0[i0] = FAUSTFLOAT(fTemp0 * std::pow(1e+01, 0.05 * (fSlow0 + fTemp3 * (0.0 - fTemp4) / (fTemp4 + 1.0))));
 		fRec0[1] = fRec0[0];
 	}
 #undef fVslider0
@@ -100,7 +100,7 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case SHARPER: 
-		fVslider0_ = (float*)data; // , 1.0, 1.0, 10.0, 1.0 
+		fVslider0_ = (float*)data; // , 1.0, 1.0, 1e+01, 1.0 
 		break;
 	default:
 		break;

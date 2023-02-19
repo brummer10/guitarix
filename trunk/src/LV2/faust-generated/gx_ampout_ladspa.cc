@@ -76,8 +76,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
 	double fSlow0 = double(fVslider0);
-	double fElse0 = fSlow0 + double(fVslider1);
-	double fSlow1 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * ((int(double(fCheckbox0))) ? fElse0 : fSlow0));
+	double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * ((int(double(fCheckbox0))) ? fSlow0 + double(fVslider1) : fSlow0));
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		fRec0[0] = 0.999 * fRec0[1] + fSlow1;
 		output0[i0] = FAUSTFLOAT(double(input0[i0]) * fRec0[0]);
@@ -102,10 +101,10 @@ void Dsp::connect(uint32_t port,void* data)
 		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case OUT_AMP: 
-		fVslider1_ = (float*)data; // , 0.0, -20.0, 4.0, 0.10000000000000001 
+		fVslider1_ = (float*)data; // , 0.0, -2e+01, 4.0, 0.1 
 		break;
 	case OUT_LADSPA: 
-		fVslider0_ = (float*)data; // , 0.0, -20.0, 20.0, 0.10000000000000001 
+		fVslider0_ = (float*)data; // , 0.0, -2e+01, 2e+01, 0.1 
 		break;
 	default:
 		break;

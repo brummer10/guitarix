@@ -40,7 +40,7 @@ thickness
 pureness = 1 - thickness;
 
 volume
-	= vslider("volume[name:Volume][tooltip:Volume (dB)]", 0, -90, 40, 0.1)
+	= vslider("volume[name:Volume][tooltip:Volume (dB)]", 0.0, -90.0, 40.0, 0.1)
 	: ba.db2linear
 	: si.smoo
 	;

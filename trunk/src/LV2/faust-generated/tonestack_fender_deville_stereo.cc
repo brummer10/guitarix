@@ -7,16 +7,17 @@ namespace tonestack_fender_deville_stereo {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
-	double fConst0;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT	*fVslider1_;
+	double fConst0;
 	double fConst1;
-	FAUSTFLOAT fVslider2;
-	FAUSTFLOAT	*fVslider2_;
 	double fConst2;
 	double fRec0[4];
+	FAUSTFLOAT fVslider2;
+	FAUSTFLOAT	*fVslider2_;
+	double fConst3;
 	double fRec1[4];
 
 	void connect(uint32_t port,void* data);
@@ -67,9 +68,10 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = 2.0 * std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = 2.0 * std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = mydsp_faustpower2_f(fConst0);
-	fConst2 = 3.0 * fConst0;
+	fConst2 = mydsp_faustpower3_f(fConst0);
+	fConst3 = 3.0 * fConst2;
 	clear_state_f();
 }
 
@@ -83,36 +85,37 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
 #define fVslider2 (*fVslider2_)
-	double fSlow0 = double(fVslider0);
-	double fSlow1 = std::exp(3.3999999999999999 * (double(fVslider1) + -1.0));
-	double fSlow2 = 0.00055000000000000003 * fSlow0 + 0.025062500000000001 * fSlow1;
-	double fSlow3 = fConst0 * (fSlow2 + 0.018428750000000001);
-	double fSlow4 = 1.3784375000000001e-06 * fSlow0;
-	double fSlow5 = fSlow0 * ((1.3784375000000003e-05 * fSlow1 + -5.7371874999999999e-06) - fSlow4) + 7.4053750000000002e-05 * fSlow1 + 8.3966250000000003e-06;
-	double fSlow6 = 1.3062500000000001e-09 * fSlow1 - 1.30625e-10 * fSlow0;
-	double fSlow7 = 4.4687500000000007e-09 * fSlow1;
-	double fSlow8 = fSlow0 * (fSlow6 + -3.1625000000000002e-10) + fSlow7 + 4.4687500000000002e-10;
-	double fSlow9 = fConst0 * fSlow8;
-	double fSlow10 = 1.0 / (-1.0 - (fSlow3 + fConst1 * (fSlow5 + fSlow9)));
-	double fSlow11 = double(fVslider2);
-	double fSlow12 = fConst0 * (fSlow2 + 6.2500000000000001e-05 * fSlow11 + 0.0025062500000000002);
-	double fSlow13 = 9.9125000000000025e-07 * fSlow11 + fSlow0 * (1.4128125000000001e-06 - fSlow4) + fSlow1 * (1.3784375000000003e-05 * fSlow0 + 2.5537500000000007e-06) + 2.5537500000000002e-07;
-	double fSlow14 = fSlow0 * (fSlow6 + 1.30625e-10) + fSlow11 * (fSlow7 - 4.4687500000000002e-10 * (fSlow0 + -1.0));
-	double fSlow15 = fConst0 * fSlow14;
-	double fSlow16 = 0.0 - (fSlow12 + fConst1 * (fSlow13 + fSlow15));
-	double fSlow17 = fConst2 * fSlow8;
-	double fSlow18 = fConst1 * (fSlow5 + fSlow17) + -3.0 - fSlow3;
-	double fSlow19 = fSlow3 + fConst1 * (fSlow5 - fSlow17) + -3.0;
-	double fSlow20 = fSlow3 + -1.0 - fConst1 * (fSlow5 - fSlow9);
-	double fSlow21 = fConst2 * fSlow14;
-	double fSlow22 = fConst1 * (fSlow13 + fSlow21) - fSlow12;
-	double fSlow23 = fSlow12 + fConst1 * (fSlow13 - fSlow21);
-	double fSlow24 = fSlow12 - fConst1 * (fSlow13 - fSlow15);
+	double fSlow0 = std::exp(3.4 * (double(fVslider0) + -1.0));
+	double fSlow1 = double(fVslider1);
+	double fSlow2 = 1.3784375e-06 * fSlow1;
+	double fSlow3 = fConst1 * (fSlow1 * (1.3784375000000003e-05 * fSlow0 + -5.7371875e-06 - fSlow2) + 7.405375e-05 * fSlow0 + 8.396625e-06);
+	double fSlow4 = 4.468750000000001e-09 * fSlow0;
+	double fSlow5 = 1.3062500000000001e-09 * fSlow0 - 1.30625e-10 * fSlow1;
+	double fSlow6 = fConst2 * (fSlow1 * (fSlow5 + -3.1625e-10) + fSlow4 + 4.46875e-10);
+	double fSlow7 = 0.0250625 * fSlow0;
+	double fSlow8 = 0.00055 * fSlow1;
+	double fSlow9 = fConst0 * (fSlow8 + fSlow7 + 0.01842875);
+	double fSlow10 = fSlow9 + fSlow6 + (-1.0 - fSlow3);
+	double fSlow11 = fSlow9 + fSlow3;
+	double fSlow12 = fSlow11 - 3.0 * (fSlow6 + 1.0);
+	double fSlow13 = fSlow3 - (fSlow9 + 3.0 * (1.0 - fSlow6));
+	double fSlow14 = 1.0 / (-1.0 - (fSlow11 + fSlow6));
+	double fSlow15 = double(fVslider2);
+	double fSlow16 = fConst1 * (9.912500000000003e-07 * fSlow15 + fSlow1 * (1.4128125e-06 - fSlow2) + fSlow0 * (1.3784375000000003e-05 * fSlow1 + 2.5537500000000007e-06) + 2.55375e-07);
+	double fSlow17 = fSlow1 * (fSlow5 + 1.30625e-10) + fSlow15 * (fSlow4 + 4.46875e-10 * (1.0 - fSlow1));
+	double fSlow18 = fConst2 * fSlow17;
+	double fSlow19 = fConst0 * (fSlow7 + fSlow8 + 6.25e-05 * fSlow15 + 0.0025062500000000002);
+	double fSlow20 = fSlow19 + fSlow18 - fSlow16;
+	double fSlow21 = fConst3 * fSlow17;
+	double fSlow22 = fSlow19 + fSlow16;
+	double fSlow23 = fSlow22 - fSlow21;
+	double fSlow24 = fSlow16 + fSlow21 - fSlow19;
+	double fSlow25 = 0.0 - (fSlow22 + fSlow18);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec0[0] = double(input0[i0]) - fSlow10 * (fSlow18 * fRec0[1] + fSlow19 * fRec0[2] + fSlow20 * fRec0[3]);
-		output0[i0] = FAUSTFLOAT(fSlow10 * (fSlow16 * fRec0[0] + fSlow22 * fRec0[1] + fSlow23 * fRec0[2] + fSlow24 * fRec0[3]));
-		fRec1[0] = double(input1[i0]) - fSlow10 * (fSlow18 * fRec1[1] + fSlow19 * fRec1[2] + fSlow20 * fRec1[3]);
-		output1[i0] = FAUSTFLOAT(fSlow10 * (fSlow16 * fRec1[0] + fSlow22 * fRec1[1] + fSlow23 * fRec1[2] + fSlow24 * fRec1[3]));
+		fRec0[0] = double(input0[i0]) - fSlow14 * (fSlow13 * fRec0[1] + fSlow12 * fRec0[2] + fSlow10 * fRec0[3]);
+		output0[i0] = FAUSTFLOAT(fSlow14 * (fSlow25 * fRec0[0] + fSlow24 * fRec0[1] + fSlow23 * fRec0[2] + fSlow20 * fRec0[3]));
+		fRec1[0] = double(input1[i0]) - fSlow14 * (fSlow13 * fRec1[1] + fSlow12 * fRec1[2] + fSlow10 * fRec1[3]);
+		output1[i0] = FAUSTFLOAT(fSlow14 * (fSlow25 * fRec1[0] + fSlow24 * fRec1[1] + fSlow23 * fRec1[2] + fSlow20 * fRec1[3]));
 		for (int j0 = 3; j0 > 0; j0 = j0 - 1) {
 			fRec0[j0] = fRec0[j0 - 1];
 		}
@@ -136,10 +139,10 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case BASS: 
-		fVslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fVslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case MIDDLE: 
-		fVslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		fVslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case TREBLE: 
 		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 

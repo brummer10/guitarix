@@ -283,7 +283,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
 	  *this, "poweramp", _("PowerAmp"), N_("Guitar Effects"), builtin_poweramp_plugins,
 	  "poweramp.mode", _("select"),load_poweramp_ui , poweramp_groups, PGN_POST_PRE),
       // internal audio modules
-      noisegate(),
+      //noisegate(),
+      outputgate(),
       monomute(),
       stereomute(),
       tuner(*this),
@@ -362,7 +363,7 @@ void GxEngine::load_static_plugins() {
 
     pl.add(dcblocker::plugin(),                   PLUGIN_POS_START, PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);
     pl.add(&tuner.plugin,                         PLUGIN_POS_START, PGN_PRE|PGN_MODE_NORMAL|PGN_MODE_BYPASS|PGN_MODE_MUTE);
-    pl.add(&noisegate.inputlevel,                 PLUGIN_POS_START, PGN_GUI|PGN_FIXED_GUI|PGN_PRE);
+    pl.add(&outputgate.noisegate.inputlevel,                 PLUGIN_POS_START, PGN_GUI|PGN_FIXED_GUI|PGN_PRE);
     pl.add(gx_effects::noise_shaper::plugin(),    PLUGIN_POS_START, PGN_GUI|PGN_FIXED_GUI|PGN_PRE);
 
     // rack pre mono modules inserted here
@@ -376,7 +377,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::bassbooster::plugin(),     PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
     pl.add(gx_effects::gx_ampout::plugin(),       PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
     pl.add(&contrast.plugin,                      PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
-    pl.add(&noisegate.outputgate,                 PLUGIN_POS_END, PGN_POST);
+    pl.add(&outputgate.outputlevel,               PLUGIN_POS_END, PGN_POST);
     pl.add(&monomute,                             PLUGIN_POS_END, PGN_POST|PGN_MODE_MUTE);
 
     // * amp insert position (stereo amp input) *

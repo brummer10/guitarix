@@ -9,16 +9,14 @@ private:
 	uint32_t fSampleRate;
 	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT	*fCheckbox0_;
-	FAUSTFLOAT fVslider0;
-	FAUSTFLOAT	*fVslider0_;
 	int IOTA0;
-	double fVec0[2048];
+	double fVec0[1024];
 	double fRec6[2];
 	double fVec1[1024];
 	double fRec8[2];
 	double fVec2[1024];
 	double fRec10[2];
-	double fVec3[1024];
+	double fVec3[2048];
 	double fRec12[2];
 	double fVec4[128];
 	double fRec4[2];
@@ -26,6 +24,8 @@ private:
 	double fRec2[2];
 	double fVec6[12];
 	double fRec0[2];
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -63,13 +63,13 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 2048; l0 = l0 + 1) fVec0[l0] = 0.0;
+	for (int l0 = 0; l0 < 1024; l0 = l0 + 1) fVec0[l0] = 0.0;
 	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec6[l1] = 0.0;
 	for (int l2 = 0; l2 < 1024; l2 = l2 + 1) fVec1[l2] = 0.0;
 	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec8[l3] = 0.0;
 	for (int l4 = 0; l4 < 1024; l4 = l4 + 1) fVec2[l4] = 0.0;
 	for (int l5 = 0; l5 < 2; l5 = l5 + 1) fRec10[l5] = 0.0;
-	for (int l6 = 0; l6 < 1024; l6 = l6 + 1) fVec3[l6] = 0.0;
+	for (int l6 = 0; l6 < 2048; l6 = l6 + 1) fVec3[l6] = 0.0;
 	for (int l7 = 0; l7 < 2; l7 = l7 + 1) fRec12[l7] = 0.0;
 	for (int l8 = 0; l8 < 128; l8 = l8 + 1) fVec4[l8] = 0.0;
 	for (int l9 = 0; l9 < 2; l9 = l9 + 1) fRec4[l9] = 0.0;
@@ -102,42 +102,40 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 #define fVslider0 (*fVslider0_)
 	int iSlow0 = int(double(fCheckbox0));
 	double fSlow1 = double(fVslider0);
-	double fSlow2 = 1.0 - std::max<double>(0.0, fSlow1);
-	double fSlow3 = 1.0 - std::max<double>(0.0, -1.0 * fSlow1);
+	double fSlow2 = 1.0 - std::max<double>(0.0, -1.0 * fSlow1);
+	double fSlow3 = 1.0 - std::max<double>(0.0, fSlow1);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input1[i0]);
-		double fTemp1 = 0.20000000000000001 * fTemp0;
-		double fTemp2 = fTemp1 + 0.76400000000000001 * fRec6[1];
-		fVec0[IOTA0 & 2047] = fTemp2;
-		fRec6[0] = fVec0[(IOTA0 - 1123) & 2047];
+		double fTemp1 = 0.2 * fTemp0;
+		double fTemp2 = fTemp1 + 0.805 * fRec6[1];
+		fVec0[IOTA0 & 1023] = fTemp2;
+		fRec6[0] = fVec0[(IOTA0 - 901) & 1023];
 		double fRec7 = fTemp2;
-		double fTemp3 = fTemp1 + 0.78300000000000003 * fRec8[1];
+		double fTemp3 = 0.827 * fRec8[1] + fTemp1;
 		fVec1[IOTA0 & 1023] = fTemp3;
-		fRec8[0] = fVec1[(IOTA0 - 1011) & 1023];
+		fRec8[0] = fVec1[(IOTA0 - 778) & 1023];
 		double fRec9 = fTemp3;
-		double fTemp4 = 0.82699999999999996 * fRec10[1] + fTemp1;
+		double fTemp4 = fTemp1 + 0.783 * fRec10[1];
 		fVec2[IOTA0 & 1023] = fTemp4;
-		fRec10[0] = fVec2[(IOTA0 - 778) & 1023];
+		fRec10[0] = fVec2[(IOTA0 - 1011) & 1023];
 		double fRec11 = fTemp4;
-		double fTemp5 = fTemp1 + 0.80500000000000005 * fRec12[1];
-		fVec3[IOTA0 & 1023] = fTemp5;
-		fRec12[0] = fVec3[(IOTA0 - 901) & 1023];
+		double fTemp5 = fTemp1 + 0.764 * fRec12[1];
+		fVec3[IOTA0 & 2047] = fTemp5;
+		fRec12[0] = fVec3[(IOTA0 - 1123) & 2047];
 		double fRec13 = fTemp5;
-		double fTemp6 = 0.69999999999999996 * fRec4[1] + fRec7 + fRec9 + fRec11 + fRec13;
+		double fTemp6 = 0.7 * fRec4[1] + fRec13 + fRec11 + fRec9 + fRec7;
 		fVec4[IOTA0 & 127] = fTemp6;
 		fRec4[0] = fVec4[(IOTA0 - 124) & 127];
-		double fRec5 = 0.0 - 0.69999999999999996 * fTemp6;
-		double fTemp7 = fRec4[1] + fRec5 + 0.69999999999999996 * fRec2[1];
+		double fRec5 = 0.0 - 0.7 * fTemp6;
+		double fTemp7 = fRec4[1] + fRec5 + 0.7 * fRec2[1];
 		fVec5[IOTA0 & 63] = fTemp7;
 		fRec2[0] = fVec5[(IOTA0 - 41) & 63];
-		double fRec3 = 0.0 - 0.69999999999999996 * fTemp7;
-		double fTemp8 = fRec2[1] + fRec3 + 0.69999999999999996 * fRec0[1];
+		double fRec3 = 0.0 - 0.7 * fTemp7;
+		double fTemp8 = fRec2[1] + fRec3 + 0.7 * fRec0[1];
 		fVec6[0] = fTemp8;
 		fRec0[0] = fVec6[11];
-		double fRec1 = 0.0 - 0.69999999999999996 * fTemp8;
-		double fThen0 = double(input0[i0]);
-		double fElse0 = fSlow2 * fTemp0 + fSlow3 * (fRec1 + fRec0[1]);
-		double fTemp9 = ((iSlow0) ? fElse0 : fThen0);
+		double fRec1 = 0.0 - 0.7 * fTemp8;
+		double fTemp9 = ((iSlow0) ? fSlow3 * fTemp0 + fSlow2 * (fRec1 + fRec0[1]) : double(input0[i0]));
 		output0[i0] = FAUSTFLOAT(fTemp9);
 		output1[i0] = FAUSTFLOAT(fTemp9);
 		IOTA0 = IOTA0 + 1;

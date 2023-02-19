@@ -74,13 +74,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 {
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
-	double fSlow0 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fVslider0));
-	double fSlow1 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fVslider1));
+	double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
+	double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		fRec0[0] = fSlow0 + 0.999 * fRec0[1];
 		fRec1[0] = fSlow1 + 0.999 * fRec1[1];
-		output0[i0] = FAUSTFLOAT(double(input0[i0]) * fRec0[0] * fRec1[0]);
-		output1[i0] = FAUSTFLOAT(double(input1[i0]) * fRec0[0] * fRec1[0]);
+		output0[i0] = FAUSTFLOAT(double(input0[i0]) * fRec1[0] * fRec0[0]);
+		output1[i0] = FAUSTFLOAT(double(input1[i0]) * fRec1[0] * fRec0[0]);
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
 	}
@@ -99,10 +99,10 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case PREGAIN: 
-		fVslider0_ = (float*)data; // , -6.0, -20.0, 20.0, 0.10000000000000001 
+		fVslider1_ = (float*)data; // , -6.0, -2e+01, 2e+01, 0.1 
 		break;
 	case GAIN1: 
-		fVslider1_ = (float*)data; // , -6.0, -20.0, 20.0, 0.10000000000000001 
+		fVslider0_ = (float*)data; // , -6.0, -2e+01, 2e+01, 0.1 
 		break;
 	default:
 		break;

@@ -79,16 +79,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	double fSlow0 = double(fVslider0);
 	double fSlow1 = 0.01 * fSlow0;
-	double fSlow2 = 1.0 - fSlow1;
-	double fSlow3 = double(fVslider1);
-	double fSlow4 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * (0.0 - 0.5 * fSlow3));
-	double fSlow5 = 0.0001 * mydsp_faustpower2_f(fSlow0);
-	double fSlow6 = fSlow3 + -1.0;
+	double fSlow2 = double(fVslider1);
+	double fSlow3 = fSlow2 + -1.0;
+	double fSlow4 = 0.0001 * mydsp_faustpower2_f(fSlow0);
+	double fSlow5 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * (0.0 - 0.5 * fSlow2));
+	double fSlow6 = 1.0 - fSlow1;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
-		fRec0[0] = fSlow4 + 0.999 * fRec0[1];
 		double fTemp1 = std::fabs(fSlow1 * fTemp0);
-		output0[i0] = FAUSTFLOAT(fTemp0 * (fSlow2 + fSlow1 * (fRec0[0] * (fSlow3 + fTemp1)) / (fSlow5 * mydsp_faustpower2_f(fTemp0) + fSlow6 * fTemp1 + 1.0)));
+		fRec0[0] = fSlow5 + 0.999 * fRec0[1];
+		output0[i0] = FAUSTFLOAT(fTemp0 * (fSlow6 + fSlow1 * (fRec0[0] * (fSlow2 + fTemp1) / (fSlow4 * mydsp_faustpower2_f(fTemp0) + fSlow3 * fTemp1 + 1.0))));
 		fRec0[1] = fRec0[0];
 	}
 }
@@ -100,8 +100,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("overdrive.drive",N_("Drive"),"S","",&fVslider1, 1.0, 1.0, 20.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("overdrive.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("overdrive.drive",N_("Drive"),"S","",&fVslider1, 1.0, 1.0, 2e+01, 0.1, 0);
+	reg.registerFloatVar("overdrive.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 1e+02, 0.0, 1e+02, 1.0, 0);
 	return 0;
 }
 

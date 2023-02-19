@@ -10,13 +10,13 @@ namespace lpbboost {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst4;
-	double fConst5;
-	double fConst6;
-	double fConst7;
-	double fRec0[3];
 	FAUSTFLOAT fVslider0;
-	double fRec1[2];
+	double fRec0[2];
+	double fConst2;
+	double fConst4;
+	double fConst6;
+	double fRec1[3];
+	double fConst7;
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -63,8 +63,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 3; l0 = l0 + 1) fRec0[l0] = 0.0;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec1[l1] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 3; l1 = l1 + 1) fRec1[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -75,14 +75,14 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = mydsp_faustpower2_f(fConst0);
-	double fConst2 = 4.3305440765089802e-10 * fConst0;
-	double fConst3 = fConst0 * (fConst2 + 4.6696250610376498e-08) + 1.2247430320174101e-06;
-	fConst4 = fConst1 / fConst3;
-	fConst5 = 1.0 / fConst3;
-	fConst6 = 2.4494860640348201e-06 - 8.6610881530179697e-10 * fConst1;
-	fConst7 = fConst0 * (fConst2 + -4.6696250610376498e-08) + 1.2247430320174101e-06;
+	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	double fConst1 = 4.33054407650898e-10 * fConst0;
+	fConst2 = fConst0 * (fConst1 + -4.66962506103765e-08) + 1.22474303201741e-06;
+	double fConst3 = mydsp_faustpower2_f(fConst0);
+	fConst4 = 2.44948606403482e-06 - 8.66108815301797e-10 * fConst3;
+	double fConst5 = fConst0 * (fConst1 + 4.66962506103765e-08) + 1.22474303201741e-06;
+	fConst6 = 1.0 / fConst5;
+	fConst7 = fConst3 / fConst5;
 	clear_state_f();
 }
 
@@ -93,14 +93,14 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = 0.0070000000000000062 * double(fVslider0);
+	double fSlow0 = 0.007000000000000006 * double(fVslider0);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec0[0] = double(input0[i0]) - fConst5 * (fConst6 * fRec0[1] + fConst7 * fRec0[2]);
-		fRec1[0] = fSlow0 + 0.99299999999999999 * fRec1[1];
-		double fTemp0 = 0.0 - 8.6803456392639806e-09 * fRec1[0] + -8.6803456392639804e-11;
-		output0[i0] = FAUSTFLOAT(fConst4 * (fRec0[0] * fTemp0 + fRec0[1] * (1.7360691278528001e-08 * fRec1[0] + 1.7360691278527999e-10) + fRec0[2] * fTemp0));
-		fRec0[2] = fRec0[1];
+		fRec0[0] = fSlow0 + 0.993 * fRec0[1];
+		double fTemp0 = 0.0 - 8.68034563926398e-09 * fRec0[0] + -8.68034563926398e-11;
+		fRec1[0] = double(input0[i0]) - fConst6 * (fConst4 * fRec1[1] + fConst2 * fRec1[2]);
+		output0[i0] = FAUSTFLOAT(fConst7 * (fRec1[0] * fTemp0 + fRec1[1] * (1.7360691278528e-08 * fRec0[0] + 1.7360691278528e-10) + fRec1[2] * fTemp0));
 		fRec0[1] = fRec0[0];
+		fRec1[2] = fRec1[1];
 		fRec1[1] = fRec1[0];
 	}
 }

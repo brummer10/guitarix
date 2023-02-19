@@ -8,19 +8,19 @@ namespace cabinet_impulse_former {
 class Dsp {
 private:
 	int fSampleRate;
+	double fVec0[3];
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
-	FAUSTFLOAT fVslider1;
-	FAUSTFLOAT	*fVslider1_;
 	double fConst2;
 	double fConst3;
+	double fRec1[3];
+	FAUSTFLOAT fVslider1;
+	FAUSTFLOAT	*fVslider1_;
 	double fConst5;
+	double fConst6;
+	double fRec0[3];
 	FAUSTFLOAT fVslider2;
 	FAUSTFLOAT	*fVslider2_;
-	double fConst6;
-	double fVec0[3];
-	double fRec1[3];
-	double fRec0[3];
 
 
 public:

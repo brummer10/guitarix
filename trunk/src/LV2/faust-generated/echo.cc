@@ -7,9 +7,9 @@ namespace echo {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
+	int IOTA0;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
-	int IOTA0;
 	float fConst0;
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT	*fVslider1_;
@@ -69,7 +69,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = 0.00100000005f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
+	fConst0 = 0.001f * std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
 	IOTA0 = 0;
 }
 
@@ -112,10 +112,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
-	float fSlow0 = 0.00999999978f * float(fVslider0);
-	int iSlow1 = std::min<int>(131072, std::max<int>(0, int(fConst0 * float(fVslider1)) + -1)) + 1;
+	int iSlow0 = std::min<int>(131072, std::max<int>(0, int(fConst0 * float(fVslider0)) + -1)) + 1;
+	float fSlow1 = 0.01f * float(fVslider1);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec0[IOTA0 & 262143] = float(input0[i0]) + fSlow0 * fRec0[(IOTA0 - iSlow1) & 262143];
+		fRec0[IOTA0 & 262143] = float(input0[i0]) + fSlow1 * fRec0[(IOTA0 - iSlow0) & 262143];
 		output0[i0] = FAUSTFLOAT(fRec0[IOTA0 & 262143]);
 		IOTA0 = IOTA0 + 1;
 	}
@@ -134,10 +134,10 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case PERCENT: 
-		fVslider0_ = (float*)data; // , 0.0f, 0.0f, 100.0f, 0.100000001f 
+		fVslider1_ = (float*)data; // , 0.0f, 0.0f, 1e+02f, 0.1f 
 		break;
 	case TIME: 
-		fVslider1_ = (float*)data; // , 1.0f, 1.0f, 2000.0f, 1.0f 
+		fVslider0_ = (float*)data; // , 1.0f, 1.0f, 2e+03f, 1.0f 
 		break;
 	default:
 		break;

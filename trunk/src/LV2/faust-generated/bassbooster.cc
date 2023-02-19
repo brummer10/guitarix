@@ -9,12 +9,12 @@ private:
 	uint32_t fSampleRate;
 	double fConst0;
 	double fConst1;
-	FAUSTFLOAT fVslider0;
-	FAUSTFLOAT	*fVslider0_;
 	double fConst2;
 	double fConst3;
 	double fConst4;
 	double fRec0[3];
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
 
 	void connect(uint32_t port,void* data);
 	void clear_state_f();
@@ -63,11 +63,11 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::tan(376.99111843077515 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate))));
-	fConst1 = 1.0 / (fConst0 * (fConst0 + 1.4142135623730951) + 1.0);
-	fConst2 = fConst0 * (fConst0 + -1.4142135623730951) + 1.0;
-	fConst3 = mydsp_faustpower2_f(fConst0);
-	fConst4 = 2.0 * (fConst3 + -1.0);
+	fConst0 = std::tan(376.99111843077515 / std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate))));
+	fConst1 = mydsp_faustpower2_f(fConst0);
+	fConst2 = 2.0 * (fConst1 + -1.0);
+	fConst3 = fConst0 * (fConst0 + -1.4142135623730951) + 1.0;
+	fConst4 = 1.0 / (fConst0 * (fConst0 + 1.4142135623730951) + 1.0);
 	clear_state_f();
 }
 
@@ -79,15 +79,15 @@ void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 #define fVslider0 (*fVslider0_)
-	double fSlow0 = std::pow(10.0, 0.050000000000000003 * double(fVslider0));
+	double fSlow0 = std::pow(1e+01, 0.05 * double(fVslider0));
 	double fSlow1 = fConst0 * fSlow0;
 	double fSlow2 = std::sqrt(2.0 * fSlow0);
-	double fSlow3 = fConst0 * (fSlow1 + fSlow2) + 1.0;
-	double fSlow4 = 2.0 * (fConst3 * fSlow0 + -1.0);
-	double fSlow5 = 1.0 - fConst0 * (fSlow2 - fSlow1);
+	double fSlow3 = 1.0 - fConst0 * (fSlow2 - fSlow1);
+	double fSlow4 = 2.0 * (fConst1 * fSlow0 + -1.0);
+	double fSlow5 = fConst0 * (fSlow2 + fSlow1) + 1.0;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec0[0] = double(input0[i0]) - fConst1 * (fConst2 * fRec0[2] + fConst4 * fRec0[1]);
-		output0[i0] = FAUSTFLOAT(fConst1 * (fSlow3 * fRec0[0] + fSlow4 * fRec0[1] + fSlow5 * fRec0[2]));
+		fRec0[0] = double(input0[i0]) - fConst4 * (fConst3 * fRec0[2] + fConst2 * fRec0[1]);
+		output0[i0] = FAUSTFLOAT(fConst4 * (fSlow5 * fRec0[0] + fSlow4 * fRec0[1] + fSlow3 * fRec0[2]));
 		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];
 	}
@@ -105,7 +105,7 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case LEVEL: 
-		fVslider0_ = (float*)data; // , 10.0, 0.5, 20.0, 0.5 
+		fVslider0_ = (float*)data; // , 1e+01, 0.5, 2e+01, 0.5 
 		break;
 	default:
 		break;
