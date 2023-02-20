@@ -280,8 +280,9 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
       "engine.insert", N_("switch insert ports on/off"), (bool*)0, false, false)->getBool();
     ip.signal_changed().connect(
 	sigc::mem_fun(this, &GxMachineBase::set_jack_insert));
+#ifndef GUITARIX_AS_PLUGIN
     pmap.reg_par("engine.set_stereo", N_("Stereo on/off"), (bool*)0, false, true);
-
+#endif
     gx_preset::UnitPresetList presetnames;
     plugin_preset_list_load(pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);
     for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
@@ -658,9 +659,9 @@ bool GxMachine::msend_midi_cc(int cc, int pgn, int bgn, int num) {
 }
 
 void GxMachine::load_preset(gx_system::PresetFileGui *pf, const Glib::ustring& name) {
-    int n = get_bank_index(get_current_bank());
     settings.load_preset(pf, name);
 #ifdef USE_MIDI_CC_OUT
+    int n = get_bank_index(get_current_bank());
     bool cc_ok = true;
     if (get_bank_index(pf->get_name()) != n) {
         cc_ok = msend_midi_cc(0xB0, 32, get_bank_index(pf->get_name()),3);

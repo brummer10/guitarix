@@ -284,6 +284,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
 	  "poweramp.mode", _("select"),load_poweramp_ui , poweramp_groups, PGN_POST_PRE),
       // internal audio modules
       noisegate(),
+      outputgate(&noisegate),
       monomute(),
       stereomute(),
       tuner(*this),
@@ -376,7 +377,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::bassbooster::plugin(),     PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
     pl.add(gx_effects::gx_ampout::plugin(),       PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
     pl.add(&contrast.plugin,                      PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
-    pl.add(&noisegate.outputgate,                 PLUGIN_POS_END, PGN_POST);
+    pl.add(&outputgate.outputlevel,                 PLUGIN_POS_END, PGN_POST);
     pl.add(&monomute,                             PLUGIN_POS_END, PGN_POST|PGN_MODE_MUTE);
 
     // * amp insert position (stereo amp input) *
