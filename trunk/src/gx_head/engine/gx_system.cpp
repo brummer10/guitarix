@@ -422,6 +422,7 @@ BasicOptions::BasicOptions()
 #else
     std::string p = Glib::path_get_dirname(modulepath);
     sys_IR_dir = Glib::build_filename(p, sys_IR_dir);
+    
 #endif
 #else
     user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
@@ -544,6 +545,10 @@ CmdlineOptions::CmdlineOptions()
       system_show_rack(false),
       system_midiout(false),
       reload_lv2_presets(true) {
+#ifdef GUITARIX_AS_PLUGIN
+    std::string p = Glib::path_get_dirname(modulepath);
+    factory_dir = Glib::build_filename(p, factory_dir);
+#endif
     const char* home = getenv("HOME");
     if (!home) {
 	throw GxFatalError(_("no HOME environment variable"));

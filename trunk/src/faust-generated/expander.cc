@@ -477,6 +477,27 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
         b.load_glade(glade_def);
         return 0;
     }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("expander" "." p)
+// ----- the expander
+b.openHorizontalhideBox("");
+b.create_master_slider(PARAM("ratio"), N_("ratio"));
+b.closeBox();
+b.openHorizontalBox("");
+{
+    b.create_small_rackknob(PARAM("knee"), N_("knee"));
+    b.create_small_rackknobr(PARAM("ratio"), N_("ratio"));
+    b.create_small_rackknob(PARAM("threshold"), N_("threshold"));
+
+    b.create_small_rackknob(PARAM("attack"), N_("attack"));
+    b.create_small_rackknob(PARAM("release"), N_("release"));
+    b.create_simple_meter(PARAM("v1"));
+}
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
 	return -1;
 }
 
