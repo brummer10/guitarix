@@ -970,6 +970,9 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
 #ifndef GUITARIX_AS_PLUGIN
     jack.signal_client_change().connect(
         sigc::mem_fun(*this, &GxSettings::jack_client_changed));
+#else
+    no_autosave = true;
+    no_save_on_exit = true;
 #endif
     set_preset.connect(sigc::mem_fun(*this, &GxSettings::preset_sync_set));
     get_sequencer_p.connect(sigc::mem_fun(*this, &GxSettings::on_get_sequencer_pos));

@@ -810,7 +810,6 @@ public:
     float* get_buffer() {return outdata;};
     void set_data(bool dfill);
     Plugin plugin;
-    static Plugin directoutput;
     Directout( EngineControl& engine, sigc::slot<void> sync);
     ~Directout();
 };
@@ -990,7 +989,7 @@ private:
 	static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-	LiveLooper(ParamMap& param_, sigc::slot<void> sync, const string& loop_dir_);
+	LiveLooper(ParamMap& param_, Directout* d, sigc::slot<void> sync, const string& loop_dir_);
 	~LiveLooper();
 };
 

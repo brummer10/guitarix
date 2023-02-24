@@ -290,8 +290,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       tuner(*this),
 #ifndef GUITARIX_AS_PLUGIN
       drumout(),
-      directout(*this, sigc::mem_fun(mono_chain, &StereoModuleChain::sync)),
 #endif
+      directout(*this, sigc::mem_fun(mono_chain, &StereoModuleChain::sync)),
       maxlevel(),
       oscilloscope(*this),
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
@@ -301,7 +301,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
-      loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
+      loop(get_param(), &directout, sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
 #ifndef GUITARIX_AS_PLUGIN
       record(*this, 1), record_st(*this, 2),
 #endif
@@ -393,8 +393,8 @@ void GxEngine::load_static_plugins() {
     pl.add(hardlim::plugin(),                     PLUGIN_POS_END, PGN_MODE_NORMAL);
 #ifndef GUITARIX_AS_PLUGIN
     pl.add(&drumout.outputdrum,                   PLUGIN_POS_END, PGN_MODE_NORMAL);
-    pl.add(&directout,                            PLUGIN_POS_END, PGN_MODE_NORMAL);
 #endif
+    pl.add(&directout,                            PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(&maxlevel,                             PLUGIN_POS_END, PGN_MODE_NORMAL|PGN_MODE_BYPASS);
 
     // * fx amp output *

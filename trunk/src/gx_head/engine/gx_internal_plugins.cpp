@@ -1826,7 +1826,6 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
 /****************************************************************
  ** class Directout
  */
-Plugin Directout::directoutput = Plugin();
 
 Directout::Directout(EngineControl& engine_, sigc::slot<void> sync_)
     : PluginDef(),
@@ -1835,14 +1834,19 @@ Directout::Directout(EngineControl& engine_, sigc::slot<void> sync_)
       sync(sync_),
       mem_allocated(false),
       plugin() {
-    directoutput.set_pdef(this);
     version = PLUGINDEF_VERSION;
+    groups = 0;
     flags = 0;
+    category = "NONE";
     id = "dout";
-    name = N_("Directoutputr");
+    name = N_("Directoutput");
     stereo_audio = compute_static;
+    mono_audio = 0;
     set_samplerate = init_static;
     activate_plugin = 0;
+    load_ui = 0;
+    register_params = 0;
+    plugin.set_pdef(this);
     plugin = this;
     engine.signal_buffersize_change().connect(
     sigc::mem_fun(*this, &Directout::change_buffersize));

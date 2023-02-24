@@ -88,8 +88,8 @@ public:
     TunerAdapter tuner;
 #ifndef GUITARIX_AS_PLUGIN
     Drumout drumout;
-    Directout directout;
 #endif
+    Directout directout;
     MaxLevel maxlevel;
     OscilloscopeAdapter oscilloscope;
     ConvolverMonoAdapter mono_convolver;

@@ -1643,6 +1643,7 @@ void LadspaPluginList::lv2_load(pluginmap& d, gx_system::CmdlineOptions& options
             !lilv_plugins_is_end(lv2_plugins, it);
             it = lilv_plugins_next(lv2_plugins, it)) {
         add_plugin(lilv_plugins_get(lv2_plugins, it), d, options);
+#ifndef GUITARIX_AS_PLUGIN
         if (options.reload_lv2_presets) {
             if (pdata.has_preset && pdata.cline.size() != 0) {
                 pdata.cline.replace(pdata.cline.end()-2,pdata.cline.end()-1,"");
@@ -1656,6 +1657,7 @@ void LadspaPluginList::lv2_load(pluginmap& d, gx_system::CmdlineOptions& options
             }
             pdata.has_preset = false;
         }
+#endif
     }
     options.reload_lv2_presets = false;
 }
