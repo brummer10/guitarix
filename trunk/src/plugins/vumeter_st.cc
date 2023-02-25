@@ -136,8 +136,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerFloatVar("vu_st.gain", "Gain", "S", "", &fslider0, 0.0, -20, 4.0, 0.1, 0);
-	reg.registerFloatVar("vu_st.v1", "", "SLNO", "", &fbargraph0, 0.0003, 0.0003, 4.0, 0.00001, 0);
-	reg.registerFloatVar("vu_st.v2", "", "SLNO", "", &fbargraph2, 0.0003, 0.0003, 4.0, 0.00001, 0);
+	reg.registerFloatVar("vu_st.v1", "", "SLNO", "", &fbargraph0,  0, -7e+01, 4.0, 0, 0);
+	reg.registerFloatVar("vu_st.v2", "", "SLNO", "", &fbargraph2,  0, -7e+01, 4.0, 0, 0);
 	reg.registerFloatVar("vu_st.v3", "", "BNO", "", &fbargraph1, 0.0, 0.0, 1.0, 1.0, 0);
 	return 0;
 }
@@ -151,6 +151,26 @@ inline int Dsp::load_ui_f(const UiBuilder& b, int form)
 {
     if (form & UI_FORM_GLADE) {
         b.load_glade_file("vumeter_st_ui.glade");
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("vu_st" "." p)
+b.openHorizontalhideBox("");
+b.closeBox();
+b.openHorizontalBox("");
+{
+    b.insertSpacer();
+    b.create_small_rackknob(PARAM("gain"), "Gain");
+    b.insertSpacer();
+    b.insertSpacer();
+    b.openVerticalBox("");
+    b.create_eq_rackslider_no_caption(PARAM("v1"));
+    b.create_eq_rackslider_no_caption(PARAM("v2"));
+    b.closeBox();
+}
+b.closeBox();
+
+#undef PARAM
         return 0;
     }
 	return -1;
