@@ -522,6 +522,9 @@ public:
     CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~CabinetConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 #ifndef GUITARIX_AS_PLUGIN
@@ -555,6 +558,9 @@ public:
     CabinetStereoConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~CabinetStereoConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 
@@ -592,6 +598,9 @@ public:
     PreampConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~PreampConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 #ifndef GUITARIX_AS_PLUGIN
@@ -625,6 +634,9 @@ public:
     PreampStereoConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~PreampStereoConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 /****************************************************************
@@ -654,6 +666,9 @@ public:
     ContrastConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~ContrastConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 /****************************************************************

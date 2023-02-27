@@ -1042,6 +1042,7 @@ int FixedBaseConvolver::activate(bool start, PluginDef *p) {
         if (!self.start()) {
             return -1;
         }
+        if (!self.update_conn.connected())
         self.update_conn = Glib::signal_timeout().connect(
             sigc::mem_fun(self, &FixedBaseConvolver::check_update_timeout), 200);
     } else {
