@@ -1051,16 +1051,16 @@ b.openVerticalBox("");
     b.closeBox();
     b.openHorizontalTableBox("");
     {
-	b.create_eq_rackslider_no_caption("eqs.fs31_25");
-	b.create_eq_rackslider_no_caption("eqs.fs62_5");
-	b.create_eq_rackslider_no_caption("eqs.fs125");
-	b.create_eq_rackslider_no_caption("eqs.fs250");
-	b.create_eq_rackslider_no_caption("eqs.fs500");
-	b.create_eq_rackslider_no_caption("eqs.fs1k");
-	b.create_eq_rackslider_no_caption("eqs.fs2k");
-	b.create_eq_rackslider_no_caption("eqs.fs4k");
-	b.create_eq_rackslider_no_caption("eqs.fs8k");
-	b.create_eq_rackslider_no_caption("eqs.fs16k");
+	b.create_small_rackknob("eqs.fs31_25", "");
+	b.create_small_rackknob("eqs.fs62_5", "");
+	b.create_small_rackknob("eqs.fs125", "");
+	b.create_small_rackknob("eqs.fs250", "");
+	b.create_small_rackknob("eqs.fs500", "");
+	b.create_small_rackknob("eqs.fs1k", "");
+	b.create_small_rackknob("eqs.fs2k", "");
+	b.create_small_rackknob("eqs.fs4k", "");
+	b.create_small_rackknob("eqs.fs8k", "");
+	b.create_small_rackknob("eqs.fs16k", "");
     }
     b.closeBox();
     b.openHorizontalTableBox("");
