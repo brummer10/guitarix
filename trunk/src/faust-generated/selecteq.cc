@@ -1051,16 +1051,16 @@ b.openVerticalBox("");
     b.closeBox();
     b.openHorizontalTableBox("");
     {
-	b.create_small_rackknob("eqs.fs31_25", "");
-	b.create_small_rackknob("eqs.fs62_5", "");
-	b.create_small_rackknob("eqs.fs125", "");
-	b.create_small_rackknob("eqs.fs250", "");
-	b.create_small_rackknob("eqs.fs500", "");
-	b.create_small_rackknob("eqs.fs1k", "");
-	b.create_small_rackknob("eqs.fs2k", "");
-	b.create_small_rackknob("eqs.fs4k", "");
-	b.create_small_rackknob("eqs.fs8k", "");
-	b.create_small_rackknob("eqs.fs16k", "");
+	b.create_small_rackknob("eqs.fs31_25", "Gain");
+	b.create_small_rackknob("eqs.fs62_5", "Gain");
+	b.create_small_rackknob("eqs.fs125", "Gain");
+	b.create_small_rackknob("eqs.fs250", "Gain");
+	b.create_small_rackknob("eqs.fs500", "Gain");
+	b.create_small_rackknob("eqs.fs1k", "Gain");
+	b.create_small_rackknob("eqs.fs2k", "Gain");
+	b.create_small_rackknob("eqs.fs4k", "Gain");
+	b.create_small_rackknob("eqs.fs8k", "Gain");
+	b.create_small_rackknob("eqs.fs16k", "Gain");
     }
     b.closeBox();
     b.openHorizontalTableBox("");
