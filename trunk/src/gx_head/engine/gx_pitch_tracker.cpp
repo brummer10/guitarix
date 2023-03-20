@@ -53,7 +53,7 @@ PitchTracker::PitchTracker()
       m_pthr(0),
       resamp(),
       m_sampleRate(),
-      fixed_sampleRate(41000),
+      fixed_sampleRate(48000),
       m_freq(-1),
       signal_threshold_on(SIGNAL_THRESHOLD_ON),
       signal_threshold_off(SIGNAL_THRESHOLD_OFF),
