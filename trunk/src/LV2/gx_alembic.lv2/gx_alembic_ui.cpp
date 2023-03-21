@@ -131,7 +131,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     ui->private_ptr = (void*)ps;
     ui->win->func.expose_callback = draw_my_window;
 
-    ui->widget[0] = add_my_image_knob(ui->widget[0], INPUT,"Gain", ui,240, 15, 64, 74);
+    ui->widget[0] = add_my_image_knob(ui->widget[0], AUDIO_IN,"Gain", ui,240, 15, 64, 74);
     set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
     widget_get_png(ui->widget[0], LDVAR(studiopreknob_png));
 

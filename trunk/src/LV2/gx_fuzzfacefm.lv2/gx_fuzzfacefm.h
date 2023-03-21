@@ -34,7 +34,7 @@ typedef enum
    EFFECTS_INPUT,
    DRIVE, 
    FUZZ, 
-   INPUT, 
+   AUDIO_IN, 
    LEVEL, 
 } PortIndex;
 

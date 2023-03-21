@@ -174,7 +174,7 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case INPUT: 
+	case AUDIO_IN: 
 		fVslider3_ = (float*)data; // , 0.0, -24.0, 20.0, 0.10000000000000001 
 		break;
 	case OUTPUT: 

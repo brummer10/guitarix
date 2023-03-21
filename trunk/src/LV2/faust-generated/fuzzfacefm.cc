@@ -349,7 +349,7 @@ void Dsp::connect(uint32_t port,void* data)
 	case FUZZ: 
 		fVslider1_ = (float*)data; // , 0.5, 0.0, 0.98999999999999999, 0.01 
 		break;
-	case INPUT: 
+	case AUDIO_IN: 
 		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case LEVEL: 

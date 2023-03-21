@@ -277,7 +277,7 @@ static LV2UI_Handle instantiate(const LV2UI_Descriptor * descriptor,
     // connect the expose func
     ui->win->func.expose_callback = draw_window;
     // create knob widgets
-    ui->widget[0] = add_my_knob(ui->widget[0], INPUT,"Input", ui,40, 25, 100, 125);
+    ui->widget[0] = add_my_knob(ui->widget[0], AUDIO_IN,"Input", ui,40, 25, 100, 125);
     set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
     ui->widget[1] = add_my_knob(ui->widget[1], FUZZ,"Fuzz", ui,160, 25, 100, 125);
