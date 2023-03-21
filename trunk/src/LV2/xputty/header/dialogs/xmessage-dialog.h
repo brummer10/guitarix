@@ -49,7 +49,7 @@ typedef struct {
     char **message;
     unsigned int sel;
     char **choices;
-} MessageBox;
+} MessageDialog;
 
 /**
  * @brief open_message_dialog  - open a non blocking dialog window,
