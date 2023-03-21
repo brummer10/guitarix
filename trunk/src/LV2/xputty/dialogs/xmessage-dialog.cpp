@@ -124,7 +124,7 @@ static void entry_clip(Widget_t *w) {
         int i = strlen( w->input_label)-1;
         int j = 0;
         int u = 0;
-        for(;i>0;i--) {
+        for(;i>=0;i--) {
             if(IS_UTF8(w->input_label[i])) {
                  u++;
             }
