@@ -108,7 +108,7 @@ typedef struct {
  * @param ADJ_INTERN        - (*xevfunc) adj_callback(void * widget, void* user_data)
  * @param VALUE_CHANGED     - (*xevfunc) value_changed_callback(void * widget, void* user_data)
  * @param USER              - (*xevfunc) user_callback(void * widget, void* user_data)
- * @param MEM_FREE          - (*xevfunc) mem_free_callback(void * widget, void* user_data)
+ * @param MEM_FREE_CB       - (*xevfunc) mem_free_callback(void * widget, void* user_data)
  * @param CONFIGURE_NOTIFY  - (*xevfunc) configure_notify_callback(void * widget, void* user_data)
  * @param MAP_NOTIFY        - (*xevfunc) map_notify_callback(void * widget, void* user_data)
  * @param UNMAP_NOTIFY      - (*xevfunc) unmap_notify_callback(void * widget, void* user_data)
@@ -128,7 +128,7 @@ typedef enum {
     ADJ_INTERN,
     VALUE_CHANGED,
     USER,
-    MEM_FREE,
+    MEM_FREE_CB,
     CONFIGURE_NOTIFY,
     MAP_NOTIFY,
     UNMAP_NOTIFY,
