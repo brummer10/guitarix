@@ -94,8 +94,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     static bool blocked = false;
     POINT pt;
 
-    // be aware: "ui" can be NULL during window creation (esp. if there is a debugger attached)
-    Widget_t *ui = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    // be aware: "wid" can be NULL during window creation (esp. if there is a debugger attached)
+    Widget_t *wid = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
     switch (msg) {
         // MSWin only: React to close requests
@@ -108,12 +108,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         // X11:ConfigureNotify
         case WM_SIZE:
-            if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-            resize_event(ui); // configure event, we only check for resize events here
+            if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
+            resize_event(wid); // configure event, we only check for resize events here
             return 0;
         // X11:Expose
         case WM_PAINT:
-            if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+            if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
             return onPaint(hwnd, wParam, lParam); // not possible on mswin: (only fetch the last expose event)
 
         // MSWin only: Allow keyboard input
@@ -126,19 +126,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         // X11:ButtonPress
         case WM_LBUTTONDOWN:
-            if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+            if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
             return 0;
         case WM_MOUSEWHEEL:
-            if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+            if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
             // opposed to X11, WM_MOUSEWHEEL doesnt contain mouse coordinates
             //if (GetCursorPos(&pt) && ScreenToClient(hwnd, &pt)) {
-            //  ui->pos_x = pt.x;
-            //  ui->pos_y = pt.y;
+            //  wid->pos_x = pt.x;
+            //  wid->pos_y = pt.y;
             //}
             //if (GET_WHEEL_DELTA_WPARAM(wParam) <= 0)
-            //  scroll_event(ui, -1); // mouse wheel scroll down
+            //  scroll_event(wid, -1); // mouse wheel scroll down
             //else
-            //  scroll_event(ui, 1); // mouse wheel scroll up
+            //  scroll_event(wid, 1); // mouse wheel scroll up
             return 0;
         // X11:ButtonRelease
         case WM_LBUTTONUP:
@@ -146,27 +146,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         // X11:KeyPress
         case WM_KEYUP:
-            if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
+            if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
             return DefWindowProc(hwnd, msg, wParam, lParam);
 
         // X11:LeaveNotify (X11:EnterNotify: see WM_MOUSEMOVE)
         case WM_MOUSELEAVE:
-            if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-            //ui->mouse_inside = false;
+            if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
+            //wid->mouse_inside = false;
             return 0;
 
         // X11:MotionNotify
         case WM_MOUSEMOVE:
-            if (!ui) return DefWindowProc(hwnd, msg, wParam, lParam);
-            //if (!ui->mouse_inside) {
+            if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
+            //if (!wid->mouse_inside) {
             //  // emulate X11:EnterNotify
-            //  ui->mouse_inside = true;
-            //  if (!blocked) get_last_active_controller(ui, true);
-            //  SetMouseTracking(ui->win, true); // for receiving (next) WM_MOUSELEAVE
+            //  wid->mouse_inside = true;
+            //  if (!blocked) get_last_active_controller(wid, true);
+            //  SetMouseTracking(wid->win, true); // for receiving (next) WM_MOUSELEAVE
             //}
             // mouse move while button1 is pressed
             //if (wParam & MK_LBUTTON) {
-            //  motion_event(ui, start_value, GET_Y_LPARAM(lParam));
+            //  motion_event(wid, start_value, GET_Y_LPARAM(lParam));
             //}
             return 0;
 
@@ -181,17 +181,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam ) {
 #if 0
     PAINTSTRUCT ps ;
-    gx_CreamMachineUI *ui = (gx_CreamMachineUI *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    Widget_t *w = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
     // The cairo_win32_surface should only exist between BeginPaint()/EndPaint(),
     // otherwise it becomes unusable once the HDC of the owner window changes
     // (what can happen anytime, e.g. on resize).
-    // Therefore, ui->surface is created as a simple cairo_image_surface,
+    // Therefore, w->surface is created as a simple cairo_image_surface,
     // that can exist throughout the plugins lifetime (exception: see resize_event())
     // and is copied to a win32_surface in the onPaint() event (see WM_PAINT).
 
     // draw onto the image surface first
-    _expose(ui);
+    _expose(w);
 
     // prepare to update window
     HDC hdc = BeginPaint(hwnd, &ps );
@@ -200,7 +200,7 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam ) {
     cairo_surface_t *surface = cairo_win32_surface_create (hdc);
     cairo_t *cr = cairo_create (surface);
     // copy contents of the (permanent) image_surface to the win32_surface
-    cairo_set_source_surface(cr, ui->surface, 0.0, 0.0);
+    cairo_set_source_surface(cr, w->surface, 0.0, 0.0);
     cairo_paint(cr);
 
     // cleanup
