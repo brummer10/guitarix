@@ -179,7 +179,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam ) {
-#if 0
     PAINTSTRUCT ps ;
     Widget_t *w = (Widget_t *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
@@ -191,7 +190,7 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam ) {
     // and is copied to a win32_surface in the onPaint() event (see WM_PAINT).
 
     // draw onto the image surface first
-    _expose(w);
+    transparent_draw(w, NULL);
 
     // prepare to update window
     HDC hdc = BeginPaint(hwnd, &ps );
@@ -209,7 +208,6 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam ) {
 
     EndPaint( hwnd, &ps );
     return 0 ;
-#endif
 }
 
 /*---------------------------------------------------------------------
