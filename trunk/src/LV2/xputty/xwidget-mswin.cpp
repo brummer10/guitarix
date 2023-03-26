@@ -47,6 +47,10 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
+    // Event callbacks already start during CreateWindow(),
+    // so prepare childlist before that call on MSWin
+    // (on Linux, adding to childlist starts message events)
+    childlist_add_child(app->childlist,w);
     // prepare window class
     WNDCLASS wndclass = {0};
     HINSTANCE hInstance = NULL;
@@ -116,6 +120,10 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
 
 void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,
                           int x, int y, int width, int height) {
+    // Event callbacks already start during CreateWindow(),
+    // so prepare childlist before that call on MSWin
+    // (on Linux, adding to childlist starts message events)
+    childlist_add_child(app->childlist,w);
     // prepare window class
     WNDCLASS wndclass = {0};
     HINSTANCE hInstance = NULL;

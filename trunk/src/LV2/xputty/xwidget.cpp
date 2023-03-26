@@ -148,9 +148,6 @@ Widget_t *create_window(Xputty *app, Window win,
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
     debug_print("assert(w)\n");
-    os_create_main_window_and_surface(w, app, win, x, y, width, height);
-    create_cairo_context_and_buffer(w);
-
     w->image = NULL;
 
     w->flags = IS_WINDOW;
@@ -206,9 +203,15 @@ Widget_t *create_window(Xputty *app, Window win,
     w->func.unmap_notify_callback = _dummy_callback;
     w->func.dialog_callback = _dummy_callback;
 
-    childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
     debug_print("size of Func_t = %lu\n", sizeof(w->func)/sizeof(void*));
+
+    os_create_main_window_and_surface(w, app, win, x, y, width, height);
+    create_cairo_context_and_buffer(w);
+#ifndef _WIN32 // childlist already set up
+    childlist_add_child(app->childlist,w);
+#endif
+
     return w;
 }
 
@@ -234,9 +237,6 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
     debug_print("assert(w)\n");
-    os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
-    create_cairo_context_and_buffer(w);
-
     w->image = NULL;
     
     w->flags = IS_WIDGET | USE_TRANSPARENCY;
@@ -293,9 +293,14 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     w->func.unmap_notify_callback = _dummy_callback;
     w->func.dialog_callback = _dummy_callback;
 
-    childlist_add_child(app->childlist,w);
     //XMapWindow(app->dpy, w->widget);
     debug_print("size of Widget_t = %ld\n", sizeof(struct Widget_t));
+    os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
+    create_cairo_context_and_buffer(w);
+#ifndef _WIN32 // childlist already set up
+    childlist_add_child(app->childlist,w);
+#endif
+
     return w;
 }
 
