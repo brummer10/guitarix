@@ -355,13 +355,7 @@ void show_tooltip(Widget_t *wid) {
     for(;i<wid->childlist->elem;i++) {
         Widget_t *w = wid->childlist->childs[i];
         if (w->flags & IS_TOOLTIP) {
-            unsigned int mask;
-            int x, y, rx, ry;
-            Window child, root;
-            XQueryPointer(wid->app->dpy, wid->widget, &root, &child, &rx, &ry, &x, &y, &mask);
-            int x1, y1;
-            os_translate_coords(wid, wid->widget, os_get_root_window(wid), x, y, &x1, &y1);
-            os_move_window(w->app->dpy,w->widget,x1+10, y1-10);
+	    os_show_tooltip(wid, w);
             widget_show(w);
             break;
         }

@@ -233,6 +233,13 @@ void os_widget_hide(Widget_t *w) {
     ShowWindow(w->widget, SW_HIDE);
 }
 
+void os_show_tooltip(Widget_t *wid, Widget_t *w) {
+    POINT pt;
+    if (GetCursorPos(&pt)) {
+        SetWindowPos(w->widget, NULL, //hWnd, hWndInsertAfter
+          pt.x+10, pt.y-10, 0, 0, SWP_NOSIZE|SWP_NOZORDER); //X, Y, width, height, uFlags
+    }
+}
 
 Atom os_register_wm_delete_window(Widget_t * wid) {
     Atom msg = WM_USER + 01;

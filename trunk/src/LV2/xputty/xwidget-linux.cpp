@@ -168,6 +168,16 @@ void os_widget_hide(Widget_t *w) {
     XUnmapWindow(w->app->dpy, w->widget);
 }
 
+void os_show_tooltip(Widget_t *wid, Widget_t *w) {
+    unsigned int mask;
+    int x, y, rx, ry;
+    Window child, root;
+    XQueryPointer(wid->app->dpy, wid->widget, &root, &child, &rx, &ry, &x, &y, &mask);
+    int x1, y1;
+    os_translate_coords(wid, wid->widget, os_get_root_window(wid), x, y, &x1, &y1);
+    XMoveWindow(w->app->dpy,w->widget,x1+10, y1-10);
+}
+
 void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
     Widget_t *wid = (Widget_t*)w_;
     XEvent *xev = (XEvent*)event;

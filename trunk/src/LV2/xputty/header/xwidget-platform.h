@@ -93,6 +93,7 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
 void os_set_title(Widget_t *w, const char *title);
 void os_widget_show(Widget_t *w);
 void os_widget_hide(Widget_t *w);
+void os_show_tooltip(Widget_t *wid, Widget_t *w);
 
 Atom os_register_widget_destroy(Widget_t * wid);
 Atom os_register_wm_delete_window(Widget_t * wid);
