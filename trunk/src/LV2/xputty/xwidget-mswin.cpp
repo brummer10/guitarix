@@ -30,6 +30,9 @@ extern "C" {
 #include "xwidget.h"
 #include "xwidget_private.h"
 
+TCHAR szMainUIClassName[]   = TEXT("xputtyMainUI____0123456789ABCDEF");
+TCHAR szWidgetUIClassName[] = TEXT("xputtyWidgetUI__0123456789ABCDEF");
+
 // forward declarations
 void SetClientSize(HWND hwnd, int clientWidth, int clientHeight);
 BOOL SetMouseTracking(HWND hwnd, BOOL enable);
@@ -42,42 +45,74 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#if 0
-void gx_gui_create_window_and_surface(gx_CreamMachineUI *ui) {
+void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
+                          int x, int y, int width, int height) {
     // prepare window class
-    static TCHAR szClassName[] = TEXT("gx_CreamMachineUIClass");
     WNDCLASS wndclass = {0};
     HINSTANCE hInstance = NULL;
 
-    wndclass.style         = CS_HREDRAW | CS_VREDRAW; // clear on resize
+    snprintf(szMainUIClassName+16, 16, "%p", WndProc);
+    snprintf(szWidgetUIClassName+16, 16, "%p", WndProc);
+
+    // create a permanent surface for drawing (see onPaint() event)
+    w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+
     wndclass.lpfnWndProc   = WndProc;
     wndclass.hInstance     = hInstance;
     wndclass.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wndclass.hbrBackground =(HBRUSH)COLOR_WINDOW;
-    wndclass.lpszClassName = szClassName;
-    wndclass.cbWndExtra    = sizeof(ui); // reserve space for SetWindowLongPtr
+    wndclass.hbrBackground = NULL;
+    wndclass.lpszClassName = szMainUIClassName;
+    wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
     RegisterClass(&wndclass);
+    // TODO: pass window style (mainwindow,childwidget,popup,...) to create_window()
+    // _WIN32 doesnt allow changing the style afterwards, as it is done in xmenu.cpp
+    // (this also removes duplicate code for window/widget creation).
+    // For the current situation it is sufficient to set popup style if parent is HWND_DESKTOP.
+    DWORD dwStyle = 0;
+    DWORD dwExStyle = 0;
+    // dwExStyle:
+    //   WS_EX_APPWINDOW - force(!) taskbar icon
+    //   WS_EX_CONTROLPARENT - contains children, uses tab+cursor nav.
+    //   WS_EX_NOPARENTNOTIFY - no PARENTNOTIFY on create/destroy
+    //   WS_EX_TOOLWINDOW - no taskbar icon
+    //   WS_EX_TOPMOST - above all others
+    if (win == (HWND)-1) {
+        // Dialogs with border
+        dwStyle = WS_OVERLAPPEDWINDOW;
+        dwExStyle = WS_EX_CONTROLPARENT;
+        win = HWND_DESKTOP;
+        // include border widths
+        RECT Rect = {0};
+        BOOL bMenu = false;
+        Rect.right = width;
+        Rect.bottom = height;
+        if (AdjustWindowRectEx(&Rect, dwStyle, bMenu, dwExStyle)) {
+            width = Rect.right - Rect.left;
+            height = Rect.bottom - Rect.top;
+        }
+    } else
+    if (win == HWND_DESKTOP) {
+        // Floating without border (popup, tooltip)
+        dwStyle = WS_POPUP;
+        dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOOLWINDOW;
+    } else {
+        // Embedded widget
+        dwStyle = WS_CHILD;
+        dwExStyle = WS_EX_CONTROLPARENT | WS_EX_TOOLWINDOW;
+    }
     // create the window
-    ui->win = CreateWindowEx(WS_EX_TOPMOST, // dwExStyle
-                            szClassName, // lpClassName
+    w->widget = CreateWindowEx(dwExStyle, szMainUIClassName,
                             TEXT("Draw Surface"), // lpWindowName
-                            (WS_CHILD | WS_VISIBLE), // dwStyle
+                            dwStyle, // dwStyle
                             CW_USEDEFAULT, CW_USEDEFAULT, // X, Y
-                            ui->width, ui->height, // nWidth, nHeight
-                            (HWND)ui->parentWindow, // hWndParent (no embeddeding takes place yet)
-                            NULL, hInstance, NULL); // hMenu, hInstance, lpParam
-                                                    //
-    // attach a pointer to "ui" to this window (so ui is available in WndProc)
-    SetWindowLongPtr(ui->win, GWLP_USERDATA, (LONG_PTR)ui);
-    SetParent(ui->win, (HWND)ui->parentWindow); // embed into parentWindow
-    ShowWindow(ui->win, SW_SHOW);
-    SetClientSize(ui->win, ui->width, ui->height);
-    SetMouseTracking(ui->win, true); // for receiving WM_MOUSELEAVE
+                            width, height, // nWidth, nHeight
+                            win, // hWndParent (no embeddeding takes place yet)
+                            NULL, hInstance, (LPVOID)w); // hMenu, hInstance, lpParam
+    SetParent(w->widget, win); // embed into parentWindow
+    SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 
-    // create a permanent surface for drawing (see onPaint() event)
-    ui->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, ui->width, ui->height); 
+    //os_set_window_min_size(w, width/2, height/2, width, height);
 }
-#endif
 
 /*---------------------------------------------------------------------
 ----------------------------------------------------------------------- 

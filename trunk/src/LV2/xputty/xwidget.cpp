@@ -148,48 +148,7 @@ Widget_t *create_window(Xputty *app, Window win,
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
     debug_print("assert(w)\n");
-    XSetWindowAttributes attributes;
-    attributes.save_under = True;
-    attributes.override_redirect = 0;
-
-    long event_mask = StructureNotifyMask|ExposureMask|KeyPressMask 
-                    |EnterWindowMask|LeaveWindowMask|ButtonReleaseMask
-                    |ButtonPressMask|Button1MotionMask;
-
-
-
-    w->widget = XCreateWindow(app->dpy, win , x, y, width, height, 0,
-                            CopyFromParent, InputOutput, CopyFromParent,
-                            CopyFromParent, &attributes);
-    debug_print("XCreateWindow\n");
-
-    XSetLocaleModifiers("");
-    w->xim = XOpenIM(app->dpy, 0, 0, 0);
-    if(!w->xim){
-        XSetLocaleModifiers("@im=none");
-        w->xim = XOpenIM(app->dpy, 0, 0, 0);
-    }
-
-    w->xic = XCreateIC(w->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
-                    XNClientWindow, w->widget, XNFocusWindow,  w->widget, NULL);
-
-    XSetICFocus(w->xic);
-
-    XSelectInput(app->dpy, w->widget, event_mask);
-
-    XSizeHints* win_size_hints;
-    win_size_hints = XAllocSizeHints();
-    win_size_hints->flags =  PMinSize|PBaseSize|PWinGravity;
-    win_size_hints->min_width = width/2;
-    win_size_hints->min_height = height/2;
-    win_size_hints->base_width = width;
-    win_size_hints->base_height = height;
-    win_size_hints->win_gravity = CenterGravity;
-    XSetWMNormalHints(app->dpy, w->widget, win_size_hints);
-    XFree(win_size_hints);
-
-    w->surface =  cairo_xlib_surface_create (app->dpy, w->widget,  
-                  DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
+    os_create_main_window_and_surface(w, app, win, x, y, width, height);
     create_cairo_context_and_buffer(w);
 
     w->image = NULL;
