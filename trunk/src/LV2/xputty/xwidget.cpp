@@ -378,11 +378,7 @@ Widget_t *get_toplevel_widget(Xputty *main) {
 }
 
 void expose_widget(Widget_t *w) {
-    XEvent exp;
-    memset(&exp, 0, sizeof(exp));
-    exp.type = Expose;
-    exp.xexpose.window = w->widget;
-    XSendEvent(w->app->dpy, w->widget, False, ExposureMask, (XEvent *)&exp);
+    os_expose_widget(w);
 }
 
 void transparent_draw(void * w_, void* user_data) {

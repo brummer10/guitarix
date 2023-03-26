@@ -178,6 +178,14 @@ void os_show_tooltip(Widget_t *wid, Widget_t *w) {
     XMoveWindow(w->app->dpy,w->widget,x1+10, y1-10);
 }
 
+void os_expose_widget(Widget_t *w) {
+    XEvent exp;
+    memset(&exp, 0, sizeof(exp));
+    exp.type = Expose;
+    exp.xexpose.window = w->widget;
+    XSendEvent(w->app->dpy, w->widget, False, ExposureMask, (XEvent *)&exp);
+}
+
 void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
     Widget_t *wid = (Widget_t*)w_;
     XEvent *xev = (XEvent*)event;
