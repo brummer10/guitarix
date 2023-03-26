@@ -77,6 +77,7 @@ typedef struct {
 Display *os_open_display(char *display_name);
 void os_close_display(Display *dpy);
 Window os_get_root_window(Widget_t *w);
+void os_destroy_window(Widget_t *w);
 void os_translate_coords(Widget_t *w, Window from_window, Window to_window,
                           int from_x, int from_y, int *to_x, int *to_y);
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics);

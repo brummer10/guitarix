@@ -33,6 +33,13 @@ void os_close_display(Display *dpy) {
     XCloseDisplay(dpy);
 }
 
+void os_destroy_window(Widget_t *w) {
+    if (w->xic) XDestroyIC(w->xic);
+    if (w->xim) XCloseIM(w->xim);
+    XUnmapWindow(w->app->dpy, w->widget);
+    XDestroyWindow(w->app->dpy, w->widget);
+}
+
 Window os_get_root_window(Widget_t *w) {
     return DefaultRootWindow(w->app->dpy);
 }

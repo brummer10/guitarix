@@ -54,6 +54,17 @@ void os_close_display(Display *dpy) {
     // nothing to do on MSWin
 }
 
+void os_destroy_window(Widget_t *w) {
+    // mswin automatically sends WM_DESTROY to all child windows
+    // floating windows need to be handled manually
+    if (w && (IsWindow(w->widget))) {
+        //debug_print("os_destroy_window:DestroyWindow:hwnd=%p\n",(w)?w->widget:NULL);
+        DestroyWindow(w->widget);
+    } else {
+        debug_print("os_destroy_window:DestroyWindow:NOTFOUND:hwnd=%p\n",(w)?w->widget:NULL);
+    }
+}
+
 Window os_get_root_window(Widget_t *w) {
     return HWND_DESKTOP;
 }
