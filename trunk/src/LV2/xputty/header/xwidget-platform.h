@@ -40,10 +40,41 @@ extern "C" {
 
 /*---------------------------------------------------------------------
 ----------------------------------------------------------------------- 
+                    common structs and definitions
+-----------------------------------------------------------------------
+----------------------------------------------------------------------*/
+
+/**
+ *
+ * @brief Metrics_t            - struct to receive window size, position & visibility
+ * \n Pass this struct to os_get_window_metrics()
+ * @param width                - current width
+ * @param height               - current height
+ * @param x                    - current x position on Parent
+ * @param y                    - current y position on Parent
+ * @param visible              - window is not hidden or closed
+ */
+
+typedef struct {
+/** current width */
+    int width;
+/** current height */
+    int height;
+/** current x position on Parent */
+    int x;
+/** current y position on Parent */
+    int y;
+/** window is not hidden or closed */
+    bool visible;
+} Metrics_t;
+
+/*---------------------------------------------------------------------
+----------------------------------------------------------------------- 
                     wrapper functions
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics);
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height);
 void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,

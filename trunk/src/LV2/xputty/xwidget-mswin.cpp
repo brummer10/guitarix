@@ -45,6 +45,25 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
+    RECT WindowRect;
+    RECT ClientRect;
+    POINT Point;
+    Widget_t *parent = (Widget_t *)w_->parent;
+
+    if (GetWindowRect(w_->widget, &WindowRect) \
+     && GetClientRect(w_->widget, &ClientRect)) {
+        Point.x = WindowRect.left; // WindowRect has correct coords, but wrong width/height
+        Point.y = WindowRect.top;  // ClientRect has correct width/height, but top/left == 0
+        ScreenToClient(parent->widget, &Point); // "parent" is intentional (coords are relative to owner widget)
+        metrics->x = Point.x;
+        metrics->y = Point.y;
+        metrics->width = ClientRect.right - ClientRect.left;
+        metrics->height = ClientRect.bottom - ClientRect.top;
+    }
+    metrics->visible = IsWindowVisible(w_->widget);
+}
+
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
     // Event callbacks already start during CreateWindow(),

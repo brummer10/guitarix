@@ -25,6 +25,17 @@
 extern "C" {
 #endif
 
+void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
+    Widget_t *wid = (Widget_t*)w_;
+    XWindowAttributes attrs;
+    XGetWindowAttributes(wid->app->dpy, (Window)wid->widget, &attrs);
+    metrics->x = attrs.x;
+    metrics->y = attrs.y;
+    metrics->width = attrs.width;
+    metrics->height = attrs.height;
+    metrics->visible = (attrs.map_state == IsViewable);
+}
+
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
     XSetWindowAttributes attributes;
