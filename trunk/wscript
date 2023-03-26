@@ -342,9 +342,6 @@ def configure(conf):
     conf.check_cfg(package='sndfile', args=conf.env['OS_SNDFILE_CFGFLAGS'], uselib_store='SNDFILE', mandatory=1)
     conf.check(header_name='fftw3.h', mandatory=1)
     conf.check_cfg(package='fftw3f', args=['--cflags','--libs','fftw3f >= 3.3.8'], uselib_store='FFTW3', mandatory=1)
-    # avoid dynamic linking for MSWin plugins
-    if conf.env['OS'] == 'win32':
-        conf.env['LIB_FFTW3'] = ''
 
     if opt.standalone or opt.new_ladspa:
         try:
