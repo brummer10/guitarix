@@ -22,6 +22,7 @@
 #include "xwidget.h"
 #include "xwidget_private.h"
 
+void create_cairo_context_and_buffer(Widget_t *w);
 
 int key_mapping(Display *dpy, XKeyEvent *xkey) {
     if (xkey->keycode == XKeysymToKeycode(dpy,XK_Tab))
@@ -189,18 +190,7 @@ Widget_t *create_window(Xputty *app, Window win,
 
     w->surface =  cairo_xlib_surface_create (app->dpy, w->widget,  
                   DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
-
-    assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
-    w->cr = cairo_create(w->surface);
-    cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL);
-
-    w->buffer = cairo_surface_create_similar (w->surface, 
-                        CAIRO_CONTENT_COLOR_ALPHA, width, height);
-    assert(cairo_surface_status(w->buffer) == CAIRO_STATUS_SUCCESS);
-    w->crb = cairo_create (w->buffer);
-    cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL);
+    create_cairo_context_and_buffer(w);
 
     w->image = NULL;
 
@@ -263,6 +253,22 @@ Widget_t *create_window(Xputty *app, Window win,
     return w;
 }
 
+void create_cairo_context_and_buffer(Widget_t *w) {
+    int width = w->scale.init_width;
+    int height = w->scale.init_height;
+    assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
+    w->cr = cairo_create(w->surface);
+    cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_NORMAL);
+
+    w->buffer = cairo_surface_create_similar (w->surface, 
+                        CAIRO_CONTENT_COLOR_ALPHA, width, height);
+    assert(cairo_surface_status(w->buffer) == CAIRO_STATUS_SUCCESS);
+    w->crb = cairo_create (w->buffer);
+    cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
+                               CAIRO_FONT_WEIGHT_NORMAL);
+}
+
 Widget_t *create_widget(Xputty *app, Widget_t *parent,
                           int x, int y, int width, int height) {
 
@@ -300,17 +306,7 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
 
     w->surface =  cairo_xlib_surface_create (app->dpy, w->widget,  
                   DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
-    assert(cairo_surface_status(w->surface) == CAIRO_STATUS_SUCCESS);
-    w->cr = cairo_create(w->surface);
-    cairo_select_font_face (w->cr, "Roboto", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL);
-
-    w->buffer = cairo_surface_create_similar (w->surface, 
-                        CAIRO_CONTENT_COLOR_ALPHA, width, height);
-    assert(cairo_surface_status(w->buffer) == CAIRO_STATUS_SUCCESS);
-    w->crb = cairo_create (w->buffer);
-    cairo_select_font_face (w->crb, "Roboto", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL);
+    create_cairo_context_and_buffer(w);
 
     w->image = NULL;
     
