@@ -24,6 +24,7 @@
 #define XWIDGET_H
 
 #include "xputty.h"
+#include "xwidget-platform.h"
 
 #ifdef __cplusplus
 extern "C" {
