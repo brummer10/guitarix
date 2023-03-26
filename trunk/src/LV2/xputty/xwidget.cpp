@@ -148,6 +148,7 @@ Widget_t *create_window(Xputty *app, Window win,
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
     debug_print("assert(w)\n");
+    memset(w, 0, sizeof(Widget_t));
     w->image = NULL;
 
     w->flags = IS_WINDOW;
@@ -236,6 +237,7 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
 
     Widget_t *w = (Widget_t*)malloc(sizeof(Widget_t));
     assert(w != NULL);
+    memset(w, 0, sizeof(Widget_t));
     debug_print("assert(w)\n");
     w->image = NULL;
     
