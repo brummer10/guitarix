@@ -311,7 +311,7 @@ void connect_func(void (**event)(), void (*handler)()) {
 }
 
 void widget_set_title(Widget_t *w, const char *title) {
-    XStoreName(w->app->dpy, w->widget, title);
+    os_set_title(w, title);
 }
 
 void widget_show(Widget_t *w) {

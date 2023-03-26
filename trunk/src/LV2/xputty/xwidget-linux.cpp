@@ -156,6 +156,10 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
                   DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
 }
 
+void os_set_title(Widget_t *w, const char *title) {
+    XStoreName(w->app->dpy, w->widget, title);
+}
+
 void os_widget_show(Widget_t *w) {
     XMapWindow(w->app->dpy, w->widget);
 }

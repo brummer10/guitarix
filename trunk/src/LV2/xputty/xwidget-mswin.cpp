@@ -219,6 +219,12 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
     SetParent(w->widget, parent->widget); // embed into parentWindow
     SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 }
+
+void os_set_title(Widget_t *w, const char *title) {
+    if (title)
+        SetWindowText(w->widget, title);
+}
+
 void os_widget_show(Widget_t *w) {
     ShowWindow(w->widget, SW_SHOW);
 }
