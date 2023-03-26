@@ -39,11 +39,15 @@ def img2obj(task):
     copyimg(task)
     before = ['xcairo']
     src = " ".join(["'%s'" % os.path.splitext(v.name)[0] for v in task.inputs[0:]])
+    # win32: fix dir-separator, remove non-existing flag
+    ld_cmd = env.LD[0]
     noexecstack = task.env['OS_RESOURCES_LDFLAGS']
+    if task.env['OS'] == 'win32':
+        ld_cmd = ld_cmd.replace('\\','/')
     cmd = ("cd src/LV2/xputty/resources/ \
     && for f in %s; do\
      %s -r -b binary %s ${f}.png -o  ${f}.o; \
-     done " % (src, env.LD[0], noexecstack) )
+     done " % (src, ld_cmd, noexecstack) )
    # Logs.debug("runner: system command -> %s" % cmd)
     ret = task.exec_command(cmd, shell=True)
     return ret
