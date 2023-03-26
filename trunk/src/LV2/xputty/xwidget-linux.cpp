@@ -29,6 +29,13 @@ Window os_get_root_window(Widget_t *w) {
     return DefaultRootWindow(w->app->dpy);
 }
 
+void os_translate_coords(Widget_t *w, Window from_window, Window to_window,
+                          int from_x, int from_y, int *to_x, int *to_y) {
+    Window child;
+    XTranslateCoordinates(w->app->dpy, from_window, to_window,
+                          from_x, from_y, to_x, to_y, &child);
+}
+
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
     Widget_t *wid = (Widget_t*)w_;
     XWindowAttributes attrs;

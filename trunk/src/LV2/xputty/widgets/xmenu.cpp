@@ -51,8 +51,7 @@ Widget_t* create_viewport(Widget_t *parent, int width, int height) {
 Widget_t* create_menu(Widget_t *parent, int height) {
 
     int x1, y1;
-    Window child;
-    XTranslateCoordinates( parent->app->dpy, parent->widget, os_get_root_window(parent), 0, 0, &x1, &y1, &child );
+    os_translate_coords(parent, parent->widget, os_get_root_window(parent), 0, 0, &x1, &y1);
     Widget_t *wid = create_window(parent->app, os_get_root_window(parent), x1, y1, 10, height);
     create_viewport(wid, 10, 5*height);
 

@@ -145,8 +145,7 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     height = m.height;
     int x1, y1;
     int posy = (above) ? parent->height : 0;
-    Window child;
-    XTranslateCoordinates( parent->app->dpy, parent->widget, os_get_root_window(parent), 0, posy, &x1, &y1, &child );
+    os_translate_coords(parent, parent->widget, os_get_root_window(parent), 0, posy, &x1, &y1);
     int item_width = 1.0;
     cairo_text_extents_t extents;
     int i = view_port->childlist->elem-1;
