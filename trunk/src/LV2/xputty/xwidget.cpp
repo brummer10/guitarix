@@ -430,15 +430,7 @@ void send_systray_message(Widget_t *w) {
 }
 
 void quit(Widget_t *w) {
-    Atom WM_DELETE_WINDOW = XInternAtom(w->app->dpy, "WM_DELETE_WINDOW", True);
-    XClientMessageEvent xevent;
-    xevent.type = ClientMessage;
-    xevent.message_type = WM_DELETE_WINDOW;
-    xevent.display = w->app->dpy;
-    xevent.window = get_toplevel_widget(w->app)->widget;
-    xevent.format = 16;
-    xevent.data.l[0] = WM_DELETE_WINDOW;
-    XSendEvent(w->app->dpy, w->widget, 0, 0, (XEvent *)&xevent);
+    os_quit(w);
 }
 
 void quit_widget(Widget_t *w) {

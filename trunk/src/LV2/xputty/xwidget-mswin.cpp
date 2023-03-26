@@ -265,6 +265,25 @@ void os_send_systray_message(Widget_t *w) {
     // STUB
 }
 
+void os_quit(Widget_t *w) {
+    if (w) {
+        WPARAM wParam = (WPARAM)get_toplevel_widget(w->app)->widget;
+        DWORD msg = os_register_wm_delete_window(w);
+        int res = SendMessage(w->widget, msg, wParam, 0); // WM_DELETE_WINDOW
+    }
+    // UnregisterClass silently fails, if there are still more windows of this class
+    if (UnregisterClass(szMainUIClassName, NULL)) {
+        debug_print("UnregisterMainClass:%s:OK\n", szMainUIClassName);
+    } else
+        debug_lasterror("UnregisterMainClass:", szMainUIClassName);
+
+    if (UnregisterClass(szWidgetUIClassName, NULL)) {
+        debug_print("UnregisterWidgetClass:%s:OK\n", szWidgetUIClassName);
+    } else
+        debug_lasterror("UnregisterWidgetClass" ,szWidgetUIClassName);
+
+}
+
 Atom os_register_wm_delete_window(Widget_t * wid) {
     Atom msg = WM_USER + 01;
     //Atom msg = RegisterWindowMessage("XPUTTY_WM_DELETE_WINDOW");
