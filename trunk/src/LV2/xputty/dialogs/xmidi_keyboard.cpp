@@ -230,10 +230,11 @@ void clear_key_matrix(unsigned long *key_matrix) {
 }
 void mk_draw_knob(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
 
     const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
     int arc_offset = 2;
@@ -334,11 +335,12 @@ void mk_draw_knob(void *w_, void* user_data) {
 
 static void draw_keyboard(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width_t = attrs.width;
-    int height_t = attrs.height;
-    if (attrs.map_state != IsViewable) return;
+    Metrics_t m;
+    int width_t, height_t;
+    os_get_window_metrics(w, &m);
+    width_t = m.width;
+    height_t = m.height;
+    if (!m.visible) return;
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     
     cairo_rectangle(w->crb,0,0,width_t,height_t*0.4);
@@ -445,11 +447,12 @@ static void keyboard_motion(void *w_, void* xmotion_, void* user_data) {
     Widget_t *p = (Widget_t *)w->parent;
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     XMotionEvent *xmotion = (XMotionEvent*)xmotion_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    if (attrs.map_state != IsViewable) return;
-    int width = attrs.width;
-    int height = attrs.height;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
 
     bool catchit = false;
 

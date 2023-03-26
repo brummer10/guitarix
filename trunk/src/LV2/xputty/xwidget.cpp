@@ -114,21 +114,21 @@ void destroy_widget(Widget_t * w, Xputty *main) {
 
 void configure_event(void *w_, void* user_data) {
     Widget_t *wid = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(wid->app->dpy, (Window)wid->widget, &attrs);
-    if (wid->width != attrs.width || wid->height != attrs.height) {
-        wid->scale.scale_x    = (float)wid->scale.init_width - attrs.width;
-        wid->scale.scale_y    = (float)wid->scale.init_height - attrs.height;
-        wid->scale.cscale_x   = (float)((float)wid->scale.init_width/(float)attrs.width);
-        wid->scale.cscale_y   = (float)((float)wid->scale.init_height/(float)attrs.height);
-        wid->scale.rcscale_x   = (float)((float)attrs.width/(float)wid->scale.init_width);
-        wid->scale.rcscale_y   = (float)((float)attrs.height/(float)wid->scale.init_height);
+    Metrics_t m;
+    os_get_window_metrics(wid, &m);
+    if (wid->width != m.width || wid->height != m.height) {
+        wid->scale.scale_x    = (float)wid->scale.init_width - m.width;
+        wid->scale.scale_y    = (float)wid->scale.init_height - m.height;
+        wid->scale.cscale_x   = (float)((float)wid->scale.init_width/(float)m.width);
+        wid->scale.cscale_y   = (float)((float)wid->scale.init_height/(float)m.height);
+        wid->scale.rcscale_x   = (float)((float)m.width/(float)wid->scale.init_width);
+        wid->scale.rcscale_y   = (float)((float)m.height/(float)wid->scale.init_height);
         wid->scale.ascale     = wid->scale.cscale_x < wid->scale.cscale_y ? 
                                 wid->scale.cscale_y : wid->scale.cscale_x;
 
-        _resize_surface(wid, attrs.width, attrs.height); 
+        _resize_surface(wid, m.width, m.height); 
 
-        debug_print("Widget_t configure callback width %i height %i\n", attrs.width, attrs.height);
+        debug_print("Widget_t configure callback width %i height %i\n", m.width, m.height);
 
         _resize_childs(wid);
     }
@@ -402,11 +402,11 @@ void transparent_draw(void * w_, void* user_data) {
 
     if (wid->flags & USE_TRANSPARENCY) {
         Widget_t *parent = (Widget_t*)wid->parent;
-        XWindowAttributes attrs;
-        XGetWindowAttributes(wid->app->dpy, wid->widget, &attrs);
+	Metrics_t m;
+	os_get_window_metrics(wid, &m);
 
         debug_print("Widget_t _transparency \n");
-        cairo_set_source_surface (wid->crb, parent->buffer, -attrs.x, -attrs.y);
+        cairo_set_source_surface (wid->crb, parent->buffer, -m.x, -m.y);
         cairo_paint (wid->crb);
     }
 

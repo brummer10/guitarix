@@ -33,11 +33,12 @@ void _draw_listview(void *w_, void* user_data) {
 void _draw_list(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     _draw_listview_viewslider(w, user_data);
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    if (attrs.map_state != IsViewable) return;
-    int width = attrs.width;
-    int height = attrs.height;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
 
     int v = (int)w->adj->max_value;
@@ -94,9 +95,10 @@ void _list_motion(void *w_, void* xmotion_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
     XMotionEvent *xmotion = (XMotionEvent*)xmotion_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int height = attrs.height;
+    Metrics_t m;
+    int height;
+    os_get_window_metrics(w, &m);
+    height = m.height;
     int _items = height/(height/25);
     int prelight_item = xmotion->y/_items;
     if(prelight_item != filelist->prelight_item) {
@@ -109,9 +111,10 @@ void _list_key_pressed(void *w_, void* xkey_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     XKeyEvent *xkey = (XKeyEvent*)xkey_;
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int height = attrs.height;
+    Metrics_t m;
+    int height;
+    os_get_window_metrics(w, &m);
+    height = m.height;
     int _items = height/(height/25);
    // filelist->prelight_item = xkey->y/_items;
     int nk = key_mapping(w->app->dpy, xkey);
@@ -136,9 +139,10 @@ void _list_entry_released(void *w_, void* button_, void* user_data) {
     if (w->flags & HAS_POINTER) {
         ViewList_t *filelist = (ViewList_t*)w->parent_struct;
         XButtonEvent *xbutton = (XButtonEvent*)button_;
-        XWindowAttributes attrs;
-        XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-        int height = attrs.height;
+	Metrics_t m;
+	int height;
+	os_get_window_metrics(w, &m);
+	height = m.height;
         int _items = height/(height/25);
         int prelight_item = xbutton->y/_items;
         if(xbutton->button == Button4) {
@@ -171,9 +175,10 @@ void _reconfigure_listview_viewport(void *w_, void* user_data) {
     float st = adj_get_state(w->adj);
     Widget_t* listview = (Widget_t*) w->parent;
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(listview->app->dpy, (Window)listview->widget, &attrs);
-    int height = attrs.height;
+    Metrics_t m;
+    int height;
+    os_get_window_metrics(listview, &m);
+    height = m.height;
     filelist->show_items = height/25;
     w->adj->max_value = filelist->list_size-filelist->show_items;
     adj_set_state(w->adj,st);
@@ -183,9 +188,10 @@ void _configure_listview(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     Widget_t* listview = (Widget_t*) w->parent;
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(listview->app->dpy, (Window)listview->widget, &attrs);
-    int width = attrs.width;
+    Metrics_t m;
+    int width;
+    os_get_window_metrics(listview, &m);
+    width = m.width;
     XResizeWindow (w->app->dpy, w->widget, width, 25*(max(1,filelist->list_size)));
 }
 
@@ -193,11 +199,12 @@ void _draw_listview_viewslider(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     int v = (int)w->adj->max_value;
     if (v<=0) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    if (attrs.map_state != IsViewable) return;
-    int width = attrs.width;
-    int height = attrs.height;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
     float sliderstate = adj_get_state(w->adj);
     use_bg_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, width-5,0,5,height);

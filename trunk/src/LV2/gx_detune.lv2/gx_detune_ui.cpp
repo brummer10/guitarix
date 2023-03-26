@@ -152,14 +152,15 @@ static void draw_my_window(void *w_, void* user_data) {
 
 static void draw_my_vslider(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
     float center = (float)width/2;
     float upcenter = (float)width;
     
-    if (attrs.map_state != IsViewable) return;
+    if (!m.visible) return;
 
     float sliderstate = adj_get_state(w->adj_y);
 

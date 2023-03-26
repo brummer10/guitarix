@@ -208,10 +208,10 @@ void _hide_all_tooltips(Widget_t *wid) {
 }
 
 void _has_pointer(Widget_t *w, XButtonEvent *button) {
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
+    Metrics_t metrics;
+    os_get_window_metrics(w, &metrics);
     
-    if ((button->x<attrs.width && button->y<attrs.height) &&
+    if ((button->x<metrics.width && button->y<metrics.height) &&
                                 (button->x>0 && button->y>0)){
         w->flags |= HAS_POINTER;
     } else {

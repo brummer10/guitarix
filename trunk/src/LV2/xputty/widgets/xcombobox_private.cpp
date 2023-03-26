@@ -26,11 +26,13 @@
 void _draw_combobox_button(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-4;
-    if (attrs.map_state != IsViewable) return;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-4;
+    if (!m.visible) return;
+
     if (!w->state && (int)w->adj_y->value)
         w->state = 3;
 
@@ -100,11 +102,12 @@ void _draw_combobox_button(void *w_, void* user_data) {
 void _draw_combobox(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
-    if (attrs.map_state != IsViewable) return;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
+    if (!m.visible) return;
 
     cairo_rectangle(w->crb,2.0, 2.0, width, height);
 

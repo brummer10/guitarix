@@ -37,11 +37,12 @@ static void draw_message_label(Widget_t *w, int width, int height) {
 
 static void draw_message_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width_t = attrs.width;
-    int height_t = attrs.height;
-    if (attrs.map_state != IsViewable) return;
+    Metrics_t m;
+    int width_t, height_t;
+    os_get_window_metrics(w, &m);
+    width_t = m.width;
+    height_t = m.height;
+    if (!m.visible) return;
 
     cairo_rectangle(w->crb,0,0,width_t,height_t);
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
@@ -67,11 +68,12 @@ static void draw_message_window(void *w_, void* user_data) {
 static void draw_entry(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width;
-    int height = attrs.height;
-    if (attrs.map_state != IsViewable) return;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    width = m.width;
+    height = m.height;
+    if (!m.visible) return;
 
     use_base_color_scheme(w, NORMAL_);
     cairo_rectangle(w->cr,0,0,width,height);

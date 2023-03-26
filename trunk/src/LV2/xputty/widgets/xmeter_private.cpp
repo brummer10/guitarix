@@ -23,11 +23,12 @@
 
 
 void _draw_vmeter_scale(void *w_, void* user_data) {
+    Metrics_t m;
+    int rect_width, rect_height;
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int rect_width = attrs.width;
-    int rect_height = attrs.height;
+    os_get_window_metrics(w, &m);
+    rect_width = m.width;
+    rect_height = m.height;
     double x0      = 0;
     double y0      = 0;
 
@@ -67,11 +68,12 @@ void _draw_vmeter_scale(void *w_, void* user_data) {
 }
 
 void _draw_hmeter_scale(void *w_, void* user_data) {
+    Metrics_t m;
+    int rect_width, rect_height;
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int rect_width = attrs.width;
-    int rect_height = attrs.height;
+    os_get_window_metrics(w, &m);
+    rect_width = m.width;
+    rect_height = m.height;
     double x0      = 0;
     double y0      = 0;
 
