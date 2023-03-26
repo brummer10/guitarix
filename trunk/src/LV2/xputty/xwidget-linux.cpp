@@ -306,6 +306,95 @@ void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) 
     }
 }
 
+void os_send_configure_event(Widget_t *w,int x, int y, int width, int height) {
+    XConfigureEvent notify;
+    memset(&notify, 0, sizeof(notify));
+    notify.type = ConfigureNotify;
+    notify.display = w->app->dpy;
+    notify.send_event = True;
+    notify.event = w->widget;
+    notify.window = w->widget;
+    notify.x = x;
+    notify.y = y;
+    notify.width = width;
+    notify.height = height;
+    notify.border_width = 0;
+    notify.above = None;
+    notify.override_redirect = 1;
+    XSendEvent( w->app->dpy, w->widget, true, StructureNotifyMask, (XEvent*)&notify );    
+}
+
+void os_send_button_press_event(Widget_t *w) {
+    XEvent event;
+    memset(&event, 0, sizeof(XEvent));
+    XWindowAttributes attr;
+    XGetWindowAttributes(w->app->dpy, w->widget, &attr);
+    event.type = ButtonPress;
+    event.xbutton.same_screen = true;
+    event.xbutton.root = None;
+    event.xbutton.window = w->widget;
+    event.xbutton.subwindow = None;
+    event.xbutton.x = 1;
+    event.xbutton.y = 1;
+    event.xbutton.x_root = attr.x;
+    event.xbutton.y_root = attr.y;
+    event.xbutton.state = 0;
+    event.xbutton.button = Button1;
+    XSendEvent(w->app->dpy, PointerWindow, True, ButtonPressMask, &event);
+}
+
+void os_send_button_release_event(Widget_t *w) {
+    XEvent event;
+    memset(&event, 0, sizeof(XEvent));
+    XWindowAttributes attr;
+    XGetWindowAttributes(w->app->dpy, w->widget, &attr);
+    event.type = ButtonRelease;
+    event.xbutton.same_screen = true;
+    event.xbutton.root = None;
+    event.xbutton.window = w->widget;
+    event.xbutton.subwindow = None;
+    event.xbutton.x = 1;
+    event.xbutton.y = 1;
+    event.xbutton.x_root = attr.x;
+    event.xbutton.y_root = attr.y;
+    event.xbutton.state = 0;
+    event.xbutton.button = Button1;
+    XSendEvent(w->app->dpy, PointerWindow, True, ButtonReleaseMask, &event);
+}
+
+void os_send_systray_message(Widget_t *w) {
+    XEvent event;
+    Screen *xscreen;
+    char buf[256];
+    buf[0]=0;
+    
+    xscreen=DefaultScreenOfDisplay(w->app->dpy);
+    sprintf(buf,"_NET_SYSTEM_TRAY_S%d",XScreenNumberOfScreen (xscreen));
+    Atom selection_atom = XInternAtom (w->app->dpy,buf,0);
+
+    Window tray = XGetSelectionOwner (w->app->dpy,selection_atom);
+    Atom visualatom = XInternAtom(w->app->dpy, "_NET_SYSTEM_TRAY_VISUAL", False);
+    VisualID value = XVisualIDFromVisual(DefaultVisual(w->app->dpy, DefaultScreen(w->app->dpy)));
+    XChangeProperty(w->app->dpy, w->widget, visualatom, XA_VISUALID, 32,
+            PropModeReplace, (unsigned char*)&value, 1);
+
+    if ( tray != None)
+        XSelectInput (w->app->dpy,tray,StructureNotifyMask);
+
+    memset(&event, 0, sizeof(event));
+    event.xclient.type = ClientMessage;
+    event.xclient.window = tray;
+    event.xclient.message_type = XInternAtom (w->app->dpy, "_NET_SYSTEM_TRAY_OPCODE", False );
+    event.xclient.format = 32;
+    event.xclient.data.l[0] = CurrentTime;
+    event.xclient.data.l[1] = SYSTEM_TRAY_REQUEST_DOCK;
+    event.xclient.data.l[2] = w->widget;
+    event.xclient.data.l[3] = 0;
+    event.xclient.data.l[4] = 0;
+
+    XSendEvent(w->app->dpy, tray, False, NoEventMask, &event);
+}
+
 Atom os_register_wm_delete_window(Widget_t * wid) {
     Atom WM_DELETE_WINDOW;
     WM_DELETE_WINDOW = XInternAtom(wid->app->dpy, "WM_DELETE_WINDOW", True);

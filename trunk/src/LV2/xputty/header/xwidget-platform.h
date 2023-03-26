@@ -95,6 +95,10 @@ void os_widget_show(Widget_t *w);
 void os_widget_hide(Widget_t *w);
 void os_show_tooltip(Widget_t *wid, Widget_t *w);
 void os_expose_widget(Widget_t *w);
+void os_send_configure_event(Widget_t *w,int x, int y, int width, int height);
+void os_send_button_press_event(Widget_t *w);
+void os_send_button_release_event(Widget_t *w);
+void os_send_systray_message(Widget_t *w);
 
 Atom os_register_widget_destroy(Widget_t * wid);
 Atom os_register_wm_delete_window(Widget_t * wid);
