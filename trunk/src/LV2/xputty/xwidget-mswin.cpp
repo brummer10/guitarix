@@ -114,6 +114,36 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
     //os_set_window_min_size(w, width/2, height/2, width, height);
 }
 
+void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,
+                          int x, int y, int width, int height) {
+    // prepare window class
+    WNDCLASS wndclass = {0};
+    HINSTANCE hInstance = NULL;
+
+    // create a permanent surface for drawing (see onPaint() event)
+    w->surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+
+    wndclass.lpfnWndProc   = WndProc;
+    wndclass.hInstance     = hInstance;
+    wndclass.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wndclass.hbrBackground = NULL;
+    wndclass.lpszClassName = szWidgetUIClassName;
+    wndclass.cbWndExtra    = sizeof(w); // reserve space for SetWindowLongPtr
+    RegisterClass(&wndclass);
+    // create the window
+    DWORD dwExStyle = WS_EX_CONTROLPARENT;
+    w->widget = CreateWindowEx(dwExStyle, szWidgetUIClassName,
+                            TEXT("Draw Surface"), // lpWindowName
+                            WS_CHILD, // dwStyle
+                            x, y, // X, Y
+                            width, height, // nWidth, nHeight
+                            parent->widget, // hWndParent (no embeddeding takes place yet)
+                            NULL, hInstance, (LPVOID)w); // hMenu, hInstance, lpParam
+
+    SetParent(w->widget, parent->widget); // embed into parentWindow
+    SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
+}
+
 /*---------------------------------------------------------------------
 ----------------------------------------------------------------------- 
             private functions

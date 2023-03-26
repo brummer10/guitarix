@@ -46,6 +46,8 @@ extern "C" {
 
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height);
+void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,
+                          int x, int y, int width, int height);
 
 
 #ifdef __cplusplus
