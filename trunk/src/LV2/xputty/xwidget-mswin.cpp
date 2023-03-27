@@ -368,7 +368,7 @@ void os_quit(Widget_t *w) {
     if (w) {
         WPARAM wParam = (WPARAM)get_toplevel_widget(w->app)->widget;
         DWORD msg = os_register_wm_delete_window(w);
-        int res = SendMessage(w->widget, msg, wParam, 0); // WM_DELETE_WINDOW
+        SendMessage(w->widget, msg, wParam, 0); // WM_DELETE_WINDOW
     }
     // UnregisterClass silently fails, if there are still more windows of this class
     if (UnregisterClass(szMainUIClassName, NULL)) {
@@ -387,7 +387,7 @@ void os_quit_widget(Widget_t *w) {
     // who invokes this?
     WPARAM wParam = (WPARAM)w->widget;
     DWORD msg = os_register_widget_destroy(w);
-    int res = SendMessage(w->widget, msg, wParam, 0); // WIDGET_DESTROY
+    SendMessage(w->widget, msg, wParam, 0); // WIDGET_DESTROY
 }
 
 Atom os_register_wm_delete_window(Widget_t * wid) {
