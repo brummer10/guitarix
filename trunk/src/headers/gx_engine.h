@@ -82,13 +82,14 @@ public:
     ModuleSelectorFromList poweramps;
     // internal audio modules
     NoiseGate noisegate;
+    OutPutGate outputgate;
     MonoMute monomute;
     StereoMute stereomute;
     TunerAdapter tuner;
 #ifndef GUITARIX_AS_PLUGIN
     Drumout drumout;
-    Directout directout;
 #endif
+    Directout directout;
     MaxLevel maxlevel;
     OscilloscopeAdapter oscilloscope;
     ConvolverMonoAdapter mono_convolver;
@@ -98,8 +99,8 @@ public:
     PreampConvolver preamp;
     PreampStereoConvolver preamp_st;
     ContrastConvolver contrast;
-#ifndef GUITARIX_AS_PLUGIN
     LiveLooper loop;
+#ifndef GUITARIX_AS_PLUGIN
     SCapture record;
     SCapture record_st;
 #endif

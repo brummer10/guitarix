@@ -13,18 +13,18 @@ private:
 	gx_resample::FixedRateResampler smp;
 	int sample_rate;
 	int fSampleRate;
-	double fConst1;
 	FAUSTFLOAT fHslider0;
+	double fRec0[2];
 	double fVec0[2];
+	FAUSTFLOAT fHslider1;
+	double fConst1;
 	double fConst3;
 	double fConst4;
-	double fConst5;
-	FAUSTFLOAT fHslider1;
-	double fRec1[2];
-	double fVec1[2];
-	double fRec0[2];
-	FAUSTFLOAT fHslider2;
 	double fRec2[2];
+	double fVec1[2];
+	FAUSTFLOAT fHslider2;
+	double fConst5;
+	double fRec1[2];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -71,11 +71,11 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fVec0[l0] = 0.0;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec1[l1] = 0.0;
-	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fVec1[l2] = 0.0;
-	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec0[l3] = 0.0;
-	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec2[l4] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fVec0[l1] = 0.0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec2[l2] = 0.0;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fVec1[l3] = 0.0;
+	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec1[l4] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -88,12 +88,12 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	sample_rate = 96000;
 	smp.setup(RsamplingFreq, sample_rate);
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = 3.1415926535897931 / fConst0;
+	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = 9.4e-08 * fConst0;
 	double fConst2 = 0.00044179999999999995 * fConst0;
-	fConst3 = 1.0 / (fConst2 + 1.0);
-	fConst4 = 1.0 - fConst2;
-	fConst5 = 9.3999999999999995e-08 * fConst0;
+	fConst3 = 1.0 - fConst2;
+	fConst4 = 1.0 / (fConst2 + 1.0);
+	fConst5 = 3.141592653589793 / fConst0;
 	clear_state_f();
 }
 
@@ -106,27 +106,27 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	FAUSTFLOAT buf[smp.max_out_count(count)];
 	int ReCount = smp.up(count, input0, buf);
-	double fSlow0 = 1.0 / std::tan(fConst1 * double(fHslider0));
-	double fSlow1 = 1.0 / (fSlow0 + 1.0);
-	double fSlow2 = 1.0 - fSlow0;
-	double fSlow3 = fConst5 * (500000.0 * double(fHslider1) + 55700.0);
-	double fSlow4 = fSlow3 + 1.0;
-	double fSlow5 = 1.0 - fSlow3;
-	double fSlow6 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fHslider2));
+	double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fHslider0));
+	double fSlow1 = fConst1 * (5e+05 * double(fHslider1) + 5.57e+04);
+	double fSlow2 = 1.0 - fSlow1;
+	double fSlow3 = fSlow1 + 1.0;
+	double fSlow4 = 1.0 / std::tan(fConst5 * double(fHslider2));
+	double fSlow5 = 1.0 - fSlow4;
+	double fSlow6 = 1.0 / (fSlow4 + 1.0);
 	for (int i0 = 0; i0 < ReCount; i0 = i0 + 1) {
+		fRec0[0] = fSlow0 + 0.999 * fRec0[1];
 		double fTemp0 = double(buf[i0]);
 		fVec0[0] = fTemp0;
-		fRec1[0] = 0.0 - fConst3 * (fConst4 * fRec1[1] - (fSlow4 * fTemp0 + fSlow5 * fVec0[1]));
-		double fTemp1 = fTemp0 - double(ts9nonlin(double(fRec1[0] - fTemp0)));
+		fRec2[0] = 0.0 - fConst4 * (fConst3 * fRec2[1] - (fSlow3 * fTemp0 + fSlow2 * fVec0[1]));
+		double fTemp1 = fTemp0 - ts9nonlin(fRec2[0] - fTemp0);
 		fVec1[0] = fTemp1;
-		fRec0[0] = 0.0 - fSlow1 * (fSlow2 * fRec0[1] - (fTemp1 + fVec1[1]));
-		fRec2[0] = fSlow6 + 0.999 * fRec2[1];
-		buf[i0] = FAUSTFLOAT(fRec0[0] * fRec2[0]);
-		fVec0[1] = fVec0[0];
-		fRec1[1] = fRec1[0];
-		fVec1[1] = fVec1[0];
+		fRec1[0] = 0.0 - fSlow6 * (fSlow5 * fRec1[1] - (fTemp1 + fVec1[1]));
+		buf[i0] = FAUSTFLOAT(fRec1[0] * fRec0[0]);
 		fRec0[1] = fRec0[0];
+		fVec0[1] = fVec0[0];
 		fRec2[1] = fRec2[0];
+		fVec1[1] = fVec1[0];
+		fRec1[1] = fRec1[0];
 	}
 	smp.down(buf, output0);
 }
@@ -139,8 +139,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 int Dsp::register_par(const ParamReg& reg)
 {
 	reg.registerFloatVar("ts9sim.drive",N_("Drive"),"S","",&fHslider1, 0.5, 0.0, 1.0, 0.01, 0);
-	reg.registerFloatVar("ts9sim.level",N_("Level"),"S","",&fHslider2, -16.0, -20.0, 4.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("ts9sim.tone",N_("Tone"),"SL","",&fHslider0, 400.0, 100.0, 1000.0, 1.03, 0);
+	reg.registerFloatVar("ts9sim.level",N_("Level"),"S","",&fHslider0, -16.0, -2e+01, 4.0, 0.1, 0);
+	reg.registerFloatVar("ts9sim.tone",N_("Tone"),"SL","",&fHslider2, 4e+02, 1e+02, 1e+03, 1.03, 0);
 	return 0;
 }
 

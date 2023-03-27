@@ -7,7 +7,7 @@ class mydspSIG0 {
 	
   private:
 	
-	int iRec1[2];
+	int iRec0[2];
 	
   public:
 	
@@ -19,16 +19,16 @@ class mydspSIG0 {
 	}
 	
 	void instanceInitmydspSIG0(int sample_rate) {
-		for (int l2 = 0; l2 < 2; l2 = l2 + 1) {
-			iRec1[l2] = 0;
+		for (int l1 = 0; l1 < 2; l1 = l1 + 1) {
+			iRec0[l1] = 0;
 		}
 	}
 	
 	void fillmydspSIG0(int count, float* table) {
 		for (int i1 = 0; i1 < count; i1 = i1 + 1) {
-			iRec1[0] = iRec1[1] + 1;
-			table[i1] = std::sin(9.58738019e-05f * float(iRec1[0] + -1));
-			iRec1[1] = iRec1[0];
+			iRec0[0] = iRec0[1] + 1;
+			table[i1] = std::sin(9.58738e-05f * float(iRec0[0] + -1));
+			iRec0[1] = iRec0[0];
 		}
 	}
 
@@ -43,14 +43,14 @@ static float ftbl0mydspSIG0[65536];
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fVslider0;
 	int IOTA0;
 	float *fVec0;
+	FAUSTFLOAT fHslider0;
 	float fConst1;
+	float fRec1[2];
 	float fConst2;
 	FAUSTFLOAT fHslider1;
-	float fRec0[2];
 
 	bool mem_allocated;
 	void mem_alloc();
@@ -105,7 +105,7 @@ Dsp::~Dsp() {
 inline void Dsp::clear_state_f()
 {
 	for (int l0 = 0; l0 < 131072; l0 = l0 + 1) fVec0[l0] = 0.0f;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec0[l1] = 0.0f;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec1[l2] = 0.0f;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -120,9 +120,9 @@ inline void Dsp::init(unsigned int sample_rate)
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
-	float fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
-	fConst1 = 0.00999999978f * fConst0;
-	fConst2 = 1.0f / fConst0;
+	float fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
+	fConst1 = 1.0f / fConst0;
+	fConst2 = 0.01f * fConst0;
 	IOTA0 = 0;
 }
 
@@ -163,24 +163,24 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	float fSlow0 = float(fHslider0);
-	float fSlow1 = 0.00999999978f * float(fVslider0);
-	float fSlow2 = fConst2 * float(fHslider1);
-	float fSlow3 = fSlow1 + 1.0f - fSlow1;
+	float fSlow0 = 0.01f * float(fVslider0);
+	float fSlow1 = fSlow0 + (1.0f - fSlow0);
+	float fSlow2 = fConst1 * float(fHslider0);
+	float fSlow3 = float(fHslider1);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		float fTemp0 = float(input0[i0]);
-		float fTemp1 = fSlow1 * fTemp0;
+		float fTemp1 = fSlow0 * fTemp0;
 		fVec0[IOTA0 & 131071] = fTemp1;
-		fRec0[0] = fSlow2 + fRec0[1] - std::floor(fSlow2 + fRec0[1]);
-		float fTemp2 = 65536.0f * (fRec0[0] - std::floor(fRec0[0]));
+		fRec1[0] = fSlow2 + (fRec1[1] - std::floor(fSlow2 + fRec1[1]));
+		float fTemp2 = 65536.0f * (fRec1[0] - std::floor(fRec1[0]));
 		float fTemp3 = std::floor(fTemp2);
 		int iTemp4 = int(fTemp3);
-		float fTemp5 = fConst1 * (0.0199999996f * ((fTemp3 + 1.0f - fTemp2) * ftbl0mydspSIG0[iTemp4 & 65535] + (fTemp2 - fTemp3) * ftbl0mydspSIG0[(iTemp4 + 1) & 65535]) + 1.0f);
+		float fTemp5 = fConst2 * (0.02f * ((fTemp3 + (1.0f - fTemp2)) * ftbl0mydspSIG0[iTemp4 & 65535] + (fTemp2 - fTemp3) * ftbl0mydspSIG0[(iTemp4 + 1) & 65535]) + 1.0f);
 		int iTemp6 = int(fTemp5);
 		float fTemp7 = std::floor(fTemp5);
-		output0[i0] = FAUSTFLOAT(fSlow0 * (fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6))) & 131071] * (fTemp7 + 1.0f - fTemp5) + (fTemp5 - fTemp7) * fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6 + 1))) & 131071]) + fSlow3 * fTemp0);
+		output0[i0] = FAUSTFLOAT(fSlow3 * (fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6))) & 131071] * (fTemp7 + (1.0f - fTemp5)) + (fTemp5 - fTemp7) * fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6 + 1))) & 131071]) + fSlow1 * fTemp0);
 		IOTA0 = IOTA0 + 1;
-		fRec0[1] = fRec0[0];
+		fRec1[1] = fRec1[0];
 	}
 }
 
@@ -191,9 +191,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("chorus_mono.freq",N_("Freq"),"S","",&fHslider1, 2.0f, 0.0f, 10.0f, 0.00999999978f, 0);
-	reg.registerFloatVar("chorus_mono.level",N_("Level"),"S","",&fHslider0, 0.5f, 0.0f, 1.0f, 0.00999999978f, 0);
-	reg.registerFloatVar("chorus_mono.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0f, 0.0f, 100.0f, 1.0f, 0);
+	reg.registerFloatVar("chorus_mono.freq",N_("Freq"),"S","",&fHslider0, 2.0f, 0.0f, 1e+01f, 0.01f, 0);
+	reg.registerFloatVar("chorus_mono.level",N_("Level"),"S","",&fHslider1, 0.5f, 0.0f, 1.0f, 0.01f, 0);
+	reg.registerFloatVar("chorus_mono.wet_dry",N_("Dry/Wet"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
 	return 0;
 }
 

@@ -2,10 +2,10 @@
 // Code generated with Faust (https://faust.grame.fr)
 
 namespace vibe_mono_lfo_sine {
-static double fConst0;
+static int iVec0[2];
 FAUSTFLOAT fVslider0;
 FAUSTFLOAT	*fVslider0_;
-static int iVec0[2];
+static double fConst0;
 static double fRec2[2];
 static double fRec1[2];
 static double fRec0[2];
@@ -22,7 +22,7 @@ static void clear_state_f(PluginDef* = 0)
 static void init(unsigned int sample_rate, PluginDef* = 0)
 {
 	fSampleRate = sample_rate;
-	fConst0 = 100.53096491487338 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = 100.53096491487338 / std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	clear_state_f();
 }
 
@@ -46,7 +46,7 @@ void compute(int count, FAUSTFLOAT *output0)
 
 static int register_params(const ParamReg& reg)
 {
-	fVslider0_ = reg.registerFloatVar("univibe_mono.freq",N_("Tempo"),"SA",N_("LFO frequency (Hz)"),&fVslider0, 4.4000000000000004, 0.10000000000000001, 10.0, 0.10000000000000001, 0);
+	fVslider0_ = reg.registerFloatVar("univibe_mono.freq",N_("Tempo"),"SA",N_("LFO frequency (Hz)"),&fVslider0, 4.4, 0.1, 1e+01, 0.1, 0);
 	return 0;
 }
 

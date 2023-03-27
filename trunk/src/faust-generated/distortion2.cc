@@ -10,16 +10,16 @@ private:
 	FAUSTFLOAT fVslider0;
 	double fConst1;
 	FAUSTFLOAT fVslider1;
+	double fRec2[2];
+	FAUSTFLOAT fVslider2;
+	double fRec3[2];
+	FAUSTFLOAT fVslider3;
+	FAUSTFLOAT fVslider4;
+	double fRec5[3];
+	double fVec0[2];
 	double fConst3;
 	double fConst4;
-	FAUSTFLOAT fVslider2;
-	double fRec3[3];
-	double fVec0[2];
-	double fRec2[2];
-	FAUSTFLOAT fVslider3;
 	double fRec4[2];
-	FAUSTFLOAT fVslider4;
-	double fRec5[2];
 	double fRec1[4];
 	double fRec0[3];
 
@@ -68,11 +68,11 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 3; l0 = l0 + 1) fRec3[l0] = 0.0;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fVec0[l1] = 0.0;
-	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec2[l2] = 0.0;
-	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec4[l3] = 0.0;
-	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec5[l4] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec2[l0] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec3[l1] = 0.0;
+	for (int l2 = 0; l2 < 3; l2 = l2 + 1) fRec5[l2] = 0.0;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fVec0[l3] = 0.0;
+	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec4[l4] = 0.0;
 	for (int l5 = 0; l5 < 4; l5 = l5 + 1) fRec1[l5] = 0.0;
 	for (int l6 = 0; l6 < 3; l6 = l6 + 1) fRec0[l6] = 0.0;
 }
@@ -85,11 +85,11 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = 3.1415926535897931 / fConst0;
+	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = 3.141592653589793 / fConst0;
 	double fConst2 = 1.0 / std::tan(20520.88321324853 / fConst0);
-	fConst3 = 1.0 / (fConst2 + 1.0);
-	fConst4 = 1.0 - fConst2;
+	fConst3 = 1.0 - fConst2;
+	fConst4 = 1.0 / (fConst2 + 1.0);
 	clear_state_f();
 }
 
@@ -100,43 +100,43 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = 0.01 * double(fVslider0);
-	double fSlow1 = 1.0 - fSlow0;
-	double fSlow2 = std::tan(fConst1 * double(fVslider1));
-	double fSlow3 = 1.0 / fSlow2;
-	double fSlow4 = 1.0 / ((fSlow3 + 1.4142135623730949) / fSlow2 + 1.0);
-	double fSlow5 = std::tan(fConst1 * double(fVslider2));
-	double fSlow6 = 1.0 / fSlow5;
-	double fSlow7 = 1.0 / ((fSlow6 + 1.4142135623730949) / fSlow5 + 1.0);
-	double fSlow8 = mydsp_faustpower2_f(fSlow5);
+	double fSlow0 = std::tan(fConst1 * double(fVslider0));
+	double fSlow1 = 2.0 * (1.0 - 1.0 / mydsp_faustpower2_f(fSlow0));
+	double fSlow2 = 1.0 / fSlow0;
+	double fSlow3 = (fSlow2 + -1.414213562373095) / fSlow0 + 1.0;
+	double fSlow4 = 1.0 / ((fSlow2 + 1.414213562373095) / fSlow0 + 1.0);
+	double fSlow5 = 0.0010000000000000009 * double(fVslider1);
+	double fSlow6 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider2));
+	double fSlow7 = std::tan(fConst1 * double(fVslider3));
+	double fSlow8 = mydsp_faustpower2_f(fSlow7);
 	double fSlow9 = 1.0 / fSlow8;
-	double fSlow10 = (fSlow6 + -1.4142135623730949) / fSlow5 + 1.0;
-	double fSlow11 = 2.0 * (1.0 - fSlow9);
-	double fSlow12 = 0.0 - 2.0 / fSlow8;
-	double fSlow13 = 0.0010000000000000009 * std::pow(10.0, 0.050000000000000003 * double(fVslider3));
-	double fSlow14 = 0.0010000000000000009 * double(fVslider4);
-	double fSlow15 = (fSlow3 + -1.4142135623730949) / fSlow2 + 1.0;
-	double fSlow16 = 2.0 * (1.0 - 1.0 / mydsp_faustpower2_f(fSlow2));
+	double fSlow10 = 2.0 * (1.0 - fSlow9);
+	double fSlow11 = 1.0 / fSlow7;
+	double fSlow12 = (fSlow11 + -1.414213562373095) / fSlow7 + 1.0;
+	double fSlow13 = 1.0 / ((fSlow11 + 1.414213562373095) / fSlow7 + 1.0);
+	double fSlow14 = 0.01 * double(fVslider4);
+	double fSlow15 = 0.0 - 2.0 / fSlow8;
+	double fSlow16 = 1.0 - fSlow14;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		double fTemp0 = double(input0[i0]);
-		fRec3[0] = fSlow0 * fTemp0 - fSlow7 * (fSlow10 * fRec3[2] + fSlow11 * fRec3[1]);
-		double fTemp1 = fSlow7 * (fSlow9 * fRec3[0] + fSlow12 * fRec3[1] + fSlow9 * fRec3[2]);
-		fVec0[0] = fTemp1;
-		fRec2[0] = 0.0 - fConst3 * (fConst4 * fRec2[1] - (fTemp1 + fVec0[1]));
-		fRec4[0] = fSlow13 + 0.999 * fRec4[1];
-		double fTemp2 = fRec2[0] * fRec4[0];
-		fRec5[0] = fSlow14 + 0.999 * fRec5[1];
-		double fTemp3 = std::sin(0.01539996398818526 * (fRec5[0] + 1.0));
-		double fTemp4 = 1.0 - fTemp3;
-		fRec1[0] = 0.5 * fRec1[3] + (fTemp2 * (2.0 * fTemp3 / fTemp4 + 1.0)) / (2.0 * (std::fabs(fTemp2) * fTemp3) / fTemp4 + 1.0);
-		fRec0[0] = fRec1[0] - fSlow4 * (fSlow15 * fRec0[2] + fSlow16 * fRec0[1]);
-		output0[i0] = FAUSTFLOAT(fSlow1 * fTemp0 + fSlow4 * (fRec0[2] + fRec0[0] + 2.0 * fRec0[1]));
-		fRec3[2] = fRec3[1];
-		fRec3[1] = fRec3[0];
-		fVec0[1] = fVec0[0];
+		fRec2[0] = fSlow5 + 0.999 * fRec2[1];
+		double fTemp0 = std::sin(0.01539996398818526 * (fRec2[0] + 1.0));
+		double fTemp1 = 1.0 - fTemp0;
+		fRec3[0] = fSlow6 + 0.999 * fRec3[1];
+		double fTemp2 = double(input0[i0]);
+		fRec5[0] = fSlow14 * fTemp2 - fSlow13 * (fSlow12 * fRec5[2] + fSlow10 * fRec5[1]);
+		double fTemp3 = fSlow13 * (fSlow9 * fRec5[0] + fSlow15 * fRec5[1] + fSlow9 * fRec5[2]);
+		fVec0[0] = fTemp3;
+		fRec4[0] = 0.0 - fConst4 * (fConst3 * fRec4[1] - (fTemp3 + fVec0[1]));
+		double fTemp4 = fRec4[0] * fRec3[0];
+		fRec1[0] = 0.5 * fRec1[3] + fTemp4 * (2.0 * (fTemp0 / fTemp1) + 1.0) / (2.0 * (std::fabs(fTemp4) * fTemp0 / fTemp1) + 1.0);
+		fRec0[0] = fRec1[0] - fSlow4 * (fSlow3 * fRec0[2] + fSlow1 * fRec0[1]);
+		output0[i0] = FAUSTFLOAT(fSlow16 * fTemp2 + fSlow4 * (fRec0[2] + fRec0[0] + 2.0 * fRec0[1]));
 		fRec2[1] = fRec2[0];
-		fRec4[1] = fRec4[0];
+		fRec3[1] = fRec3[0];
+		fRec5[2] = fRec5[1];
 		fRec5[1] = fRec5[0];
+		fVec0[1] = fVec0[0];
+		fRec4[1] = fRec4[0];
 		for (int j0 = 3; j0 > 0; j0 = j0 - 1) {
 			fRec1[j0] = fRec1[j0 - 1];
 		}
@@ -152,11 +152,11 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("distortion2.Hfreq",N_("Hi Pass"),"SL",N_("Highpass Frequency"),&fVslider2, 30.0, 20.0, 2000.0, 1.0800000000000001, 0);
-	reg.registerFloatVar("distortion2.drive",N_("Drive"),"S",N_("Distortion Level"),&fVslider4, 50.0, 0.0, 100.0, 1.0, 0);
-	reg.registerFloatVar("distortion2.freq",N_("Lo Pass"),"SL",N_("Lowpass Frequency"),&fVslider1, 10000.0, 1000.0, 20000.0, 1.0800000000000001, 0);
-	reg.registerFloatVar("distortion2.gain",N_("Gain"),"S",N_("Volume Level"),&fVslider3, 0.0, -30.0, 10.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("distortion2.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("distortion2.Hfreq",N_("Hi Pass"),"SL",N_("Highpass Frequency"),&fVslider3, 3e+01, 2e+01, 2e+03, 1.08, 0);
+	reg.registerFloatVar("distortion2.drive",N_("Drive"),"S",N_("Distortion Level"),&fVslider1, 5e+01, 0.0, 1e+02, 1.0, 0);
+	reg.registerFloatVar("distortion2.freq",N_("Lo Pass"),"SL",N_("Lowpass Frequency"),&fVslider0, 1e+04, 1e+03, 2e+04, 1.08, 0);
+	reg.registerFloatVar("distortion2.gain",N_("Gain"),"S",N_("Volume Level"),&fVslider2, 0.0, -3e+01, 1e+01, 0.1, 0);
+	reg.registerFloatVar("distortion2.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider4, 1e+02, 0.0, 1e+02, 1.0, 0);
 	return 0;
 }
 

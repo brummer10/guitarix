@@ -4,7 +4,10 @@
 #include <cmath>
 
 #include <float.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #include <Eigen/Core>
+#pragma GCC diagnostic pop
 
 #include "gx_compiler.h"
 #include "gx_resampler.h"

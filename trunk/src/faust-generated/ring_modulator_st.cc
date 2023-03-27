@@ -32,7 +32,7 @@ class mydspSIG0 {
 		for (int i1 = 0; i1 < count; i1 = i1 + 1) {
 			iVec0[0] = 1;
 			iRec0[0] = (iVec0[1] + iRec0[1]) % 65536;
-			table[i1] = std::sin(9.5873799242852573e-05 * double(iRec0[0]));
+			table[i1] = std::sin(9.587379924285257e-05 * double(iRec0[0]));
 			iVec0[1] = iVec0[0];
 			iRec0[1] = iRec0[0];
 		}
@@ -51,8 +51,8 @@ private:
 	int fSampleRate;
 	FAUSTFLOAT fHslider0;
 	double fConst0;
-	FAUSTFLOAT fHslider1;
 	double fRec1[2];
+	FAUSTFLOAT fHslider1;
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -114,7 +114,7 @@ inline void Dsp::init(unsigned int sample_rate)
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
-	fConst0 = 1.0 / std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = 1.0 / std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	clear_state_f();
 }
 
@@ -125,12 +125,12 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
-	double fSlow0 = double(fHslider0);
-	double fSlow1 = 1.0 - fSlow0;
-	double fSlow2 = fConst0 * double(fHslider1);
+	double fSlow0 = fConst0 * double(fHslider0);
+	double fSlow1 = double(fHslider1);
+	double fSlow2 = 1.0 - fSlow1;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec1[0] = fSlow2 + fRec1[1] - std::floor(fSlow2 + fRec1[1]);
-		double fTemp0 = fSlow1 + fSlow0 * ftbl0mydspSIG0[int(65536.0 * fRec1[0])];
+		fRec1[0] = fSlow0 + (fRec1[1] - std::floor(fSlow0 + fRec1[1]));
+		double fTemp0 = fSlow2 + fSlow1 * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec1[0]), 65535))];
 		output0[i0] = FAUSTFLOAT(double(input0[i0]) * fTemp0);
 		output1[i0] = FAUSTFLOAT(double(input1[i0]) * fTemp0);
 		fRec1[1] = fRec1[0];
@@ -144,8 +144,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("ringModulatorSt.dry/wet",N_("Mix"),"S","",&fHslider0, 0.5, 0.0, 1.0, 0.050000000000000003, 0);
-	reg.registerFloatVar("ringModulatorSt.freq",N_("Freq"),"S","",&fHslider1, 240.0, 120.0, 1600.0, 0.5, 0);
+	reg.registerFloatVar("ringModulatorSt.dry/wet",N_("Mix"),"S","",&fHslider1, 0.5, 0.0, 1.0, 0.05, 0);
+	reg.registerFloatVar("ringModulatorSt.freq",N_("Freq"),"S","",&fHslider0, 2.4e+02, 1.2e+02, 1.6e+03, 0.5, 0);
 	return 0;
 }
 

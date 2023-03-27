@@ -16,7 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef GUITARIX_AS_PLUGIN
 #include <lrdf.h>
+#endif
 #include <ladspa.h>
 #include <dlfcn.h>
 
@@ -1305,6 +1307,7 @@ static bool in_1_based_range(unsigned long uid) {
 //static
 void LadspaPluginList::set_instances(const char *uri, pluginmap& d, std::vector<ustring>& label,
                                      std::vector<unsigned long>& not_found, std::set<unsigned long>& seen) {
+#ifndef GUITARIX_AS_PLUGIN
     lrdf_uris *uris = lrdf_get_instances(uri);
     if (uris) {
         for (unsigned int i = 0; i < uris->count; ++i) {
@@ -1353,6 +1356,7 @@ void LadspaPluginList::set_instances(const char *uri, pluginmap& d, std::vector<
         }
         lrdf_free_uris(uris);
     }
+#endif
 }
 
 //static
@@ -1360,6 +1364,7 @@ void LadspaPluginList::descend(const char *uri, pluginmap& d,
                                std::vector<unsigned long>& not_found,
                                std::set<unsigned long>& seen,
                                std::vector<ustring>& base) {
+#ifndef GUITARIX_AS_PLUGIN
     lrdf_uris *uris = lrdf_get_subclasses(uri);
     if (uris) {
         for (unsigned int i = 0; i < uris->count; ++i) {
@@ -1371,6 +1376,7 @@ void LadspaPluginList::descend(const char *uri, pluginmap& d,
         }
         lrdf_free_uris(uris);
     }
+#endif
 }
 
 void LadspaPluginList::get_preset_values(const char* port_symbol,
@@ -1637,6 +1643,7 @@ void LadspaPluginList::lv2_load(pluginmap& d, gx_system::CmdlineOptions& options
             !lilv_plugins_is_end(lv2_plugins, it);
             it = lilv_plugins_next(lv2_plugins, it)) {
         add_plugin(lilv_plugins_get(lv2_plugins, it), d, options);
+#ifndef GUITARIX_AS_PLUGIN
         if (options.reload_lv2_presets) {
             if (pdata.has_preset && pdata.cline.size() != 0) {
                 pdata.cline.replace(pdata.cline.end()-2,pdata.cline.end()-1,"");
@@ -1650,6 +1657,7 @@ void LadspaPluginList::lv2_load(pluginmap& d, gx_system::CmdlineOptions& options
             }
             pdata.has_preset = false;
         }
+#endif
     }
     options.reload_lv2_presets = false;
 }
@@ -1659,6 +1667,8 @@ static bool cmp_plugins(const PluginDesc *a, const PluginDesc *b) {
 }
 
 void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std::string>& old_not_found) {
+    pluginmap d;
+#ifndef GUITARIX_AS_PLUGIN
     gx_system::PathList pl("LADSPA_PATH");
     if (!pl.size()) {
         pl.add("/usr/lib/ladspa");
@@ -1666,7 +1676,6 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std:
         pl.add("/usr/lib64/ladspa");
         pl.add("/usr/local/lib64/ladspa");
     }
-    pluginmap d;
     for (gx_system::PathList::iterator it = pl.begin(); it != pl.end(); ++it) {
         Glib::RefPtr<Gio::File> file = *it;
         if (!file->query_exists()) {
@@ -1727,7 +1736,7 @@ void LadspaPluginList::load(gx_system::CmdlineOptions& options, std::vector<std:
     uselocale(LC_GLOBAL_LOCALE);
     freelocale(loc);
     lrdf_cleanup();
-
+#endif
     lv2_load(d, options);
 
     ifstream is(options.get_ladspa_config_filename().c_str());

@@ -7,17 +7,17 @@ namespace echo {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	FAUSTFLOAT fVslider0;
-	float fRec1[2];
 	int IOTA0;
-	float fConst1;
 	FAUSTFLOAT fHslider0;
+	float fConst1;
 	float fConst2;
 	float fConst3;
+	float fRec1[2];
 	float fRec2[2];
-	float fRec3[2];
+	int iRec3[2];
 	int iRec4[2];
-	int iRec5[2];
+	FAUSTFLOAT fVslider0;
+	float fRec5[2];
 	float *fRec0;
 
 	bool mem_allocated;
@@ -74,9 +74,9 @@ inline void Dsp::clear_state_f()
 {
 	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0f;
 	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec2[l1] = 0.0f;
-	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec3[l2] = 0.0f;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) iRec3[l2] = 0;
 	for (int l3 = 0; l3 < 2; l3 = l3 + 1) iRec4[l3] = 0;
-	for (int l4 = 0; l4 < 2; l4 = l4 + 1) iRec5[l4] = 0;
+	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec5[l4] = 0.0f;
 	for (int l5 = 0; l5 < 1048576; l5 = l5 + 1) fRec0[l5] = 0.0f;
 }
 
@@ -88,9 +88,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	float fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
-	fConst1 = 60.0f * fConst0;
-	fConst2 = 10.0f / fConst0;
+	float fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
+	fConst1 = 6e+01f * fConst0;
+	fConst2 = 1e+01f / fConst0;
 	fConst3 = 0.0f - fConst2;
 	IOTA0 = 0;
 }
@@ -132,27 +132,24 @@ int Dsp::activate_static(bool start, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	float fSlow0 = 9.99999975e-06f * float(fVslider0);
-	int iSlow1 = int(fConst1 / float(fHslider0)) + -1;
+	int iSlow0 = int(fConst1 / float(fHslider0)) + -1;
+	float fSlow1 = 1e-05f * float(fVslider0);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec1[0] = fSlow0 + 0.999000013f * fRec1[1];
-		float fThen1 = (((fRec3[1] == 1.0f) & (iSlow1 != iRec5[1])) ? fConst3 : 0.0f);
-		float fThen3 = (((fRec3[1] == 0.0f) & (iSlow1 != iRec4[1])) ? fConst2 : fThen1);
-		float fElse3 = (((fRec3[1] > 0.0f) & (fRec3[1] < 1.0f)) ? fRec2[1] : 0.0f);
-		float fTemp0 = ((fRec2[1] != 0.0f) ? fElse3 : fThen3);
-		fRec2[0] = fTemp0;
-		fRec3[0] = std::max<float>(0.0f, std::min<float>(1.0f, fRec3[1] + fTemp0));
-		iRec4[0] = (((fRec3[1] >= 1.0f) & (iRec5[1] != iSlow1)) ? iSlow1 : iRec4[1]);
-		iRec5[0] = (((fRec3[1] <= 0.0f) & (iRec4[1] != iSlow1)) ? iSlow1 : iRec5[1]);
-		float fTemp1 = fRec0[(IOTA0 - (std::min<int>(524288, std::max<int>(0, iRec4[0])) + 1)) & 1048575];
-		fRec0[IOTA0 & 1048575] = float(input0[i0]) + fRec1[0] * (fTemp1 + fRec3[0] * (fRec0[(IOTA0 - (std::min<int>(524288, std::max<int>(0, iRec5[0])) + 1)) & 1048575] - fTemp1));
+		float fTemp0 = ((fRec1[1] != 0.0f) ? (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f) : (((fRec2[1] == 0.0f) & (iSlow0 != iRec3[1])) ? fConst2 : (((fRec2[1] == 1.0f) & (iSlow0 != iRec4[1])) ? fConst3 : 0.0f)));
+		fRec1[0] = fTemp0;
+		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, fRec2[1] + fTemp0));
+		iRec3[0] = (((fRec2[1] >= 1.0f) & (iRec4[1] != iSlow0)) ? iSlow0 : iRec3[1]);
+		iRec4[0] = (((fRec2[1] <= 0.0f) & (iRec3[1] != iSlow0)) ? iSlow0 : iRec4[1]);
+		float fTemp1 = fRec0[(IOTA0 - (std::min<int>(524288, std::max<int>(0, iRec3[0])) + 1)) & 1048575];
+		fRec5[0] = fSlow1 + 0.999f * fRec5[1];
+		fRec0[IOTA0 & 1048575] = float(input0[i0]) + fRec5[0] * (fTemp1 + fRec2[0] * (fRec0[(IOTA0 - (std::min<int>(524288, std::max<int>(0, iRec4[0])) + 1)) & 1048575] - fTemp1));
 		output0[i0] = FAUSTFLOAT(fRec0[IOTA0 & 1048575]);
-		fRec1[1] = fRec1[0];
 		IOTA0 = IOTA0 + 1;
+		fRec1[1] = fRec1[0];
 		fRec2[1] = fRec2[0];
-		fRec3[1] = fRec3[0];
+		iRec3[1] = iRec3[0];
 		iRec4[1] = iRec4[0];
-		iRec5[1] = iRec5[0];
+		fRec5[1] = fRec5[0];
 	}
 }
 
@@ -163,8 +160,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("echo.bpm",N_("BPM"),"S",N_("Echo in Beats per Minute"),&fHslider0, 120.0f, 24.0f, 360.0f, 1.0f, 0);
-	reg.registerFloatVar("echo.percent",N_("Percent"),"S","",&fVslider0, 0.0f, 0.0f, 100.0f, 0.100000001f, 0);
+	reg.registerFloatVar("echo.bpm",N_("BPM"),"S",N_("Echo in Beats per Minute"),&fHslider0, 1.2e+02f, 24.0f, 3.6e+02f, 1.0f, 0);
+	reg.registerFloatVar("echo.percent",N_("Percent"),"S","",&fVslider0, 0.0f, 0.0f, 1e+02f, 0.1f, 0);
 	return 0;
 }
 

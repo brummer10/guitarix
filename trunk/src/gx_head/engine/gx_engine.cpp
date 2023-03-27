@@ -284,13 +284,14 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
 	  "poweramp.mode", _("select"),load_poweramp_ui , poweramp_groups, PGN_POST_PRE),
       // internal audio modules
       noisegate(),
+      outputgate(&noisegate),
       monomute(),
       stereomute(),
       tuner(*this),
 #ifndef GUITARIX_AS_PLUGIN
       drumout(),
-      directout(*this, sigc::mem_fun(mono_chain, &StereoModuleChain::sync)),
 #endif
+      directout(*this, sigc::mem_fun(mono_chain, &StereoModuleChain::sync)),
       maxlevel(),
       oscilloscope(*this),
       mono_convolver(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
@@ -300,8 +301,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       preamp(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       preamp_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
+      loop(get_param(), &directout, sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
 #ifndef GUITARIX_AS_PLUGIN
-      loop(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
       record(*this, 1), record_st(*this, 2),
 #endif
       dseq(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
@@ -376,7 +377,7 @@ void GxEngine::load_static_plugins() {
     pl.add(gx_effects::bassbooster::plugin(),     PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
     pl.add(gx_effects::gx_ampout::plugin(),       PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
     pl.add(&contrast.plugin,                      PLUGIN_POS_END, PGN_GUI|PGN_FIXED_GUI|PGN_POST);
-    pl.add(&noisegate.outputgate,                 PLUGIN_POS_END, PGN_POST);
+    pl.add(&outputgate.outputlevel,                 PLUGIN_POS_END, PGN_POST);
     pl.add(&monomute,                             PLUGIN_POS_END, PGN_POST|PGN_MODE_MUTE);
 
     // * amp insert position (stereo amp input) *
@@ -392,8 +393,8 @@ void GxEngine::load_static_plugins() {
     pl.add(hardlim::plugin(),                     PLUGIN_POS_END, PGN_MODE_NORMAL);
 #ifndef GUITARIX_AS_PLUGIN
     pl.add(&drumout.outputdrum,                   PLUGIN_POS_END, PGN_MODE_NORMAL);
-    pl.add(&directout,                            PLUGIN_POS_END, PGN_MODE_NORMAL);
 #endif
+    pl.add(&directout,                            PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(&maxlevel,                             PLUGIN_POS_END, PGN_MODE_NORMAL|PGN_MODE_BYPASS);
 
     // * fx amp output *
@@ -413,8 +414,8 @@ void GxEngine::load_static_plugins() {
     pl.add(&crybaby.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&poweramps.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&wah.plugin,                           PLUGIN_POS_RACK, PGN_GUI);
-#ifndef GUITARIX_AS_PLUGIN
     pl.add(&loop.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
+#ifndef GUITARIX_AS_PLUGIN
     pl.add(&record.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
 #endif
     pl.add(&detune.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
@@ -497,9 +498,7 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::bfuzz::plugin(),            PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::axface::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::metronome::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
-#ifndef GUITARIX_AS_PLUGIN
 	pl.add(pluginlib::vumeter::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
-#endif
     // stereo
     pl.add(gx_effects::chorus::plugin(),          PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::flanger::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
@@ -525,9 +524,7 @@ void GxEngine::load_static_plugins() {
 	pl.add(gx_effects::duck_delay_st::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet_st.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&preamp_st.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
-#ifndef GUITARIX_AS_PLUGIN
 	pl.add(pluginlib::vumeter_st::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
-#endif
 }
 
 static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {

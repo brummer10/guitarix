@@ -7,14 +7,14 @@ namespace flanger_mono {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT fHslider0;
+	FAUSTFLOAT fVslider0;
 	int iVec0[2];
 	int IOTA0;
 	double fVec1[4096];
+	FAUSTFLOAT fHslider1;
 	double fConst0;
 	double fConst1;
-	FAUSTFLOAT fHslider1;
 	double fRec1[2];
 	double fRec2[2];
 	double fRec0[2];
@@ -79,7 +79,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 0.10471975511965977 / fConst0;
 	IOTA0 = 0;
 	clear_state_f();
@@ -93,24 +93,24 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double fSlow0 = double(fVslider0);
-	double fSlow1 = 1.0 - 0.01 * fSlow0;
-	double fSlow2 = 0.01 * fSlow0 * std::pow(10.0, 0.050000000000000003 * double(fHslider0));
-	double fSlow3 = fConst1 * double(fHslider1);
-	double fSlow4 = std::sin(fSlow3);
-	double fSlow5 = std::cos(fSlow3);
+	double fSlow1 = 0.01 * fSlow0 * std::pow(1e+01, 0.05 * double(fHslider0));
+	double fSlow2 = fConst1 * double(fHslider1);
+	double fSlow3 = std::cos(fSlow2);
+	double fSlow4 = std::sin(fSlow2);
+	double fSlow5 = 1.0 - 0.01 * fSlow0;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
-		double fTemp1 = fSlow2 * fTemp0;
+		double fTemp1 = fSlow1 * fTemp0;
 		iVec0[0] = 1;
 		double fTemp2 = 0.5 * fRec0[1] - fTemp1;
 		fVec1[IOTA0 & 4095] = fTemp2;
-		fRec1[0] = fSlow4 * fRec2[1] + fSlow5 * fRec1[1];
-		fRec2[0] = (double(1 - iVec0[1]) + fSlow5 * fRec2[1]) - fSlow4 * fRec1[1];
-		double fTemp3 = fConst0 * (0.0050000000000000001 * (fRec1[0] + 1.0) + 0.001);
+		fRec1[0] = fSlow4 * fRec2[1] + fSlow3 * fRec1[1];
+		fRec2[0] = double(1 - iVec0[1]) + fSlow3 * fRec2[1] - fSlow4 * fRec1[1];
+		double fTemp3 = fConst0 * (0.005 * (fRec1[0] + 1.0) + 0.001);
 		int iTemp4 = int(fTemp3);
 		double fTemp5 = std::floor(fTemp3);
-		fRec0[0] = fVec1[(IOTA0 - std::min<int>(2049, std::max<int>(0, iTemp4))) & 4095] * (fTemp5 + 1.0 - fTemp3) + (fTemp3 - fTemp5) * fVec1[(IOTA0 - std::min<int>(2049, std::max<int>(0, iTemp4 + 1))) & 4095];
-		output0[i0] = FAUSTFLOAT(fSlow1 * fTemp0 + 0.5 * (fTemp1 - fRec0[0]));
+		fRec0[0] = fVec1[(IOTA0 - std::min<int>(2049, std::max<int>(0, iTemp4))) & 4095] * (fTemp5 + (1.0 - fTemp3)) + (fTemp3 - fTemp5) * fVec1[(IOTA0 - std::min<int>(2049, std::max<int>(0, iTemp4 + 1))) & 4095];
+		output0[i0] = FAUSTFLOAT(fSlow5 * fTemp0 + 0.5 * (fTemp1 - fRec0[0]));
 		iVec0[1] = iVec0[0];
 		IOTA0 = IOTA0 + 1;
 		fRec1[1] = fRec1[0];
@@ -126,9 +126,9 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("flanger_mono.level",N_("Level"),"S","",&fHslider0, 0.0, -60.0, 10.0, 0.10000000000000001, 0);
-	reg.registerFloatVar("flanger_mono.lfobpm",N_("BPM"),"S",N_("LFO in Beats per Minute"),&fHslider1, 24.0, 24.0, 360.0, 1.0, 0);
-	reg.registerFloatVar("flanger_mono.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 100.0, 0.0, 100.0, 1.0, 0);
+	reg.registerFloatVar("flanger_mono.level",N_("Level"),"S","",&fHslider0, 0.0, -6e+01, 1e+01, 0.1, 0);
+	reg.registerFloatVar("flanger_mono.lfobpm",N_("BPM"),"S",N_("LFO in Beats per Minute"),&fHslider1, 24.0, 24.0, 3.6e+02, 1.0, 0);
+	reg.registerFloatVar("flanger_mono.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 1e+02, 0.0, 1e+02, 1.0, 0);
 	return 0;
 }
 

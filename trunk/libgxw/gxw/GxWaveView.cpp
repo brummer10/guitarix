@@ -213,14 +213,15 @@ static gboolean gx_wave_view_draw (GtkWidget *widget, cairo_t *cr)
 	          liveviewy, GTK_CORNER_BOTTOM_RIGHT);
 
 	cairo_pattern_t* linpat = set_box_color(widget, cr, liveviewx, liveviewy, FALSE);
-	cairo_move_to (cr, liveviewx+280, liveviewy+40);
+	cairo_move_to (cr, liveviewx, liveviewy+40);
 
 	float wave_go = 0;
 	float sc = 280.0/waveview->priv->frame_size;
 	float sc1 = liveviewx+280+sc;
 	float sc2 = liveviewy+40;
 	//----- draw the frame
-	for (int i = 0; i < waveview->priv->frame_size; i++)
+	//for (int i = 0; i < waveview->priv->frame_size; i++)
+	for (int i = waveview->priv->frame_size;i>0; i--)
 	{
 		float x_in = waveview->priv->frame[i];
 		cairo_line_to (cr, sc1 - sc*(i+1), sc2 - x_in*waveview->priv->m_wave);
@@ -237,7 +238,7 @@ static gboolean gx_wave_view_draw (GtkWidget *widget, cairo_t *cr)
 	else if (xl < -125.0) xl = -125.0;
 
 	cairo_set_line_width (cr, 1.0);
-	cairo_line_to (cr, liveviewx, liveviewy+40);
+	cairo_line_to (cr, liveviewx+280, liveviewy+40);
 	cairo_set_source(cr, linpat);
 	cairo_close_path (cr);
 

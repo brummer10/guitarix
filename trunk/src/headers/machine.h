@@ -21,12 +21,12 @@
 #ifndef SRC_HEADERS_MACHINE_H_
 #define SRC_HEADERS_MACHINE_H_
 
-//#include <ext/stdio_filebuf.h>
+#ifndef GUITARIX_AS_PLUGIN
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/stream.hpp>
-#ifndef GUITARIX_AS_PLUGIN
 #include "jsonrpc_methods.h"
 #else
+#include <ext/stdio_filebuf.h>
 #include "jsonrpc_methods-generated.h"
 #endif
 #ifdef HAVE_AVAHI
@@ -412,10 +412,13 @@ private:
     sigc::signal<void> selection_changed;
     sigc::signal<void> presetlist_changed;
     Glib::RefPtr<Gio::Socket> socket;
-    //__gnu_cxx::stdio_filebuf<char> *writebuf;
+#ifdef GUITARIX_AS_PLUGIN
+    __gnu_cxx::stdio_filebuf<char> *writebuf;
+    ostream *os;
+#else
     boost::iostreams::file_descriptor_sink *writebuf;
-    //ostream *os;
     boost::iostreams::stream<boost::iostreams::file_descriptor_sink> *os;    
+#endif
     gx_system::JsonWriter *jw;
     std::vector<gx_system::JsonStringParser*> notify_list;
     sigc::connection idle_conn;

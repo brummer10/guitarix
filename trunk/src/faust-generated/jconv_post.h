@@ -9,17 +9,17 @@ class Dsp {
 private:
 	int fSampleRate;
 	FAUSTFLOAT fVslider0;
-	FAUSTFLOAT	*fVslider0_;
-	float fRec0[2];
+	int IOTA0;
+	float *fVec0;
 	FAUSTFLOAT fVslider1;
+	float fConst0;
+	float fRec0[2];
 	FAUSTFLOAT fVslider2;
 	float fRec1[2];
 	FAUSTFLOAT fVslider3;
 	float fRec2[2];
-	int IOTA0;
-	float *fVec0;
-	float fConst0;
 	FAUSTFLOAT fVslider4;
+	FAUSTFLOAT	*fVslider4_;
 	float fRec3[2];
 	float *fVec1;
 

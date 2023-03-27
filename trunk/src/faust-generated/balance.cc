@@ -92,7 +92,7 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	fVslider0_ = reg.registerFloatVar("amp.balance",N_("Balance"),"SA","",&fVslider0, 0.0, -1.0, 1.0, 0.10000000000000001, 0);
+	fVslider0_ = reg.registerFloatVar("amp.balance",N_("Balance"),"SA","",&fVslider0, 0.0, -1.0, 1.0, 0.1, 0);
 	return 0;
 }
 

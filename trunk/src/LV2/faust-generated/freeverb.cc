@@ -11,9 +11,9 @@ private:
 	FAUSTFLOAT	*fVslider0_;
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT	*fVslider1_;
+	double fRec9[2];
 	FAUSTFLOAT fVslider2;
 	FAUSTFLOAT	*fVslider2_;
-	double fRec9[2];
 	int IOTA0;
 	double fVec0[2048];
 	double fRec8[2];
@@ -140,40 +140,40 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fVslider1 (*fVslider1_)
 #define fVslider2 (*fVslider2_)
 	double fSlow0 = double(fVslider0);
-	double fSlow1 = 0.00014999999999999999 * fSlow0;
-	double fSlow2 = 0.28000000000000003 * double(fVslider1) + 0.69999999999999996;
-	double fSlow3 = double(fVslider2);
+	double fSlow1 = 1.0 - 0.01 * fSlow0;
+	double fSlow2 = fSlow1 + fSlow0 * (0.01 * fSlow1 + 0.00015);
+	double fSlow3 = double(fVslider1);
 	double fSlow4 = 1.0 - fSlow3;
-	double fSlow5 = 1.0 - 0.01 * fSlow0;
-	double fSlow6 = fSlow5 + fSlow0 * (0.01 * fSlow5 + 0.00014999999999999999);
+	double fSlow5 = 0.28 * double(fVslider2) + 0.7;
+	double fSlow6 = 0.00015 * fSlow0;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
-		double fTemp1 = fSlow1 * fTemp0;
 		fRec9[0] = fSlow3 * fRec9[1] + fSlow4 * fRec8[1];
-		fVec0[IOTA0 & 2047] = fTemp1 + fSlow2 * fRec9[0];
-		fRec8[0] = fVec0[(IOTA0 - 1139) & 2047];
+		double fTemp1 = fSlow6 * fTemp0;
+		fVec0[IOTA0 & 2047] = fTemp1 + fSlow5 * fRec9[0];
+		fRec8[0] = fVec0[(IOTA0 - 1640) & 2047];
 		fRec11[0] = fSlow3 * fRec11[1] + fSlow4 * fRec10[1];
-		fVec1[IOTA0 & 2047] = fTemp1 + fSlow2 * fRec11[0];
-		fRec10[0] = fVec1[(IOTA0 - 1211) & 2047];
+		fVec1[IOTA0 & 2047] = fTemp1 + fSlow5 * fRec11[0];
+		fRec10[0] = fVec1[(IOTA0 - 1580) & 2047];
 		fRec13[0] = fSlow3 * fRec13[1] + fSlow4 * fRec12[1];
-		fVec2[IOTA0 & 2047] = fTemp1 + fSlow2 * fRec13[0];
-		fRec12[0] = fVec2[(IOTA0 - 1300) & 2047];
+		fVec2[IOTA0 & 2047] = fTemp1 + fSlow5 * fRec13[0];
+		fRec12[0] = fVec2[(IOTA0 - 1514) & 2047];
 		fRec15[0] = fSlow3 * fRec15[1] + fSlow4 * fRec14[1];
-		fVec3[IOTA0 & 2047] = fTemp1 + fSlow2 * fRec15[0];
-		fRec14[0] = fVec3[(IOTA0 - 1379) & 2047];
+		fVec3[IOTA0 & 2047] = fTemp1 + fSlow5 * fRec15[0];
+		fRec14[0] = fVec3[(IOTA0 - 1445) & 2047];
 		fRec17[0] = fSlow3 * fRec17[1] + fSlow4 * fRec16[1];
-		fVec4[IOTA0 & 2047] = fTemp1 + fSlow2 * fRec17[0];
-		fRec16[0] = fVec4[(IOTA0 - 1445) & 2047];
+		fVec4[IOTA0 & 2047] = fTemp1 + fSlow5 * fRec17[0];
+		fRec16[0] = fVec4[(IOTA0 - 1379) & 2047];
 		fRec19[0] = fSlow3 * fRec19[1] + fSlow4 * fRec18[1];
-		fVec5[IOTA0 & 2047] = fTemp1 + fSlow2 * fRec19[0];
-		fRec18[0] = fVec5[(IOTA0 - 1514) & 2047];
+		fVec5[IOTA0 & 2047] = fTemp1 + fSlow5 * fRec19[0];
+		fRec18[0] = fVec5[(IOTA0 - 1300) & 2047];
 		fRec21[0] = fSlow3 * fRec21[1] + fSlow4 * fRec20[1];
-		fVec6[IOTA0 & 2047] = fTemp1 + fSlow2 * fRec21[0];
-		fRec20[0] = fVec6[(IOTA0 - 1580) & 2047];
+		fVec6[IOTA0 & 2047] = fTemp1 + fSlow5 * fRec21[0];
+		fRec20[0] = fVec6[(IOTA0 - 1211) & 2047];
 		fRec23[0] = fSlow3 * fRec23[1] + fSlow4 * fRec22[1];
-		fVec7[IOTA0 & 2047] = fTemp1 + fSlow2 * fRec23[0];
-		fRec22[0] = fVec7[(IOTA0 - 1640) & 2047];
-		double fTemp2 = fRec8[0] + fRec10[0] + fRec12[0] + fRec14[0] + fRec16[0] + fRec18[0] + fRec20[0] + fRec22[0];
+		fVec7[IOTA0 & 2047] = fTemp1 + fSlow5 * fRec23[0];
+		fRec22[0] = fVec7[(IOTA0 - 1139) & 2047];
+		double fTemp2 = fRec22[0] + fRec20[0] + fRec18[0] + fRec16[0] + fRec14[0] + fRec12[0] + fRec10[0] + fRec8[0];
 		fVec8[IOTA0 & 1023] = fTemp2 + 0.5 * fRec6[1];
 		fRec6[0] = fVec8[(IOTA0 - 579) & 1023];
 		double fRec7 = fRec6[1] - fTemp2;
@@ -186,7 +186,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec11[IOTA0 & 255] = fRec3 + 0.5 * fRec0[1];
 		fRec0[0] = fVec11[(IOTA0 - 248) & 255];
 		double fRec1 = fRec0[1] - fRec3;
-		output0[i0] = FAUSTFLOAT(fRec1 + fSlow6 * fTemp0);
+		output0[i0] = FAUSTFLOAT(fRec1 + fSlow2 * fTemp0);
 		fRec9[1] = fRec9[0];
 		IOTA0 = IOTA0 + 1;
 		fRec8[1] = fRec8[0];
@@ -225,13 +225,13 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case ROOMSIZE: 
-		fVslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.025000000000000001 
+		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.025 
 		break;
 	case DAMP: 
-		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.025000000000000001 
+		fVslider1_ = (float*)data; // , 0.5, 0.0, 1.0, 0.025 
 		break;
 	case WET_DRY: 
-		fVslider0_ = (float*)data; // , 50.0, 0.0, 100.0, 1.0 
+		fVslider0_ = (float*)data; // , 5e+01, 0.0, 1e+02, 1.0 
 		break;
 	default:
 		break;

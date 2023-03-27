@@ -67,7 +67,7 @@ int LiveLooper::FileResampler::run(int count, float *input, float *output)
 
 
 
-LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& loop_dir_)
+LiveLooper::LiveLooper(ParamMap& param_,Directout* d_, sigc::slot<void> sync_, const string& loop_dir_)
     : PluginDef(),
       tape1(NULL),
       tape1_size(4194304),
@@ -98,6 +98,7 @@ LiveLooper::LiveLooper(ParamMap& param_, sigc::slot<void> sync_, const string& l
       mem_allocated(false),
       sync(sync_),
       smp(),
+      d(d_),
       plugin() {
     version = PLUGINDEF_VERSION;
     id = "dubber";
@@ -180,7 +181,6 @@ inline void LiveLooper::init(unsigned int samplingFreq)
     load_file3 = "tape3";
     load_file4 = "tape4";
     gx_system::atomic_set(&ready,0);
-    d = static_cast<Directout*>(Directout::directoutput.get_pdef());
 }
 
 void LiveLooper::init_static(unsigned int samplingFreq, PluginDef *p)
@@ -894,7 +894,6 @@ b.openHorizontalBox("");
                         b.create_p_display(PARAM("playh1"),PARAM("clips1"),PARAM("clip1"));
                         b.insertSpacer();
                         b.closeBox();
-                        b.insertSpacer();
                         b.openHorizontalBox("");
                         b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
                         b.create_feedback_switch(sw_pbutton,PARAM("play1"));
@@ -920,12 +919,12 @@ b.openHorizontalBox("");
                         
                     b.closeBox();
                     b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_small_rackknob(PARAM("level1"), "Level");
+                    b.closeBox();
                 b.closeBox();
             
-            b.closeBox();
-            b.openVerticalBox("");
-                b.insertSpacer();
-                b.create_small_rackknob(PARAM("level1"), "Level");
             b.closeBox();
         b.closeBox();
             
@@ -941,7 +940,6 @@ b.openHorizontalBox("");
                         b.create_p_display(PARAM("playh2"),PARAM("clips2"),PARAM("clip2"));
                         b.insertSpacer();
                         b.closeBox();
-                        b.insertSpacer();
                         b.openHorizontalBox("");
                         b.create_feedback_switch(sw_rbutton,PARAM("rec2"));
                         b.create_feedback_switch(sw_pbutton,PARAM("play2"));
@@ -963,14 +961,14 @@ b.openHorizontalBox("");
                         b.create_master_slider(PARAM("speed2"), "Speed");
                     b.closeBox();
                     b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_small_rackknob(PARAM("level2"), "Level");
+                    b.closeBox();
                 b.closeBox();
                 
             b.closeBox();
             
-            b.openVerticalBox("");
-                b.insertSpacer();
-                b.create_small_rackknob(PARAM("level2"), "Level");
-            b.closeBox();
         b.closeBox();
         
         b.openHorizontalBox(N_("Tape 3"));
@@ -985,7 +983,6 @@ b.openHorizontalBox("");
                         b.create_p_display(PARAM("playh3"),PARAM("clips3"),PARAM("clip3"));
                         b.insertSpacer();
                         b.closeBox();
-                        b.insertSpacer();
                         b.openHorizontalBox("");
                         b.create_feedback_switch(sw_rbutton,PARAM("rec3"));
                         b.create_feedback_switch(sw_pbutton,PARAM("play3"));
@@ -1007,12 +1004,12 @@ b.openHorizontalBox("");
                         b.create_master_slider(PARAM("speed3"), "Speed");
                     b.closeBox();
                     b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_small_rackknob(PARAM("level3"), "Level");
+                    b.closeBox();
                 b.closeBox();
                 
-            b.closeBox();
-            b.openVerticalBox("");
-                b.insertSpacer();
-                b.create_small_rackknob(PARAM("level3"), "Level");
             b.closeBox();
         b.closeBox();
         
@@ -1028,7 +1025,6 @@ b.openHorizontalBox("");
                         b.create_p_display(PARAM("playh4"),PARAM("clips4"),PARAM("clip4"));
                         b.insertSpacer();
                         b.closeBox();
-                        b.insertSpacer();
                         b.openHorizontalBox("");
                         b.create_feedback_switch(sw_rbutton,PARAM("rec4"));
                         b.create_feedback_switch(sw_pbutton,PARAM("play4"));
@@ -1050,12 +1046,12 @@ b.openHorizontalBox("");
                         b.create_master_slider(PARAM("speed4"), "Speed");
                     b.closeBox();
                     b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_small_rackknob(PARAM("level4"), "Level");
+                    b.closeBox();
                 b.closeBox();
                 
-            b.closeBox();
-            b.openVerticalBox("");
-                b.insertSpacer();
-                b.create_small_rackknob(PARAM("level4"), "Level");
             b.closeBox();
         b.closeBox();
         

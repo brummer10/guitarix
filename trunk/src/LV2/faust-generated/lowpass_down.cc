@@ -8,12 +8,12 @@ class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
 	double fConst1;
-	double fConst3;
-	double fConst5;
-	double fConst7;
-	double fConst8;
 	double fVec0[2];
+	double fConst3;
+	double fConst4;
 	double fRec4[2];
+	double fConst6;
+	double fConst7;
 	double fConst9;
 	double fConst10;
 	double fRec3[2];
@@ -75,17 +75,17 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
-	double fConst2 = std::tan(251.32741228718345 / fConst0);
-	fConst3 = 1.0 / fConst2;
-	double fConst4 = fConst3 + 1.0;
-	fConst5 = 0.0 - 1.0 / (fConst2 * fConst4);
-	double fConst6 = 1.0 / std::tan(17690.308232364125 / fConst0);
-	fConst7 = 1.0 / (fConst6 + 1.0);
-	fConst8 = 1.0 - fConst6;
-	fConst9 = 1.0 / fConst4;
-	fConst10 = 1.0 - fConst3;
+	double fConst2 = 1.0 / std::tan(17690.308232364125 / fConst0);
+	fConst3 = 1.0 - fConst2;
+	fConst4 = 1.0 / (fConst2 + 1.0);
+	double fConst5 = std::tan(251.32741228718345 / fConst0);
+	fConst6 = 1.0 / fConst5;
+	fConst7 = 1.0 - fConst6;
+	double fConst8 = fConst6 + 1.0;
+	fConst9 = 1.0 / fConst8;
+	fConst10 = 0.0 - 1.0 / (fConst5 * fConst8);
 	clear_state_f();
 }
 
@@ -101,15 +101,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		int iTemp0 = iRec1[1] < 4096;
 		double fTemp1 = double(input0[i0]);
 		fVec0[0] = fTemp1;
-		fRec4[0] = 0.0 - fConst7 * (fConst8 * fRec4[1] - (fTemp1 + fVec0[1]));
-		fRec3[0] = fConst5 * fRec4[1] - fConst9 * (fConst10 * fRec3[1] - fConst3 * fRec4[0]);
+		fRec4[0] = 0.0 - fConst4 * (fConst3 * fRec4[1] - (fTemp1 + fVec0[1]));
+		fRec3[0] = fConst10 * fRec4[1] - fConst9 * (fConst7 * fRec3[1] - fConst6 * fRec4[0]);
 		double fTemp2 = std::max<double>(fConst1, std::fabs(fRec3[0]));
-		double fElse0 = fTemp2 + fRec0[1];
-		fRec0[0] = ((iTemp0) ? fElse0 : fTemp2);
-		int iElse1 = iRec1[1] + 1;
-		iRec1[0] = ((iTemp0) ? iElse1 : 1);
-		double fThen2 = 0.000244140625 * fRec0[1];
-		fRec2[0] = ((iTemp0) ? fRec2[1] : fThen2);
+		fRec0[0] = ((iTemp0) ? fTemp2 + fRec0[1] : fTemp2);
+		iRec1[0] = ((iTemp0) ? iRec1[1] + 1 : 1);
+		fRec2[0] = ((iTemp0) ? fRec2[1] : 0.000244140625 * fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
 		output0[i0] = FAUSTFLOAT(fRec3[0]);
 		fVec0[1] = fVec0[0];
@@ -133,7 +130,7 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case V1: 
-		fVbargraph0_ = (float*)data; // , 0, -70.0, 5.0, 0 
+		fVbargraph0_ = (float*)data; // , 0, -7e+01, 5.0, 0 
 		break;
 	default:
 		break;

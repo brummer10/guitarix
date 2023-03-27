@@ -698,7 +698,12 @@ bool ModuleSequencer::check_module_lists() {
 }
 
 void ModuleSequencer::set_rack_changed() {
-    if (rack_changed.connected() || stateflags == SF_INITIALIZING) {
+#ifdef GUITARIX_AS_PLUGIN
+    if (stateflags == SF_INITIALIZING) {
+        return;
+    }
+#endif
+    if (rack_changed.connected()) {
 	return;
     }
     rack_changed = Glib::signal_idle().connect(

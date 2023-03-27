@@ -460,12 +460,16 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
             jp.skip_object();
             continue;
         }
+#ifndef GUITARIX_AS_PLUGIN
         if (p->id() == "amp2.stage1.Pregain" || p->id() == "gxdistortion.drive") {
             gx_engine::FloatParameter& pf = p->getFloat();
             pf.rampJSON_value(jp);
         } else {
             p->readJSON_value(jp);
         }
+#else
+        p->readJSON_value(jp);
+#endif
         collectRackOrder(p, jp, u);
     } while (jp.peek() == gx_system::JsonParser::value_key);
     jp.next(gx_system::JsonParser::end_object);
@@ -966,6 +970,9 @@ GxSettings::GxSettings(gx_system::CmdlineOptions& opt, gx_jack::GxJack& jack_, g
 #ifndef GUITARIX_AS_PLUGIN
     jack.signal_client_change().connect(
         sigc::mem_fun(*this, &GxSettings::jack_client_changed));
+#else
+    no_autosave = true;
+    no_save_on_exit = true;
 #endif
     set_preset.connect(sigc::mem_fun(*this, &GxSettings::preset_sync_set));
     get_sequencer_p.connect(sigc::mem_fun(*this, &GxSettings::on_get_sequencer_pos));

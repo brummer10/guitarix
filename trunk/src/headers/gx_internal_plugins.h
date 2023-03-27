@@ -98,7 +98,7 @@ public:
     void used_by_midi(bool on) { set_and_check(midi_use, on); }
     void set_dep_module(Plugin* dep) { dep_plugin = dep; }
     void set_module();
-    Glib::Dispatcher& signal_freq_changed() { return pitch_tracker.new_freq; }
+    sigc::signal<void >& signal_freq_changed() { return pitch_tracker.new_freq; }
     float get_freq() { return pitch_tracker.get_estimated_freq(); }
     float get_note() { return pitch_tracker.get_estimated_note(); }
 };
@@ -108,22 +108,37 @@ public:
  ** class NoiseGate
  */
 
-class NoiseGate {
+class NoiseGate : public PluginDef {
 private:
-    static PluginDef inputdef;
-    static float fnglevel;
-    static float ngate;
-    static bool off;
-    static int noisegate_register(const ParamReg& reg);
+    inline void inputlevel_process(int count, float *input0, float *output0);
+    inline int noisegate_register(const ParamReg& reg);
+    inline int noisegate_start(bool start);
+    static int noisegate_params_static(const ParamReg& reg);
     static void inputlevel_compute(int count, float *input0, float *output0, PluginDef*);
-    static void outputgate_compute(int count, float *input, float *output, PluginDef*);
-    static int outputgate_activate(bool start, PluginDef *pdef);
+    static int noisegate_activate(bool start, PluginDef *pdef);
 public:
-    static Plugin inputlevel;
-    static PluginDef outputgate;
+    bool off;
+    float fnglevel;
+    float ngate;
+    PluginDef inputdef;
+    Plugin inputlevel;
     NoiseGate();
 };
 
+/****************************************************************
+ ** class OutPutGate
+ */
+
+class OutPutGate : public PluginDef {
+private:
+    inline void outputgate_process(int count, float *input, float *output);
+    static void outputgate_compute(int count, float *input, float *output, PluginDef*);
+public:
+    const NoiseGate *noisegate;
+    PluginDef outputdef;
+    Plugin outputlevel;
+    OutPutGate(const NoiseGate *noisegate);
+};
 
 /****************************************************************
  ** class OscilloscopeAdapter
@@ -497,8 +512,8 @@ private:
     static void run_cab_conf(int count, float *input, float *output, PluginDef*);
     static int register_cab(const ParamReg& reg);
     bool do_update();
-    virtual void check_update();
-    virtual bool start(bool force = false);
+    virtual void check_update() override;
+    virtual bool start(bool force = false) override;
     bool cabinet_changed() { return current_cab != cabinet; }
     void update_cabinet() { current_cab = cabinet; }
     bool sum_changed() { return std::abs(sum - (level + bass + treble)) > 0.01; }
@@ -507,6 +522,9 @@ public:
     CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~CabinetConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 #ifndef GUITARIX_AS_PLUGIN
@@ -530,8 +548,8 @@ private:
     static void run_cab_conf(int count, float *input, float *input1, float *output, float *output1, PluginDef*);
     static int register_cab(const ParamReg& reg);
     bool do_update();
-    virtual void check_update();
-    virtual bool start(bool force = false);
+    virtual void check_update() override;
+    virtual bool start(bool force = false) override;
     bool cabinet_changed() { return current_cab != cabinet; }
     void update_cabinet() { current_cab = cabinet; }
     bool sum_changed() { return fabs(sum - (level + bass + treble)) > 0.01; }
@@ -540,6 +558,9 @@ public:
     CabinetStereoConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~CabinetStereoConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 
@@ -567,8 +588,8 @@ private:
     static void run_pre_conf(int count, float *input, float *output, PluginDef*);
     static int register_pre(const ParamReg& reg);
     bool do_update();
-    virtual void check_update();
-    virtual bool start(bool force = false);
+    virtual void check_update() override;
+    virtual bool start(bool force = false) override;
     bool preamp_changed() { return current_pre != preamp; }
     void update_preamp() { current_pre = preamp; }
     bool sum_changed() { return std::abs(sum - (level + bass + treble)) > 0.01; }
@@ -577,6 +598,9 @@ public:
     PreampConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~PreampConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 #ifndef GUITARIX_AS_PLUGIN
@@ -600,8 +624,8 @@ private:
     static void run_pre_conf(int count, float *input, float *input1, float *output, float *output1, PluginDef*);
     static int register_pre(const ParamReg& reg);
     bool do_update();
-    virtual void check_update();
-    virtual bool start(bool force = false);
+    virtual void check_update() override;
+    virtual bool start(bool force = false) override;
     bool preamp_changed() { return current_pre != preamp; }
     void update_preamp() { current_pre = preamp; }
     bool sum_changed() { return fabs(sum - (level + bass + treble)) > 0.01; }
@@ -610,6 +634,9 @@ public:
     PreampStereoConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~PreampStereoConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 /****************************************************************
@@ -631,14 +658,17 @@ private:
     static void run_contrast(int count, float *input, float *output, PluginDef*);
     static int register_con(const ParamReg& reg);
     inline void update_sum() { sum = level; }
-    virtual void check_update();
+    virtual void check_update() override;
     bool do_update();
     inline bool sum_changed() { return std::abs(sum - level) > 0.01; }
-    virtual bool start(bool force = false);
+    virtual bool start(bool force = false) override;
 public:
     ContrastConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
     ~ContrastConvolver();
+#ifdef GUITARIX_AS_PLUGIN
+    void pl_check_update() { return check_update();}
+#endif
 };
 
 /****************************************************************
@@ -795,7 +825,6 @@ public:
     float* get_buffer() {return outdata;};
     void set_data(bool dfill);
     Plugin plugin;
-    static Plugin directoutput;
     Directout( EngineControl& engine, sigc::slot<void> sync);
     ~Directout();
 };
@@ -975,7 +1004,7 @@ private:
 	static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-	LiveLooper(ParamMap& param_, sigc::slot<void> sync, const string& loop_dir_);
+	LiveLooper(ParamMap& param_, Directout* d, sigc::slot<void> sync, const string& loop_dir_);
 	~LiveLooper();
 };
 

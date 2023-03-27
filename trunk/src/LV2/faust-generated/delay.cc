@@ -11,10 +11,10 @@ private:
 	float *fVec0;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
-	float fRec0[2];
 	float fConst0;
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT	*fVslider1_;
+	float fRec0[2];
 
 	bool mem_allocated;
 	void mem_alloc();
@@ -71,7 +71,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = 0.00100000005f * std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
+	fConst0 = 0.001f * std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
 	IOTA0 = 0;
 }
 
@@ -114,19 +114,19 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 #define fVslider0 (*fVslider0_)
 #define fVslider1 (*fVslider1_)
-	float fSlow0 = 0.00100000005f * std::pow(10.0f, 0.0500000007f * float(fVslider0));
-	float fSlow1 = fConst0 * float(fVslider1);
-	float fSlow2 = std::floor(fSlow1);
-	float fSlow3 = fSlow2 + 1.0f - fSlow1;
-	int iSlow4 = int(fSlow1);
-	int iSlow5 = std::min<int>(262145, std::max<int>(0, iSlow4));
-	float fSlow6 = fSlow1 - fSlow2;
-	int iSlow7 = std::min<int>(262145, std::max<int>(0, iSlow4 + 1));
+	float fSlow0 = fConst0 * float(fVslider0);
+	int iSlow1 = int(fSlow0);
+	int iSlow2 = std::min<int>(262145, std::max<int>(0, iSlow1 + 1));
+	float fSlow3 = std::floor(fSlow0);
+	float fSlow4 = fSlow0 - fSlow3;
+	int iSlow5 = std::min<int>(262145, std::max<int>(0, iSlow1));
+	float fSlow6 = fSlow3 + (1.0f - fSlow0);
+	float fSlow7 = 0.001f * std::pow(1e+01f, 0.05f * float(fVslider1));
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		float fTemp0 = float(input0[i0]);
 		fVec0[IOTA0 & 524287] = fTemp0;
-		fRec0[0] = fSlow0 + 0.999000013f * fRec0[1];
-		output0[i0] = FAUSTFLOAT(fTemp0 + fRec0[0] * (fSlow3 * fVec0[(IOTA0 - iSlow5) & 524287] + fSlow6 * fVec0[(IOTA0 - iSlow7) & 524287]));
+		fRec0[0] = fSlow7 + 0.999f * fRec0[1];
+		output0[i0] = FAUSTFLOAT(fTemp0 + fRec0[0] * (fSlow6 * fVec0[(IOTA0 - iSlow5) & 524287] + fSlow4 * fVec0[(IOTA0 - iSlow2) & 524287]));
 		IOTA0 = IOTA0 + 1;
 		fRec0[1] = fRec0[0];
 	}
@@ -145,10 +145,10 @@ void Dsp::connect(uint32_t port,void* data)
 	switch ((PortIndex)port)
 	{
 	case DELAY: 
-		fVslider1_ = (float*)data; // , 0.0f, 0.0f, 5000.0f, 10.0f 
+		fVslider0_ = (float*)data; // , 0.0f, 0.0f, 5e+03f, 1e+01f 
 		break;
 	case GAIN: 
-		fVslider0_ = (float*)data; // , 0.0f, -20.0f, 20.0f, 0.100000001f 
+		fVslider1_ = (float*)data; // , 0.0f, -2e+01f, 2e+01f, 0.1f 
 		break;
 	default:
 		break;

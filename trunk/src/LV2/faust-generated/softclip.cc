@@ -60,7 +60,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		double fTemp1 = std::max<double>(fSlow1, std::min<double>(fSlow0, fTemp0));
-		output0[i0] = FAUSTFLOAT(fTemp1 + 0.33000000000000002 * (fTemp0 - std::max<double>(fSlow1, std::min<double>(fSlow0, fTemp1))));
+		output0[i0] = FAUSTFLOAT(fTemp1 + 0.33 * (fTemp0 - std::max<double>(fSlow1, std::min<double>(fSlow0, fTemp1))));
 	}
 #undef fHslider0
 }

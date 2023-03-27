@@ -9,41 +9,41 @@ private:
 	uint32_t fSampleRate;
 	double fConst0;
 	double fConst2;
+	FAUSTFLOAT fHslider0;
+	FAUSTFLOAT	*fHslider0_;
 	double fConst3;
+	double fConst4;
 	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT	*fCheckbox0_;
 	double fVec0[2];
-	FAUSTFLOAT fHslider0;
-	FAUSTFLOAT	*fHslider0_;
-	double fConst4;
+	int iRec6[2];
 	double fConst5;
-	double fRec6[2];
+	double fRec7[2];
 	double fConst6;
 	double fConst7;
-	int iRec7[2];
-	int IOTA0;
-	double fVec1[8192];
+	double fConst8;
 	FAUSTFLOAT fHslider1;
 	FAUSTFLOAT	*fHslider1_;
-	double fConst8;
-	double fConst9;
+	int IOTA0;
+	double fVec1[8192];
 	double fRec5[3];
+	double fConst9;
 	double fRec4[2];
 	double fRec0[2];
-	double fVec2[4096];
 	double fConst10;
+	double fVec2[4096];
 	double fConst11;
 	double fRec9[3];
 	double fRec8[2];
 	double fRec1[2];
-	double fVec3[2048];
 	double fConst12;
+	double fVec3[2048];
 	double fConst13;
 	double fRec11[3];
 	double fRec10[2];
 	double fRec2[2];
-	double fVec4[2048];
 	double fConst14;
+	double fVec4[2048];
 	double fConst15;
 	double fRec13[3];
 	double fRec12[2];
@@ -86,8 +86,8 @@ Dsp::~Dsp() {
 inline void Dsp::clear_state_f()
 {
 	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fVec0[l0] = 0.0;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec6[l1] = 0.0;
-	for (int l2 = 0; l2 < 2; l2 = l2 + 1) iRec7[l2] = 0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) iRec6[l1] = 0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec7[l2] = 0.0;
 	for (int l3 = 0; l3 < 8192; l3 = l3 + 1) fVec1[l3] = 0.0;
 	for (int l4 = 0; l4 < 3; l4 = l4 + 1) fRec5[l4] = 0.0;
 	for (int l5 = 0; l5 < 2; l5 = l5 + 1) fRec4[l5] = 0.0;
@@ -114,22 +114,22 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	fConst0 = std::min<double>(192000.0, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	double fConst1 = 1.0 - 100.53096491487338 / fConst0;
 	fConst2 = mydsp_faustpower2_f(fConst1);
-	fConst3 = 0.5 * (1.0 - fConst2);
-	fConst4 = std::max<double>(1.0, 0.02 * fConst0);
-	fConst5 = 1.0 / fConst4;
-	fConst6 = 0.0 - 89.0 / std::max<double>(1.0, 0.0050000000000000001 * fConst0);
-	fConst7 = 1.0 / std::max<double>(1.0, 0.01 * fConst0);
-	fConst8 = 0.0 - 2.0 * fConst1;
-	fConst9 = 6.2831853071795862 / fConst0;
-	fConst10 = 0.36284470246734402 * fConst0;
-	fConst11 = 17.316458706586939 / fConst0;
-	fConst12 = 0.1850481125092524 * fConst0;
-	fConst13 = 33.954333399998482 / fConst0;
-	fConst14 = 0.11194447554013209 * fConst0;
-	fConst15 = 56.127694349035245 / fConst0;
+	fConst3 = 6.283185307179586 / fConst0;
+	fConst4 = 0.0 - 2.0 * fConst1;
+	fConst5 = 1.0 / std::max<double>(1.0, 0.01 * fConst0);
+	fConst6 = std::max<double>(1.0, 0.02 * fConst0);
+	fConst7 = 1.0 / fConst6;
+	fConst8 = 0.0 - 89.0 / std::max<double>(1.0, 0.005 * fConst0);
+	fConst9 = 0.5 * (1.0 - fConst2);
+	fConst10 = 17.31645870658694 / fConst0;
+	fConst11 = 0.362844702467344 * fConst0;
+	fConst12 = 33.95433339999848 / fConst0;
+	fConst13 = 0.1850481125092524 * fConst0;
+	fConst14 = 56.127694349035245 / fConst0;
+	fConst15 = 0.1119444755401321 * fConst0;
 	IOTA0 = 0;
 	clear_state_f();
 }
@@ -141,51 +141,50 @@ void Dsp::init_static(uint32_t sample_rate, PluginLV2 *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-#define fCheckbox0 (*fCheckbox0_)
 #define fHslider0 (*fHslider0_)
+#define fCheckbox0 (*fCheckbox0_)
 #define fHslider1 (*fHslider1_)
-	double fSlow0 = double(fCheckbox0);
-	double fSlow1 = double(fHslider0);
-	double fSlow2 = 2.5 * fSlow0 * fSlow1;
-	double fSlow3 = fSlow1 + 0.029999999999999999;
-	int iSlow4 = fSlow0 == 0.0;
-	double fSlow5 = double(fHslider1);
-	int iSlow6 = int(std::min<double>(4096.0, std::max<double>(0.0, fConst0 / fSlow5)));
-	double fSlow7 = fConst8 * std::cos(fConst9 * fSlow5);
-	int iSlow8 = int(std::min<double>(4096.0, std::max<double>(0.0, fConst10 / fSlow5)));
-	double fSlow9 = fConst8 * std::cos(fConst11 * fSlow5);
-	int iSlow10 = int(std::min<double>(4096.0, std::max<double>(0.0, fConst12 / fSlow5)));
-	double fSlow11 = fConst8 * std::cos(fConst13 * fSlow5);
-	int iSlow12 = int(std::min<double>(4096.0, std::max<double>(0.0, fConst14 / fSlow5)));
-	double fSlow13 = fConst8 * std::cos(fConst15 * fSlow5);
+	double fSlow0 = double(fHslider0);
+	double fSlow1 = fConst4 * std::cos(fConst3 * fSlow0);
+	double fSlow2 = double(fCheckbox0);
+	int iSlow3 = fSlow2 == 0.0;
+	double fSlow4 = double(fHslider1);
+	double fSlow5 = fSlow4 + 0.03;
+	double fSlow6 = 2.5 * fSlow2 * fSlow4;
+	int iSlow7 = int(std::min<double>(4096.0, std::max<double>(0.0, fConst0 / fSlow0)));
+	double fSlow8 = fConst4 * std::cos(fConst10 * fSlow0);
+	int iSlow9 = int(std::min<double>(4096.0, std::max<double>(0.0, fConst11 / fSlow0)));
+	double fSlow10 = fConst4 * std::cos(fConst12 * fSlow0);
+	int iSlow11 = int(std::min<double>(4096.0, std::max<double>(0.0, fConst13 / fSlow0)));
+	double fSlow12 = fConst4 * std::cos(fConst14 * fSlow0);
+	int iSlow13 = int(std::min<double>(4096.0, std::max<double>(0.0, fConst15 / fSlow0)));
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fVec0[0] = fSlow0;
-		fRec6[0] = fSlow0 + fRec6[1] * double(fVec0[1] >= fSlow0);
-		iRec7[0] = iSlow4 * (iRec7[1] + 1);
-		double fTemp0 = fSlow3 * std::max<double>(0.0, std::min<double>(fConst5 * fRec6[0], std::max<double>(fConst6 * (fConst4 - fRec6[0]) + 1.0, 90.0)) * (1.0 - fConst7 * double(iRec7[0]))) + -0.80000000000000004 - 0.99999999999999989 * (fRec0[1] + fRec2[1] + fRec1[1] + fRec3[1]);
-		double fTemp1 = mydsp_faustpower4_f(std::fabs(fTemp0) + 0.75);
-		double fTemp2 = 1.0 / fTemp1;
-		double fTemp3 = 0.25 * fTemp0 * (double(fTemp2 > 1.0) + double(fTemp2 <= 1.0) / fTemp1);
-		fVec1[IOTA0 & 8191] = fSlow2 + fRec4[1] + fTemp3;
-		fRec5[0] = 0.90000000000000002 * fVec1[(IOTA0 - iSlow6) & 8191] - (fSlow7 * fRec5[1] + fConst2 * fRec5[2]);
-		fRec4[0] = fConst3 * (fRec5[0] - fRec5[2]);
+		fVec0[0] = fSlow2;
+		iRec6[0] = iSlow3 * (iRec6[1] + 1);
+		fRec7[0] = fSlow2 + fRec7[1] * double(fVec0[1] >= fSlow2);
+		double fTemp0 = fSlow5 * std::max<double>(0.0, std::min<double>(fConst7 * fRec7[0], std::max<double>(fConst8 * (fConst6 - fRec7[0]) + 1.0, 9e+01)) * (1.0 - fConst5 * double(iRec6[0]))) + (-0.8 - 0.9999999999999999 * (fRec0[1] + fRec2[1] + fRec1[1] + fRec3[1]));
+		double fTemp1 = std::pow(std::fabs(fTemp0) + 0.75, -4.0);
+		double fTemp2 = 0.25 * fTemp0 * (double(fTemp1 > 1.0) + fTemp1 * double(fTemp1 <= 1.0));
+		fVec1[IOTA0 & 8191] = fSlow6 + fRec4[1] + fTemp2;
+		fRec5[0] = 0.9 * fVec1[(IOTA0 - iSlow7) & 8191] - (fSlow1 * fRec5[1] + fConst2 * fRec5[2]);
+		fRec4[0] = fConst9 * (fRec5[0] - fRec5[2]);
 		fRec0[0] = fRec4[0];
-		fVec2[IOTA0 & 4095] = fSlow2 + fTemp3 + fRec8[1];
-		fRec9[0] = 0.81000000000000005 * fVec2[(IOTA0 - iSlow8) & 4095] - (fSlow9 * fRec9[1] + fConst2 * fRec9[2]);
-		fRec8[0] = fConst3 * (fRec9[0] - fRec9[2]);
+		fVec2[IOTA0 & 4095] = fSlow6 + fTemp2 + fRec8[1];
+		fRec9[0] = 0.81 * fVec2[(IOTA0 - iSlow9) & 4095] - (fSlow8 * fRec9[1] + fConst2 * fRec9[2]);
+		fRec8[0] = fConst9 * (fRec9[0] - fRec9[2]);
 		fRec1[0] = fRec8[0];
-		fVec3[IOTA0 & 2047] = fSlow2 + fTemp3 + fRec10[1];
-		fRec11[0] = 0.72900000000000009 * fVec3[(IOTA0 - iSlow10) & 2047] - (fSlow11 * fRec11[1] + fConst2 * fRec11[2]);
-		fRec10[0] = fConst3 * (fRec11[0] - fRec11[2]);
+		fVec3[IOTA0 & 2047] = fSlow6 + fTemp2 + fRec10[1];
+		fRec11[0] = 0.7290000000000001 * fVec3[(IOTA0 - iSlow11) & 2047] - (fSlow10 * fRec11[1] + fConst2 * fRec11[2]);
+		fRec10[0] = fConst9 * (fRec11[0] - fRec11[2]);
 		fRec2[0] = fRec10[0];
-		fVec4[IOTA0 & 2047] = fSlow2 + fTemp3 + fRec12[1];
-		fRec13[0] = 0.65610000000000002 * fVec4[(IOTA0 - iSlow12) & 2047] - (fSlow13 * fRec13[1] + fConst2 * fRec13[2]);
-		fRec12[0] = fConst3 * (fRec13[0] - fRec13[2]);
+		fVec4[IOTA0 & 2047] = fSlow6 + fTemp2 + fRec12[1];
+		fRec13[0] = 0.6561 * fVec4[(IOTA0 - iSlow13) & 2047] - (fSlow12 * fRec13[1] + fConst2 * fRec13[2]);
+		fRec12[0] = fConst9 * (fRec13[0] - fRec13[2]);
 		fRec3[0] = fRec12[0];
-		output0[i0] = FAUSTFLOAT(double(input0[i0]) + fRec0[0] + fRec1[0] + fRec2[0] + fRec3[0]);
+		output0[i0] = FAUSTFLOAT(fRec3[0] + fRec2[0] + fRec1[0] + double(input0[i0]) + fRec0[0]);
 		fVec0[1] = fVec0[0];
-		fRec6[1] = fRec6[0];
-		iRec7[1] = iRec7[0];
+		iRec6[1] = iRec6[0];
+		fRec7[1] = fRec7[0];
 		IOTA0 = IOTA0 + 1;
 		fRec5[2] = fRec5[1];
 		fRec5[1] = fRec5[0];
@@ -204,8 +203,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec12[1] = fRec12[0];
 		fRec3[1] = fRec3[0];
 	}
-#undef fCheckbox0
 #undef fHslider0
+#undef fCheckbox0
 #undef fHslider1
 }
 
@@ -223,10 +222,10 @@ void Dsp::connect(uint32_t port,void* data)
 		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
 	case GAIN: 
-		fHslider0_ = (float*)data; // , 0.80000000000000004, 0.0, 10.0, 0.01 
+		fHslider1_ = (float*)data; // , 0.8, 0.0, 1e+01, 0.01 
 		break;
 	case SYNTHFREQ: 
-		fHslider1_ = (float*)data; // , 440.0, 20.0, 20000.0, 1.0 
+		fHslider0_ = (float*)data; // , 4.4e+02, 2e+01, 2e+04, 1.0 
 		break;
 	default:
 		break;
