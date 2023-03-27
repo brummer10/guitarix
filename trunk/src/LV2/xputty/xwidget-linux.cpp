@@ -84,6 +84,11 @@ void os_resize_window(Display *dpy, Widget_t *w, int x, int y) {
     XResizeWindow(dpy, w->widget, x, y);
 }
 
+void os_get_surface_size(cairo_surface_t *surface, int *width, int *height) {
+    *width = cairo_xlib_surface_get_width(surface);
+    *height = cairo_xlib_surface_get_height(surface);
+}
+
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
     XSetWindowAttributes attributes;

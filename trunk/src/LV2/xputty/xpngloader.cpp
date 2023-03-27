@@ -96,8 +96,8 @@ cairo_surface_t * surface_get_png(Widget_t *w, cairo_surface_t *sf, const unsign
 }
 
 void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *image) {
-    int width = cairo_xlib_surface_get_width(image);
-    int height = cairo_xlib_surface_get_height(image);
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     XWindowAttributes atr;
     XGetWindowAttributes (w->app->dpy, w->widget, &atr);
     Pixmap icon = XCreatePixmap(w->app->dpy, w->widget, width, height, atr.depth);

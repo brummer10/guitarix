@@ -55,8 +55,8 @@ void _pattern_in(Widget_t *w, Color_state st, int height) {
 }
 
 void _draw_image_button(Widget_t *w, int width_t, int height_t, float offset) {
-    int width = cairo_xlib_surface_get_width(w->image);
-    int height = cairo_xlib_surface_get_height(w->image);
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     double half_width = (width/height >=2) ? width*0.5 : width;
     double x = (double)width_t/(double)(half_width);
     double y = (double)height_t/(double)height;
@@ -73,8 +73,8 @@ void _draw_image_button(Widget_t *w, int width_t, int height_t, float offset) {
 }
 
 void _draw_image_button_with_label(Widget_t *w, int width_t, int height_t) {
-    int width = cairo_xlib_surface_get_width(w->image);
-    int height = cairo_xlib_surface_get_height(w->image);
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     double x = (double)width_t/(double)height;
     double y = (double)height/(double)width_t;
     double buttonstate = adj_get_state(w->adj);

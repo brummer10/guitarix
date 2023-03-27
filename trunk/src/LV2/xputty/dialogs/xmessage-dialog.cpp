@@ -49,8 +49,8 @@ static void draw_message_window(void *w_, void* user_data) {
     cairo_fill (w->crb);
 
     widget_set_scale(w);
-    int width = cairo_xlib_surface_get_width(w->image);
-    int height = cairo_xlib_surface_get_height(w->image);
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     double x = 64.0/(double)(width);
     double y = 64.0/(double)height;
     double x1 = (double)height/64.0;
