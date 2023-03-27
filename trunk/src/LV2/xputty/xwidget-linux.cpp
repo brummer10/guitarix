@@ -413,10 +413,10 @@ void os_adjustment_callback(void *w_, void *user_data) {
 }
 
 bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize) {
-	Status status;
-	KeySym keysym;
-	Xutf8LookupString(w->xic, key, buf, bufsize - 1, &keysym, &status);
-	return (status == XLookupChars || status == XLookupBoth);
+    Status status;
+    KeySym keysym;
+    Xutf8LookupString(w->xic, key, buf, bufsize - 1, &keysym, &status);
+    return (status == XLookupChars || status == XLookupBoth);
 }
 
 void os_free_pixmap(Widget_t *w, Pixmap pixmap) {

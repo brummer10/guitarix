@@ -834,7 +834,7 @@ void SetClientSize(HWND hwnd, int clientWidth, int clientHeight) {
         RECT rc = {0, 0, clientWidth, clientHeight} ;
         AdjustWindowRectEx(&rc, dwStyle, menu ? TRUE : FALSE, dwExStyle);
         SetWindowPos(hwnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top,
-                SWP_NOZORDER | SWP_NOMOVE) ;
+                     SWP_NOZORDER | SWP_NOMOVE) ;
     }
 }
 
