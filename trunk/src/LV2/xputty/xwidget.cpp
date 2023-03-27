@@ -316,7 +316,7 @@ void widget_set_title(Widget_t *w, const char *title) {
 
 void widget_show(Widget_t *w) {
     w->func.map_notify_callback(w, NULL);
-    XMapWindow(w->app->dpy, w->widget);
+    os_widget_show(w);
 }
 
 void widget_hide(Widget_t *w) {
@@ -325,7 +325,7 @@ void widget_hide(Widget_t *w) {
         widget_hide(w->childlist->childs[i]);
     }
     w->func.unmap_notify_callback(w, NULL);
-    XUnmapWindow(w->app->dpy, w->widget);
+    os_widget_hide(w);
 }
 
 void widget_show_all(Widget_t *w) {
@@ -333,7 +333,7 @@ void widget_show_all(Widget_t *w) {
         return;
     } else {
         w->func.map_notify_callback(w, NULL);
-        XMapWindow(w->app->dpy, w->widget);
+        os_widget_show(w);
         int i=0;
         for(;i<w->childlist->elem;i++) {
             widget_show_all(w->childlist->childs[i]);
@@ -343,7 +343,7 @@ void widget_show_all(Widget_t *w) {
 
 void pop_widget_show_all(Widget_t *w) {
     w->func.map_notify_callback(w, NULL);
-    XMapWindow(w->app->dpy, w->widget);
+    os_widget_show(w);
     int i=0;
     for(;i<w->childlist->elem;i++) {
         pop_widget_show_all(w->childlist->childs[i]);

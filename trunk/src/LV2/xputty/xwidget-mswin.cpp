@@ -219,6 +219,14 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
     SetParent(w->widget, parent->widget); // embed into parentWindow
     SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 }
+void os_widget_show(Widget_t *w) {
+    ShowWindow(w->widget, SW_SHOW);
+}
+
+void os_widget_hide(Widget_t *w) {
+    ShowWindow(w->widget, SW_HIDE);
+}
+
 
 Atom os_register_wm_delete_window(Widget_t * wid) {
     Atom msg = WM_USER + 01;

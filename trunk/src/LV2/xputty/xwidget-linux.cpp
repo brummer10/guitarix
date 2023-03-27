@@ -156,6 +156,14 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
                   DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
 }
 
+void os_widget_show(Widget_t *w) {
+    XMapWindow(w->app->dpy, w->widget);
+}
+
+void os_widget_hide(Widget_t *w) {
+    XUnmapWindow(w->app->dpy, w->widget);
+}
+
 void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
     Widget_t *wid = (Widget_t*)w_;
     XEvent *xev = (XEvent*)event;
