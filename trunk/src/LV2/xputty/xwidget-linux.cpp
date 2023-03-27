@@ -25,6 +25,9 @@
 extern "C" {
 #endif
 
+#include "xwidget.h"
+#include "xwidget_private.h"
+
 Display *os_open_display(char *display_name) {
     return XOpenDisplay(display_name);
 }
