@@ -804,10 +804,14 @@ Widget_t *add_keyboard_knob(Widget_t *parent, const char * label,
 }
 
 Widget_t *open_midi_keyboard(Widget_t *w) {
+#ifndef _WIN32 //WindowBorders//XSelectInput
     Widget_t *wid = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, 700, 200);
     XSelectInput(wid->app->dpy, wid->widget,StructureNotifyMask|ExposureMask|KeyPressMask 
                     |EnterWindowMask|LeaveWindowMask|ButtonReleaseMask|KeyReleaseMask
                     |ButtonPressMask|Button1MotionMask|PointerMotionMask);
+#else
+    Widget_t *wid = create_window(w->app, (HWND)-1, 0, 0, 700, 200);
+#endif
     MidiKeyboard *keys = (MidiKeyboard*)malloc(sizeof(MidiKeyboard));
     wid->parent_struct = keys;
     wid->parent = w;

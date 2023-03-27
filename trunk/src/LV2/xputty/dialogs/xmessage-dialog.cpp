@@ -340,7 +340,11 @@ Widget_t *open_message_dialog(Widget_t *w, int style, const char *title,
     check_for_message(md, message);
     check_for_choices(md, choices);
     check_for_style(md, style);
+#ifdef _WIN32 //WindowBorders
+    Widget_t *wid = create_window(w->app, (HWND)-1, 0, 0, md->width, md->height);
+#else
     Widget_t *wid = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, md->width, md->height);
+#endif
     wid->label = message;
     wid->flags |= HAS_MEM;
     wid->scale.gravity = CENTER;
