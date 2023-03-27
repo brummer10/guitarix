@@ -96,6 +96,9 @@ cairo_surface_t * surface_get_png(Widget_t *w, cairo_surface_t *sf, const unsign
 }
 
 void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *image) {
+#ifdef _WIN32 //PixmapIcon
+    return; // TODO
+#else
     int width, height;
     os_get_surface_size(w->image, &width, &height);
     XWindowAttributes atr;
@@ -119,9 +122,13 @@ void widget_set_icon_from_surface(Widget_t *w, Pixmap *icon_, cairo_surface_t *i
     win_hints->icon_pixmap = icon;
     XSetWMHints(w->app->dpy, w->widget, win_hints);
     XFree(win_hints);
+#endif
 }
 
 void widget_set_icon_from_png(Widget_t *w, Pixmap *icon_, const unsigned char* name) {
+#ifdef _WIN32 //PixmapIcon
+    return; // TODO
+#else
     cairo_surface_t *image = cairo_image_surface_create_from_stream (name);
     int width = cairo_image_surface_get_width(image);
     int height = cairo_image_surface_get_height(image);
@@ -147,6 +154,7 @@ void widget_set_icon_from_png(Widget_t *w, Pixmap *icon_, const unsigned char* n
     win_hints->icon_pixmap = icon;
     XSetWMHints(w->app->dpy, w->widget, win_hints);
     XFree(win_hints);
+#endif
 }
 
 /*
