@@ -27,6 +27,7 @@ Widget_t* add_vslider(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_VSLIDER;
     wid->label = label;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,0.01, CL_CONTINUOS);
     wid->adj = wid->adj_y;
@@ -42,6 +43,7 @@ Widget_t* add_hslider(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_HSLIDER;
     wid->label = label;
     wid->adj_x = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,0.01, CL_CONTINUOS);
     wid->adj = wid->adj_x;

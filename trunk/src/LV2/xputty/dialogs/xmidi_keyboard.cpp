@@ -812,6 +812,7 @@ Widget_t *open_midi_keyboard(Widget_t *w) {
 #else
     Widget_t *wid = create_window(w->app, (HWND)-1, 0, 0, 700, 200);
 #endif
+    wid->widget_type = WT_MIDI_KEYBOARD;
     MidiKeyboard *keys = (MidiKeyboard*)malloc(sizeof(MidiKeyboard));
     wid->parent_struct = keys;
     wid->parent = w;

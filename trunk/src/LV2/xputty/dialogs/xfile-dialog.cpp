@@ -260,6 +260,7 @@ Widget_t *open_file_dialog(Widget_t *w, const char *path, const char *filter) {
 #else
     file_dialog->w = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, 660, 420);
 #endif
+    file_dialog->w->widget_type = WT_FILE_DIALOG;
     file_dialog->w->flags |= HAS_MEM;
     file_dialog->w->parent_struct = file_dialog;
     widget_set_title(file_dialog->w, "File Selector");

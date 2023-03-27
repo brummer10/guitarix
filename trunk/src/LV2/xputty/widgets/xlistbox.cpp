@@ -32,6 +32,7 @@ void listbox_set_active_entry(Widget_t *w, int active) {
 
 Widget_t* create_listbox_viewport(Widget_t *parent, int elem, int width, int height) {
     Widget_t *wid = create_widget(parent->app, parent, 0, 0, width, height);
+    wid->widget_type = WT_LISTBOX_VIEWPORT;
     wid->scale.gravity = NORTHEAST;
     float max_value = -elem ;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, max_value,1.0, CL_VIEWPORT);
@@ -47,6 +48,7 @@ Widget_t* add_listbox(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_LISTBOX;
     wid->label = label;
     wid->scale.gravity = CENTER;
     wid->func.expose_callback = _draw_listbox;
@@ -62,6 +64,7 @@ Widget_t* listbox_add_entry(Widget_t *listbox, const char * label) {
     int width = listbox->scale.init_width;
     int si = childlist_has_child(view_port->childlist);
     Widget_t *wid = create_widget(listbox->app, view_port, 0, 25*si, width, 25);
+    wid->widget_type = WT_LISTBOX_ENTRY;
     float max_value = view_port->adj->max_value+1.0;
     set_adjustment(view_port->adj,0.0, 0.0, 0.0, max_value,1.0, CL_VIEWPORT);
     max_value = listbox->adj->max_value+1.0;

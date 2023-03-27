@@ -24,6 +24,15 @@
 
 void create_cairo_context_and_buffer(Widget_t *w);
 
+const char *widget_type_name(Widget_t *w) {
+  if (!w)
+    return widget_type_names[0]; // "WT_NONE"
+  else if (w->widget_type >= XPUTTY_WIDGET_NAME_COUNT)
+    return widget_type_names[XPUTTY_WIDGET_NAME_COUNT]; // "UNKNOWN"
+  else
+    return widget_type_names[w->widget_type];
+}
+
 int key_mapping(Display *dpy, XKeyEvent *xkey) {
     if (xkey->keycode == XKeysymToKeycode(dpy,XK_Tab))
         return (xkey->state == ShiftMask) ? 1 : 2;
@@ -156,6 +165,7 @@ Widget_t *create_window(Xputty *app, Window win,
     w->app = app;
     w->parent = &win;
     w->parent_struct = NULL;
+    w->widget_type = WT_WINDOW;
     w->label = NULL;
     memset(w->input_label, 0, 32 * (sizeof w->input_label[0]));
     w->state = 0;
@@ -246,6 +256,7 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     w->app = app;
     w->parent = parent;
     w->parent_struct = NULL;
+    w->widget_type = WT_WIDGET;
     w->label = NULL;
     memset(w->input_label, 0, 32 * (sizeof w->input_label[0]));
     w->state = 0;

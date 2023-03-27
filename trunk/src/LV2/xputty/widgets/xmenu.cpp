@@ -44,6 +44,7 @@ void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
 
 Widget_t* create_viewport(Widget_t *parent, int width, int height) {
     Widget_t *wid = create_widget(parent->app, parent, 0, 0, width, height);
+    wid->widget_type = WT_MENU_VIEWPORT;
     wid->scale.gravity = NONE;
     wid->flags &= ~USE_TRANSPARENCY;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, -1.0,1.0, CL_VIEWPORT);
@@ -58,6 +59,7 @@ Widget_t* create_menu(Widget_t *parent, int height) {
     int x1, y1;
     os_translate_coords(parent, parent->widget, os_get_root_window(parent), 0, 0, &x1, &y1);
     Widget_t *wid = create_window(parent->app, os_get_root_window(parent), x1, y1, 10, height);
+    wid->widget_type = WT_MENU;
     create_viewport(wid, 10, 5*height);
 
     XSetWindowAttributes attributes;
@@ -91,6 +93,7 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
     height = m.height;
     int si = childlist_has_child(view_port->childlist);
     Widget_t *wid = create_widget(menu->app, view_port, 0, height*si, width, height);
+    wid->widget_type = WT_MENU_ITEM;
     float max_value = view_port->adj->max_value+1.0;
     set_adjustment(view_port->adj,0.0, 0.0, 0.0, max_value,1.0, CL_VIEWPORT);
     wid->scale.gravity = MENUITEM;
@@ -104,6 +107,7 @@ Widget_t* menu_add_item(Widget_t *menu,const char * label) {
 
 Widget_t* menu_add_check_item(Widget_t *menu, const char * label) {
     Widget_t *wid = menu_add_item(menu, label);
+    wid->widget_type = WT_MENU_CHECK_ITEM;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,1.0, CL_TOGGLE);
     wid->adj = wid->adj_y;
     wid->func.expose_callback = _draw_check_item;
@@ -125,6 +129,7 @@ void radio_item_set_active(Widget_t *w) {
 
 Widget_t* menu_add_radio_item(Widget_t *menu, const char * label) {
     Widget_t *wid = menu_add_check_item(menu, label);
+    wid->widget_type = WT_MENU_RADIO_ITEM;
     wid->flags |= IS_RADIO;
     wid->func.expose_callback = _draw_check_item;
     wid->func.button_press_callback = _radio_item_button_pressed;
