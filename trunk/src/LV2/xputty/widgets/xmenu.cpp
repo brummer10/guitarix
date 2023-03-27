@@ -29,7 +29,7 @@ void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     if (!view_port->childlist->elem) return;
     _configure_menu(parent, menu, elem, above);
     pop_widget_show_all(menu);
-    int err = XGrabPointer(menu->app->dpy, DefaultRootWindow(parent->app->dpy), True,
+    int err = XGrabPointer(menu->app->dpy, os_get_root_window(parent), True,
                  ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
                  GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
     menu->app->hold_grab = menu;
@@ -52,8 +52,8 @@ Widget_t* create_menu(Widget_t *parent, int height) {
 
     int x1, y1;
     Window child;
-    XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, 0, &x1, &y1, &child );
-    Widget_t *wid = create_window(parent->app, DefaultRootWindow(parent->app->dpy), x1, y1, 10, height);
+    XTranslateCoordinates( parent->app->dpy, parent->widget, os_get_root_window(parent), 0, 0, &x1, &y1, &child );
+    Widget_t *wid = create_window(parent->app, os_get_root_window(parent), x1, y1, 10, height);
     create_viewport(wid, 10, 5*height);
 
     XSetWindowAttributes attributes;

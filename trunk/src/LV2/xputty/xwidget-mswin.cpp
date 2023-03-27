@@ -45,6 +45,10 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+Window os_get_root_window(Widget_t *w) {
+    return HWND_DESKTOP;
+}
+
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
     RECT WindowRect;
     RECT ClientRect;

@@ -74,6 +74,7 @@ typedef struct {
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+Window os_get_root_window(Widget_t *w);
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics);
 void os_set_window_min_size(Widget_t *w, int min_width, int min_height,
                             int base_width, int base_height);

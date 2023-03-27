@@ -363,7 +363,7 @@ void show_tooltip(Widget_t *wid) {
             Window child, root;
             XQueryPointer(wid->app->dpy, wid->widget, &root, &child, &rx, &ry, &x, &y, &mask);
             int x1, y1;
-            XTranslateCoordinates( wid->app->dpy, wid->widget, DefaultRootWindow(wid->app->dpy),
+            XTranslateCoordinates( wid->app->dpy, wid->widget, os_get_root_window(wid),
                                                                        x, y, &x1, &y1, &child );
             XMoveWindow(w->app->dpy,w->widget,x1+10, y1-10);
             widget_show(w);

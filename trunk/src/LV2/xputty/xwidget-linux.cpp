@@ -25,6 +25,10 @@
 extern "C" {
 #endif
 
+Window os_get_root_window(Widget_t *w) {
+    return DefaultRootWindow(w->app->dpy);
+}
+
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
     Widget_t *wid = (Widget_t*)w_;
     XWindowAttributes attrs;
