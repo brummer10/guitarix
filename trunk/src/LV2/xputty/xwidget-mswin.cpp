@@ -45,6 +45,15 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
+Display *os_open_display(char *display_name) {
+    // nothing to do on MSWin
+    return (Display *)1;
+}
+
+void os_close_display(Display *dpy) {
+    // nothing to do on MSWin
+}
+
 Window os_get_root_window(Widget_t *w) {
     return HWND_DESKTOP;
 }
