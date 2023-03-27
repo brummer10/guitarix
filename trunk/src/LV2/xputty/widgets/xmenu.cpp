@@ -62,6 +62,7 @@ Widget_t* create_menu(Widget_t *parent, int height) {
     wid->widget_type = WT_MENU;
     create_viewport(wid, 10, 5*height);
 
+#ifndef _WIN32 //XChangeProperty
     XSetWindowAttributes attributes;
     attributes.override_redirect = True;
     XChangeWindowAttributes(parent->app->dpy, wid->widget, CWOverrideRedirect, &attributes);
@@ -77,6 +78,7 @@ Widget_t* create_menu(Widget_t *parent, int height) {
         XA_ATOM, 32, PropModeReplace, (unsigned char *) &window_state_modal, 1);
 
     XSetTransientForHint(parent->app->dpy,wid->widget,parent->widget);
+#endif
     wid->func.expose_callback = _draw_menu;
     wid->flags |= IS_POPUP;
     wid->scale.gravity = NONE;
