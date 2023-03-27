@@ -404,6 +404,13 @@ void os_send_systray_message(Widget_t *w) {
     XSendEvent(w->app->dpy, tray, False, NoEventMask, &event);
 }
 
+bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize) {
+	Status status;
+	KeySym keysym;
+	Xutf8LookupString(w->xic, key, buf, bufsize - 1, &keysym, &status);
+	return (status == XLookupChars || status == XLookupBoth);
+}
+
 void os_free_pixmap(Widget_t *w, Pixmap pixmap) {
     XFreePixmap(w->app->dpy, pixmap);
 }

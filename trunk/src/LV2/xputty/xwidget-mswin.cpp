@@ -63,6 +63,47 @@ void debug_lasterror(const char *prefix, const char *prefix2) {
 }
 
 /*---------------------------------------------------------------------
+            codepage conversion
+----------------------------------------------------------------------*/
+
+// general codepage conversion
+char *convert_cp(DWORD cp_from, DWORD cp_to, char *s_from) {
+    char *s_to = NULL;
+    int flags = MB_PRECOMPOSED; // | MB_ERR_INVALID_CHARS;
+    // prepare conversion to WideChar (using cp_from) - get required space
+    size_t size = MultiByteToWideChar(cp_from, flags, s_from, -1, NULL, 0);
+    if (size) {
+        // convert Ansi to WideChar (pwc)
+        wchar_t *pwc= (wchar_t*)malloc(size*2);
+        size_t size_wc = MultiByteToWideChar(cp_from, flags, s_from, -1, pwc, size);
+        if (size_wc) {
+            // prepare conversion to cp_to - get required space
+            flags = 0;
+            size = WideCharToMultiByte(cp_to, flags, pwc, size_wc, NULL, 0, NULL, NULL);
+            if (size) {
+                // convert WideChar (pwc) to Ansi using cp_to
+                s_to = (char*)malloc(size+1);
+                memset(s_to, 0 , size+1);
+                size = WideCharToMultiByte(cp_to, flags, pwc, size_wc, s_to, size, NULL, NULL);
+            }
+        }
+        free(pwc);
+    }
+    // needs to be free()d by caller
+    return s_to;
+}
+
+// convert active codepage to utf8
+char *utf8_from_locale(char *localestr) {
+    return (convert_cp(GetACP(), CP_UTF8, localestr));
+}
+
+// convert utf8 to active codepage
+char *locale_from_utf8(char *utf8str) {
+    return (convert_cp(CP_UTF8, GetACP(), utf8str));
+}
+
+/*---------------------------------------------------------------------
 -----------------------------------------------------------------------
             common functions (required)
 -----------------------------------------------------------------------
@@ -299,6 +340,18 @@ void os_send_button_release_event(Widget_t *w) {
 
 void os_send_systray_message(Widget_t *w) {
     // STUB
+}
+
+bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize) {
+    char ansibuf[2];
+    ansibuf[0] = (char)key->vk;
+    ansibuf[1] = 0;
+    char *utf8 = utf8_from_locale(ansibuf);
+    int l=min(bufsize, strlen(utf8));
+    strncpy(buf, utf8, l);
+    buf[l] = 0;
+    free(utf8);
+    return key->vk_is_final_char; // for only feeding readily processed chars into input widgets
 }
 
 void os_free_pixmap(Widget_t *w, Pixmap pixmap) {

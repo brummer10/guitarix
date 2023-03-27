@@ -240,11 +240,8 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
             break;
         }
     } else {
-        Status status;
-        KeySym keysym;
         char buf[32];
-        Xutf8LookupString(w->xic, key, buf, sizeof(buf) - 1, &keysym, &status);
-        if(status == XLookupChars || status == XLookupBoth){
+        if (os_get_keyboard_input(w, key, buf, sizeof(buf) - 1)) {
             entry_add_text(w, buf);
         }
     }
