@@ -88,6 +88,11 @@ void os_move_window(Display *dpy, Widget_t *w, int x, int y) {
       x, y, 0, 0, SWP_NOSIZE|SWP_NOZORDER); //X, Y, width, height, uFlags
 }
 
+void os_resize_window(Display *dpy, Widget_t *w, int x, int y) {
+    SetWindowPos(w->widget, NULL, //hWnd, hWndInsertAfter
+      0, 0, x, y, SWP_NOMOVE|SWP_NOZORDER); //X, Y, width, height, uFlags
+}
+
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
     // Event callbacks already start during CreateWindow(),

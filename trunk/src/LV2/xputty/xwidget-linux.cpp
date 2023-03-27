@@ -65,6 +65,10 @@ void os_move_window(Display *dpy, Widget_t *w, int x, int y) {
     XMoveWindow(dpy,w->widget, x, y);
 }
 
+void os_resize_window(Display *dpy, Widget_t *w, int x, int y) {
+    XResizeWindow(dpy, w->widget, x, y);
+}
+
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
     XSetWindowAttributes attributes;

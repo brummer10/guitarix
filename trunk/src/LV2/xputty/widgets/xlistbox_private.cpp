@@ -93,7 +93,7 @@ void _configure_listbox(void *w_, void* user_data) {
     int si = max(1,childlist_has_child(w->childlist));
     Widget_t* listbox = (Widget_t*)w->parent;
     os_get_window_metrics(listbox, &m);
-    XResizeWindow (w->app->dpy, w->widget, m.width, 25*(si));
+    os_resize_window(w->app->dpy, w, m.width, 25*(si));
 }
 
 void _draw_listbox_viewslider(void *w_, void* user_data) {

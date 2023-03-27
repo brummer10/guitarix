@@ -166,7 +166,7 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     if(above) {
         if(item_width<parent->width)item_width = parent->width;
     }
-    XResizeWindow (menu->app->dpy, menu->widget, item_width, height*elem);
-    XResizeWindow (view_port->app->dpy, view_port->widget, item_width, height*view_port->childlist->elem);
+    os_resize_window(menu->app->dpy, menu, item_width, height*elem);
+    os_resize_window(view_port->app->dpy, view_port, item_width, height*view_port->childlist->elem);
     os_move_window(menu->app->dpy,menu,x1, y1);
 }

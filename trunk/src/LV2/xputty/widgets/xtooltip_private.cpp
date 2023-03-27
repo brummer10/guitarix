@@ -26,7 +26,7 @@ void _get_width(Widget_t *w) {
     cairo_text_extents_t extents;
     cairo_set_font_size (w->crb, 12);
     cairo_text_extents(w->crb,w->label , &extents);
-    XResizeWindow (w->app->dpy, w->widget, max(1, (int)extents.width+40), 25);    
+    os_resize_window(w->app->dpy, w, max(1, (int)extents.width+40), 25);
 }
 
 void _draw_tooltip(void *w_, void* user_data) {

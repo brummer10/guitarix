@@ -100,7 +100,7 @@ static void set_dirs(FileDialog *file_dialog) {
 static void center_widget(Widget_t *wid, Widget_t *w) {
     os_move_window(wid->app->dpy,w,w->scale.init_x /
         wid->scale.cscale_x,w->scale.init_y / wid->scale.cscale_y);
-    XResizeWindow (wid->app->dpy, w->widget, max(1,
+    os_resize_window(wid->app->dpy, w, max(1,
         w->scale.init_width / (wid->scale.cscale_x)), 
         max(1,w->scale.init_height / (wid->scale.cscale_y)));
 }

@@ -192,7 +192,7 @@ void _configure_listview(void *w_, void* user_data) {
     int width;
     os_get_window_metrics(listview, &m);
     width = m.width;
-    XResizeWindow (w->app->dpy, w->widget, width, 25*(max(1,filelist->list_size)));
+    os_resize_window(w->app->dpy, w, width, 25*(max(1,filelist->list_size)));
 }
 
 void _draw_listview_viewslider(void *w_, void* user_data) {
