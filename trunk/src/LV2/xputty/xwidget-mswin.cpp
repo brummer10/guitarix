@@ -220,8 +220,16 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
     SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 }
 
-void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
-    // nothing to do
+Atom os_register_wm_delete_window(Widget_t * wid) {
+    Atom msg = WM_USER + 01;
+    //Atom msg = RegisterWindowMessage("XPUTTY_WM_DELETE_WINDOW");
+    return msg;
+}
+
+Atom os_register_widget_destroy(Widget_t * wid) {
+    Atom msg = WM_USER + 02 ;
+    //Atom msg = RegisterWindowMessage("XPUTTY_WIDGET_DESTROY");
+    return msg;
 }
 
 void os_main_run(Xputty *main) {

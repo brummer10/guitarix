@@ -276,6 +276,17 @@ void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) 
     }
 }
 
+Atom os_register_wm_delete_window(Widget_t * wid) {
+    Atom WM_DELETE_WINDOW;
+    WM_DELETE_WINDOW = XInternAtom(wid->app->dpy, "WM_DELETE_WINDOW", True);
+    XSetWMProtocols(wid->app->dpy, wid->widget, &WM_DELETE_WINDOW, 1);
+    return WM_DELETE_WINDOW;
+}
+
+Atom os_register_widget_destroy(Widget_t * wid) {
+    return XInternAtom(wid->app->dpy, "WIDGET_DESTROY", False);
+}
+
 void os_main_run(Xputty *main) {
     Widget_t * wid = main->childlist->childs[0]; 
     Atom WM_DELETE_WINDOW = os_register_wm_delete_window(wid);
