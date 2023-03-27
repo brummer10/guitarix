@@ -1,22 +1,17 @@
-The guitarix LV2 plugins can be compiled as DSP-only plugins for MSWindows
-(i.e. only the effect part without a nice GUI)
-
 To compile the guitarix LV2 plugins on MS-Windows:
 
 - Download and install MSYS2 from https://www.msys2.org/
 - Start a MinGW64 shell from the install location (e.g. "C:\MSYS64\MinGW64.exe")
 - Inside the shell, install the required packages using pacman:
   # pacman -Syu
-  # pacman -S unzip pkg-config mingw-w64-x86_64-pkgconf mingw64/mingw-w64-x86_64-libsndfile mingw64/mingw-w64-x86_64-fftw mingw64/mingw-w64-x86_64-libsigc++ mingw64/mingw-w64-x86_64-eigen3 mingw64/mingw-w64-x86_64-libffi libffi-devel
+  # pacman -S git base-devel mingw-w64-x86_64-gcc mingw-w64-x86_64-pkg-config mingw-w64-x86_64-libsigc++ mingw-w64-x86_64-lv2 mingw-w64-x86_64-eigen3 mingw-w64-x86_64-fftw mingw-w64-x86_64-libffi mingw-w64-x86_64-libsndfile mingw-w64-x86_64-cairo
 - Download the guitarix sources, change into its "trunk" directory (where the "waf" file resides)
-  # wget https://github.com/brummer10/guitarix/archive/refs/heads/master.zip
-  # unzip master.zip
-  # cd guitarix-master/trunk
+  # git clone https://github.com/brummer10/guitarix
+  # cd guitarix/trunk
 - Configure and build the plugins:
-  # ./waf configure  		\
+  # ./waf configure -j 4	\
       --check-cxx-compiler=g++	\
       --no-standalone		\
-      --no-lv2-gui		\
       --no-faust		\
       --includeresampler	\
       --includeconvolver	\
@@ -25,8 +20,82 @@ To compile the guitarix LV2 plugins on MS-Windows:
       --no-nsm			\
       --no-desktop-update	\
       --static-lib		\
-      --ldflags="-shared -static -Wl,-Bstatic -lstdc++ -lpthread -lfftw3f" \
-      --cxxflags="-Wall -DGSEAL_ENABLE -fpermissive -D_USE_MATH_DEFINES" \
       && ./waf build && ./waf install --destdir=_bin
 - The compiled plugins should show up in the "trunk/_bin/" folder
 - Untested: To compile 32bit versions, start the MinGW32 shell and install the 32bit libraries (in the pacman clause, replace all "mingw64" by "mingw32" and all "x86_64" by "i686")
+
+--------------------------------------------------------------------------------
+
+Differences between Linux and MSWin version:
+
+- Polling the messageloop only available to the host application:
+  - Event functions are already called, before the CreateWindow() call has
+     returned.
+     - Initialization of the widget structure has to be done before creating
+       the window.
+       TODO: There is a strange behaviour, if the cairo_surfaces are created
+       before CreateWindow() has returned (cairo will hang, if surface gets
+       free()d and reinstantiated the second time).
+     - Forgotten windows cause crashes, if owner widget is already free()d
+  - Events are not forwarded to widgets with lower Z-order, e.g.
+    xwidget-mswin.cpp:WndProc:WM_MOUSEWHEEL: wheel events only reach the
+    menuitem and have to be forwarded to the owning viewport manually
+  - Events can not be selectively enabled/disabled, all widgets will
+    receive any events
+    see: XSelectInput()
+
+- Additional redraws required:
+  - requires some additional RedrawWindow()/os_expose_widget() calls, to
+    reflect changes to the surface:
+    - dialogs/xmessage-dialog.cpp:entry_get_text() (after keyboard input)
+    - widgets/xcombobox_private.cpp:set_entry() (after changing value)
+    - flag FAST_REDRAW ignored
+    - "queue_event"?
+      - if Expose (redraw) is followed by ConfigureNotify (size change),
+        then Expose is queued until ConfigureNotify has been processed.
+	- this seems not to be the cause for addition RedrawWindow() calls
+
+- Window styles (popup, embedded, modal) cannot be changed after creation
+  - see: XChangeProperty()
+  - Workaround: MSWin version derives the required style from the Window
+    passed as parent (HWND_DESKTOP for menu/tooltip, HWND_DESKTOP-1 for
+    dialog with borders, otherwise a borderless window to embed into host).
+  - Better: Set the style during creation on Linux as well (pass sth. like
+    intended_use to create() call.
+
+- Modal windows
+  - Are currently not implemented (require different handling than normal
+    windows)
+  - Should be used for dialogs only on MSWin (a popup-menu should not flash
+    the taskbar)
+    - Combobox uses MouseEnter/MouseLeave events (to close it when the mouse
+      leaves the widgets client area)
+
+- Keyboard input
+  - WM_KEYDOWN/-UP do not allow determining the resulting character e.g.
+    from dead-key combinations (only the result of simultaneously pressed
+    key combinations can be evaluated in these events).
+    WM_CHAR contains the final character (but pressed/released state is
+    not of much use in this event).
+    - Workaround: key_press/_release are not only called by WM_KEYDOWN/-UP,
+      but also from WM_CHAR (with a special flag to distinguish these events).
+
+- Minimal size:
+  The recommended way is to react to WM_GETMINMAXINFO, afaik there is no
+  other way to define "real" min/max sizes.
+  This message is not passed from the plugin host to the plugin.
+  Workaround: Resize to limits, whenever WM_SIZE reported too small sizes.
+
+
+Review required:
+
+- icons / Pixmap
+  - currently not implemented:
+    icons have to be in .ICO format
+
+- widgets/xmenu.cpp
+  - SetCapture() disabled
+
+- Livelooper
+  - Makes short pause/silence after recording?
+
