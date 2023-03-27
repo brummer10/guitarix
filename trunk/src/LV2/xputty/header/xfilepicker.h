@@ -54,7 +54,7 @@ extern "C" {
 /* comment out xasprintf and define _GNU_SOURCE on top of this file will remove this dependency.*/
 #include "xasprintf.h"
 
-#if defined(WIN32) || defined(_WIN32) 
+#if defined(WIN32) || defined(_WIN32) //PathSeparator
 #define PATH_SEPARATOR "\\" 
 #else 
 #define PATH_SEPARATOR "/" 
