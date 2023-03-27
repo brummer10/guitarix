@@ -33,8 +33,8 @@ static void _show_label(Widget_t *w, int width, int height) {
 }
 
 void _draw_image_knob(Widget_t *w, int width_t, int height_t) {
-    int width = cairo_xlib_surface_get_width(w->image);
-    int height = cairo_xlib_surface_get_height(w->image);
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     double x = (double)width_t/(double)height;
     double y = (double)height/(double)width_t;
     double knobstate = adj_get_state(w->adj_y);
@@ -55,11 +55,12 @@ void _draw_knob_image(void *w_, void* user_data) {
 }
 
 void _draw_knob(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
 
     const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
     int arc_offset = 0;

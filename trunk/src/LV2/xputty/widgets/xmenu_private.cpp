@@ -30,13 +30,14 @@ void _draw_menu(void *w_, void* user_data) {
 }
 
 void _draw_item(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width;
-    int height = attrs.height;
-    if (attrs.map_state != IsViewable) return;
+    os_get_window_metrics(w, &m);
+    width = m.width;
+    height = m.height;
+    if (!m.visible) return;
 
     use_base_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, 0, 0, width , height);
@@ -66,9 +67,10 @@ void _draw_item(void *w_, void* user_data) {
 void _draw_check_item(void *w_, void* user_data) {
     _draw_item(w_, user_data);
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int height = attrs.height;
+    Metrics_t m;
+    int height;
+    os_get_window_metrics(w, &m);
+    height = m.height;
     if (w->flags & IS_RADIO) {
         cairo_arc(w->crb, height/3, height/2, height/6, 0, 2 * M_PI );
     } else {
@@ -88,14 +90,15 @@ void _draw_check_item(void *w_, void* user_data) {
 }
 
 void _draw_viewslider(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     int v = (int)w->adj->max_value;
     if (!v) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    if (attrs.map_state != IsViewable) return;
-    int width = attrs.width;
-    int height = attrs.height;
+    os_get_window_metrics(w, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
     float sliderstate = adj_get_state(w->adj);
     use_bg_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, width-5,0,5,height);
@@ -111,12 +114,11 @@ void _draw_viewslider(void *w_, void* user_data) {
 }
 
 void _set_viewpoint(void *w_, void* user_data) {
+    Metrics_t m;
     Widget_t *w = (Widget_t*)w_;
     int v = (int)max(0,adj_get_value(w->adj));
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->childlist->childs[0]->widget, &attrs);
-    int height = attrs.height;
-    XMoveWindow(w->app->dpy,w->widget,0, -height*v);
+    os_get_window_metrics((Widget_t*)w->childlist->childs[0], &m);
+    os_move_window(w->app->dpy,w,0, -m.height*v);
 }
 
 void _check_item_button_pressed(void *w_, void* button_, void* user_data) {
@@ -135,15 +137,15 @@ void _radio_item_button_pressed(void *w_, void* button_, void* user_data) {
 }
 
 void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
+    Metrics_t m;
+    int height;
     Widget_t* view_port =  menu->childlist->childs[0];
     if (!view_port->childlist->elem) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(menu->app->dpy, (Window)view_port->childlist->childs[0]->widget, &attrs);
-    int height = attrs.height;
+    os_get_window_metrics((Widget_t*)view_port->childlist->childs[0], &m);
+    height = m.height;
     int x1, y1;
     int posy = (above) ? parent->height : 0;
-    Window child;
-    XTranslateCoordinates( parent->app->dpy, parent->widget, DefaultRootWindow(parent->app->dpy), 0, posy, &x1, &y1, &child );
+    os_translate_coords(parent, parent->widget, os_get_root_window(parent), 0, posy, &x1, &y1);
     int item_width = 1.0;
     cairo_text_extents_t extents;
     int i = view_port->childlist->elem-1;
@@ -164,7 +166,7 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     if(above) {
         if(item_width<parent->width)item_width = parent->width;
     }
-    XResizeWindow (menu->app->dpy, menu->widget, item_width, height*elem);
-    XResizeWindow (view_port->app->dpy, view_port->widget, item_width, height*view_port->childlist->elem);
-    XMoveWindow(menu->app->dpy,menu->widget,x1, y1);   
+    os_resize_window(menu->app->dpy, menu, item_width, height*elem);
+    os_resize_window(view_port->app->dpy, view_port, item_width, height*view_port->childlist->elem);
+    os_move_window(menu->app->dpy,menu,x1, y1);
 }

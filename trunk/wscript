@@ -268,6 +268,7 @@ def configure(conf):
     conf.env['IS_MACOSX'] = platform == 'darwin'
     conf.env['IS_LINUX'] = platform == 'linux' or platform == 'posix'
     conf.env['IS_SUN'] = platform == 'sunos'
+    conf.env['IS_MSWIN'] = platform == 'win32'
 
     if conf.env['IS_LINUX']:
         conf.define ('IS_LINUX', platform )
@@ -277,6 +278,9 @@ def configure(conf):
 
     if conf.env['IS_SUN']:
         conf.define ('IS_SUN', platform )
+
+    if conf.env['IS_MSWIN']:
+        conf.define ('IS_MSWIN', platform )
 
     conf.env['OS'] = platform
 
@@ -311,13 +315,33 @@ def configure(conf):
     conf.env.append_value('LDFLAGS', opt.ldflags.split())
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
 
+    # os specific: common settings
+    conf.env['OS_LV2_CXXFLAGS']      = ['-fvisibility=hidden','-Wl,--exclude-libs,ALL']
+    conf.env['OS_SNDFILE_CFGFLAGS']  = ['--cflags','--libs','sndfile >= 1.0.17']
+    conf.env['OS_CAIRO_CFGFLAGS']    = '--cflags --libs'
+    conf.env['OS_RESOURCES_LDFLAGS'] = '-z noexecstack'
+    if conf.env['OS'] != 'win32':
+        conf.env.append_value('OS_LV2_CXXFLAGS', ['-Wl,-z,relro,-z,now'])
+    else:
+        # MSWin changes
+        conf.env.prepend_value('OS_SNDFILE_CFGFLAGS', ['--static'])
+        conf.env['OS_CAIRO_CFGFLAGS']    = '--static %s' % conf.env['OS_CAIRO_CFGFLAGS']
+        conf.env['OS_RESOURCES_LDFLAGS'] = '' # no -z options
+
+        conf.env.append_value('DEFINES', ['_USE_MATH_DEFINES=1'])
+        # waf always(!) adds "-Wl,-Bdynamic" (SHLIB_MARKER) to the commandline, even for an empty list of dynamic libs.
+        # MinGW-gcc automatically links libstdc++ and libgcc_seh dynamically, if "-Wl,-Bdynamic" is present.
+        # As a workaround, that marker is replaced by an empty string:
+        conf.env['SHLIB_MARKER'] = ''
+        # "-shared -static" builds a dynamic library which itself is statically linked
+        conf.env['LINKFLAGS_cshlib']=['-shared','-static']
+        conf.env['LINKFLAGS_cxxshlib']=['-shared','-static']
+        conf.check(features='cxx cxxshlib', lib=['pthread'], uselib_store='PTHREAD')
+
     # needed libraries
-    conf.check_cfg(package='sndfile', args=['--cflags','--libs','sndfile >= 1.0.17'], uselib_store='SNDFILE', mandatory=1)
+    conf.check_cfg(package='sndfile', args=conf.env['OS_SNDFILE_CFGFLAGS'], uselib_store='SNDFILE', mandatory=1)
     conf.check(header_name='fftw3.h', mandatory=1)
     conf.check_cfg(package='fftw3f', args=['--cflags','--libs','fftw3f >= 3.3.8'], uselib_store='FFTW3', mandatory=1)
-    # avoid dynamic linking for MSWin plugins
-    if conf.env['OS'] == 'win32':
-        conf.env['LIB_FFTW3'] = ''
 
     if opt.standalone or opt.new_ladspa:
         try:

@@ -27,6 +27,7 @@ Widget_t* add_button(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_BUTTON;
     wid->label = label;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,1.0, CL_TOGGLE);
     wid->adj = wid->adj_y;
@@ -43,6 +44,7 @@ Widget_t* add_on_off_button(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_ON_OFF_BUTTON;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,1.0, CL_TOGGLE);
     wid->adj = wid->adj_y;
     wid->scale.gravity = CENTER;
@@ -58,6 +60,7 @@ Widget_t* add_toggle_button(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_TOGGLE_BUTTON;
     wid->label = label;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,1.0, CL_TOGGLE);
     wid->adj = wid->adj_y;
@@ -74,6 +77,7 @@ Widget_t* add_image_toggle_button(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_IMAGE_TOGGLE_BUTTON;
     wid->label = label;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,1.0, CL_TOGGLE);
     wid->adj = wid->adj_y;
@@ -90,6 +94,7 @@ Widget_t* add_switch_image_button(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_SWITCH_IMAGE_TOGGLE_BUTTON;
     wid->label = label;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,1.0, CL_TOGGLE);
     wid->adj = wid->adj_y;
@@ -106,6 +111,7 @@ Widget_t* add_check_button(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_CHECK_BUTTON;
     wid->label = label;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,1.0, CL_TOGGLE);
     wid->adj = wid->adj_y;
@@ -126,6 +132,7 @@ Widget_t* add_check_box(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, get_width(label), height);
+    wid->widget_type = WT_CHECK_BOX;
     wid->label = label;
     wid->adj_y = add_adjustment(wid,0.0, 0.0, 0.0, 1.0,1.0, CL_TOGGLE);
     wid->adj = wid->adj_y;

@@ -107,7 +107,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_my_theme(&ui->main);
     widget_get_png(ui->win, LDVAR(echocat_png));
     ui->win->func.expose_callback = draw_my_window;
-    ui->widget[0] = add_my_image_knob(ui->widget[0], INPUT,"Input", ui,50, 80, 60, 70);
+    ui->widget[0] = add_my_image_knob(ui->widget[0], AUDIO_IN,"Input", ui,50, 80, 60, 70);
     set_adjustment(ui->widget[0]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
     widget_get_png(ui->widget[0], LDVAR(echocatknob_png));
 

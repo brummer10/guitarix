@@ -45,15 +45,16 @@ void _pattern_hslider(Widget_t *w, Color_state st, int height) {
 }
 
 void _draw_vslider(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
     float center = (float)width/2;
     float upcenter = (float)width;
     
-    if (attrs.map_state != IsViewable) return;
+    if (!m.visible) return;
 
     float sliderstate = adj_get_state(w->adj_y);
 
@@ -115,15 +116,16 @@ void _draw_vslider(void *w_, void* user_data) {
 }
 
 void _draw_hslider(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
     float center = (float)height/2;
     float upcenter = (float)height;
     
-    if (attrs.map_state != IsViewable) return;
+    if (!m.visible) return;
 
     float sliderstate = adj_get_state(w->adj_x);
 

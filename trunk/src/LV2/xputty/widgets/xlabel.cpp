@@ -27,6 +27,7 @@ Widget_t* add_label(Widget_t *parent, const char * label,
                 int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_LABEL;
     wid->label = label;
     wid->scale.gravity = ASPECT;
     wid->func.expose_callback = _draw_label;

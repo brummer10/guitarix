@@ -257,10 +257,11 @@ void set_pattern(Widget_t *w, Colors *from, Colors *to, Color_mod mod) {
             col_to = to->light;
         break;
    }
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width;
-    int height = attrs.height;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    width = m.width;
+    height = m.height;
     cairo_pattern_t *pat = cairo_pattern_create_linear (0, 0, width, height);
     cairo_pattern_add_color_stop_rgba(pat, 0.0, col_from[0], col_from[1], col_from[2], col_from[3]);
     cairo_pattern_add_color_stop_rgba(pat, 1.0, col_to[0], col_to[1], col_to[2], col_to[3]);

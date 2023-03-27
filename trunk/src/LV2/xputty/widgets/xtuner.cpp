@@ -54,6 +54,7 @@ Widget_t* add_tuner(Widget_t *parent, const char * label,
     xt->move = 0;
     xt->smove = 0;
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_TUNER;
     wid->parent_struct = xt;
     wid->label = label;
     wid->adj_y = add_adjustment(wid,20.0, 20.0, 20.0, 20000.0,0.01, CL_CONTINUOS);

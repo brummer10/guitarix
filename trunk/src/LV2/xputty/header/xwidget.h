@@ -24,6 +24,7 @@
 #define XWIDGET_H
 
 #include "xputty.h"
+#include "xwidget-platform.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -108,7 +109,7 @@ typedef struct {
  * @param ADJ_INTERN        - (*xevfunc) adj_callback(void * widget, void* user_data)
  * @param VALUE_CHANGED     - (*xevfunc) value_changed_callback(void * widget, void* user_data)
  * @param USER              - (*xevfunc) user_callback(void * widget, void* user_data)
- * @param MEM_FREE          - (*xevfunc) mem_free_callback(void * widget, void* user_data)
+ * @param MEM_FREE_CB       - (*xevfunc) mem_free_callback(void * widget, void* user_data)
  * @param CONFIGURE_NOTIFY  - (*xevfunc) configure_notify_callback(void * widget, void* user_data)
  * @param MAP_NOTIFY        - (*xevfunc) map_notify_callback(void * widget, void* user_data)
  * @param UNMAP_NOTIFY      - (*xevfunc) unmap_notify_callback(void * widget, void* user_data)
@@ -128,7 +129,7 @@ typedef enum {
     ADJ_INTERN,
     VALUE_CHANGED,
     USER,
-    MEM_FREE,
+    MEM_FREE_CB,
     CONFIGURE_NOTIFY,
     MAP_NOTIFY,
     UNMAP_NOTIFY,
@@ -139,6 +140,141 @@ typedef enum {
     KEY_PRESS,
     KEY_RELEASE,
 } EventType;
+
+/**
+ *
+ * @brief WidgetType                    - enum describing the kind of the widget (button, menu, ...)
+ * \n The widget_type member can be used to identify the source widget e.g. in the messageloop
+ * @param WT_NONE                       - (unitialized or error)
+ * @param WT_WINDOW                     - create_window()
+ * @param WT_WIDGET                     - create_widget()
+ * @param WT_BUTTON                     - add_button()
+ * @param WT_ON_OFF_BUTTON              - add_on_off_button()
+ * @param WT_TOGGLE_BUTTON              - add_toggle_button()
+ * @param WT_IMAGE_TOGGLE_BUTTON        - add_image_toggle_button()
+ * @param WT_SWITCH_IMAGE_TOGGLE_BUTTON - add_switch_image_button()
+ * @param WT_CHECK_BUTTON               - add_check_box()
+ * @param WT_CHECK_BOX                  - add_check_box()
+ * @param WT_COMBOBOX                   - add_combobox()
+ * @param WT_FILE_DIALOG                - open_file_dialog()
+ * @param WT_KNOB                       - add_knob()
+ * @param WT_IMAGE_KNOB                 - add_image_knob()
+ * @param WT_LABEL                      - add_label()
+ * @param WT_LISTBOX                    - add_listbox()
+ * @param WT_LISTBOX_VIEWPORT           - create_listbox_viewport()
+ * @param WT_LISTBOX_ENTRY              - listbox_add_entry()
+ * @param WT_LISTVIEW                   - add_listview()
+ * @param WT_LISTVIEW_VIEWPORT          - create_listbox_viewport()
+ * @param WT_MENU                       - create_menu(), used by WT_COMBOBOX
+ * @param WT_MENU_VIEWPORT              - create_viewport()
+ * @param WT_MENU_ITEM                  - menu_add_item()
+ * @param WT_MENU_CHECK_ITEM            - menu_add_check_item()
+ * @param WT_MENU_RADIO_ITEM            - menu_add_radio_item()
+ * @param WT_MESSAGE_DIALOG             - open_message_dialog()
+ * @param WT_TEXT_ENTRY                 - create_entry_box(), used by WT_MESSAGE_DIALOG
+ * @param WT_VMETER                     - add_vmeter()
+ * @param WT_VMETER_SCALE               - add_vmeter()
+ * @param WT_HMETER                     - add_hmeter()
+ * @param WT_HMETER_SCALE               - add_hmeter()
+ * @param WT_MIDI_KEYBOARD              - open_midi_keyboard()
+ * @param WT_PLAYHEAD                   - add_playhead()
+ * @param WT_VSLIDER                    - add_vslider()
+ * @param WT_HSLIDER                    - add_hslider()
+ * @param WT_TOOLTIP                    - add_tooltip()
+ * @param WT_TUNER                      - add_tuner()
+ * @param WT_VALUEDISPLAY               - add_valuedisplay()
+ */
+
+typedef enum {
+    WT_NONE,
+    WT_WINDOW,
+    WT_WIDGET,
+    WT_BUTTON,
+    WT_ON_OFF_BUTTON,
+    WT_TOGGLE_BUTTON,
+    WT_IMAGE_TOGGLE_BUTTON,
+    WT_SWITCH_IMAGE_TOGGLE_BUTTON,
+    WT_CHECK_BUTTON,
+    WT_CHECK_BOX,
+    WT_COMBOBOX,
+    WT_FILE_DIALOG,
+    WT_KNOB,
+    WT_IMAGE_KNOB,
+    WT_LABEL,
+    WT_LISTBOX_VIEWPORT,
+    WT_LISTBOX,
+    WT_LISTBOX_ENTRY,
+    WT_LISTVIEW_VIEWPORT,
+    WT_LISTVIEW,
+    WT_MENU,
+    WT_MENU_VIEWPORT,
+    WT_MENU_ITEM,
+    WT_MENU_CHECK_ITEM,
+    WT_MENU_RADIO_ITEM,
+    WT_MESSAGE_DIALOG,
+    WT_VMETER,
+    WT_VMETER_SCALE,
+    WT_HMETER,
+    WT_HMETER_SCALE,
+    WT_MIDI_KEYBOARD,
+    WT_PLAYHEAD,
+    WT_VSLIDER,
+    WT_HSLIDER,
+    WT_TOOLTIP,
+    WT_TUNER,
+    WT_VALUEDISPLAY,
+    WT_TEXT_ENTRY,
+} WidgetType;
+
+/**
+ *
+ * @brief widget_type_names[]           - array with textual representations for WidgetType
+ * \n Max. length in characters for each name is XPUTTY_WIDGET_NAME_MAXLEN
+ * \n The last member "UKNOWN" is used for WidgetType out of bounds (0 < WidgetType < XPUTTY_WIDGET_NAME_COUNT)
+ */
+#define XPUTTY_WIDGET_NAME_COUNT 38
+#define XPUTTY_WIDGET_NAME_MAXLEN 256
+const char widget_type_names[XPUTTY_WIDGET_NAME_COUNT + 1][XPUTTY_WIDGET_NAME_MAXLEN] = {
+    "WT_NONE",
+    "WT_WINDOW",
+    "WT_WIDGET",
+    "WT_BUTTON",
+    "WT_ON_OFF_BUTTON",
+    "WT_TOGGLE_BUTTON",
+    "WT_IMAGE_TOGGLE_BUTTON",
+    "WT_SWITCH_IMAGE_TOGGLE_BUTTON",
+    "WT_CHECK_BUTTON",
+    "WT_CHECK_BOX",
+    "WT_COMBOBOX",
+    "WT_FILE_DIALOG",
+    "WT_KNOB",
+    "WT_IMAGE_KNOB",
+    "WT_LABEL",
+    "WT_LISTBOX_VIEWPORT",
+    "WT_LISTBOX",
+    "WT_LISTBOX_ENTRY",
+    "WT_LISTVIEW_VIEWPORT",
+    "WT_LISTVIEW",
+    "WT_MENU",
+    "WT_MENU_VIEWPORT",
+    "WT_MENU_ITEM",
+    "WT_MENU_CHECK_ITEM",
+    "WT_MENU_RADIO_ITEM",
+    "WT_MESSAGE_DIALOG",
+    "WT_VMETER",
+    "WT_VMETER_SCALE",
+    "WT_HMETER",
+    "WT_HMETER_SCALE",
+    "WT_MIDI_KEYBOARD",
+    "WT_PLAYHEAD",
+    "WT_VSLIDER",
+    "WT_HSLIDER",
+    "WT_TOOLTIP",
+    "WT_TUNER",
+    "WT_VALUEDISPLAY",
+    "WT_TEXT_ENTRY",
+    "UNKNOWN"
+};
 
 /**
  * 
@@ -265,6 +401,8 @@ enum {
  * @param *app               - pointer to the main struct
  * @param widget             - the X11 Window
  * @param *parent            - pointer to the Parent Window or Widget_t
+ * @param *parent_struct     - pointer to the Parent struct (Widget_t)
+ * @param widget_type        - enum containing widget type/class (button, menu, ...)
  * @param event_callback     - the main XEvent callback
  * @param func               - struct holding the event callbacks
  * @param *surface           - pointer to the cairo xlib surface
@@ -290,6 +428,8 @@ enum {
  * @param *childlist         - pointer to Widget_t child list
  * @param xic                - Locale and UTF 8 support interface
  * @param xim                - Context to Locale and UTF 8 support
+ * @param mouse_inside       - _WIN32 helper for EnterNotify
+ * @param metrics_min        - _WIN32 helper for os_set_window_minimal_size()
  */
 
 struct Widget_t {
@@ -301,6 +441,8 @@ struct Widget_t {
     void *parent;
 /** pointer to the Parent struct */
     void *parent_struct;
+/** enum containing widget type/class (button, menu, ...) */
+    WidgetType widget_type;
 /** the main XEvent callback */
     vfunc event_callback;
 /** struct holding the event callbacks */
@@ -351,6 +493,12 @@ struct Widget_t {
     int height;
 /** struct used to resize child widgets */
     Resize_t scale;
+#ifdef _WIN32 //Widget_t extensions
+/** _WIN32 helper for EnterNotify */
+    bool mouse_inside;
+/** _WIN32 helper for os_set_window_minimal_size() */
+    Metrics_t metrics_min;
+#endif //_WIN32 //Widget_t extensions
 };
 
 
@@ -584,6 +732,14 @@ void expose_widget(Widget_t *w);
  */
 
 int key_mapping(Display *dpy, XKeyEvent *xkey);
+
+/**
+ * @brief widget_type_name  - textual representation of (Widget_t*)->widget_type
+ * @param w                 - the Widget_t* to query (NULL is allowed)
+ * @return const char*      - zero terminated string; must not be free()d
+ */
+
+const char *widget_type_name(Widget_t *w);
 
 #ifdef __cplusplus
 }

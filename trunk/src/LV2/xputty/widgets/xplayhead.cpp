@@ -33,6 +33,7 @@ Widget_t* add_playhead(Widget_t *parent, const char * label, Adjustment_t *clip,
                 Adjustment_t *cut, int x, int y, int width, int height) {
 
     Widget_t *wid = create_widget(parent->app, parent, x, y, width, height);
+    wid->widget_type = WT_PLAYHEAD;
     _create_playhead_image(wid, width, height);
     wid->flags |= HAS_MEM;
     wid->label = label;

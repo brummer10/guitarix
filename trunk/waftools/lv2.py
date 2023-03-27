@@ -44,7 +44,7 @@ def lv2(bld, *k, **kw):
     cxxflags = []
     if not bld.env['OPT'] and bld.env['SSE2']:
         cxxflags = [ "-msse2", "-mfpmath=sse"]
-    lv2_add_common(tg, lv2_base, dst, ["LV2_SO"], cxxflags=cxxflags + ['-fvisibility=hidden','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'])
+    lv2_add_common(tg, lv2_base, dst, ["LV2_SO"], cxxflags=cxxflags + bld.env['OS_LV2_CXXFLAGS'])
     if bld.env['MODGUI']:
         bld.install_files(dst, bld.path.ant_glob('*.ttl'), relative_trick=True)
         bld.install_files(dst, bld.path.ant_glob('modgui/**/*'), relative_trick=True)
@@ -58,7 +58,7 @@ def lv2_gui(bld, *k, **kw):
         return None
     lv2_base, dst = get_lv2_base(bld, kw)
     tg = bld.shlib(features='strip', *k, **kw)
-    lv2_add_common(tg, lv2_base+'_gui', dst, ["LV2_GUI"], ['-fvisibility=hidden','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'])
+    lv2_add_common(tg, lv2_base+'_gui', dst, ["LV2_GUI"], bld.env['OS_LV2_CXXFLAGS'])
     return tg
 
 def options(opt):

@@ -729,7 +729,7 @@ void Dsp::connect(uint32_t port,void* data)
 	case BASS: 
 		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
-	case INPUT: 
+	case AUDIO_IN: 
 		fVslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case MIDDLE: 

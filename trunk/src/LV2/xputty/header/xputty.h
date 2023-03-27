@@ -33,11 +33,13 @@
 
 #include <math.h>
 #include <cairo.h>
+#include "xputty-mswin.h" // no ifdef (waf dependency check)
+#ifdef __linux__
 #include <cairo-xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
-
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,8 +63,14 @@ extern "C" {
  * the -DDEBUG flag
  */
 
+#ifdef _WIN32 //DebugPrint
+#define debug_print(...) \
+            { char xxdeb[1024]; snprintf(xxdeb, 1024, __VA_ARGS__); OutputDebugString(xxdeb); }
+#else
 #define debug_print(...) \
             ((void)((DEBUG) ? fprintf(stderr, __VA_ARGS__) : 0))
+#endif
+
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------	

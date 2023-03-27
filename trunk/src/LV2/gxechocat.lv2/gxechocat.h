@@ -30,7 +30,7 @@
 
 typedef enum
 {
-	INPUT,
+	AUDIO_IN,
 	SWELL,
 	SUSTAIN,
 	OUTPUT,

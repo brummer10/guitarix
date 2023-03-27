@@ -39,13 +39,11 @@
 
 static void draw_window(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width;
-    int height = attrs.height;
-    if (attrs.map_state != IsViewable) return;
+    Metrics_t m;
+    os_get_window_metrics(w, &m);
+    if (!m.visible) return;
 
-    cairo_rectangle(w->crb,0,0,width,height);
+    cairo_rectangle(w->crb,0,0,m.width,m.height);
     set_pattern(w,&w->app->color_scheme->selected,&w->app->color_scheme->normal,BACKGROUND_);
     cairo_fill (w->crb);
 
@@ -100,9 +98,9 @@ static void set_dirs(FileDialog *file_dialog) {
 }
 
 static void center_widget(Widget_t *wid, Widget_t *w) {
-    XMoveWindow(wid->app->dpy,w->widget,w->scale.init_x /
+    os_move_window(wid->app->dpy,w,w->scale.init_x /
         wid->scale.cscale_x,w->scale.init_y / wid->scale.cscale_y);
-    XResizeWindow (wid->app->dpy, w->widget, max(1,
+    os_resize_window(wid->app->dpy, w, max(1,
         w->scale.init_width / (wid->scale.cscale_x)), 
         max(1,w->scale.init_height / (wid->scale.cscale_y)));
 }
@@ -238,7 +236,7 @@ static void fd_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     FileDialog *file_dialog = (FileDialog *)w->parent_struct;
     if(file_dialog->icon) {
-        XFreePixmap(w->app->dpy, (*file_dialog->icon));
+        os_free_pixmap(w, (*file_dialog->icon));
         file_dialog->icon = NULL;
     }
     if(file_dialog->send_clear_func)
@@ -257,7 +255,12 @@ Widget_t *open_file_dialog(Widget_t *w, const char *path, const char *filter) {
     file_dialog->send_clear_func = true;
     file_dialog->icon = NULL;
 
+#ifdef _WIN32 //WindowBorders
+    file_dialog->w = create_window(w->app, (HWND)-1, 0, 0, 660, 420);
+#else
     file_dialog->w = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, 660, 420);
+#endif
+    file_dialog->w->widget_type = WT_FILE_DIALOG;
     file_dialog->w->flags |= HAS_MEM;
     file_dialog->w->parent_struct = file_dialog;
     widget_set_title(file_dialog->w, "File Selector");

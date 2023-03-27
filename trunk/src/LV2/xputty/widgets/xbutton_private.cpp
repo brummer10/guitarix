@@ -55,8 +55,8 @@ void _pattern_in(Widget_t *w, Color_state st, int height) {
 }
 
 void _draw_image_button(Widget_t *w, int width_t, int height_t, float offset) {
-    int width = cairo_xlib_surface_get_width(w->image);
-    int height = cairo_xlib_surface_get_height(w->image);
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     double half_width = (width/height >=2) ? width*0.5 : width;
     double x = (double)width_t/(double)(half_width);
     double y = (double)height_t/(double)height;
@@ -73,8 +73,8 @@ void _draw_image_button(Widget_t *w, int width_t, int height_t, float offset) {
 }
 
 void _draw_image_button_with_label(Widget_t *w, int width_t, int height_t) {
-    int width = cairo_xlib_surface_get_width(w->image);
-    int height = cairo_xlib_surface_get_height(w->image);
+    int width, height;
+    os_get_surface_size(w->image, &width, &height);
     double x = (double)width_t/(double)height;
     double y = (double)height/(double)width_t;
     double buttonstate = adj_get_state(w->adj);
@@ -112,13 +112,14 @@ void _draw_image_button_with_label(Widget_t *w, int width_t, int height_t) {
 }
 
 void _draw_switch_image_button(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
-    if (attrs.map_state != IsViewable) return;    
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
+    if (!m.visible) return;
     if(strlen(w->label)) {
         _draw_image_button_with_label(w, width, height);
     } else {
@@ -175,13 +176,14 @@ void _draw_button_base(Widget_t *w, int width, int height) {
 }
 
 void _draw_button(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
-    if (attrs.map_state != IsViewable) return;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
+    if (!m.visible) return;
     _draw_button_base(w, width, height);
 
     float offset = 0.0;
@@ -218,13 +220,14 @@ void _draw_button(void *w_, void* user_data) {
 }
 
 void _draw_on_off_button(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
-    if (attrs.map_state != IsViewable) return;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
+    if (!m.visible) return;
 
     _draw_button_base(w, width, height);
 
@@ -260,13 +263,14 @@ void _draw_on_off_button(void *w_, void* user_data) {
 }
 
 void _draw_ti_button(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
-    if (attrs.map_state != IsViewable) return;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
+    if (!m.visible) return;
     _draw_button_base(w, width, height);
     if (w->image) {
         float offset = 0.0;
@@ -285,13 +289,14 @@ void _draw_ti_button(void *w_, void* user_data) {
 }
 
 void _draw_check_button(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
-    if (attrs.map_state != IsViewable) return;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
+    if (!m.visible) return;
     if (w->image) {
         _draw_image_button(w, width, height,0.0);
     } else {
@@ -318,12 +323,13 @@ void _draw_check_button(void *w_, void* user_data) {
 }
 
 void _draw_check_box(void *w_, void* user_data) {
+    Metrics_t m;
+    int height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int height = attrs.height-2;
-    if (attrs.map_state != IsViewable) return;
+    os_get_window_metrics(w, &m);
+    height = m.height-2;
+    if (!m.visible) return;
     if (w->image) {
         _draw_image_button(w, height, height,0.0);
     } else {

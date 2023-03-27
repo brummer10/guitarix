@@ -230,10 +230,11 @@ void clear_key_matrix(unsigned long *key_matrix) {
 }
 void mk_draw_knob(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width-2;
-    int height = attrs.height-2;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    width = m.width-2;
+    height = m.height-2;
 
     const double scale_zero = 20 * (M_PI/180); // defines "dead zone" for knobs
     int arc_offset = 2;
@@ -334,11 +335,12 @@ void mk_draw_knob(void *w_, void* user_data) {
 
 static void draw_keyboard(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width_t = attrs.width;
-    int height_t = attrs.height;
-    if (attrs.map_state != IsViewable) return;
+    Metrics_t m;
+    int width_t, height_t;
+    os_get_window_metrics(w, &m);
+    width_t = m.width;
+    height_t = m.height;
+    if (!m.visible) return;
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     
     cairo_rectangle(w->crb,0,0,width_t,height_t*0.4);
@@ -445,11 +447,12 @@ static void keyboard_motion(void *w_, void* xmotion_, void* user_data) {
     Widget_t *p = (Widget_t *)w->parent;
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     XMotionEvent *xmotion = (XMotionEvent*)xmotion_;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    if (attrs.map_state != IsViewable) return;
-    int width = attrs.width;
-    int height = attrs.height;
+    Metrics_t m;
+    int width, height;
+    os_get_window_metrics(w, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
 
     bool catchit = false;
 
@@ -561,7 +564,12 @@ static void key_press(void *w_, void *key_, void *user_data) {
     XKeyEvent *key = (XKeyEvent*)key_;
     if (!key) return;
     float outkey = 0.0;
+#ifdef _WIN32 //KeybHandler
+    KeySym sym = key->keycode;
+    if (key->vk_is_final_char) return; // only real KEY_DOWN, dead-key support not required/wanted
+#else
     KeySym sym = XLookupKeysym (key, 0);
+#endif
     get_outkey(keys, sym, &outkey);
 
     if ((int)outkey && !is_key_in_matrix(keys->key_matrix, (int)outkey+keys->octave)) {
@@ -585,7 +593,12 @@ static void key_release(void *w_, void *key_, void *user_data) {
     XKeyEvent *key = (XKeyEvent*)key_;
     if (!key) return;
     float outkey = 0.0;
+#ifdef _WIN32 //KeybHandler
+    KeySym sym = key->keycode;
+    if (key->vk_is_final_char) return; // only real KEY_DOWN, dead-key support not required/wanted
+#else
     KeySym sym = XLookupKeysym (key, 0);
+#endif
     get_outkey(keys, sym, &outkey);
     if ((int)outkey && is_key_in_matrix(keys->key_matrix, (int)outkey+keys->octave)) {
         set_key_in_matrix(keys->key_matrix,(int)outkey+keys->octave,false);
@@ -750,7 +763,7 @@ static void keyboard_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     if(keys->icon) {
-        XFreePixmap(w->app->dpy, (*keys->icon));
+        os_free_pixmap(w, (*keys->icon));
         keys->icon = NULL;
     }
     free(keys);
@@ -791,10 +804,15 @@ Widget_t *add_keyboard_knob(Widget_t *parent, const char * label,
 }
 
 Widget_t *open_midi_keyboard(Widget_t *w) {
+#ifndef _WIN32 //WindowBorders//XSelectInput
     Widget_t *wid = create_window(w->app, DefaultRootWindow(w->app->dpy), 0, 0, 700, 200);
     XSelectInput(wid->app->dpy, wid->widget,StructureNotifyMask|ExposureMask|KeyPressMask 
                     |EnterWindowMask|LeaveWindowMask|ButtonReleaseMask|KeyReleaseMask
                     |ButtonPressMask|Button1MotionMask|PointerMotionMask);
+#else
+    Widget_t *wid = create_window(w->app, (HWND)-1, 0, 0, 700, 200);
+#endif
+    wid->widget_type = WT_MIDI_KEYBOARD;
     MidiKeyboard *keys = (MidiKeyboard*)malloc(sizeof(MidiKeyboard));
     wid->parent_struct = keys;
     wid->parent = w;

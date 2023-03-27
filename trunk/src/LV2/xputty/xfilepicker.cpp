@@ -19,6 +19,9 @@
  */
 
 #include "xfilepicker.h"
+#ifdef _WIN32 //Includes
+#include <windows.h>
+#endif
 
 
 static inline int fp_compare_fun (const void *p1, const void *p2) {
@@ -96,19 +99,65 @@ static void fp_clear_dirbuffer(FilePicker *filepicker) {
     }
 }
 
+#ifdef _WIN32 //file/drive functions
+bool is_root_directory(char *path) {
+   return (((strlen(path)==3) && path[1] == ':' && path[2] == '\\')
+          ||((strlen(path)==1) && path[0] == '\\'));
+}
+
+void add_root_directory(FilePicker *filepicker, char *path) {
+    DWORD drives = GetLogicalDrives();
+    int i;
+    for (i=0; i<='Z'-'A'; i++) {
+      if ((drives & (1 << i)) != 0) {
+        filepicker->dir_counter += 1;
+        filepicker->dir_names = (char **)realloc(filepicker->dir_names,
+          (filepicker->dir_counter) * sizeof(char *));
+        asprintf(&filepicker->dir_names[filepicker->dir_counter-1], "%c:\\", 'A'+i);
+      }
+    }
+}
+
+bool is_file(DIR *dirp, struct dirent *dp) {
+    return ((dirp->dd_dta.attrib & _A_SUBDIR)==0);
+}
+
+bool is_directory(DIR *dirp, struct dirent *dp) {
+    return ((dirp->dd_dta.attrib & _A_SUBDIR) != 0);
+}
+
+#else // __linux__
+bool is_root_directory(char *path) {
+   return (strcmp (path, PATH_SEPARATOR) == 0);
+}
+
+void add_root_directory(FilePicker *filepicker, char *path) {
+    filepicker->dir_names = (char **)realloc(filepicker->dir_names,
+      (filepicker->dir_counter + 1) * sizeof(char *));
+    assert(filepicker->dir_names != NULL);
+    asprintf(&filepicker->dir_names[filepicker->dir_counter++], "%s",path);
+    assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
+}
+
+bool is_file(DIR *dirp, struct dirent *dp) {
+    return (dp-> d_type != DT_DIR && dp->d_type != DT_UNKNOWN);
+}
+
+bool is_directory(DIR *dirp, struct dirent *dp) {
+    return (dp -> d_type == DT_DIR);
+}
+
+#endif
+
 static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
     int ret = 0;
-    if (strcmp (path, PATH_SEPARATOR) == 0) {
-        filepicker->dir_names = (char **)realloc(filepicker->dir_names,
-          (filepicker->dir_counter + 1) * sizeof(char *));
-        assert(filepicker->dir_names != NULL);
-        asprintf(&filepicker->dir_names[filepicker->dir_counter++], "%s",path);
-        assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
+    if (is_root_directory(path)) {
+        add_root_directory(filepicker, path);
     } else {
         char *ho;
         asprintf(&ho, "%s",path);
         assert(ho != NULL);
-        while (strcmp (ho, PATH_SEPARATOR) != 0) {
+        while (!is_root_directory(ho)) {
             filepicker->dir_names = (char **)realloc(filepicker->dir_names,
               (filepicker->dir_counter + 1) * sizeof(char *));
             assert(filepicker->dir_names != NULL);
@@ -116,7 +165,7 @@ static inline int fp_prefill_dirbuffer(FilePicker *filepicker, char *path) {
             assert(&filepicker->dir_names[filepicker->dir_counter] != NULL);
             ret++;
         }
-        if (strcmp (path, PATH_SEPARATOR) != 0) {
+        if (!is_root_directory(path)) {
             filepicker->dir_names = (char **)realloc(filepicker->dir_names,
               (filepicker->dir_counter + 1) * sizeof(char *));
             assert(filepicker->dir_names != NULL);
@@ -147,7 +196,7 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
 
     while ((dp = readdir(dirp)) != NULL) {
 
-        if(dp-> d_type != DT_DIR && strlen(dp->d_name)!=0 && dp->d_type != DT_UNKNOWN
+        if(is_file(dirp, dp) && strlen(dp->d_name)!=0
           && strcmp(dp->d_name,"..")!=0 && fp_show_hidden_files(filepicker, dp->d_name) &&
           fp_show_filter_files(filepicker, dp->d_name)) {
 
@@ -157,7 +206,7 @@ int fp_get_files(FilePicker *filepicker, char *path, int get_dirs) {
             asprintf(&filepicker->file_names[filepicker->file_counter++],"%s",dp->d_name);
             assert(&filepicker->file_names[filepicker->file_counter] != NULL);
 
-        } else if(get_dirs && dp -> d_type == DT_DIR && strlen(dp->d_name)!=0
+        } else if(get_dirs && is_directory(dirp, dp) && strlen(dp->d_name)!=0
           && strcmp(dp->d_name,"..")!=0 && fp_show_hidden_files(filepicker, dp->d_name)) {
 
             filepicker->dir_names = (char **)realloc(filepicker->dir_names,

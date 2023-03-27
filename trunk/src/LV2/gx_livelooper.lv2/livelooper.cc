@@ -378,7 +378,11 @@ inline void LiveLooper::save_array(std::string name)
     std::string pPath = getenv("HOME");
     pPath += loop_dir;
     if (!(stat(pPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
+#ifdef _WIN32
+        mkdir(pPath.c_str());
+#else
         mkdir(pPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
     }
 
     if (name.compare("tape")==0 || save_p) {

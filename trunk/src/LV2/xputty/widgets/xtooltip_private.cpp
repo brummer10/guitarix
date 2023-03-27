@@ -26,17 +26,18 @@ void _get_width(Widget_t *w) {
     cairo_text_extents_t extents;
     cairo_set_font_size (w->crb, 12);
     cairo_text_extents(w->crb,w->label , &extents);
-    XResizeWindow (w->app->dpy, w->widget, max(1, (int)extents.width+40), 25);    
+    os_resize_window(w->app->dpy, w, max(1, (int)extents.width+40), 25);
 }
 
 void _draw_tooltip(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    if (attrs.map_state != IsViewable) return;
-    int width = attrs.width;
-    int height = attrs.height;
+    os_get_window_metrics(w, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
     use_bg_color_scheme(w, get_color_state(w));
     cairo_paint (w->crb);
     cairo_text_extents_t extents;

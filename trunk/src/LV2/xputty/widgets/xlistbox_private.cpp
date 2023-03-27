@@ -31,13 +31,14 @@ void _draw_listbox(void *w_, void* user_data) {
 }
 
 void _draw_listbox_item(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     if (!w) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    int width = attrs.width;
-    int height = attrs.height;
-    if (attrs.map_state != IsViewable) return;
+    os_get_window_metrics(w, &m);
+    width = m.width;
+    height = m.height;
+    if (!m.visible) return;
     Widget_t* view_port = (Widget_t*)w->parent;
     Widget_t* listbox =  (Widget_t*)view_port->parent;
     int j = (int)listbox->adj->value;
@@ -75,37 +76,36 @@ void _draw_listbox_item(void *w_, void* user_data) {
 }
 
 void _reconfigure_listbox_viewport(void *w_, void* user_data) {
+    Metrics_t m;
     Widget_t *w = (Widget_t*)w_;
     float st = adj_get_state(w->adj);
     Widget_t* listbox = (Widget_t*)w->parent;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(listbox->app->dpy, (Window)listbox->widget, &attrs);
-    int height = attrs.height;
-    int elem = height/25;
+    os_get_window_metrics(listbox, &m);
+    int elem = m.height/25;
     int si = childlist_has_child(w->childlist);
     w->adj->max_value = si-elem;
     adj_set_state(w->adj,st);
 }
 
 void _configure_listbox(void *w_, void* user_data) {
+    Metrics_t m;
     Widget_t *w = (Widget_t*)w_;
     int si = max(1,childlist_has_child(w->childlist));
     Widget_t* listbox = (Widget_t*)w->parent;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(listbox->app->dpy, (Window)listbox->widget, &attrs);
-    int width = attrs.width;
-    XResizeWindow (w->app->dpy, w->widget, width, 25*(si));
+    os_get_window_metrics(listbox, &m);
+    os_resize_window(w->app->dpy, w, m.width, 25*(si));
 }
 
 void _draw_listbox_viewslider(void *w_, void* user_data) {
+    Metrics_t m;
+    int width, height;
     Widget_t *w = (Widget_t*)w_;
     int v = (int)w->adj->max_value;
     if (!v) return;
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->widget, &attrs);
-    if (attrs.map_state != IsViewable) return;
-    int width = attrs.width;
-    int height = attrs.height;
+    os_get_window_metrics(w, &m);
+    if (!m.visible) return;
+    width = m.width;
+    height = m.height;
     float sliderstate = adj_get_state(w->adj);
     use_bg_color_scheme(w, NORMAL_);
     cairo_rectangle(w->crb, width-5,0,5,height);
@@ -121,12 +121,11 @@ void _draw_listbox_viewslider(void *w_, void* user_data) {
 }
 
 void _set_listbox_viewpoint(void *w_, void* user_data) {
+    Metrics_t m;
     Widget_t *w = (Widget_t*)w_;
     int v = (int)adj_get_value(w->adj);
-    XWindowAttributes attrs;
-    XGetWindowAttributes(w->app->dpy, (Window)w->childlist->childs[0]->widget, &attrs);
-    int height = attrs.height;
-    XMoveWindow(w->app->dpy,w->widget,0, -height*v);
+    os_get_window_metrics((Widget_t*)w->childlist->childs[0], &m);
+    os_move_window(w->app->dpy,w,0, -m.height*v);
 }
 
 void _listbox_entry_released(void *w_, void* button_, void* user_data) {
