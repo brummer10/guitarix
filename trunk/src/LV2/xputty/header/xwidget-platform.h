@@ -49,6 +49,11 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
 void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,
                           int x, int y, int width, int height);
 
+void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data);
+void os_run_embedded(Xputty *main);
+void os_main_run(Xputty *main);
+
+
 
 #ifdef __cplusplus
 }

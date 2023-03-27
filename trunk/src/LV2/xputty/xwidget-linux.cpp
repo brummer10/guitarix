@@ -106,6 +106,235 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
                   DefaultVisual(app->dpy, DefaultScreen(app->dpy)), width, height);
 }
 
+void os_widget_event_loop(void *w_, void* event, Xputty *main, void* user_data) {
+    Widget_t *wid = (Widget_t*)w_;
+    XEvent *xev = (XEvent*)event;
+    if (XFilterEvent(xev, wid->widget))
+        return;
+    
+    switch(xev->type) {
+        case ConfigureNotify:
+            wid->func.configure_callback(w_, user_data);
+            debug_print("Widget_t ConfigureNotify \n");
+        break;
+
+        case Expose:
+            if (xev->xexpose.count == 0) {
+                transparent_draw(w_, user_data);
+                debug_print("Widget_t Expose \n");
+            }
+        break;
+
+        case ButtonPress:
+            if (wid->state == 4) break;
+            if (wid->flags & HAS_TOOLTIP) hide_tooltip(wid);
+            _button_press(wid, &xev->xbutton, user_data);
+            debug_print("Widget_t  ButtonPress %i\n", xev->xbutton.button);
+        break;
+
+        case ButtonRelease:
+            _check_grab(wid, &xev->xbutton, main);
+            if (wid->state == 4) break;
+            _has_pointer(wid, &xev->xbutton);
+            if(wid->flags & HAS_POINTER) wid->state = 1;
+            else wid->state = 0;
+            _check_enum(wid, &xev->xbutton);
+            wid->func.button_release_callback(w_, &xev->xbutton, user_data);
+            debug_print("Widget_t  ButtonRelease %i\n", xev->xbutton.button);
+        break;
+
+        case KeyPress:
+            if (wid->state == 4) break;
+            _check_keymap(wid, xev->xkey);
+            wid->func.key_press_callback(w_, &xev->xkey, user_data);
+            debug_print("Widget_t KeyPress %u\n", xev->xkey.keycode);
+        break;
+
+        case KeyRelease: 
+            if (wid->state == 4) break;
+            {
+            unsigned short is_retriggered = 0;
+            if(wid->flags & NO_AUTOREPEAT) {
+                if (XEventsQueued(main->dpy, QueuedAlready)) {
+                    XEvent nev;
+                    XPeekEvent(main->dpy, &nev);
+                    if (nev.type == KeyPress && nev.xkey.time == xev->xkey.time &&
+                        nev.xkey.keycode == xev->xkey.keycode && 
+                        (nev.xkey.keycode > 119 || nev.xkey.keycode < 110)) {
+                        XNextEvent (main->dpy, xev);
+                        is_retriggered = 1;
+                    }
+                }
+            }
+            if (!is_retriggered) {
+                wid->func.key_release_callback(w_, &xev->xkey, user_data);
+                debug_print("Widget_t KeyRelease %u\n", xev->xkey.keycode);
+            }
+        }
+        break;
+
+        case LeaveNotify:
+            wid->flags &= ~HAS_FOCUS;
+            if (wid->state == 4) break;
+            if(!(xev->xcrossing.state & Button1Mask)) {
+                wid->state = 0;
+                wid->func.leave_callback(w_, user_data);
+            }
+            if (wid->flags & HAS_TOOLTIP) hide_tooltip(wid);
+            debug_print("Widget_t LeaveNotify \n");
+        break;
+
+        case EnterNotify:
+            wid->flags |= HAS_FOCUS;
+            if (wid->state == 4) break;
+            if(!(xev->xcrossing.state & Button1Mask)) {
+                wid->state = 1;
+                wid->func.enter_callback(w_, user_data);
+                if (wid->flags & HAS_TOOLTIP) show_tooltip(wid);
+                else _hide_all_tooltips(wid);
+            }
+            debug_print("Widget_t EnterNotify \n");
+        break;
+
+        case MotionNotify:
+            if (wid->state == 4) break;
+            adj_set_motion_state(wid, xev->xmotion.x, xev->xmotion.y);
+            wid->func.motion_callback(w_,&xev->xmotion, user_data);
+            debug_print("Widget_t MotionNotify x = %i Y = %i \n",xev->xmotion.x,xev->xmotion.y );
+        break;
+
+        case ClientMessage:
+            if (xev->xclient.message_type == XInternAtom(wid->app->dpy, "WIDGET_DESTROY", 1)) {
+                int ch = childlist_has_child(wid->childlist);
+                if (ch) {
+                    int i = ch;
+                    for(;i>0;i--) {
+                        quit_widget(wid->childlist->childs[i-1]);
+                    }
+                    quit_widget(wid);
+                } else {
+                    destroy_widget(wid,main);
+                }
+            }
+
+        default:
+        break;
+    }
+    if (main->queue_event) {
+        main->queue_event = false;
+        transparent_draw(w_, user_data);
+    }
+}
+
+void os_main_run(Xputty *main) {
+    Widget_t * wid = main->childlist->childs[0]; 
+    Atom WM_DELETE_WINDOW = os_register_wm_delete_window(wid);
+
+    XEvent xev;
+    int ew;
+
+    while (main->run && (XNextEvent(main->dpy, &xev)>=0)) {
+        ew = childlist_find_widget(main->childlist, xev.xany.window);
+        if(ew  >= 0) {
+            Widget_t * w = main->childlist->childs[ew];
+            w->event_callback(w, &xev, main, NULL);
+        }
+
+        switch (xev.type) {
+        case ButtonPress:
+            if(main->hold_grab != NULL) {
+                Widget_t *view_port = main->hold_grab->childlist->childs[0];
+                bool is_item = False;
+                int i = view_port->childlist->elem-1;
+                for(;i>-1;i--) {
+                    Widget_t *w = view_port->childlist->childs[i];
+                    if (xev.xbutton.window == w->widget) {
+                        is_item = True;
+                        break;
+                    }
+                }
+                if (xev.xbutton.window == view_port->widget) is_item = True;
+                if (!is_item) {
+                    XUngrabPointer(main->dpy,CurrentTime);
+                    widget_hide(main->hold_grab);
+                    main->hold_grab = NULL;
+                }
+            }
+            break;
+            case ClientMessage:
+                /* delete window event */
+                if (xev.xclient.data.l[0] == (long int)WM_DELETE_WINDOW &&
+                        xev.xclient.window == wid->widget) {
+                    main->run = false;
+                } else {
+                    int i = childlist_find_widget(main->childlist, xev.xclient.window);
+                    if(i<1) return;
+                    Widget_t *w = main->childlist->childs[i];
+                    if(w->flags & HIDE_ON_DELETE) widget_hide(w);
+                    else destroy_widget(main->childlist->childs[i],main);
+                }
+            break;
+        }
+    }
+}
+
+void os_run_embedded(Xputty *main) {
+    XEvent xev;
+    int ew = -1;
+
+    while (XPending(main->dpy) > 0) {
+        XNextEvent(main->dpy, &xev);
+        ew = childlist_find_widget(main->childlist, xev.xany.window);
+        if(ew  >= 0) {
+            Widget_t * w = main->childlist->childs[ew];
+            unsigned short retrigger = 0;
+            if (xev.type == Expose && XEventsQueued(main->dpy, QueuedAlready)) {
+                XEvent nev;
+                XPeekEvent(main->dpy, &nev);
+                if (nev.type == ConfigureNotify) {
+                    retrigger = 1;
+                    main->queue_event = true;
+                }
+            }
+            if (!retrigger) {
+                w->event_callback(w, &xev, main, NULL);
+            }
+        }
+        switch (xev.type) {
+        case ButtonPress:
+            if(main->hold_grab != NULL) {
+                Widget_t *view_port = main->hold_grab->childlist->childs[0];
+                bool is_item = False;
+                int i = view_port->childlist->elem-1;
+                for(;i>-1;i--) {
+                    Widget_t *w = view_port->childlist->childs[i];
+                    if (xev.xbutton.window == w->widget) {
+                        is_item = True;
+                        break;
+                    }
+                }
+                if (xev.xbutton.window == view_port->widget) is_item = True;
+                if (!is_item) {
+                    XUngrabPointer(main->dpy,CurrentTime);
+                    widget_hide(main->hold_grab);
+                    main->hold_grab = NULL;
+                }
+            }
+        break;
+        case ClientMessage:
+            /* delete window event */
+            if (xev.xclient.data.l[0] == (long int)XInternAtom(main->dpy, "WM_DELETE_WINDOW", True) ) {
+                int i = childlist_find_widget(main->childlist, xev.xclient.window);
+                if(i<1) return;
+                Widget_t *w = main->childlist->childs[i];
+                if(w->flags & HIDE_ON_DELETE) widget_hide(w);
+                else destroy_widget(w, main);
+            }
+        break;
+        }
+    }
+}
+
 #ifdef __cplusplus
 }
 #endif

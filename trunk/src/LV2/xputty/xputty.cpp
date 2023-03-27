@@ -39,115 +39,11 @@ void main_init(Xputty *main) {
 }
 
 void main_run(Xputty *main) {
-    Widget_t * wid = main->childlist->childs[0]; 
-    Atom WM_DELETE_WINDOW;
-    WM_DELETE_WINDOW = XInternAtom(wid->app->dpy, "WM_DELETE_WINDOW", True);
-    XSetWMProtocols(wid->app->dpy, wid->widget, &WM_DELETE_WINDOW, 1);
-
-    XEvent xev;
-    int ew;
-
-    while (main->run && (XNextEvent(main->dpy, &xev)>=0)) {
-        ew = childlist_find_widget(main->childlist, xev.xany.window);
-        if(ew  >= 0) {
-            Widget_t * w = main->childlist->childs[ew];
-            w->event_callback(w, &xev, main, NULL);
-        }
-
-        switch (xev.type) {
-        case ButtonPress:
-            if(main->hold_grab != NULL) {
-                Widget_t *view_port = main->hold_grab->childlist->childs[0];
-                bool is_item = False;
-                int i = view_port->childlist->elem-1;
-                for(;i>-1;i--) {
-                    Widget_t *w = view_port->childlist->childs[i];
-                    if (xev.xbutton.window == w->widget) {
-                        is_item = True;
-                        break;
-                    }
-                }
-                if (xev.xbutton.window == view_port->widget) is_item = True;
-                if (!is_item) {
-                    XUngrabPointer(main->dpy,CurrentTime);
-                    widget_hide(main->hold_grab);
-                    main->hold_grab = NULL;
-                }
-            }
-            break;
-            case ClientMessage:
-                /* delete window event */
-                if (xev.xclient.data.l[0] == (long int)WM_DELETE_WINDOW &&
-                        xev.xclient.window == wid->widget) {
-                    main->run = false;
-                } else {
-                    int i = childlist_find_widget(main->childlist, xev.xclient.window);
-                    if(i<1) return;
-                    Widget_t *w = main->childlist->childs[i];
-                    if(w->flags & HIDE_ON_DELETE) widget_hide(w);
-                    else destroy_widget(main->childlist->childs[i],main);
-                }
-            break;
-        }
-    }
+  os_main_run(main);
 }
 
 void run_embedded(Xputty *main) {
-
-    XEvent xev;
-    int ew = -1;
-
-    while (XPending(main->dpy) > 0) {
-        XNextEvent(main->dpy, &xev);
-        ew = childlist_find_widget(main->childlist, xev.xany.window);
-        if(ew  >= 0) {
-            Widget_t * w = main->childlist->childs[ew];
-            unsigned short retrigger = 0;
-            if (xev.type == Expose && XEventsQueued(main->dpy, QueuedAlready)) {
-                XEvent nev;
-                XPeekEvent(main->dpy, &nev);
-                if (nev.type == ConfigureNotify) {
-                    retrigger = 1;
-                    main->queue_event = true;
-                }
-            }
-            if (!retrigger) {
-                w->event_callback(w, &xev, main, NULL);
-            }
-        }
-        switch (xev.type) {
-        case ButtonPress:
-            if(main->hold_grab != NULL) {
-                Widget_t *view_port = main->hold_grab->childlist->childs[0];
-                bool is_item = False;
-                int i = view_port->childlist->elem-1;
-                for(;i>-1;i--) {
-                    Widget_t *w = view_port->childlist->childs[i];
-                    if (xev.xbutton.window == w->widget) {
-                        is_item = True;
-                        break;
-                    }
-                }
-                if (xev.xbutton.window == view_port->widget) is_item = True;
-                if (!is_item) {
-                    XUngrabPointer(main->dpy,CurrentTime);
-                    widget_hide(main->hold_grab);
-                    main->hold_grab = NULL;
-                }
-            }
-        break;
-        case ClientMessage:
-            /* delete window event */
-            if (xev.xclient.data.l[0] == (long int)XInternAtom(main->dpy, "WM_DELETE_WINDOW", True) ) {
-                int i = childlist_find_widget(main->childlist, xev.xclient.window);
-                if(i<1) return;
-                Widget_t *w = main->childlist->childs[i];
-                if(w->flags & HIDE_ON_DELETE) widget_hide(w);
-                else destroy_widget(w, main);
-            }
-        break;
-        }
-    }
+  os_run_embedded(main);
 }
 
 void main_quit(Xputty *main) {
