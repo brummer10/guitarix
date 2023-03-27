@@ -266,6 +266,7 @@ enum {
  * @param *app               - pointer to the main struct
  * @param widget             - the X11 Window
  * @param *parent            - pointer to the Parent Window or Widget_t
+ * @param *parent_struct     - pointer to the Parent struct (Widget_t)
  * @param event_callback     - the main XEvent callback
  * @param func               - struct holding the event callbacks
  * @param *surface           - pointer to the cairo xlib surface

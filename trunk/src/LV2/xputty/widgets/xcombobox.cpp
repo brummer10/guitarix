@@ -47,6 +47,7 @@ Widget_t* add_combobox(Widget_t *parent, const char  * label, int x, int y, int 
     button->func.button_release_callback = _button_combobox_released;
 
     Widget_t* menu = create_menu(wid, 25);
+    menu->parent_struct = wid;
     menu->func.button_release_callback = _entry_released;
 
 
