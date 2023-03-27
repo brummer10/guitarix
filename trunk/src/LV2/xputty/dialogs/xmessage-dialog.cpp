@@ -235,6 +235,9 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
                 }
             break;
             case 11: entry_clip(w);
+#ifdef _WIN32 //ForceRedraw
+                os_expose_widget(w);
+#endif
             break;
             default:
             break;
@@ -243,6 +246,9 @@ static void entry_get_text(void *w_, void *key_, void *user_data) {
         char buf[32];
         if (os_get_keyboard_input(w, key, buf, sizeof(buf) - 1)) {
             entry_add_text(w, buf);
+#ifdef _WIN32 //ForceRedraw
+            os_expose_widget(w);
+#endif
         }
     }
 }

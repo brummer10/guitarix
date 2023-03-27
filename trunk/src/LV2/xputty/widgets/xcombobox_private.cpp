@@ -207,5 +207,8 @@ void _set_entry(void *w_, void* user_data) {
     if(v>=0) {
         w->label = view_port->childlist->childs[v]->label;
         transparent_draw(w, user_data);
+#ifdef _WIN32 //ForceRedraw
+	os_expose_widget(w);
+#endif
     }
 }
