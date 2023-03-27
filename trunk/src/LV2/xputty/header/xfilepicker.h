@@ -48,7 +48,9 @@ extern "C" {
 #endif
 
 /* comment out xdgmine.h will disable the file filter, you may implement your own.*/
+#ifndef _WIN32 //xdgmime n.a.
 #include "xdgmime.h"
+#endif
 /* comment out xasprintf and define _GNU_SOURCE on top of this file will remove this dependency.*/
 #include "xasprintf.h"
 

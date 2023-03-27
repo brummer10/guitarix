@@ -24,7 +24,9 @@
 #define XFILE_DIALOG_H_
 
 #include "xwidgets.h"
+#ifndef _WIN32 //xdgmime n.a.
 #include "xdgmime.h"
+#endif
 #include "xasprintf.h"
 #include "xfilepicker.h"
 
