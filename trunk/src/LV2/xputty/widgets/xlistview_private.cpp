@@ -222,6 +222,6 @@ void _draw_listview_viewslider(void *w_, void* user_data) {
 void _set_listview_viewpoint(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     int v = (int)max(0,adj_get_value(w->adj));
-    XMoveWindow(w->app->dpy,w->widget,0, -25*v);
+    os_move_window(w->app->dpy,w,0, -25*v);
 }
 

@@ -80,6 +80,7 @@ void os_translate_coords(Widget_t *w, Window from_window, Window to_window,
 void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics);
 void os_set_window_min_size(Widget_t *w, int min_width, int min_height,
                             int base_width, int base_height);
+void os_move_window(Display *dpy, Widget_t *w, int x, int y);
 
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height);

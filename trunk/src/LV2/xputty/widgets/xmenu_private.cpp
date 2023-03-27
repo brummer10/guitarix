@@ -118,7 +118,7 @@ void _set_viewpoint(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     int v = (int)max(0,adj_get_value(w->adj));
     os_get_window_metrics((Widget_t*)w->childlist->childs[0], &m);
-    XMoveWindow(w->app->dpy,w->widget,0, -m.height*v);
+    os_move_window(w->app->dpy,w,0, -m.height*v);
 }
 
 void _check_item_button_pressed(void *w_, void* button_, void* user_data) {
@@ -168,5 +168,5 @@ void _configure_menu(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     }
     XResizeWindow (menu->app->dpy, menu->widget, item_width, height*elem);
     XResizeWindow (view_port->app->dpy, view_port->widget, item_width, height*view_port->childlist->elem);
-    XMoveWindow(menu->app->dpy,menu->widget,x1, y1);   
+    os_move_window(menu->app->dpy,menu,x1, y1);
 }
