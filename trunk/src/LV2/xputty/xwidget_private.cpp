@@ -114,7 +114,11 @@ void _check_grab(Widget_t * wid, XButtonEvent *xbutton, Xputty *main) {
         Widget_t *view_port = main->hold_grab->childlist->childs[0];
         if(xbutton->button == Button1) {
             //if (xbutton->window == view_port->widget) return;
+#ifdef _WIN32 //SetCaptureDisabled//XUngrabPointer
+            //ReleaseCapture(); // SetCapture() is currently disabled in pop_menu_show()
+#else
             XUngrabPointer(main->dpy,CurrentTime);
+#endif
             int i = view_port->childlist->elem-1;
             for(;i>-1;i--) {
                 Widget_t *w = view_port->childlist->childs[i];
