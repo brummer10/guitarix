@@ -597,6 +597,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 xbutton.button = Button4;
                 _button_press(wid, &xbutton, user_data);
             }
+            // forward WM_MOUSEWHEEL from menuitem to viewport (with slider)
+            // (viewport lies below menuitem, so doesnt receive WM_MOUSEWHEEL)
+            if(wid->app->hold_grab) {
+                Widget_t *view_port = wid->app->hold_grab->childlist->childs[0];
+                if (hwnd != view_port->widget)
+                    SendMessage(view_port->widget, msg, wParam, lParam);
+                RedrawWindow(view_port->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW);
+            }
             return 0;
         // X11:ButtonRelease
         case WM_LBUTTONUP:
