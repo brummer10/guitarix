@@ -36,6 +36,12 @@
 extern "C" {
 #endif
 
+// forward definitions for codepage tools in xwidget-mswin.cpp
+
+char *convert_cp(DWORD cp_from, DWORD cp_to, char *s_from);
+char *utf8_from_locale(char *localestr);
+char *locale_from_utf8(char *utf8str);
+
 // typedefs for mimicking Xlib structs & definitions
 
 typedef unsigned long int XID;
