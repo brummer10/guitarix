@@ -86,6 +86,7 @@ void os_set_window_min_size(Widget_t *w, int min_width, int min_height,
 void os_move_window(Display *dpy, Widget_t *w, int x, int y);
 void os_resize_window(Display *dpy, Widget_t *w, int x, int y);
 void os_get_surface_size(cairo_surface_t *surface, int *width, int *height);
+void os_set_widget_surface_size(Widget_t *w, int width, int height);
 
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height);

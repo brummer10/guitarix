@@ -89,6 +89,10 @@ void os_get_surface_size(cairo_surface_t *surface, int *width, int *height) {
     *height = cairo_xlib_surface_get_height(surface);
 }
 
+void os_set_widget_surface_size(Widget_t *w, int width, int height) {
+    cairo_xlib_surface_set_size(w->surface, width, height);
+}
+
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
     XSetWindowAttributes attributes;
