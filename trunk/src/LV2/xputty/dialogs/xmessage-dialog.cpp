@@ -306,7 +306,7 @@ static void mg_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     MessageDialog *md = (MessageDialog *)w->parent_struct;
     if(md->icon) {
-        XFreePixmap(w->app->dpy, (*md->icon));
+        os_free_pixmap(w, (*md->icon));
         md->icon = NULL;
     }
     int i = 0;

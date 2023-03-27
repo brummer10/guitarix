@@ -395,6 +395,10 @@ void os_send_systray_message(Widget_t *w) {
     XSendEvent(w->app->dpy, tray, False, NoEventMask, &event);
 }
 
+void os_free_pixmap(Widget_t *w, Pixmap pixmap) {
+    XFreePixmap(w->app->dpy, pixmap);
+}
+
 void os_quit(Widget_t *w) {
     //Atom WM_DELETE_WINDOW = XInternAtom(w->app->dpy, "WM_DELETE_WINDOW", True);
     Atom WM_DELETE_WINDOW = os_register_wm_delete_window(w);

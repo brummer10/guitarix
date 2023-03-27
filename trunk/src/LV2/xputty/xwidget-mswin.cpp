@@ -288,6 +288,10 @@ void os_send_systray_message(Widget_t *w) {
     // STUB
 }
 
+void os_free_pixmap(Widget_t *w, Pixmap pixmap) {
+    // Pixmap stuff not implemented at all
+}
+
 void os_quit(Widget_t *w) {
     if (w) {
         WPARAM wParam = (WPARAM)get_toplevel_widget(w->app)->widget;

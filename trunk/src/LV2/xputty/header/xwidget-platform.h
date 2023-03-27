@@ -99,6 +99,7 @@ void os_send_configure_event(Widget_t *w,int x, int y, int width, int height);
 void os_send_button_press_event(Widget_t *w);
 void os_send_button_release_event(Widget_t *w);
 void os_send_systray_message(Widget_t *w);
+void os_free_pixmap(Widget_t *w, Pixmap pixmap);
 
 void os_quit(Widget_t *w);
 void os_quit_widget(Widget_t *w);

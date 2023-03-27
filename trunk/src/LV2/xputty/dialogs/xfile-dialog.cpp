@@ -236,7 +236,7 @@ static void fd_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     FileDialog *file_dialog = (FileDialog *)w->parent_struct;
     if(file_dialog->icon) {
-        XFreePixmap(w->app->dpy, (*file_dialog->icon));
+        os_free_pixmap(w, (*file_dialog->icon));
         file_dialog->icon = NULL;
     }
     if(file_dialog->send_clear_func)

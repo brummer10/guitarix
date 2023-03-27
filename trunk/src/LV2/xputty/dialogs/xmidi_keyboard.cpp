@@ -753,7 +753,7 @@ static void keyboard_mem_free(void *w_, void* user_data) {
     Widget_t *w = (Widget_t*)w_;
     MidiKeyboard *keys = (MidiKeyboard*)w->parent_struct;
     if(keys->icon) {
-        XFreePixmap(w->app->dpy, (*keys->icon));
+        os_free_pixmap(w, (*keys->icon));
         keys->icon = NULL;
     }
     free(keys);
