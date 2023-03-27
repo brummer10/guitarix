@@ -101,6 +101,7 @@ void os_send_button_release_event(Widget_t *w);
 void os_send_systray_message(Widget_t *w);
 
 void os_quit(Widget_t *w);
+void os_quit_widget(Widget_t *w);
 Atom os_register_widget_destroy(Widget_t * wid);
 Atom os_register_wm_delete_window(Widget_t * wid);
 

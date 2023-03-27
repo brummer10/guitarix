@@ -434,14 +434,6 @@ void quit(Widget_t *w) {
 }
 
 void quit_widget(Widget_t *w) {
-    Atom QUIT_WIDGET = XInternAtom(w->app->dpy, "WIDGET_DESTROY", False);
-    XClientMessageEvent xevent;
-    xevent.type = ClientMessage;
-    xevent.message_type = QUIT_WIDGET;
-    xevent.display = w->app->dpy;
-    xevent.window = w->widget;
-    xevent.format = 16;
-    xevent.data.l[0] = 1;
-    XSendEvent(w->app->dpy, w->widget, 0, 0, (XEvent *)&xevent);
+    os_quit_widget(w);
 }
 

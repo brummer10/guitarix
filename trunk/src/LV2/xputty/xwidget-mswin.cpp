@@ -41,6 +41,29 @@ LRESULT onPaint( HWND hwnd, WPARAM wParam, LPARAM lParam );
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------
+            internal helper functions
+-----------------------------------------------------------------------
+----------------------------------------------------------------------*/
+
+void debug_lasterror(const char *prefix, const char *prefix2) {
+    LPSTR msg = nullptr;
+    DWORD err = GetLastError();
+    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER
+                |FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPSTR)&msg, 0, NULL);
+    if (size) {
+        debug_print("%s%s:ERR=%8.8lx (%ld): %s\n",prefix?prefix:"",prefix2?prefix2:"",err,err,msg);
+        LocalFree(msg);
+    } else {
+        DWORD fmt_err = GetLastError();
+        debug_print("%s%s:ERROR:FormatMessage for ERR=%8.8lx (%ld) returned %8.8lx (%ld)\n",
+                (prefix ? prefix : ""), (prefix2 ? prefix2 : ""), err, err, fmt_err, fmt_err);
+    }
+}
+
+/*---------------------------------------------------------------------
+-----------------------------------------------------------------------
             common functions (required)
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
@@ -282,6 +305,13 @@ void os_quit(Widget_t *w) {
     } else
         debug_lasterror("UnregisterWidgetClass" ,szWidgetUIClassName);
 
+}
+
+void os_quit_widget(Widget_t *w) {
+    // who invokes this?
+    WPARAM wParam = (WPARAM)w->widget;
+    DWORD msg = os_register_widget_destroy(w);
+    int res = SendMessage(w->widget, msg, wParam, 0); // WIDGET_DESTROY
 }
 
 Atom os_register_wm_delete_window(Widget_t * wid) {

@@ -408,6 +408,18 @@ void os_quit(Widget_t *w) {
     XSendEvent(w->app->dpy, w->widget, 0, 0, (XEvent *)&xevent);
 }
 
+void os_quit_widget(Widget_t *w) {
+    Atom QUIT_WIDGET = os_register_widget_destroy(w);
+    XClientMessageEvent xevent;
+    xevent.type = ClientMessage;
+    xevent.message_type = QUIT_WIDGET;
+    xevent.display = w->app->dpy;
+    xevent.window = w->widget;
+    xevent.format = 16;
+    xevent.data.l[0] = 1;
+    XSendEvent(w->app->dpy, w->widget, 0, 0, (XEvent *)&xevent);
+}
+
 Atom os_register_wm_delete_window(Widget_t * wid) {
     Atom WM_DELETE_WINDOW;
     WM_DELETE_WINDOW = XInternAtom(wid->app->dpy, "WM_DELETE_WINDOW", True);
