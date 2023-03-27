@@ -64,6 +64,13 @@ void os_get_window_metrics(Widget_t *w_, Metrics_t *metrics) {
     metrics->visible = IsWindowVisible(w_->widget);
 }
 
+// values are checked on WM_SIZE
+void os_set_window_min_size(Widget_t *w, int min_width, int min_height,
+                            int base_width, int base_height) {
+    w->metrics_min.width = min_width;
+    w->metrics_min.height = min_height;
+}
+
 void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                           int x, int y, int width, int height) {
     // Event callbacks already start during CreateWindow(),
@@ -134,7 +141,7 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
     SetParent(w->widget, win); // embed into parentWindow
     SetMouseTracking(w->widget, true); // for receiving WM_MOUSELEAVE
 
-    //os_set_window_min_size(w, width/2, height/2, width, height);
+    os_set_window_min_size(w, width/2, height/2, width, height);
 }
 
 void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *parent,

@@ -291,6 +291,8 @@ enum {
  * @param *childlist         - pointer to Widget_t child list
  * @param xic                - Locale and UTF 8 support interface
  * @param xim                - Context to Locale and UTF 8 support
+ * @param mouse_inside       - _WIN32 helper for EnterNotify
+ * @param metrics_min        - _WIN32 helper for os_set_window_minimal_size()
  */
 
 struct Widget_t {
@@ -352,6 +354,12 @@ struct Widget_t {
     int height;
 /** struct used to resize child widgets */
     Resize_t scale;
+#ifdef _WIN32 //Widget_t extensions
+/** _WIN32 helper for EnterNotify */
+    bool mouse_inside;
+/** _WIN32 helper for os_set_window_minimal_size() */
+    Metrics_t metrics_min;
+#endif //_WIN32 //Widget_t extensions
 };
 
 
