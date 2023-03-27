@@ -29,9 +29,14 @@ void pop_menu_show(Widget_t *parent, Widget_t *menu, int elem, bool above) {
     if (!view_port->childlist->elem) return;
     _configure_menu(parent, menu, elem, above);
     pop_widget_show_all(menu);
-    int err = XGrabPointer(menu->app->dpy, os_get_root_window(parent), True,
+#ifdef _WIN32 //SetCaptureDisabled//XGrabPointer
+    int err = 0;
+    //SetCapture(view_port->widget);
+#else
+    int err = XGrabPointer(menu->app->dpy, DefaultRootWindow(parent->app->dpy), True,
                  ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
                  GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+#endif
     menu->app->hold_grab = menu;
 
     if (err) debug_print("Error grap pointer\n");
