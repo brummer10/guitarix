@@ -202,7 +202,7 @@ Widget_t *create_window(Xputty *app, Window win,
     w->func.dialog_callback = _dummy_callback;
 
     //XMapWindow(app->dpy, w->widget);
-    debug_print("size of Func_t = %lu\n", sizeof(w->func)/sizeof(void*));
+    debug_print("size of Func_t = %llu\n", (long long)(sizeof(w->func)/sizeof(void*)));
 
     os_create_main_window_and_surface(w, app, win, x, y, width, height);
     create_cairo_context_and_buffer(w);
@@ -293,7 +293,8 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     w->func.dialog_callback = _dummy_callback;
 
     //XMapWindow(app->dpy, w->widget);
-    debug_print("size of Widget_t = %ld\n", sizeof(struct Widget_t));
+    debug_print("size of Widget_t = %lld\n", (long long)(sizeof(struct Widget_t)));
+
     os_create_widget_window_and_surface(w, app, parent, x, y, width, height);
     create_cairo_context_and_buffer(w);
 #ifndef _WIN32 // childlist already set up
