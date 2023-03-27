@@ -188,7 +188,7 @@ Widget_t *create_window(Xputty *app, Window win,
     w->func.button_press_callback = _dummy1_callback;
     w->func.button_release_callback = _dummy1_callback;
     w->func.motion_callback = _dummy1_callback;
-    w->func.adj_callback = transparent_draw;
+    w->func.adj_callback = os_adjustment_callback;
     w->func.value_changed_callback = _dummy_callback;
     w->func.key_press_callback = _dummy1_callback;
     w->func.key_release_callback = _dummy1_callback;
@@ -279,7 +279,7 @@ Widget_t *create_widget(Xputty *app, Widget_t *parent,
     w->func.button_press_callback = _dummy1_callback;
     w->func.button_release_callback = _dummy1_callback;
     w->func.motion_callback = _dummy1_callback;
-    w->func.adj_callback = transparent_draw;
+    w->func.adj_callback = os_adjustment_callback;
     w->func.value_changed_callback = _dummy_callback;
     w->func.key_press_callback = _dummy1_callback;
     w->func.key_release_callback = _dummy1_callback;

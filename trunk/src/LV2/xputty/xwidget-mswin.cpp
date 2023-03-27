@@ -342,6 +342,12 @@ void os_send_systray_message(Widget_t *w) {
     // STUB
 }
 
+void os_adjustment_callback(void *w_, void *user_data) {
+    Widget_t *w = (Widget_t *)w_;
+    transparent_draw(w, user_data);
+    RedrawWindow(w->widget, NULL, NULL, RDW_NOERASE | RDW_INVALIDATE | RDW_UPDATENOW | RDW_ALLCHILDREN);
+}
+
 bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize) {
     char ansibuf[2];
     ansibuf[0] = (char)key->vk;

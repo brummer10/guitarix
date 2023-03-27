@@ -404,6 +404,11 @@ void os_send_systray_message(Widget_t *w) {
     XSendEvent(w->app->dpy, tray, False, NoEventMask, &event);
 }
 
+void os_adjustment_callback(void *w_, void *user_data) {
+  Widget_t *w = (Widget_t *)w_;
+  transparent_draw(w, user_data);
+}
+
 bool os_get_keyboard_input(Widget_t *w, XKeyEvent *key, char *buf, size_t bufsize) {
 	Status status;
 	KeySym keysym;
