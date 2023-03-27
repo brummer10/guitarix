@@ -664,6 +664,45 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         case WM_MOUSELEAVE:
             if (!wid) return DefWindowProc(hwnd, msg, wParam, lParam);
             // xputty -> xwidget: handled by "ButtonPress" event on Linux
+            // close popup menu if cursor moves out of widget
+            if(wid->app->hold_grab != NULL) {
+                GetCursorPos(&pt);
+                Window win_cur = WindowFromPoint(pt);
+                bool is_item = false;
+                // still inside viewport? (finds menu entries in popup window)
+                Widget_t *view_port = wid->app->hold_grab->childlist->childs[0];
+                if (view_port) { // should never be NULL, but who knows :)
+                    int i = view_port->childlist->elem-1;
+                    for(;i>-1;i--) {
+                        Widget_t *w = view_port->childlist->childs[i];
+                        if (win_cur == w->widget) {
+                            is_item = true;
+                            break;
+                        }
+                    }
+                    if (view_port && win_cur == view_port->widget) is_item = true; // inside slider area?
+                }
+                // still inside combobox? (finds combobox-button)
+                Widget_t *menu = NULL;
+                menu = (Widget_t *)wid->app->hold_grab->parent_struct;
+                if (menu) { // can be NULL if not contained in combobox
+                    int i = menu->childlist->elem-1;
+                    for(;i>-1;i--) {
+                        Widget_t *w = menu->childlist->childs[i];
+                        if (win_cur == w->widget) {
+                            is_item = true;
+                            break;
+                        }
+                    }
+                    if (menu && win_cur == menu->widget) is_item = true; // inside combobox textarea?
+                }
+                if (!is_item) {
+                    ReleaseCapture();
+                    widget_hide(wid->app->hold_grab);
+                    wid->app->hold_grab = NULL;
+                }
+            }
+
             // for emulating X11:EnterNotify
             wid->mouse_inside = false;
 
