@@ -113,6 +113,9 @@ void _list_key_pressed(void *w_, void* xkey_, void* user_data) {
     ViewList_t *filelist = (ViewList_t*)w->parent_struct;
     Metrics_t m;
     int height;
+#ifdef _WIN32 //KeybHandler
+    if (xkey->vk_is_final_char) return; // evaluate KEY_DOWN only, not WM_CHAR (dead-key support is not required/wanted here)
+#endif
     os_get_window_metrics(w, &m);
     height = m.height;
     int _items = height/(height/25);

@@ -564,7 +564,12 @@ static void key_press(void *w_, void *key_, void *user_data) {
     XKeyEvent *key = (XKeyEvent*)key_;
     if (!key) return;
     float outkey = 0.0;
+#ifdef _WIN32 //KeybHandler
+    KeySym sym = key->keycode;
+    if (key->vk_is_final_char) return; // only real KEY_DOWN, dead-key support not required/wanted
+#else
     KeySym sym = XLookupKeysym (key, 0);
+#endif
     get_outkey(keys, sym, &outkey);
 
     if ((int)outkey && !is_key_in_matrix(keys->key_matrix, (int)outkey+keys->octave)) {
@@ -588,7 +593,12 @@ static void key_release(void *w_, void *key_, void *user_data) {
     XKeyEvent *key = (XKeyEvent*)key_;
     if (!key) return;
     float outkey = 0.0;
+#ifdef _WIN32 //KeybHandler
+    KeySym sym = key->keycode;
+    if (key->vk_is_final_char) return; // only real KEY_DOWN, dead-key support not required/wanted
+#else
     KeySym sym = XLookupKeysym (key, 0);
+#endif
     get_outkey(keys, sym, &outkey);
     if ((int)outkey && is_key_in_matrix(keys->key_matrix, (int)outkey+keys->octave)) {
         set_key_in_matrix(keys->key_matrix,(int)outkey+keys->octave,false);
