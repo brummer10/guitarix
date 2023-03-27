@@ -63,8 +63,14 @@ extern "C" {
  * the -DDEBUG flag
  */
 
+#ifdef _WIN32 //DebugPrint
+#define debug_print(...) \
+            { char xxdeb[1024]; snprintf(xxdeb, 1024, __VA_ARGS__); OutputDebugString(xxdeb); }
+#else
 #define debug_print(...) \
             ((void)((DEBUG) ? fprintf(stderr, __VA_ARGS__) : 0))
+#endif
+
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------	
