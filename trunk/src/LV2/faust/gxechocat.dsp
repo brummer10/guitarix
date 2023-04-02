@@ -93,7 +93,7 @@ input = pre : fi.iir((b0/a0,b1/a0,b2/a0),(a1/a0,a2/a0)) : copicat1clip with {
 
 
 //    Input = vslider("Input[name:Input]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(3) : si.smooth(s);
-    Input = vslider("Input[name:Input]", 0.5, 0, 1, 0.01) : si.smooth(s);
+    Input = vslider("AUDIO_IN[name:Input]", 0.5, 0, 1, 0.01) : si.smooth(s);
 
     b0 = Input*fs*(-2.06740841499587e-8*fs - 5.51308910665569e-7);
 

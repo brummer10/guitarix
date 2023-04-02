@@ -209,7 +209,7 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
-   INPUT, 
+   AUDIO_IN, 
    OUTPUT, 
    DRIVE, 
    TONE, 

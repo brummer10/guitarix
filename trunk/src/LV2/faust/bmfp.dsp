@@ -21,7 +21,7 @@ process = _<:*(dry),(*(wet):*(gain):bigmuff:fuzz:fuzzy:fiz):>downfilter with {
     fuzzy        = fuzzy_tube(2,1,0.5,drive);
     fiz(x)       = x+(x^7);
     downfilter   = fi.lowpass(1,5631): fi.highpass(1,80);
-    gain         = vslider("Input",0,-24,20,0.1) : ba.db2linear : smoothi(0.999);
+    gain         = vslider("AUDIO_IN[name:Input]",0,-24,20,0.1) : ba.db2linear : smoothi(0.999);
     wet          = vslider("Output",  100, 50, 100, 1) : /(100);
     dry          = 1 - wet;
 

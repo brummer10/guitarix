@@ -726,11 +726,11 @@ void Dsp::connect(uint32_t port,void* data)
 {
 	switch ((PortIndex)port)
 	{
-	case BASS: 
-		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
-		break;
 	case AUDIO_IN: 
 		fVslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		break;
+	case BASS: 
+		fVslider2_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case MIDDLE: 
 		fVslider3_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
@@ -764,8 +764,8 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
+   AUDIO_IN, 
    BASS, 
-   INPUT, 
    MIDDLE, 
    TREBLE, 
    VOLUME, 

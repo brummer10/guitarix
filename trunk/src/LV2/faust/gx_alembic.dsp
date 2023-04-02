@@ -11,7 +11,7 @@ process = pre : fi.iir((b0/a0,b1/a0,b2/a0,b3/a0,b4/a0,b5/a0),(a1/a0,a2/a0,a3/a0,
     fs = float(ma.SR);
     pre = _;
 
-	Input = vslider("Input[name:Input]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
+	Input = vslider("AUDIO_IN[name:Input]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
 	Bass = vslider("Bass[name:Bass]", 0.5, 0, 1, 0.01) : Inverted(0) : LogPot(1) : si.smooth(s);
 	Middle = vslider("Middle[name:Middle]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);       
 	Treble = vslider("Treble[name:Treble]", 0.5, 0, 1, 0.01) : Inverted(1) : si.smooth(s);

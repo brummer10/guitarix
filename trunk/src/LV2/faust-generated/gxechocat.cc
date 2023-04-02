@@ -991,14 +991,14 @@ void Dsp::connect(uint32_t port,void* data)
 	case HEAD3: 
 		fCheckbox0_ = (float*)data; // , 0.0, 0.0, 1.0, 1.0 
 		break;
+	case AUDIO_IN: 
+		fVslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
+		break;
 	case SUSTAIN: 
 		fVslider1_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
 		break;
 	case SWELL: 
 		fVslider3_ = (float*)data; // , 0.0, 0.0, 1.0, 0.01 
-		break;
-	case AUDIO_IN: 
-		fVslider0_ = (float*)data; // , 0.5, 0.0, 1.0, 0.01 
 		break;
 	case OUTPUT: 
 		fVslider4_ = (float*)data; // , 1.0, 0.0, 2.0, 0.01 
@@ -1029,9 +1029,9 @@ void Dsp::del_instance(PluginLV2 *p)
 /*
 typedef enum
 {
+   AUDIO_IN, 
    SUSTAIN, 
    SWELL, 
-   INPUT, 
    OUTPUT, 
    BPM, 
    HEAD1, 

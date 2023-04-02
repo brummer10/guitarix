@@ -98,6 +98,7 @@ public:
     void used_by_midi(bool on) { set_and_check(midi_use, on); }
     void set_dep_module(Plugin* dep) { dep_plugin = dep; }
     void set_module();
+    void set_fast_note_detection(bool on) { return pitch_tracker.set_fast_note_detection(on); }
     sigc::signal<void >& signal_freq_changed() { return pitch_tracker.new_freq; }
     float get_freq() { return pitch_tracker.get_estimated_freq(); }
     float get_note() { return pitch_tracker.get_estimated_note(); }

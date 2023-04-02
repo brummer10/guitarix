@@ -21,7 +21,7 @@ process = fi.iir((b0/a0,b1/a0,b2/a0,b3/a0),(a1/a0,a2/a0,a3/a0)) : clip with {
     
         Fuzz = vslider("Fuzz[name:Fuzz]", 0.5, 0, 0.99, 0.01) : Inverted(1) : si.smooth(s);
     
-        Input = vslider("Input[name:Input]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
+        Input = vslider("AUDIO_IN[name:Input]", 0.5, 0, 1, 0.01) : Inverted(0) : si.smooth(s);
     
         Level = vslider("Level[name:Level]", 0.5, 0, 1, 0.01) : Inverted(1) : si.smooth(s);
     
