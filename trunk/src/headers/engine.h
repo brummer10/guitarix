@@ -27,7 +27,11 @@
 #define GX_DATA_FOLDER "gx_head/"
 #define GX_STYLE_DIR GX_DATA_FOLDER ""
 #define GX_FACTORY_DIR GX_DATA_FOLDER "factorysettings"
+#ifdef JucePlugin_Build_Standalone
+#include "config.h"
+#else
 #define GX_SOUND_DIR GX_DATA_FOLDER "sounds"
+#endif
 #define GX_SOUND_BPB_DIR GX_DATA_FOLDER "sounds/bands"
 #define GX_SOUND_BPA_DIR GX_DATA_FOLDER "sounds/amps"
 #define GX_BUILDER_DIR GX_DATA_FOLDER ""
