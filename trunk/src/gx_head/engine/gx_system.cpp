@@ -420,10 +420,9 @@ BasicOptions::BasicOptions()
 #elif defined(__APPLE__)
     sys_IR_dir = Glib::build_filename(modulepath, "Contents/Resources", sys_IR_dir);
 #else
-#ifndef JucePlugin_Build_Standalone
     std::string p = Glib::path_get_dirname(modulepath);
     sys_IR_dir = Glib::build_filename(p, sys_IR_dir);
-#endif
+    
 #endif
 #else
     user_dir = Glib::build_filename(Glib::get_user_config_dir(), "guitarix");
