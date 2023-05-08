@@ -321,6 +321,7 @@ public:
     std::string replace_symbol(const std::string& dir) const;
     std::string replace_path(const std::string& dir) const;
     void add(char s, const std::string& d);
+    void replace(char s, const std::string& d);
     const symbol_path_map& get_symbol_path_map() { return dirs;}
 };
 
@@ -374,6 +375,7 @@ protected:
 public:
 #ifdef GUITARIX_AS_PLUGIN
     BasicOptions(const char *modulepath);
+    void replace_sysIRDir(const std::string& dir);
 #else
     BasicOptions();
 #endif

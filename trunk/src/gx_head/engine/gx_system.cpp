@@ -295,6 +295,11 @@ void PrefixConverter::add(char s, const std::string& d) {
     dirs[s] = (d[d.size()-1] == '/' ? d.substr(0,d.size()-1) : d);
 }
 
+void PrefixConverter::replace(char s, const std::string& d) {
+    assert(s != '%');
+    dirs[s] = d;
+}
+
 std::string PrefixConverter::replace_symbol(const std::string& dir) const {
     if (dir.size() < 2 || dir[0] != '%') {
 	return dir;
@@ -457,6 +462,11 @@ void BasicOptions::make_ending_slash(string& dirpath) {
     }
 }
 
+#ifdef GUITARIX_AS_PLUGIN
+void BasicOptions::replace_sysIRDir(const std::string& dir) {
+    IR_prefixmap.replace('S', dir);
+}
+#endif
 
 /****************************************************************
  ** class CmdlineOptions
