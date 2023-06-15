@@ -18,10 +18,11 @@ def configure(conf):
         code="""
         #include <zita-resampler/resampler.h>
         #include <zita-resampler/resampler-table.h>
-        #if ZITA_RESAMPLER_MAJOR_VERSION != %d
-        #error
-        #endif
-        int main(){ return 0; }
+        int main() {
+            int maj = zita_resampler_major_version();
+            if (maj == %d) { return 0; };
+            return 1;
+        }
         """ % expected_zita_resampler_version
         conf.check_cxx(
             fragment=code,
