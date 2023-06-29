@@ -158,7 +158,7 @@ def load_octave(fd):
 def invfreqz(w, h):
     # w: frequency points array
     # h: response array (complex values)
-    # returns the fitted polinomial coeffients A and B of order 3
+    # returns the fitted polynomial coefficients A and B of order 3
     # (biquad filter)
     with open("/tmp/out", "w") as fd:
         save_octave("F", w, fd)
@@ -199,7 +199,7 @@ def estimate(rg, filt, para, impulse, fs):
     # returns biquad filter estimates for each parameter value:
     #  0: (aa) vector of biquad theta * fs
     #  1: (Q) vector of biquad quality factors
-    #  2: (maxh) vector of maxium absolute value of frequency response
+    #  2: (maxh) vector of maximum absolute value of frequency response
     #  3: mean value of real roots
     #  4: (Bconst)  B for freq_const
     #  5: (freq_const)  para value at center of range

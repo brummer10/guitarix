@@ -58,7 +58,7 @@
 #   /usr/tmp/pygtk/gtk/gdk-base.defs. Two output files are created:
 #   /tmp/gdk-2.10-types.defs and /tmp/gdk-2.10.defs.
 #
-# python h2def.py -n WebKit /usr/incude/webkit-1.0/webkit/*.h \
+# python h2def.py -n WebKit /usr/include/webkit-1.0/webkit/*.h \
 #            >/tmp/webkit.defs
 #
 # - Outputs all the defs for webkit module, setting the module name to WebKit
@@ -80,7 +80,7 @@ _upperstr_pat2 = re.compile(r'([A-Z][A-Z])([A-Z][0-9a-z])')
 _upperstr_pat3 = re.compile(r'^([A-Z])([A-Z])')
 
 def to_upper_str(name):
-    """Converts a typename to the equivalent upercase and underscores
+    """Converts a typename to the equivalent uppercase and underscores
     name.  This is used to form the type conversion macros and enum/flag
     name variables"""
     name = _upperstr_pat1.sub(r'\1_\2', name)
@@ -565,7 +565,7 @@ class DefsWriter:
         self.fp.write('(define-function ' + fname + '\n')
         self.fp.write('  (c-name "' + name + '")\n')
 
-        # Hmmm... Let's asume that a constructor function name
+        # Hmmm... Let's assume that a constructor function name
         # ends with '_new' and it returns a pointer.
         m = func_new_pat.match(name)
         if pointer_pat.match(ret) and m:

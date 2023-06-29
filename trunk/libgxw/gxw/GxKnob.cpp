@@ -90,7 +90,7 @@ static void gx_knob_class_init(GxKnobClass *klass)
 		widget_class,
 		g_param_spec_int("y-center",
 		                    P_("Y-Center"),
-		                    P_("Verical position of the center, -1 for auto."),
+		                    P_("Vertical position of the center, -1 for auto."),
 		                    -1, 250, -1,
 		                    GParamFlags(G_PARAM_READABLE|G_PARAM_STATIC_STRINGS)));
     gtk_widget_class_install_style_property(

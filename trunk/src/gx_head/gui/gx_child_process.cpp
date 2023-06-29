@@ -181,7 +181,7 @@ void JackCaptureGui::terminated(bool pgm_found) {
     } else {
         gx_gui::gx_message_popup(
             "  "
-            " ERORR [Jack Capture GUI]\n\n "
+            " ERROR [Jack Capture GUI]\n\n "
             " jack_capture_gui2 is not installed! "
             );
     }

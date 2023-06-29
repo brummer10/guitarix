@@ -1702,7 +1702,7 @@ static PyTypeObject pyjack_ClientType = {
     /*tp_as_buffer*/        0,
     /*tp_flags*/            Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     /* tp_doc */            "JACK client object.\n"
-                            "Instatiate a jackx.Client to interact with a jack server.\n"
+                            "Instantiate a jackx.Client to interact with a jack server.\n"
                             ,
     /* tp_traverse */       0,
     /* tp_clear */          0,

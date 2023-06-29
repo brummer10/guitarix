@@ -84,7 +84,7 @@
 //
 //#define USE_MIDI_OUT
 
-// use MIDI controll out
+// use MIDI control out
 #define USE_MIDI_CC_OUT
 
 #ifdef LADSPA_SO

@@ -100,7 +100,7 @@ void GxLogger::write_queued() {
     }
     msgmutex.unlock();
 
-    // feed throught the handler(s)
+    // feed through the handler(s)
     for (std::list<logmsg*>::iterator i = l.begin(); i != l.end(); ++i) {
 	if (queue_all_msgs) {
 	    if (!(*i)->plugged) {

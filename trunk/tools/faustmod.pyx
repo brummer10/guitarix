@@ -106,7 +106,7 @@ cdef class dsp(object):
     use parameter names as index to get/set the value
         parameters are initialized with their default value
 
-    use num_inputs / num_outputs to find out about channel cound
+    use num_inputs / num_outputs to find out about channel count
 
     use init to set the sampling rate (don't forget!)
 

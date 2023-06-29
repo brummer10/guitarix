@@ -285,7 +285,7 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
 
 #main_vpaned separator {
     margin: {
-	// sum of top + buttom is used in the preset pane, but can't
+	// sum of top + bottom is used in the preset pane, but can't
 	// be queried by the program. If the values don't
 	// these are the standard values;
 	top: 0px;

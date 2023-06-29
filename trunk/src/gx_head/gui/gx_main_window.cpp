@@ -2287,7 +2287,7 @@ bool MainWindow::survive_jack_shutdown() {
 	gx_print_warning("Jack Shutdown",
 				    _("jack has bumped us out!!   "));
 	actions.jackserverconnection->set_active(true);
-	// run only one time whem jackd is running
+	// run only one time when jackd is running
 	return false;
     } else if (!jack->is_jack_down()) {
         // refresh some stuff. Note that it can be executed
@@ -2836,7 +2836,7 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
     }
 
     /*
-    ** Jack client connection and subsequent initalizations
+    ** Jack client connection and subsequent initializations
     */
 
     // state must be loaded before starting jack because connect_jack() uses
