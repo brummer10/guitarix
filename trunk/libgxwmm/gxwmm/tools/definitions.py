@@ -12,7 +12,7 @@ def unescape(s):
 def make_docstring(lines):
     return "(char *) " + '\n'.join(['"%s"' % unescape(s) for s in lines])
 
-# New Parameter class, wich emulates a tuple for compatibility reasons
+# New Parameter class, which emulates a tuple for compatibility reasons
 class Parameter(object):
     def __init__(self, ptype, pname, pdflt, pnull, pdir=None):
         self.ptype = ptype
@@ -363,7 +363,7 @@ class MethodDefBase(Definition):
     def merge(self, old, parmerge):
         self.caller_owns_return = old.caller_owns_return
         self.varargs = old.varargs
-        # here we merge extra parameter flags accross to the new object.
+        # here we merge extra parameter flags across to the new object.
         if not parmerge:
             self.params = copy.deepcopy(old.params)
             return
@@ -501,7 +501,7 @@ class FunctionDef(Definition):
         if not parmerge:
             self.params = copy.deepcopy(old.params)
             return
-        # here we merge extra parameter flags accross to the new object.
+        # here we merge extra parameter flags across to the new object.
         def merge_param(param):
             for old_param in old.params:
                 if old_param.pname == param.pname:

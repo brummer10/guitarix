@@ -197,7 +197,7 @@ static always_inline int forward(int i, splinecoeffs<M> *p, real *xi, int ll,
  ** evaluate the spline function at x
  **
  ** t[n+k]: knot array
- ** c[m][n]: coefficents
+ ** c[m][n]: coefficients
  ** k: order (k > 0), order = degree + 1
  ** x: function argument
  ** res: output array (size m)
@@ -294,7 +294,7 @@ always_inline int splinedata<unsigned char>::splev_pp<2>(splinecoeffs<unsigned c
  ** evaluate the X-dim spline function
  **
  ** t: array of pointers to knot arrays
- ** c[m][n[0]]...[n[X-1]]: coefficents
+ ** c[m][n[0]]...[n[X-1]]: coefficients
  ** k: orders (2 <= k[i] <= 5), order = degree + 1
  ** x: function arguments
  ** res[m]: output array

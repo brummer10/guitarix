@@ -79,7 +79,7 @@ cdef extern from "gx_plugin.h":
         char* id
         char* name
         char** groups
-        char* decription
+        char* description
         char* category
         char* shortname
         registerfunc register_params

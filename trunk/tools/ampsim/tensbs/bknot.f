@@ -37,7 +37,7 @@ C  ----------------------------
 C  PUT K KNOTS AT EACH ENDPOINT
 C  ----------------------------
 C
-C     (SHIFT RIGHT ENPOINTS SLIGHTLY -- SEE PG 350 OF REFERENCE)
+C     (SHIFT RIGHT ENDPOINTS SLIGHTLY -- SEE PG 350 OF REFERENCE)
       RNOT = X(N) + 0.10E0*( X(N)-X(N-1) )
       DO 110 J=1,K
          T(J) = X(1)

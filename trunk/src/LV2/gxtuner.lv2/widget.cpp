@@ -78,11 +78,11 @@ plug_name(plugname)
         "Augmented Fourths","Slow Motion","Admiral","Buzzard","Face","Four and Twenty","Ostrich","Capo 200",
         "Balalaika","Cittern One","Cittern Two","Dobro","Lefty","Mandoguitar","Rusty Cage","Hardcore"};
   static const size_t _size = sizeof(modes) / sizeof(modes[0]);
-  make_selector("Tunning Modes", modes, _size, 0, 1.0, TUNEMODE);
+  make_selector("Tuning Modes", modes, _size, 0, 1.0, TUNEMODE);
   m_vbox8.pack_start(tuner_tuning);
   Glib::ustring temperament_modes[] = {"12-TET","19-TET","24-TET", "31-TET", "41-TET", "53-TET"};
   static const size_t _size2 = sizeof(temperament_modes) / sizeof(modes[0]);
-  make_selector("Tunning Scale", temperament_modes, _size2, 0, 1.0, TEMPERAMENT);
+  make_selector("Tuning Scale", temperament_modes, _size2, 0, 1.0, TEMPERAMENT);
   m_vbox8.pack_start(tuner_temperament);
   m_vbox8.set_spacing(2);
   make_switch_box(&m_hbox_, "", "FAST DETECTION", FASTNOTE);

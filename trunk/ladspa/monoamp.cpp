@@ -254,7 +254,7 @@ class ampdsp : public dspamp {
 		      			in = -2/3.0;
 		    			else in = (in - in*in*in/3.0);
 		      			Samp0[1] = in;
-					}  //preamp ende
+					}  //preamp end
  				float fTempamp1 = (fRecamp3[0] * Samp0[iSlowamp15]);
 				fVecamp0[0] = fTempamp1;
 				fRecamp2[0] = (fSlowamp21 * ((fSlowamp8 * (((fSlowamp20 * fVecamp0[0]) + (fSlowamp18 * fVecamp0[1])) + (fSlowamp17 * fVecamp0[2]))) - ((fSlowamp14 * fRecamp2[2]) + (fSlowamp11 * fRecamp2[1]))));

@@ -256,7 +256,7 @@ def configure(conf):
     opt = Options.options
 
     if opt.disable_sse and opt.optimization:
-        display_msg("configuration error", " cant use --disable-sse and --optimization together", 'RED')
+        display_msg("configuration error", " cannot use --disable-sse and --optimization together", 'RED')
         sys.exit(1)
 
     conf.env['SHAREDIR'] = conf.env['PREFIX'] + '/share'

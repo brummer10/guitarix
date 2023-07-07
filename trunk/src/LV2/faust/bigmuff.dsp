@@ -11,7 +11,7 @@ import("stdfaust.lib");
 // Seems OK but does not create the 1K dip seen on real thing
 // assume that the tone pot needs better model as must intercat with the
 // other 2 filters such that at mid point both filters are still working 
-// There shgould be interaction between the pot ( R3 ) and both of thge other RC filters
+// There should be interaction between the pot ( R3 ) and both of the other RC filters
 // Also as pot changes so do cutoff frequencies
 // Reduction moves both frequencies up by roughly 400Hz max
 // Increase moves both down by around same
