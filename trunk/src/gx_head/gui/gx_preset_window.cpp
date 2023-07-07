@@ -166,7 +166,7 @@ PresetWindow::PresetWindow(Glib::RefPtr<gx_gui::GxBuilder> bld, gx_engine::GxMac
     preset_column_preset->set_cell_data_func(
 	*preset_cellrenderer, sigc::mem_fun(*this, &PresetWindow::text_func));
 
-    // third colum
+    // third column
     banks_combobox->signal_changed().connect(
 	sigc::mem_fun(*this, &PresetWindow::on_preset_combo_changed));
     std::vector<Gtk::TargetEntry> listTargets3;

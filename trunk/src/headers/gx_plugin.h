@@ -102,7 +102,7 @@ struct UiBuilder {
     void (*create_fload_switch)(const char *sw_type,const char * id,const char * idf);
     void (*create_mid_rackknob)(const char *id, const char *label);
     // adding additional functions:
-    // If possible don't change the order of the current defintion.
+    // If possible don't change the order of the current definition.
     // new functions need to be added at the following places:
     //  StackBoxBuilder: decl, real implementation
     //  UiBuilderImpl: decl, assign to pointer, call real implementation
