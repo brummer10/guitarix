@@ -17,7 +17,7 @@
  * --------------------------------------------------------------------------
  */
 
-// DEBUG stop programm at Floating point exception
+// DEBUG stop program at Floating point exception
 //#include <fenv.h>
 
 #include <zita-resampler/resampler.h>
@@ -195,7 +195,7 @@ void Gx_fuzz_::down(int32_t count, float *input, float *output)
 
 void Gx_fuzz_::init_dsp_(uint32_t rate)
 {
-  // DEBUG stop programm at Floating point exception
+  // DEBUG stop program at Floating point exception
   //feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
   AVOIDDENORMALS(); // init the SSE denormal protection
   setup(rate, 4);

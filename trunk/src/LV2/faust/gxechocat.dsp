@@ -26,7 +26,7 @@ In -> stage1 -> pentode driver for record head ->play heads -> 2stage valve amp 
 Sounds OK maybe too much bandwidth loss try cleaner path
 Look ay adding soft clip before machine to simulate saturation 
 Frequency response of tape in copicat would be poor due to design and use
-Tape usually has steep low end frop with a hump and not quite so steep high drop, maybe as for guitar we can lower this but would guess that should start around
+Tape usually has steep low end drop with a hump and not quite so steep high drop, maybe as for guitar we can lower this but would guess that should start around
 	40 - 80Hz steep fi.highpass with possible hump ( ? resonant filter )
 	5- 6k fi.lowpass
 Am concerned that as each valve stage already has same lowapss filter that this

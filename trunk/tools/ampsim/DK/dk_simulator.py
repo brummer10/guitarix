@@ -385,7 +385,7 @@ class NonlinEquations(object):
 
     @staticmethod
     def create(eq, K, CZ, v_slice, opts):
-        "return a Permution and an instance of NonlinEquations or derived"
+        "return a Permutation and an instance of NonlinEquations or derived"
         Pn = np.arange(len(CZ))
         # permute nonlinear part to make left upper submatrix of K blockdiagonal
         p, blocklist = NonlinEquations.get_block_indices(K[v_slice][:,v_slice], CZ[v_slice])

@@ -13,7 +13,7 @@ c1 = Circuit()
 c1.plugindef = dk_simulator.PluginDef(module_id)
 c1.plugindef.lv2_plugin_type = "SimulatorPlugin"
 c1.plugindef.lv2_versioned_id="redeyeOutput"
-c1.plugindef.name = "Redeye Tube Ouput Stage"
+c1.plugindef.name = "Redeye Tube Output Stage"
 c1.plugindef.id = "redeyeOutput"
 c1.set_module_id(module_id)
 c1.read_gschem(schema)

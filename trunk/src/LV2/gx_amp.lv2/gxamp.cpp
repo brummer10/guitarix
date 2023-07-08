@@ -593,7 +593,7 @@ LV2_Worker_Status GxPluginMono::work_response(LV2_Handle  instance,
               uint32_t    size,
               const void* data)
 {
-  //printf("worker respose.\n");
+  //printf("worker response.\n");
   return LV2_WORKER_SUCCESS;
 }
 

@@ -1879,7 +1879,7 @@ void Directout::mem_alloc()
     try {
        outdata = new float[bsize]();
     } catch(...) {
-            gx_print_error("Directout", "cant allocate memory pool");
+            gx_print_error("Directout", "cannot allocate memory pool");
             return;
         }
     mem_allocated = true;
@@ -2077,7 +2077,7 @@ void DrumSequencer::mem_alloc()
     try {
        outdata = new float[bsize]();
     } catch(...) {
-            gx_print_error("DrumSequencer", "cant allocate memory pool");
+            gx_print_error("DrumSequencer", "cannot allocate memory pool");
             return;
         }
     mem_allocated = true;
@@ -2493,7 +2493,7 @@ void smbPitchShift::mem_alloc()
         resampout = new float[fftFrameSize*4];
         indata2 = new float[fftFrameSize*4];
     } catch(...) {
-            gx_print_error("detune", "cant allocate memory pool");
+            gx_print_error("detune", "cannot allocate memory pool");
             return;
         }
     clear_state();

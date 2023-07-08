@@ -78,7 +78,7 @@ static void gx_meter_scale_class_init (GxMeterScaleClass *klass)
 	g_object_class_install_property(
 		gobject_class, PROP_TICK_POS, g_param_spec_enum(
 			"tick-pos", P_("tick position"),
-			P_("Position of the tick relativ to the tick text"),
+			P_("Position of the tick relative to the tick text"),
 			GX_TYPE_TICK_POSITION, GX_TICK_RIGHT,
 			GParamFlags(G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS)));
 	// style properties

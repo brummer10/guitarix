@@ -3,7 +3,7 @@
 # use to copy the LV2 bundle gx_sceleton.lv2 to gx_${name}.lv2
 # generate a C++ file from the faust.dsp source (by dsp2cc)
 # generate a according name.ttl file
-# were ${name} is the first arg on comandline, usually the dsp file.
+# were ${name} is the first arg on commandline, usually the dsp file.
 # the dsp file needs to be stored in the faust folder.
 
 ########################## functions ###################################

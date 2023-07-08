@@ -981,7 +981,7 @@ int Lv2Dsp::activate(bool start, PluginDef *plugin) {
         return 0;
     }
     if (!self.instance) { 
-        gx_print_warning("Lv2Dsp", ustring::compose("cant activate plugin %1", self.name));
+        gx_print_warning("Lv2Dsp", ustring::compose("cannot activate plugin %1", self.name));
         return 1;
     }
     self.is_activated = start;
@@ -1039,7 +1039,7 @@ void Lv2Dsp::init(unsigned int samplingFreq, PluginDef *pldef) {
     }
     self.instance = lilv_plugin_instantiate(self.plugin, samplingFreq, LV2Features::getInstance().gx_features);
     if (!self.instance) { 
-        gx_print_error("Lv2Dsp", ustring::compose("cant init plugin: %1 \n uri: %2", self.name, self.pd->path));
+        gx_print_error("Lv2Dsp", ustring::compose("cannot init plugin: %1 \n uri: %2", self.name, self.pd->path));
         return;
     }
     int n = 0;
