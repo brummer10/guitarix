@@ -18,6 +18,7 @@
  */
 
 #include <cstdlib>
+#include <cstdint>
 #include <cmath>
 #include <iostream>
 #include <cstring>
