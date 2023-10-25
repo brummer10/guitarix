@@ -7,7 +7,7 @@ class mydspSIG0 {
 	
   private:
 	
-	int iVec6[2];
+	int iVec7[2];
 	int iRec22[2];
 	
   public:
@@ -20,20 +20,20 @@ class mydspSIG0 {
 	}
 	
 	void instanceInitmydspSIG0(int sample_rate) {
-		for (int l15 = 0; l15 < 2; l15 = l15 + 1) {
-			iVec6[l15] = 0;
-		}
 		for (int l16 = 0; l16 < 2; l16 = l16 + 1) {
-			iRec22[l16] = 0;
+			iVec7[l16] = 0;
+		}
+		for (int l17 = 0; l17 < 2; l17 = l17 + 1) {
+			iRec22[l17] = 0;
 		}
 	}
 	
 	void fillmydspSIG0(int count, double* table) {
 		for (int i1 = 0; i1 < count; i1 = i1 + 1) {
-			iVec6[0] = 1;
-			iRec22[0] = (iVec6[1] + iRec22[1]) % 65536;
+			iVec7[0] = 1;
+			iRec22[0] = (iVec7[1] + iRec22[1]) % 65536;
 			table[i1] = std::sin(9.587379924285257e-05 * double(iRec22[0]));
-			iVec6[1] = iVec6[0];
+			iVec7[1] = iVec7[0];
 			iRec22[1] = iRec22[0];
 		}
 	}
@@ -49,12 +49,13 @@ static double ftbl0mydspSIG0[65536];
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	int iVec0[2];
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fHslider1;
 	FAUSTFLOAT fHslider2;
 	FAUSTFLOAT fHslider3;
 	int IOTA0;
-	double fVec0[524288];
+	double fVec1[524288];
 	FAUSTFLOAT fHslider4;
 	double fConst1;
 	double fConst2;
@@ -65,19 +66,19 @@ private:
 	double fRec21[2];
 	FAUSTFLOAT fHslider5;
 	double fRec17[3];
-	double fVec1[1024];
+	double fVec2[1024];
 	int iConst4;
 	double fRec15[2];
-	double fVec2[1024];
+	double fVec3[1024];
 	int iConst5;
 	double fRec13[2];
-	double fVec3[4096];
+	double fVec4[4096];
 	int iConst6;
 	double fRec11[2];
-	double fVec4[2048];
+	double fVec5[2048];
 	int iConst7;
 	double fRec9[2];
-	double fVec5[8192];
+	double fVec6[8192];
 	double fConst8;
 	double fRec23[2];
 	FAUSTFLOAT fHslider6;
@@ -88,22 +89,22 @@ private:
 	FAUSTFLOAT fHslider7;
 	double fRec6[3];
 	FAUSTFLOAT fHslider8;
-	double fVec7[16384];
+	double fVec8[16384];
 	int iConst11;
 	double fRec4[2];
-	double fVec8[32768];
+	double fVec9[32768];
 	int iConst12;
 	double fRec0[2];
-	double fVec9[8192];
+	double fVec10[8192];
 	int iConst13;
 	double fRec27[2];
 	double fRec28[32768];
 	int iConst14;
 	double fRec26[3];
-	double fVec10[32768];
+	double fVec11[32768];
 	int iConst15;
 	double fRec24[2];
-	double fVec11[32768];
+	double fVec12[32768];
 	int iConst16;
 	double fRec1[2];
 	FAUSTFLOAT fHslider9;
@@ -153,37 +154,38 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 524288; l0 = l0 + 1) fVec0[l0] = 0.0;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec18[l1] = 0.0;
-	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec19[l2] = 0.0;
-	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec20[l3] = 0.0;
-	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec21[l4] = 0.0;
-	for (int l5 = 0; l5 < 3; l5 = l5 + 1) fRec17[l5] = 0.0;
-	for (int l6 = 0; l6 < 1024; l6 = l6 + 1) fVec1[l6] = 0.0;
-	for (int l7 = 0; l7 < 2; l7 = l7 + 1) fRec15[l7] = 0.0;
-	for (int l8 = 0; l8 < 1024; l8 = l8 + 1) fVec2[l8] = 0.0;
-	for (int l9 = 0; l9 < 2; l9 = l9 + 1) fRec13[l9] = 0.0;
-	for (int l10 = 0; l10 < 4096; l10 = l10 + 1) fVec3[l10] = 0.0;
-	for (int l11 = 0; l11 < 2; l11 = l11 + 1) fRec11[l11] = 0.0;
-	for (int l12 = 0; l12 < 2048; l12 = l12 + 1) fVec4[l12] = 0.0;
-	for (int l13 = 0; l13 < 2; l13 = l13 + 1) fRec9[l13] = 0.0;
-	for (int l14 = 0; l14 < 8192; l14 = l14 + 1) fVec5[l14] = 0.0;
-	for (int l17 = 0; l17 < 2; l17 = l17 + 1) fRec23[l17] = 0.0;
-	for (int l18 = 0; l18 < 2; l18 = l18 + 1) fRec7[l18] = 0.0;
-	for (int l19 = 0; l19 < 32768; l19 = l19 + 1) fRec8[l19] = 0.0;
-	for (int l20 = 0; l20 < 3; l20 = l20 + 1) fRec6[l20] = 0.0;
-	for (int l21 = 0; l21 < 16384; l21 = l21 + 1) fVec7[l21] = 0.0;
-	for (int l22 = 0; l22 < 2; l22 = l22 + 1) fRec4[l22] = 0.0;
-	for (int l23 = 0; l23 < 32768; l23 = l23 + 1) fVec8[l23] = 0.0;
-	for (int l24 = 0; l24 < 2; l24 = l24 + 1) fRec0[l24] = 0.0;
-	for (int l25 = 0; l25 < 8192; l25 = l25 + 1) fVec9[l25] = 0.0;
-	for (int l26 = 0; l26 < 2; l26 = l26 + 1) fRec27[l26] = 0.0;
-	for (int l27 = 0; l27 < 32768; l27 = l27 + 1) fRec28[l27] = 0.0;
-	for (int l28 = 0; l28 < 3; l28 = l28 + 1) fRec26[l28] = 0.0;
-	for (int l29 = 0; l29 < 32768; l29 = l29 + 1) fVec10[l29] = 0.0;
-	for (int l30 = 0; l30 < 2; l30 = l30 + 1) fRec24[l30] = 0.0;
-	for (int l31 = 0; l31 < 32768; l31 = l31 + 1) fVec11[l31] = 0.0;
-	for (int l32 = 0; l32 < 2; l32 = l32 + 1) fRec1[l32] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) iVec0[l0] = 0;
+	for (int l1 = 0; l1 < 524288; l1 = l1 + 1) fVec1[l1] = 0.0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec18[l2] = 0.0;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec19[l3] = 0.0;
+	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec20[l4] = 0.0;
+	for (int l5 = 0; l5 < 2; l5 = l5 + 1) fRec21[l5] = 0.0;
+	for (int l6 = 0; l6 < 3; l6 = l6 + 1) fRec17[l6] = 0.0;
+	for (int l7 = 0; l7 < 1024; l7 = l7 + 1) fVec2[l7] = 0.0;
+	for (int l8 = 0; l8 < 2; l8 = l8 + 1) fRec15[l8] = 0.0;
+	for (int l9 = 0; l9 < 1024; l9 = l9 + 1) fVec3[l9] = 0.0;
+	for (int l10 = 0; l10 < 2; l10 = l10 + 1) fRec13[l10] = 0.0;
+	for (int l11 = 0; l11 < 4096; l11 = l11 + 1) fVec4[l11] = 0.0;
+	for (int l12 = 0; l12 < 2; l12 = l12 + 1) fRec11[l12] = 0.0;
+	for (int l13 = 0; l13 < 2048; l13 = l13 + 1) fVec5[l13] = 0.0;
+	for (int l14 = 0; l14 < 2; l14 = l14 + 1) fRec9[l14] = 0.0;
+	for (int l15 = 0; l15 < 8192; l15 = l15 + 1) fVec6[l15] = 0.0;
+	for (int l18 = 0; l18 < 2; l18 = l18 + 1) fRec23[l18] = 0.0;
+	for (int l19 = 0; l19 < 2; l19 = l19 + 1) fRec7[l19] = 0.0;
+	for (int l20 = 0; l20 < 32768; l20 = l20 + 1) fRec8[l20] = 0.0;
+	for (int l21 = 0; l21 < 3; l21 = l21 + 1) fRec6[l21] = 0.0;
+	for (int l22 = 0; l22 < 16384; l22 = l22 + 1) fVec8[l22] = 0.0;
+	for (int l23 = 0; l23 < 2; l23 = l23 + 1) fRec4[l23] = 0.0;
+	for (int l24 = 0; l24 < 32768; l24 = l24 + 1) fVec9[l24] = 0.0;
+	for (int l25 = 0; l25 < 2; l25 = l25 + 1) fRec0[l25] = 0.0;
+	for (int l26 = 0; l26 < 8192; l26 = l26 + 1) fVec10[l26] = 0.0;
+	for (int l27 = 0; l27 < 2; l27 = l27 + 1) fRec27[l27] = 0.0;
+	for (int l28 = 0; l28 < 32768; l28 = l28 + 1) fRec28[l28] = 0.0;
+	for (int l29 = 0; l29 < 3; l29 = l29 + 1) fRec26[l29] = 0.0;
+	for (int l30 = 0; l30 < 32768; l30 = l30 + 1) fVec11[l30] = 0.0;
+	for (int l31 = 0; l31 < 2; l31 = l31 + 1) fRec24[l31] = 0.0;
+	for (int l32 = 0; l32 < 32768; l32 = l32 + 1) fVec12[l32] = 0.0;
+	for (int l33 = 0; l33 < 2; l33 = l33 + 1) fRec1[l33] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -240,70 +242,73 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	double fSlow11 = double(fHslider9);
 	double fSlow12 = 1.0 - fSlow11;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+		iVec0[0] = 1;
 		double fTemp0 = 0.5 * fRec1[1];
 		double fTemp1 = double(input1[i0]);
 		double fTemp2 = double(input0[i0]);
 		double fTemp3 = fTemp2 + fTemp1;
-		fVec0[IOTA0 & 524287] = fTemp3;
+		fVec1[IOTA0 & 524287] = fTemp3;
 		double fTemp4 = ((fRec18[1] != 0.0) ? (((fRec19[1] > 0.0) & (fRec19[1] < 1.0)) ? fRec18[1] : 0.0) : (((fRec19[1] == 0.0) & (fSlow4 != fRec20[1])) ? fConst2 : (((fRec19[1] == 1.0) & (fSlow4 != fRec21[1])) ? fConst3 : 0.0)));
 		fRec18[0] = fTemp4;
 		fRec19[0] = std::max<double>(0.0, std::min<double>(1.0, fRec19[1] + fTemp4));
 		fRec20[0] = (((fRec19[1] >= 1.0) & (fRec21[1] != fSlow4)) ? fSlow4 : fRec20[1]);
 		fRec21[0] = (((fRec19[1] <= 0.0) & (fRec20[1] != fSlow4)) ? fSlow4 : fRec21[1]);
-		double fTemp5 = fVec0[(IOTA0 - int(std::min<double>(262144.0, std::max<double>(0.0, fRec20[0])))) & 524287];
-		fRec17[0] = fSlow6 * fRec17[2] + fSlow5 * (0.5 * fTemp5 + fRec19[0] * (0.0 - 0.5 * (fTemp5 - fVec0[(IOTA0 - int(std::min<double>(262144.0, std::max<double>(0.0, fRec21[0])))) & 524287])));
+		double fTemp5 = fVec1[(IOTA0 - int(std::min<double>(262144.0, std::max<double>(0.0, fRec20[0])))) & 524287];
+		fRec17[0] = fSlow6 * fRec17[2] + fSlow5 * (0.5 * fTemp5 + fRec19[0] * (0.0 - 0.5 * (fTemp5 - fVec1[(IOTA0 - int(std::min<double>(262144.0, std::max<double>(0.0, fRec21[0])))) & 524287])));
 		double fTemp6 = fRec17[0] - fSlow3 * fRec15[1];
-		fVec1[IOTA0 & 1023] = fTemp6;
-		fRec15[0] = fVec1[(IOTA0 - iConst4) & 1023];
+		fVec2[IOTA0 & 1023] = fTemp6;
+		fRec15[0] = fVec2[(IOTA0 - iConst4) & 1023];
 		double fRec16 = fSlow3 * fTemp6;
 		double fTemp7 = fRec16 + fRec15[1] - fSlow3 * fRec13[1];
-		fVec2[IOTA0 & 1023] = fTemp7;
-		fRec13[0] = fVec2[(IOTA0 - iConst5) & 1023];
+		fVec3[IOTA0 & 1023] = fTemp7;
+		fRec13[0] = fVec3[(IOTA0 - iConst5) & 1023];
 		double fRec14 = fSlow3 * fTemp7;
 		double fTemp8 = fRec14 + fRec13[1] - fSlow2 * fRec11[1];
-		fVec3[IOTA0 & 4095] = fTemp8;
-		fRec11[0] = fVec3[(IOTA0 - iConst6) & 4095];
+		fVec4[IOTA0 & 4095] = fTemp8;
+		fRec11[0] = fVec4[(IOTA0 - iConst6) & 4095];
 		double fRec12 = fSlow2 * fTemp8;
 		double fTemp9 = fRec12 + fRec11[1] - fSlow2 * fRec9[1];
-		fVec4[IOTA0 & 2047] = fTemp9;
-		fRec9[0] = fVec4[(IOTA0 - iConst7) & 2047];
+		fVec5[IOTA0 & 2047] = fTemp9;
+		fRec9[0] = fVec5[(IOTA0 - iConst7) & 2047];
 		double fRec10 = fSlow2 * fTemp9;
 		double fTemp10 = 0.3 * (fRec10 + fRec9[1]);
 		double fTemp11 = fTemp10 + fSlow1 * fRec7[1] + fTemp0;
-		fVec5[IOTA0 & 8191] = fTemp11;
-		fRec23[0] = fConst8 + (fRec23[1] - std::floor(fConst8 + fRec23[1]));
-		double fTemp12 = fSlow7 * (ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec23[0]), 65535))] + 1.0);
-		int iTemp13 = int(fTemp12);
-		int iTemp14 = std::min<int>(18, std::max<int>(0, iTemp13 + 1));
-		double fTemp15 = std::floor(fTemp12);
-		double fTemp16 = fTemp12 - fTemp15;
-		double fTemp17 = fTemp15 + (1.0 - fTemp12);
-		int iTemp18 = std::min<int>(18, std::max<int>(0, iTemp13));
-		fRec7[0] = fVec5[(IOTA0 - (iConst9 + iTemp18)) & 8191] * fTemp17 + fTemp16 * fVec5[(IOTA0 - (iConst9 + iTemp14)) & 8191];
+		fVec6[IOTA0 & 8191] = fTemp11;
+		double fTemp12 = ((1 - iVec0[1]) ? 0.0 : fConst8 + fRec23[1]);
+		fRec23[0] = fTemp12 - std::floor(fTemp12);
+		double fTemp13 = fSlow7 * (ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec23[0]), 65535))] + 1.0);
+		int iTemp14 = int(fTemp13);
+		int iTemp15 = std::min<int>(18, std::max<int>(0, iTemp14 + 1));
+		double fTemp16 = std::floor(fTemp13);
+		double fTemp17 = fTemp13 - fTemp16;
+		double fTemp18 = fTemp16 + (1.0 - fTemp13);
+		int iTemp19 = std::min<int>(18, std::max<int>(0, iTemp14));
+		fRec7[0] = fVec6[(IOTA0 - (iConst9 + iTemp19)) & 8191] * fTemp18 + fTemp17 * fVec6[(IOTA0 - (iConst9 + iTemp15)) & 8191];
 		fRec8[IOTA0 & 32767] = fRec7[1] - (fTemp0 + fTemp10);
 		fRec6[0] = fSlow8 * fRec6[2] + fSlow9 * fRec8[(IOTA0 - iConst10) & 32767];
-		double fTemp19 = fSlow10 * fRec6[0] - fSlow0 * fRec4[1];
-		fVec7[IOTA0 & 16383] = fTemp19;
-		fRec4[0] = fVec7[(IOTA0 - iConst11) & 16383];
-		double fRec5 = fSlow0 * fTemp19;
-		fVec8[IOTA0 & 32767] = fRec5 + fRec4[1];
-		fRec0[0] = fSlow10 * fVec8[(IOTA0 - iConst12) & 32767];
-		double fTemp20 = 0.5 * fRec0[1];
-		double fTemp21 = fTemp20 + fTemp10 + fSlow1 * fRec27[1];
-		fVec9[IOTA0 & 8191] = fTemp21;
-		fRec27[0] = fTemp17 * fVec9[(IOTA0 - (iConst13 + iTemp18)) & 8191] + fTemp16 * fVec9[(IOTA0 - (iConst13 + iTemp14)) & 8191];
-		fRec28[IOTA0 & 32767] = fRec27[1] - (fTemp10 + fTemp20);
+		double fTemp20 = fSlow10 * fRec6[0] - fSlow0 * fRec4[1];
+		fVec8[IOTA0 & 16383] = fTemp20;
+		fRec4[0] = fVec8[(IOTA0 - iConst11) & 16383];
+		double fRec5 = fSlow0 * fTemp20;
+		fVec9[IOTA0 & 32767] = fRec5 + fRec4[1];
+		fRec0[0] = fSlow10 * fVec9[(IOTA0 - iConst12) & 32767];
+		double fTemp21 = 0.5 * fRec0[1];
+		double fTemp22 = fTemp21 + fTemp10 + fSlow1 * fRec27[1];
+		fVec10[IOTA0 & 8191] = fTemp22;
+		fRec27[0] = fTemp18 * fVec10[(IOTA0 - (iConst13 + iTemp19)) & 8191] + fTemp17 * fVec10[(IOTA0 - (iConst13 + iTemp15)) & 8191];
+		fRec28[IOTA0 & 32767] = fRec27[1] - (fTemp10 + fTemp21);
 		fRec26[0] = fSlow8 * fRec26[2] + fSlow9 * fRec28[(IOTA0 - iConst14) & 32767];
-		double fTemp22 = fSlow10 * fRec26[0] - fSlow0 * fRec24[1];
-		fVec10[IOTA0 & 32767] = fTemp22;
-		fRec24[0] = fVec10[(IOTA0 - iConst15) & 32767];
-		double fRec25 = fSlow0 * fTemp22;
-		fVec11[IOTA0 & 32767] = fRec25 + fRec24[1];
-		fRec1[0] = fSlow10 * fVec11[(IOTA0 - iConst16) & 32767];
+		double fTemp23 = fSlow10 * fRec26[0] - fSlow0 * fRec24[1];
+		fVec11[IOTA0 & 32767] = fTemp23;
+		fRec24[0] = fVec11[(IOTA0 - iConst15) & 32767];
+		double fRec25 = fSlow0 * fTemp23;
+		fVec12[IOTA0 & 32767] = fRec25 + fRec24[1];
+		fRec1[0] = fSlow10 * fVec12[(IOTA0 - iConst16) & 32767];
 		double fRec2 = fRec8[IOTA0 & 32767];
 		double fRec3 = fRec28[IOTA0 & 32767];
 		output0[i0] = FAUSTFLOAT(fSlow12 * fTemp2 + fSlow11 * (fRec0[0] + fRec2));
 		output1[i0] = FAUSTFLOAT(fSlow12 * fTemp1 + fSlow11 * (fRec1[0] + fRec3));
+		iVec0[1] = iVec0[0];
 		IOTA0 = IOTA0 + 1;
 		fRec18[1] = fRec18[0];
 		fRec19[1] = fRec19[0];
