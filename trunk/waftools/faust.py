@@ -193,6 +193,7 @@ def check_faust(conf):
     m = re.match(r".*Version\s*(.*)", s)
     if not m:
         Logs.warn('could not determine faust version')
+        return
     vers = m.group(1)
     env.FAUST_VERSION = vers
     if vers not in good_faust_versions and not opt.faust:
