@@ -684,6 +684,7 @@ bool PresetWindow::on_bank_button_release(GdkEventButton *ev) {
     Glib::RefPtr<Gtk::ListStore> ls = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(bank_treeview->get_model());
     Gtk::TreeModel::iterator it = ls->get_iter(pt);
     Glib::ustring nm = it->get_value(bank_col.name);
+    if (nm.empty()) return false;
     int tp = it->get_value(bank_col.tp);
     if (col == bank_column_flags) {
 	if (tp == gx_system::PresetFile::PRESET_SCRATCH || tp == gx_system::PresetFile::PRESET_FILE) {
