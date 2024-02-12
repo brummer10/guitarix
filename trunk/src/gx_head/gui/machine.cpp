@@ -284,7 +284,9 @@ GxMachine::GxMachine(gx_system::CmdlineOptions& options_):
     pmap.reg_par("engine.set_stereo", N_("Stereo on/off"), (bool*)0, false, true);
 #endif
     gx_preset::UnitPresetList presetnames;
+#ifndef GUITARIX_AS_PLUGIN
     plugin_preset_list_load(pluginlist_lookup_plugin("seq")->get_pdef(), presetnames);
+#endif
     for (gx_preset::UnitPresetList::iterator i = presetnames.begin(); i != presetnames.end(); ++i) {
         if (!i->name.empty()) {
             Glib::ustring id = "seq." + i->name;

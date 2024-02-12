@@ -304,8 +304,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       loop(get_param(), &directout, sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
 #ifndef GUITARIX_AS_PLUGIN
       record(*this, 1), record_st(*this, 2),
-#endif
       dseq(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
+#endif
       detune(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
@@ -419,7 +419,9 @@ void GxEngine::load_static_plugins() {
     pl.add(&record.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
 #endif
     pl.add(&detune.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
+#ifndef GUITARIX_AS_PLUGIN
     pl.add(&dseq.plugin,                          PLUGIN_POS_RACK, PGN_GUI);
+#endif
     pl.add(gx_effects::gx_distortion::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::bitdowner::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::thick_distortion::plugin(), PLUGIN_POS_RACK, PGN_GUI);
@@ -462,7 +464,7 @@ void GxEngine::load_static_plugins() {
     pl.add(pluginlib::mbclipper::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::bassboom::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::mbchor::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
-#ifndef DEBUG
+#if !defined(DEBUG) || !defined(GUITARIX_AS_PLUGIN)
     pl.add(pluginlib::jcm800pre::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
 #endif
     pl.add(pluginlib::gcb_95::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
@@ -487,7 +489,9 @@ void GxEngine::load_static_plugins() {
 	pl.add(pluginlib::rangem::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::ruin::plugin(),             PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::ffreak::plugin(),           PLUGIN_POS_RACK, PGN_GUI);
+#ifndef GUITARIX_AS_PLUGIN
 	pl.add(pluginlib::fumaster::plugin(),         PLUGIN_POS_RACK, PGN_GUI);
+#endif
 	pl.add(pluginlib::fuzzdrive::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::rolandwah::plugin(),        PLUGIN_POS_RACK, PGN_GUI);
 	pl.add(pluginlib::astrofuzz::plugin(),        PLUGIN_POS_RACK, PGN_GUI);

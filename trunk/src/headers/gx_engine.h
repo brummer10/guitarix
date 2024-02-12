@@ -103,8 +103,8 @@ public:
 #ifndef GUITARIX_AS_PLUGIN
     SCapture record;
     SCapture record_st;
-#endif
     DrumSequencer dseq;
+#endif
     smbPitchShift detune;
     //
 public:
