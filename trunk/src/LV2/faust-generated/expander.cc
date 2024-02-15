@@ -72,7 +72,7 @@ inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = std::exp(0.0 - 1e+01 / fConst0);
+	fConst1 = std::exp(-(1e+01 / fConst0));
 	fConst2 = 1.0 - fConst1;
 	fConst3 = 1.0 / fConst0;
 	clear_state_f();
@@ -90,8 +90,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fEntry0 (*fEntry0_)
 #define fEntry1 (*fEntry1_)
 #define fEntry2 (*fEntry2_)
-	double fSlow0 = std::exp(0.0 - fConst3 / std::max<double>(fConst3, double(fHslider0)));
-	double fSlow1 = std::exp(0.0 - fConst3 / std::max<double>(fConst3, double(fHslider1)));
+	double fSlow0 = std::exp(-(fConst3 / std::max<double>(fConst3, double(fHslider0))));
+	double fSlow1 = std::exp(-(fConst3 / std::max<double>(fConst3, double(fHslider1))));
 	double fSlow2 = double(fEntry1);
 	double fSlow3 = fSlow2 + double(fEntry0);
 	double fSlow4 = 1.0 / (fSlow2 + 0.001);

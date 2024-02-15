@@ -506,7 +506,6 @@ private:
     int cabinet;
     float bass;
     float treble;
-    float sum;
     value_pair *cab_names;
     cabinet_impulse_former::Dsp impf;
     gx_resample::FixedRateResampler smp;
@@ -517,8 +516,6 @@ private:
     virtual bool start(bool force = false) override;
     bool cabinet_changed() { return current_cab != cabinet; }
     void update_cabinet() { current_cab = cabinet; }
-    bool sum_changed() { return std::abs(sum - (level + bass + treble)) > 0.01; }
-    void update_sum() { sum = level + bass + treble; }
 public:
     CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
@@ -541,7 +538,6 @@ private:
     int cabinet;
     float bass;
     float treble;
-    float sum;
     value_pair *cab_names;
     cabinet_impulse_former_st::Dsp impf;
     gx_resample::FixedRateResampler smp;
@@ -553,8 +549,6 @@ private:
     virtual bool start(bool force = false) override;
     bool cabinet_changed() { return current_cab != cabinet; }
     void update_cabinet() { current_cab = cabinet; }
-    bool sum_changed() { return fabs(sum - (level + bass + treble)) > 0.01; }
-    void update_sum() { sum = level + bass + treble; }
 public:
     CabinetStereoConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
@@ -582,7 +576,6 @@ private:
     int preamp;
     float bass;
     float treble;
-    float sum;
     value_pair *pre_names;
     preamp_impulse_former::Dsp impf;
     gx_resample::FixedRateResampler smp;
@@ -593,8 +586,6 @@ private:
     virtual bool start(bool force = false) override;
     bool preamp_changed() { return current_pre != preamp; }
     void update_preamp() { current_pre = preamp; }
-    bool sum_changed() { return std::abs(sum - (level + bass + treble)) > 0.01; }
-    void update_sum() { sum = level + bass + treble; }
 public:
     PreampConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);
@@ -617,7 +608,6 @@ private:
     int preamp;
     float bass;
     float treble;
-    float sum;
     value_pair *pre_names;
     preamp_impulse_former_st::Dsp impf;
     gx_resample::FixedRateResampler smp;
@@ -629,8 +619,6 @@ private:
     virtual bool start(bool force = false) override;
     bool preamp_changed() { return current_pre != preamp; }
     void update_preamp() { current_pre = preamp; }
-    bool sum_changed() { return fabs(sum - (level + bass + treble)) > 0.01; }
-    void update_sum() { sum = level + bass + treble; }
 public:
     PreampStereoConvolver(EngineControl& engine, sigc::slot<void> sync,
        gx_resample::BufferResampler& resamp);

@@ -115,14 +115,14 @@ inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
 	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 1.0 - 100.53096491487338 / fConst0;
-	fConst2 = mydsp_faustpower2_f(fConst1);
+	double fConst1 = 100.53096491487338 / fConst0;
+	fConst2 = mydsp_faustpower2_f(1.0 - fConst1);
 	fConst3 = 6.283185307179586 / fConst0;
-	fConst4 = 0.0 - 2.0 * fConst1;
+	fConst4 = 2.0 * (fConst1 - 1.0);
 	fConst5 = 1.0 / std::max<double>(1.0, 0.01 * fConst0);
 	fConst6 = std::max<double>(1.0, 0.02 * fConst0);
 	fConst7 = 1.0 / fConst6;
-	fConst8 = 0.0 - 89.0 / std::max<double>(1.0, 0.005 * fConst0);
+	fConst8 = 89.0 / std::max<double>(1.0, 0.005 * fConst0);
 	fConst9 = 0.5 * (1.0 - fConst2);
 	fConst10 = 17.31645870658694 / fConst0;
 	fConst11 = 0.362844702467344 * fConst0;
@@ -162,7 +162,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec0[0] = fSlow2;
 		iRec6[0] = iSlow3 * (iRec6[1] + 1);
 		fRec7[0] = fSlow2 + fRec7[1] * double(fVec0[1] >= fSlow2);
-		double fTemp0 = fSlow5 * std::max<double>(0.0, std::min<double>(fConst7 * fRec7[0], std::max<double>(fConst8 * (fConst6 - fRec7[0]) + 1.0, 9e+01)) * (1.0 - fConst5 * double(iRec6[0]))) + (-0.8 - 0.9999999999999999 * (fRec0[1] + fRec2[1] + fRec1[1] + fRec3[1]));
+		double fTemp0 = fSlow5 * std::max<double>(0.0, std::min<double>(fConst7 * fRec7[0], std::max<double>(1.0 - fConst8 * (fConst6 - fRec7[0]), 9e+01)) * (1.0 - fConst5 * double(iRec6[0]))) + (-0.8 - 0.9999999999999999 * (fRec0[1] + fRec2[1] + fRec1[1] + fRec3[1]));
 		double fTemp1 = std::pow(std::fabs(fTemp0) + 0.75, -4.0);
 		double fTemp2 = 0.25 * fTemp0 * (double(fTemp1 > 1.0) + fTemp1 * double(fTemp1 <= 1.0));
 		fVec1[IOTA0 & 8191] = fSlow6 + fRec4[1] + fTemp2;

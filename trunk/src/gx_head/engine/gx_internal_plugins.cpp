@@ -1154,7 +1154,6 @@ CabinetConvolver::CabinetConvolver(EngineControl& engine, sigc::slot<void> sync,
     cabinet(0),
     bass(0),
     treble(0),
-    sum(no_sum),
     cab_names(new value_pair[cab_table_size+1]),
     impf(),
     smp() {
@@ -1191,23 +1190,21 @@ bool CabinetConvolver::do_update() {
         unsigned int fact = sru/sr;
         
         smp.setup(sr, fact*sr);
-        impf.init(cab.ir_sr);
+        impf.init(sr);
     }
-    float cab_irdata_c[cab.ir_count];
+    //float cab_irdata_c[cab.ir_count];
     impf.clear_state_f();
-    impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
     while (!conv.checkstate());
     if (configure) {
-        if (!conv.configure(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+        if (!conv.configure(cab.ir_count, cab.ir_data, cab.ir_sr)) {
             return false;
         }
     } else {
-        if (!conv.update(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+        if (!conv.update(cab.ir_count, cab.ir_data, cab.ir_sr)) {
             return false;
         }
     }
     update_cabinet();
-    update_sum();
     return conv_start();
 }
 
@@ -1215,7 +1212,7 @@ bool CabinetConvolver::start(bool force) {
     if (force) {
         current_cab = -1;
     }
-    if (cabinet_changed() || sum_changed()) {
+    if (cabinet_changed()) {
         return do_update();
     } else {
         while (!conv.checkstate());
@@ -1227,7 +1224,7 @@ bool CabinetConvolver::start(bool force) {
 }
 
 void CabinetConvolver::check_update() {
-    if (cabinet_changed() || sum_changed()) {
+    if (cabinet_changed()) {
         do_update();
     }
 }
@@ -1240,6 +1237,7 @@ void CabinetConvolver::run_cab_conf(int count, float *input0, float *output0, Pl
         self.engine.overload(EngineControl::ov_Convolver, "cab");
     }
     self.smp.down(buf, output0);
+    self.impf.compute(count,output0,output0);
 }
 
 int CabinetConvolver::register_cab(const ParamReg& reg) {
@@ -1295,7 +1293,6 @@ CabinetStereoConvolver::CabinetStereoConvolver(EngineControl& engine, sigc::slot
     cabinet(0),
     bass(0),
     treble(0),
-    sum(no_sum),
     cab_names(new value_pair[cab_table_size+1]),
     impf(),
     smp(),
@@ -1334,23 +1331,20 @@ bool CabinetStereoConvolver::do_update() {
         
         smp.setup(sr, fact*sr);
         smps.setup(sr, fact*sr);
-        impf.init(cab.ir_sr);
+        impf.init(sr);
     }
-    float cab_irdata_c[cab.ir_count];
     impf.clear_state_f();
-    impf.compute(cab.ir_count,cab.ir_data,cab_irdata_c);
     while (!conv.checkstate());
     if (configure) {
-        if (!conv.configure_stereo(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+        if (!conv.configure_stereo(cab.ir_count, cab.ir_data, cab.ir_sr)) {
             return false;
         }
     } else {
-        if (!conv.update_stereo(cab.ir_count, cab_irdata_c, cab.ir_sr)) {
+        if (!conv.update_stereo(cab.ir_count, cab.ir_data, cab.ir_sr)) {
             return false;
         }
     }
     update_cabinet();
-    update_sum();
     return conv_start();
 }
 
@@ -1358,7 +1352,7 @@ bool CabinetStereoConvolver::start(bool force) {
     if (force) {
         current_cab = -1;
     }
-    if (cabinet_changed() || sum_changed()) {
+    if (cabinet_changed()) {
         return do_update();
     } else {
         while (!conv.checkstate());
@@ -1370,7 +1364,7 @@ bool CabinetStereoConvolver::start(bool force) {
 }
 
 void CabinetStereoConvolver::check_update() {
-    if (cabinet_changed() || sum_changed()) {
+    if (cabinet_changed()) {
         do_update();
     }
 }
@@ -1386,6 +1380,7 @@ void CabinetStereoConvolver::run_cab_conf(int count, float *input0, float *input
     }
     self.smp.down(buf, output0);
     self.smps.down(buf1, output1);
+    self.impf.compute(count, output0, output1, output0, output1);
 }
 
 int CabinetStereoConvolver::register_cab(const ParamReg& reg) {
@@ -1485,7 +1480,6 @@ PreampConvolver::PreampConvolver(EngineControl& engine, sigc::slot<void> sync,
     preamp(0),
     bass(0),
     treble(0),
-    sum(no_sum),
     pre_names(new value_pair[pre_table_size+1]),
     impf(),
     smp() {
@@ -1522,23 +1516,20 @@ bool PreampConvolver::do_update() {
         unsigned int fact = sru/sr;
         
         smp.setup(sr, fact*sr);
-        impf.init(pre.ir_sr);
+        impf.init(sr);
     }
-    float pre_irdata_c[pre.ir_count];
     impf.clear_state_f();
-    impf.compute(pre.ir_count,pre.ir_data,pre_irdata_c);
     while (!conv.checkstate());
     if (configure) {
-        if (!conv.configure(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+        if (!conv.configure(pre.ir_count, pre.ir_data, pre.ir_sr)) {
             return false;
         }
     } else {
-        if (!conv.update(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+        if (!conv.update(pre.ir_count, pre.ir_data, pre.ir_sr)) {
             return false;
         }
     }
     update_preamp();
-    update_sum();
     return conv_start();
 }
 
@@ -1546,7 +1537,7 @@ bool PreampConvolver::start(bool force) {
     if (force) {
         current_pre = -1;
     }
-    if (preamp_changed() || sum_changed()) {
+    if (preamp_changed()) {
         return do_update();
     } else {
         while (!conv.checkstate());
@@ -1558,7 +1549,7 @@ bool PreampConvolver::start(bool force) {
 }
 
 void PreampConvolver::check_update() {
-    if (preamp_changed() || sum_changed()) {
+    if (preamp_changed()) {
         do_update();
     }
 }
@@ -1571,6 +1562,7 @@ void PreampConvolver::run_pre_conf(int count, float *input0, float *output0, Plu
         self.engine.overload(EngineControl::ov_Convolver, "pre");
     }
     self.smp.down(buf, output0);
+    self.impf.compute(count,output0,output0);
 }
 
 int PreampConvolver::register_pre(const ParamReg& reg) {
@@ -1626,7 +1618,6 @@ PreampStereoConvolver::PreampStereoConvolver(EngineControl& engine, sigc::slot<v
     preamp(0),
     bass(0),
     treble(0),
-    sum(no_sum),
     pre_names(new value_pair[pre_table_size+1]),
     impf(),
     smp(),
@@ -1665,23 +1656,20 @@ bool PreampStereoConvolver::do_update() {
         
         smp.setup(sr, fact*sr);
         smps.setup(sr, fact*sr);
-        impf.init(pre.ir_sr);
+        impf.init(sr);
     }
-    float pre_irdata_c[pre.ir_count];
     impf.clear_state_f();
-    impf.compute(pre.ir_count,pre.ir_data,pre_irdata_c);
     while (!conv.checkstate());
     if (configure) {
-        if (!conv.configure_stereo(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+        if (!conv.configure_stereo(pre.ir_count, pre.ir_data, pre.ir_sr)) {
             return false;
         }
     } else {
-        if (!conv.update_stereo(pre.ir_count, pre_irdata_c, pre.ir_sr)) {
+        if (!conv.update_stereo(pre.ir_count, pre.ir_data, pre.ir_sr)) {
             return false;
         }
     }
     update_preamp();
-    update_sum();
     return conv_start();
 }
 
@@ -1689,7 +1677,7 @@ bool PreampStereoConvolver::start(bool force) {
     if (force) {
         current_pre = -1;
     }
-    if (preamp_changed() || sum_changed()) {
+    if (preamp_changed()) {
         return do_update();
     } else {
     while (!conv.checkstate());
@@ -1701,7 +1689,7 @@ bool PreampStereoConvolver::start(bool force) {
 }
 
 void PreampStereoConvolver::check_update() {
-    if (preamp_changed() || sum_changed()) {
+    if (preamp_changed()) {
         do_update();
     }
 }
@@ -1717,6 +1705,7 @@ void PreampStereoConvolver::run_pre_conf(int count, float *input0, float *input1
     }
     self.smp.down(buf, output0);
     self.smps.down(buf1, output1);
+    self.impf.compute(count, output0, output1, output0, output1);
 }
 
 int PreampStereoConvolver::register_pre(const ParamReg& reg) {

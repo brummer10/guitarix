@@ -11,7 +11,6 @@ private:
 	FAUSTFLOAT fHslider0;
 	float fConst1;
 	float fConst2;
-	float fConst3;
 	float fRec1[2];
 	float fRec2[2];
 	int iRec3[2];
@@ -91,7 +90,6 @@ inline void Dsp::init(unsigned int sample_rate)
 	float fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = 6e+01f * fConst0;
 	fConst2 = 1e+01f / fConst0;
-	fConst3 = 0.0f - fConst2;
 	IOTA0 = 0;
 }
 
@@ -135,7 +133,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	int iSlow0 = int(fConst1 / float(fHslider0)) + -1;
 	float fSlow1 = 1e-05f * float(fVslider0);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		float fTemp0 = ((fRec1[1] != 0.0f) ? (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f) : (((fRec2[1] == 0.0f) & (iSlow0 != iRec3[1])) ? fConst2 : (((fRec2[1] == 1.0f) & (iSlow0 != iRec4[1])) ? fConst3 : 0.0f)));
+		float fTemp0 = ((fRec1[1] != 0.0f) ? (((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f)) ? fRec1[1] : 0.0f) : (((fRec2[1] == 0.0f) & (iSlow0 != iRec3[1])) ? fConst2 : (((fRec2[1] == 1.0f) & (iSlow0 != iRec4[1])) ? -fConst2 : 0.0f)));
 		fRec1[0] = fTemp0;
 		fRec2[0] = std::max<float>(0.0f, std::min<float>(1.0f, fRec2[1] + fTemp0));
 		iRec3[0] = (((fRec2[1] >= 1.0f) & (iRec4[1] != iSlow0)) ? iSlow0 : iRec3[1]);

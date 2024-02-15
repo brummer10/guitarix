@@ -164,21 +164,20 @@ int Dsp::activate_static(bool start, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	float fSlow0 = 0.01f * float(fVslider0);
-	float fSlow1 = fSlow0 + (1.0f - fSlow0);
-	float fSlow2 = fConst1 * float(fHslider0);
-	float fSlow3 = float(fHslider1);
+	float fSlow1 = fConst1 * float(fHslider0);
+	float fSlow2 = float(fHslider1);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		float fTemp0 = float(input0[i0]);
 		float fTemp1 = fSlow0 * fTemp0;
 		fVec0[IOTA0 & 131071] = fTemp1;
-		fRec1[0] = fSlow2 + (fRec1[1] - std::floor(fSlow2 + fRec1[1]));
+		fRec1[0] = fSlow1 + (fRec1[1] - std::floor(fSlow1 + fRec1[1]));
 		float fTemp2 = 65536.0f * (fRec1[0] - std::floor(fRec1[0]));
 		float fTemp3 = std::floor(fTemp2);
 		int iTemp4 = int(fTemp3);
 		float fTemp5 = fConst2 * (0.02f * ((fTemp3 + (1.0f - fTemp2)) * ftbl0mydspSIG0[iTemp4 & 65535] + (fTemp2 - fTemp3) * ftbl0mydspSIG0[(iTemp4 + 1) & 65535]) + 1.0f);
 		int iTemp6 = int(fTemp5);
 		float fTemp7 = std::floor(fTemp5);
-		output0[i0] = FAUSTFLOAT(fSlow3 * (fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6))) & 131071] * (fTemp7 + (1.0f - fTemp5)) + (fTemp5 - fTemp7) * fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6 + 1))) & 131071]) + fSlow1 * fTemp0);
+		output0[i0] = FAUSTFLOAT(fTemp0 + fSlow2 * (fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6))) & 131071] * (fTemp7 + (1.0f - fTemp5)) + (fTemp5 - fTemp7) * fVec0[(IOTA0 - std::min<int>(65537, std::max<int>(0, iTemp6 + 1))) & 131071]));
 		IOTA0 = IOTA0 + 1;
 		fRec1[1] = fRec1[0];
 	}

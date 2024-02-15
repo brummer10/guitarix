@@ -79,9 +79,9 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
 	double fSlow0 = std::log(fConst0 * double(fVslider0));
-	double fSlow1 = 0.0 - 1.8442 * std::cos(std::exp(0.43359433 * mydsp_faustpower2_f(fSlow0) + 0.27547621 * mydsp_faustpower3_f(fSlow0) + 0.06446806 * mydsp_faustpower4_f(fSlow0) + 0.00506158 * mydsp_faustpower5_f(fSlow0) + 1.31282248 * fSlow0 + 0.07238887));
+	double fSlow1 = 1.8442 * std::cos(std::exp(0.43359433 * mydsp_faustpower2_f(fSlow0) + 0.27547621 * mydsp_faustpower3_f(fSlow0) + 0.06446806 * mydsp_faustpower4_f(fSlow0) + 0.00506158 * mydsp_faustpower5_f(fSlow0) + 1.31282248 * fSlow0 + 0.07238887));
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec0[0] = double(input0[i0]) - (fSlow1 * fRec0[1] + 0.8502684100000001 * fRec0[2]);
+		fRec0[0] = double(input0[i0]) + fSlow1 * fRec0[1] - 0.8502684100000001 * fRec0[2];
 		output0[i0] = FAUSTFLOAT(0.31622776601683794 * (fRec0[0] - 1.059 * fRec0[1]));
 		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];

@@ -85,7 +85,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fHslider1 (*fHslider1_)
 #define fCheckbox0 (*fCheckbox0_)
 #define fHslider2 (*fHslider2_)
-	double fSlow0 = std::exp(-1.0 * fConst1 * double(fHslider0));
+	double fSlow0 = std::exp(-(fConst1 * double(fHslider0)));
 	double fSlow1 = 0.5 * double(fHslider1) * (1.0 - mydsp_faustpower2_f(fSlow0));
 	int iSlow2 = int(std::max<double>(0.0, std::min<double>(1.0, double(fCheckbox0))));
 	double fSlow3 = 2.0 * std::cos(fConst2 * double(fHslider2));

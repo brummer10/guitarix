@@ -86,7 +86,7 @@ inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = std::exp(0.0 - 1e+01 / fConst0);
+	fConst1 = std::exp(-(1e+01 / fConst0));
 	fConst2 = 1.0 / fConst0;
 	fConst3 = 1.0 - fConst1;
 	fConst4 = 0.001 * fConst0;
@@ -103,11 +103,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	double fSlow0 = double(fHslider0);
 	int iSlow1 = std::fabs(fSlow0) < 2.220446049250313e-16;
-	double fSlow2 = ((iSlow1) ? 0.0 : std::exp(0.0 - fConst2 / ((iSlow1) ? 1.0 : fSlow0)));
+	double fSlow2 = ((iSlow1) ? 0.0 : std::exp(-(fConst2 / ((iSlow1) ? 1.0 : fSlow0))));
 	double fSlow3 = 1.0 - fSlow2;
 	double fSlow4 = double(fHslider1);
 	int iSlow5 = std::fabs(fSlow4) < 2.220446049250313e-16;
-	double fSlow6 = ((iSlow5) ? 0.0 : std::exp(0.0 - fConst2 / ((iSlow5) ? 1.0 : fSlow4)));
+	double fSlow6 = ((iSlow5) ? 0.0 : std::exp(-(fConst2 / ((iSlow5) ? 1.0 : fSlow4))));
 	double fSlow7 = 1.0 - fSlow6;
 	double fSlow8 = std::pow(1e+01, 0.05 * double(fHslider2));
 	double fSlow9 = double(fHslider3);

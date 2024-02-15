@@ -141,7 +141,7 @@ inline void Dsp::init(uint32_t sample_rate)
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
-	fConst2 = std::exp(0.0 - 2e+01 / fConst0);
+	fConst2 = std::exp(-(2e+01 / fConst0));
 	fConst3 = 1.0 - fConst2;
 	clear_state_f();
 }
@@ -173,7 +173,6 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow9 = fConst1 * double(fHslider5);
 	double fSlow10 = double(fHslider6);
 	double fSlow11 = 0.01 * double(fVslider0);
-	double fSlow12 = 1.0 - fSlow11;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		iVec1[0] = 1;
 		int iTemp0 = 1 - iVec1[1];
@@ -191,7 +190,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp5 = ((iTemp0) ? 0.0 : fSlow9 + fRec8[1]);
 		fRec8[0] = fTemp5 - std::floor(fTemp5);
 		fRec9[0] = fConst3 * double((fRec3[0] <= fSlow8) * (fRec3[0] > 0.0)) + fConst2 * fRec9[1];
-		output0[i0] = FAUSTFLOAT(double(input0[i0]) * (fSlow12 + fSlow11 * (1.0 - fSlow10 * (1.0 - (fRec9[0] * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec8[0]), 65535))] + fRec7[0] * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec6[0]), 65535))] + fRec5[0] * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec4[0]), 65535))] + fRec2[0] * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec1[0]), 65535))])))));
+		output0[i0] = FAUSTFLOAT(double(input0[i0]) * (1.0 - fSlow11 * (1.0 - (1.0 - fSlow10 * (1.0 - (fRec9[0] * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec8[0]), 65535))] + fRec7[0] * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec6[0]), 65535))] + fRec5[0] * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec4[0]), 65535))] + fRec2[0] * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec1[0]), 65535))]))))));
 		iVec1[1] = iVec1[0];
 		fRec1[1] = fRec1[0];
 		fRec3[1] = fRec3[0];

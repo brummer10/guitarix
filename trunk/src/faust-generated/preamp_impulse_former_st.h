@@ -21,12 +21,15 @@ private:
 	double fRec0[3];
 	FAUSTFLOAT fVslider2;
 	FAUSTFLOAT	*fVslider2_;
+	double fVec1[3];
+	double fRec3[3];
+	double fRec2[3];
 
 
 public:
 	void clear_state_f();
 	void init(unsigned int sample_rate);
-	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0);
+	void compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1);
 	int register_par(const ParamReg& reg);
 	Dsp();
 	~Dsp();

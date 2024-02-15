@@ -84,7 +84,7 @@ inline void Dsp::init(unsigned int sample_rate)
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
-	fConst2 = std::exp(0.0 - 1e+01 / fConst0);
+	fConst2 = std::exp(-(1e+01 / fConst0));
 	fConst3 = 1.0 - fConst2;
 	clear_state_f();
 }
@@ -96,8 +96,8 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = std::exp(0.0 - fConst1 / std::max<double>(fConst1, double(fHslider0)));
-	double fSlow1 = std::exp(0.0 - fConst1 / std::max<double>(fConst1, double(fHslider1)));
+	double fSlow0 = std::exp(-(fConst1 / std::max<double>(fConst1, double(fHslider0))));
+	double fSlow1 = std::exp(-(fConst1 / std::max<double>(fConst1, double(fHslider1))));
 	double fSlow2 = double(fEntry1);
 	double fSlow3 = fSlow2 + double(fEntry0);
 	double fSlow4 = 1.0 / (fSlow2 + 0.001);

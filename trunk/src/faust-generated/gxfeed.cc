@@ -104,7 +104,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 {
 	int iSlow0 = int(double(fCheckbox0));
 	double fSlow1 = double(fVslider0);
-	double fSlow2 = 1.0 - std::max<double>(0.0, -1.0 * fSlow1);
+	double fSlow2 = 1.0 - std::max<double>(0.0, -fSlow1);
 	double fSlow3 = 1.0 - std::max<double>(0.0, fSlow1);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input1[i0]);
@@ -128,15 +128,15 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp6 = 0.7 * fRec4[1] + fRec13 + fRec11 + fRec9 + fRec7;
 		fVec4[IOTA0 & 127] = fTemp6;
 		fRec4[0] = fVec4[(IOTA0 - 124) & 127];
-		double fRec5 = 0.0 - 0.7 * fTemp6;
+		double fRec5 = -(0.7 * fTemp6);
 		double fTemp7 = fRec4[1] + fRec5 + 0.7 * fRec2[1];
 		fVec5[IOTA0 & 63] = fTemp7;
 		fRec2[0] = fVec5[(IOTA0 - 41) & 63];
-		double fRec3 = 0.0 - 0.7 * fTemp7;
+		double fRec3 = -(0.7 * fTemp7);
 		double fTemp8 = fRec2[1] + fRec3 + 0.7 * fRec0[1];
 		fVec6[0] = fTemp8;
 		fRec0[0] = fVec6[11];
-		double fRec1 = 0.0 - 0.7 * fTemp8;
+		double fRec1 = -(0.7 * fTemp8);
 		double fTemp9 = ((iSlow0) ? fSlow3 * fTemp0 + fSlow2 * (fRec1 + fRec0[1]) : double(input0[i0]));
 		output0[i0] = FAUSTFLOAT(fTemp9);
 		output1[i0] = FAUSTFLOAT(fTemp9);

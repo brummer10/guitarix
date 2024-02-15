@@ -66,8 +66,8 @@ inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = std::exp(0.0 - 0.1 / fConst0);
-	fConst2 = std::exp(0.0 - 2e+02 / fConst0);
+	fConst1 = std::exp(-(0.1 / fConst0));
+	fConst2 = std::exp(-(2e+02 / fConst0));
 	clear_state_f();
 }
 
@@ -86,8 +86,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp2 = fConst2 * double(fRec0[1] < fTemp1) + fConst1 * double(fRec0[1] >= fTemp1);
 		fRec0[0] = fRec0[1] * fTemp2 + fTemp1 * (1.0 - fTemp2);
 		double fTemp3 = std::max<double>(0.0, fSlow1 + 2e+01 * std::log10(std::max<double>(2.2250738585072014e-308, fRec0[0])));
-		double fTemp4 = 0.5 * std::min<double>(1.0, std::max<double>(0.0, 0.09522902580706599 * fTemp3));
-		output0[i0] = FAUSTFLOAT(fTemp0 * std::pow(1e+01, 0.05 * (fSlow0 + fTemp3 * (0.0 - fTemp4) / (fTemp4 + 1.0))));
+		double fTemp4 = std::min<double>(1.0, std::max<double>(0.0, 0.09522902580706599 * fTemp3));
+		output0[i0] = FAUSTFLOAT(fTemp0 * std::pow(1e+01, 0.05 * (fSlow0 - 0.5 * (fTemp3 * fTemp4 / (0.5 * fTemp4 + 1.0)))));
 		fRec0[1] = fRec0[0];
 	}
 }

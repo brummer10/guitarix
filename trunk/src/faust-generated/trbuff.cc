@@ -11,8 +11,6 @@ private:
 	FAUSTFLOAT fVslider0;
 	double fRec0[2];
 	double fConst4;
-	double fConst5;
-	double fConst6;
 
 	void clear_state_f();
 	void init(unsigned int sample_rate);
@@ -71,9 +69,7 @@ inline void Dsp::init(unsigned int sample_rate)
 	double fConst1 = 2.08132601776102e-05 * fConst0;
 	double fConst2 = fConst1 + 0.000963511474709834;
 	fConst3 = (0.000963511474709834 - fConst1) / fConst2;
-	fConst4 = 2.06312564351033e-05 * fConst0;
-	fConst5 = 0.0 - fConst4;
-	fConst6 = 1.0 / fConst2;
+	fConst4 = 2.06312564351033e-05 * (fConst0 / fConst2);
 	clear_state_f();
 }
 
@@ -89,7 +85,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		fRec0[0] = fSlow0 * fTemp0 - fConst3 * fRec0[1];
-		output0[i0] = FAUSTFLOAT(fSlow1 * fTemp0 + fConst6 * (fConst5 * fRec0[1] + fConst4 * fRec0[0]));
+		output0[i0] = FAUSTFLOAT(fSlow1 * fTemp0 + fConst4 * (fRec0[0] - fRec0[1]));
 		fRec0[1] = fRec0[0];
 	}
 }

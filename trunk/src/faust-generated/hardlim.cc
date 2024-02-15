@@ -10,8 +10,8 @@ private:
 	double fConst1;
 	double fConst2;
 	double fConst3;
-	double fConst4;
 	double fRec4[2];
+	double fConst4;
 	double fConst5;
 	double fRec3[2];
 	double fRec0[2];
@@ -78,10 +78,10 @@ inline void Dsp::init(unsigned int sample_rate)
 	fSampleRate = sample_rate;
 	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
-	fConst2 = std::exp(0.0 - 2.5e+03 / fConst0);
-	fConst3 = std::exp(0.0 - 2.0 / fConst0);
-	fConst4 = std::exp(0.0 - 1.25e+03 / fConst0);
-	fConst5 = 1.0 - fConst2;
+	fConst2 = std::exp(-(2.0 / fConst0));
+	fConst3 = std::exp(-(1.25e+03 / fConst0));
+	fConst4 = std::exp(-(2.5e+03 / fConst0));
+	fConst5 = 0.99 * (1.0 - fConst4);
 	clear_state_f();
 }
 
@@ -97,9 +97,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp1 = double(input0[i0]);
 		double fTemp2 = double(input1[i0]);
 		double fTemp3 = std::fabs(std::max<double>(std::fabs(fTemp1), std::fabs(fTemp2)));
-		double fTemp4 = ((fTemp3 > fRec4[1]) ? fConst4 : fConst3);
+		double fTemp4 = ((fTemp3 > fRec4[1]) ? fConst3 : fConst2);
 		fRec4[0] = fTemp3 * (1.0 - fTemp4) + fRec4[1] * fTemp4;
-		fRec3[0] = fConst5 * (0.0 - 0.99 * std::max<double>(2e+01 * std::log10(std::max<double>(2.2250738585072014e-308, fRec4[0])), 0.0)) + fConst2 * fRec3[1];
+		fRec3[0] = fConst4 * fRec3[1] - fConst5 * std::max<double>(2e+01 * std::log10(std::max<double>(2.2250738585072014e-308, fRec4[0])), 0.0);
 		double fTemp5 = std::pow(1e+01, 0.05 * fRec3[0]);
 		double fTemp6 = std::max<double>(fConst1, std::fabs(1.0 - fTemp5));
 		fRec0[0] = ((iTemp0) ? std::max<double>(fRec0[1], fTemp6) : fTemp6);

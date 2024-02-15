@@ -101,7 +101,7 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input1, FAUSTFLOAT *output0, FAUSTFLOAT *output1)
 {
 	double fSlow0 = double(fHslider0);
-	double fSlow1 = ((int(double(fCheckbox0))) ? -1.0 * fSlow0 : fSlow0);
+	double fSlow1 = ((int(double(fCheckbox0))) ? -fSlow0 : fSlow0);
 	double fSlow2 = std::pow(1e+01, 0.05 * double(fHslider1));
 	double fSlow3 = double(fHslider2);
 	double fSlow4 = fConst1 * double(fHslider3);

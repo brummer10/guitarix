@@ -7,13 +7,13 @@ namespace scream {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
-	FAUSTFLOAT fVslider0;
-	FAUSTFLOAT	*fVslider0_;
-	double fRec0[2];
 	double fConst2;
 	double fConst4;
 	double fConst6;
-	double fRec1[3];
+	double fRec0[3];
+	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT	*fVslider0_;
+	double fRec1[2];
 	double fConst7;
 
 	void connect(uint32_t port,void* data);
@@ -52,8 +52,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
-	for (int l1 = 0; l1 < 3; l1 = l1 + 1) fRec1[l1] = 0.0;
+	for (int l0 = 0; l0 < 3; l0 = l0 + 1) fRec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec1[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginLV2 *p)
@@ -85,12 +85,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fVslider0 (*fVslider0_)
 	double fSlow0 = 0.007000000000000006 * double(fVslider0);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec0[0] = fSlow0 + 0.993 * fRec0[1];
-		double fTemp0 = 0.0 - 6.82076449438528e-09 * fRec0[0] + -6.82076449438528e-10;
-		fRec1[0] = double(input0[i0]) - fConst6 * (fConst4 * fRec1[1] + fConst2 * fRec1[2]);
-		output0[i0] = FAUSTFLOAT(std::min<double>(0.4514, std::max<double>(-0.2514, fConst7 * (fRec1[0] * fTemp0 + fRec1[1] * (1.36415289887706e-08 * fRec0[0] + 1.36415289887706e-09) + fRec1[2] * fTemp0))));
+		fRec0[0] = double(input0[i0]) - fConst6 * (fConst4 * fRec0[1] + fConst2 * fRec0[2]);
+		fRec1[0] = fSlow0 + 0.993 * fRec1[1];
+		output0[i0] = FAUSTFLOAT(std::min<double>(0.4514, std::max<double>(-0.2514, fConst7 * (fRec0[1] * (1.36415289887706e-08 * fRec1[0] + 1.36415289887706e-09) + (-6.82076449438528e-10 - 6.82076449438528e-09 * fRec1[0]) * (fRec0[0] + fRec0[2])))));
+		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];
-		fRec1[2] = fRec1[1];
 		fRec1[1] = fRec1[0];
 	}
 #undef fVslider0

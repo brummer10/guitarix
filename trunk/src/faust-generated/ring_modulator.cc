@@ -129,12 +129,11 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 {
 	double fSlow0 = fConst0 * double(fHslider0);
 	double fSlow1 = double(fHslider1);
-	double fSlow2 = 1.0 - fSlow1;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		iVec1[0] = 1;
 		double fTemp0 = ((1 - iVec1[1]) ? 0.0 : fSlow0 + fRec1[1]);
 		fRec1[0] = fTemp0 - std::floor(fTemp0);
-		output0[i0] = FAUSTFLOAT(double(input0[i0]) * (fSlow2 + fSlow1 * ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec1[0]), 65535))]));
+		output0[i0] = FAUSTFLOAT(double(input0[i0]) * (1.0 - fSlow1 * (1.0 - ftbl0mydspSIG0[std::max<int>(0, std::min<int>(int(65536.0 * fRec1[0]), 65535))])));
 		iVec1[1] = iVec1[0];
 		fRec1[1] = fRec1[0];
 	}

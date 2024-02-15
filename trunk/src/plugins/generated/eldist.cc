@@ -103,7 +103,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp0 = fConst3 + fConst2 * fRec0[0] + 0.000635245647283505;
 		double fTemp1 = 8.14686408743197e-08 * fRec0[0];
 		fRec1[0] = double(buf[i0]) - fRec1[1] * (fConst4 * fRec0[0] + 0.000635245647283505 - fConst3) / fTemp0;
-		buf[i0] = FAUSTFLOAT(asymclip(fConst0 * ((fRec1[0] * (0.0 - fTemp1 + -0.00018716364572377) + fRec1[1] * (fTemp1 + 0.00018716364572377)) / fTemp0)));
+		buf[i0] = FAUSTFLOAT(asymclip(fConst0 * ((fRec1[0] * (-0.00018716364572377 - fTemp1) + fRec1[1] * (fTemp1 + 0.00018716364572377)) / fTemp0)));
 		fRec0[1] = fRec0[0];
 		fRec1[1] = fRec1[0];
 	}
