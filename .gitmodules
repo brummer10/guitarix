@@ -1,3 +1,6 @@
 [submodule "trunk/webui/bootplate"]
 	path = trunk/webui/bootplate
 	url = https://github.com/enyojs/bootplate.git
+[submodule "trunk/src/NAM/NeuralAmpModelerCore"]
+	path = trunk/src/NAM/NeuralAmpModelerCore
+	url = https://github.com/sdatkinson/NeuralAmpModelerCore.git
