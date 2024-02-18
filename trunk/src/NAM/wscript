@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+from waflib import Task, Options, Logs
+from waflib.TaskGen import extension
+import shutil, os
+
+#import sys, ctypes
+#from waflib import TaskGen
+
+def options(opt):
+    pass
+
+def build(bld):
+
+    src = [
+        './NeuralAmpModelerCore/NAM/activations.cpp',
+        './NeuralAmpModelerCore/NAM/convnet.cpp',
+        './NeuralAmpModelerCore/NAM/dsp.cpp',
+        './NeuralAmpModelerCore/NAM/get_dsp.cpp',
+        './NeuralAmpModelerCore/NAM/lstm.cpp',
+        './NeuralAmpModelerCore/NAM/util.cpp',
+        './NeuralAmpModelerCore/NAM/wavenet.cpp',
+        ]
+
+    incl = ['../headers', '..',
+        './NeuralAmpModelerCore/NAM/',
+        './NeuralAmpModelerCore/Dependencies/eigen/',
+        './NeuralAmpModelerCore/Dependencies/nlohmann/',
+        ]
+
+    bld.stlib(
+        name = 'libnam',
+        includes = incl,
+        export_includes=['..'],
+        source = src,
+        use = [],
+        cxxflags = ["-std=c++17",
+            "-Wno-sign-compare",
+            "-fno-fat-lto-objects",
+            "-Ofast",
+            ],
+        target = 'nam',
+        )

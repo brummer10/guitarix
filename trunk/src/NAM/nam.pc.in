@@ -1,0 +1,15 @@
+prefix=/path
+exec_prefix=${prefix}
+libdir=/path
+datarootdir=${prefix}/share
+datadir=${datarootdir}
+includedir=${prefix}/include
+
+
+Name: nam
+Description: Core DSP library for NAM plugins
+Version: 1
+URL: https://www.neuralampmodeler.com/
+Requires: 
+Libs: -L${libdir} -lnam
+Cflags: -I${includedir}/nam
