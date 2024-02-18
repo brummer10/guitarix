@@ -1970,8 +1970,8 @@ void NeuralAmp::load_nam_file() {
 
 int NeuralAmp::register_par(const ParamReg& reg)
 {
-    reg.registerFloatVar("nam.input",N_("Input"),"S",N_("gain (dB)"),&fVslider0, 0.0, -60.0, 6.0, 0.1, 0);
-    reg.registerFloatVar("nam.output",N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -60.0, 6.0, 0.1, 0);
+    reg.registerFloatVar("nam.input",N_("Input"),"S",N_("gain (dB)"),&fVslider0, 0.0, -40.0, 20.0, 0.1, 0);
+    reg.registerFloatVar("nam.output",N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -40.0, 20.0, 0.1, 0);
     param.reg_string("nam.loadfile", "", &load_file, "*.nam", true)->set_desc(N_("import *.nam file"));
 
     param["nam.loadfile"].signal_changed_string().connect(
