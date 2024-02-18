@@ -207,7 +207,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
+	iConst0 = std::min(192000, std::max(1, (int)fSamplingFreq));
 	fConst1 = (3.141592653589793 / double(iConst0));
 	fConst2 = tan((37699.11184307752 / double(iConst0)));
 	fConst3 = (2 * (1 - (1.0 / faustpower<2>(fConst2))));
@@ -324,10 +324,10 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double 	fSlow14 = (2 * (0 - fSlow8));
 	double 	fSlow15 = (fConst48 / fSlow5);
 	double 	fSlow16 = double(fslider4);
-	int 	iSlow17 = int(min((double)2, max((double)0, fSlow16)));
-	int 	iSlow18 = int(min((double)2, max((double)0, (fSlow16 - 1))));
-	int 	iSlow19 = int(min((double)2, max((double)0, (fSlow16 - 2))));
-	double 	fSlow20 = min(524288.0, B2N(double(fslider5), (double(iConst77) / double(fslider6))));
+	int 	iSlow17 = int(std::min((double)2, std::max((double)0, fSlow16)));
+	int 	iSlow18 = int(std::min((double)2, std::max((double)0, (fSlow16 - 1))));
+	int 	iSlow19 = int(std::min((double)2, std::max((double)0, (fSlow16 - 2))));
+	double 	fSlow20 = std::min(524288.0, B2N(double(fslider5), (double(iConst77) / double(fslider6))));
 	double 	fSlow21 = (0.01 * double(fslider7));
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
@@ -383,7 +383,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fVec2[IOTA&524287] = fTemp20;
 		double fTemp21 = ((int((fRec28[1] != 0.0)))?((int(((fRec29[1] > 0.0) & (fRec29[1] < 1.0))))?fRec28[1]:0):((int(((fRec29[1] == 0.0) & (fSlow20 != fRec30[1]))))?fConst75:((int(((fRec29[1] == 1.0) & (fSlow20 != fRec31[1]))))?fConst76:0)));
 		fRec28[0] = fTemp21;
-		fRec29[0] = max(0.0, min(1.0, (fRec29[1] + fTemp21)));
+		fRec29[0] = std::max(0.0, std::min(1.0, (fRec29[1] + fTemp21)));
 		fRec30[0] = ((int(((fRec29[1] >= 1.0) & (fRec31[1] != fSlow20))))?fSlow20:fRec30[1]);
 		fRec31[0] = ((int(((fRec29[1] <= 0.0) & (fRec30[1] != fSlow20))))?fSlow20:fRec31[1]);
 		fRec0[0] = (fSlow21 * (((1.0 - fRec29[0]) * fVec2[(IOTA-int((int(fRec30[0]) & 524287)))&524287]) + (fRec29[0] * fVec2[(IOTA-int((int(fRec31[0]) & 524287)))&524287])));

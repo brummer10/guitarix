@@ -64,7 +64,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	fConst0 = (2 * double(min(192000, max(1, fSamplingFreq))));
+	fConst0 = (2 * double(std::min(192000, std::max(1, (int)fSamplingFreq))));
 	fConst1 = faustpower<2>(fConst0);
 	fConst2 = (3 * fConst0);
 	clear_state_f();

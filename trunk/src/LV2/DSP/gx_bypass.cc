@@ -83,7 +83,7 @@ inline void GxBypass::post_check_bypass(float *buf, float *output, uint32_t n_sa
             if (ramp_down >= 0.0) {
                 --ramp_down; 
             }
-            fade = max(0.0,ramp_down) /ramp_down_step ;
+            fade = std::max(0.0f,ramp_down) /ramp_down_step ;
             output[i] = output[i] * fade + buf[i] * (1.0 - fade);
         }
 
@@ -102,7 +102,7 @@ inline void GxBypass::post_check_bypass(float *buf, float *output, uint32_t n_sa
             if (ramp_up < ramp_up_step) {
                 ++ramp_up ;
             }
-            fade = min(ramp_up_step,ramp_up) /ramp_up_step ;
+            fade = std::min(ramp_up_step,ramp_up) /ramp_up_step ;
             output[i] = output[i] * fade + buf[i] * (1.0 - fade);
             }
 
@@ -145,7 +145,7 @@ inline void GxBypass::post_check_bypass(float *buf, float *buf1, float *output, 
             if (ramp_down >= 0.0) {
                 --ramp_down; 
             }
-            fade = max(0.0,ramp_down) /ramp_down_step ;
+            fade = std::max(0.0f,ramp_down) /ramp_down_step ;
             output[i] = output[i] * fade + buf[i] * (1.0 - fade);
             output1[i] = output1[i] * fade + buf1[i] * (1.0 - fade);
         }
@@ -165,7 +165,7 @@ inline void GxBypass::post_check_bypass(float *buf, float *buf1, float *output, 
             if (ramp_up < ramp_up_step) {
                 ++ramp_up ;
             }
-            fade = min(ramp_up_step,ramp_up) /ramp_up_step ;
+            fade = std::min(ramp_up_step,ramp_up) /ramp_up_step ;
             output[i] = output[i] * fade + buf[i] * (1.0 - fade);
             output1[i] = output1[i] * fade + buf1[i] * (1.0 - fade);
             }

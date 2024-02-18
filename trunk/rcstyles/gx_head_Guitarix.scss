@@ -635,6 +635,10 @@ $toolpalette-left:   18px; // label left margin (shrinks when the scrollbar appe
     }
 }
 
+#fload label {
+	color: $cl-control;
+}
+
 #seq_button {
     /* background-color: rgb(64, 64, 64); */ /* 0.25, 0.25, 0.25 */
 	border-color: lighten($bg-button,3%);

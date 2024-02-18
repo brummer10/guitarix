@@ -17,7 +17,7 @@ srcdir = '.'
 blddir = 'build'
 
 # used by waf dist and waf build
-VERSION='0.44.1'
+VERSION='0.45.0'
 APPNAME='guitarix'
 
 Options.OptionsContext.gxload = \
@@ -128,6 +128,7 @@ def options(opt):
                          " the archive from [Default: %s]" % 'V%s' % VERSION))
 
     opt.recurse('src/gx_head')
+    opt.recurse('src/NAM')
 
 
 ################################################################
@@ -252,6 +253,7 @@ def check_boost(conf):
 #
 
 def configure(conf):
+    conf.gxload('submodule')
     conf.gxload('bugfixes')
     opt = Options.options
 
@@ -610,6 +612,7 @@ def build(bld):
     bld.recurse('libgxwmm')
     bld.recurse('glade-gxw')
     bld.recurse('pygxw')
+    bld.recurse('src/NAM')
     bld.recurse('src/faust')
     bld.recurse('src/plugins')
     bld.recurse('rcstyles')

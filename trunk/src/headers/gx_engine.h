@@ -106,6 +106,7 @@ public:
     DrumSequencer dseq;
 #endif
     smbPitchShift detune;
+    NeuralAmp neural_amp;
     //
 public:
     GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options);

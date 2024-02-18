@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include "dsp.h"
+#include "activations.h"
 
 namespace gx_jack { class GxJack; }
 
@@ -41,7 +43,7 @@ public:
 class StereoMute: public PluginDef {
 private:
     static void process(int count, float *input0, float *input1,
-			float *output0, float *output1, PluginDef*);
+            float *output0, float *output1, PluginDef*);
 public:
     StereoMute();
 };
@@ -52,15 +54,15 @@ public:
 private:
     static float maxlevel[channelcount];
     static void process(int count, float *input0, float *input1,
-			float *output0, float *output1, PluginDef*);
+            float *output0, float *output1, PluginDef*);
     static int activate(bool start, PluginDef *plugin);
     static int regparam(const ParamReg& reg);
 public:
     static float get(unsigned int channel) {
-	assert(channel < channelcount);
-	float v = maxlevel[channel];
-	maxlevel[channel] = 0;
-	return v;
+    assert(channel < channelcount);
+    float v = maxlevel[channel];
+    maxlevel[channel] = 0;
+    return v;
     }
     MaxLevel();
 };
@@ -258,7 +260,7 @@ public:
     virtual void serializeJSON(gx_system::JsonWriter& jw);
     sigc::signal<void, const GxSeqSettings*>& signal_changed() { return changed; }
     static ParameterV<GxSeqSettings> *insert_param(
-	ParamMap &pmap, const string& id, GxSeqSettings *v);
+    ParamMap &pmap, const string& id, GxSeqSettings *v);
     bool set(const GxSeqSettings& val) const;
     const GxSeqSettings& get_value() const { return *value; }
     virtual void stdJSON_value();
@@ -336,7 +338,7 @@ public:
     virtual void serializeJSON(gx_system::JsonWriter& jw);
     sigc::signal<void, const GxJConvSettings*>& signal_changed() { return changed; }
     static ParameterV<GxJConvSettings> *insert_param(
-	ParamMap &pmap, const string& id, ConvolverAdapter &conv, GxJConvSettings *v);
+    ParamMap &pmap, const string& id, ConvolverAdapter &conv, GxJConvSettings *v);
     bool set(const GxJConvSettings& val) const;
     const GxJConvSettings& get_value() const { return *value; }
     virtual void stdJSON_value();
@@ -401,7 +403,7 @@ private:
     static void convolver_init(unsigned int samplingFreq, PluginDef *pdef);
     static int activate(bool start, PluginDef *pdef);
     static void convolver(int count, float *input0, float *input1,
-			  float *output0, float *output1, PluginDef*);
+              float *output0, float *output1, PluginDef*);
     static int convolver_register(const ParamReg& reg);
     static int jconv_load_ui(const UiBuilder& builder, int format);
 public:
@@ -661,6 +663,47 @@ public:
 };
 
 /****************************************************************
+ ** class Neural Amp Modeler
+ */
+
+class NeuralAmp: public PluginDef {
+private:
+    nam::DSP* model;
+    ParamMap& param;
+    gx_resample::FixedRateResampler smp;
+    sigc::slot<void> sync;
+    volatile int ready;
+    int fSampleRate;
+    int mSampleRate;
+    float fVslider0;
+    float fVslider1;
+    double fRec0[2];
+    double fRec1[2];
+    int need_resample;
+    double loudness;
+    bool is_inited;
+    Glib::ustring load_file;
+
+    void clear_state_f();
+    int load_ui_f(const UiBuilder& b, int form);
+    void init(unsigned int sample_rate);
+    void compute(int count, float *input0, float *output0);
+    void load_nam_file();
+    int register_par(const ParamReg& reg);
+
+    static void clear_state_f_static(PluginDef*);
+    static void init_static(unsigned int sample_rate, PluginDef*);
+    static int load_ui_f_static(const UiBuilder& b, int form);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Plugin plugin;
+    NeuralAmp(ParamMap& param_, sigc::slot<void> sync);
+    ~NeuralAmp();
+};
+
+/****************************************************************
  ** class LV2Features
  */
 
@@ -780,9 +823,9 @@ public:
     void set_plugins(pluginarray& new_plugins);
     void update_instance(PluginDef *pdef, plugdesc *pdesc);
     static std::string get_ladspa_filename(unsigned long uid)
-	{ return "ladspa"+gx_system::to_string(uid)+".js"; }
+    { return "ladspa"+gx_system::to_string(uid)+".js"; }
     static std::string get_ladspa_filename(std::string uid_key)
-	{ return "ladspa"+uid_key.substr(9)+".js"; }
+    { return "ladspa"+uid_key.substr(9)+".js"; }
     ParamMap& get_parameter_map() const { return param; }
     friend class Lv2Dsp;
 };
@@ -796,8 +839,8 @@ class Directout: public PluginDef {
 public:
     float* outdata;
 private:
-	int fSamplingFreq;
-    int 	bsize;
+    int fSamplingFreq;
+    int     bsize;
     bool fdfill;
     EngineControl&  engine;
     sigc::slot<void> sync;
@@ -824,8 +867,8 @@ public:
  */
 
 class LiveLooper: public PluginDef {
-	
-	
+    
+    
 class FileResampler {
 private:
     Resampler r_file;
@@ -834,120 +877,120 @@ public:
     int setup(int _inputRate, int _outputRate);
     int run(int count, float *input, float *output);
     int max_out_count(int in_count) {
-	return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
+    return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
 };
 
 private:
-	int fSamplingFreq;
-	float 	gain;
-	float 	fRec0[2];
-	float 	gain_out;
-	float 	fclip1;
-	float 	fclip2;
-	float 	fclip3;
-	float 	fclip4;
-	float 	fclips1;
-	float 	fclips2;
-	float 	fclips3;
-	float 	fclips4;
-	float 	fspeed1;
-	float 	fspeed2;
-	float 	fspeed3;
-	float 	fspeed4;
-	float 	rplay1;
-	float 	rplay2;
-	float 	rplay3;
-	float 	rplay4;
-	float 	od1;
-	float 	od2;
-	float 	od3;
-	float 	od4;
-	float 	fod1;
-	float 	fod2;
-	float 	fod3;
-	float 	fod4;
-	float 	record1;
-	int 	iVec0[2];
-	int 	IOTA1;
-	int 	IOTA2;
-	int 	IOTA3;
-	int 	IOTA4;
-	float 	IOTAR1;
-	float 	IOTAR2;
-	float 	IOTAR3;
-	float 	IOTAR4;
-	float *tape1;
-	int 	tape1_size;
-	float 	fConst0;
-	float 	fConst1;
-	float 	fConst2;
-	float 	reset1;
-	int 	RecSize1[2];
-	float 	rectime0;
-	float 	fRec1[2];
-	float 	fRec2[2];
-	int 	iRec3[2];
-	int 	iRec4[2];
-	float 	play1;
-	float 	playh1;
-	float 	gain1;
-	float 	record2;
-	int 	iVec2[2];
-	float *tape2;
-	int 	tape2_size;
-	float 	reset2;
-	int 	RecSize2[2];
-	float 	rectime1;
-	float 	fRec6[2];
-	float 	fRec7[2];
-	int 	iRec8[2];
-	int 	iRec9[2];
-	float 	play2;
-	float 	playh2;
-	float 	gain2;
-	float 	record3;
-	int 	iVec4[2];
-	float *tape3;
-	int 	tape3_size;
-	float 	reset3;
-	int 	RecSize3[2];
-	float 	rectime2;
-	float 	fRec11[2];
-	float 	fRec12[2];
-	int 	iRec13[2];
-	int 	iRec14[2];
-	float 	play3;
-	float 	playh3;
-	float 	gain3;
-	float 	record4;
-	int 	iVec6[2];
-	float *tape4;
-	int 	tape4_size;
-	float 	reset4;
-	int 	RecSize4[2];
-	float 	rectime3;
-	float 	fRec16[2];
-	float 	fRec17[2];
-	int 	iRec18[2];
-	int 	iRec19[2];
-	float 	play4;
-	float 	playh4;
-	float 	gain4;
-	float 	play_all;
-    float 	dout;
+    int fSamplingFreq;
+    float     gain;
+    float     fRec0[2];
+    float     gain_out;
+    float     fclip1;
+    float     fclip2;
+    float     fclip3;
+    float     fclip4;
+    float     fclips1;
+    float     fclips2;
+    float     fclips3;
+    float     fclips4;
+    float     fspeed1;
+    float     fspeed2;
+    float     fspeed3;
+    float     fspeed4;
+    float     rplay1;
+    float     rplay2;
+    float     rplay3;
+    float     rplay4;
+    float     od1;
+    float     od2;
+    float     od3;
+    float     od4;
+    float     fod1;
+    float     fod2;
+    float     fod3;
+    float     fod4;
+    float     record1;
+    int     iVec0[2];
+    int     IOTA1;
+    int     IOTA2;
+    int     IOTA3;
+    int     IOTA4;
+    float     IOTAR1;
+    float     IOTAR2;
+    float     IOTAR3;
+    float     IOTAR4;
+    float *tape1;
+    int     tape1_size;
+    float     fConst0;
+    float     fConst1;
+    float     fConst2;
+    float     reset1;
+    int     RecSize1[2];
+    float     rectime0;
+    float     fRec1[2];
+    float     fRec2[2];
+    int     iRec3[2];
+    int     iRec4[2];
+    float     play1;
+    float     playh1;
+    float     gain1;
+    float     record2;
+    int     iVec2[2];
+    float *tape2;
+    int     tape2_size;
+    float     reset2;
+    int     RecSize2[2];
+    float     rectime1;
+    float     fRec6[2];
+    float     fRec7[2];
+    int     iRec8[2];
+    int     iRec9[2];
+    float     play2;
+    float     playh2;
+    float     gain2;
+    float     record3;
+    int     iVec4[2];
+    float *tape3;
+    int     tape3_size;
+    float     reset3;
+    int     RecSize3[2];
+    float     rectime2;
+    float     fRec11[2];
+    float     fRec12[2];
+    int     iRec13[2];
+    int     iRec14[2];
+    float     play3;
+    float     playh3;
+    float     gain3;
+    float     record4;
+    int     iVec6[2];
+    float *tape4;
+    int     tape4_size;
+    float     reset4;
+    int     RecSize4[2];
+    float     rectime3;
+    float     fRec16[2];
+    float     fRec17[2];
+    int     iRec18[2];
+    int     iRec19[2];
+    float     play4;
+    float     playh4;
+    float     gain4;
+    float     play_all;
+    float     dout;
     float* outbuffer;
-	bool save1;
-	bool save2;
-	bool save3;
-	bool save4;
-	bool first1;
-	bool first2;
-	bool first3;
-	bool first4;
-	bool RP1;
-	bool RP2;
-	bool RP3;
-	bool RP4;
+    bool save1;
+    bool save2;
+    bool save3;
+    bool save4;
+    bool first1;
+    bool first2;
+    bool first3;
+    bool first4;
+    bool RP1;
+    bool RP2;
+    bool RP3;
+    bool RP4;
     Glib::ustring preset_name;
     Glib::ustring load_file1;
     Glib::ustring load_file2;
@@ -957,9 +1000,9 @@ private:
     Glib::ustring loop_dir;
     bool save_p;
     ParamMap& param;
-	bool mem_allocated;
+    bool mem_allocated;
     sigc::slot<void> sync;
-	volatile int ready;
+    volatile int ready;
     FileResampler smp;
     Directout* d;
 
@@ -967,13 +1010,13 @@ private:
     int do_mono(int c, int f, float *oIn, float *tape, int n);
     void play_all_tapes();
     void mem_alloc();
-	void mem_free();
-	void clear_state_f();
-	int activate(bool start);
-	int load_ui_f(const UiBuilder& b, int form);
-	void init(unsigned int samplingFreq);
-	void compute(int count, float *input0, float *output0);
-	int register_par(const ParamReg& reg);
+    void mem_free();
+    void clear_state_f();
+    int activate(bool start);
+    int load_ui_f(const UiBuilder& b, int form);
+    void init(unsigned int samplingFreq);
+    void compute(int count, float *input0, float *output0);
+    int register_par(const ParamReg& reg);
     void save_array(std::string name);
     void load_array(std::string name);
     void save_to_wave(std::string fname, float *tape, float fSize, int tape_size);
@@ -984,17 +1027,17 @@ private:
     void load_tape3();
     void load_tape4();
     
-	static void clear_state_f_static(PluginDef*);
-	static int activate_static(bool start, PluginDef*);
-	static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init_static(unsigned int samplingFreq, PluginDef*);
-	static void compute_static(int count, float *input0, float *output0, PluginDef*);
-	static int register_params_static(const ParamReg& reg);
-	static void del_instance(PluginDef *p);
+    static void clear_state_f_static(PluginDef*);
+    static int activate_static(bool start, PluginDef*);
+    static int load_ui_f_static(const UiBuilder& b, int form);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-	LiveLooper(ParamMap& param_, Directout* d, sigc::slot<void> sync, const string& loop_dir_);
-	~LiveLooper();
+    LiveLooper(ParamMap& param_, Directout* d, sigc::slot<void> sync, const string& loop_dir_);
+    ~LiveLooper();
 };
 
 
@@ -1095,28 +1138,28 @@ public:
 class DrumSequencer: public PluginDef {
 private:
     int fSamplingFreq;
-    FAUSTFLOAT 	position;
-    FAUSTFLOAT 	ftact;
-    FAUSTFLOAT 	fsec;
-    FAUSTFLOAT 	fsliderbpm;
-    FAUSTFLOAT 	fsliderhum;
+    FAUSTFLOAT     position;
+    FAUSTFLOAT     ftact;
+    FAUSTFLOAT     fsec;
+    FAUSTFLOAT     fsliderbpm;
+    FAUSTFLOAT     fsliderhum;
     drumseq::Dsp drums;
 
-    int 	counter;
-    int 	seq_size;
-    int 	bsize;
-    FAUSTFLOAT 	step;
-    FAUSTFLOAT 	step_orig;
-    FAUSTFLOAT 	fSlow1;
-    FAUSTFLOAT 	fSlow3;
-    FAUSTFLOAT 	fSlow5;
-    FAUSTFLOAT 	fSlow7;
-    FAUSTFLOAT 	fSlow12;
-    FAUSTFLOAT 	fSlow14;
-    FAUSTFLOAT 	fSlow16;
-    FAUSTFLOAT 	fSlow18;
-    FAUSTFLOAT 	fSlow20;
-    FAUSTFLOAT 	fSlow22;
+    int     counter;
+    int     seq_size;
+    int     bsize;
+    FAUSTFLOAT     step;
+    FAUSTFLOAT     step_orig;
+    FAUSTFLOAT     fSlow1;
+    FAUSTFLOAT     fSlow3;
+    FAUSTFLOAT     fSlow5;
+    FAUSTFLOAT     fSlow7;
+    FAUSTFLOAT     fSlow12;
+    FAUSTFLOAT     fSlow14;
+    FAUSTFLOAT     fSlow16;
+    FAUSTFLOAT     fSlow18;
+    FAUSTFLOAT     fSlow20;
+    FAUSTFLOAT     fSlow22;
     std::vector<int> Vectom;
     std::vector<int> Vectom1;
     std::vector<int> Vectom2;
@@ -1180,7 +1223,7 @@ public:
 * 
 * Modified for guitarix by Hermann Meyer 2014
 *
-* 						The Wide Open License (WOL)
+*                         The Wide Open License (WOL)
 *
 * Permission to use, copy, modify, distribute and sell this software and its
 * documentation for any purpose is hereby granted without fee, provided that
@@ -1198,11 +1241,11 @@ class smbPitchShift : public PluginDef {
 private:
     gx_resample::SimpleResampler resamp;
     EngineControl&  engine;
-	bool            mem_allocated;
+    bool            mem_allocated;
     sigc::slot<void> sync;
-	volatile bool ready;
-	float gInFIFO[MAX_FRAME_LENGTH];
-	float gOutFIFO[MAX_FRAME_LENGTH];
+    volatile bool ready;
+    float gInFIFO[MAX_FRAME_LENGTH];
+    float gOutFIFO[MAX_FRAME_LENGTH];
     float *fpb;
     float *expect;
     float *hanning;
@@ -1211,57 +1254,57 @@ private:
     float *resampin2;
     float *resampout;
     float *indata2;
-	float gLastPhase[MAX_FRAME_LENGTH/2+1];
-	float gSumPhase[MAX_FRAME_LENGTH/2+1];
-	float gOutputAccum[2*MAX_FRAME_LENGTH];
-	float gAnaFreq[MAX_FRAME_LENGTH];
-	float gAnaMagn[MAX_FRAME_LENGTH];
-	float gSynFreq[MAX_FRAME_LENGTH];
-	float gSynMagn[MAX_FRAME_LENGTH];
-	float semitones;
-	float a,b,c,d,l;
-	float wet;
-	float dry;
+    float gLastPhase[MAX_FRAME_LENGTH/2+1];
+    float gSumPhase[MAX_FRAME_LENGTH/2+1];
+    float gOutputAccum[2*MAX_FRAME_LENGTH];
+    float gAnaFreq[MAX_FRAME_LENGTH];
+    float gAnaMagn[MAX_FRAME_LENGTH];
+    float gSynFreq[MAX_FRAME_LENGTH];
+    float gSynMagn[MAX_FRAME_LENGTH];
+    float semitones;
+    float a,b,c,d,l;
+    float wet;
+    float dry;
     float mpi, mpi1;
     float tone;
-	int   octave, osamp, numSampsToResamp, numSampsToProcess, fftFrameSize, sampleRate ;
-	int latency;
+    int   octave, osamp, numSampsToResamp, numSampsToProcess, fftFrameSize, sampleRate ;
+    int latency;
     int ai;
     int aio;
     int ii;
-	long  gRover ;
-	double magn, phase, tmp, real, imag;
-	double freqPerBin, freqPerBin1, freqPerBin2, expct;
+    long  gRover ;
+    double magn, phase, tmp, real, imag;
+    double freqPerBin, freqPerBin1, freqPerBin2, expct;
     double fftFrameSize3;
     double fftFrameSize4;
     double osamp1,osamp2;
-	long   i,k, qpd, index, inFifoLatency, stepSize, fftFrameSize2;
-	
+    long   i,k, qpd, index, inFifoLatency, stepSize, fftFrameSize2;
+    
     fftwf_complex fftw_in[MAX_FRAME_LENGTH], fftw_out[MAX_FRAME_LENGTH];
     fftwf_plan ftPlanForward, ftPlanInverse;
     
     inline int load_ui_f(const UiBuilder& b, int form);
-	int register_par(const ParamReg& reg);
+    int register_par(const ParamReg& reg);
     void change_latency();
    
     void mem_alloc();
-	void mem_free();
+    void mem_free();
     void clear_state();
-	int activate(bool start);
-	bool setParameters( int sampleRate);
-	void PitchShift(int count, float *indata, float *outdata);
+    int activate(bool start);
+    bool setParameters( int sampleRate);
+    void PitchShift(int count, float *indata, float *outdata);
     void change_buffersize(unsigned int size);
     static int  activate_static(bool start, PluginDef*);
     static void del_instance(PluginDef *p);
     static int registerparam(const ParamReg& reg);
     static int load_ui_f_static(const UiBuilder& b, int form);
-	static void init(unsigned int sampleRate, PluginDef *plugin); 
+    static void init(unsigned int sampleRate, PluginDef *plugin); 
     static void compute_static(int count, float *input0, float *output0, PluginDef *p); 
 
 public:
     Plugin plugin;
-	smbPitchShift(EngineControl& engine, sigc::slot<void> sync);
-	~smbPitchShift();
+    smbPitchShift(EngineControl& engine, sigc::slot<void> sync);
+    ~smbPitchShift();
 };
 
 

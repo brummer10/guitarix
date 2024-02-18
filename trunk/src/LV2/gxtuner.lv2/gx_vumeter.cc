@@ -85,10 +85,10 @@ void MaxLevel::process(int count, float *input1, float*, PluginLV2 *plugin) {
     const float *data = input1;
         float level = 0;
         for (int i = 0; i < count; i++) {
-            level = max(fabs(data[i]),level);
+            level = std::max((float)fabs(data[i]),level);
         }
         self.midilevel = level;
-        *(self.maxlevel_) = self.maxlevel = max(self.maxlevel, level);
+        *(self.maxlevel_) = self.maxlevel = std::max((float)self.maxlevel, level);
 }
 
 PluginLV2 *vu_plugin() {

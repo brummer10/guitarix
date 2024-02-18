@@ -306,7 +306,8 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       record(*this, 1), record_st(*this, 2),
       dseq(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
 #endif
-      detune(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
+      detune(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
+      neural_amp(get_param(), sigc::mem_fun(mono_chain,&MonoModuleChain::sync)) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
         ov_disabled |= ov_Convolver;
@@ -453,6 +454,7 @@ void GxEngine::load_static_plugins() {
     pl.add(&tonestack.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&preamp.plugin,                        PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(&neural_amp.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(pluginlib::abgate::plugin(),           PLUGIN_POS_RACK);
     pl.add(gx_effects::ring_modulator::plugin(),  PLUGIN_POS_RACK, PGN_GUI);
     pl.add(gx_effects::graphiceq::plugin(),       PLUGIN_POS_RACK, PGN_GUI);

@@ -65,7 +65,7 @@ inline void dunwahauto::clear_state_f()
 inline void dunwahauto::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
+	iConst0 = std::min(192000, std::max(1, (int)fSamplingFreq));
 	fConst1 = exp((0 - (1e+01 / iConst0)));
 	fConst2 = (1.0 - fConst1);
 	fConst3 = (0.007000000000000006 * ((iConst0 * (1.73888e-06 - (8.38823e-12 * iConst0))) - 0.193457));
@@ -85,8 +85,8 @@ inline void dunwahauto::init(uint32_t samplingFreq)
 inline void dunwahauto::run(uint32_t count, float *input0, float *output0)
 {
 	for (uint32_t i=0; i<count; i++) {
-		double fTemp0 = min(1.0,fabs((double)input0[i]));
-		fRec2[0] = ((fConst2 * fTemp0) + (fConst1 * max(fTemp0, fRec2[1])));
+		double fTemp0 = std::min(1.0,fabs((double)input0[i]));
+		fRec2[0] = ((fConst2 * fTemp0) + (fConst1 * std::max(fTemp0, fRec2[1])));
 		fRec1[0] = ((fConst3 * (0 - ((1.0 / ((fRec2[0] * (0.270546 + (fRec2[0] * ((fRec2[0] * (3.64419 + (fRec2[0] * ((2.85511 * fRec2[0]) - 5.20364)))) - 0.86331)))) - 0.814203)) + 0.933975))) + (0.993 * fRec1[1]));
 		double fTemp1 = (1973.48 - (1000 / ((fRec2[0] * (1.9841 + (fRec2[0] * (5.76598 + (fRec2[0] * ((fRec2[0] * (49.9836 + (fRec2[0] * ((12.499 * fRec2[0]) - 40.3658)))) - 28.3434)))))) - 1.6086)));
 		double fTemp2 = (1 - (fConst4 * (fTemp1 / (21.9737 + (fRec2[0] * ((fRec2[0] * (42.2734 + (fRec2[0] * ((fRec2[0] * (115.375 - (52.3051 * fRec2[0]))) - 99.7712)))) - 24.555))))));
@@ -164,7 +164,7 @@ void dunwah::connect_d(uint32_t port,void* data)
 inline void dunwah::init_d(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
+	iConst0 = std::min(192000, std::max(1, (int)fSamplingFreq));
 	fConst1 = (0.007000000000000006 * ((iConst0 * (1.73888e-06 - (8.38823e-12 * iConst0))) - 0.193457));
 	fConst2 = (0.5 / iConst0);
 	fConst3 = (1.0 / iConst0);

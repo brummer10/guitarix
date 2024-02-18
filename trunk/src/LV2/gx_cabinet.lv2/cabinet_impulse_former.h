@@ -45,7 +45,7 @@ inline void Impf::clear_state_f()
 inline void Impf::init(unsigned int samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
+	iConst0 = std::min(192000, std::max(1, (int)fSamplingFreq));
 	fConst1 = (1884.9555921538758 / double(iConst0));
 	fConst2 = (1.4142135623730951 * sin(fConst1));
 	fConst3 = cos(fConst1);

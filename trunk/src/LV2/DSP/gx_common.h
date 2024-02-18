@@ -111,8 +111,8 @@ public:
 #ifndef N_
 #define N_(String) (String)
 #endif
-#define max(x, y) (((x) > (y)) ? (x) : (y))
-#define min(x, y) (((x) < (y)) ? (x) : (y))
+//#define max(x, y) (((x) > (y)) ? (x) : (y))
+//#define min(x, y) (((x) < (y)) ? (x) : (y))
 
 #define always_inline inline __attribute__((always_inline))
 

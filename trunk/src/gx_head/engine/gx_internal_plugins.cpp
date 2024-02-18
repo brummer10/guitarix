@@ -1814,6 +1814,214 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
 }
 
 /****************************************************************
+ ** class Neural Amp Modeler
+ */
+
+NeuralAmp::NeuralAmp(ParamMap& param_, sigc::slot<void> sync_)
+    : PluginDef(), model(nullptr), param(param_), smp(), sync(sync_), plugin() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "nam";
+    name = N_("Neural Amp Modeler");
+    groups = 0;
+    description = N_("Neural Amp Modeler by Steven Atkinson"); // description (tooltip)
+    category = N_("Distortion");       // category
+    shortname = "NAM";     // shortname
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = load_ui_f_static;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+    plugin = this;
+    need_resample = 0;
+    is_inited = false;
+    loudness = 0.0;
+    gx_system::atomic_set(&ready, 0);
+ }
+
+NeuralAmp::~NeuralAmp() {
+    delete model;
+}
+
+inline void NeuralAmp::clear_state_f()
+{
+    for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+    for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
+}
+
+void NeuralAmp::clear_state_f_static(PluginDef *p)
+{
+    static_cast<NeuralAmp*>(p)->clear_state_f();
+}
+
+inline void NeuralAmp::init(unsigned int sample_rate)
+{
+    fSampleRate = sample_rate;
+    clear_state_f();
+    is_inited = true;
+    load_nam_file();
+}
+
+void NeuralAmp::init_static(unsigned int sample_rate, PluginDef *p)
+{
+    static_cast<NeuralAmp*>(p)->init(sample_rate);
+}
+
+void NeuralAmp::compute(int count, float *input0, float *output0)
+{
+    if (output0 != input0)
+        memcpy(output0, input0, count*sizeof(float));
+    if (!model) return;
+    double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
+    double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
+    for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+        fRec0[0] = fSlow0 + 0.999 * fRec0[1];
+        output0[i0] = float(double(output0[i0]) * fRec0[0]);
+        fRec0[1] = fRec0[0];
+    }
+    if (model && gx_system::atomic_get(ready)) {
+        if (need_resample) {
+            int ReCount = count;
+            if (need_resample == 1) {
+                ReCount = smp.max_out_count(count);
+            } else if (need_resample == 2) {
+                ReCount = static_cast<int>(ceil((count*static_cast<double>(mSampleRate))/fSampleRate));
+            }
+
+            float buf[ReCount];
+
+            if (need_resample == 1) {
+                smp.up(count, output0, buf);
+            } else if (need_resample == 2) {
+                smp.down(output0, buf);
+            } else {
+                memcpy(buf, output0, ReCount * sizeof(float));
+            }
+
+            model->process(buf, buf, ReCount);
+            model->finalize_(ReCount);
+
+            if (need_resample == 1) {
+                smp.down(buf, output0);
+            } else if (need_resample == 2) {
+                smp.up(ReCount, buf, output0);
+            }
+        } else {
+            model->process(output0, output0, count);
+            model->finalize_(count);
+        }
+    }
+    for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+        fRec1[0] = fSlow1 + 0.999 * fRec1[1];
+        output0[i0] = float(double(output0[i0]) * fRec1[0]);
+        fRec1[1] = fRec1[0];
+    }
+}
+
+void NeuralAmp::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<NeuralAmp*>(p)->compute(count, input0, output0);
+}
+
+// non rt callback
+void NeuralAmp::load_nam_file() {
+    if (!load_file.empty() && is_inited) {
+        sync();
+        gx_system::atomic_set(&ready, 0);
+        delete model;
+        model = nullptr;
+        need_resample = 0;
+        int32_t warmUpSize = 4069;
+        try {
+            model = nam::get_dsp(std::string(load_file)).release();
+        } catch (const std::exception&) {
+            gx_print_info("Neural Amp Modeler", "fail to load " + load_file);
+            load_file = "None";
+        }
+        
+        if (model) {
+            if (model->HasLoudness()) loudness = model->GetLoudness();
+            mSampleRate = static_cast<int>(model->GetExpectedSampleRate());
+            //model->SetLoudness(-15.0);
+            if (mSampleRate <= 0) mSampleRate = 48000;
+            if (mSampleRate > fSampleRate) {
+                smp.setup(fSampleRate, mSampleRate);
+                need_resample = 1;
+            } else if (mSampleRate < fSampleRate) {
+                smp.setup(mSampleRate, fSampleRate);
+                need_resample = 2;
+            } 
+            float* buffer = new float[warmUpSize];
+            memset(buffer, 0, warmUpSize * sizeof(float));
+
+            model->process(buffer, buffer, warmUpSize);
+            model->finalize_(warmUpSize);
+
+            delete[] buffer;
+            //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mSampleRate, loudness);
+            //fprintf(stderr, "%s\n", load_file.c_str());
+        } 
+        gx_system::atomic_set(&ready, 1);
+    }
+}
+
+int NeuralAmp::register_par(const ParamReg& reg)
+{
+    reg.registerFloatVar("nam.input",N_("Input"),"S",N_("gain (dB)"),&fVslider0, 0.0, -60.0, 6.0, 0.1, 0);
+    reg.registerFloatVar("nam.output",N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -60.0, 6.0, 0.1, 0);
+    param.reg_string("nam.loadfile", "", &load_file, "*.nam", true)->set_desc(N_("import *.nam file"));
+
+    param["nam.loadfile"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &NeuralAmp::load_nam_file)));
+    return 0;
+}
+
+int NeuralAmp::register_params_static(const ParamReg& reg)
+{
+    return static_cast<NeuralAmp*>(reg.plugin)->register_par(reg);
+}
+
+inline int NeuralAmp::load_ui_f(const UiBuilder& b, int form)
+{
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file("nam_ui.glade");
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("nam" "." p)
+
+b.openHorizontalhideBox("");
+    b.create_master_slider(PARAM("input"), "Input");
+b.closeBox();
+b.openHorizontalBox("");
+
+    b.create_mid_rackknob(PARAM("input"), "Input");
+    b.create_fload_switch(sw_button, nullptr, PARAM("loadfile"));
+    b.create_mid_rackknob(PARAM("output"), "Output");
+
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
+    return -1;
+}
+
+int NeuralAmp::load_ui_f_static(const UiBuilder& b, int form)
+{
+    return static_cast<NeuralAmp*>(b.plugin)->load_ui_f(b, form);
+}
+
+void NeuralAmp::del_instance(PluginDef *p)
+{
+    delete static_cast<NeuralAmp*>(p);
+}
+
+
+/****************************************************************
  ** class Directout
  */
 

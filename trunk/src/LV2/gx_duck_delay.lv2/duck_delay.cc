@@ -80,7 +80,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t samplingFreq)
 {
 	fSamplingFreq = samplingFreq;
-	iConst0 = min(192000, max(1, fSamplingFreq));
+	iConst0 = std::min(192000, std::max(1, (int)fSamplingFreq));
 	fConst1 = exp((0 - (1e+01 / iConst0)));
 	fConst2 = (1.0 / iConst0);
 	fConst3 = (1.0 - fConst1);
@@ -111,7 +111,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i=0; i<count; i++) {
 		double fTemp0 = (double)input0[i];
 		double fTemp1 = fabs(fTemp0);
-		fRec2[0] = ((fSlow2 * fTemp1) + (fSlow1 * max(fTemp1, fRec2[1])));
+		fRec2[0] = ((fSlow2 * fTemp1) + (fSlow1 * std::max(fTemp1, fRec2[1])));
 		fRec1[0] = ((fSlow3 * fRec2[0]) + (fSlow0 * fRec1[1]));
 		fRec0[0] = ((fConst3 * (1 - ((fSlow4 * fRec1[0]) > 1))) + (fConst1 * fRec0[1]));
 		double fTemp2 = (fTemp0 + (fSlow5 * fRec3[1]));

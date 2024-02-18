@@ -531,7 +531,7 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
     wn->stereo_audio(static_cast<int>(n_samples), input, input1, input, input1, wn);;
 #endif
     // run selected tube model
-    a_model_ = min(a_max, static_cast<uint32_t>(*(a_model)));
+    a_model_ = std::min(a_max, static_cast<uint32_t>(*(a_model)));
     amplifier[a_model_]->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1, amplifier[a_model_]);
     // run presence convolver
     if (*(alevel) >= 1.0)

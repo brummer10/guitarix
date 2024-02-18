@@ -190,10 +190,30 @@ static void jconv_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMac
         [](void *p) {
             sigc::connection *conn = static_cast<sigc::connection*>(p);
             conn->disconnect();
-            delete conn;
+            //delete conn;  //FIXME
             return p;
         });
 }
+
+
+static void nam_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine) {
+    Gtk::Label *label = dynamic_cast<Gtk::Label*>(object.get());
+    assert(label);
+    gx_engine::StringParameter *p = dynamic_cast<gx_engine::StringParameter*>(
+        &machine.get_parameter("nam.loadfile"));
+    auto set_nam_filename = [=](Glib::ustring s) { label->set_label(s.substr(s.find_last_of("/\\") + 1)); };
+    set_nam_filename(p->getString().get_value());
+    sigc::connection conne = p->signal_changed().connect(set_nam_filename);
+    label->add_destroy_notify_callback(
+        new sigc::connection(conne),
+        [](void *p) {
+            sigc::connection *conne = static_cast<sigc::connection*>(p);
+            conne->disconnect();
+            delete conne;
+            return p;
+        });
+}
+
 #pragma GCC diagnostic pop
 
 static void jconv_button(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine,
@@ -279,6 +299,7 @@ static void connect_waveview(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMa
 /*
  * Livelooper
  */
+
 static void on_file_chooser_response(int response_id, Gxw::Switch *button, Gtk::FileChooserDialog* d,
                                      gx_engine::GxMachineBase& machine, const std::string& id)
 {
@@ -378,6 +399,123 @@ static void select_looper_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine
     w->signal_toggled().connect(on_toggled);
 }
 
+/*
+* Neural Amp Modeler
+*/
+
+static void on_nam_chooser_response(int response_id, Gxw::Switch *button, Gtk::FileChooserDialog* d,
+                                     gx_engine::GxMachineBase& machine, const std::string& id)
+{
+    if (response_id == Gtk::RESPONSE_OK) {
+        Glib::ustring hostname = "localhost";
+        Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
+        Gtk::RecentManager::Data data;
+        bool result_uncertain;
+        data.mime_type = Gio::content_type_guess(filename, "", result_uncertain);
+        data.app_name = "guitarix";
+        data.groups.push_back("namfiles");
+        Gtk::RecentManager::get_default()->add_item(d->get_uri(), data);
+        machine.set_parameter_value(id, filename);
+    }
+    button->set_active(false);
+}
+
+static Gtk::FileChooserDialog* create_nam_filedialog(Gxw::Switch* button,
+                                                        gx_engine::GxMachineBase& machine,
+                                                        const std::string& id) {
+    auto d = new Gtk::FileChooserDialog("Select NAM file");
+    d->set_local_only(false);
+    d->property_destroy_with_parent().set_value(true);
+    d->add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+    d->add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
+    Glib::RefPtr<Gtk::FileFilter> wav = Gtk::FileFilter::create();
+    wav->set_name("NAM Files");
+    wav->add_pattern("*.nam");
+    wav->add_pattern("*.json");
+    d->add_filter(wav);
+    Glib::RefPtr<Gtk::FileFilter> audio = Gtk::FileFilter::create();
+    audio->set_name("NAM Files");
+    d->add_filter(audio);
+    Glib::RefPtr<Gtk::FileFilter> all = Gtk::FileFilter::create();
+    all->add_pattern("*");
+    all->set_name("All Files");
+    d->add_filter(all);
+    d->signal_response().connect(
+        [=,&machine](int response) {
+            on_nam_chooser_response(response, button, d, machine, id); });
+    d->add_shortcut_folder_uri(
+        Glib::filename_to_uri(machine.get_options().get_loop_dir(), "localhost"));
+    return d;
+}
+std::string getPathName(const std::string& s) {
+
+   char sep = '/';
+
+#ifdef _WIN32
+   sep = '\\';
+#endif
+
+   size_t i = s.rfind(sep, s.length());
+   if (i != std::string::npos) {
+      return(s.substr(0, i));
+   }
+
+   return("");
+}
+
+static void select_nam_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, const string& id) {
+    assert(w);
+    if (!machine.get_jack()) {
+        w->hide();
+        return;
+    }
+    gx_engine::Parameter *p = check_get_parameter(machine, id, w);
+    if (!p) {
+        return;
+    }
+    if (!p->desc().empty()) {
+        GxBuilder::set_tooltip_text_connect_handler(*w, p->l_desc());
+    }
+    static Glib::ustring hostname = "localhost";
+    static std::map<std::string, Gtk::FileChooserDialog*> sel_windows;
+    Gtk::FileChooserDialog*& sel = sel_windows[id];
+    Glib::ustring filename = machine.get_parameter_value<string>(id);
+    if (!sel) {
+        sel = create_nam_filedialog(w, machine, id);
+        w->add_destroy_notify_callback(
+            &sel,
+            [](void *p) {
+                Gtk::FileChooserDialog*& sel = *static_cast<Gtk::FileChooserDialog**>(p);
+                delete sel;
+                sel = 0;
+                return p;
+            });
+    }
+
+    auto on_toggled =
+        [=,&machine]() {
+            if (!w->get_active()) {
+                sel->hide();
+                return;
+            }
+            static Glib::ustring recent_filename = "";
+            static Glib::ustring hostname = "localhost";
+            Glib::ustring filename = machine.get_parameter_value<string>(id);
+            if (!recent_filename.empty()) {
+                sel->set_uri(Glib::filename_to_uri (recent_filename, hostname));
+            }
+            sel->show();
+            if (!filename.empty()) {
+                Glib::ustring nam_dir = getPathName(filename);
+                if (!nam_dir.empty())
+                    sel->set_current_folder_uri(Glib::filename_to_uri (nam_dir, hostname));
+            }
+        };
+    on_toggled();
+    w->signal_toggled().connect(on_toggled);
+}
+
+
 static void portdisplay_clip(Gxw::PortDisplay* w, gx_engine::GxMachineBase& machine,
                              const string& idl, const string& idh) {
     assert(w);
@@ -415,6 +553,10 @@ void StackBoxBuilder::connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::Ref
         select_looper_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
     } else if (token[0] == "portdisplay:clip") {
         portdisplay_clip(dynamic_cast<Gxw::PortDisplay*>(object.get()), machine, token[1], token[2]);
+    } else if (token[0] == "nam:load_nam_file") {
+        select_nam_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
+    } else if (token[0] == "nam.file") {
+        nam_filelabel(object, machine);
     } else {
         gx_print_error(
             "StackBoxBuilder::connect_signals",
@@ -565,7 +707,8 @@ void StackBoxBuilder::create_fload_switch(const char *sw_type, const char *id, c
     auto sw = new Gxw::Switch(sw_type);
     sw->set_name("effect_on_off");
     sw->show();
-    select_looper_file(sw, machine, idf);
+    if (idf.find("dubber.") != std::string::npos) select_looper_file(sw, machine, idf);
+    else if (idf.find("nam.") != std::string::npos) select_nam_file(sw, machine, idf);
     addwidget(sw);
 }
 

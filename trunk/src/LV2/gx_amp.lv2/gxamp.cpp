@@ -512,7 +512,7 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
     wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
 #endif
     // run selected tube model
-    a_model_ = min(a_max, static_cast<uint32_t>(*(a_model)));
+    a_model_ = std::min(a_max, static_cast<uint32_t>(*(a_model)));
     amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
     // run presence convolver
     if (*(alevel) >= 1.0)

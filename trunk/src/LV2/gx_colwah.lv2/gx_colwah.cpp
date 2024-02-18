@@ -171,7 +171,7 @@ void Gx_colwah_::run_dsp_(uint32_t n_samples)
     memcpy(output, input, n_samples*sizeof(float));
   // check if bypass is pressed
   if (!bp.pre_check_bypass(bypass, buf, input, n_samples)) {
-    wah_model_ = min(wah_max, static_cast<uint32_t>(*(wahh_model)));
+    wah_model_ = std::min(wah_max, static_cast<uint32_t>(*(wahh_model)));
     wah[wah_model_]->mono_audio(static_cast<int>(n_samples), input, output, wah[wah_model_]);
   }
   bp.post_check_bypass(buf, output, n_samples);

@@ -171,6 +171,10 @@ def configure(conf):
     if '-flto' in cxxflags:
         cxxflags.append ("-ffat-lto-objects")
 
-    cxxflags.append ("-std=c++11")
+    cxxflags.append ("-std=c++17")
+   # cxxflags.append ("-Ofast")
+    cxxflags.append ("-DDSP_SAMPLE_FLOAT")
+    cxxflags.append ("-DNAM_SAMPLE_FLOAT")
+    cxxflags.append ("-Dneural_amp_modeler_EXPORTS")
     conf.env['CXXFLAGS'] += cxxflags
     conf.cpu_model = cpu_model
