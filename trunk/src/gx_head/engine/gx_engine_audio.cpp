@@ -699,7 +699,7 @@ bool ModuleSequencer::check_module_lists() {
 
 void ModuleSequencer::set_rack_changed() {
 #ifdef GUITARIX_AS_PLUGIN
-    if (stateflags == SF_INITIALIZING) {
+    if (stateflags & SF_INITIALIZING) {
         return;
     }
 #endif

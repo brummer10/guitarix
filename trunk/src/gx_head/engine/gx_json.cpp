@@ -686,6 +686,7 @@ bool SettingsFileHeader::make_empty_settingsfile(const string& name) {
     if (!os.good()) {
 	return false;
     }
+    os.imbue(std::locale::classic());
     JsonWriter jw(&os);
     jw.begin_array();
     SettingsFileHeader::write(jw);
@@ -722,10 +723,12 @@ void JsonReader::close() {
 
 JsonParser *StateFile::create_reader() {
     if (is) {
+    is->imbue(std::locale::classic());
 	is->seekg(0);
     } else {
 	check_mtime(filename, mtime);
 	is = new ifstream(filename.c_str());
+    is->imbue(std::locale::classic());
     }
     JsonReader *jp = new JsonReader(is);
     jp->next(JsonParser::begin_array);
@@ -1063,6 +1066,7 @@ void PresetFile::open() {
     }
     check_mtime(filename, mtime);
     is = new ifstream(filename.c_str());
+    is->imbue(std::locale::classic());
     JsonParser jp(is);
     jp.next(JsonParser::begin_array);
     header.read(jp);
@@ -1541,6 +1545,7 @@ void PresetBanks::save() {
     }
     std::string tmpfile = filepath + "_tmp";
     ofstream os(tmpfile.c_str());
+    os.imbue(std::locale::classic());
     gx_system::JsonWriter jw(&os);
     jw.begin_array(true);
     for (iterator i = begin(); i != end(); ++i) {
@@ -1612,6 +1617,7 @@ void PresetBanks::parse_bank_list(bl_type::iterator pos) {
 	    _("Presets"), boost::format(_("banks not found: '%1%'")) % filepath);
 	return;
     }
+    is.imbue(std::locale::classic());
     gx_system::JsonParser jp(&is);
     bool mtime_diff = false;
     PresetFile *f = 0;
