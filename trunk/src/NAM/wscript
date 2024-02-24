@@ -29,16 +29,17 @@ def build(bld):
         './NeuralAmpModelerCore/Dependencies/nlohmann/',
         ]
 
+    cxx_flags = ["-std=c++17", "-Wno-sign-compare", "-Ofast"]
+
+    if not bld.env['LTO']:
+        cxx_flags.append ("-fno-fat-lto-objects")
+
     bld.stlib(
         name = 'libnam',
         includes = incl,
         export_includes=['..'],
         source = src,
         use = [],
-        cxxflags = ["-std=c++17",
-            "-Wno-sign-compare",
-            "-fno-fat-lto-objects",
-            "-Ofast",
-            ],
+        cxxflags = cxx_flags,
         target = 'nam',
         )

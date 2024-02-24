@@ -169,6 +169,7 @@ def configure(conf):
             cpu_model = append_optimization_flags(conf, cxxflags)
 
     if '-flto' in cxxflags:
+        conf.env['LTO'] = True
         cxxflags.append ("-ffat-lto-objects")
 
     cxxflags.append ("-std=c++17")

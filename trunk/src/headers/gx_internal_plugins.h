@@ -680,7 +680,7 @@ private:
     double fRec0[2];
     double fRec1[2];
     int need_resample;
-    double loudness;
+    float loudness;
     bool is_inited;
     Glib::ustring load_file;
 
