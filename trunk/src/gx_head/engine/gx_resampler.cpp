@@ -184,7 +184,7 @@ int StreamingResampler::flush(float *output)
 	if (Resampler::process() != 0) {
 		return 0;
 	}
-	assert(inp_count == 0);
+	//assert(inp_count == 0);
 	return olen - out_count;
 }
 

@@ -23,7 +23,7 @@
 
 
 #include <zita-resampler/resampler-table.h>
-
+#include <cassert>
 
 class Resampler
 {
