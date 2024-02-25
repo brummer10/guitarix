@@ -1929,12 +1929,13 @@ void NeuralAmp::compute_static(int count, float *input0, float *output0, PluginD
 // non rt callback
 void NeuralAmp::load_nam_file() {
     if (!load_file.empty() && is_inited) {
-        sync();
         gx_system::atomic_set(&ready, 0);
+        sync();
         delete model;
         model = nullptr;
         need_resample = 0;
-        int32_t warmUpSize = 4069;
+        clear_state_f();
+        int32_t warmUpSize = 4096;
         try {
             model = nam::get_dsp(std::string(load_file)).release();
         } catch (const std::exception&) {
