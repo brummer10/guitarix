@@ -62,14 +62,14 @@
 
 /* LV2 header files */
 #include <lilv/lilv.h>
-#include "lv2/lv2plug.in/ns/ext/presets/presets.h"
-#include "lv2/lv2plug.in/ns/ext/state/state.h"
-#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
-#include <lv2/lv2plug.in/ns/ext/atom/atom.h>
-#include <lv2/lv2plug.in/ns/ext/buf-size/buf-size.h>
-#include <lv2/lv2plug.in/ns/ext/options/options.h>
-#include <lv2/lv2plug.in/ns/ext/uri-map/uri-map.h>
-#include <lv2/lv2plug.in/ns/ext/port-props/port-props.h>
+#include <lv2/presets/presets.h>
+#include <lv2/state/state.h>
+#include <lv2/urid/urid.h>
+#include <lv2/atom/atom.h>
+#include <lv2/buf-size/buf-size.h>
+#include <lv2/options/options.h>
+#include <lv2/uri-map/uri-map.h>
+#include <lv2/port-props/port-props.h>
 
 #ifndef GUITARIX_AS_PLUGIN
 /* waf generated defines */
