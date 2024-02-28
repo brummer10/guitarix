@@ -3,9 +3,10 @@
 ![guitarix](https://a.fsdn.com/con/app/proj/guitarix/screenshots/Guitarix_Dark.png/max/max/1)
 
 Guitarix is a modular, virtual amplifier for Linux.
-With Guitarix you can choose different preamp and amp models,
-load *.nam files with the Neural Amp Modeler module,
-combine them with various effects and speaker cabinet emulations
+With Guitarix you can choose different preamp and amp models
+and /or could load *.nam files with the Neural Amp Modeler module,
+to simulate a specific hardware unit.
+Combine them with various effects and speaker cabinet emulations
 and/or load your own Impulse Response files
 to come up with your very own tones.
 Guitarix comes as a standalone application or as [vst3 plugin](https://github.com/brummer10/guitarix.vst).
