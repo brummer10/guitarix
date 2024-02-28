@@ -1271,11 +1271,11 @@ int Lv2Dsp::uiloader(const UiBuilder& b, int form) {
         if (n>=num_controls) break;
         if ((*it)->newrow) {
             b.closeBox();
-            if ( ((rows == 1) || ( rows > 1 && row > 0 )) && ( num_controls < 19)) {
+           /* if ( ((rows == 1) || ( rows > 1 && row > 0 )) && ( num_controls < 19)) {
                 b.insertSpacer();
                 b.insertSpacer();
                 b.insertSpacer();
-            }
+            }*/
             if (num_controls > 18) {
                 if ( tab > 2) {
                     b.closeBox();

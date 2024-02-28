@@ -1096,11 +1096,7 @@ void PluginDesc::fixup() {
     for (unsigned int n = 0; n < ctrl_ports.size(); ++n) {
         bool newrow = false;
         if (ctrl_ports[n]->get_tp() != tp_none) {
-#ifndef GUITARIX_AS_PLUGIN
             newrow = (i % 6 == 0 && i != 0);
-#else
-            newrow = (i % 8 == 0 && i != 0);
-#endif
             i += 1;
         }
         ctrl_ports[n]->fixup(newrow);
@@ -1830,6 +1826,9 @@ void LadspaPluginList::save(gx_system::CmdlineOptions& options) {
             fl.push_back(std::pair<std::string,std::string>("", cname));
         }
     }
+
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Wunused-result"
     if (rename(tfname.c_str(), fname.c_str()) != 0) {
         char buf[100];
         strerror_r(errno, buf, sizeof(buf));
@@ -1850,6 +1849,8 @@ void LadspaPluginList::save(gx_system::CmdlineOptions& options) {
             }
         }
     }
+#pragma GCC diagnostic pop
+
 }
 
 
