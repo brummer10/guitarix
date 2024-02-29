@@ -177,5 +177,8 @@ def configure(conf):
     cxxflags.append ("-DDSP_SAMPLE_FLOAT")
     cxxflags.append ("-DNAM_SAMPLE_FLOAT")
     cxxflags.append ("-Dneural_amp_modeler_EXPORTS")
+    cxxflags.append ("-DRTNEURAL_DEFAULT_ALIGNMENT=32")
+    cxxflags.append ("-DRTNEURAL_USE_EIGEN=1")
+    cxxflags.append ("-DRTNEURAL_NAMESPACE=RTNeural")
     conf.env['CXXFLAGS'] += cxxflags
     conf.cpu_model = cpu_model

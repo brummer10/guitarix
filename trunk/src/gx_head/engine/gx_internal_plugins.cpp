@@ -2023,6 +2023,228 @@ void NeuralAmp::del_instance(PluginDef *p)
 
 
 /****************************************************************
+ ** class RtNeural
+ */
+
+RtNeural::RtNeural(ParamMap& param_, sigc::slot<void> sync_)
+    : PluginDef(), model(nullptr), param(param_), smp(), sync(sync_), plugin() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = "rtneural";
+    name = N_("RTNeural");
+    groups = 0;
+    description = N_("Neural network engine written by Jatin Chowdhury"); // description (tooltip)
+    category = N_("Distortion");       // category
+    shortname = "RTNeural";     // shortname
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = load_ui_f_static;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+    plugin = this;
+    need_resample = 0;
+    is_inited = false;
+    gx_system::atomic_set(&ready, 0);
+ }
+
+RtNeural::~RtNeural() {
+    delete model;
+}
+
+inline void RtNeural::clear_state_f()
+{
+    for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+    for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
+}
+
+void RtNeural::clear_state_f_static(PluginDef *p)
+{
+    static_cast<RtNeural*>(p)->clear_state_f();
+}
+
+inline void RtNeural::init(unsigned int sample_rate)
+{
+    fSampleRate = sample_rate;
+    clear_state_f();
+    is_inited = true;
+    load_json_file();
+}
+
+void RtNeural::init_static(unsigned int sample_rate, PluginDef *p)
+{
+    static_cast<RtNeural*>(p)->init(sample_rate);
+}
+
+void RtNeural::compute(int count, float *input0, float *output0)
+{
+    if (output0 != input0)
+        memcpy(output0, input0, count*sizeof(float));
+    if (!model) return;
+    double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
+    double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
+    for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+        fRec0[0] = fSlow0 + 0.999 * fRec0[1];
+        output0[i0] = float(double(output0[i0]) * fRec0[0]);
+        fRec0[1] = fRec0[0];
+    }
+    if (model && gx_system::atomic_get(ready)) {
+        if (need_resample) {
+            int ReCount = count;
+            if (need_resample == 1) {
+                ReCount = smp.max_out_count(count);
+            } else if (need_resample == 2) {
+                ReCount = static_cast<int>(ceil((count*static_cast<double>(mSampleRate))/fSampleRate));
+            }
+
+            float buf[ReCount];
+
+            if (need_resample == 1) {
+                smp.up(count, output0, buf);
+            } else if (need_resample == 2) {
+                smp.down(output0, buf);
+            } else {
+                memcpy(buf, output0, ReCount * sizeof(float));
+            }
+
+            for (int i0 = 0; i0 < ReCount; i0 = i0 + 1) {
+                 buf[i0] = model->forward (&buf[i0]);
+            }
+
+            if (need_resample == 1) {
+                smp.down(buf, output0);
+            } else if (need_resample == 2) {
+                smp.up(ReCount, buf, output0);
+            }
+        } else {
+            for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+                 output0[i0] = model->forward (&output0[i0]);
+            }
+        }
+    }
+    for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+        fRec1[0] = fSlow1 + 0.999 * fRec1[1];
+        output0[i0] = float(double(output0[i0]) * fRec1[0]);
+        fRec1[1] = fRec1[0];
+    }
+}
+
+void RtNeural::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<RtNeural*>(p)->compute(count, input0, output0);
+}
+
+
+void RtNeural::get_samplerate(std::string config_file) {
+    std::ifstream infile(config_file);
+    std::string line;
+    std::string key;
+    std::string value;
+    if (infile.is_open()) {
+        while (std::getline(infile, line)) {
+            std::istringstream buf(line);
+            buf >> key;
+            buf >> value;
+            if (key.compare("\"samplerate\":") == 0) {
+                value.erase(std::remove(value.begin(), value.end(), '\"'), value.end());
+                mSampleRate = std::stoi(value);
+                break;
+            }
+            key.clear();
+            value.clear();
+        }
+        infile.close();
+    }
+}
+
+// non rt callback
+void RtNeural::load_json_file() {
+    if (!load_file.empty() && is_inited) {
+        gx_system::atomic_set(&ready, 0);
+        sync();
+        delete model;
+        model = nullptr;
+        mSampleRate = 0;
+        clear_state_f();
+        try {
+            get_samplerate(std::string(load_file));
+            std::ifstream jsonStream(std::string(load_file), std::ifstream::binary);
+            model = RTNeural::json_parser::parseJson<float>(jsonStream).release();
+        } catch (const std::exception&) {
+            gx_print_info("RTNeural Amp Modeler", "fail to load " + load_file);
+            load_file = "None";
+        }
+        
+        if (model) {
+            model->reset();
+            if (mSampleRate <= 0) mSampleRate = 48000;
+            if (mSampleRate > fSampleRate) {
+                smp.setup(fSampleRate, mSampleRate);
+                need_resample = 1;
+            } else if (mSampleRate < fSampleRate) {
+                smp.setup(mSampleRate, fSampleRate);
+                need_resample = 2;
+            } 
+        } 
+        gx_system::atomic_set(&ready, 1);
+    }
+}
+
+int RtNeural::register_par(const ParamReg& reg)
+{
+    reg.registerFloatVar("rtneural.input",N_("Input"),"S",N_("gain (dB)"),&fVslider0, 0.0, -20.0, 20.0, 0.1, 0);
+    reg.registerFloatVar("rtneural.output",N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
+    param.reg_string("rtneural.loadfile", "", &load_file, "*.json", true)->set_desc(N_("import *.json file"));
+
+    param["rtneural.loadfile"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &RtNeural::load_json_file)));
+    return 0;
+}
+
+int RtNeural::register_params_static(const ParamReg& reg)
+{
+    return static_cast<RtNeural*>(reg.plugin)->register_par(reg);
+}
+
+inline int RtNeural::load_ui_f(const UiBuilder& b, int form)
+{
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file("rtneural_ui.glade");
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("rtneural" "." p)
+
+b.openHorizontalhideBox("");
+    b.create_master_slider(PARAM("input"), "Input");
+b.closeBox();
+b.openHorizontalBox("");
+
+    b.create_mid_rackknob(PARAM("input"), "Input");
+    b.create_fload_switch(sw_button, nullptr, PARAM("loadfile"));
+    b.create_mid_rackknob(PARAM("output"), "Output");
+
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
+    return -1;
+}
+
+int RtNeural::load_ui_f_static(const UiBuilder& b, int form)
+{
+    return static_cast<RtNeural*>(b.plugin)->load_ui_f(b, form);
+}
+
+void RtNeural::del_instance(PluginDef *p)
+{
+    delete static_cast<RtNeural*>(p);
+}
+
+/****************************************************************
  ** class Directout
  */
 

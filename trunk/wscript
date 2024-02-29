@@ -129,6 +129,7 @@ def options(opt):
 
     opt.recurse('src/gx_head')
     opt.recurse('src/NAM')
+    opt.recurse('src/RTNeural')
 
 
 ################################################################
@@ -613,6 +614,7 @@ def build(bld):
     bld.recurse('glade-gxw')
     bld.recurse('pygxw')
     bld.recurse('src/NAM')
+    bld.recurse('src/RTNeural')
     bld.recurse('src/faust')
     bld.recurse('src/plugins')
     bld.recurse('rcstyles')
@@ -741,12 +743,12 @@ class Archive(Context.Context):
     cmd='dist'
     def execute(self):
         self.exec_command(
-            "git archive --prefix=%(d)s-%(v)s/ %(t)s | xz"
+            "git ls-files --recurse-submodules | tar c -T- --transform 's,^,%(d)s-%(v)s/,' | xz "
             " > %(p)s-%(v)s%(e)s" % self.make_dict())
 
     def create_and_unpack(self, d, path):
         self.exec_command(
-            "git archive %s | tar -xf - -C %s" % (d['t'], path))
+            "git ls-files --recurse-submodules | tar c -T- | tar -xf - -C %s" % path)
 
     def make_dict(self):
         t = Options.options.dist_tree

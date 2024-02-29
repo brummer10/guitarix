@@ -25,6 +25,12 @@
 #include "dsp.h"
 #include "activations.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreorder"
+#pragma GCC diagnostic ignored "-Winfinite-recursion"
+#include "RTNeural.h"
+#pragma GCC diagnostic pop
+
 namespace gx_jack { class GxJack; }
 
 namespace gx_engine {
@@ -701,6 +707,47 @@ public:
     Plugin plugin;
     NeuralAmp(ParamMap& param_, sigc::slot<void> sync);
     ~NeuralAmp();
+};
+
+/****************************************************************
+ ** class RTNeural 
+ */
+
+class RtNeural: public PluginDef {
+private:
+    RTNeural::Model<float> *model;
+    ParamMap& param;
+    gx_resample::FixedRateResampler smp;
+    sigc::slot<void> sync;
+    volatile int ready;
+    int fSampleRate;
+    int mSampleRate;
+    float fVslider0;
+    float fVslider1;
+    double fRec0[2];
+    double fRec1[2];
+    int need_resample;
+    bool is_inited;
+    Glib::ustring load_file;
+
+    void clear_state_f();
+    int load_ui_f(const UiBuilder& b, int form);
+    void init(unsigned int sample_rate);
+    void compute(int count, float *input0, float *output0);
+    void get_samplerate(std::string config_file);
+    void load_json_file();
+    int register_par(const ParamReg& reg);
+
+    static void clear_state_f_static(PluginDef*);
+    static void init_static(unsigned int sample_rate, PluginDef*);
+    static int load_ui_f_static(const UiBuilder& b, int form);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Plugin plugin;
+    RtNeural(ParamMap& param_, sigc::slot<void> sync);
+    ~RtNeural();
 };
 
 /****************************************************************
