@@ -51,6 +51,7 @@ Guitarix can also load up LAPSPA and LV2 plugins to comply the effect chain.
 - liblilv-dev,
 - liblrdf0-dev,
 - libsndfile1-dev,
+- libfftw3-dev,
 - lv2-dev,
 - python3,
 - sassc,

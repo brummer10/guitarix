@@ -14,6 +14,7 @@ trunk/webui/build
 trunk/webui/deploy
 trunk/documentation/html
 trunk/html/
+trunk/tools/ampsim/
 .dir-locals.el
 **/.DS_Store
 **/._.DS_Store
