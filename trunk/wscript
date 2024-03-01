@@ -17,7 +17,7 @@ srcdir = '.'
 blddir = 'build'
 
 # used by waf dist and waf build
-VERSION='0.45.0'
+VERSION='0.45.1'
 APPNAME='guitarix'
 
 Options.OptionsContext.gxload = \
@@ -94,24 +94,6 @@ def options(opt):
                    )
 
     opt.gxload('faust')
-
-    ladspa = opt.add_option_group("LADSPA Options (installing ladspa modules)")
-
-    ladspa.add_option('--ladspa',
-                    dest='ladspa',
-                    action='store_true',
-                    default=False,
-                    help="Build LADSPA plugins (Default no)")
-
-    ladspa.add_option('--new-ladspa',
-                    dest='new_ladspa',
-                    action='store_true',
-                    default=False,
-                    help=("Build new LADSPA plugins (Default no)"))
-
-    ladspa.add_option('--ladspadir',
-                    type='string',
-                    help='LADSPA plugin directory [Default: <prefix>/lib/ladspa]')
 
     opt.gxload('lv2')
     opt.gxload('robotofont')
@@ -346,7 +328,7 @@ def configure(conf):
     conf.check(header_name='fftw3.h', mandatory=1)
     conf.check_cfg(package='fftw3f', args=['--cflags','--libs','fftw3f >= 3.3.8'], uselib_store='FFTW3', mandatory=1)
 
-    if opt.standalone or opt.new_ladspa:
+    if opt.standalone:
         try:
             conf.check_cfg(package='jack', args=['--cflags','--libs','jack >= 0.116.2','jack <= 1.8.0'], uselib_store='JACK', msg="Checking for 'jackd1'", mandatory=1)
         except ConfigurationError:
@@ -372,7 +354,7 @@ def configure(conf):
         conf.check_cfg(package='gtkmm-3.0', args=['--cflags','--libs','gtkmm-3.0 >= 3.22'], uselib_store='GTKMM', mandatory=1)
         conf.check_cfg(package='giomm-2.4', args=['--cflags','--libs','giomm-2.4 >= 2.24'], uselib_store='GIOMM', mandatory=1)
 
-    if opt.standalone or opt.ladspa or opt.new_ladspa:
+    if opt.standalone:
         conf.check(header_name='ladspa.h', errmsg="ladspa.h not found, using included version now", mandatory=0)
         conf.check_cfg(package='lrdf', args='--cflags --libs', uselib_store='LRDF', mandatory=1)
         conf.check_cfg(package='lilv-0', args='--cflags --libs', uselib_store='LILV', mandatory=1)
@@ -421,14 +403,6 @@ def configure(conf):
     if opt.lv2:
         conf.gxload('strip')
         conf.gxload('lv2')
-    conf.env['LADSPA'] = opt.ladspa
-    conf.env['NEW_LADSPA'] = opt.new_ladspa
-    if opt.ladspa or opt.new_ladspa:
-        if opt.ladspadir:
-            conf.env['LADSPADIR'] = opt.ladspadir
-        else:
-            conf.env['LADSPADIR'] = os.path.normpath(os.path.join(
-                conf.env['LIBDIR'], 'ladspa'))
 
     conf.gxload('cpu_optimization')
 
@@ -440,14 +414,12 @@ def configure(conf):
     if conf.env['FAUST']:
         conf.recurse('src/faust');
     conf.recurse('src/plugins');
-    if conf.env["LADSPA"]:
-        conf.recurse('ladspa');
     if conf.env["LV2"]:
         #opt.shared_lib = True;
         conf.recurse('src/LV2');
 
     # config subdirs
-    if conf.env['STANDALONE'] or conf.env.NEW_LADSPA or conf.env.GX_PYTHON_WRAPPER or conf.env.GX_GLADE_SUPPORT:
+    if conf.env['STANDALONE'] or conf.env.GX_PYTHON_WRAPPER or conf.env.GX_GLADE_SUPPORT:
         conf.recurse('pygxw')
         conf.recurse('glade-gxw')
         conf.recurse('libgxwmm')
@@ -501,8 +473,6 @@ def configure(conf):
 
     display_feature("Build standalone application", conf.env['STANDALONE'])
     display_feature("Jack Session Support", conf.env['HAVE_JACK_SESSION'])
-    display_feature("Build LADSPA plugins", conf.env['LADSPA'])
-    display_feature("Build new LADSPA plugins", conf.env['NEW_LADSPA'])
     display_feature("Build LV2 plugins", conf.env['LV2'])
     display_feature("Build MOD LV2 plugin GUI's", conf.env['MODGUI'])
     if opt.lv2:
@@ -528,8 +498,6 @@ def configure(conf):
     if conf.env['FONT']:
         display_msg("Install font roboto condensed", conf.env['GX_FONTS_DIR'], 'CYAN')
         display_feature("Update Font config cache", not conf.env["NO_UPDATE_FONT_CACHE"])
-    if opt.ladspa:
-        display_msg("Install ladspa", conf.env['LADSPADIR'], 'CYAN')
     if opt.lv2:
         display_msg("Install lv2", conf.env['LV2DIR'], 'CYAN')
     if conf.env['g++']:
@@ -608,7 +576,6 @@ def build(bld):
                     cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden','-Wl,--exclude-libs,ALL'],
         )
     # process subfolders from here
-    bld.recurse('ladspa')
     bld.recurse('libgxw/gxw')
     bld.recurse('libgxwmm')
     bld.recurse('glade-gxw')
@@ -620,7 +587,6 @@ def build(bld):
     bld.recurse('rcstyles')
     bld.recurse('pixmaps')
     bld.recurse('src/gx_head')
-    bld.recurse('src/ladspa')
     bld.recurse('src/LV2')
     bld.recurse('documentation')
 

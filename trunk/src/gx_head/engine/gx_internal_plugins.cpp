@@ -2031,7 +2031,7 @@ RtNeural::RtNeural(ParamMap& param_, sigc::slot<void> sync_)
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = "rtneural";
-    name = N_("RTNeural");
+    name = N_("RTNeural Network Engine");
     groups = 0;
     description = N_("Neural network engine written by Jatin Chowdhury"); // description (tooltip)
     category = N_("Distortion");       // category
@@ -2136,9 +2136,9 @@ void RtNeural::compute_static(int count, float *input0, float *output0, PluginDe
     static_cast<RtNeural*>(p)->compute(count, input0, output0);
 }
 
-
 void RtNeural::get_samplerate(std::string config_file) {
     std::ifstream infile(config_file);
+    infile.imbue(std::locale::classic());
     std::string line;
     std::string key;
     std::string value;
@@ -2167,6 +2167,7 @@ void RtNeural::load_json_file() {
         delete model;
         model = nullptr;
         mSampleRate = 0;
+        need_resample = 0;
         clear_state_f();
         try {
             get_samplerate(std::string(load_file));
