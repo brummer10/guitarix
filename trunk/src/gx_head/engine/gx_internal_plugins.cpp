@@ -1892,9 +1892,10 @@ void NeuralAmp::compute(int count, float *input0, float *output0)
             }
 
             float buf[ReCount];
+            memset(buf, 0, ReCount*sizeof(float));
 
             if (need_resample == 1) {
-                smp.up(count, output0, buf);
+                ReCount = smp.up(count, output0, buf);
             } else if (need_resample == 2) {
                 smp.down(output0, buf);
             } else {
@@ -2100,9 +2101,10 @@ void RtNeural::compute(int count, float *input0, float *output0)
             }
 
             float buf[ReCount];
+            memset(buf, 0, ReCount*sizeof(float));
 
             if (need_resample == 1) {
-                smp.up(count, output0, buf);
+                ReCount = smp.up(count, output0, buf);
             } else if (need_resample == 2) {
                 smp.down(output0, buf);
             } else {
