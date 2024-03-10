@@ -107,7 +107,10 @@ public:
 #endif
     smbPitchShift detune;
     NeuralAmp neural_amp;
+    NeuralAmp sneural_amp;
     RtNeural rtneural;
+    RtNeural srtneural;
+    RtNeuralMulti rtneuralmulti;
     //
 public:
     GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_system::CmdlineOptions& options);

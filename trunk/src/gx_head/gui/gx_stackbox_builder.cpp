@@ -197,11 +197,11 @@ static void jconv_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMac
 }
 
 
-static void nam_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine) {
+static void nam_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine, std::string idstring) {
     Gtk::Label *label = dynamic_cast<Gtk::Label*>(object.get());
     assert(label);
     gx_engine::StringParameter *p = dynamic_cast<gx_engine::StringParameter*>(
-        &machine.get_parameter("nam.loadfile"));
+        &machine.get_parameter(idstring));
     auto set_nam_filename = [=](Glib::ustring s) { label->set_label(s.substr(s.find_last_of("/\\") + 1)); };
     set_nam_filename(p->getString().get_value());
     sigc::connection conne = p->signal_changed().connect(set_nam_filename);
@@ -218,11 +218,11 @@ static void nam_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachi
 #pragma GCC diagnostic pop
 }
 
-static void rtneural_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine) {
+static void rtneural_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine, std::string idstring) {
     Gtk::Label *label = dynamic_cast<Gtk::Label*>(object.get());
     assert(label);
     gx_engine::StringParameter *p = dynamic_cast<gx_engine::StringParameter*>(
-        &machine.get_parameter("rtneural.loadfile"));
+        &machine.get_parameter(idstring));
     auto set_rtneural_filename = [=](Glib::ustring s) { label->set_label(s.substr(s.find_last_of("/\\") + 1)); };
     set_rtneural_filename(p->getString().get_value());
     sigc::connection conne = p->signal_changed().connect(set_rtneural_filename);
@@ -238,7 +238,6 @@ static void rtneural_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::Gx
         });
 #pragma GCC diagnostic pop
 }
-
 
 static void jconv_button(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine,
                          Glib::RefPtr<Gtk::AccelGroup>& accels, Glib::RefPtr<Gdk::Pixbuf>& window_icon,
@@ -679,11 +678,19 @@ void StackBoxBuilder::connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::Ref
     } else if (token[0] == "nam:load_nam_file") {
         select_nam_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
     } else if (token[0] == "nam.file") {
-        nam_filelabel(object, machine);
+        nam_filelabel(object, machine, "nam.loadfile");
+    } else if (token[0] == "snam.file") {
+        nam_filelabel(object, machine, "snam.loadfile");
     } else if (token[0] == "rtneural:load_json_file") {
         select_rtneural_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
     } else if (token[0] == "rtneural.file") {
-        rtneural_filelabel(object, machine);
+        rtneural_filelabel(object, machine, "rtneural.loadfile");
+    } else if (token[0] == "srtneural.file") {
+        rtneural_filelabel(object, machine, "srtneural.loadfile");
+    } else if (token[0] == "mrtneural.afile") {
+        rtneural_filelabel(object, machine, "mrtneural.loadafile");
+    } else if (token[0] == "mrtneural.bfile") {
+        rtneural_filelabel(object, machine, "mrtneural.loadbfile");
     } else {
         gx_print_error(
             "StackBoxBuilder::connect_signals",

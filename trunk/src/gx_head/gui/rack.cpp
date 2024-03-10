@@ -782,6 +782,7 @@ void PluginDict::fill_pluginlist() {
     // define order of categories by registering
     // them first
     add_plugin_category(N_("Tone Control"), false);
+    add_plugin_category(N_("Neural"));
     add_plugin_category(N_("Distortion"));
     add_plugin_category(N_("Fuzz"));
     add_plugin_category(N_("Reverb"));
