@@ -1517,6 +1517,56 @@ void MainWindow::gx_show_help() {
     Glib::signal_idle().connect_once(sigc::mem_fun(this, &MainWindow::show_forum_help));
 }
 
+void MainWindow::show_tonehunt() {
+#if GTK_MINOR_VERSION >= 24
+    try {
+	bld.window->show_uri(
+	    "https://tonehunt.org/all",
+	    gtk_get_current_event_time());
+    } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
+	gx_print_info("tonehunt", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
+	gx_print_error("tonehunt", _("failed to tonehunt side   "));
+    }
+#else
+    try {
+        gtk_show_uri_on_window(NULL, "https://tonehunt.org/all",
+            gtk_get_current_event_time(), NULL);
+    } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
+	gx_print_info("tonehunt", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
+	gx_print_error("tonehunt", _("failed to load tonehunt side   "));
+    }
+#endif
+}
+
+void MainWindow::gx_show_tonehunt() {
+    Glib::signal_idle().connect_once(sigc::mem_fun(this, &MainWindow::show_tonehunt));
+}
+
+void MainWindow::show_rtneural() {
+#if GTK_MINOR_VERSION >= 24
+    try {
+	bld.window->show_uri(
+	    "https://cloud.aida-x.cc/all",
+	    gtk_get_current_event_time());
+    } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
+	gx_print_info("RTNeural", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
+	gx_print_error("RTNeural", _("failed to aidax side   "));
+    }
+#else
+    try {
+        gtk_show_uri_on_window(NULL, "https://cloud.aida-x.cc/all",
+            gtk_get_current_event_time(), NULL);
+    } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
+	gx_print_info("RTNeural", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
+	gx_print_error("RTNeural", _("failed to load aidax side   "));
+    }
+#endif
+}
+
+void MainWindow::gx_show_rtneural() {
+    Glib::signal_idle().connect_once(sigc::mem_fun(this, &MainWindow::show_rtneural));
+}
+
 // ----menu function about
 void gx_show_about() {
     static string about;
@@ -1857,6 +1907,8 @@ void MainWindow::create_actions() {
     ** Help and About
     */
     uimanager.add_action("Help", sigc::mem_fun(this, &MainWindow::gx_show_help));
+    uimanager.add_action("GetNAMModels", sigc::mem_fun(this, &MainWindow::gx_show_tonehunt));
+    uimanager.add_action("GetRTNeuralModels", sigc::mem_fun(this, &MainWindow::gx_show_rtneural));
     uimanager.add_action("About", sigc::ptr_fun(gx_show_about));
 }
 

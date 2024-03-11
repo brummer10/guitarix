@@ -971,6 +971,10 @@ private:
     void amp_controls_visible(Gtk::Range *rr);
     void gx_show_help();
     void show_forum_help();
+    void gx_show_tonehunt();
+    void show_tonehunt();
+    void gx_show_rtneural();
+    void show_rtneural();
     void set_midiout();
 public:
     Glib::RefPtr<Gtk::SizeGroup> left_column;

@@ -244,6 +244,14 @@
 	  <attribute name="accel">F1</attribute>
 	</item>
 	<item>
+	  <attribute name="action">GetNAMModels</attribute>
+	  <attribute name="label" translatable="yes">Get NAM Models</attribute>
+	</item>
+	<item>
+	  <attribute name="action">GetRTNeuralModels</attribute>
+	  <attribute name="label" translatable="yes">Get RTNeural Models</attribute>
+	</item>
+	<item>
 	  <attribute name="action">ShowTooltips</attribute>
 	  <attribute name="label" translatable="yes">Show _Tooltips</attribute>
 	</item>
