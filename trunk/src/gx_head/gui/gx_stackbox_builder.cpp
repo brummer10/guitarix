@@ -681,6 +681,10 @@ void StackBoxBuilder::connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::Ref
         nam_filelabel(object, machine, "nam.loadfile");
     } else if (token[0] == "snam.file") {
         nam_filelabel(object, machine, "snam.loadfile");
+    } else if (token[0] == "mnam.afile") {
+        nam_filelabel(object, machine, "mnam.loadafile");
+    } else if (token[0] == "mnam.bfile") {
+        nam_filelabel(object, machine, "mnam.loadbfile");
     } else if (token[0] == "rtneural:load_json_file") {
         select_rtneural_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
     } else if (token[0] == "rtneural.file") {

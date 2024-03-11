@@ -1496,7 +1496,7 @@ void MainWindow::show_forum_help() {
 #if GTK_MINOR_VERSION >= 24
     try {
 	bld.window->show_uri(
-	    "https://sourceforge.net/p/guitarix/discussion/general/",
+	    "https://www.reddit.com/r/Guitarix/",
 	    gtk_get_current_event_time());
     } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
 	gx_print_info("guitarix help", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
@@ -1504,7 +1504,7 @@ void MainWindow::show_forum_help() {
     }
 #else
     try {
-        gtk_show_uri_on_window(NULL, "https://sourceforge.net/p/guitarix/discussion/general/",
+        gtk_show_uri_on_window(NULL, "https://www.reddit.com/r/Guitarix/",
             gtk_get_current_event_time(), NULL);
     } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
 	gx_print_info("guitarix help", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
@@ -1532,9 +1532,16 @@ void gx_show_about() {
             "\nand Albert Graef\n(http://q-lang.sourceforge.net/examples.html#Faust)"
             "\n\n");
 
+        about +=
+            _("for Neural Amp Modelling it use Neural Amp Modeler Core "
+            "\nby Steven Atkinson"
+            "\n(https://github.com/sdatkinson/NeuralAmpModelerCore)"
+            "\nthe RTNeural Network Engine used in the RTNeural Plugs"
+            "\nwas developed by Jatin Chowdhury"
+            "\n(https://github.com/jatinchowdhury18/RTNeural)");
 
         about +=
-            _("for impulse response it use zita-convolver"
+            _("\n\nfor impulse response it use zita-convolver"
             "\nby Fons Adriaensen"
             "\n(http://www.kokkinizita.net/linuxaudio/index.html)"
             "\n\nThe included IR-files are contributed by"

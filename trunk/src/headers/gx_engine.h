@@ -108,6 +108,7 @@ public:
     smbPitchShift detune;
     NeuralAmp neural_amp;
     NeuralAmp sneural_amp;
+    NeuralAmpMulti mneural_amp;
     RtNeural rtneural;
     RtNeural srtneural;
     RtNeuralMulti rtneuralmulti;

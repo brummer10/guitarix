@@ -153,6 +153,7 @@ def build(bld):
         './builder/metronome_ui.glade',
         './builder/nam_ui.glade',
         './builder/snam_ui.glade',
+        './builder/mnam_ui.glade',
         './builder/rtneural_ui.glade',
         './builder/srtneural_ui.glade',
         './builder/mrtneural_ui.glade',

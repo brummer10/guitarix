@@ -2020,6 +2020,303 @@ void NeuralAmp::del_instance(PluginDef *p)
     delete static_cast<NeuralAmp*>(p);
 }
 
+/****************************************************************
+ ** class NeuralAmpMulti
+ */
+
+NeuralAmpMulti::NeuralAmpMulti(ParamMap& param_, std::string id_, sigc::slot<void> sync_)
+    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), smpa(), smpb(), sync(sync_), idstring(id_), plugin() {
+    version = PLUGINDEF_VERSION;
+    flags = 0;
+    id = idstring.c_str();
+    name = N_("Neural Multi Amp Modeler");
+    groups = 0;
+    description = N_("Neural Amp Modeler by Steven Atkinson"); // description (tooltip)
+    category = N_("Neural");       // category
+    shortname = "NAM Multi";     // shortname
+    mono_audio = compute_static;
+    stereo_audio = 0;
+    set_samplerate = init_static;
+    activate_plugin = 0;
+    register_params = register_params_static;
+    load_ui = load_ui_f_static;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+    plugin = this;
+    loudnessa = 0.0;
+    loudnessb = 0.0;
+    need_aresample = 0;
+    need_bresample = 0;
+    is_inited = false;
+    gx_system::atomic_set(&ready, 0);
+ }
+
+NeuralAmpMulti::~NeuralAmpMulti() {
+    delete modela;
+    delete modelb;
+}
+
+inline void NeuralAmpMulti::clear_state_f()
+{
+    for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+    for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
+    for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec2[l0] = 0.0;
+}
+
+void NeuralAmpMulti::clear_state_f_static(PluginDef *p)
+{
+    static_cast<NeuralAmpMulti*>(p)->clear_state_f();
+}
+
+inline void NeuralAmpMulti::init(unsigned int sample_rate)
+{
+    fSampleRate = sample_rate;
+    clear_state_f();
+    is_inited = true;
+    load_nam_afile();
+    load_nam_bfile();
+}
+
+void NeuralAmpMulti::init_static(unsigned int sample_rate, PluginDef *p)
+{
+    static_cast<NeuralAmpMulti*>(p)->init(sample_rate);
+}
+
+void NeuralAmpMulti::compute(int count, float *input0, float *output0)
+{
+    if (output0 != input0)
+        memcpy(output0, input0, count*sizeof(float));
+    if (!modela || !modelb) return;
+    double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
+    double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
+    double fSlow2 = 0.0010000000000000009 * double(fVslider2);
+    for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+        fRec0[0] = fSlow0 + 0.999 * fRec0[1];
+        output0[i0] = float(double(output0[i0]) * fRec0[0]);
+        fRec0[1] = fRec0[0];
+    }
+    if (modela && modelb && gx_system::atomic_get(ready)) {
+        float bufa[count];
+        memcpy(bufa, output0, count*sizeof(float));
+        float bufb[count];
+        memcpy(bufb, output0, count*sizeof(float));
+        if (need_aresample || need_bresample) {
+            int ReCounta = count;
+            int ReCountb = count;
+            if (need_aresample == 1) {
+                ReCounta = smpa.max_out_count(count);
+            } else if (need_aresample == 2) {
+                ReCounta = static_cast<int>(ceil((count*static_cast<double>(maSampleRate))/fSampleRate));
+            }
+            if (need_bresample == 1) {
+                ReCountb = smpb.max_out_count(count);
+            } else if (need_bresample == 2) {
+                ReCountb = static_cast<int>(ceil((count*static_cast<double>(mbSampleRate))/fSampleRate));
+            }
+
+            float bufa1[ReCounta];
+            memset(bufa1, 0, ReCounta*sizeof(float));
+            float bufb1[ReCountb];
+            memset(bufb1, 0, ReCountb*sizeof(float));
+
+            if (need_aresample == 1) {
+                ReCountb = smpa.up(count, bufa, bufa1);
+            } else if (need_aresample == 2) {
+                smpa.down(bufa, bufa1);
+            } else {
+                memcpy(bufa1, bufa, ReCounta * sizeof(float));
+            }
+            if (need_bresample == 1) {
+                ReCountb = smpb.up(count, bufb, bufb1);
+            } else if (need_aresample == 2) {
+                smpb.down(bufb, bufb1);
+            } else {
+                memcpy(bufb1, bufb, ReCountb * sizeof(float));
+            }
+
+            modela->process(bufa1, bufa1, ReCounta);
+            modela->finalize_(ReCounta);
+            modelb->process(bufb1, bufb1, ReCountb);
+            modelb->finalize_(ReCountb);
+
+            if (need_aresample == 1) {
+                smpa.down(bufa1, bufa);
+            } else if (need_aresample == 2) {
+                smpa.up(ReCounta, bufa1, bufa);
+            }
+            if (need_bresample == 1) {
+                smpb.down(bufb1, bufb);
+            } else if (need_bresample == 2) {
+                smpb.up(ReCountb, bufb1, bufb);
+            }
+        } else {
+            modela->process(bufa, bufa, count);
+            modela->finalize_(count);
+            modelb->process(bufb, bufb, count);
+            modelb->finalize_(count);
+        }
+        for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+            fRec2[0] = fSlow2 + 0.999 * fRec2[1];
+            output0[i0] = bufa[i0] * (1.0 - fRec2[0]) + bufb[i0] * fRec2[0];
+            fRec2[1] = fRec2[0];
+        }
+    }
+    
+    for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+        fRec1[0] = fSlow1 + 0.999 * fRec1[1];
+        output0[i0] = float(double(output0[i0]) * fRec1[0]);
+        fRec1[1] = fRec1[0];
+    }
+}
+
+void NeuralAmpMulti::compute_static(int count, float *input0, float *output0, PluginDef *p)
+{
+    static_cast<NeuralAmpMulti*>(p)->compute(count, input0, output0);
+}
+
+// non rt callback
+void NeuralAmpMulti::load_nam_afile() {
+    if (!load_afile.empty() && is_inited) {
+        gx_system::atomic_set(&ready, 0);
+        sync();
+        delete modela;
+        modela = nullptr;
+        need_aresample = 0;
+        clear_state_f();
+        int32_t warmUpSize = 4096;
+        try {
+            modela = nam::get_dsp(std::string(load_afile)).release();
+        } catch (const std::exception&) {
+            gx_print_info("Neural Multi Amp Modeler", "fail to load " + load_afile);
+            load_afile = "None";
+        }
+        
+        if (modela) {
+            if (modela->HasLoudness()) loudnessa = modela->GetLoudness();
+            maSampleRate = static_cast<int>(modela->GetExpectedSampleRate());
+            //model->SetLoudness(-15.0);
+            if (maSampleRate <= 0) maSampleRate = 48000;
+            if (maSampleRate > fSampleRate) {
+                smpa.setup(fSampleRate, maSampleRate);
+                need_aresample = 1;
+            } else if (maSampleRate < fSampleRate) {
+                smpa.setup(maSampleRate, fSampleRate);
+                need_aresample = 2;
+            } 
+            float* buffer = new float[warmUpSize];
+            memset(buffer, 0, warmUpSize * sizeof(float));
+
+            modela->process(buffer, buffer, warmUpSize);
+            modela->finalize_(warmUpSize);
+
+            delete[] buffer;
+            //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, maSampleRate, loudness);
+            //fprintf(stderr, "%s\n", load_file.c_str());
+        } 
+        gx_system::atomic_set(&ready, 1);
+    }
+}
+
+// non rt callback
+void NeuralAmpMulti::load_nam_bfile() {
+    if (!load_bfile.empty() && is_inited) {
+        gx_system::atomic_set(&ready, 0);
+        sync();
+        delete modelb;
+        modelb = nullptr;
+        need_bresample = 0;
+        clear_state_f();
+        int32_t warmUpSize = 4096;
+        try {
+            modelb = nam::get_dsp(std::string(load_bfile)).release();
+        } catch (const std::exception&) {
+            gx_print_info("Neural Multi Amp Modeler", "fail to load " + load_bfile);
+            load_bfile = "None";
+        }
+        
+        if (modelb) {
+            if (modelb->HasLoudness()) loudnessb = modelb->GetLoudness();
+            mbSampleRate = static_cast<int>(modela->GetExpectedSampleRate());
+            //model->SetLoudness(-15.0);
+            if (mbSampleRate <= 0) mbSampleRate = 48000;
+            if (mbSampleRate > fSampleRate) {
+                smpb.setup(fSampleRate, mbSampleRate);
+                need_bresample = 1;
+            } else if (mbSampleRate < fSampleRate) {
+                smpb.setup(maSampleRate, fSampleRate);
+                need_bresample = 2;
+            } 
+            float* buffer = new float[warmUpSize];
+            memset(buffer, 0, warmUpSize * sizeof(float));
+
+            modelb->process(buffer, buffer, warmUpSize);
+            modelb->finalize_(warmUpSize);
+
+            delete[] buffer;
+            //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mbSampleRate, loudness);
+            //fprintf(stderr, "%s\n", load_file.c_str());
+        } 
+        gx_system::atomic_set(&ready, 1);
+    }
+}
+
+int NeuralAmpMulti::register_par(const ParamReg& reg)
+{
+    reg.registerFloatVar((idstring + ".input").c_str(),N_("Input"),"S",N_("gain (dB)"),&fVslider0, 0.0, -20.0, 20.0, 0.1, 0);
+    reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
+    reg.registerFloatVar((idstring + ".mix").c_str(),N_("Mix"),"S",N_("mix models"),&fVslider2, 0.5, 0.0, 1.0, 0.01, 0);
+    param.reg_string((idstring + ".loadafile").c_str(), "", &load_afile, "*.nam", true)->set_desc(N_("import *.nam file"));
+    param.reg_string((idstring + ".loadbfile").c_str(), "", &load_bfile, "*.nam", true)->set_desc(N_("import *.nam file"));
+
+    param[(idstring + ".loadafile").c_str()].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &NeuralAmpMulti::load_nam_afile)));
+    param[(idstring + ".loadbfile").c_str()].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &NeuralAmpMulti::load_nam_bfile)));
+    return 0;
+}
+
+int NeuralAmpMulti::register_params_static(const ParamReg& reg)
+{
+    return static_cast<NeuralAmpMulti*>(reg.plugin)->register_par(reg);
+}
+
+inline int NeuralAmpMulti::load_ui_f(const UiBuilder& b, int form)
+{
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file((idstring + "_ui.glade").c_str());
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+
+        b.openHorizontalhideBox("");
+            b.create_master_slider((idstring + "input").c_str(), "Input");
+        b.closeBox();
+        b.openHorizontalBox("");
+
+            b.create_mid_rackknob((idstring + ".input").c_str(), "Input");
+            b.openVerticalBox("");
+                b.create_fload_switch(sw_button, nullptr, (idstring + ".loadafile").c_str());
+                b.create_fload_switch(sw_button, nullptr, (idstring + ".loadbfile").c_str());
+            b.closeBox();
+            b.create_mid_rackknob((idstring + ".output").c_str(), "Output");
+            b.create_mid_rackknob((idstring + ".mix").c_str(), "Mix");
+
+        b.closeBox();
+
+        return 0;
+    }
+    return -1;
+}
+
+int NeuralAmpMulti::load_ui_f_static(const UiBuilder& b, int form)
+{
+    return static_cast<NeuralAmpMulti*>(b.plugin)->load_ui_f(b, form);
+}
+
+void NeuralAmpMulti::del_instance(PluginDef *p)
+{
+    delete static_cast<NeuralAmpMulti*>(p);
+}
 
 /****************************************************************
  ** class RtNeural

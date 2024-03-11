@@ -711,6 +711,57 @@ public:
 };
 
 /****************************************************************
+ ** class NeuralAmpMulti 
+ */
+
+class NeuralAmpMulti: public PluginDef {
+private:
+    nam::DSP* modela;
+    nam::DSP* modelb;
+    ParamMap& param;
+    gx_resample::FixedRateResampler smpa;
+    gx_resample::FixedRateResampler smpb;
+    sigc::slot<void> sync;
+    volatile int ready;
+    int fSampleRate;
+    int maSampleRate;
+    int mbSampleRate;
+    float fVslider0;
+    float fVslider1;
+    float fVslider2;
+    double fRec0[2];
+    double fRec1[2];
+    double fRec2[2];
+    int need_aresample;
+    int need_bresample;
+    float loudnessa;
+    float loudnessb;
+    bool is_inited;
+    Glib::ustring load_afile;
+    Glib::ustring load_bfile;
+    std::string idstring;
+
+    void clear_state_f();
+    int load_ui_f(const UiBuilder& b, int form);
+    void init(unsigned int sample_rate);
+    void compute(int count, float *input0, float *output0);
+    void load_nam_afile();
+    void load_nam_bfile();
+    int register_par(const ParamReg& reg);
+
+    static void clear_state_f_static(PluginDef*);
+    static void init_static(unsigned int sample_rate, PluginDef*);
+    static int load_ui_f_static(const UiBuilder& b, int form);
+    static void compute_static(int count, float *input0, float *output0, PluginDef*);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Plugin plugin;
+    NeuralAmpMulti(ParamMap& param_, std::string id, sigc::slot<void> sync);
+    ~NeuralAmpMulti();
+};
+
+/****************************************************************
  ** class RTNeural 
  */
 
@@ -753,7 +804,7 @@ public:
 };
 
 /****************************************************************
- ** class RTNeural 
+ ** class RTNeuralMulti
  */
 
 class RtNeuralMulti: public PluginDef {
