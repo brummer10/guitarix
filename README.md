@@ -4,7 +4,8 @@
 
 Guitarix is a modular, virtual amplifier for Linux.
 With Guitarix you can choose different preamp and amp models
-and /or could load *.nam files with the Neural Amp Modeler module,
+and /or could load [*.nam files](https://tonehunt.org/all) with the [Neural Amp Modeler](https://github.com/sdatkinson/NeuralAmpModelerCore) modules,
+or load [*.json or .aidax files](https://cloud.aida-x.cc/all) with the [RTNeural](https://github.com/jatinchowdhury18/RTNeural) modules, 
 to simulate a specific hardware unit.
 Combine them with various effects and speaker cabinet emulations
 and/or load your own Impulse Response files
