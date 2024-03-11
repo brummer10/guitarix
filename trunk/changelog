@@ -1,3 +1,11 @@
+guitarix2 (0.46.0) unstable; urgency=low
+
+  * Add NAM and RTNeural Multi module
+  * Allow to load two instances per neural module
+  * Fix have root dir in release tarball
+  * Fix resamplers for Neural plugs
+ -- 11.03.2024
+
 guitarix2 (0.44.1) unstable; urgency=low
 
   * Fix race condition when build with Faust
