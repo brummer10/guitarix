@@ -16,8 +16,8 @@ def configure(conf):
         # workaround: "-liconv" required at end of linker cmdline
         conf.env.append_value('STLIB_CAIRO', ['iconv'])
     else:
-        conf.check_cc(lib='X11', uselib_store='X11', mandatory=True) and \
-        conf.check_cc(header_name = 'X11/Xlib.h', uselib_store = 'X11', mandatory=1)
+        conf.check(lib='X11', uselib_store='X11', mandatory=True) and \
+        conf.check(header_name = 'X11/Xlib.h', uselib_store = 'X11', mandatory=1)
 
 def build(bld):
     if not (bld.env.LV2GUI):
