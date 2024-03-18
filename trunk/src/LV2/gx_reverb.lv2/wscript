@@ -12,7 +12,7 @@ def build(bld):
         source   = ['gx_reverb.cpp'],
         includes = ['../faust','./', '../DSP'],
         cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
-        use = ['LV2CORE','GX_RESAMPLER'],
+        use = ['LV2CORE'],
         )
     bld.lv2_gui(
         lv2_base = lv2_base,
