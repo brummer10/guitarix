@@ -1,4 +1,5 @@
 import os
+import re
 
 def options(opt):
     comp = opt.get_option_group("Configuration options")
@@ -60,7 +61,15 @@ def check_cloop(conf):
     }
     """
     msg = "Checking for libcloog-ppl0"
-    conf.check_cxx(msg = msg, fragment=code, cxxflags=[ '-O3', '-ftree-loop-linear'], define_name="NOOPT")
+    conf.check_cxx(msg = msg, fragment=code, cxxflags=[ '-O3', '-ftree-loop-linear'], define_name="NOOPT", mandatory=0)
+
+def check_v3 (conf):
+    if conf.env['IS_LINUX']:
+        s = conf.cmd_and_log('/usr/lib64/ld-linux-x86-64.so.2'+' --help | grep x86-64-v3', quiet=True)
+        if "x86-64-v3" in s:
+            return True
+    return False
+
 
 def append_optimization_flags(conf, cxxflags):
     cpu_model = None
@@ -84,7 +93,9 @@ def append_optimization_flags(conf, cxxflags):
         return None
     model = cpu_model.split()
     arch = os.uname()[4]
-    if "AMD" in model and "x86_64" in arch:
+    if check_v3(conf):
+        cxxflags.append ("-march=x86-64-v3")
+    elif "AMD" in model and "x86_64" in arch:
         cxxflags.append ("-march=k8")
     elif "AMD" in model and "Sempron(tm)" in model:
         cxxflags.append ("-march=native")
@@ -140,13 +151,15 @@ def append_optimization_flags(conf, cxxflags):
 
     if not conf.options.debug:
         cxxflags.append ("-fomit-frame-pointer")
-    cxxflags.append ("-ftree-loop-linear")
+    if conf.env['NOOPT']:
+        cxxflags.append ("-ftree-loop-linear")
     #cxxflags.append ("-ffinite-math-only")
     cxxflags.append ("-fno-math-errno")
     cxxflags.append ("-fno-signed-zeros")
     #cxxflags.append ("-ffast-math") # quicker but doesn't seem to work (difference in sound output)
     #cxxflags.append ("-malign-double")
-    cxxflags.append ("-fstrength-reduce")
+    if any('clang' not in s for s in conf.env["CXX"]):
+        cxxflags.append ("-fstrength-reduce")
     cxxflags.append ("-pipe")
     return cpu_model
 
@@ -164,13 +177,14 @@ def configure(conf):
     cpu_model = None
     if opt.optimization:
         check_cloop(conf)
-        if conf.env['NOOPT']:
-            conf.env['OPT'] = False
-            cpu_model = append_optimization_flags(conf, cxxflags)
+        #if conf.env['NOOPT']:
+        conf.env['OPT'] = False
+        cpu_model = append_optimization_flags(conf, cxxflags)
 
     if any(x.startswith('-flto') for x in cxxflags):
         conf.env['LTO'] = True
-        cxxflags.append ("-ffat-lto-objects")
+        if any('clang' not in s for s in conf.env["CXX"]):
+            cxxflags.append ("-ffat-lto-objects")
 
     cxxflags.append ("-std=c++17")
    # cxxflags.append ("-Ofast")

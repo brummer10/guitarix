@@ -25,8 +25,8 @@ Options.OptionsContext.gxload = \
         Build.BuildContext.gxload = \
             lambda ctx, tool: ctx.load(tool, tooldir='waftools')
 
-check_in_faust_version = '2.69.3'  # this Faust should be used for checked in generated files
-other_faust_versions = ['2.37.3', '2.33.1', '2.30.5','2.40.0', '2.54.9', '2.60.3','2.68.1'] # other Faust versions known to work
+check_in_faust_version = '2.70.3'  # this Faust should be used for checked in generated files
+other_faust_versions = ['2.37.3', '2.33.1', '2.30.5','2.40.0', '2.54.9', '2.60.3','2.68.1','2.69.3'] # other Faust versions known to work
 
 g_maxlen = 40 # maximum width of message for 2-column display
 
@@ -301,12 +301,15 @@ def configure(conf):
     conf.env['LINKFLAGS'] = conf.env['LDFLAGS']
 
     # os specific: common settings
-    conf.env['OS_LV2_CXXFLAGS']      = ['-fvisibility=hidden','-Wl,--exclude-libs,ALL']
+    conf.env['OS_LV2_CXXFLAGS']      = ['-fvisibility=hidden']
+    if any('clang' not in s for s in conf.env["CXX"]):
+        conf.env.append_value('OS_LV2_CXXFLAGS',['-Wl,--exclude-libs,ALL'])
     conf.env['OS_SNDFILE_CFGFLAGS']  = ['--cflags','--libs','sndfile >= 1.0.17']
     conf.env['OS_CAIRO_CFGFLAGS']    = '--cflags --libs'
     conf.env['OS_RESOURCES_LDFLAGS'] = '-z noexecstack'
     if conf.env['OS'] != 'win32':
-        conf.env.append_value('OS_LV2_CXXFLAGS', ['-Wl,-z,relro,-z,now'])
+        if any('clang' not in s for s in conf.env["CXX"]):
+            conf.env.append_value('OS_LV2_CXXFLAGS', ['-Wl,-z,relro,-z,now'])
     else:
         # MSWin changes
         conf.env.prepend_value('OS_SNDFILE_CFGFLAGS', ['--static'])
@@ -443,7 +446,7 @@ def configure(conf):
     if conf.cpu_model:
         display_msg("CPU version" , "%s" % conf.cpu_model, "CYAN")
     if not conf.env['NOOPT'] and opt.optimization:
-        display_msg("package libcloog-ppl0 not found", "optimization is disabled", "RED")
+        display_msg("package libcloog-ppl0 not found", "loop optimization is disabled", "RED")
     display_msg("C++ flags", " ".join(conf.env['CXXFLAGS']), 'CYAN')
     display_msg("Link flags", " ".join(conf.env['LINKFLAGS']), 'CYAN')
     display_msg("Compiler %s version" %conf.env["CXX"], "%s" % ".".join(conf.env["CC_VERSION"]), "CYAN")
@@ -549,19 +552,24 @@ def build(bld):
     if bld.env['INTLTOOL']:
         bld(name='i18n', features='intltool_po', appname=APPNAME, podir='po')
 
+    if any('clang' not in s for s in bld.env["CXX"]):
+        gccflags = ['-Wl,--exclude-libs,ALL']
+    else:
+        gccflags = []
+
     if bld.env['HAVE_CONVOLVER_FFMPEG']:
         bld.objects(name='ZITA_CONVOLVER',
                     source = 'src/zita-convolver-ffmpeg/zita-convolver.cc',
                     includes = 'src/headers',
                     export_includes = 'src/zita-convolver-ffmpeg',
                     use = ['LIBAVCODEC','LIBAVUTIL'],
-                    cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden','-Wl,--exclude-libs,ALL'],
+                    cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden'] + gccflags,
         )
     elif not bld.env['HAVE_ZITA_CONVOLVER']:
         bld.objects(name='ZITA_CONVOLVER',
                     source='src/zita-convolver/zita-convolver.cc',
                     export_includes = 'src/zita-convolver',
-                    cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden','-Wl,--exclude-libs,ALL'],
+                    cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden'] + gccflags,
                     use = ['FFTW3','PTHREAD'],
         )
     if not bld.env['HAVE_ZITA_RESAMPLER']:
@@ -573,7 +581,7 @@ def build(bld):
                     includes = 'src/zita-resampler-1.1.0',
                     export_includes = 'src/zita-resampler-1.1.0',
                     use=['PTHREAD'],
-                    cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden','-Wl,--exclude-libs,ALL'],
+                    cxxflags = bld.env.CXXFLAGS_cxxshlib + ['-fvisibility=hidden'] + gccflags,
         )
     # process subfolders from here
     bld.recurse('libgxw/gxw')

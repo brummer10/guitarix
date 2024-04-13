@@ -113,6 +113,11 @@ def build(bld):
     if not bld.env.LV2:
         return
 
+    if any('clang' not in s for s in bld.env["CXX"]):
+        gccflags = ['-Wl,--exclude-libs,ALL']
+    else:
+        gccflags = []
+
     bld.recurse('faust')
     bld.recurse('xputty/resources')
     bld.add_group()
@@ -121,12 +126,12 @@ def build(bld):
     bld.objects(name='GX_CONVOLVER',
                 source='DSP/gx_convolver.cc',
                 includes='DSP',
-                cxxflags=['-fvisibility=hidden','-fPIC','-Wl,--exclude-libs,ALL'],
+                cxxflags=['-fvisibility=hidden','-fPIC'] + gccflags,
                 use=['ZITA_CONVOLVER','GX_RESAMPLER'],
     )
     bld.objects(name='GX_RESAMPLER',
                 source='DSP/gx_resampler.cc',
-                cxxflags=['-fvisibility=hidden','-fPIC','-Wl,--exclude-libs,ALL'],
+                cxxflags=['-fvisibility=hidden','-fPIC'] + gccflags,
                 use=['ZITA_RESAMPLER'],
     )
 

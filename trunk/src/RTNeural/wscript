@@ -34,7 +34,8 @@ def build(bld):
                  ]
 
     if not bld.env['LTO']:
-        cxx_flags.append ("-fno-fat-lto-objects")
+        if any('clang' not in s for s in bld.env["CXX"]):
+            cxx_flags.append ("-fno-fat-lto-objects")
 
     bld.stlib(
         name = 'librtneural',

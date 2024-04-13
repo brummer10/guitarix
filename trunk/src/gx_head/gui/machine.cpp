@@ -66,10 +66,14 @@ void lock_rt_memory() {
 	{ __rt_text__start, __rt_text__end - __rt_text__start },
 	{ __rt_data__start, __rt_data__end - __rt_data__start },
     };
+#ifndef NDEBUG
     long int total_size = 0;
+#endif
     set_memory_allocation();
     for (unsigned int i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
+#ifndef NDEBUG
         total_size +=regions[i].len;
+#endif
         if (mlock(regions[i].start, regions[i].len) != 0) {
             gx_print_error(
             "system init",
@@ -95,9 +99,13 @@ void unlock_rt_memory() {
     { __rt_text__start, __rt_text__end - __rt_text__start },
     { __rt_data__start, __rt_data__end - __rt_data__start },
     };
+#ifndef NDEBUG
     long int total_size = 0;
+#endif
     for (unsigned int i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
+#ifndef NDEBUG
         total_size +=regions[i].len;
+#endif
         if (munlock(regions[i].start, regions[i].len) != 0) {
             gx_print_error(
             "system init",

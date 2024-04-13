@@ -2128,7 +2128,7 @@ void NeuralAmpMulti::compute(int count, float *input0, float *output0)
             }
             if (need_bresample == 1) {
                 ReCountb = smpb.up(count, bufb, bufb1);
-            } else if (need_aresample == 2) {
+            } else if (need_bresample == 2) {
                 smpb.down(bufb, bufb1);
             } else {
                 memcpy(bufb1, bufb, ReCountb * sizeof(float));
@@ -2236,7 +2236,7 @@ void NeuralAmpMulti::load_nam_bfile() {
         
         if (modelb) {
             if (modelb->HasLoudness()) loudnessb = modelb->GetLoudness();
-            mbSampleRate = static_cast<int>(modela->GetExpectedSampleRate());
+            mbSampleRate = static_cast<int>(modelb->GetExpectedSampleRate());
             //model->SetLoudness(-15.0);
             if (mbSampleRate <= 0) mbSampleRate = 48000;
             if (mbSampleRate > fSampleRate) {
@@ -2646,7 +2646,7 @@ void RtNeuralMulti::compute(int count, float *input0, float *output0)
             }
             if (need_bresample == 1) {
                 ReCountb = smpb.up(count, bufb, bufb1);
-            } else if (need_aresample == 2) {
+            } else if (need_bresample == 2) {
                 smpb.down(bufb, bufb1);
             } else {
                 memcpy(bufb1, bufb, ReCountb * sizeof(float));

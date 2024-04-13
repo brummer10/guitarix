@@ -7,17 +7,22 @@ def configure(conf):
 def build(bld):
     lv2_base = 'gx_aclipper'
 
+    if any('clang' not in s for s in bld.env["CXX"]):
+        gccflags = ['-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL']
+    else:
+        gccflags = []
+
     bld.lv2(
         lv2_base = lv2_base,
         source   = ['gx_aclipper.cpp'],
         includes = ['../faust','./', '../DSP'],
-        cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
+        cxxflags=['-fvisibility=hidden'] + gccflags,
         use = ['LV2CORE','GX_RESAMPLER'],
         )
     bld.lv2_gui(
         lv2_base = lv2_base,
         source   = ' gx_aclipper_ui.cpp',
         includes = ['../xputty/header','../xputty/header/widgets','../xputty/resources','../xputty/lv2_plugin'],
-        cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
+        cxxflags=['-fvisibility=hidden'] + gccflags,
         use = ['xcairo','X11', 'CAIRO','LV2CORE'],
         )

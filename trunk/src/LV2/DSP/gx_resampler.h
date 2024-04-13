@@ -39,13 +39,12 @@ class FixedRateResampler {
 private:
     Resampler r_up, r_down;
     int inputRate, outputRate;
-    int last_in_count;
 public:
     int setup(int _inputRate, int _outputRate);
     int up(int count, float *input, float *output);
     void down(float *input, float *output);
     int max_out_count(int in_count) {
-	return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
+    return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
 };
 
 class SimpleResampler
