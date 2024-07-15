@@ -178,6 +178,16 @@ void GxConvolverBase::adjust_values(
     if (bufsize < Convproc::MINPART) {
         bufsize = Convproc::MINPART;
     }
+    if ((bufsize & (bufsize - 1)) != 0) // IsPowerOfTwo
+    {
+      bufsize--;
+      bufsize |= bufsize >> 1;
+      bufsize |= bufsize >> 2;
+      bufsize |= bufsize >> 4;
+      bufsize |= bufsize >> 8;
+      bufsize |= bufsize >> 16;
+      bufsize++;     
+    }
     if (offset > audio_size) {
         offset = audio_size;
     }
@@ -450,13 +460,64 @@ bool __rt_func GxConvolver::compute(int count, float* input1, float *input2,
         }
         return true;
     }
-    memcpy(inpdata(0), input1, count * sizeof(float));
-    memcpy(inpdata(1), input2, count * sizeof(float));
-
-    int flags = process(sync);
-
-    memcpy(output1, outdata(0), count * sizeof(float));
-    memcpy(output2, outdata(1), count * sizeof(float));
+    int flags = 0;
+    if (static_cast<uint32_t>(count) == buffersize) {
+        memcpy(inpdata(0), input1, count * sizeof(float));
+        memcpy(inpdata(1), input2, count * sizeof(float));
+        flags = process(sync);
+        memcpy(output1, outdata(0), count * sizeof(float));
+        memcpy(output2, outdata(1), count * sizeof(float));
+    } else if (static_cast<uint32_t>(count) < buffersize) {
+        float in1[buffersize];
+        float in2[buffersize];
+        memset(in1, 0, buffersize * sizeof(float));
+        memset(in2, 0, buffersize * sizeof(float));
+        memcpy(in1, input1, count * sizeof(float));
+        memcpy(in2, input2, count * sizeof(float));
+        memcpy(inpdata(0), in1, buffersize * sizeof(float));
+        memcpy(inpdata(1), in2, buffersize * sizeof(float));
+        flags = process(sync);
+        memcpy(output1, outdata(0), count * sizeof(float));
+        memcpy(output2, outdata(1), count * sizeof(float));
+    } else {
+        float *in1, *out1, *in2, *out2;
+        in1 = inpdata(0);
+        out1 = outdata(0);
+        in2 = inpdata(1);
+        out2 = outdata(1);
+        uint32_t b = 0;
+        uint32_t d = 0;
+        uint32_t s = 0;
+        for(int32_t i = 0; i<count; i++) {
+            in1[b] = input1[i];
+            in2[b] = input2[i];
+            if(++b == buffersize) {
+                b=0;
+                flags = process();
+                for(d = 0; d<buffersize; d++, s++) {
+                    output1[s] = out1[d];
+                    output2[s] = out2[d];
+                }
+            }
+        }
+        if (s < static_cast<uint32_t>(count)) {
+            int32_t r = static_cast<uint32_t>(count) - s;
+            float in1[buffersize];
+            float in2[buffersize];
+            memset(in1, 0, buffersize * sizeof(float));
+            memset(in2, 0, buffersize * sizeof(float));
+            memcpy(in1, &input1[s], r * sizeof(float));
+            memcpy(in2, &input2[s], r * sizeof(float));
+            memcpy(inpdata(0), in1, buffersize * sizeof(float));
+            memcpy(inpdata(1), in2, buffersize * sizeof(float));
+            flags = process(sync);
+            for(int32_t i = 0; i<r; i++, s++) {
+                output1[s] = out1[i];
+                output2[s] = out2[i];
+            }
+            //printf("convolver missing %u samples", r);
+        }
+    }
     return flags == 0;
 }
 
@@ -516,11 +577,48 @@ bool __rt_func GxConvolver::compute(int count, float* input, float *output) {
         }
         return true;
     }
-    memcpy(inpdata(0), input, count * sizeof(float));
-
-    int flags = process(sync);
-
-    memcpy(output, outdata(0), count * sizeof(float));
+    int32_t flags = 0;
+    if (static_cast<uint32_t>(count) == buffersize) {
+        memcpy(inpdata(0), input, count * sizeof(float));
+        flags = process(sync);
+        memcpy(output, outdata(0), count * sizeof(float));
+    } else if (static_cast<uint32_t>(count) < buffersize) {
+        float in[buffersize];
+        memset(in, 0, buffersize * sizeof(float));
+        memcpy(in, input, count * sizeof(float));
+        memcpy(inpdata(0), in, buffersize * sizeof(float));
+        flags = process(sync);
+        memcpy(output, outdata(0), count * sizeof(float));
+    } else {
+        float *in, *out;
+        in = inpdata(0);
+        out = outdata(0);
+        uint32_t b = 0;
+        uint32_t d = 0;
+        uint32_t s = 0;
+        for(int32_t i = 0; i<count; i++) {
+            in[b] = input[i];
+            if(++b == buffersize) {
+                b=0;
+                flags = process();
+                for(d = 0; d<buffersize; d++, s++) {
+                    output[s] = out[d];
+                }
+            }
+        }
+        if (s < static_cast<uint32_t>(count)) {
+            int32_t r = static_cast<uint32_t>(count) - s;
+            float in[buffersize];
+            memset(in, 0, buffersize * sizeof(float));
+            memcpy(in, &input[s], r * sizeof(float));
+            memcpy(inpdata(0), in, buffersize * sizeof(float));
+            flags = process(sync);
+            for(int32_t i = 0; i<r; i++, s++) {
+                output[s] = out[i];
+            }
+            //printf("convolver missing %u samples", r);
+        }
+    }
     return flags == 0;
 }
 
@@ -619,31 +717,47 @@ bool __rt_func GxSimpleConvolver::compute(int count, float* input, float *output
         }
         return true;
     }
-    int flags = 0;
-    if (static_cast<unsigned int>(count) == buffersize)
-    {
-      memcpy(inpdata(0), input, count * sizeof(float));
-
-      flags = process(sync);
-
-      memcpy(output, outdata(0), count * sizeof(float));
+    int32_t flags = 0;
+    if (static_cast<uint32_t>(count) == buffersize) {
+        memcpy(inpdata(0), input, count * sizeof(float));
+        flags = process(sync);
+        memcpy(output, outdata(0), count * sizeof(float));
+    } else if (static_cast<uint32_t>(count) < buffersize) {
+        float in[buffersize];
+        memset(in, 0, buffersize * sizeof(float));
+        memcpy(in, input, count * sizeof(float));
+        memcpy(inpdata(0), in, buffersize * sizeof(float));
+        flags = process(sync);
+        memcpy(output, outdata(0), count * sizeof(float));
     } else {
         float *in, *out;
-      in = inpdata(0);
-      out = outdata(0);
-      unsigned int b = 0;
-      unsigned int c = 1;
-      for(int i = 0; i<count; ++i){
-        in[b] = input[i];
-        if(++b == buffersize) {
-          b=0;
-          flags = process();
-          for(unsigned int d = 0; d<buffersize; ++d) {
-            output[d*c] = out[d];
-          }
-          ++c;
+        in = inpdata(0);
+        out = outdata(0);
+        uint32_t b = 0;
+        uint32_t d = 0;
+        uint32_t s = 0;
+        for(int32_t i = 0; i<count; i++) {
+            in[b] = input[i];
+            if(++b == buffersize) {
+                b=0;
+                flags = process();
+                for(d = 0; d<buffersize; d++, s++) {
+                    output[s] = out[d];
+                }
+            }
         }
-      }
+        if (s < static_cast<uint32_t>(count)) {
+            int32_t r = static_cast<uint32_t>(count) - s;
+            float in[buffersize];
+            memset(in, 0, buffersize * sizeof(float));
+            memcpy(in, &input[s], r * sizeof(float));
+            memcpy(inpdata(0), in, buffersize * sizeof(float));
+            flags = process(sync);
+            for(int32_t i = 0; i<r; i++, s++) {
+                output[s] = out[i];
+            }
+            //printf("convolver missing %u samples", r);
+        }
     }
     return flags == 0;
 }
@@ -734,37 +848,63 @@ bool __rt_func GxSimpleConvolver::compute_stereo(int count, float* input, float*
         }
       return true;
     }
-  int flags = 0;
-  if (static_cast<unsigned int>(count) == buffersize)
-    {
-      memcpy(inpdata(0), input, count * sizeof(float));
-      memcpy(inpdata(1), input1, count * sizeof(float));
-
-      flags = process(sync);
-
-      memcpy(output, outdata(0), count * sizeof(float));
-      memcpy(output1, outdata(1), count * sizeof(float));
+    int32_t flags = 0;
+    if (static_cast<uint32_t>(count) == buffersize) {
+        memcpy(inpdata(0), input, count * sizeof(float));
+        memcpy(inpdata(1), input1, count * sizeof(float));
+        flags = process(sync);
+        memcpy(output, outdata(0), count * sizeof(float));
+        memcpy(output1, outdata(1), count * sizeof(float));
+    } else if (static_cast<uint32_t>(count) < buffersize) {
+        float in1[buffersize];
+        float in2[buffersize];
+        memset(in1, 0, buffersize * sizeof(float));
+        memset(in2, 0, buffersize * sizeof(float));
+        memcpy(in1, input, count * sizeof(float));
+        memcpy(in2, input1, count * sizeof(float));
+        memcpy(inpdata(0), in1, buffersize * sizeof(float));
+        memcpy(inpdata(1), in2, buffersize * sizeof(float));
+        flags = process(sync);
+        memcpy(output, outdata(0), count * sizeof(float));
+        memcpy(output1, outdata(1), count * sizeof(float));
     } else {
-        float *in, *in1, *out, *out1;
-      in = inpdata(0);
-      in1 = inpdata(1);
-      out = outdata(0);
-      out1 = outdata(1);
-      unsigned int b = 0;
-      unsigned int c = 1;
-      for(int i = 0; i<count; ++i){
-        in[b] = input[i];
-        in1[b] = input1[i];
-        if(++b == buffersize) {
-          b=0;
-          flags = process();
-          for(unsigned int d = 0; d<buffersize; ++d) {
-            output[d*c] = out[d];
-            output1[d*c] = out1[d];
-          }
-          ++c;
+        float *in1, *out1, *in2, *out2;
+        in1 = inpdata(0);
+        out1 = outdata(0);
+        in2 = inpdata(1);
+        out2 = outdata(1);
+        uint32_t b = 0;
+        uint32_t d = 0;
+        uint32_t s = 0;
+        for(int32_t i = 0; i<count; i++) {
+            in1[b] = input[i];
+            in2[b] = input1[i];
+            if(++b == buffersize) {
+                b=0;
+                flags = process();
+                for(d = 0; d<buffersize; d++, s++) {
+                    output[s] = out1[d];
+                    output1[s] = out2[d];
+                }
+            }
         }
-      }
+        if (s < static_cast<uint32_t>(count)) {
+            int32_t r = static_cast<uint32_t>(count) - s;
+            float in1[buffersize];
+            float in2[buffersize];
+            memset(in1, 0, buffersize * sizeof(float));
+            memset(in2, 0, buffersize * sizeof(float));
+            memcpy(in1, &input[s], r * sizeof(float));
+            memcpy(in2, &input1[s], r * sizeof(float));
+            memcpy(inpdata(0), in1, buffersize * sizeof(float));
+            memcpy(inpdata(1), in2, buffersize * sizeof(float));
+            flags = process(sync);
+            for(int32_t i = 0; i<r; i++, s++) {
+                output[s] = out1[i];
+                output1[s] = out2[i];
+            }
+            //printf("convolver missing %u samples", r);
+        }
     }
   return flags == 0;
 }

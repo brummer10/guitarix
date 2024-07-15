@@ -778,7 +778,9 @@ void __rt_func ModuleSequencer::overload(OverloadType tp, const char *reason) {
 	}
     }
     if (!ignore) {
+#ifndef GUITARIX_AS_PLUGIN
 	set_stateflag(SF_OVERLOAD);
+#endif
     }
     gx_system::atomic_set(&overload_reason, reason);
     overload_detected();
