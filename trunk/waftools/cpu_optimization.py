@@ -11,25 +11,25 @@ def options(opt):
                     help='set compiler flags for a debug build')
 
     comp.add_option('--cxxflags-release',
-                    type='string',
+                    type=str,
                     default='-O3 -DNDEBUG',
                     dest='cxxflags_release',
                     help='additional C++ compiler flags for release version (not used if --debug) [Default: %default]')
 
     comp.add_option('--cxxflags-debug',
-                    type='string',
+                    type=str,
                     default='-O2 -g -fstack-protector-all',
                     dest='cxxflags_debug',
                     help='additional C++ compiler flags for debug version (only used if --debug) [Default: %default]')
 
     comp.add_option('--cxxflags',
-                    type='string',
+                    type=str,
                     default='-Wall -DGSEAL_ENABLE', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
                     dest='cxxflags',
                     help='C++ base compiler flags [Default: %default]')
 
     comp.add_option('--ldflags',
-                    type='string',
+                    type=str,
                     default='',
                     dest='ldflags',
                     help='C++ base linker flags ')

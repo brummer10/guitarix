@@ -1932,7 +1932,7 @@ class Output(object):
     def scan_params(self, ccdef, plugin_id):
         previous = ""
         for line in ccdef:
-            if re.match('\s*//', line):
+            if re.match('\\s*//', line):
                 continue
             line = previous + line
             previous = ""

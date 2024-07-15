@@ -28,6 +28,7 @@
 #ifndef GUITARIX_AS_PLUGIN
 #include <gtkmm/main.h>     // NOLINT
 #include <gxwmm/init.h>     // NOLINT
+#include <condition_variable>
 #endif
 #include <string>           // NOLINT
 #include <thread>
@@ -659,6 +660,62 @@ void GxSplashBox::on_show() {
 }
 
 /****************************************************************
+ ** class GxRtCheck
+ ** check if user have realtime priority
+ */
+
+class GxRtCheck {
+private:
+    std::thread _thd;
+    std::mutex m;
+    std::condition_variable cv;
+    std::atomic<bool> _execute;
+    bool set_priority();
+    void run();
+
+public:
+    bool run_check();
+    GxRtCheck();
+    ~GxRtCheck();
+};
+GxRtCheck::GxRtCheck() :
+    _execute(true) {run();}
+
+GxRtCheck::~GxRtCheck() {}
+
+bool GxRtCheck::run_check() {
+#if defined(__linux__) || defined(_UNIX) || defined(__APPLE__)
+    sched_param sch_params;
+    sch_params.sched_priority = 50;
+    if (pthread_setschedparam(_thd.native_handle(), SCHED_FIFO, &sch_params)) {
+        return false;
+    }
+#elif defined(_WIN32)
+    // HIGH_PRIORITY_CLASS, THREAD_PRIORITY_TIME_CRITICAL
+    if (SetThreadPriority(_thd.native_handle(), 15)) {
+        return false;
+    }
+#else
+    //system does not supports thread priority!
+#endif
+    _execute.store(false, std::memory_order_release);
+    if (_thd.joinable()) {
+        cv.notify_one();
+        _thd.join();
+    }
+    return true;
+}
+
+void GxRtCheck::run() {
+    _thd = std::thread([this]() {
+        while (_execute.load(std::memory_order_acquire)) {
+            std::unique_lock<std::mutex> lk(m);
+            cv.wait(lk);
+        }
+    });
+}
+
+/****************************************************************
  ** main()
  */
  
@@ -803,6 +860,13 @@ static bool is_frontend(int argc, char *argv[]) {
 }
 
 static void mainGtk(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
+
+    GxRtCheck rtc;
+    if (!rtc.run_check()) {
+        delete Splash;
+        gx_print_fatal(_("Guitarix"), "Can't access realtime priority, exit now");
+    }
+
     gx_engine::GxMachine machine(options);
     while(Gtk::Main::events_pending()) {
         // prevents crash in show_error_msg!dialog.run() when its
