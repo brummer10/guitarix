@@ -619,16 +619,14 @@ void PresetWindow::start_edit(const Gtk::TreeModel::Path& pt, Gtk::TreeViewColum
 void PresetWindow::set_cell_text(Gtk::Widget *widget, Gtk::CellRenderer *cell, const Glib::ustring& text, bool selected) {
     cell->set_property("text", text);
     Gtk::CellRendererText *tc = dynamic_cast<Gtk::CellRendererText*>(cell);
-    if (selected) {
-	Glib::RefPtr<Gtk::StyleContext> context = widget->get_style_context();
-	tc->property_foreground_rgba().set_value(
-	    context->get_color(Gtk::STATE_FLAG_CHECKED));
-	Pango::FontDescription font = context->get_font(Gtk::STATE_FLAG_CHECKED);
-	tc->property_weight().set_value(font.get_weight());
-    } else{
-	tc->property_foreground_set().set_value(false);
-	tc->property_weight().set_value(false);
-    }
+    Glib::RefPtr<Gtk::StyleContext> context = widget->get_style_context();
+    Gtk::StateFlags state_flag = selected ? Gtk::STATE_FLAG_CHECKED : Gtk::STATE_FLAG_NORMAL;
+	
+    tc->property_foreground_rgba().set_value(
+        context->get_color(state_flag));
+
+    Pango::FontDescription font = context->get_font(state_flag);
+    tc->property_weight().set_value(font.get_weight());
 }
 
 void PresetWindow::highlight_current_bank(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& iter) {
