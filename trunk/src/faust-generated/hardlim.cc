@@ -7,17 +7,15 @@ namespace hardlim {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
-	double fConst1;
-	double fConst2;
-	double fConst3;
-	double fRec4[2];
-	double fConst4;
-	double fConst5;
-	double fRec3[2];
+	double fConst0;
 	double fRec0[2];
 	int iRec1[2];
 	double fRec2[2];
 	FAUSTFLOAT fVbargraph0;
+	double fRec3[2];
+	int iRec4[2];
+	double fRec5[2];
+	FAUSTFLOAT fVbargraph1;
 
 	void clear_state_f();
 	void init(unsigned int sample_rate);
@@ -61,11 +59,12 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec4[l0] = 0.0;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec3[l1] = 0.0;
-	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec0[l2] = 0.0;
-	for (int l3 = 0; l3 < 2; l3 = l3 + 1) iRec1[l3] = 0;
-	for (int l4 = 0; l4 < 2; l4 = l4 + 1) fRec2[l4] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 2; l1 = l1 + 1) iRec1[l1] = 0;
+	for (int l2 = 0; l2 < 2; l2 = l2 + 1) fRec2[l2] = 0.0;
+	for (int l3 = 0; l3 < 2; l3 = l3 + 1) fRec3[l3] = 0.0;
+	for (int l4 = 0; l4 < 2; l4 = l4 + 1) iRec4[l4] = 0;
+	for (int l5 = 0; l5 < 2; l5 = l5 + 1) fRec5[l5] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -76,12 +75,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	fConst1 = 1.0 / fConst0;
-	fConst2 = std::exp(-(2.0 / fConst0));
-	fConst3 = std::exp(-(1.25e+03 / fConst0));
-	fConst4 = std::exp(-(2.5e+03 / fConst0));
-	fConst5 = 0.99 * (1.0 - fConst4);
+	fConst0 = 1.0 / std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	clear_state_f();
 }
 
@@ -95,25 +89,32 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		int iTemp0 = iRec1[1] < 1024;
 		double fTemp1 = double(input0[i0]);
-		double fTemp2 = double(input1[i0]);
-		double fTemp3 = std::fabs(std::max<double>(std::fabs(fTemp1), std::fabs(fTemp2)));
-		double fTemp4 = ((fTemp3 > fRec4[1]) ? fConst3 : fConst2);
-		fRec4[0] = fTemp3 * (1.0 - fTemp4) + fRec4[1] * fTemp4;
-		fRec3[0] = fConst4 * fRec3[1] - fConst5 * std::max<double>(2e+01 * std::log10(std::max<double>(2.2250738585072014e-308, fRec4[0])), 0.0);
-		double fTemp5 = std::pow(1e+01, 0.05 * fRec3[0]);
-		double fTemp6 = std::max<double>(fConst1, std::fabs(1.0 - fTemp5));
-		fRec0[0] = ((iTemp0) ? std::max<double>(fRec0[1], fTemp6) : fTemp6);
+		double fTemp2 = std::max<double>(fConst0, std::fabs(0.5610092271509817 * std::max<double>(std::fabs(fTemp1) + -0.8912509381337456, 0.0)));
+		fRec0[0] = ((iTemp0) ? std::max<double>(fRec0[1], fTemp2) : fTemp2);
 		iRec1[0] = ((iTemp0) ? iRec1[1] + 1 : 1);
 		fRec2[0] = ((iTemp0) ? fRec2[1] : fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
-		double fTemp7 = fTemp5;
-		output0[i0] = FAUSTFLOAT(fTemp1 * fTemp7);
-		output1[i0] = FAUSTFLOAT(fTemp2 * fTemp7);
-		fRec4[1] = fRec4[0];
-		fRec3[1] = fRec3[0];
+		double fTemp3 = fTemp1;
+		double fTemp4 = std::fabs(fTemp3);
+		double fTemp5 = std::max<double>(-1.1087490618662543, std::min<double>(1.1087490618662543, fTemp3));
+		output0[i0] = FAUSTFLOAT(((fTemp4 <= 0.8912509381337456) ? fTemp5 : double((fTemp5 > 0.0) - (fTemp5 < 0.0)) * (4.597740811915485 * (1.1087490618662543 - 0.5 * (fTemp4 + 0.8912509381337456)) * (fTemp4 + -0.8912509381337456) + 0.8912509381337456)));
+		int iTemp6 = iRec4[1] < 1024;
+		double fTemp7 = double(input1[i0]);
+		double fTemp8 = std::max<double>(fConst0, std::fabs(0.5610092271509817 * std::max<double>(std::fabs(fTemp7) + -0.8912509381337456, 0.0)));
+		fRec3[0] = ((iTemp6) ? std::max<double>(fRec3[1], fTemp8) : fTemp8);
+		iRec4[0] = ((iTemp6) ? iRec4[1] + 1 : 1);
+		fRec5[0] = ((iTemp6) ? fRec5[1] : fRec3[1]);
+		fVbargraph1 = FAUSTFLOAT(fRec5[0]);
+		double fTemp9 = fTemp7;
+		double fTemp10 = std::fabs(fTemp9);
+		double fTemp11 = std::max<double>(-1.1087490618662543, std::min<double>(1.1087490618662543, fTemp9));
+		output1[i0] = FAUSTFLOAT(((fTemp10 <= 0.8912509381337456) ? fTemp11 : double((fTemp11 > 0.0) - (fTemp11 < 0.0)) * (4.597740811915485 * (1.1087490618662543 - 0.5 * (fTemp10 + 0.8912509381337456)) * (fTemp10 + -0.8912509381337456) + 0.8912509381337456)));
 		fRec0[1] = fRec0[0];
 		iRec1[1] = iRec1[0];
 		fRec2[1] = fRec2[0];
+		fRec3[1] = fRec3[0];
+		iRec4[1] = iRec4[0];
+		fRec5[1] = fRec5[0];
 	}
 }
 
@@ -124,7 +125,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("hardlim.v1","","SON",N_("Rack output Limiter"),&fVbargraph0, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("hardlim.v1","","SON",N_("Rack output limiter left"),&fVbargraph0, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("hardlim.v2","","SON",N_("Rack output limiter right"),&fVbargraph1, 0, 0.0, 1.0, 0, 0);
 	return 0;
 }
 
