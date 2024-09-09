@@ -605,16 +605,47 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GxFastMeter" id="gxfastmeter">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="halign">center</property>
                         <property name="margin-bottom">25</property>
-                        <property name="orientation">vertical</property>
-                        <property name="hold">10</property>
-                        <property name="dimen">0</property>
-                        <property name="var-id">hardlim.v1</property>
-                        <property name="falloff">True</property>
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GxFastMeter" id="gxfastmeterL">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">center</property>
+                            <property name="margin-left">10</property>
+                            <property name="orientation">vertical</property>
+                            <property name="hold">10</property>
+                            <property name="dimen">0</property>
+                            <property name="var-id">hardlim.v1</property>
+                            <property name="falloff">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GxFastMeter" id="gxfastmeterR">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">center</property>
+                            <property name="margin-right">10</property>
+                            <property name="orientation">vertical</property>
+                            <property name="hold">10</property>
+                            <property name="dimen">0</property>
+                            <property name="var-id">hardlim.v2</property>
+                            <property name="falloff">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">True</property>
