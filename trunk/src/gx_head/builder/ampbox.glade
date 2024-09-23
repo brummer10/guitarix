@@ -611,7 +611,7 @@
                         <property name="margin-bottom">25</property>
                         <property name="orientation">horizontal</property>
                         <child>
-                          <object class="GxFastMeter" id="gxfastmeterL">
+                          <object class="GxFastMeter" id="limfastmeterL">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">center</property>
@@ -619,7 +619,7 @@
                             <property name="orientation">vertical</property>
                             <property name="hold">10</property>
                             <property name="dimen">0</property>
-                            <property name="var-id">hardlim.v1</property>
+                            <property name="var-id">hardlim.left</property>
                             <property name="falloff">True</property>
                           </object>
                           <packing>
@@ -629,7 +629,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GxFastMeter" id="gxfastmeterR">
+                          <object class="GxFastMeter" id="limfastmeterR">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">center</property>
@@ -637,7 +637,7 @@
                             <property name="orientation">vertical</property>
                             <property name="hold">10</property>
                             <property name="dimen">0</property>
-                            <property name="var-id">hardlim.v2</property>
+                            <property name="var-id">hardlim.right</property>
                             <property name="falloff">True</property>
                           </object>
                           <packing>
