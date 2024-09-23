@@ -89,7 +89,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		int iTemp0 = iRec1[1] < 1024;
 		double fTemp1 = double(input0[i0]);
-		double fTemp2 = std::max<double>(fConst0, std::fabs(0.16666666666666666 * std::min<double>(std::max<double>(2e+01 * std::log10(std::max<double>(2.2250738585072014e-308, 1.1220184543019633 * fTemp1)), 0.0), 6.0)));
+		double fTemp2 = std::max<double>(fConst0, std::fabs(std::min<double>(std::max<double>(fTemp1 + -0.8912509381337456, 0.0), 1.0)));
 		fRec0[0] = ((iTemp0) ? std::max<double>(fRec0[1], fTemp2) : fTemp2);
 		iRec1[0] = ((iTemp0) ? iRec1[1] + 1 : 1);
 		fRec2[0] = ((iTemp0) ? fRec2[1] : fRec0[1]);
@@ -99,7 +99,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		output0[i0] = FAUSTFLOAT(((fTemp4 <= 0.8912509381337456) ? fTemp3 : double((fTemp3 > 0.0) - (fTemp3 < 0.0)) * (1.0 - 0.10874906186625444 * std::exp(-9.19548162383097 * (fTemp4 + -0.8912509381337456)))));
 		int iTemp5 = iRec4[1] < 1024;
 		double fTemp6 = double(input1[i0]);
-		double fTemp7 = std::max<double>(fConst0, std::fabs(0.16666666666666666 * std::min<double>(std::max<double>(2e+01 * std::log10(std::max<double>(2.2250738585072014e-308, 1.1220184543019633 * fTemp6)), 0.0), 6.0)));
+		double fTemp7 = std::max<double>(fConst0, std::fabs(std::min<double>(std::max<double>(fTemp6 + -0.8912509381337456, 0.0), 1.0)));
 		fRec3[0] = ((iTemp5) ? std::max<double>(fRec3[1], fTemp7) : fTemp7);
 		iRec4[0] = ((iTemp5) ? iRec4[1] + 1 : 1);
 		fRec5[0] = ((iTemp5) ? fRec5[1] : fRec3[1]);
@@ -123,8 +123,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("hardlim.v1","","SON",N_("Rack output limiter left"),&fVbargraph0, 0, 0.0, 1.0, 0, 0);
-	reg.registerFloatVar("hardlim.v2","","SON",N_("Rack output limiter right"),&fVbargraph1, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("hardlim.left","","SON",N_("Rack output limiter left"),&fVbargraph0, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("hardlim.right","","SON",N_("Rack output limiter right"),&fVbargraph1, 0, 0.0, 1.0, 0, 0);
 	return 0;
 }
 
