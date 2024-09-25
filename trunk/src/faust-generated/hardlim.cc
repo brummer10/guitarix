@@ -89,26 +89,24 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		int iTemp0 = iRec1[1] < 1024;
 		double fTemp1 = double(input0[i0]);
-		double fTemp2 = std::max<double>(fConst0, std::fabs(0.5610092271509817 * std::max<double>(std::fabs(fTemp1) + -0.8912509381337456, 0.0)));
+		double fTemp2 = std::max<double>(fConst0, std::fabs(std::min<double>(std::max<double>(fTemp1 + -0.8912509381337456, 0.0), 1.0)));
 		fRec0[0] = ((iTemp0) ? std::max<double>(fRec0[1], fTemp2) : fTemp2);
 		iRec1[0] = ((iTemp0) ? iRec1[1] + 1 : 1);
 		fRec2[0] = ((iTemp0) ? fRec2[1] : fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
 		double fTemp3 = fTemp1;
 		double fTemp4 = std::fabs(fTemp3);
-		double fTemp5 = std::max<double>(-1.1087490618662543, std::min<double>(1.1087490618662543, fTemp3));
-		output0[i0] = FAUSTFLOAT(((fTemp4 <= 0.8912509381337456) ? fTemp5 : double((fTemp5 > 0.0) - (fTemp5 < 0.0)) * (4.597740811915485 * (1.1087490618662543 - 0.5 * (fTemp4 + 0.8912509381337456)) * (fTemp4 + -0.8912509381337456) + 0.8912509381337456)));
-		int iTemp6 = iRec4[1] < 1024;
-		double fTemp7 = double(input1[i0]);
-		double fTemp8 = std::max<double>(fConst0, std::fabs(0.5610092271509817 * std::max<double>(std::fabs(fTemp7) + -0.8912509381337456, 0.0)));
-		fRec3[0] = ((iTemp6) ? std::max<double>(fRec3[1], fTemp8) : fTemp8);
-		iRec4[0] = ((iTemp6) ? iRec4[1] + 1 : 1);
-		fRec5[0] = ((iTemp6) ? fRec5[1] : fRec3[1]);
+		output0[i0] = FAUSTFLOAT(((fTemp4 <= 0.8912509381337456) ? fTemp3 : double((fTemp3 > 0.0) - (fTemp3 < 0.0)) * (1.0 - 0.10874906186625444 * std::exp(-9.19548162383097 * (fTemp4 + -0.8912509381337456)))));
+		int iTemp5 = iRec4[1] < 1024;
+		double fTemp6 = double(input1[i0]);
+		double fTemp7 = std::max<double>(fConst0, std::fabs(std::min<double>(std::max<double>(fTemp6 + -0.8912509381337456, 0.0), 1.0)));
+		fRec3[0] = ((iTemp5) ? std::max<double>(fRec3[1], fTemp7) : fTemp7);
+		iRec4[0] = ((iTemp5) ? iRec4[1] + 1 : 1);
+		fRec5[0] = ((iTemp5) ? fRec5[1] : fRec3[1]);
 		fVbargraph1 = FAUSTFLOAT(fRec5[0]);
-		double fTemp9 = fTemp7;
-		double fTemp10 = std::fabs(fTemp9);
-		double fTemp11 = std::max<double>(-1.1087490618662543, std::min<double>(1.1087490618662543, fTemp9));
-		output1[i0] = FAUSTFLOAT(((fTemp10 <= 0.8912509381337456) ? fTemp11 : double((fTemp11 > 0.0) - (fTemp11 < 0.0)) * (4.597740811915485 * (1.1087490618662543 - 0.5 * (fTemp10 + 0.8912509381337456)) * (fTemp10 + -0.8912509381337456) + 0.8912509381337456)));
+		double fTemp8 = fTemp6;
+		double fTemp9 = std::fabs(fTemp8);
+		output1[i0] = FAUSTFLOAT(((fTemp9 <= 0.8912509381337456) ? fTemp8 : double((fTemp8 > 0.0) - (fTemp8 < 0.0)) * (1.0 - 0.10874906186625444 * std::exp(-9.19548162383097 * (fTemp9 + -0.8912509381337456)))));
 		fRec0[1] = fRec0[0];
 		iRec1[1] = iRec1[0];
 		fRec2[1] = fRec2[0];
@@ -125,8 +123,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("hardlim.v1","","SON",N_("Rack output limiter left"),&fVbargraph0, 0, 0.0, 1.0, 0, 0);
-	reg.registerFloatVar("hardlim.v2","","SON",N_("Rack output limiter right"),&fVbargraph1, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("hardlim.vleft","","SON",N_("Rack output limiter left"),&fVbargraph0, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("hardlim.vright","","SON",N_("Rack output limiter right"),&fVbargraph1, 0, 0.0, 1.0, 0, 0);
 	return 0;
 }
 

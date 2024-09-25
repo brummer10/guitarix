@@ -7,25 +7,24 @@ import("guitarix.lib");
 rd = library("reducemaps.lib");
 
 softclip_stereo_with_meters(th,x,y) = softclip_stereo(th,x,y) with {
-  softclip(th,x) = softsat(preclip(x)) with {
-    // The softsat function will map [-cth,cth] to [-1,1], but outside of that input range
-    // it is not well behaved.  So, hard clip to the valid input range first.
-    preclip(x) = aa.clip(-cth,cth,x);
-    // Defines a transfer function with linearly decaying derivative ouside of [-th,th]
-    softsat(x) = ba.if(ax<=th,x,ma.signum(x)*((cth-(ax+th)/2.0)*(ax-th)/2.0/(1.0-th) + th));
-    cth = 2-th;                
-    ax=abs(x);
-  };
-  softclip_stereo(th) = (vmeter1:softclip(th)),(vmeter2:softclip(th));
+  softclip_stereo(th) = (vmeterL:softclip(th)),(vmeterR:softclip(th));
 
+  // ::: Clipper :::
+  // Values above 'th' will be exponentially more distorted.  No
+  // values above 1.0 are be allowed through.
+  softclip(th,x) = softsat(x) with {
+    softsat(x) = ba.if(abs(x)<=th,x,ma.signum(x)*fun(x));
+    fun(x)=1.0+(th-1.0)*exp((abs(x)-th)/(th-1.0));
+  };
+  
   // ::: Meter :::
-  vmeter1(x) = attach(x, envelop(max(abs(x)-th,0.0)/th/2) :
-                      vbargraph("v1[nomidi][tooltip:Rack output limiter left]", 0.0, 1.0));
-  vmeter2(x) = attach(x, envelop(max(abs(x)-th,0.0)/th/2) :
-                      vbargraph("v2[nomidi][tooltip:Rack output limiter right]", 0.0, 1.0));
+  vmeterL(x) = attach(x, envelop(meter_calc(x)) :
+                      vbargraph("vleft[nomidi][tooltip:Rack output limiter left]", 0.0, 1.0));
+  vmeterR(x) = attach(x, envelop(meter_calc(x)) :
+                      vbargraph("vright[nomidi][tooltip:Rack output limiter right]", 0.0, 1.0));
+  meter_calc(x) = min(max((x-th),0.0),1.0);
   envelop    = abs : max ~ (1.0/ma.SR) : rd.maxn(1024); 
 };
-
 
 
 // This is where soft clipping will start
