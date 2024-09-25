@@ -619,7 +619,7 @@
                             <property name="orientation">vertical</property>
                             <property name="hold">10</property>
                             <property name="dimen">0</property>
-                            <property name="var-id">hardlim.left</property>
+                            <property name="var-id">hardlim.vleft</property>
                             <property name="falloff">True</property>
                           </object>
                           <packing>
@@ -637,7 +637,7 @@
                             <property name="orientation">vertical</property>
                             <property name="hold">10</property>
                             <property name="dimen">0</property>
-                            <property name="var-id">hardlim.right</property>
+                            <property name="var-id">hardlim.vright</property>
                             <property name="falloff">True</property>
                           </object>
                           <packing>

@@ -19,9 +19,9 @@ softclip_stereo_with_meters(th,x,y) = softclip_stereo(th,x,y) with {
   
   // ::: Meter :::
   vmeterL(x) = attach(x, envelop(meter_calc(x)) :
-                      vbargraph("left[nomidi][tooltip:Rack output limiter left]", 0.0, 1.0));
+                      vbargraph("vleft[nomidi][tooltip:Rack output limiter left]", 0.0, 1.0));
   vmeterR(x) = attach(x, envelop(meter_calc(x)) :
-                      vbargraph("right[nomidi][tooltip:Rack output limiter right]", 0.0, 1.0));
+                      vbargraph("vright[nomidi][tooltip:Rack output limiter right]", 0.0, 1.0));
   meter_calc(x) = min(max((x-th),0.0),1.0);
   envelop    = abs : max ~ (1.0/ma.SR) : rd.maxn(1024); 
 };

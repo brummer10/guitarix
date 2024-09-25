@@ -123,8 +123,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *in
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("hardlim.left","","SON",N_("Rack output limiter left"),&fVbargraph0, 0, 0.0, 1.0, 0, 0);
-	reg.registerFloatVar("hardlim.right","","SON",N_("Rack output limiter right"),&fVbargraph1, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("hardlim.vleft","","SON",N_("Rack output limiter left"),&fVbargraph0, 0, 0.0, 1.0, 0, 0);
+	reg.registerFloatVar("hardlim.vright","","SON",N_("Rack output limiter right"),&fVbargraph1, 0, 0.0, 1.0, 0, 0);
 	return 0;
 }
 
