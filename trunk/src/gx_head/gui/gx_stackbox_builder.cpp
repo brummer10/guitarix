@@ -328,6 +328,10 @@ static void on_file_chooser_response(int response_id, Gxw::Switch *button, Gtk::
 {
     if (response_id == Gtk::RESPONSE_OK) {
         Glib::ustring hostname = "localhost";
+        if (! machine.get_jack()) {
+            hostname = Gio::Resolver::get_default()->lookup_by_address
+            (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+        }
         Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
         Gtk::RecentManager::Data data;
         bool result_uncertain;
@@ -375,10 +379,10 @@ static Gtk::FileChooserDialog* create_looper_filedialog(Gxw::Switch* button,
 
 static void select_looper_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, const string& id) {
     assert(w);
-    if (!machine.get_jack()) {
-        w->hide();
-        return;
-    }
+    //if (!machine.get_jack()) {
+    //    w->hide();
+    //    return;
+    //}
     gx_engine::Parameter *p = check_get_parameter(machine, id, w);
     if (!p) {
         return;
@@ -407,6 +411,10 @@ static void select_looper_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine
             }
             static Glib::ustring recent_filename = "";
             static Glib::ustring hostname = "localhost";
+            if (! machine.get_jack()) {
+                hostname = Gio::Resolver::get_default()->lookup_by_address
+                (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+            }
             Glib::ustring filename = machine.get_parameter_value<string>(id);
             Glib::ustring loop_dir = machine.get_options().get_loop_dir();
             if (!recent_filename.empty()) {
@@ -431,6 +439,10 @@ static void on_nam_chooser_response(int response_id, Gxw::Switch *button, Gtk::F
 {
     if (response_id == Gtk::RESPONSE_OK) {
         Glib::ustring hostname = "localhost";
+        if (! machine.get_jack()) {
+            hostname = Gio::Resolver::get_default()->lookup_by_address
+            (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+        }
         Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
         Gtk::RecentManager::Data data;
         bool result_uncertain;
@@ -463,11 +475,16 @@ static Gtk::FileChooserDialog* create_nam_filedialog(Gxw::Switch* button,
     all->add_pattern("*");
     all->set_name("All Files");
     d->add_filter(all);
+    Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     d->signal_response().connect(
         [=,&machine](int response) {
             on_nam_chooser_response(response, button, d, machine, id); });
     d->add_shortcut_folder_uri(
-        Glib::filename_to_uri(machine.get_options().get_loop_dir(), "localhost"));
+        Glib::filename_to_uri(machine.get_options().get_loop_dir(), hostname));
     return d;
 }
 
@@ -489,10 +506,10 @@ std::string getPathName(const std::string& s) {
 
 static void select_nam_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, const string& id) {
     assert(w);
-    if (!machine.get_jack()) {
-        w->hide();
-        return;
-    }
+    //if (!machine.get_jack()) {
+    //    w->hide();
+    //    return;
+    //}
     gx_engine::Parameter *p = check_get_parameter(machine, id, w);
     if (!p) {
         return;
@@ -501,6 +518,10 @@ static void select_nam_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, c
         GxBuilder::set_tooltip_text_connect_handler(*w, p->l_desc());
     }
     static Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     static std::map<std::string, Gtk::FileChooserDialog*> sel_windows;
     Gtk::FileChooserDialog*& sel = sel_windows[id];
     Glib::ustring filename = machine.get_parameter_value<string>(id);
@@ -524,6 +545,10 @@ static void select_nam_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, c
             }
             static Glib::ustring recent_filename = "";
             static Glib::ustring hostname = "localhost";
+            if (! machine.get_jack()) {
+                hostname = Gio::Resolver::get_default()->lookup_by_address
+                (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+            }
             Glib::ustring filename = machine.get_parameter_value<string>(id);
             if (!recent_filename.empty()) {
                 sel->set_uri(Glib::filename_to_uri (recent_filename, hostname));
@@ -549,6 +574,10 @@ static void on_rtneural_chooser_response(int response_id, Gxw::Switch *button, G
 {
     if (response_id == Gtk::RESPONSE_OK) {
         Glib::ustring hostname = "localhost";
+        if (! machine.get_jack()) {
+            hostname = Gio::Resolver::get_default()->lookup_by_address
+            (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+        }
         Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
         Gtk::RecentManager::Data data;
         bool result_uncertain;
@@ -578,6 +607,11 @@ static Gtk::FileChooserDialog* create_rtneural_filedialog(Gxw::Switch* button,
     all->add_pattern("*");
     all->set_name("All Files");
     d->add_filter(all);
+    Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     d->signal_response().connect(
         [=,&machine](int response) {
             on_rtneural_chooser_response(response, button, d, machine, id); });
@@ -588,10 +622,10 @@ static Gtk::FileChooserDialog* create_rtneural_filedialog(Gxw::Switch* button,
 
 static void select_rtneural_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, const string& id) {
     assert(w);
-    if (!machine.get_jack()) {
-        w->hide();
-        return;
-    }
+   // if (!machine.get_jack()) {
+   //     w->hide();
+   //     return;
+    //}
     gx_engine::Parameter *p = check_get_parameter(machine, id, w);
     if (!p) {
         return;
@@ -600,6 +634,10 @@ static void select_rtneural_file(Gxw::Switch *w, gx_engine::GxMachineBase& machi
         GxBuilder::set_tooltip_text_connect_handler(*w, p->l_desc());
     }
     static Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     static std::map<std::string, Gtk::FileChooserDialog*> sel_windows;
     Gtk::FileChooserDialog*& sel = sel_windows[id];
     Glib::ustring filename = machine.get_parameter_value<string>(id);
@@ -623,6 +661,10 @@ static void select_rtneural_file(Gxw::Switch *w, gx_engine::GxMachineBase& machi
             }
             static Glib::ustring recent_filename = "";
             static Glib::ustring hostname = "localhost";
+            if (! machine.get_jack()) {
+                hostname = Gio::Resolver::get_default()->lookup_by_address
+                (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+            }
             Glib::ustring filename = machine.get_parameter_value<string>(id);
             if (!recent_filename.empty()) {
                 sel->set_uri(Glib::filename_to_uri (recent_filename, hostname));
@@ -839,9 +881,9 @@ void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::str
 }
 
 void StackBoxBuilder::create_fload_switch(const char *sw_type, const char *id, const std::string& idf) {
-    if (!machine.get_jack()) {
-        return;
-    }
+    //if (!machine.get_jack()) {
+   //     return;
+   // }
     auto sw = new Gxw::Switch(sw_type);
     sw->set_name("effect_on_off");
     sw->show();
