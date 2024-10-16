@@ -477,7 +477,7 @@ void JsonParser::read_next() {
             next_tok = value_number;
             break;
         // read denormal value
-		case 'n': case 'a': case 'i': case 'f':
+		case 'a': case 'i': case 'f':
             next_str = readnumber(c);
             next_tok = value_number;
             break;
