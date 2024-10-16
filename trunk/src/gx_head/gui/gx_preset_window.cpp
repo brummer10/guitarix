@@ -902,7 +902,7 @@ void PresetWindow::show_online_preset() {
 	    }
         }
 	if (!exists || reload) {
-	    if (!download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix", options.get_online_config_filename())) {
+	    if (!download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix&formats=gx", options.get_online_config_filename())) {
 		return;
 	    }
 	}
