@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <requires lib="gxwidgets" version="0.0"/>
@@ -606,10 +606,10 @@
                     </child>
                     <child>
                       <object class="GtkBox">
+                        <property name="height-request">80</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="margin-bottom">25</property>
-                        <property name="orientation">horizontal</property>
                         <child>
                           <object class="GxFastMeter" id="limfastmeterL">
                             <property name="visible">True</property>
