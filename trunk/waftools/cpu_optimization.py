@@ -186,7 +186,7 @@ def configure(conf):
         if any('clang' not in s for s in conf.env["CXX"]):
             cxxflags.append ("-ffat-lto-objects")
 
-    cxxflags.append ("-std=c++17")
+    cxxflags.append ("-std=c++20")
    # cxxflags.append ("-Ofast")
     cxxflags.append ("-DDSP_SAMPLE_FLOAT")
     cxxflags.append ("-DNAM_SAMPLE_FLOAT")

@@ -61,28 +61,15 @@
             <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <!-- n-columns=4 n-rows=5 -->
+              <!-- n-columns=5 n-rows=5 -->
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
                 <property name="valign">start</property>
                 <property name="hexpand">True</property>
-                <property name="column-spacing">30</property>
+                <property name="column-spacing">15</property>
                 <property name="column-homogeneous">True</property>
-                <child>
-                  <object class="GxMidKnob">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="var-id">mnam.input</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">3</property>
-                    <property name="height">2</property>
-                  </packing>
-                </child>
                 <child>
                   <object class="GxMidKnob">
                     <property name="visible">True</property>
@@ -91,7 +78,7 @@
                     <property name="var-id">mnam.output</property>
                   </object>
                   <packing>
-                    <property name="left-attach">2</property>
+                    <property name="left-attach">4</property>
                     <property name="top-attach">3</property>
                     <property name="height">2</property>
                   </packing>
@@ -118,20 +105,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="input_label">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Input</property>
-                    <style>
-                      <class name="rack_label"/>
-                    </style>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkLabel" id="output_label">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -141,7 +114,7 @@
                     </style>
                   </object>
                   <packing>
-                    <property name="left-attach">2</property>
+                    <property name="left-attach">4</property>
                     <property name="top-attach">2</property>
                   </packing>
                 </child>
@@ -261,10 +234,64 @@
                     </child>
                   </object>
                   <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">3</property>
+                    <property name="height">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GxMidKnob">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="var-id">mnam.inputb</property>
+                  </object>
+                  <packing>
                     <property name="left-attach">1</property>
                     <property name="top-attach">3</property>
                     <property name="height">2</property>
                   </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="input_label1:rack_label">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Input B</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GxMidKnob">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="var-id">mnam.input</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">3</property>
+                    <property name="height">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="input_label:rack_label">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Input A</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>

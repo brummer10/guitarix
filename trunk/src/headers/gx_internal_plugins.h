@@ -22,12 +22,13 @@
 
 #pragma once
 
-#include "dsp.h"
-#include "activations.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreorder"
 #pragma GCC diagnostic ignored "-Winfinite-recursion"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#include "dsp.h"
+#include "activations.h"
 #include "RTNeural.h"
 #pragma GCC diagnostic pop
 
@@ -719,6 +720,7 @@ private:
     nam::DSP* modela;
     nam::DSP* modelb;
     ParamMap& param;
+    ParallelThread* pro;
     gx_resample::FixedRateResampler smpa;
     gx_resample::FixedRateResampler smpb;
     sigc::slot<void> sync;
@@ -726,10 +728,14 @@ private:
     int fSampleRate;
     int maSampleRate;
     int mbSampleRate;
+    float *buf;
+    int nframes;
     float fVslider0;
+    float fVslider01;
     float fVslider1;
     float fVslider2;
     double fRec0[2];
+    double fRec01[2];
     double fRec1[2];
     double fRec2[2];
     int need_aresample;
@@ -745,6 +751,8 @@ private:
     int load_ui_f(const UiBuilder& b, int form);
     void init(unsigned int sample_rate);
     void compute(int count, float *input0, float *output0);
+    void processModelA(int count, float *buf);
+    void processModelB();
     void load_nam_afile();
     void load_nam_bfile();
     int register_par(const ParamReg& reg);
@@ -757,7 +765,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    NeuralAmpMulti(ParamMap& param_, std::string id, sigc::slot<void> sync);
+    NeuralAmpMulti(ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
     ~NeuralAmpMulti();
 };
 
@@ -812,6 +820,7 @@ private:
     RTNeural::Model<float> *modela;
     RTNeural::Model<float> *modelb;
     ParamMap& param;
+    ParallelThread* pro;
     gx_resample::FixedRateResampler smpa;
     gx_resample::FixedRateResampler smpb;
     sigc::slot<void> sync;
@@ -819,10 +828,14 @@ private:
     int fSampleRate;
     int maSampleRate;
     int mbSampleRate;
+    float *buf;
+    int nframes;
     float fVslider0;
+    float fVslider01;
     float fVslider1;
     float fVslider2;
     double fRec0[2];
+    double fRec01[2];
     double fRec1[2];
     double fRec2[2];
     int need_aresample;
@@ -835,6 +848,8 @@ private:
     void clear_state_f();
     int load_ui_f(const UiBuilder& b, int form);
     void init(unsigned int sample_rate);
+    void processModelA(int count, float *buf);
+    void processModelB();
     void compute(int count, float *input0, float *output0);
     void get_samplerate(std::string config_file, int *mSampleRate);
     void load_json_afile();
@@ -849,7 +864,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    RtNeuralMulti(ParamMap& param_, std::string id, sigc::slot<void> sync);
+    RtNeuralMulti(ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
     ~RtNeuralMulti();
 };
 

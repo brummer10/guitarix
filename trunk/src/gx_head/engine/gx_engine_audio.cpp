@@ -539,9 +539,11 @@ EngineControl::EngineControl()
       buffersize(0),
       samplerate(0),
       pluginlist(*this) {
+          pro.start();
 }
 
 EngineControl::~EngineControl() {
+    pro.stop();
 }
 
 void EngineControl::add_selector(ModuleSelector& sel) {
@@ -590,11 +592,14 @@ void EngineControl::set_buffersize(unsigned int buffersize_) {
 
 void EngineControl::init(unsigned int samplerate_, unsigned int buffersize_,
 			 int policy_, int priority_) {
+    pro.setThreadName("guitarixRT");
+    pro.setTimeOut(std::max(100,static_cast<int>((buffersize/(samplerate*0.000001))*0.1)));
     if (policy_ != policy || priority_ != priority) {
 	policy = policy_;
 	priority = priority_;
 	set_buffersize(buffersize_);
 	set_samplerate(samplerate_);
+    pro.setPriority(priority, policy);
 	return;
     }
     if (buffersize_ != buffersize) {
@@ -603,6 +608,7 @@ void EngineControl::init(unsigned int samplerate_, unsigned int buffersize_,
     if (samplerate_ != samplerate) {
 	set_samplerate(samplerate_);
     }
+    pro.setPriority(priority, policy);
 }
 
 void EngineControl::clear_rack_changed() {

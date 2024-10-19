@@ -21,7 +21,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="var-id">mrtneural.input</property>
+                <property name="var-id">mrtneural.mix</property>
                 <property name="show-value">False</property>
                 <property name="label-ref">master_label</property>
               </object>
@@ -61,14 +61,14 @@
             <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <!-- n-columns=4 n-rows=5 -->
+              <!-- n-columns=5 n-rows=5 -->
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="halign">center</property>
                 <property name="valign">start</property>
                 <property name="hexpand">True</property>
-                <property name="column-spacing">30</property>
+                <property name="column-spacing">15</property>
                 <property name="column-homogeneous">True</property>
                 <child>
                   <object class="GxMidKnob">
@@ -91,7 +91,7 @@
                     <property name="var-id">mrtneural.output</property>
                   </object>
                   <packing>
-                    <property name="left-attach">2</property>
+                    <property name="left-attach">4</property>
                     <property name="top-attach">3</property>
                     <property name="height">2</property>
                   </packing>
@@ -118,10 +118,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="input_label">
+                  <object class="GtkLabel" id="input_label:rack_label">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">Input</property>
+                    <property name="label" translatable="yes">Input A</property>
                     <style>
                       <class name="rack_label"/>
                     </style>
@@ -141,7 +141,7 @@
                     </style>
                   </object>
                   <packing>
-                    <property name="left-attach">2</property>
+                    <property name="left-attach">4</property>
                     <property name="top-attach">2</property>
                   </packing>
                 </child>
@@ -227,7 +227,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="position">2</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -256,15 +256,45 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="position">3</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">3</property>
+                    <property name="height">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GxMidKnob">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="var-id">mrtneural.inputb</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
                     <property name="top-attach">3</property>
                     <property name="height">2</property>
                   </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="input_label1:rack_label">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Input B</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>

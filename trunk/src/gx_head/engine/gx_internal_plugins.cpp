@@ -1870,7 +1870,7 @@ void NeuralAmp::init_static(unsigned int sample_rate, PluginDef *p)
     static_cast<NeuralAmp*>(p)->init(sample_rate);
 }
 
-void NeuralAmp::compute(int count, float *input0, float *output0)
+void always_inline NeuralAmp::compute(int count, float *input0, float *output0)
 {
     if (output0 != input0)
         memcpy(output0, input0, count*sizeof(float));
@@ -2024,8 +2024,8 @@ void NeuralAmp::del_instance(PluginDef *p)
  ** class NeuralAmpMulti
  */
 
-NeuralAmpMulti::NeuralAmpMulti(ParamMap& param_, std::string id_, sigc::slot<void> sync_)
-    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), smpa(), smpb(), sync(sync_), idstring(id_), plugin() {
+NeuralAmpMulti::NeuralAmpMulti(ParamMap& param_, std::string id_, ParallelThread* pro_, sigc::slot<void> sync_)
+    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -2059,6 +2059,7 @@ NeuralAmpMulti::~NeuralAmpMulti() {
 inline void NeuralAmpMulti::clear_state_f()
 {
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+    for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec01[l0] = 0.0;
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec2[l0] = 0.0;
 }
@@ -2073,8 +2074,12 @@ inline void NeuralAmpMulti::init(unsigned int sample_rate)
     fSampleRate = sample_rate;
     clear_state_f();
     is_inited = true;
+    buf = nullptr;
+    nframes = 1;
     load_nam_afile();
     load_nam_bfile();
+    pro->set<1, NeuralAmpMulti, &NeuralAmpMulti::processModelB>(this);
+    
 }
 
 void NeuralAmpMulti::init_static(unsigned int sample_rate, PluginDef *p)
@@ -2082,84 +2087,131 @@ void NeuralAmpMulti::init_static(unsigned int sample_rate, PluginDef *p)
     static_cast<NeuralAmpMulti*>(p)->init(sample_rate);
 }
 
-void NeuralAmpMulti::compute(int count, float *input0, float *output0)
-{
-    if (output0 != input0)
-        memcpy(output0, input0, count*sizeof(float));
-    if (!modela || !modelb) return;
+void always_inline NeuralAmpMulti::processModelA(int count, float *bufa) {
+    if (!modela ) return;
     double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
-    double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
-    double fSlow2 = 0.0010000000000000009 * double(fVslider2);
     for (int i0 = 0; i0 < count; i0 = i0 + 1) {
         fRec0[0] = fSlow0 + 0.999 * fRec0[1];
-        output0[i0] = float(double(output0[i0]) * fRec0[0]);
+        bufa[i0] = float(double(bufa[i0]) * fRec0[0]);
         fRec0[1] = fRec0[0];
     }
-    if (modela && modelb && gx_system::atomic_get(ready)) {
-        float bufa[count];
-        memcpy(bufa, output0, count*sizeof(float));
-        float bufb[count];
-        memcpy(bufb, output0, count*sizeof(float));
-        if (need_aresample || need_bresample) {
+
+    if (modela && gx_system::atomic_get(ready)) {
+        if (need_aresample) {
             int ReCounta = count;
-            int ReCountb = count;
             if (need_aresample == 1) {
                 ReCounta = smpa.max_out_count(count);
             } else if (need_aresample == 2) {
                 ReCounta = static_cast<int>(ceil((count*static_cast<double>(maSampleRate))/fSampleRate));
             }
-            if (need_bresample == 1) {
-                ReCountb = smpb.max_out_count(count);
-            } else if (need_bresample == 2) {
-                ReCountb = static_cast<int>(ceil((count*static_cast<double>(mbSampleRate))/fSampleRate));
-            }
 
             float bufa1[ReCounta];
             memset(bufa1, 0, ReCounta*sizeof(float));
-            float bufb1[ReCountb];
-            memset(bufb1, 0, ReCountb*sizeof(float));
 
             if (need_aresample == 1) {
-                ReCountb = smpa.up(count, bufa, bufa1);
+                ReCounta = smpa.up(count, bufa, bufa1);
             } else if (need_aresample == 2) {
                 smpa.down(bufa, bufa1);
             } else {
                 memcpy(bufa1, bufa, ReCounta * sizeof(float));
             }
-            if (need_bresample == 1) {
-                ReCountb = smpb.up(count, bufb, bufb1);
-            } else if (need_bresample == 2) {
-                smpb.down(bufb, bufb1);
-            } else {
-                memcpy(bufb1, bufb, ReCountb * sizeof(float));
-            }
 
             modela->process(bufa1, bufa1, ReCounta);
             modela->finalize_(ReCounta);
-            modelb->process(bufb1, bufb1, ReCountb);
-            modelb->finalize_(ReCountb);
 
             if (need_aresample == 1) {
                 smpa.down(bufa1, bufa);
             } else if (need_aresample == 2) {
                 smpa.up(ReCounta, bufa1, bufa);
             }
-            if (need_bresample == 1) {
-                smpb.down(bufb1, bufb);
-            } else if (need_bresample == 2) {
-                smpb.up(ReCountb, bufb1, bufb);
-            }
         } else {
             modela->process(bufa, bufa, count);
             modela->finalize_(count);
-            modelb->process(bufb, bufb, count);
-            modelb->finalize_(count);
         }
+    }
+}
+
+void always_inline NeuralAmpMulti::processModelB() {
+    if (!modelb) return;
+    double fSlow01 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider01));
+    for (int i0 = 0; i0 < nframes; i0 = i0 + 1) {
+        fRec01[0] = fSlow01 + 0.999 * fRec01[1];
+        buf[i0] = float(double(buf[i0]) * fRec01[0]);
+        fRec01[1] = fRec01[0];
+    }
+
+    if (modelb && gx_system::atomic_get(ready)) {
+        if (need_bresample) {
+            int ReCountb = nframes;
+            if (need_bresample == 1) {
+                ReCountb = smpb.max_out_count(nframes);
+            } else if (need_bresample == 2) {
+                ReCountb = static_cast<int>(ceil((nframes*static_cast<double>(mbSampleRate))/fSampleRate));
+            }
+
+            float buf1[ReCountb];
+            memset(buf1, 0, ReCountb*sizeof(float));
+
+            if (need_bresample == 1) {
+                ReCountb = smpb.up(nframes, buf, buf1);
+            } else if (need_bresample == 2) {
+                smpb.down(buf, buf1);
+            } else {
+                memcpy(buf1, buf, ReCountb * sizeof(float));
+            }
+
+            modelb->process(buf1, buf1, ReCountb);
+            modelb->finalize_(ReCountb);
+
+            if (need_bresample == 1) {
+                smpb.down(buf1, buf);
+            } else if (need_bresample == 2) {
+                smpb.up(ReCountb, buf1, buf);
+            }
+        } else {
+            modelb->process(buf, buf, nframes);
+            modelb->finalize_(nframes);
+        }
+    }
+}
+
+
+void always_inline NeuralAmpMulti::compute(int count, float *input0, float *output0)
+{
+    if (output0 != input0)
+        memcpy(output0, input0, count*sizeof(float));
+    if (!modela && !modelb) return;
+    double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
+    double fSlow2 = 0.0010000000000000009 * double(fVslider2);
+
+    float bufa[count];
+    memcpy(bufa, output0, count*sizeof(float));
+    float bufb[count];
+    memcpy(bufb, output0, count*sizeof(float));
+    nframes = count;
+    buf = bufb;
+
+    if (pro->getProcess()) {
+        pro->setProcessor(1);
+        pro->runProcess();
+    } else {
+        processModelB();
+    }
+
+    processModelA(count, bufa);
+
+    pro->processWait();
+
+    if (modela && modelb && gx_system::atomic_get(ready)) {
         for (int i0 = 0; i0 < count; i0 = i0 + 1) {
             fRec2[0] = fSlow2 + 0.999 * fRec2[1];
             output0[i0] = bufa[i0] * (1.0 - fRec2[0]) + bufb[i0] * fRec2[0];
             fRec2[1] = fRec2[0];
         }
+    } else if (modela && gx_system::atomic_get(ready)) {
+        memcpy(output0, bufa, count*sizeof(float));
+    } else if (modelb && gx_system::atomic_get(ready)) {
+        memcpy(output0, bufb, count*sizeof(float));
     }
     
     for (int i0 = 0; i0 < count; i0 = i0 + 1) {
@@ -2262,7 +2314,8 @@ void NeuralAmpMulti::load_nam_bfile() {
 
 int NeuralAmpMulti::register_par(const ParamReg& reg)
 {
-    reg.registerFloatVar((idstring + ".input").c_str(),N_("Input"),"S",N_("gain (dB)"),&fVslider0, 0.0, -20.0, 20.0, 0.1, 0);
+    reg.registerFloatVar((idstring + ".input").c_str(),N_("Input A"),"S",N_("gain (dB)"),&fVslider0, 0.0, -20.0, 20.0, 0.1, 0);
+    reg.registerFloatVar((idstring + ".inputb").c_str(),N_("Input B"),"S",N_("gain (dB)"),&fVslider01, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".mix").c_str(),N_("Mix"),"S",N_("mix models"),&fVslider2, 0.5, 0.0, 1.0, 0.01, 0);
     param.reg_string((idstring + ".loadafile").c_str(), "", &load_afile, "*.nam", true)->set_desc(N_("import *.nam file"));
@@ -2289,11 +2342,13 @@ inline int NeuralAmpMulti::load_ui_f(const UiBuilder& b, int form)
     if (form & UI_FORM_STACK) {
 
         b.openHorizontalhideBox("");
-            b.create_master_slider((idstring + "input").c_str(), "Input");
+            b.create_master_slider((idstring + "output").c_str(), "output");
         b.closeBox();
         b.openHorizontalBox("");
-
-            b.create_mid_rackknob((idstring + ".input").c_str(), "Input");
+            b.openVerticalBox("");
+            b.create_mid_rackknob((idstring + ".input").c_str(), "Input A");
+            b.create_mid_rackknob((idstring + ".inputb").c_str(), "Input B");
+            b.closeBox();
             b.openVerticalBox("");
                 b.create_fload_switch(sw_button, nullptr, (idstring + ".loadafile").c_str());
                 b.create_fload_switch(sw_button, nullptr, (idstring + ".loadbfile").c_str());
@@ -2374,7 +2429,7 @@ void RtNeural::init_static(unsigned int sample_rate, PluginDef *p)
     static_cast<RtNeural*>(p)->init(sample_rate);
 }
 
-void RtNeural::compute(int count, float *input0, float *output0)
+void always_inline RtNeural::compute(int count, float *input0, float *output0)
 {
     if (output0 != input0)
         memcpy(output0, input0, count*sizeof(float));
@@ -2544,8 +2599,8 @@ void RtNeural::del_instance(PluginDef *p)
  ** class RtNeuralMulti
  */
 
-RtNeuralMulti::RtNeuralMulti(ParamMap& param_, std::string id_, sigc::slot<void> sync_)
-    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), smpa(), smpb(), sync(sync_), idstring(id_), plugin() {
+RtNeuralMulti::RtNeuralMulti(ParamMap& param_, std::string id_, ParallelThread *pro_, sigc::slot<void> sync_)
+    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -2577,6 +2632,7 @@ RtNeuralMulti::~RtNeuralMulti() {
 inline void RtNeuralMulti::clear_state_f()
 {
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+    for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec01[l0] = 0.0;
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec2[l0] = 0.0;
 }
@@ -2591,8 +2647,11 @@ inline void RtNeuralMulti::init(unsigned int sample_rate)
     fSampleRate = sample_rate;
     clear_state_f();
     is_inited = true;
+    buf = nullptr;
+    nframes = 1;
     load_json_afile();
     load_json_bfile();
+    pro->set<0, RtNeuralMulti, &RtNeuralMulti::processModelB>(this);
 }
 
 void RtNeuralMulti::init_static(unsigned int sample_rate, PluginDef *p)
@@ -2600,63 +2659,39 @@ void RtNeuralMulti::init_static(unsigned int sample_rate, PluginDef *p)
     static_cast<RtNeuralMulti*>(p)->init(sample_rate);
 }
 
-void RtNeuralMulti::compute(int count, float *input0, float *output0)
-{
-    if (output0 != input0)
-        memcpy(output0, input0, count*sizeof(float));
-    if (!modela || !modelb) return;
+void always_inline RtNeuralMulti::processModelA(int count, float *bufa) {
+    if (!modela) return;
     double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
-    double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
-    double fSlow2 = 0.0010000000000000009 * double(fVslider2);
+
     for (int i0 = 0; i0 < count; i0 = i0 + 1) {
         fRec0[0] = fSlow0 + 0.999 * fRec0[1];
-        output0[i0] = float(double(output0[i0]) * fRec0[0]);
+        bufa[i0] = float(double(bufa[i0]) * fRec0[0]);
         fRec0[1] = fRec0[0];
     }
-    if (modela && modelb && gx_system::atomic_get(ready)) {
-        float bufa[count];
-        memcpy(bufa, output0, count*sizeof(float));
-        float bufb[count];
-        memcpy(bufb, output0, count*sizeof(float));
-        if (need_aresample || need_bresample) {
+
+    if (modela && gx_system::atomic_get(ready)) {
+        if (need_aresample ) {
             int ReCounta = count;
-            int ReCountb = count;
+
             if (need_aresample == 1) {
                 ReCounta = smpa.max_out_count(count);
             } else if (need_aresample == 2) {
                 ReCounta = static_cast<int>(ceil((count*static_cast<double>(maSampleRate))/fSampleRate));
             }
-            if (need_bresample == 1) {
-                ReCountb = smpb.max_out_count(count);
-            } else if (need_bresample == 2) {
-                ReCountb = static_cast<int>(ceil((count*static_cast<double>(mbSampleRate))/fSampleRate));
-            }
 
             float bufa1[ReCounta];
             memset(bufa1, 0, ReCounta*sizeof(float));
-            float bufb1[ReCountb];
-            memset(bufb1, 0, ReCountb*sizeof(float));
 
             if (need_aresample == 1) {
-                ReCountb = smpa.up(count, bufa, bufa1);
+                ReCounta = smpa.up(count, bufa, bufa1);
             } else if (need_aresample == 2) {
                 smpa.down(bufa, bufa1);
             } else {
                 memcpy(bufa1, bufa, ReCounta * sizeof(float));
             }
-            if (need_bresample == 1) {
-                ReCountb = smpb.up(count, bufb, bufb1);
-            } else if (need_bresample == 2) {
-                smpb.down(bufb, bufb1);
-            } else {
-                memcpy(bufb1, bufb, ReCountb * sizeof(float));
-            }
 
             for (int i0 = 0; i0 < ReCounta; i0 = i0 + 1) {
                  bufa1[i0] = modela->forward (&bufa1[i0]);
-            }
-            for (int i0 = 0; i0 < ReCountb; i0 = i0 + 1) {
-                 bufb1[i0] = modelb->forward (&bufb1[i0]);
             }
 
             if (need_aresample == 1) {
@@ -2664,22 +2699,97 @@ void RtNeuralMulti::compute(int count, float *input0, float *output0)
             } else if (need_aresample == 2) {
                 smpa.up(ReCounta, bufa1, bufa);
             }
-            if (need_bresample == 1) {
-                smpb.down(bufb1, bufb);
-            } else if (need_bresample == 2) {
-                smpb.up(ReCountb, bufb1, bufb);
-            }
         } else {
             for (int i0 = 0; i0 < count; i0 = i0 + 1) {
                  bufa[i0] = modela->forward (&bufa[i0]);
-                 bufb[i0] = modelb->forward (&bufb[i0]);
             }
         }
+    }
+}
+
+void always_inline RtNeuralMulti::processModelB() {
+    if (!modelb) return;
+    double fSlow01 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider01));
+
+    for (int i0 = 0; i0 < nframes; i0 = i0 + 1) {
+        fRec01[0] = fSlow01 + 0.999 * fRec01[1];
+        buf[i0] = float(double(buf[i0]) * fRec01[0]);
+        fRec01[1] = fRec01[0];
+    }
+    if (modelb && gx_system::atomic_get(ready)) {
+        if (need_bresample) {
+            int ReCountb = nframes;
+
+            if (need_bresample == 1) {
+                ReCountb = smpb.max_out_count(nframes);
+            } else if (need_bresample == 2) {
+                ReCountb = static_cast<int>(ceil((nframes*static_cast<double>(mbSampleRate))/fSampleRate));
+            }
+
+            float buf1[ReCountb];
+            memset(buf1, 0, ReCountb*sizeof(float));
+
+            if (need_bresample == 1) {
+                ReCountb = smpb.up(nframes, buf, buf1);
+            } else if (need_bresample == 2) {
+                smpb.down(buf, buf1);
+            } else {
+                memcpy(buf1, buf, ReCountb * sizeof(float));
+            }
+
+            for (int i0 = 0; i0 < ReCountb; i0 = i0 + 1) {
+                 buf1[i0] = modelb->forward (&buf1[i0]);
+            }
+
+            if (need_bresample == 1) {
+                smpb.down(buf1, buf);
+            } else if (need_bresample == 2) {
+                smpb.up(ReCountb, buf1, buf);
+            }
+        } else {
+            for (int i0 = 0; i0 < nframes; i0 = i0 + 1) {
+                 buf[i0] = modelb->forward (&buf[i0]);
+            }
+        }
+    }
+}
+
+void always_inline RtNeuralMulti::compute(int count, float *input0, float *output0)
+{
+    if (output0 != input0)
+        memcpy(output0, input0, count*sizeof(float));
+    if (!modela || !modelb) return;
+    double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
+    double fSlow2 = 0.0010000000000000009 * double(fVslider2);
+
+    float bufa[count];
+    memcpy(bufa, output0, count*sizeof(float));
+    float bufb[count];
+    memcpy(bufb, output0, count*sizeof(float));
+    nframes = count;
+    buf = bufb;
+
+    if (pro->getProcess()) {
+        pro->setProcessor(0);
+        pro->runProcess();
+    } else {
+        processModelB();
+    }
+
+    processModelA(count, bufa);
+
+    pro->processWait();
+
+    if (modela && modelb && gx_system::atomic_get(ready)) {
         for (int i0 = 0; i0 < count; i0 = i0 + 1) {
             fRec2[0] = fSlow2 + 0.999 * fRec2[1];
             output0[i0] = bufa[i0] * (1.0 - fRec2[0]) + bufb[i0] * fRec2[0];
             fRec2[1] = fRec2[0];
         }
+    } else if (modela && gx_system::atomic_get(ready)) {
+        memcpy(output0, bufa, count*sizeof(float));
+    } else if (modelb && gx_system::atomic_get(ready)) {
+        memcpy(output0, bufb, count*sizeof(float));
     }
     
     for (int i0 = 0; i0 < count; i0 = i0 + 1) {
@@ -2789,7 +2899,8 @@ void RtNeuralMulti::load_json_bfile() {
 
 int RtNeuralMulti::register_par(const ParamReg& reg)
 {
-    reg.registerFloatVar((idstring + ".input").c_str(),N_("Input"),"S",N_("gain (dB)"),&fVslider0, 0.0, -20.0, 20.0, 0.1, 0);
+    reg.registerFloatVar((idstring + ".input").c_str(),N_("Input A"),"S",N_("gain (dB)"),&fVslider0, 0.0, -20.0, 20.0, 0.1, 0);
+    reg.registerFloatVar((idstring + ".inputb").c_str(),N_("Input B"),"S",N_("gain (dB)"),&fVslider01, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".mix").c_str(),N_("Mix"),"S",N_("mix models"),&fVslider2, 0.5, 0.0, 1.0, 0.01, 0);
     param.reg_string((idstring + ".loadafile").c_str(), "", &load_afile, "*.json", true)->set_desc(N_("import *.json file"));
@@ -2816,11 +2927,13 @@ inline int RtNeuralMulti::load_ui_f(const UiBuilder& b, int form)
     if (form & UI_FORM_STACK) {
 
         b.openHorizontalhideBox("");
-            b.create_master_slider((idstring + "input").c_str(), "Input");
+            b.create_master_slider((idstring + "output").c_str(), "Output");
         b.closeBox();
         b.openHorizontalBox("");
-
-            b.create_mid_rackknob((idstring + ".input").c_str(), "Input");
+            b.openVerticalBox("");
+                b.create_mid_rackknob((idstring + ".input").c_str(), "Input A");
+                b.create_mid_rackknob((idstring + ".inputb").c_str(), "Input B");
+            b.closeBox();
             b.openVerticalBox("");
                 b.create_fload_switch(sw_button, nullptr, (idstring + ".loadafile").c_str());
                 b.create_fload_switch(sw_button, nullptr, (idstring + ".loadbfile").c_str());
