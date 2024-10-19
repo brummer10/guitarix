@@ -9,6 +9,7 @@ private:
 	int fSampleRate;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT fVslider1;
+	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fVslider2;
 	double fConst2;
@@ -85,7 +86,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 6.283185307179586 / fConst0;
 	fConst2 = 3.141592653589793 / fConst0;
 	clear_state_f();

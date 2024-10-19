@@ -7,6 +7,7 @@ namespace noise_shaper {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	double fConst0;
 	double fConst1;
 	double fConst2;
 	double fRec0[2];
@@ -65,7 +66,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = std::exp(-(0.1 / fConst0));
 	fConst2 = std::exp(-(2e+02 / fConst0));
 	clear_state_f();

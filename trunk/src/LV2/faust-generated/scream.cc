@@ -7,8 +7,12 @@ namespace scream {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
+	double fConst0;
+	double fConst1;
 	double fConst2;
+	double fConst3;
 	double fConst4;
+	double fConst5;
 	double fConst6;
 	double fRec0[3];
 	FAUSTFLOAT fVslider0;
@@ -64,12 +68,12 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 3.64434266110822e-10 * fConst0;
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = 3.64434266110822e-10 * fConst0;
 	fConst2 = fConst0 * (fConst1 + -3.23311541086178e-06) + 0.00515391115930048;
-	double fConst3 = mydsp_faustpower2_f(fConst0);
+	fConst3 = mydsp_faustpower2_f(fConst0);
 	fConst4 = 0.010307822318601 - 7.28868532221644e-10 * fConst3;
-	double fConst5 = fConst0 * (fConst1 + 3.23311541086178e-06) + 0.00515391115930048;
+	fConst5 = fConst0 * (fConst1 + 3.23311541086178e-06) + 0.00515391115930048;
 	fConst6 = 1.0 / fConst5;
 	fConst7 = fConst3 / fConst5;
 	clear_state_f();

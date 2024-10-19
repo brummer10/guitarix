@@ -46,6 +46,7 @@ private:
 	int IOTA0;
 	float *fVec0;
 	FAUSTFLOAT fHslider0;
+	float fConst0;
 	float fConst1;
 	float fRec1[2];
 	FAUSTFLOAT fHslider1;
@@ -126,7 +127,7 @@ inline void Dsp::init(unsigned int sample_rate)
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
-	float fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
+	fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = 1.0f / fConst0;
 	fConst2 = 0.5f * fConst0;
 	IOTA0 = 0;

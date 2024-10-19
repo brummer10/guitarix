@@ -10,8 +10,12 @@ namespace lpbboost {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	double fConst0;
+	double fConst1;
 	double fConst2;
+	double fConst3;
 	double fConst4;
+	double fConst5;
 	double fConst6;
 	double fRec0[3];
 	FAUSTFLOAT fVslider0;
@@ -75,12 +79,12 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 4.33054407650898e-10 * fConst0;
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = 4.33054407650898e-10 * fConst0;
 	fConst2 = fConst0 * (fConst1 + -4.66962506103765e-08) + 1.22474303201741e-06;
-	double fConst3 = mydsp_faustpower2_f(fConst0);
+	fConst3 = mydsp_faustpower2_f(fConst0);
 	fConst4 = 2.44948606403482e-06 - 8.66108815301797e-10 * fConst3;
-	double fConst5 = fConst0 * (fConst1 + 4.66962506103765e-08) + 1.22474303201741e-06;
+	fConst5 = fConst0 * (fConst1 + 4.66962506103765e-08) + 1.22474303201741e-06;
 	fConst6 = 1.0 / fConst5;
 	fConst7 = fConst3 / fConst5;
 	clear_state_f();

@@ -8,6 +8,7 @@ class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
 	int iVec0[2];
+	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT	*fCheckbox0_;
@@ -79,7 +80,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
 	fConst2 = 0.5 * fConst0;
 	fConst3 = 6.283185307179586 / fConst0;

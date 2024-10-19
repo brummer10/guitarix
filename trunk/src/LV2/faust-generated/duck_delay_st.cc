@@ -7,12 +7,16 @@ namespace duck_delay_st {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
+	double fConst0;
+	double fConst1;
+	double fConst2;
 	double fConst3;
 	double fConst4;
 	double fConst5;
 	double fConst6;
 	double fConst7;
 	double fConst8;
+	double fConst9;
 	double fConst10;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT	*fHslider0_;
@@ -42,12 +46,15 @@ private:
 	double fRec10[2];
 	double fRec9[3];
 	double fRec8[3];
+	double fConst17;
+	double fConst18;
 	double fConst19;
 	double fConst20;
 	double fConst21;
 	double fConst22;
 	double fConst23;
 	double fConst24;
+	double fConst25;
 	double fConst26;
 	double fConst27;
 	double fConst28;
@@ -171,16 +178,16 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = std::tan(2764.601535159018 / fConst0);
-	double fConst2 = mydsp_faustpower2_f(fConst1);
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = std::tan(2764.601535159018 / fConst0);
+	fConst2 = mydsp_faustpower2_f(fConst1);
 	fConst3 = 1.0 / fConst2;
 	fConst4 = 2.0 * (1.0 - fConst3);
 	fConst5 = 1.0 / fConst1;
 	fConst6 = (fConst5 + -0.6180339887498947) / fConst1 + 1.0;
 	fConst7 = 1.0 / ((fConst5 + 0.6180339887498947) / fConst1 + 1.0);
 	fConst8 = (fConst5 + -1.6180339887498947) / fConst1 + 1.0;
-	double fConst9 = (fConst5 + 1.6180339887498947) / fConst1 + 1.0;
+	fConst9 = (fConst5 + 1.6180339887498947) / fConst1 + 1.0;
 	fConst10 = 1.0 / fConst9;
 	fConst11 = std::exp(-(1e+01 / fConst0));
 	fConst12 = 1.0 - fConst11;
@@ -188,15 +195,15 @@ inline void Dsp::init(uint32_t sample_rate)
 	fConst14 = 1.0 - fConst5;
 	fConst15 = 1.0 / (fConst5 + 1.0);
 	fConst16 = 1.0 / (fConst2 * fConst9);
-	double fConst17 = std::tan(1382.300767579509 / fConst0);
-	double fConst18 = mydsp_faustpower2_f(fConst17);
+	fConst17 = std::tan(1382.300767579509 / fConst0);
+	fConst18 = mydsp_faustpower2_f(fConst17);
 	fConst19 = 1.0 / fConst18;
 	fConst20 = 2.0 * (1.0 - fConst19);
 	fConst21 = 1.0 / fConst17;
 	fConst22 = (fConst21 + -0.6180339887498947) / fConst17 + 1.0;
 	fConst23 = 1.0 / ((fConst21 + 0.6180339887498947) / fConst17 + 1.0);
 	fConst24 = (fConst21 + -1.6180339887498947) / fConst17 + 1.0;
-	double fConst25 = (fConst21 + 1.6180339887498947) / fConst17 + 1.0;
+	fConst25 = (fConst21 + 1.6180339887498947) / fConst17 + 1.0;
 	fConst26 = 1.0 / fConst25;
 	fConst27 = 1.0 - fConst21;
 	fConst28 = 1.0 / (fConst21 + 1.0);

@@ -15,6 +15,7 @@ private:
 	int iVec0[2];
 	FAUSTFLOAT fVslider0;
 	double fRec0[2];
+	double fConst0;
 	double fConst1;
 	double fConst2;
 	double fConst3;
@@ -212,7 +213,7 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	sample_rate = 96000;
 	smp.setup(RsamplingFreq, sample_rate);
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
 	fConst2 = 3.141592653589793 / fConst0;
 	fConst3 = 1.0 - fConst2;

@@ -11,11 +11,14 @@ private:
 	double fVec0[3];
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
+	double fConst0;
+	double fConst1;
 	double fConst2;
 	double fConst3;
 	double fRec1[3];
 	FAUSTFLOAT fVslider1;
 	FAUSTFLOAT	*fVslider1_;
+	double fConst4;
 	double fConst5;
 	double fConst6;
 	double fRec0[3];

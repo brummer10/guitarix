@@ -46,6 +46,7 @@ static double ftbl0mydspSIG0[65536];
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	double fConst2;
@@ -254,7 +255,7 @@ inline void Dsp::init(unsigned int sample_rate)
 	sig0->fillmydspSIG0(65536, ftbl0mydspSIG0);
 	deletemydspSIG0(sig0);
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
 	fConst2 = 3.141592653589793 / fConst0;
 	fConst3 = 0.016666666666666666 / fConst0;

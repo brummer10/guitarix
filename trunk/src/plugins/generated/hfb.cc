@@ -13,10 +13,12 @@ private:
 	FAUSTFLOAT fVslider0;
 	double fRec0[2];
 	double fConst0;
+	double fConst1;
 	double fConst2;
 	double fConst3;
 	FAUSTFLOAT fVslider1;
 	double fRec1[2];
+	double fConst4;
 	double fConst5;
 	double fConst6;
 	double fConst7;
@@ -85,10 +87,10 @@ inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
 	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 1.17023754306854e-09 * fConst0;
+	fConst1 = 1.17023754306854e-09 * fConst0;
 	fConst2 = -6.50608604711861e-08 - fConst1;
 	fConst3 = 1.18275520407517e-09 * fConst0;
-	double fConst4 = 2.36551040815034e-10 * fConst0;
+	fConst4 = 2.36551040815034e-10 * fConst0;
 	fConst5 = fConst4 + 1.32257544516629e-08;
 	fConst6 = mydsp_faustpower2_f(fConst0);
 	fConst7 = 1.06027340359031e-06 * fConst0;

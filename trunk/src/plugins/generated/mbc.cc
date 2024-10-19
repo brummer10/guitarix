@@ -10,6 +10,7 @@ namespace mbc {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT fHslider1;
@@ -219,7 +220,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
 	fConst2 = 3.141592653589793 / fConst0;
 	clear_state_f();

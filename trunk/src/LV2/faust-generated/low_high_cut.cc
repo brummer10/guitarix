@@ -8,11 +8,15 @@ class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
 	int iVec0[2];
+	double fConst0;
+	double fConst1;
 	double fConst2;
+	double fConst3;
 	double fConst4;
 	double fConst5;
 	double fConst6;
 	double fConst7;
+	double fConst8;
 	double fConst9;
 	double fRec4[2];
 	double fVec1[2];
@@ -75,15 +79,15 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = std::tan(3138.4510609362032 / fConst0);
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = std::tan(3138.4510609362032 / fConst0);
 	fConst2 = 2.0 * (1.0 - 1.0 / mydsp_faustpower2_f(fConst1));
-	double fConst3 = 1.0 / fConst1;
+	fConst3 = 1.0 / fConst1;
 	fConst4 = (fConst3 + -0.7653668647301795) / fConst1 + 1.0;
 	fConst5 = 1.0 / ((fConst3 + 0.7653668647301795) / fConst1 + 1.0);
 	fConst6 = (fConst3 + -1.8477590650225735) / fConst1 + 1.0;
 	fConst7 = 1.0 / ((fConst3 + 1.8477590650225735) / fConst1 + 1.0);
-	double fConst8 = 72.25663103256524 / fConst0;
+	fConst8 = 72.25663103256524 / fConst0;
 	fConst9 = 1.0 - fConst8;
 	fConst10 = 1.0 / (fConst8 + 1.0);
 	clear_state_f();

@@ -7,10 +7,16 @@ namespace fizz_remover {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	double fConst0;
+	double fConst1;
 	double fConst2;
+	double fConst3;
+	double fConst4;
+	double fConst5;
 	double fConst6;
 	double fConst7;
 	double fRec0[3];
+	double fConst8;
 	double fConst9;
 	double fConst10;
 	double fRec1[3];
@@ -69,15 +75,15 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = std::tan(17454.68878334489 / fConst0);
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = std::tan(17454.68878334489 / fConst0);
 	fConst2 = 2.0 * (1.0 - 1.0 / mydsp_faustpower2_f(fConst1));
-	double fConst3 = fConst0 * std::sin(34909.37756668978 / fConst0);
-	double fConst4 = 5463.779747862935 / fConst3;
-	double fConst5 = 1.0 / fConst1;
+	fConst3 = fConst0 * std::sin(34909.37756668978 / fConst0);
+	fConst4 = 5463.779747862935 / fConst3;
+	fConst5 = 1.0 / fConst1;
 	fConst6 = (fConst5 - fConst4) / fConst1 + 1.0;
 	fConst7 = 1.0 / ((fConst5 + fConst4) / fConst1 + 1.0);
-	double fConst8 = 2053.4927980405755 / fConst3;
+	fConst8 = 2053.4927980405755 / fConst3;
 	fConst9 = (fConst5 - fConst8) / fConst1 + 1.0;
 	fConst10 = (fConst5 + fConst8) / fConst1 + 1.0;
 	clear_state_f();

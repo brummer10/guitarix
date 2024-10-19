@@ -15,13 +15,17 @@ private:
 	double fRec0[2];
 	FAUSTFLOAT fEntry0;
 	FAUSTFLOAT	*fEntry0_;
+	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fEntry1;
 	FAUSTFLOAT	*fEntry1_;
 	FAUSTFLOAT fEntry2;
 	FAUSTFLOAT	*fEntry2_;
+	double fConst2;
 	double fConst3;
+	double fConst4;
 	double fConst5;
+	double fConst6;
 	double fConst7;
 	FAUSTFLOAT fCheckbox0;
 	FAUSTFLOAT	*fCheckbox0_;
@@ -34,7 +38,9 @@ private:
 	double fRec11[2];
 	double fRec9[3];
 	double fVec2[2];
+	double fConst8;
 	double fConst9;
+	double fConst10;
 	double fConst11;
 	double fConst12;
 	double fRec8[2];
@@ -80,6 +86,7 @@ private:
 	FAUSTFLOAT	*fVslider13_;
 	double fRec24[2];
 	double fVec5[2];
+	double fConst13;
 	double fConst14;
 	double fConst15;
 	double fRec1[2];
@@ -161,20 +168,20 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 3.141592653589793 / fConst0;
-	double fConst2 = std::tan(47123.8898038469 / fConst0);
+	fConst2 = std::tan(47123.8898038469 / fConst0);
 	fConst3 = 2.0 * (1.0 - 1.0 / mydsp_faustpower2_f(fConst2));
-	double fConst4 = 1.0 / fConst2;
+	fConst4 = 1.0 / fConst2;
 	fConst5 = (fConst4 + -1.414213562373095) / fConst2 + 1.0;
-	double fConst6 = (fConst4 + 1.414213562373095) / fConst2 + 1.0;
+	fConst6 = (fConst4 + 1.414213562373095) / fConst2 + 1.0;
 	fConst7 = 1.0 / fConst6;
-	double fConst8 = std::tan(97.38937226128358 / fConst0);
+	fConst8 = std::tan(97.38937226128358 / fConst0);
 	fConst9 = 1.0 / (fConst8 * fConst6);
-	double fConst10 = 1.0 / fConst8;
+	fConst10 = 1.0 / fConst8;
 	fConst11 = 1.0 - fConst10;
 	fConst12 = 1.0 / (fConst10 + 1.0);
-	double fConst13 = 1.0 / std::tan(20517.741620594938 / fConst0);
+	fConst13 = 1.0 / std::tan(20517.741620594938 / fConst0);
 	fConst14 = 1.0 - fConst13;
 	fConst15 = 1.0 / (fConst13 + 1.0);
 	clear_state_f();
