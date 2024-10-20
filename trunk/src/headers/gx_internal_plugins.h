@@ -734,6 +734,14 @@ private:
     float fVslider01;
     float fVslider1;
     float fVslider2;
+    int IOTA0;
+    double fDec0[16384];
+    float fVslider02;
+    double fDel4[2];
+    double fDel0[2];
+    double fDel1[2];
+    double fDel2[2];
+    double fDel3[2];
     double fRec0[2];
     double fRec01[2];
     double fRec1[2];
@@ -751,6 +759,7 @@ private:
     int load_ui_f(const UiBuilder& b, int form);
     void init(unsigned int sample_rate);
     void compute(int count, float *input0, float *output0);
+    void processDelay(int count, float *buf);
     void processModelA(int count, float *buf);
     void processModelB();
     void load_nam_afile();
@@ -834,6 +843,14 @@ private:
     float fVslider01;
     float fVslider1;
     float fVslider2;
+    int IOTA0;
+    double fDec0[16384];
+    float fVslider02;
+    double fDel4[2];
+    double fDel0[2];
+    double fDel1[2];
+    double fDel2[2];
+    double fDel3[2];
     double fRec0[2];
     double fRec01[2];
     double fRec1[2];
@@ -848,6 +865,7 @@ private:
     void clear_state_f();
     int load_ui_f(const UiBuilder& b, int form);
     void init(unsigned int sample_rate);
+    void processDelay(int count, float *buf);
     void processModelA(int count, float *buf);
     void processModelB();
     void compute(int count, float *input0, float *output0);

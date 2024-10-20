@@ -68,8 +68,7 @@
                 <property name="halign">center</property>
                 <property name="valign">start</property>
                 <property name="hexpand">True</property>
-                <property name="column-spacing">15</property>
-                <property name="column-homogeneous">True</property>
+                <property name="column-spacing">10</property>
                 <child>
                   <object class="GxMidKnob">
                     <property name="visible">True</property>
@@ -102,7 +101,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">center</property>
-                    <property name="margin-bottom">10</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
                     <property name="ellipsize">end</property>
                     <property name="max-width-chars">56</property>
                     <signal name="notify::label" handler="mrtneural.afile" swapped="no"/>
@@ -112,7 +112,7 @@
                     </style>
                   </object>
                   <packing>
-                    <property name="left-attach">0</property>
+                    <property name="left-attach">1</property>
                     <property name="top-attach">0</property>
                     <property name="width">4</property>
                   </packing>
@@ -151,7 +151,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">center</property>
-                    <property name="margin-bottom">10</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
                     <property name="ellipsize">end</property>
                     <property name="max-width-chars">56</property>
                     <signal name="notify" handler="mrtneural.bfile" swapped="no"/>
@@ -161,7 +162,7 @@
                     </style>
                   </object>
                   <packing>
-                    <property name="left-attach">0</property>
+                    <property name="left-attach">1</property>
                     <property name="top-attach">1</property>
                     <property name="width">4</property>
                   </packing>
@@ -194,79 +195,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="valign">center</property>
-                    <property name="margin-top">40</property>
-                    <property name="orientation">vertical</property>
-                    <property name="homogeneous">True</property>
-                    <child>
-                      <object class="GxSwitch" id="fload1">
-                        <property name="label" translatable="yes">Load A</property>
-                        <property name="name">fload</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="tooltip-text" translatable="yes">Load *.json file</property>
-                        <property name="halign">center</property>
-                        <property name="valign">end</property>
-                        <property name="margin-left">3</property>
-                        <property name="margin-right">3</property>
-                        <property name="margin-start">3</property>
-                        <property name="margin-end">3</property>
-                        <property name="margin-top">10</property>
-                        <property name="margin-bottom">10</property>
-                        <property name="draw-indicator">True</property>
-                        <property name="base-name">fbutton</property>
-                        <signal name="toggled" handler="rtneural:load_json_file mrtneural.loadafile" swapped="no"/>
-                        <style>
-                          <class name="gx_effect_on_off"/>
-                        </style>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GxSwitch" id="fload">
-                        <property name="label" translatable="yes">Load B</property>
-                        <property name="name">fload</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">False</property>
-                        <property name="tooltip-text" translatable="yes">Load *.json file</property>
-                        <property name="halign">center</property>
-                        <property name="valign">start</property>
-                        <property name="margin-left">3</property>
-                        <property name="margin-right">3</property>
-                        <property name="margin-start">3</property>
-                        <property name="margin-end">3</property>
-                        <property name="margin-top">10</property>
-                        <property name="margin-bottom">10</property>
-                        <property name="draw-indicator">True</property>
-                        <property name="base-name">fbutton</property>
-                        <signal name="toggled" handler="rtneural:load_json_file mrtneural.loadbfile" swapped="no"/>
-                        <style>
-                          <class name="gx_effect_on_off"/>
-                        </style>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">3</property>
-                    <property name="height">2</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GxMidKnob">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
@@ -291,13 +219,84 @@
                   </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GxSwitch" id="fload1">
+                    <property name="label" translatable="yes">Load A</property>
+                    <property name="name">fload</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="tooltip-text" translatable="yes">Load *.json file</property>
+                    <property name="halign">center</property>
+                    <property name="valign">end</property>
+                    <property name="margin-left">3</property>
+                    <property name="margin-right">3</property>
+                    <property name="margin-start">3</property>
+                    <property name="margin-end">3</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="draw-indicator">True</property>
+                    <property name="base-name">fbutton</property>
+                    <signal name="toggled" handler="rtneural:load_json_file mrtneural.loadafile" swapped="no"/>
+                    <style>
+                      <class name="gx_effect_on_off"/>
+                    </style>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GxSwitch" id="fload">
+                    <property name="label" translatable="yes">Load B</property>
+                    <property name="name">fload</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <property name="tooltip-text" translatable="yes">Load *.json file</property>
+                    <property name="halign">center</property>
+                    <property name="valign">start</property>
+                    <property name="margin-left">3</property>
+                    <property name="margin-right">3</property>
+                    <property name="margin-start">3</property>
+                    <property name="margin-end">3</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="draw-indicator">True</property>
+                    <property name="base-name">fbutton</property>
+                    <signal name="toggled" handler="rtneural:load_json_file mrtneural.loadbfile" swapped="no"/>
+                    <style>
+                      <class name="gx_effect_on_off"/>
+                    </style>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">1</property>
+                  </packing>
                 </child>
                 <child>
-                  <placeholder/>
+                  <object class="GxSmallKnobR">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="var-id">mrtneural.cdelay</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">3</property>
+                    <property name="height">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="delay:rack_label">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Delta Delay</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">2</property>
+                  </packing>
                 </child>
               </object>
               <packing>

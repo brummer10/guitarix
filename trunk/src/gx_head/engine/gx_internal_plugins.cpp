@@ -2062,6 +2062,12 @@ inline void NeuralAmpMulti::clear_state_f()
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec01[l0] = 0.0;
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec2[l0] = 0.0;
+    for (int l0 = 0; l0 < 16384; l0 = l0 + 1) fDec0[l0] = 0.0;
+    for (int l1 = 0; l1 < 2; l1 = l1 + 1) fDel4[l1] = 0.0;
+    for (int l2 = 0; l2 < 2; l2 = l2 + 1) fDel0[l2] = 0.0;
+    for (int l3 = 0; l3 < 2; l3 = l3 + 1) fDel1[l3] = 0.0;
+    for (int l4 = 0; l4 < 2; l4 = l4 + 1) fDel2[l4] = 0.0;
+    for (int l5 = 0; l5 < 2; l5 = l5 + 1) fDel3[l5] = 0.0;
 }
 
 void NeuralAmpMulti::clear_state_f_static(PluginDef *p)
@@ -2075,6 +2081,7 @@ inline void NeuralAmpMulti::init(unsigned int sample_rate)
     clear_state_f();
     is_inited = true;
     buf = nullptr;
+    IOTA0 = 0;
     nframes = 1;
     load_nam_afile();
     load_nam_bfile();
@@ -2085,6 +2092,29 @@ inline void NeuralAmpMulti::init(unsigned int sample_rate)
 void NeuralAmpMulti::init_static(unsigned int sample_rate, PluginDef *p)
 {
     static_cast<NeuralAmpMulti*>(p)->init(sample_rate);
+}
+
+void always_inline NeuralAmpMulti::processDelay(int count, float *buf)
+{
+    double fSlow0 = 0.0010000000000000009 * double(fVslider02);
+    for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+        double fTemp0 = double(buf[i0]);
+        fDec0[IOTA0 & 16383] = fTemp0;
+        fDel4[0] = fSlow0 + 0.999 * fDel4[1];
+        double fTemp1 = ((fDel0[1] != 0.0) ? (((fDel1[1] > 0.0) & (fDel1[1] < 1.0)) ? fDel0[1] : 0.0) : (((fDel1[1] == 0.0) & (fDel4[0] != fDel2[1])) ? 0.0009765625 : (((fDel1[1] == 1.0) & (fDel4[0] != fDel3[1])) ? -0.0009765625 : 0.0)));
+        fDel0[0] = fTemp1;
+        fDel1[0] = std::max<double>(0.0, std::min<double>(1.0, fDel1[1] + fTemp1));
+        fDel2[0] = (((fDel1[1] >= 1.0) & (fDel3[1] != fDel4[0])) ? fDel4[0] : fDel2[1]);
+        fDel3[0] = (((fDel1[1] <= 0.0) & (fDel2[1] != fDel4[0])) ? fDel4[0] : fDel3[1]);
+        double fTemp2 = fDec0[(IOTA0 - int(std::min<double>(8192.0, std::max<double>(0.0, fDel2[0])))) & 16383];
+        buf[i0] = float(fTemp2 + fDel1[0] * (fDec0[(IOTA0 - int(std::min<double>(8192.0, std::max<double>(0.0, fDel3[0])))) & 16383] - fTemp2));
+        IOTA0 = IOTA0 + 1;
+        fDel4[1] = fDel4[0];
+        fDel0[1] = fDel0[0];
+        fDel1[1] = fDel1[0];
+        fDel2[1] = fDel2[0];
+        fDel3[1] = fDel3[0];
+    }
 }
 
 void always_inline NeuralAmpMulti::processModelA(int count, float *bufa) {
@@ -2188,6 +2218,10 @@ void always_inline NeuralAmpMulti::compute(int count, float *input0, float *outp
     memcpy(bufa, output0, count*sizeof(float));
     float bufb[count];
     memcpy(bufb, output0, count*sizeof(float));
+
+    if (int(fVslider02) > 0) processDelay(count, bufb);
+    else processDelay(count, bufa);
+
     nframes = count;
     buf = bufb;
 
@@ -2316,6 +2350,7 @@ int NeuralAmpMulti::register_par(const ParamReg& reg)
 {
     reg.registerFloatVar((idstring + ".input").c_str(),N_("Input A"),"S",N_("gain (dB)"),&fVslider0, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".inputb").c_str(),N_("Input B"),"S",N_("gain (dB)"),&fVslider01, 0.0, -20.0, 20.0, 0.1, 0);
+    reg.registerFloatVar((idstring + ".cdelay").c_str(),N_("Delta Delay"),"S",N_("Delay A/B"),&fVslider02, 0.0, -4096.0, 4096.0, 1.0, 0);
     reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".mix").c_str(),N_("Mix"),"S",N_("mix models"),&fVslider2, 0.5, 0.0, 1.0, 0.01, 0);
     param.reg_string((idstring + ".loadafile").c_str(), "", &load_afile, "*.nam", true)->set_desc(N_("import *.nam file"));
@@ -2635,6 +2670,12 @@ inline void RtNeuralMulti::clear_state_f()
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec01[l0] = 0.0;
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec2[l0] = 0.0;
+    for (int l0 = 0; l0 < 16384; l0 = l0 + 1) fDec0[l0] = 0.0;
+    for (int l1 = 0; l1 < 2; l1 = l1 + 1) fDel4[l1] = 0.0;
+    for (int l2 = 0; l2 < 2; l2 = l2 + 1) fDel0[l2] = 0.0;
+    for (int l3 = 0; l3 < 2; l3 = l3 + 1) fDel1[l3] = 0.0;
+    for (int l4 = 0; l4 < 2; l4 = l4 + 1) fDel2[l4] = 0.0;
+    for (int l5 = 0; l5 < 2; l5 = l5 + 1) fDel3[l5] = 0.0;
 }
 
 void RtNeuralMulti::clear_state_f_static(PluginDef *p)
@@ -2646,6 +2687,7 @@ inline void RtNeuralMulti::init(unsigned int sample_rate)
 {
     fSampleRate = sample_rate;
     clear_state_f();
+    IOTA0 = 0;
     is_inited = true;
     buf = nullptr;
     nframes = 1;
@@ -2657,6 +2699,29 @@ inline void RtNeuralMulti::init(unsigned int sample_rate)
 void RtNeuralMulti::init_static(unsigned int sample_rate, PluginDef *p)
 {
     static_cast<RtNeuralMulti*>(p)->init(sample_rate);
+}
+
+void always_inline RtNeuralMulti::processDelay(int count, float *buf)
+{
+	double fSlow0 = 0.0010000000000000009 * double(fVslider02);
+	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
+		double fTemp0 = double(buf[i0]);
+		fDec0[IOTA0 & 16383] = fTemp0;
+		fDel4[0] = fSlow0 + 0.999 * fDel4[1];
+		double fTemp1 = ((fDel0[1] != 0.0) ? (((fDel1[1] > 0.0) & (fDel1[1] < 1.0)) ? fDel0[1] : 0.0) : (((fDel1[1] == 0.0) & (fDel4[0] != fDel2[1])) ? 0.0009765625 : (((fDel1[1] == 1.0) & (fDel4[0] != fDel3[1])) ? -0.0009765625 : 0.0)));
+		fDel0[0] = fTemp1;
+		fDel1[0] = std::max<double>(0.0, std::min<double>(1.0, fDel1[1] + fTemp1));
+		fDel2[0] = (((fDel1[1] >= 1.0) & (fDel3[1] != fDel4[0])) ? fDel4[0] : fDel2[1]);
+		fDel3[0] = (((fDel1[1] <= 0.0) & (fDel2[1] != fDel4[0])) ? fDel4[0] : fDel3[1]);
+		double fTemp2 = fDec0[(IOTA0 - int(std::min<double>(8192.0, std::max<double>(0.0, fDel2[0])))) & 16383];
+		buf[i0] = float(fTemp2 + fDel1[0] * (fDec0[(IOTA0 - int(std::min<double>(8192.0, std::max<double>(0.0, fDel3[0])))) & 16383] - fTemp2));
+		IOTA0 = IOTA0 + 1;
+		fDel4[1] = fDel4[0];
+		fDel0[1] = fDel0[0];
+		fDel1[1] = fDel1[0];
+		fDel2[1] = fDel2[0];
+		fDel3[1] = fDel3[0];
+	}
 }
 
 void always_inline RtNeuralMulti::processModelA(int count, float *bufa) {
@@ -2766,6 +2831,10 @@ void always_inline RtNeuralMulti::compute(int count, float *input0, float *outpu
     memcpy(bufa, output0, count*sizeof(float));
     float bufb[count];
     memcpy(bufb, output0, count*sizeof(float));
+
+    if (int(fVslider02) > 0) processDelay(count, bufb);
+    else processDelay(count, bufa);
+
     nframes = count;
     buf = bufb;
 
@@ -2901,6 +2970,7 @@ int RtNeuralMulti::register_par(const ParamReg& reg)
 {
     reg.registerFloatVar((idstring + ".input").c_str(),N_("Input A"),"S",N_("gain (dB)"),&fVslider0, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".inputb").c_str(),N_("Input B"),"S",N_("gain (dB)"),&fVslider01, 0.0, -20.0, 20.0, 0.1, 0);
+    reg.registerFloatVar((idstring + ".cdelay").c_str(),N_("Delta Delay"),"S",N_("Delay A/B"),&fVslider02, 0.0, -4096.0, 4096.0, 1.0, 0);
     reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".mix").c_str(),N_("Mix"),"S",N_("mix models"),&fVslider2, 0.5, 0.0, 1.0, 0.01, 0);
     param.reg_string((idstring + ".loadafile").c_str(), "", &load_afile, "*.json", true)->set_desc(N_("import *.json file"));
