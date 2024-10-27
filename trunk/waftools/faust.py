@@ -182,17 +182,19 @@ def check_faust(conf):
     if opt.no_faust:
         env.FAUST = None
         return
-    conf.find_program("faust", var='FAUST')
+    conf.find_program("faust", var='FAUST', mandatory=False)
     if not env.FAUST:
         return
     try:
         s = conf.cmd_and_log(env['FAUST']+['--version'], quiet=True)
     except ValueError:
         Logs.warn('could not execute faust')
+        env.FAUST = None
         return
     m = re.match(r".*Version\s*(.*)", s)
     if not m:
         Logs.warn('could not determine faust version')
+        env.FAUST = None
         return
     vers = m.group(1)
     env.FAUST_VERSION = vers
