@@ -83,7 +83,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkLabel" id="namA:rack_label">
                     <property name="width-request">340</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -105,7 +105,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="output_label">
+                  <object class="GtkLabel" id="output_label:rack_label">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Output</property>
@@ -119,7 +119,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkLabel" id="namB:rack_label">
                     <property name="width-request">340</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -154,7 +154,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="output_label1">
+                  <object class="GtkLabel" id="output_label1:rack_label">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Blend A/B</property>

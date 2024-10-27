@@ -86,7 +86,7 @@
                 <property name="hexpand">True</property>
                 <property name="column-spacing">30</property>
                 <child>
-                  <object class="GtkLabel" id="gain_label">
+                  <object class="GtkLabel" id="gain_label:rack_label">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <style>
@@ -99,7 +99,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="wet_dry_label">
+                  <object class="GtkLabel" id="wet_dry_label:rack_label">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <style>
@@ -117,7 +117,7 @@
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
                     <property name="var-id">jconv_mono.gain</property>
-                    <property name="label-ref">gain_label</property>
+                    <property name="label-ref">gain_label:rack_label</property>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -130,7 +130,7 @@
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
                     <property name="var-id">jconv_mono.wet_dry</property>
-                    <property name="label-ref">wet_dry_label</property>
+                    <property name="label-ref">wet_dry_label:rack_label</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -153,7 +153,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkLabel" id="ir_mono:rack_label">
                     <property name="width-request">340</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
