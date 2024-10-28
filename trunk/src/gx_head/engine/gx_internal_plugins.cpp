@@ -1903,7 +1903,6 @@ void always_inline NeuralAmp::compute(int count, float *input0, float *output0)
             }
 
             model->process(buf, buf, ReCount);
-            model->finalize_(ReCount);
 
             if (need_resample == 1) {
                 smp.down(buf, output0);
@@ -1912,7 +1911,6 @@ void always_inline NeuralAmp::compute(int count, float *input0, float *output0)
             }
         } else {
             model->process(output0, output0, count);
-            model->finalize_(count);
         }
     }
     for (int i0 = 0; i0 < count; i0 = i0 + 1) {
@@ -1960,7 +1958,6 @@ void NeuralAmp::load_nam_file() {
             memset(buffer, 0, warmUpSize * sizeof(float));
 
             model->process(buffer, buffer, warmUpSize);
-            model->finalize_(warmUpSize);
 
             delete[] buffer;
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mSampleRate, loudness);
@@ -2147,7 +2144,6 @@ void always_inline NeuralAmpMulti::processModelA(int count, float *bufa) {
             }
 
             modela->process(bufa1, bufa1, ReCounta);
-            modela->finalize_(ReCounta);
 
             if (need_aresample == 1) {
                 smpa.down(bufa1, bufa);
@@ -2156,7 +2152,6 @@ void always_inline NeuralAmpMulti::processModelA(int count, float *bufa) {
             }
         } else {
             modela->process(bufa, bufa, count);
-            modela->finalize_(count);
         }
     }
 }
@@ -2191,7 +2186,6 @@ void always_inline NeuralAmpMulti::processModelB() {
             }
 
             modelb->process(buf1, buf1, ReCountb);
-            modelb->finalize_(ReCountb);
 
             if (need_bresample == 1) {
                 smpb.down(buf1, buf);
@@ -2200,7 +2194,6 @@ void always_inline NeuralAmpMulti::processModelB() {
             }
         } else {
             modelb->process(buf, buf, nframes);
-            modelb->finalize_(nframes);
         }
     }
 }
@@ -2293,7 +2286,6 @@ void NeuralAmpMulti::load_nam_afile() {
             memset(buffer, 0, warmUpSize * sizeof(float));
 
             modela->process(buffer, buffer, warmUpSize);
-            modela->finalize_(warmUpSize);
 
             delete[] buffer;
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, maSampleRate, loudness);
@@ -2336,7 +2328,6 @@ void NeuralAmpMulti::load_nam_bfile() {
             memset(buffer, 0, warmUpSize * sizeof(float));
 
             modelb->process(buffer, buffer, warmUpSize);
-            modelb->finalize_(warmUpSize);
 
             delete[] buffer;
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mbSampleRate, loudness);

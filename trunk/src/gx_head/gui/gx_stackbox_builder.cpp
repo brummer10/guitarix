@@ -369,11 +369,16 @@ static Gtk::FileChooserDialog* create_looper_filedialog(Gxw::Switch* button,
     all->add_pattern("*");
     all->set_name("All Files");
     d->add_filter(all);
+    Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     d->signal_response().connect(
         [=,&machine](int response) {
             on_file_chooser_response(response, button, d, machine, id); });
     d->add_shortcut_folder_uri(
-        Glib::filename_to_uri(machine.get_options().get_loop_dir(), "localhost"));
+        Glib::filename_to_uri(machine.get_options().get_loop_dir(), hostname));
     return d;
 }
 
@@ -466,7 +471,7 @@ static Gtk::FileChooserDialog* create_nam_filedialog(Gxw::Switch* button,
     Glib::RefPtr<Gtk::FileFilter> wav = Gtk::FileFilter::create();
     wav->set_name("NAM Files");
     wav->add_pattern("*.nam");
-    wav->add_pattern("*.json");
+    //wav->add_pattern("*.json");
     d->add_filter(wav);
     Glib::RefPtr<Gtk::FileFilter> audio = Gtk::FileFilter::create();
     audio->set_name("NAM Files");
@@ -616,7 +621,7 @@ static Gtk::FileChooserDialog* create_rtneural_filedialog(Gxw::Switch* button,
         [=,&machine](int response) {
             on_rtneural_chooser_response(response, button, d, machine, id); });
     d->add_shortcut_folder_uri(
-        Glib::filename_to_uri(machine.get_options().get_loop_dir(), "localhost"));
+        Glib::filename_to_uri(machine.get_options().get_loop_dir(), hostname));
     return d;
 }
 
