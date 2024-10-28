@@ -13,7 +13,6 @@ def build(bld):
         includes = ['../faust','./', '../DSP', '../DSP/tube_tables'],
         cxxflags=['-fvisibility=hidden','-fno-lto','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
         use = ['LV2CORE','GX_CONVOLVER'],
-        ldscript = 'gxamp_stereo.lds',
         mapfile = "gxamp_stereo.map",
         )
     bld.lv2_gui(

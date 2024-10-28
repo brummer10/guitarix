@@ -13,7 +13,6 @@ def build(bld):
         includes = ['../faust','./', '../DSP', '../DSP/tube_tables'],
         cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
         use = ['LV2CORE','GX_CONVOLVER','GX_RESAMPLER'],
-        ldscript = 'gxmetal_amp.lds',
         mapfile = "gxmetal_amp.map",
         )
     bld.lv2_gui(
@@ -23,4 +22,3 @@ def build(bld):
         cxxflags=['-fvisibility=hidden','-Wl,-z,noexecstack','-Wl,-z,relro,-z,now','-Wl,--exclude-libs,ALL'],
         use = ['xcairo','X11', 'CAIRO','LV2CORE'],
         )
-

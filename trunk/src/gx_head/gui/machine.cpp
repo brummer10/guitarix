@@ -57,14 +57,14 @@ void set_memory_allocation() {}
 void lock_rt_memory() {
 #ifndef GUITARIX_AS_PLUGIN
 #ifndef __APPLE__
-    extern char __rt_text__start[], __rt_text__end[];
-    extern char __rt_data__start[], __rt_data__end[];
+    extern char __start_rt_text[], __stop_rt_text[];
+    extern char __start_rt_data[], __stop_rt_data[];
     struct {
 	char *start;
 	long len;
     } regions[] = {
-	{ __rt_text__start, __rt_text__end - __rt_text__start },
-	{ __rt_data__start, __rt_data__end - __rt_data__start },
+	{ __start_rt_text, __stop_rt_text - __start_rt_text },
+	{ __start_rt_data, __stop_rt_data - __start_rt_data },
     };
 #ifndef NDEBUG
     long int total_size = 0;
@@ -90,14 +90,14 @@ void lock_rt_memory() {
 void unlock_rt_memory() {
 #ifndef GUITARIX_AS_PLUGIN
 #ifndef __APPLE__    
-    extern char __rt_text__start[], __rt_text__end[];
-    extern char __rt_data__start[], __rt_data__end[];
+    extern char __start_rt_text[], __stop_rt_text[];
+    extern char __start_rt_data[], __stop_rt_data[];
     struct {
     char *start;
     long len;
     } regions[] = {
-    { __rt_text__start, __rt_text__end - __rt_text__start },
-    { __rt_data__start, __rt_data__end - __rt_data__start },
+    { __start_rt_text, __stop_rt_text - __start_rt_text },
+    { __start_rt_data, __stop_rt_data - __start_rt_data },
     };
 #ifndef NDEBUG
     long int total_size = 0;

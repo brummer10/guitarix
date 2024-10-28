@@ -224,7 +224,6 @@ def build(bld):
         target = bld.env.BIN_NAME,
         chmod = 0o755,
         install_path = bld.env.BINDIR,
-        ldscript = 'guitarix.lds',
         mapfile = "guitarix.map",
         )
     bld.install_files(bld.env.GX_BUILDER_DIR, builder_files, chmod=0o644)
