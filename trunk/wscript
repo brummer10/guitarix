@@ -289,6 +289,7 @@ def configure(conf):
     conf.define_with_env('ENABLE_NLS', nls_flag)
     # compiler
     conf.load('compiler_cxx')
+    conf.gxload('compile-extra')
     if opt.with_gcov:
         conf.find_program('gcov')
         conf.env['CXXFLAGS'] = conf.env['CFLAGS'] = ['-fprofile-arcs', '-ftest-coverage']
