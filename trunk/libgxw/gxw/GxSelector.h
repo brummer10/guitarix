@@ -57,6 +57,7 @@ struct _GxSelectorClass {
 
 GType gx_selector_get_type(void);
 void gx_selector_set_model(GxSelector *selector, GtkTreeModel *model);
+void gx_selector_unset_model(GxSelector *selector);
 GtkTreeModel *gx_selector_get_model(GxSelector *selector);
 
 G_END_DECLS

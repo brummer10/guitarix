@@ -83,28 +83,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="namA:rack_label">
-                    <property name="width-request">340</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">center</property>
-                    <property name="margin-top">5</property>
-                    <property name="margin-bottom">5</property>
-                    <property name="ellipsize">end</property>
-                    <property name="max-width-chars">56</property>
-                    <signal name="notify::label" handler="mnam.afile" swapped="no"/>
-                    <style>
-                      <class name="rack_label"/>
-                      <class name="gx_rack_box_label"/>
-                    </style>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">0</property>
-                    <property name="width">4</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkLabel" id="output_label:rack_label">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -116,28 +94,6 @@
                   <packing>
                     <property name="left-attach">4</property>
                     <property name="top-attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="namB:rack_label">
-                    <property name="width-request">340</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">center</property>
-                    <property name="margin-top">5</property>
-                    <property name="margin-bottom">5</property>
-                    <property name="ellipsize">end</property>
-                    <property name="max-width-chars">56</property>
-                    <signal name="notify" handler="mnam.bfile" swapped="no"/>
-                    <style>
-                      <class name="rack_label"/>
-                      <class name="gx_rack_box_label"/>
-                    </style>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">1</property>
-                    <property name="width">4</property>
                   </packing>
                 </child>
                 <child>
@@ -240,7 +196,6 @@
                     <property name="margin-right">3</property>
                     <property name="margin-start">3</property>
                     <property name="margin-end">3</property>
-                    <property name="margin-top">5</property>
                     <property name="margin-bottom">5</property>
                     <property name="draw-indicator">True</property>
                     <property name="base-name">fbutton</property>
@@ -268,7 +223,6 @@
                     <property name="margin-right">3</property>
                     <property name="margin-start">3</property>
                     <property name="margin-end">3</property>
-                    <property name="margin-top">5</property>
                     <property name="margin-bottom">5</property>
                     <property name="draw-indicator">True</property>
                     <property name="base-name">fbutton</property>
@@ -293,6 +247,36 @@
                     <property name="left-attach">2</property>
                     <property name="top-attach">3</property>
                     <property name="height">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GxSelector" id="mnam.afile_selector">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="var-id">mnam.falist</property>
+                    <signal name="notify::selector" handler="mnam.afilelist" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                    <property name="width">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GxSelector" id="mnam.bfile_selector">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="var-id">mnam.fblist</property>
+                    <signal name="notify::selector" handler="mnam.bfilelist" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">1</property>
+                    <property name="width">4</property>
                   </packing>
                 </child>
               </object>

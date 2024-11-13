@@ -119,6 +119,7 @@ using namespace std;
 #include "gx_jack_wrapper.h"
 #endif // GUITARIX_AS_PLUGIN
 #include "gx_internal_plugins.h"
+#include "gx_neural_plugins.h"
 #include "gx_preset.h"
 #include "gx_engine.h"
 

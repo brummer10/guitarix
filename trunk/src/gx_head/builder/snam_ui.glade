@@ -64,7 +64,7 @@
               <placeholder/>
             </child>
             <child>
-              <!-- n-columns=3 n-rows=4 -->
+              <!-- n-columns=3 n-rows=5 -->
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
@@ -74,34 +74,6 @@
                 <property name="column-spacing">30</property>
                 <property name="column-homogeneous">True</property>
                 <child>
-                  <object class="GxSwitch" id="fload">
-                    <property name="label" translatable="yes">Load</property>
-                    <property name="name">fload</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <property name="tooltip-text" translatable="yes">Load *.nam file</property>
-                    <property name="halign">center</property>
-                    <property name="valign">center</property>
-                    <property name="margin-left">10</property>
-                    <property name="margin-right">12</property>
-                    <property name="margin-start">3</property>
-                    <property name="margin-end">3</property>
-                    <property name="margin-top">10</property>
-                    <property name="margin-bottom">10</property>
-                    <property name="draw-indicator">True</property>
-                    <property name="base-name">fbutton</property>
-                    <signal name="toggled" handler="nam:load_nam_file snam.loadfile" swapped="no"/>
-                    <style>
-                      <class name="gx_effect_on_off"/>
-                    </style>
-                  </object>
-                  <packing>
-                    <property name="left-attach">1</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GxMidKnob">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
@@ -110,7 +82,7 @@
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
-                    <property name="top-attach">3</property>
+                    <property name="top-attach">4</property>
                   </packing>
                 </child>
                 <child>
@@ -122,7 +94,7 @@
                   </object>
                   <packing>
                     <property name="left-attach">2</property>
-                    <property name="top-attach">3</property>
+                    <property name="top-attach">4</property>
                   </packing>
                 </child>
                 <child>
@@ -136,7 +108,7 @@
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
-                    <property name="top-attach">2</property>
+                    <property name="top-attach">3</property>
                   </packing>
                 </child>
                 <child>
@@ -150,29 +122,69 @@
                   </object>
                   <packing>
                     <property name="left-attach">2</property>
-                    <property name="top-attach">2</property>
+                    <property name="top-attach">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="snamfilel:rack_label">
-                    <property name="width-request">340</property>
+                  <object class="GxSelector" id="snam.fileselector">
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">center</property>
-                    <property name="margin-bottom">10</property>
-                    <property name="ellipsize">end</property>
-                    <property name="max-width-chars">56</property>
-                    <signal name="notify::label" handler="snam.file" swapped="no"/>
-                    <style>
-                      <class name="rack_label"/>
-                      <class name="gx_rack_box_label"/>
-                    </style>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="var-id">snam.flist</property>
+                    <signal name="notify::selector" handler="snam.filelist" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
-                    <property name="top-attach">0</property>
+                    <property name="top-attach">1</property>
                     <property name="width">3</property>
                   </packing>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GxSwitch" id="fload">
+                        <property name="label" translatable="yes">Load</property>
+                        <property name="name">fload</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">False</property>
+                        <property name="tooltip-text" translatable="yes">Load *.nam file</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="margin-left">3</property>
+                        <property name="margin-right">3</property>
+                        <property name="margin-start">3</property>
+                        <property name="margin-end">3</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                        <property name="draw-indicator">True</property>
+                        <property name="base-name">fbutton</property>
+                        <signal name="toggled" handler="nam:load_nam_file snam.loadfile" swapped="no"/>
+                        <style>
+                          <class name="gx_effect_on_off"/>
+                        </style>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
                 <child>
                   <placeholder/>
