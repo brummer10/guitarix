@@ -1196,8 +1196,7 @@ bool GxSettings::rename_bank(const Glib::ustring& oldname, Glib::ustring& newnam
 }
 
 //static
-bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_new_preset) {
-    bool copied_from_old = false;
+void GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_new_preset) {
     std::string oldpreset;
     *need_new_preset = false;
     if (check_create_config_dir(opt.get_user_dir())) {
@@ -1208,30 +1207,6 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
         check_create_config_dir(opt.get_loop_dir());
         check_create_config_dir(opt.get_user_IR_dir());
         check_create_config_dir(opt.get_temp_dir());
-        std::string fname = gx_jack::GxJack::get_default_instancename() + statename_postfix;
-        if (access(Glib::build_filename(opt.get_old_user_dir(), fname).c_str(), R_OK) == 0) {
-            copied_from_old = true;
-            Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(
-                Glib::build_filename(opt.get_old_user_dir(), fname));
-            try {
-                f->copy(Gio::File::create_for_path(opt.get_user_filepath(fname)));
-            } catch (Gio::Error& e) {
-                gx_print_error(e.what().c_str(), _("can't copy to new config dir"));
-            }
-        }
-        fname = Glib::build_filename(
-            opt.get_old_user_dir(),
-            gx_jack::GxJack::get_default_instancename() + "pre_rc");
-        if (access(fname.c_str(), R_OK) == 0) {
-            Glib::RefPtr<Gio::File> f = Gio::File::create_for_path(fname);
-            oldpreset = opt.get_preset_filepath("oldpresets.gx");
-            try {
-                f->copy(Gio::File::create_for_path(oldpreset));
-            } catch (Gio::Error& e) {
-                gx_print_error(e.what().c_str(), _("can't copy to new config preset dir"));
-                oldpreset = "";
-            }
-        }
     } else {
         check_create_config_dir(opt.get_preset_dir());
         check_create_config_dir(opt.get_plugin_dir());
@@ -1257,19 +1232,7 @@ bool GxSettings::check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_n
                 boost::format(_("can't create '%1%' in directory '%2%'"))
                 % bank_list % opt.get_preset_dir());
         }
-        gx_system::PresetFile pre;
-        pre.open_file(scratchpad_name, opt.get_preset_filepath(scratchpad_file), gx_system::PresetFile::PRESET_SCRATCH, 0);
-        gx_system::JsonWriter jw(&f);
-        jw.begin_array(true);
-        pre.writeJSON(jw);
-        if (!oldpreset.empty() && pre.open_file("copied presets", oldpreset, gx_system::PresetFile::PRESET_FILE, 0)) {
-            pre.writeJSON(jw);
-        }
-        jw.end_array(true);
-        jw.close();
-        f.close();
     }
-    return copied_from_old;
 }
 
 void GxSettings::loadstate() {

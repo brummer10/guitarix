@@ -282,9 +282,10 @@ void StackBoxBuilder::set_neural_filelist(Gxw::Selector *sel, std::string id,
         }
         Glib::RefPtr<Gio::File> file = Gio::File::create_for_uri(Glib::filename_to_uri(path, hostname));
 
-        int j = 0;
+        unsigned int j = 0;
         Glib::ustring s = p->getString().get_value();
         s = s.substr(s.find_last_of("/\\") + 1);
+        unsigned int i = 0;
 
         if (file->query_exists()) {
             Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
@@ -295,8 +296,11 @@ void StackBoxBuilder::set_neural_filelist(Gxw::Selector *sel, std::string id,
             (*file_names).push_back("None");
             while ((file_info = child_enumeration->next_file())) {
                 std::string name = file_info->get_name();
-                if (endsWith(name, 4, extension) || endsWith(name, 4, extension2))
+                if (endsWith(name, 4, extension) || endsWith(name, 4, extension2)) {
                     (*file_names).push_back(file_info->get_name());
+                    i++;
+                    if (i > 126) break;
+                }
             }
         }
         Gtk::TreeModelColumn<Glib::ustring> label;
@@ -304,12 +308,11 @@ void StackBoxBuilder::set_neural_filelist(Gxw::Selector *sel, std::string id,
         rec.add(label);
         Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
 
-        unsigned int i=0;
+        i = 0;
         for (; i < (*file_names).size(); i++) {
             Gtk::TreeIter t = ls->append();
-            t->set_value(0, Glib::ustring(truncate((*file_names)[i], 44)));
+            t->set_value(0, Glib::ustring(truncate(std::to_string(i) + " " + (*file_names)[i], 44)));
             if ((*file_names)[i] == s) j = i;
-            if (i > 126) break;
         }
         sel->set_model(ls);
         sel->cp_configure(pa->l_group(), pa->l_name(), 0.0,(float)(*file_names).size(), 1.0);
@@ -338,31 +341,12 @@ void StackBoxBuilder::set_neural_filelist(Gxw::Selector *sel, std::string id,
     }
 }
 
-void StackBoxBuilder::set_neural_file(std::string id, std::string fileid, std::string pathid) {
+void StackBoxBuilder::set_neural_file(std::string id, std::string fileid) {
     gx_engine::StringParameter *p = dynamic_cast<gx_engine::StringParameter*>(
         &machine.get_parameter(fileid));
     std::string file = p->getString().get_value();
     file = file.substr(file.find_last_of("/\\") + 1);
-    gx_engine::StringParameter *pp = dynamic_cast<gx_engine::StringParameter*>(
-        &machine.get_parameter(pathid));
-    std::string path = pp->getString().get_value();
     if (file == "None") machine.set_parameter_value(id, 0.0);
-    if (path.empty()) return;
-
-/*    std::vector<Glib::ustring> *file_names = &nam_file_names;
-    if (id == "snam.flist") file_names = &snam_file_names;
-    else if (id == "mnam.falist") file_names = &mnam_afile_names;
-    else if (id == "mnam.fblist") file_names = &mnam_bfile_names;
-    else if (id == "rtneural.flist") file_names = &rtneural_file_names;
-    else if (id == "srtneural.flist") file_names = &srtneural_file_names;
-    else if (id == "mrtneural.falist") file_names = &mrtneural_afile_names;
-    else if (id == "mrtneural.fblist") file_names = &mrtneural_bfile_names;
-
-    int a = (int)machine.get_parameter_value<float>(id);
-
-    if ( file != path +"/"+ (*file_names)[a]) {
-        machine.set_parameter_value(fileid, path +"/"+ (*file_names)[a]);
-    }*/
 }
 
 static void neural_filelist(StackBoxBuilder * st, Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine,
@@ -375,7 +359,16 @@ static void neural_filelist(StackBoxBuilder * st, Glib::RefPtr<Glib::Object>& ob
         &machine.get_parameter(fileid));
 
     auto s_neural_filelist = [st, sel, id, fileid, pathid](Glib::ustring s) {
-        st->set_neural_filelist(sel, id, fileid, pathid);
+        Glib::signal_idle().connect_once(
+        sigc::bind(
+        sigc::bind(
+        sigc::bind(
+        sigc::bind(
+            sigc::mem_fun(st, &StackBoxBuilder::set_neural_filelist),
+            pathid),
+            fileid),
+            id),
+            sel));
     };
 
     sigc::connection conne = p->signal_changed().connect(s_neural_filelist);
@@ -392,13 +385,11 @@ static void neural_filelist(StackBoxBuilder * st, Glib::RefPtr<Glib::Object>& ob
 #pragma GCC diagnostic pop
 
     gx_engine::Parameter *pf = check_get_parameter(machine, id, sel);
-    auto s_neural_file = [st, id, fileid, pathid](float v) {
+    auto s_neural_file = [st, id, fileid](float v) {
         Glib::signal_idle().connect_once(
         sigc::bind(
         sigc::bind(
-        sigc::bind(
             sigc::mem_fun(st, &StackBoxBuilder::set_neural_file),
-            pathid),
             fileid),
             id));
     };

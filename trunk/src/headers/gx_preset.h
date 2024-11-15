@@ -180,7 +180,7 @@ public:
     ~GxSettings();
     inline gx_engine::ParamMap&  get_param() const { return param; }
     inline gx_system::CmdlineOptions& get_options() const { return options; }
-    static bool check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_new_preset);
+    static void check_settings_dir(gx_system::CmdlineOptions& opt, bool *need_new_preset);
     void loadstate();
     bool get_auto_save_state() { return no_autosave;}
     void disable_autosave(bool v) { no_autosave = v; }

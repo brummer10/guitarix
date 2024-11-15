@@ -204,6 +204,7 @@ void NeuralAmp::create_nam_filelist() {
             if (name.compare(std::max<int>(0, name.size()-4), 4, ".nam") == 0) {
                 nam_file_names.push_back(file_info->get_name());
                 i++;
+                if ( i > 126) break;
             }
         }
     }
@@ -611,6 +612,7 @@ void NeuralAmpMulti::create_nam_afilelist() {
             if (name.compare(std::max<int>(0, name.size()-4), 4, ".nam") == 0) {
                 nam_afile_names.push_back(file_info->get_name());
                 i++;
+                if ( i > 126) break;
             }
         }
     }
@@ -635,6 +637,7 @@ void NeuralAmpMulti::create_nam_bfilelist() {
             if (name.compare(std::max<int>(0, name.size()-4), 4, ".nam") == 0) {
                 nam_bfile_names.push_back(file_info->get_name());
                 i++;
+                if ( i > 126) break;
             }
         }
     }
@@ -910,6 +913,7 @@ void RtNeural::create_rtneural_filelist() {
                 (name.compare(std::max<int>(0, name.size()-4), 4, "json") == 0)) {
                 rtneural_file_names.push_back(file_info->get_name());
                 i++;
+                if ( i > 126) break;
             }
         }
     }
@@ -922,7 +926,7 @@ int RtNeural::register_par(const ParamReg& reg)
     reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
     param.reg_string((idstring + ".loadfile").c_str(), "", &load_file, "*.json", true)->set_desc(N_("import *.json file"));
     param.reg_string((idstring + ".loadpath").c_str(), "", &load_path, "", true)->set_desc(N_("load path for *.json files"));
-    reg.registerFloatVar((idstring + ".flist").c_str(),N_("select json/aidax File"),"SA",N_("Select json/aidax file"),&filelist, 0, 0, 127, 1, 0);
+    reg.registerFloatVar((idstring + ".flist").c_str(),N_("select json/aidax File"),"S",N_("Select json/aidax file"),&filelist, 0, 0, 127, 1, 0);
 
     param[(idstring + ".loadpath").c_str()].signal_changed_string().connect(
         sigc::hide(sigc::mem_fun(this, &RtNeural::create_rtneural_filelist)));
@@ -1290,7 +1294,7 @@ void RtNeuralMulti::load_json_bfile() {
         need_bresample = 0;
         clear_state_f();
         try {
-            load_bfile = load_apath + "/" + rtneural_bfile_names[bfilelist];
+            load_bfile = load_bpath + "/" + rtneural_bfile_names[bfilelist];
             get_samplerate(std::string(load_bfile), &mbSampleRate);
             std::ifstream jsonStream(std::string(load_bfile), std::ifstream::binary);
             modelb = RTNeural::json_parser::parseJson<float>(jsonStream).release();
@@ -1334,6 +1338,7 @@ void RtNeuralMulti::create_rtneural_afilelist() {
                 (name.compare(std::max<int>(0, name.size()-4), 4, "json") == 0)) {
                 rtneural_afile_names.push_back(file_info->get_name());
                 i++;
+                if ( i > 126) break;
             }
         }
     }
@@ -1359,6 +1364,7 @@ void RtNeuralMulti::create_rtneural_bfilelist() {
                 (name.compare(std::max<int>(0, name.size()-4), 4, "json") == 0)) {
                 rtneural_bfile_names.push_back(file_info->get_name());
                 i++;
+                if ( i > 126) break;
             }
         }
     }

@@ -117,7 +117,7 @@ public:
 	gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gdk::Pixbuf> window_icon);
     ~StackBoxBuilder();
     void set_neural_filelist(Gxw::Selector *sel, std::string id, std::string fileid, std::string pathid);
-    void set_neural_file(std::string id, std::string fileid, std::string pathid);
+    void set_neural_file(std::string id, std::string fileid);
     void set_accelgroup(Glib::RefPtr<Gtk::AccelGroup> accels_) { accels = accels_; }
     void prepare();
     void fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox);

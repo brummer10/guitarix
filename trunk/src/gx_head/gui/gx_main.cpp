@@ -761,16 +761,7 @@ static void mainHeadless(int argc, char *argv[]) {
     options.process(argc, argv);
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
-    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
-        cerr << 
-            _("old config directory found (.gx_head)."
-            " state file and standard presets file have been copied to"
-            " the new directory (.config/guitarix).\n"
-            " Additional old preset files can be imported into the"
-            " new bank scheme by mouse drag and drop with a file"
-            " manager");
-        return;
-    }
+    gx_preset::GxSettings::check_settings_dir(options, &need_new_preset);
 
     gx_engine::GxMachine machine(options);
 
@@ -868,6 +859,7 @@ static void mainGtk(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTh
     }
 
     gx_engine::GxMachine machine(options);
+#if 0
     while(Gtk::Main::events_pending()) {
         // prevents crash in show_error_msg!dialog.run() when its
         // called due to an early exception (like some icon file not
@@ -875,7 +867,6 @@ static void mainGtk(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTh
         // correct cure but it helps...
         Gtk::Main::iteration(false);
     }
-#if 0
 #ifndef NDEBUG
     if (argc > 1) {
         delete Splash;
@@ -992,20 +983,7 @@ static void mainProg(int argc, char *argv[]) {
     }
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
-    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
-        if (Splash) {
-            Splash->hide();
-        }
-        Gtk::MessageDialog dialog(
-            _("old config directory found (.gx_head)."
-              " state file and standard presets file have been copied to"
-              " the new directory (.config/guitarix).\n"
-              " Additional old preset files can be imported into the"
-              " new bank scheme by mouse drag and drop with a file"
-              " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
-        dialog.set_title("Guitarix");
-        dialog.run();
-    }
+    gx_preset::GxSettings::check_settings_dir(options, &need_new_preset);
 
     if (frontend) {
         mainFront(options, nsmsig, theme, Splash, need_new_preset);
