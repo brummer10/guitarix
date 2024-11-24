@@ -691,34 +691,32 @@ void ModuleSequencer::set_samplerate(unsigned int samplerate) {
 
 bool ModuleSequencer::check_module_lists() {
     if (mono_chain.check_release()) {
-	mono_chain.release();
+        mono_chain.release();
     }
     if (stereo_chain.check_release()) {
-	stereo_chain.release();
+        stereo_chain.release();
     }
     if (get_rack_changed()) {
-	update_module_lists();
-	return mono_chain.check_release() || stereo_chain.check_release();
+        update_module_lists();
+        return mono_chain.check_release() || stereo_chain.check_release();
     }
     return false;
 }
 
 void ModuleSequencer::set_rack_changed() {
-#ifdef GUITARIX_AS_PLUGIN
     if (stateflags & SF_INITIALIZING) {
         return;
     }
-#endif
     if (rack_changed.connected()) {
-	return;
+        return;
     }
     rack_changed = Glib::signal_idle().connect(
-	sigc::mem_fun(this, &ModuleSequencer::check_module_lists));
+      sigc::mem_fun(this, &ModuleSequencer::check_module_lists));
 }
 
 bool ModuleSequencer::prepare_module_lists() {
     for (list<ModuleSelector*>::iterator i = selectors.begin(); i != selectors.end(); ++i) {
-	(*i)->set_module();
+        (*i)->set_module();
     }
     list<Plugin*> modules;
     pluginlist.ordered_mono_list(modules, audio_mode);
@@ -726,8 +724,8 @@ bool ModuleSequencer::prepare_module_lists() {
     pluginlist.ordered_stereo_list(modules, audio_mode);
     bool ret_stereo = stereo_chain.set_plugin_list(modules);
     if (ret_mono || ret_stereo) {
-	mono_chain.print();
-	stereo_chain.print();
+        mono_chain.print();
+        stereo_chain.print();
     }
     return ret_mono || ret_stereo;
 }
