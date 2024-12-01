@@ -265,8 +265,8 @@ void StackBoxBuilder::set_neural_filelist(Gxw::Selector *sel, std::string id,
         extension2 = "json";
     }
 
-    if (!oldpath.empty() && oldpath == path && 
-    !((*file_names).size() < 1) && filename != "None") return;
+    //if (!oldpath.empty() && oldpath == path && 
+    //!((*file_names).size() < 1) && filename != "None") return;
 
     if (path.empty()) path = oldpath;
 

@@ -215,8 +215,8 @@ int NeuralAmp::register_par(const ParamReg& reg)
 {
     reg.registerFloatVar((idstring + ".input").c_str(),N_("Input"),"S",N_("gain (dB)"),&fVslider0, 0.0, -40.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -40.0, 20.0, 0.1, 0);
-    param.reg_string((idstring + ".loadfile").c_str(), "", &load_file, "*.nam", true)->set_desc(N_("import *.nam file"));
     param.reg_string((idstring + ".loadpath").c_str(), "", &load_path, "", true)->set_desc(N_("load path for *.nam files"));
+    param.reg_string((idstring + ".loadfile").c_str(), "", &load_file, "*.nam", true)->set_desc(N_("import *.nam file"));
     reg.registerFloatVar((idstring + ".flist").c_str(),N_("select NAM File"),"S",N_("Select NAM file"),&filelist, 0, 0, 127, 1, 0);
 
     param[(idstring + ".loadpath").c_str()].signal_changed_string().connect(
@@ -651,10 +651,10 @@ int NeuralAmpMulti::register_par(const ParamReg& reg)
     reg.registerFloatVar((idstring + ".cdelay").c_str(),N_("Delta Delay"),"S",N_("Delay A/B"),&fVslider02, 0.0, -4096.0, 4096.0, 1.0, 0);
     reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".mix").c_str(),N_("Mix"),"S",N_("mix models"),&fVslider2, 0.5, 0.0, 1.0, 0.01, 0);
-    param.reg_string((idstring + ".loadafile").c_str(), "", &load_afile, "*.nam", true)->set_desc(N_("import *.nam file"));
-    param.reg_string((idstring + ".loadbfile").c_str(), "", &load_bfile, "*.nam", true)->set_desc(N_("import *.nam file"));
     param.reg_string((idstring + ".loadapath").c_str(), "", &load_apath, "", true)->set_desc(N_("load path for A *.nam files"));
     param.reg_string((idstring + ".loadbpath").c_str(), "", &load_bpath, "", true)->set_desc(N_("load path for B *.nam files"));
+    param.reg_string((idstring + ".loadafile").c_str(), "", &load_afile, "*.nam", true)->set_desc(N_("import *.nam file"));
+    param.reg_string((idstring + ".loadbfile").c_str(), "", &load_bfile, "*.nam", true)->set_desc(N_("import *.nam file"));
     reg.registerFloatVar((idstring + ".falist").c_str(),N_("select NAM File"),"S",N_("Select NAM file"),&afilelist, 0, 0, 127, 1, 0);
     reg.registerFloatVar((idstring + ".fblist").c_str(),N_("select NAM File"),"S",N_("Select NAM file"),&bfilelist, 0, 0, 127, 1, 0);
 
@@ -924,8 +924,8 @@ int RtNeural::register_par(const ParamReg& reg)
 {
     reg.registerFloatVar((idstring + ".input").c_str(),N_("Input"),"S",N_("gain (dB)"),&fVslider0, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
-    param.reg_string((idstring + ".loadfile").c_str(), "", &load_file, "*.json", true)->set_desc(N_("import *.json file"));
     param.reg_string((idstring + ".loadpath").c_str(), "", &load_path, "", true)->set_desc(N_("load path for *.json files"));
+    param.reg_string((idstring + ".loadfile").c_str(), "", &load_file, "*.json", true)->set_desc(N_("import *.json file"));
     reg.registerFloatVar((idstring + ".flist").c_str(),N_("select json/aidax File"),"S",N_("Select json/aidax file"),&filelist, 0, 0, 127, 1, 0);
 
     param[(idstring + ".loadpath").c_str()].signal_changed_string().connect(
@@ -1378,10 +1378,10 @@ int RtNeuralMulti::register_par(const ParamReg& reg)
     reg.registerFloatVar((idstring + ".cdelay").c_str(),N_("Delta Delay"),"S",N_("Delay A/B"),&fVslider02, 0.0, -4096.0, 4096.0, 1.0, 0);
     reg.registerFloatVar((idstring + ".output").c_str(),N_("Output"),"S",N_("gain (dB)"),&fVslider1, 0.0, -20.0, 20.0, 0.1, 0);
     reg.registerFloatVar((idstring + ".mix").c_str(),N_("Mix"),"S",N_("mix models"),&fVslider2, 0.5, 0.0, 1.0, 0.01, 0);
-    param.reg_string((idstring + ".loadafile").c_str(), "", &load_afile, "*.json", true)->set_desc(N_("import *.json file"));
-    param.reg_string((idstring + ".loadbfile").c_str(), "", &load_bfile, "*.json", true)->set_desc(N_("import *.json file"));
     param.reg_string((idstring + ".loadapath").c_str(), "", &load_apath, "", true)->set_desc(N_("load path for A *.json files"));
     param.reg_string((idstring + ".loadbpath").c_str(), "", &load_bpath, "", true)->set_desc(N_("load path for B *.json files"));
+    param.reg_string((idstring + ".loadafile").c_str(), "", &load_afile, "*.json", true)->set_desc(N_("import *.json file"));
+    param.reg_string((idstring + ".loadbfile").c_str(), "", &load_bfile, "*.json", true)->set_desc(N_("import *.json file"));
     reg.registerFloatVar((idstring + ".falist").c_str(),N_("select json/aidax File"),"S",N_("Select json/aidax file"),&afilelist, 0, 0, 127, 1, 0);
     reg.registerFloatVar((idstring + ".fblist").c_str(),N_("select json/aidax File"),"S",N_("Select json/aidax file"),&bfilelist, 0, 0, 127, 1, 0);
 
