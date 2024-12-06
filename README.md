@@ -57,3 +57,7 @@ Guitarix can also load up LAPSPA and LV2 plugins to comply the effect chain.
 - python3,
 - sassc,
 
+## Hardware Optimization and Containerized Deployment
+
+Guitarix can be easily built with hardware optimizations and deployed in a containerized environment using GuitarixContainer, a Docker-based solution. This approach ensures the code is automatically built for your hardware, enabling low-latency performance, especially when running Neural Amp Modeler (NAM) module. Perfect for devices like Raspberry Pi or laptop/workstation setups. Learn more at the [GuitarixContainer](https://github.com/fjammes/GuitarixContainer) GitHub repository.
+
