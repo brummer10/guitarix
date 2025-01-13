@@ -1,1 +1,25 @@
+on:
+  pull_request:
+  push:
+    branches: [ master ]
 
+jobs:
+  build-host:
+    runs-on: ubuntu-latest
+    container: debian:bookworm
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - run: sudo apt update
+      
+      - name: Install dependencies
+        run: >
+          sudo apt install
+          build-essential
+          
+      - name: Build
+        run: |
+          ./waf configure --prefix=/usr --includeresampler --includeconvolver --optimization
+          ./waf build
