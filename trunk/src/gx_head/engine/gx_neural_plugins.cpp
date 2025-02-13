@@ -161,7 +161,9 @@ void NeuralAmp::load_nam_file() {
     if (!load_file.empty() && is_inited) {
         if (nam_file_names.size() < 1 || filelist < 1.0) return;
         gx_system::atomic_set(&ready, 0);
+        bool st = plugin.get_on_off();
         sync();
+        plugin.set_on_off(false);
         delete model;
         model = nullptr;
         need_resample = 0;
@@ -197,6 +199,7 @@ void NeuralAmp::load_nam_file() {
             //fprintf(stderr, "%s\n", load_file.c_str());
         }
         do_ramp = true;
+        plugin.set_on_off(st);
         gx_system::atomic_set(&ready, 1);
     }
 }
@@ -540,7 +543,9 @@ void NeuralAmpMulti::load_nam_afile() {
     if (!load_afile.empty() && is_inited) {
         if (nam_afile_names.size() < 1 || afilelist < 1.0) return;
         gx_system::atomic_set(&ready, 0);
+        bool st = plugin.get_on_off();
         sync();
+        plugin.set_on_off(false);
         delete modela;
         modela = nullptr;
         need_aresample = 0;
@@ -576,6 +581,7 @@ void NeuralAmpMulti::load_nam_afile() {
             //fprintf(stderr, "%s\n", load_file.c_str());
         }
         do_ramp = true;
+        plugin.set_on_off(st);
         gx_system::atomic_set(&ready, 1);
     }
 }
@@ -585,7 +591,9 @@ void NeuralAmpMulti::load_nam_bfile() {
     if (!load_bfile.empty() && is_inited) {
         if (nam_bfile_names.size() < 1 || bfilelist < 1.0) return;
         gx_system::atomic_set(&ready, 0);
+        bool st = plugin.get_on_off();
         sync();
+        plugin.set_on_off(false);
         delete modelb;
         modelb = nullptr;
         need_bresample = 0;
@@ -621,6 +629,7 @@ void NeuralAmpMulti::load_nam_bfile() {
             //fprintf(stderr, "%s\n", load_file.c_str());
         }
         do_ramp = true;
+        plugin.set_on_off(st);
         gx_system::atomic_set(&ready, 1);
     }
 }
