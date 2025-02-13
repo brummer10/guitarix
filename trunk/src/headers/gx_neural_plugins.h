@@ -56,7 +56,10 @@ private:
     int need_resample;
     float loudness;
     bool is_inited;
+    bool do_ramp;
     float filelist;
+    float ramp;
+    float ramp_step;
     Glib::ustring load_file;
     Glib::ustring load_path;
     std::vector<Glib::ustring> nam_file_names;
@@ -122,8 +125,11 @@ private:
     float loudnessa;
     float loudnessb;
     bool is_inited;
+    bool do_ramp;
     float afilelist;
     float bfilelist;
+    float ramp;
+    float ramp_step;
     Glib::ustring load_afile;
     Glib::ustring load_bfile;
     Glib::ustring load_apath;
