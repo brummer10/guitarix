@@ -662,7 +662,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp33 = std::max<double>(-6e+02, fTemp32);
 		double fTemp34 = ((std::fabs(fTemp32) > 0.0001) ? ((fTemp33 < -5e+01) ? -(fTemp33 * std::exp(fTemp33)) : fTemp33 / (1.0 - std::exp(-fTemp33))) : fTemp31 * (134.00083333333336 * fTemp31 + 20.05) + 1.0) - ((std::fabs(fTemp29) > 0.0001) ? ((fTemp30 < -5e+01) ? -(fTemp30 * std::exp(fTemp30)) : fTemp30 / (1.0 - std::exp(-fTemp30))) : fTemp28 * (134.00083333333336 * fTemp28 + -20.05) + 1.0);
 		double fTemp35 = 1.0 - fRec51[0];
-		double fTemp36 = fTemp35 * fTemp24;
+		double fTemp36 = fTemp24 * fTemp35;
 		fRec60[0] = 0.024937655860349125 * fTemp34 - fConst49 * (fConst47 * fRec60[2] + fConst45 * fRec60[1]);
 		double fTemp37 = fRec60[2] + fRec60[0] + 2.0 * fRec60[1];
 		fVec7[0] = fTemp37;
@@ -809,7 +809,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp91 = 40.1 * fTemp90;
 		double fTemp92 = std::max<double>(-6e+02, fTemp91);
 		double fTemp93 = ((std::fabs(fTemp91) > 0.0001) ? ((fTemp92 < -5e+01) ? -(fTemp92 * std::exp(fTemp92)) : fTemp92 / (1.0 - std::exp(-fTemp92))) : fTemp90 * (134.00083333333336 * fTemp90 + 20.05) + 1.0) - ((std::fabs(fTemp88) > 0.0001) ? ((fTemp89 < -5e+01) ? -(fTemp89 * std::exp(fTemp89)) : fTemp89 / (1.0 - std::exp(-fTemp89))) : fTemp87 * (134.00083333333336 * fTemp87 + -20.05) + 1.0);
-		double fTemp94 = fTemp83 * fTemp35;
+		double fTemp94 = fTemp35 * fTemp83;
 		fRec133[0] = 0.024937655860349125 * fTemp93 - fConst49 * (fConst47 * fRec133[2] + fConst45 * fRec133[1]);
 		double fTemp95 = fRec133[2] + fRec133[0] + 2.0 * fRec133[1];
 		fVec22[0] = fTemp95;

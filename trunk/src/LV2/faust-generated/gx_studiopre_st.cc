@@ -1129,7 +1129,7 @@ inline void Dsp::init(uint32_t sample_rate)
 	fConst371 = 2.8158557055486e-20 * fConst0;
 	fConst372 = fConst0 * (fConst0 * (fConst0 * (fConst371 + 2.16252174019074e-16) + 4.38213044301358e-15) + 1.99261186829939e-14);
 	fConst373 = 1.76140761155593e-18 * fConst0;
-	fConst374 = fConst0 * (fConst0 * (fConst373 + 1.35192183493901e-14) + 2.58417996561413e-13);
+	fConst374 = fConst0 * ((fConst373 + 1.35192183493901e-14) * fConst0 + 2.58417996561413e-13);
 	fConst375 = 6.53947709737567e-20 * fConst0;
 	fConst376 = fConst3 * (fConst0 * (-8.63258735389604e-18 - fConst375) + -9.72567351449023e-17);
 	fConst377 = 5.86784894739014e-20 * fConst0;
@@ -1137,7 +1137,7 @@ inline void Dsp::init(uint32_t sample_rate)
 	fConst379 = 2.95160491394304e-19 * fConst0;
 	fConst380 = fConst0 * (fConst0 * (fConst0 * (fConst379 + 2.67064048181331e-15) + 3.79482593534319e-13) + 6.46231565548504e-12);
 	fConst381 = 1.8463230738282e-17 * fConst0;
-	fConst382 = fConst0 * (fConst0 * (fConst381 + 1.6533269438527e-13) + 1.28277858723121e-11);
+	fConst382 = fConst0 * ((fConst381 + 1.6533269438527e-13) * fConst0 + 1.28277858723121e-11);
 	fConst383 = fConst0 * (fConst359 + -3.1996842386608e-16) + 3.26835558922325e-15;
 	fConst384 = fConst0 * (-3.2490595714095e-14 - fConst361) + 2.55967413440181e-12;
 	fConst385 = fConst3 * (fConst363 + -3.89026940579609e-18);
@@ -1341,7 +1341,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec24[0] = fRec25[0] - fConst249 * (fConst247 * fRec24[2] + fConst245 * fRec24[1]);
 		fRec23[0] = fConst478 * (fRec24[2] + (fRec24[0] - 2.0 * fRec24[1])) - fConst476 * (fConst475 * fRec23[2] + fTemp35);
 		double fTemp36 = fRec23[2] + fConst476 * (fTemp35 + fConst475 * fRec23[0]);
-		fRec22[0] = fTemp36 - (fTemp5 * fRec22[1] + fTemp4 * fRec22[2] + fTemp3 * fRec22[3] + fTemp2 * fRec22[4] + fTemp1 * fRec22[5]) / fTemp0;
+		fRec22[0] = fTemp36 - (fTemp1 * fRec22[5] + fTemp5 * fRec22[1] + fTemp4 * fRec22[2] + fTemp3 * fRec22[3] + fTemp2 * fRec22[4]) / fTemp0;
 		double fTemp37 = fRec3[0] * (fRec22[0] * fTemp16 + fTemp15 * fRec22[1] + fTemp14 * fRec22[2] + fTemp13 * fRec22[3] + fTemp12 * fRec22[4] + fTemp11 * fRec22[5]) / fTemp0;
 		fRec26[0] = fTemp36 - (fTemp23 * fRec26[1] + fTemp22 * fRec26[2] + fTemp21 * fRec26[3] + fTemp19 * fRec26[4]) / fTemp18;
 		double fTemp38 = fRec3[0] * (fRec26[0] * fTemp28 + fTemp27 * fRec26[1] + fTemp26 * fRec26[2] + fTemp25 * fRec26[3] + fTemp24 * fRec26[4]) / fTemp18;
@@ -1430,7 +1430,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec61[0] = -(fConst274 * (fConst272 * fRec61[1] - fConst473 * (fTemp62 - fVec7[1])));
 		fRec60[0] = fRec61[0] - fConst242 * (fConst240 * fRec60[2] + fConst238 * fRec60[1]);
 		double fTemp84 = fConst474 * (fRec60[2] + (fRec60[0] - 2.0 * fRec60[1]));
-		fRec59[0] = fTemp84 - (fTemp58 * fRec59[1] + fTemp57 * fRec59[2] + fTemp56 * fRec59[3] + fTemp55 * fRec59[4] + fTemp54 * fRec59[5]) / fTemp53;
+		fRec59[0] = fTemp84 - (fTemp56 * fRec59[3] + fTemp58 * fRec59[1] + fTemp57 * fRec59[2] + fTemp55 * fRec59[4] + fTemp54 * fRec59[5]) / fTemp53;
 		double fTemp85 = fRec45[0] * (fRec59[0] * fTemp69 + fTemp68 * fRec59[1] + fTemp67 * fRec59[2] + fTemp66 * fRec59[3] + fTemp65 * fRec59[4] + fTemp64 * fRec59[5]) / fTemp53;
 		fRec62[0] = fTemp84 - (fTemp76 * fRec62[1] + fTemp75 * fRec62[2] + fTemp74 * fRec62[3] + fTemp72 * fRec62[4]) / fTemp71;
 		double fTemp86 = fRec45[0] * (fRec62[0] * fTemp81 + fTemp80 * fRec62[1] + fTemp79 * fRec62[2] + fTemp78 * fRec62[3] + fTemp77 * fRec62[4]) / fTemp71;

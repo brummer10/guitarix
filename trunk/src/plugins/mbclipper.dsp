@@ -18,12 +18,17 @@ hifr4      =hslider("crossover_b4_b5 [log][name:Crossover B4-B5 (hz)][tooltip: C
 geq = fi.filterbank(3, (hifr1,hifr2,hifr3,hifr4));
 
 drive1     = hslider("Drive1 [tooltip: Amount of distortion]", 0.33, 0, 1, 0.01);
+gain_1     = vslider("Gain1", 0, -40, 4, 0.1) : ba.db2linear : si.smooth(0.999);
 drive2     = hslider("Drive2 [tooltip: Amount of distortion]", 0.5, 0, 1, 0.01);
+gain_2     = vslider("Gain2", 0, -40, 4, 0.1) : ba.db2linear : si.smooth(0.999);
 drive3     = hslider("Drive3 [tooltip: Amount of distortion]", 0.65, 0, 1, 0.01);
+gain_3     = vslider("Gain3", 0, -40, 4, 0.1) : ba.db2linear : si.smooth(0.999);
 drive4     = hslider("Drive4 [tooltip: Amount of distortion]", 0.33, 0, 1, 0.01);
+gain_4     = vslider("Gain4", 0, -40, 4, 0.1) : ba.db2linear : si.smooth(0.999);
 drive5     = hslider("Drive5 [tooltip: Amount of distortion]", 0.1, 0, 1, 0.01);
+gain_5     = vslider("Gain5", 0, -40, 4, 0.1) : ba.db2linear : si.smooth(0.999);
 
-gain1      = vslider("Gain", 0, -40, 4, 0.1) : ba.db2linear : si.smooth(0.999);
+gain      = vslider("Gain", 0, -40, 4, 0.1) : ba.db2linear : si.smooth(0.999);
 
 vmeter1(x)		= attach(x, envelop(x) : vbargraph("v1[nomidi][log]", -70, +5));
 vmeter2(x)		= attach(x, envelop(x) : vbargraph("v2[nomidi][log]", -70, +5));
@@ -57,11 +62,11 @@ aclip(drive) = *(pregain) : clip : *(postgain) with {
     postgain = max(1.0,1.0/pregain);
 };
 
-process    = _: +(anti_denormal_ac): geq: ( dist5s , dist4s , dist3s, dist2s, dist1s) :> *(gain1) with { 
-    dist1s = clip(drive1: si.smooth(0.999)) : vmeter1;
-    dist2s = clip(drive2: si.smooth(0.999)) : vmeter2;
-    dist3s = clip(drive3: si.smooth(0.999)) : vmeter3;
-    dist4s = clip(drive4: si.smooth(0.999)) : vmeter4;
-    dist5s = clip(drive5: si.smooth(0.999)) : vmeter5;
+process    = _: +(anti_denormal_ac): geq: ( dist5s , dist4s , dist3s, dist2s, dist1s) :> *(gain) with { 
+    dist1s = clip(drive1: si.smooth(0.999)) : *(gain_1) : vmeter1;
+    dist2s = clip(drive2: si.smooth(0.999)) : *(gain_2) : vmeter2;
+    dist3s = clip(drive3: si.smooth(0.999)) : *(gain_3) : vmeter3;
+    dist4s = clip(drive4: si.smooth(0.999)) : *(gain_4) : vmeter4;
+    dist5s = clip(drive5: si.smooth(0.999)) : *(gain_5) : vmeter5;
     
 };

@@ -485,7 +485,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec29[0] = -(fConst70 * (fConst68 * fRec29[1] - fConst103 * (fTemp7 - fVec3[1])));
 		fRec28[0] = fRec29[0] - fConst48 * (fConst46 * fRec28[2] + fConst44 * fRec28[1]);
 		fRec27[0] = fConst104 * (fRec28[2] + (fRec28[0] - 2.0 * fRec28[1])) - fConst102 * (fConst101 * fRec27[2] + fTemp23);
-		fRec26[0] = fRec27[2] + fConst102 * (fTemp23 + fConst101 * fRec27[0]) - (fTemp4 * fRec26[1] + fTemp3 * fRec26[2] + fTemp2 * fRec26[3] + fTemp1 * fRec26[4]) / fTemp0;
+		fRec26[0] = fRec27[2] + fConst102 * (fTemp23 + fConst101 * fRec27[0]) - (fTemp2 * fRec26[3] + fTemp4 * fRec26[1] + fTemp3 * fRec26[2] + fTemp1 * fRec26[4]) / fTemp0;
 		double fTemp24 = fRec2[0] * (fRec26[0] * fTemp14 + fTemp13 * fRec26[1] + fConst10 * fTemp12 * fRec26[2] + fTemp11 * fRec26[3] + fTemp9 * fRec26[4]) / fTemp0;
 		fRec25[0] = fTemp17 * ((signbit(fTemp24)) ? bigchumppre_negclip(fTemp24) : bigchumppreclip(fTemp24)) - fConst12 * (fConst11 * fRec25[1] + fConst9 * fRec25[2]);
 		double fTemp25 = fConst12 * (fConst91 * fRec25[0] + fConst90 * fRec25[1] + fConst89 * fRec25[2]);

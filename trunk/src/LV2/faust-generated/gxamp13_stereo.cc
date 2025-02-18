@@ -577,7 +577,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		double fTemp28 = 1.0 - fRec35[0];
 		double fTemp29 = fTemp13 * (fTemp28 * (fSlow13 * (0.0997506234413965 * (1.0 - std::fabs(0.024937655860349125 * fTemp28 * fTemp13)) + -0.024937655860349125) + 0.024937655860349125) + fTemp27) + 0.5 * fTemp26 * (1.0 - 0.3333333333333333 * mydsp_faustpower2_f(fTemp26)) + fSlow11 * fRec23[0];
 		fVec6[0] = fTemp29;
-		fRec22[0] = 0.9302847925323914 * (fTemp29 + fVec6[1]) - 0.8605695850647829 * fRec22[1];
+		fRec22[0] = 0.9302847925323914 * (fVec6[1] + fTemp29) - 0.8605695850647829 * fRec22[1];
 		fRec21[0] = fRec22[0] - (1.8405051250752198 * fRec21[1] + 0.8612942439318627 * fRec21[2]);
 		double fTemp30 = 1.8508996845035413 * fRec21[1];
 		double fTemp31 = 0.9254498422517706 * (fRec21[0] + fRec21[2]);

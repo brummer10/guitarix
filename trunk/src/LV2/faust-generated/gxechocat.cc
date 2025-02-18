@@ -810,9 +810,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp72 = fVec17[(IOTA0 - iTemp15) & 1048575];
 		double fTemp73 = fVec17[(IOTA0 - iTemp19) & 1048575];
 		double fTemp74 = fVec17[(IOTA0 - iTemp23) & 1048575];
-		double fTemp75 = fSlow8 * (fTemp74 - fRec28[0] * (fTemp74 - fVec17[(IOTA0 - iTemp22) & 1048575])) + fSlow6 * (fTemp73 + fRec24[0] * (fVec17[(IOTA0 - iTemp18) & 1048575] - fTemp73)) + fSlow4 * (fTemp72 - fRec20[0] * (fTemp72 - fVec17[(IOTA0 - iTemp14) & 1048575]));
+		double fTemp75 = fSlow8 * (fTemp74 - fRec28[0] * (fTemp74 - fVec17[(IOTA0 - iTemp22) & 1048575])) + fSlow6 * (fTemp73 - fRec24[0] * (fTemp73 - fVec17[(IOTA0 - iTemp18) & 1048575])) + fSlow4 * (fTemp72 - fRec20[0] * (fTemp72 - fVec17[(IOTA0 - iTemp14) & 1048575]));
 		fVec18[0] = fTemp75;
-		fRec82[0] = -(fConst100 * (fConst99 * fRec82[1] - fConst97 * (fTemp75 + fVec18[1])));
+		fRec82[0] = -(fConst100 * (fConst99 * fRec82[1] - fConst97 * (fVec18[1] + fTemp75)));
 		fRec81[0] = fRec82[0] + 0.995 * fRec81[1] - fRec82[1];
 		fRec80[0] = fRec81[0] - fConst9 * (fConst8 * fRec80[1] + fConst7 * fRec80[2]);
 		double fTemp76 = fConst9 * (fConst104 * fRec80[0] + fConst103 * fRec80[1] + fConst102 * fRec80[2]);
