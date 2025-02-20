@@ -66,11 +66,16 @@ def check_cloop(conf):
 def check_v3 (conf, x86_flags):
     if conf.env['IS_LINUX']:
         FLAGS_v3  = ['avx', 'avx2', 'bmi1', 'bmi2', 'f16c', 'fma', 'abm', 'movbe', 'xsave']
-        res = True 
+        res = True
+        s = 'yes'
+        f = 'None'
         for el in FLAGS_v3:
             if el not in x86_flags:
                 res = False
+                s = "not found"
+                f = "YELLOW"
                 break
+    conf.display_msg_1("Checking for x86-64-v3 support", s, f)
     return res
 
 
