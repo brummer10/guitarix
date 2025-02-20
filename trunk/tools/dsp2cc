@@ -1966,6 +1966,7 @@ class Output(object):
         if os.path.exists(ui_name):
             xml = open(ui_name).read()
             found_params = re.findall('<property name="var_id">([^<]*)</property>',xml)
+            found_params += re.findall('<property name="var-id">([^<]*)</property>',xml) # glade 3.20
             if not self.parser.has_drywetbox and not self.parser.has_volume_p:
                 if self.parser.ui.check_parameter(self.fname, ui_name, found_params, self.options.param_warn) > 1:
                     raise SystemExit(1)

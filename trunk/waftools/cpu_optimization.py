@@ -63,12 +63,15 @@ def check_cloop(conf):
     msg = "Checking for libcloog-ppl0"
     conf.check_cxx(msg = msg, fragment=code, cxxflags=[ '-O3', '-ftree-loop-linear'], define_name="NOOPT", mandatory=0)
 
-def check_v3 (conf):
+def check_v3 (conf, x86_flags):
     if conf.env['IS_LINUX']:
-        s = conf.cmd_and_log('/usr/lib64/ld-linux-x86-64.so.2'+' --help | grep x86-64-v3', quiet=True)
-        if "x86-64-v3" in s:
-            return True
-    return False
+        FLAGS_v3  = ['avx', 'avx2', 'bmi1', 'bmi2', 'f16c', 'fma', 'abm', 'movbe', 'xsave']
+        res = True 
+        for el in FLAGS_v3:
+            if el not in x86_flags:
+                res = False
+                break
+    return res
 
 
 def append_optimization_flags(conf, cxxflags):
@@ -93,7 +96,7 @@ def append_optimization_flags(conf, cxxflags):
         return None
     model = cpu_model.split()
     arch = os.uname()[4]
-    if check_v3(conf):
+    if check_v3(conf, x86_flags):
         cxxflags.append ("-march=x86-64-v3")
     elif "AMD" in model and "x86_64" in arch:
         cxxflags.append ("-march=k8")

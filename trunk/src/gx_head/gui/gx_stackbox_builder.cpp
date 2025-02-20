@@ -194,17 +194,14 @@ static inline bool endsWith(const std::string& s, int n, const std::string& t) {
 /*
  * JConvolver
  */
-static void jconv_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine, bool stereo) {
+static void jconv_filelabel(Gtk::Label *label, gx_engine::GxMachineBase& machine, bool stereo) {
     gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(
         &machine.get_parameter(stereo ? "jconv.convolver" : "jconv_mono.convolver"));
     assert(jcp);
-    Gtk::Label *label = dynamic_cast<Gtk::Label*>(object.get());
     assert(label);
     auto set_convolver_filename = [=](const gx_engine::GxJConvSettings *jcs) { label->set_label(jcs->getIRFile()); };
     set_convolver_filename(&jcp->get_value());
     sigc::connection conn = jcp->signal_changed().connect(set_convolver_filename);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuse-after-free"
     label->add_destroy_notify_callback(
         new sigc::connection(conn),
         [](void *p) {
@@ -213,7 +210,6 @@ static void jconv_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMac
             //delete conn;  //FIXME
             return p;
         });
-#pragma GCC diagnostic pop
 }
 
 Glib::ustring truncate(Glib::ustring str, size_t width, bool show_ellipsis=true)
@@ -349,9 +345,9 @@ void StackBoxBuilder::set_neural_file(std::string id, std::string fileid) {
     if (file == "None") machine.set_parameter_value(id, 0.0);
 }
 
-static void neural_filelist(StackBoxBuilder * st, Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine,
+static void neural_filelist(StackBoxBuilder * st, Gxw::Selector *sel, gx_engine::GxMachineBase& machine,
                             std::string id, std::string fileid, std::string pathid) {
-    Gxw::Selector *sel = dynamic_cast<Gxw::Selector*>(object.get());
+    //Gxw::Selector *sel = dynamic_cast<Gxw::Selector*>(object.get());
     assert(sel);
     st->set_neural_filelist(sel, id, fileid, pathid);
 
@@ -372,8 +368,6 @@ static void neural_filelist(StackBoxBuilder * st, Glib::RefPtr<Glib::Object>& ob
     };
 
     sigc::connection conne = p->signal_changed().connect(s_neural_filelist);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuse-after-free"
     sel->add_destroy_notify_callback(
         new sigc::connection(conne),
         [](void *p) {
@@ -382,7 +376,6 @@ static void neural_filelist(StackBoxBuilder * st, Glib::RefPtr<Glib::Object>& ob
            // delete conne;
             return p;
         });
-#pragma GCC diagnostic pop
 
     gx_engine::Parameter *pf = check_get_parameter(machine, id, sel);
     auto s_neural_file = [st, id, fileid](float v) {
@@ -395,8 +388,6 @@ static void neural_filelist(StackBoxBuilder * st, Glib::RefPtr<Glib::Object>& ob
     };
 
     sigc::connection conn = pf->signal_changed_float().connect(s_neural_file);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuse-after-free"
     sel->add_destroy_notify_callback(
         new sigc::connection(conn),
         [](void *pf) {
@@ -405,7 +396,6 @@ static void neural_filelist(StackBoxBuilder * st, Glib::RefPtr<Glib::Object>& ob
            // delete conne;
             return pf;
         });
-#pragma GCC diagnostic pop
 
 }
 
@@ -869,9 +859,9 @@ void StackBoxBuilder::connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::Ref
     } else if (token[0] == "connect_oscilloscope") {
         connect_waveview(object, machine, *current_plugin);
     } else if (token[0] == "jconv_mono.convolver:IRFile") {
-        jconv_filelabel(object, machine, false);
+        jconv_filelabel(dynamic_cast<Gtk::Label*>(object.get()), machine, false);
     } else if (token[0] == "jconv.convolver:IRFile") {
-        jconv_filelabel(object, machine, true);
+        jconv_filelabel(dynamic_cast<Gtk::Label*>(object.get()), machine, true);
     } else if (token[0] == "dubber:load_loop_file") {
         select_looper_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
     } else if (token[0] == "portdisplay:clip") {
@@ -879,23 +869,31 @@ void StackBoxBuilder::connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::Ref
     } else if (token[0] == "nam:load_nam_file") {
         select_nam_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
     } else if (token[0] == "nam.filelist") {
-        neural_filelist(this, object, machine, "nam.flist", "nam.loadfile", "nam.loadpath");
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "nam.flist", "nam.loadfile", "nam.loadpath");
     } else if (token[0] == "snam.filelist") {
-        neural_filelist(this, object, machine, "snam.flist", "snam.loadfile", "snam.loadpath");
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "snam.flist", "snam.loadfile", "snam.loadpath");
     } else if (token[0] == "mnam.afilelist") {
-        neural_filelist(this, object, machine, "mnam.falist", "mnam.loadafile", "mnam.loadapath");
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "mnam.falist", "mnam.loadafile", "mnam.loadapath");
     } else if (token[0] == "mnam.bfilelist") {
-        neural_filelist(this, object, machine, "mnam.fblist", "mnam.loadbfile", "mnam.loadbpath");
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "mnam.fblist", "mnam.loadbfile", "mnam.loadbpath");
     } else if (token[0] == "rtneural:load_json_file") {
         select_rtneural_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
     } else if (token[0] == "rtneural.filelist") {
-        neural_filelist(this, object, machine, "rtneural.flist", "rtneural.loadfile", "rtneural.loadpath");
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "rtneural.flist", "rtneural.loadfile", "rtneural.loadpath");
     } else if (token[0] == "srtneural.filelist") {
-        neural_filelist(this, object, machine, "srtneural.flist", "srtneural.loadfile", "srtneural.loadpath");
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "srtneural.flist", "srtneural.loadfile", "srtneural.loadpath");
     } else if (token[0] == "mrtneural.afilelist") {
-        neural_filelist(this, object, machine, "mrtneural.falist", "mrtneural.loadafile", "mrtneural.loadapath");
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "mrtneural.falist", "mrtneural.loadafile", "mrtneural.loadapath");
     } else if (token[0] == "mrtneural.bfilelist") {
-        neural_filelist(this, object, machine, "mrtneural.fblist", "mrtneural.loadbfile", "mrtneural.loadbpath");
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "mrtneural.fblist", "mrtneural.loadbfile", "mrtneural.loadbpath");
     } else {
         gx_print_error(
             "StackBoxBuilder::connect_signals",
