@@ -55,9 +55,6 @@ NeuralAmp::NeuralAmp(ParamMap& param_, std::string id_, sigc::slot<void> sync_)
     need_resample = 0;
     is_inited = false;
     loudness = 0.0;
-    ramp = 0.0;
-    ramp_step = 512.0;
-    do_ramp = false;
     gx_system::atomic_set(&ready, 0);
  }
 
@@ -132,17 +129,6 @@ void always_inline NeuralAmp::compute(int count, float *input0, float *output0)
         } else {
             model->process(output0, output0, count);
         }
-        if (do_ramp) {
-            for (int i = 0; i < count; i++) {
-                if (ramp < ramp_step) {
-                    ++ramp;
-                } else {
-                    do_ramp = false;
-                    ramp = 0.0;
-                }
-                output0[i] *= max(0.0,ramp) /ramp_step;
-            }
-        }
     }
     for (int i0 = 0; i0 < count; i0 = i0 + 1) {
         fRec1[0] = fSlow1 + 0.999 * fRec1[1];
@@ -198,7 +184,6 @@ void NeuralAmp::load_nam_file() {
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
         }
-        do_ramp = true;
         plugin.set_on_off(st);
         gx_system::atomic_set(&ready, 1);
     }
@@ -314,9 +299,6 @@ NeuralAmpMulti::NeuralAmpMulti(ParamMap& param_, std::string id_, ParallelThread
     need_aresample = 0;
     need_bresample = 0;
     is_inited = false;
-    ramp = 0.0;
-    ramp_step = 512.0;
-    do_ramp = false;
     gx_system::atomic_set(&ready, 0);
  }
 
@@ -520,17 +502,6 @@ void always_inline NeuralAmpMulti::compute(int count, float *input0, float *outp
         output0[i0] = float(double(output0[i0]) * fRec1[0]);
         fRec1[1] = fRec1[0];
     }
-    if (do_ramp) {
-        for (int i = 0; i < count; i++) {
-            if (ramp < ramp_step) {
-                ++ramp;
-            } else {
-                do_ramp = false;
-                ramp = 0.0;
-            }
-            output0[i] *= max(0.0,ramp) /ramp_step;
-        }
-    }
 }
 
 void NeuralAmpMulti::compute_static(int count, float *input0, float *output0, PluginDef *p)
@@ -580,7 +551,6 @@ void NeuralAmpMulti::load_nam_afile() {
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, maSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
         }
-        do_ramp = true;
         plugin.set_on_off(st);
         gx_system::atomic_set(&ready, 1);
     }
@@ -628,7 +598,6 @@ void NeuralAmpMulti::load_nam_bfile() {
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mbSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
         }
-        do_ramp = true;
         plugin.set_on_off(st);
         gx_system::atomic_set(&ready, 1);
     }

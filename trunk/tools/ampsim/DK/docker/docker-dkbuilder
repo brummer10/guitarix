@@ -7,12 +7,14 @@ gitpath="$1"
     curl -sO $mobyurl/default.json
     sed '/"pause",/a\\t\t\t\t"personality",' default.json > personality.json
 }
-docker build --progress=plain -t guitarix-dkbuilder .
+docker build  -t guitarix-dkbuilder .
 echo
 echo '----------------------------------------'
 echo 'example command:'
 echo 'dkbuilder && ./build-plug.py -i VoxWahV847.sch --buildlv2 -n VoxWahV847'
-docker run -it --rm --name guitarix-dkbuilder \
+xhost local:docker
+docker run -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+       -it --rm --name guitarix-dkbuilder \
        -v $gitpath:/mnt/data --security-opt \
        seccomp=personality.json \
        guitarix-dkbuilder \
