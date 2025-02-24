@@ -45,6 +45,7 @@ private:
     nam::DSP* model;
     ParamMap& param;
     gx_resample::FixedRateResampler smp;
+    ModuleSequencer& engine;
     sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
@@ -78,7 +79,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    NeuralAmp(ParamMap& param_, std::string id, sigc::slot<void> sync);
+    NeuralAmp(ModuleSequencer& engine, ParamMap& param_, std::string id, sigc::slot<void> sync);
     ~NeuralAmp();
 };
 
@@ -94,6 +95,7 @@ private:
     ParallelThread* pro;
     gx_resample::FixedRateResampler smpa;
     gx_resample::FixedRateResampler smpb;
+    ModuleSequencer& engine;
     sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
@@ -153,7 +155,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    NeuralAmpMulti(ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
+    NeuralAmpMulti(ModuleSequencer& engine, ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
     ~NeuralAmpMulti();
 };
 
@@ -166,6 +168,7 @@ private:
     RTNeural::Model<float> *model;
     ParamMap& param;
     gx_resample::FixedRateResampler smp;
+    ModuleSequencer& engine;
     sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
@@ -199,7 +202,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    RtNeural(ParamMap& param_, std::string id, sigc::slot<void> sync);
+    RtNeural(ModuleSequencer& engine, ParamMap& param_, std::string id, sigc::slot<void> sync);
     ~RtNeural();
 };
 
@@ -215,6 +218,7 @@ private:
     ParallelThread* pro;
     gx_resample::FixedRateResampler smpa;
     gx_resample::FixedRateResampler smpb;
+    ModuleSequencer& engine;
     sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
@@ -273,7 +277,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    RtNeuralMulti(ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
+    RtNeuralMulti(ModuleSequencer& engine, ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
     ~RtNeuralMulti();
 };
 

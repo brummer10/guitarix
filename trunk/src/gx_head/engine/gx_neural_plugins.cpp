@@ -33,8 +33,8 @@ namespace gx_engine {
  ** class Neural Amp Modeler
  */
 
-NeuralAmp::NeuralAmp(ParamMap& param_, std::string id_, sigc::slot<void> sync_)
-    : PluginDef(), model(nullptr), param(param_), smp(), sync(sync_), idstring(id_), plugin() {
+NeuralAmp::NeuralAmp(ModuleSequencer& engine_, ParamMap& param_, std::string id_, sigc::slot<void> sync_)
+    : PluginDef(), model(nullptr), param(param_), smp(), engine(engine_), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -147,9 +147,8 @@ void NeuralAmp::load_nam_file() {
     if (!load_file.empty() && is_inited) {
         if (nam_file_names.size() < 1 || filelist < 1.0) return;
         gx_system::atomic_set(&ready, 0);
-        bool st = plugin.get_on_off();
+        engine.start_ramp_down();
         sync();
-        plugin.set_on_off(false);
         delete model;
         model = nullptr;
         need_resample = 0;
@@ -184,7 +183,7 @@ void NeuralAmp::load_nam_file() {
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
         }
-        plugin.set_on_off(st);
+        engine.start_ramp_up();
         gx_system::atomic_set(&ready, 1);
     }
 }
@@ -275,8 +274,8 @@ void NeuralAmp::del_instance(PluginDef *p)
  ** class NeuralAmpMulti
  */
 
-NeuralAmpMulti::NeuralAmpMulti(ParamMap& param_, std::string id_, ParallelThread* pro_, sigc::slot<void> sync_)
-    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), sync(sync_), idstring(id_), plugin() {
+NeuralAmpMulti::NeuralAmpMulti(ModuleSequencer& engine_, ParamMap& param_, std::string id_, ParallelThread* pro_, sigc::slot<void> sync_)
+    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), engine(engine_), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -514,9 +513,8 @@ void NeuralAmpMulti::load_nam_afile() {
     if (!load_afile.empty() && is_inited) {
         if (nam_afile_names.size() < 1 || afilelist < 1.0) return;
         gx_system::atomic_set(&ready, 0);
-        bool st = plugin.get_on_off();
+        engine.start_ramp_down();
         sync();
-        plugin.set_on_off(false);
         delete modela;
         modela = nullptr;
         need_aresample = 0;
@@ -551,7 +549,7 @@ void NeuralAmpMulti::load_nam_afile() {
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, maSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
         }
-        plugin.set_on_off(st);
+        engine.start_ramp_up();
         gx_system::atomic_set(&ready, 1);
     }
 }
@@ -561,9 +559,8 @@ void NeuralAmpMulti::load_nam_bfile() {
     if (!load_bfile.empty() && is_inited) {
         if (nam_bfile_names.size() < 1 || bfilelist < 1.0) return;
         gx_system::atomic_set(&ready, 0);
-        bool st = plugin.get_on_off();
+        engine.start_ramp_down();
         sync();
-        plugin.set_on_off(false);
         delete modelb;
         modelb = nullptr;
         need_bresample = 0;
@@ -598,7 +595,7 @@ void NeuralAmpMulti::load_nam_bfile() {
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mbSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
         }
-        plugin.set_on_off(st);
+        engine.start_ramp_up();
         gx_system::atomic_set(&ready, 1);
     }
 }
@@ -732,8 +729,8 @@ void NeuralAmpMulti::del_instance(PluginDef *p)
  ** class RtNeural
  */
 
-RtNeural::RtNeural(ParamMap& param_, std::string id_, sigc::slot<void> sync_)
-    : PluginDef(), model(nullptr), param(param_), smp(), sync(sync_), idstring(id_), plugin() {
+RtNeural::RtNeural(ModuleSequencer& engine_, ParamMap& param_, std::string id_, sigc::slot<void> sync_)
+    : PluginDef(), model(nullptr), param(param_), smp(), engine(engine_), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -872,6 +869,7 @@ void RtNeural::load_json_file() {
     if (!load_file.empty() && is_inited) {
         if (rtneural_file_names.size() < 1 || filelist < 1.0) return;
         gx_system::atomic_set(&ready, 0);
+        engine.start_ramp_down();
         sync();
         delete model;
         model = nullptr;
@@ -899,6 +897,7 @@ void RtNeural::load_json_file() {
                 need_resample = 2;
             } 
         } 
+        engine.start_ramp_up();
         gx_system::atomic_set(&ready, 1);
     }
 }
@@ -990,8 +989,8 @@ void RtNeural::del_instance(PluginDef *p)
  ** class RtNeuralMulti
  */
 
-RtNeuralMulti::RtNeuralMulti(ParamMap& param_, std::string id_, ParallelThread *pro_, sigc::slot<void> sync_)
-    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), sync(sync_), idstring(id_), plugin() {
+RtNeuralMulti::RtNeuralMulti(ModuleSequencer& engine_, ParamMap& param_, std::string id_, ParallelThread *pro_, sigc::slot<void> sync_)
+    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), engine(engine_), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -1259,6 +1258,7 @@ void RtNeuralMulti::load_json_afile() {
     if (!load_afile.empty() && is_inited) {
         if (rtneural_afile_names.size() < 1 || afilelist < 1.0) return;
         gx_system::atomic_set(&ready, 0);
+        engine.start_ramp_down();
         sync();
         delete modela;
         modela = nullptr;
@@ -1286,7 +1286,8 @@ void RtNeuralMulti::load_json_afile() {
                 need_aresample = 2;
             } 
              //fprintf(stderr, "A: %s\n", load_afile.c_str());
-       } 
+        } 
+        engine.start_ramp_up();
         gx_system::atomic_set(&ready, 1);
     }
 }
@@ -1296,6 +1297,7 @@ void RtNeuralMulti::load_json_bfile() {
     if (!load_bfile.empty() && is_inited) {
         if (rtneural_bfile_names.size() < 1 || bfilelist < 1.0) return;
         gx_system::atomic_set(&ready, 0);
+        engine.start_ramp_down();
         sync();
         delete modelb;
         modelb = nullptr;
@@ -1324,6 +1326,7 @@ void RtNeuralMulti::load_json_bfile() {
             } 
              //fprintf(stderr, "B: %s\n", load_bfile.c_str());
         } 
+        engine.start_ramp_up();
         gx_system::atomic_set(&ready, 1);
     }
 }
