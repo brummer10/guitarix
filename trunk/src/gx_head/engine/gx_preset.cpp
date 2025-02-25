@@ -460,7 +460,7 @@ void PresetIO::read_parameters(gx_system::JsonParser &jp, bool preset) {
             jp.skip_object();
             continue;
         }
-#ifndef GUITARIX_AS_PLUGIN
+#if 0
         if (p->id() == "amp2.stage1.Pregain" || p->id() == "gxdistortion.drive") {
             gx_engine::FloatParameter& pf = p->getFloat();
             pf.rampJSON_value(jp);

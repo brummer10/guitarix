@@ -307,12 +307,12 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       dseq(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
 #endif
       detune(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
-      neural_amp(*this, get_param(), "nam", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      sneural_amp(*this, get_param(), "snam", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      mneural_amp(*this, get_param(), "mnam", &pro, sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      rtneural(*this, get_param(), "rtneural", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      srtneural(*this, get_param(), "srtneural", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      rtneuralmulti(*this, get_param(), "mrtneural", &pro, sigc::mem_fun(mono_chain,&MonoModuleChain::sync)) {
+      neural_amp(*this, get_param(), "nam"),
+      sneural_amp(*this, get_param(), "snam"),
+      mneural_amp(*this, get_param(), "mnam", &pro),
+      rtneural(*this, get_param(), "rtneural"),
+      srtneural(*this, get_param(), "srtneural"),
+      rtneuralmulti(*this, get_param(), "mrtneural", &pro) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
         ov_disabled |= ov_Convolver;
