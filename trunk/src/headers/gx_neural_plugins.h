@@ -46,6 +46,7 @@ private:
     ParamMap& param;
     gx_resample::FixedRateResampler smp;
     ModuleSequencer& engine;
+    sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
     int mSampleRate;
@@ -67,6 +68,7 @@ private:
     void init(unsigned int sample_rate);
     void compute(int count, float *input0, float *output0);
     void load_nam_file();
+    void load_nam_file_impl();
     void create_nam_filelist();
     int register_par(const ParamReg& reg);
 
@@ -78,7 +80,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    NeuralAmp(ModuleSequencer& engine, ParamMap& param_, std::string id);
+    NeuralAmp(ModuleSequencer& engine, ParamMap& param_, std::string id, sigc::slot<void> sync);
     ~NeuralAmp();
 };
 
@@ -95,6 +97,7 @@ private:
     gx_resample::FixedRateResampler smpa;
     gx_resample::FixedRateResampler smpb;
     ModuleSequencer& engine;
+    sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
     int maSampleRate;
@@ -140,7 +143,9 @@ private:
     void processModelA(int count, float *buf);
     void processModelB();
     void load_nam_afile();
+    void load_nam_afile_impl();
     void load_nam_bfile();
+    void load_nam_bfile_impl();
     void create_nam_afilelist();
     void create_nam_bfilelist();
     int register_par(const ParamReg& reg);
@@ -153,7 +158,8 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    NeuralAmpMulti(ModuleSequencer& engine, ParamMap& param_, std::string id, ParallelThread *pro_);
+    NeuralAmpMulti(ModuleSequencer& engine, ParamMap& param_, std::string id,
+                                ParallelThread *pro_, sigc::slot<void> sync);
     ~NeuralAmpMulti();
 };
 
@@ -167,6 +173,7 @@ private:
     ParamMap& param;
     gx_resample::FixedRateResampler smp;
     ModuleSequencer& engine;
+    sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
     int mSampleRate;
@@ -188,6 +195,7 @@ private:
     void compute(int count, float *input0, float *output0);
     void get_samplerate(std::string config_file);
     void load_json_file();
+    void load_json_file_impl();
     void create_rtneural_filelist();
     int register_par(const ParamReg& reg);
 
@@ -199,7 +207,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    RtNeural(ModuleSequencer& engine, ParamMap& param_, std::string id);
+    RtNeural(ModuleSequencer& engine, ParamMap& param_, std::string id, sigc::slot<void> sync);
     ~RtNeural();
 };
 
@@ -216,6 +224,7 @@ private:
     gx_resample::FixedRateResampler smpa;
     gx_resample::FixedRateResampler smpb;
     ModuleSequencer& engine;
+    sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
     int maSampleRate;
@@ -260,7 +269,9 @@ private:
     void compute(int count, float *input0, float *output0);
     void get_samplerate(std::string config_file, int *mSampleRate);
     void load_json_afile();
+    void load_json_afile_impl();
     void load_json_bfile();
+    void load_json_bfile_impl();
     void create_rtneural_afilelist();
     void create_rtneural_bfilelist();
     int register_par(const ParamReg& reg);
@@ -273,7 +284,8 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    RtNeuralMulti(ModuleSequencer& engine, ParamMap& param_, std::string id, ParallelThread *pro_);
+    RtNeuralMulti(ModuleSequencer& engine, ParamMap& param_, std::string id,
+                                ParallelThread *pro_, sigc::slot<void> sync);
     ~RtNeuralMulti();
 };
 

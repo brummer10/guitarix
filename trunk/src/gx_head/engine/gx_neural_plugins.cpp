@@ -33,8 +33,8 @@ namespace gx_engine {
  ** class Neural Amp Modeler
  */
 
-NeuralAmp::NeuralAmp(ModuleSequencer& engine_, ParamMap& param_, std::string id_)
-    : PluginDef(), model(nullptr), param(param_), smp(), engine(engine_), idstring(id_), plugin() {
+NeuralAmp::NeuralAmp(ModuleSequencer& engine_, ParamMap& param_, std::string id_, sigc::slot<void> sync_)
+    : PluginDef(), model(nullptr), param(param_), smp(), engine(engine_), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -143,12 +143,19 @@ void NeuralAmp::compute_static(int count, float *input0, float *output0, PluginD
 }
 
 // non rt callback
+void NeuralAmp::load_nam_file_impl() {
+    Glib::signal_timeout().connect_once(
+        sigc::mem_fun(*this, &NeuralAmp::load_nam_file), 60);
+}
+
+// non rt callback
 void NeuralAmp::load_nam_file() {
     if (!load_file.empty() && is_inited) {
         if (nam_file_names.size() < 1 || filelist < 1.0) return;
         engine.start_ramp_down();
         engine.wait_ramp_down_finished();
         gx_system::atomic_set(&ready, 0);
+        sync();
         delete model;
         model = nullptr;
         need_resample = 0;
@@ -224,7 +231,7 @@ int NeuralAmp::register_par(const ParamReg& reg)
     param[(idstring + ".loadpath").c_str()].signal_changed_string().connect(
         sigc::hide(sigc::mem_fun(this, &NeuralAmp::create_nam_filelist)));
     param[(idstring + ".flist").c_str()].signal_changed_float().connect(
-        sigc::hide(sigc::mem_fun(this, &NeuralAmp::load_nam_file)));
+        sigc::hide(sigc::mem_fun(this, &NeuralAmp::load_nam_file_impl)));
     
 //    param[(idstring + ".loadfile").c_str()].signal_changed_string().connect(
 //        sigc::hide(sigc::mem_fun(this, &NeuralAmp::load_nam_file)));
@@ -274,8 +281,8 @@ void NeuralAmp::del_instance(PluginDef *p)
  ** class NeuralAmpMulti
  */
 
-NeuralAmpMulti::NeuralAmpMulti(ModuleSequencer& engine_, ParamMap& param_, std::string id_, ParallelThread* pro_)
-    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), engine(engine_), idstring(id_), plugin() {
+NeuralAmpMulti::NeuralAmpMulti(ModuleSequencer& engine_, ParamMap& param_, std::string id_, ParallelThread* pro_, sigc::slot<void> sync_)
+    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), engine(engine_), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -509,12 +516,19 @@ void NeuralAmpMulti::compute_static(int count, float *input0, float *output0, Pl
 }
 
 // non rt callback
+void NeuralAmpMulti::load_nam_afile_impl() {
+    Glib::signal_timeout().connect_once(
+        sigc::mem_fun(*this, &NeuralAmpMulti::load_nam_afile), 60);
+}
+
+// non rt callback
 void NeuralAmpMulti::load_nam_afile() {
     if (!load_afile.empty() && is_inited) {
         if (nam_afile_names.size() < 1 || afilelist < 1.0) return;
         engine.start_ramp_down();
         engine.wait_ramp_down_finished();
         gx_system::atomic_set(&ready, 0);
+        sync();
         delete modela;
         modela = nullptr;
         need_aresample = 0;
@@ -555,12 +569,19 @@ void NeuralAmpMulti::load_nam_afile() {
 }
 
 // non rt callback
+void NeuralAmpMulti::load_nam_bfile_impl() {
+    Glib::signal_timeout().connect_once(
+        sigc::mem_fun(*this, &NeuralAmpMulti::load_nam_bfile), 60);
+}
+
+// non rt callback
 void NeuralAmpMulti::load_nam_bfile() {
     if (!load_bfile.empty() && is_inited) {
         if (nam_bfile_names.size() < 1 || bfilelist < 1.0) return;
         engine.start_ramp_down();
         engine.wait_ramp_down_finished();
         gx_system::atomic_set(&ready, 0);
+        sync();
         delete modelb;
         modelb = nullptr;
         need_bresample = 0;
@@ -669,9 +690,9 @@ int NeuralAmpMulti::register_par(const ParamReg& reg)
     param[(idstring + ".loadbpath").c_str()].signal_changed_string().connect(
         sigc::hide(sigc::mem_fun(this, &NeuralAmpMulti::create_nam_bfilelist)));
     param[(idstring + ".falist").c_str()].signal_changed_float().connect(
-        sigc::hide(sigc::mem_fun(this, &NeuralAmpMulti::load_nam_afile)));
+        sigc::hide(sigc::mem_fun(this, &NeuralAmpMulti::load_nam_afile_impl)));
     param[(idstring + ".fblist").c_str()].signal_changed_float().connect(
-        sigc::hide(sigc::mem_fun(this, &NeuralAmpMulti::load_nam_bfile)));
+        sigc::hide(sigc::mem_fun(this, &NeuralAmpMulti::load_nam_bfile_impl)));
 
 //    param[(idstring + ".loadafile").c_str()].signal_changed_string().connect(
 //        sigc::hide(sigc::mem_fun(this, &NeuralAmpMulti::load_nam_afile)));
@@ -729,8 +750,8 @@ void NeuralAmpMulti::del_instance(PluginDef *p)
  ** class RtNeural
  */
 
-RtNeural::RtNeural(ModuleSequencer& engine_, ParamMap& param_, std::string id_)
-    : PluginDef(), model(nullptr), param(param_), smp(), engine(engine_), idstring(id_), plugin() {
+RtNeural::RtNeural(ModuleSequencer& engine_, ParamMap& param_, std::string id_, sigc::slot<void> sync_)
+    : PluginDef(), model(nullptr), param(param_), smp(), engine(engine_), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -865,12 +886,19 @@ void RtNeural::get_samplerate(std::string config_file) {
 }
 
 // non rt callback
+void RtNeural::load_json_file_impl() {
+    Glib::signal_timeout().connect_once(
+        sigc::mem_fun(*this, &RtNeural::load_json_file), 60);
+}
+
+// non rt callback
 void RtNeural::load_json_file() {
     if (!load_file.empty() && is_inited) {
         if (rtneural_file_names.size() < 1 || filelist < 1.0) return;
         engine.start_ramp_down();
         engine.wait_ramp_down_finished();
         gx_system::atomic_set(&ready, 0);
+        sync();
         delete model;
         model = nullptr;
         mSampleRate = 0;
@@ -939,7 +967,7 @@ int RtNeural::register_par(const ParamReg& reg)
     param[(idstring + ".loadpath").c_str()].signal_changed_string().connect(
         sigc::hide(sigc::mem_fun(this, &RtNeural::create_rtneural_filelist)));
     param[(idstring + ".flist").c_str()].signal_changed_float().connect(
-        sigc::hide(sigc::mem_fun(this, &RtNeural::load_json_file)));
+        sigc::hide(sigc::mem_fun(this, &RtNeural::load_json_file_impl)));
 
 //    param[(idstring + ".loadfile").c_str()].signal_changed_string().connect(
 //        sigc::hide(sigc::mem_fun(this, &RtNeural::load_json_file)));
@@ -989,8 +1017,8 @@ void RtNeural::del_instance(PluginDef *p)
  ** class RtNeuralMulti
  */
 
-RtNeuralMulti::RtNeuralMulti(ModuleSequencer& engine_, ParamMap& param_, std::string id_, ParallelThread *pro_)
-    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), engine(engine_), idstring(id_), plugin() {
+RtNeuralMulti::RtNeuralMulti(ModuleSequencer& engine_, ParamMap& param_, std::string id_, ParallelThread *pro_, sigc::slot<void> sync_)
+    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), engine(engine_), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -1254,12 +1282,19 @@ void RtNeuralMulti::get_samplerate(std::string config_file, int *mSampleRate) {
 }
 
 // non rt callback
+void RtNeuralMulti::load_json_afile_impl() {
+    Glib::signal_timeout().connect_once(
+        sigc::mem_fun(*this, &RtNeuralMulti::load_json_afile), 60);
+}
+
+// non rt callback
 void RtNeuralMulti::load_json_afile() {
     if (!load_afile.empty() && is_inited) {
         if (rtneural_afile_names.size() < 1 || afilelist < 1.0) return;
         engine.start_ramp_down();
         engine.wait_ramp_down_finished();
         gx_system::atomic_set(&ready, 0);
+        sync();
         delete modela;
         modela = nullptr;
         maSampleRate = 0;
@@ -1293,12 +1328,19 @@ void RtNeuralMulti::load_json_afile() {
 }
 
 // non rt callback
+void RtNeuralMulti::load_json_bfile_impl() {
+    Glib::signal_timeout().connect_once(
+        sigc::mem_fun(*this, &RtNeuralMulti::load_json_bfile), 60);
+}
+
+// non rt callback
 void RtNeuralMulti::load_json_bfile() {
     if (!load_bfile.empty() && is_inited) {
         if (rtneural_bfile_names.size() < 1 || bfilelist < 1.0) return;
         engine.start_ramp_down();
         engine.wait_ramp_down_finished();
         gx_system::atomic_set(&ready, 0);
+        sync();
         delete modelb;
         modelb = nullptr;
         mbSampleRate = 0;
@@ -1402,9 +1444,9 @@ int RtNeuralMulti::register_par(const ParamReg& reg)
     param[(idstring + ".loadbpath").c_str()].signal_changed_string().connect(
         sigc::hide(sigc::mem_fun(this, &RtNeuralMulti::create_rtneural_bfilelist)));
     param[(idstring + ".falist").c_str()].signal_changed_float().connect(
-        sigc::hide(sigc::mem_fun(this, &RtNeuralMulti::load_json_afile)));
+        sigc::hide(sigc::mem_fun(this, &RtNeuralMulti::load_json_afile_impl)));
     param[(idstring + ".fblist").c_str()].signal_changed_float().connect(
-        sigc::hide(sigc::mem_fun(this, &RtNeuralMulti::load_json_bfile)));
+        sigc::hide(sigc::mem_fun(this, &RtNeuralMulti::load_json_bfile_impl)));
 
 
 //    param[(idstring + ".loadafile").c_str()].signal_changed_string().connect(
