@@ -29,12 +29,51 @@
 
 namespace gx_engine {
 
+
+/****************************************************************
+ ** class Ramp small ramp for model switching
+ */
+
+inline void Ramp::init(unsigned int rate) {
+    mode = OFF;
+    ramp_step = 372.0;
+    ramp_down = ramp_step;
+    ramp_up = 0.0;
+    ramp_step_impl = 1.0/ramp_step;
+};
+
+inline void Ramp::rampDown(int count, float *output) {
+    for (int i=0; i<count; i++) {
+        if (ramp_down > 0.0) {
+            --ramp_down; 
+        } else {
+            mode = DEAD;
+        }
+        const float fade = ramp_down * ramp_step_impl ;
+        output[i] *= fade;
+    }
+    ramp_up = ramp_down;
+};
+
+inline void Ramp::rampUp(int count, float *output) {
+    for (int i=0; i<count; i++) {
+        if (ramp_up < ramp_step) {
+            ++ramp_up; 
+        } else {
+            mode = OFF;
+        }
+        const float fade = ramp_up * ramp_step_impl ;
+        output[i] *= fade;
+    }
+    ramp_down = ramp_up;
+};
+
 /****************************************************************
  ** class Neural Amp Modeler
  */
 
-NeuralAmp::NeuralAmp(ModuleSequencer& engine_, ParamMap& param_, std::string id_, sigc::slot<void> sync_)
-    : PluginDef(), model(nullptr), param(param_), smp(), engine(engine_), sync(sync_), idstring(id_), plugin() {
+NeuralAmp::NeuralAmp(ParamMap& param_, std::string id_, sigc::slot<void> sync_)
+    : PluginDef(), model(nullptr), param(param_), smp(), ramp(), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -66,7 +105,6 @@ inline void NeuralAmp::clear_state_f()
 {
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
     for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec1[l0] = 0.0;
-    for (int l0 = 0; l0 < 127; l0 = l0 + 1) nam_file_names.push_back("None");
 }
 
 void NeuralAmp::clear_state_f_static(PluginDef *p)
@@ -78,6 +116,8 @@ inline void NeuralAmp::init(unsigned int sample_rate)
 {
     fSampleRate = sample_rate;
     clear_state_f();
+    for (int l0 = 0; l0 < 127; l0 = l0 + 1) nam_file_names.push_back("None");
+    ramp.init(fSampleRate);
     is_inited = true;
     load_nam_file();
 }
@@ -91,7 +131,7 @@ void always_inline NeuralAmp::compute(int count, float *input0, float *output0)
 {
     if (output0 != input0)
         memcpy(output0, input0, count*sizeof(float));
-    if (!model) return;
+    if (!model || !gx_system::atomic_get(ready)) return;
     double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
     double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
     for (int i0 = 0; i0 < count; i0 = i0 + 1) {
@@ -135,6 +175,8 @@ void always_inline NeuralAmp::compute(int count, float *input0, float *output0)
         output0[i0] = float(double(output0[i0]) * fRec1[0]);
         fRec1[1] = fRec1[0];
     }
+    if (ramp.mode == ramp.DOWN || ramp.mode == ramp.DEAD) ramp.rampDown(count, output0);
+    else if (ramp.mode == ramp.UP) ramp.rampUp(count, output0);
 }
 
 void NeuralAmp::compute_static(int count, float *input0, float *output0, PluginDef *p)
@@ -144,16 +186,21 @@ void NeuralAmp::compute_static(int count, float *input0, float *output0, PluginD
 
 // non rt callback
 void NeuralAmp::load_nam_file_impl() {
+    if (ramp.mode == ramp.OFF) ramp.mode = ramp.DOWN;
     Glib::signal_timeout().connect_once(
-        sigc::mem_fun(*this, &NeuralAmp::load_nam_file), 60);
+        sigc::mem_fun(*this, &NeuralAmp::load_nam_file), 3);
 }
 
 // non rt callback
 void NeuralAmp::load_nam_file() {
     if (!load_file.empty() && is_inited) {
         if (nam_file_names.size() < 1 || filelist < 1.0) return;
-        engine.start_ramp_down();
-        engine.wait_ramp_down_finished();
+        load_file = load_path + "/" + nam_file_names[filelist];
+        if (!current_file.empty() && (current_file.compare(load_file) == 0)) {
+            if (ramp.mode == ramp.DOWN) ramp.mode = ramp.UP;
+            return;
+        }
+        ramp.mode = ramp.DOWN;
         gx_system::atomic_set(&ready, 0);
         sync();
         delete model;
@@ -162,7 +209,6 @@ void NeuralAmp::load_nam_file() {
         clear_state_f();
         int32_t warmUpSize = 4096;
         try {
-            load_file = load_path + "/" + nam_file_names[filelist];
             model = nam::get_dsp(std::string(load_file)).release();
         } catch (const std::exception&) {
             gx_print_info("Neural Amp Modeler", "fail to load " + load_file);
@@ -187,12 +233,12 @@ void NeuralAmp::load_nam_file() {
             model->process(buffer, buffer, warmUpSize);
 
             delete[] buffer;
-            //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mSampleRate, loudness);
-            //fprintf(stderr, "%s\n", load_file.c_str());
+            //fprintf(stderr, "model %f %s inputGain %f outputGain %f\n", filelist, load_file.c_str(), fVslider0, fVslider1);
+            current_file = load_file;
         }
         gx_system::atomic_set(&ready, 1);
-        engine.start_ramp_up();
     }
+    ramp.mode = ramp.UP;
 }
 
 // non rt callback
@@ -281,8 +327,8 @@ void NeuralAmp::del_instance(PluginDef *p)
  ** class NeuralAmpMulti
  */
 
-NeuralAmpMulti::NeuralAmpMulti(ModuleSequencer& engine_, ParamMap& param_, std::string id_, ParallelThread* pro_, sigc::slot<void> sync_)
-    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), engine(engine_), sync(sync_), idstring(id_), plugin() {
+NeuralAmpMulti::NeuralAmpMulti(ParamMap& param_, std::string id_, ParallelThread* pro_, sigc::slot<void> sync_)
+    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), rampA(), rampB(), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -342,6 +388,8 @@ inline void NeuralAmpMulti::init(unsigned int sample_rate)
     buf = nullptr;
     IOTA0 = 0;
     nframes = 1;
+    rampA.init(fSampleRate);
+    rampB.init(fSampleRate);
     load_nam_afile();
     load_nam_bfile();
     pro->set<1, NeuralAmpMulti, &NeuralAmpMulti::processModelB>(this);
@@ -415,6 +463,8 @@ void always_inline NeuralAmpMulti::processModelA(int count, float *bufa) {
         } else {
             modela->process(bufa, bufa, count);
         }
+        if (rampA.mode == rampA.DOWN || rampA.mode == rampA.DEAD) rampA.rampDown(count, bufa);
+        else if (rampA.mode == rampA.UP) rampA.rampUp(count, bufa);
     }
 }
 
@@ -457,6 +507,8 @@ void always_inline NeuralAmpMulti::processModelB() {
         } else {
             modelb->process(buf, buf, nframes);
         }
+        if (rampB.mode == rampB.DOWN || rampB.mode == rampB.DEAD) rampB.rampDown(nframes, buf);
+        else if (rampB.mode == rampA.UP) rampB.rampUp(nframes, buf);
     }
 }
 
@@ -517,16 +569,21 @@ void NeuralAmpMulti::compute_static(int count, float *input0, float *output0, Pl
 
 // non rt callback
 void NeuralAmpMulti::load_nam_afile_impl() {
+    if (rampA.mode == rampA.OFF) rampA.mode = rampA.DOWN;
     Glib::signal_timeout().connect_once(
-        sigc::mem_fun(*this, &NeuralAmpMulti::load_nam_afile), 60);
+        sigc::mem_fun(*this, &NeuralAmpMulti::load_nam_afile), 3);
 }
 
 // non rt callback
 void NeuralAmpMulti::load_nam_afile() {
     if (!load_afile.empty() && is_inited) {
         if (nam_afile_names.size() < 1 || afilelist < 1.0) return;
-        engine.start_ramp_down();
-        engine.wait_ramp_down_finished();
+        load_afile = load_apath + "/" + nam_afile_names[afilelist];
+        if (!current_afile.empty() && (current_afile.compare(load_afile) == 0)) {
+            if (rampA.mode == rampA.DOWN) rampA.mode = rampA.UP;
+            return;
+        }
+        rampA.mode = rampA.DOWN;
         gx_system::atomic_set(&ready, 0);
         sync();
         delete modela;
@@ -535,7 +592,6 @@ void NeuralAmpMulti::load_nam_afile() {
         clear_state_f();
         int32_t warmUpSize = 4096;
         try {
-            load_afile = load_apath + "/" + nam_afile_names[afilelist];
             modela = nam::get_dsp(std::string(load_afile)).release();
         } catch (const std::exception&) {
             gx_print_info("Neural Multi Amp Modeler", "fail to load " + load_afile);
@@ -562,24 +618,30 @@ void NeuralAmpMulti::load_nam_afile() {
             delete[] buffer;
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, maSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
+            current_afile = load_afile;
         }
         gx_system::atomic_set(&ready, 1);
-        engine.start_ramp_up();
     }
+    rampA.mode = rampA.UP;
 }
 
 // non rt callback
 void NeuralAmpMulti::load_nam_bfile_impl() {
+    if (rampB.mode == rampB.OFF) rampB.mode = rampB.DOWN;
     Glib::signal_timeout().connect_once(
-        sigc::mem_fun(*this, &NeuralAmpMulti::load_nam_bfile), 60);
+        sigc::mem_fun(*this, &NeuralAmpMulti::load_nam_bfile), 3);
 }
 
 // non rt callback
 void NeuralAmpMulti::load_nam_bfile() {
     if (!load_bfile.empty() && is_inited) {
         if (nam_bfile_names.size() < 1 || bfilelist < 1.0) return;
-        engine.start_ramp_down();
-        engine.wait_ramp_down_finished();
+        load_bfile = load_bpath + "/" + nam_bfile_names[bfilelist];
+        if (!current_bfile.empty() && (current_bfile.compare(load_bfile) == 0)) {
+            if (rampB.mode == rampB.DOWN) rampB.mode = rampB.UP;
+            return;
+        }
+        rampB.mode = rampB.DOWN;
         gx_system::atomic_set(&ready, 0);
         sync();
         delete modelb;
@@ -588,7 +650,6 @@ void NeuralAmpMulti::load_nam_bfile() {
         clear_state_f();
         int32_t warmUpSize = 4096;
         try {
-            load_bfile = load_bpath + "/" + nam_bfile_names[bfilelist];
             modelb = nam::get_dsp(std::string(load_bfile)).release();
         } catch (const std::exception&) {
             gx_print_info("Neural Multi Amp Modeler", "fail to load " + load_bfile);
@@ -615,10 +676,11 @@ void NeuralAmpMulti::load_nam_bfile() {
             delete[] buffer;
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mbSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
+            current_bfile = load_bfile;
         }
         gx_system::atomic_set(&ready, 1);
-        engine.start_ramp_up();
     }
+    rampB.mode = rampB.UP;
 }
 
 // non rt callback
@@ -750,8 +812,8 @@ void NeuralAmpMulti::del_instance(PluginDef *p)
  ** class RtNeural
  */
 
-RtNeural::RtNeural(ModuleSequencer& engine_, ParamMap& param_, std::string id_, sigc::slot<void> sync_)
-    : PluginDef(), model(nullptr), param(param_), smp(), engine(engine_), sync(sync_), idstring(id_), plugin() {
+RtNeural::RtNeural(ParamMap& param_, std::string id_, sigc::slot<void> sync_)
+    : PluginDef(), model(nullptr), param(param_), smp(), ramp(), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -794,6 +856,7 @@ inline void RtNeural::init(unsigned int sample_rate)
 {
     fSampleRate = sample_rate;
     clear_state_f();
+    ramp.init(fSampleRate);
     is_inited = true;
     load_json_file();
 }
@@ -807,7 +870,7 @@ void always_inline RtNeural::compute(int count, float *input0, float *output0)
 {
     if (output0 != input0)
         memcpy(output0, input0, count*sizeof(float));
-    if (!model) return;
+    if (!model && !gx_system::atomic_get(ready)) return;
     double fSlow0 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
     double fSlow1 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
     for (int i0 = 0; i0 < count; i0 = i0 + 1) {
@@ -855,6 +918,8 @@ void always_inline RtNeural::compute(int count, float *input0, float *output0)
         output0[i0] = float(double(output0[i0]) * fRec1[0]);
         fRec1[1] = fRec1[0];
     }
+    if (ramp.mode == ramp.DOWN || ramp.mode == ramp.DEAD) ramp.rampDown(count, output0);
+    else if (ramp.mode == ramp.UP) ramp.rampUp(count, output0);
 }
 
 void RtNeural::compute_static(int count, float *input0, float *output0, PluginDef *p)
@@ -887,16 +952,21 @@ void RtNeural::get_samplerate(std::string config_file) {
 
 // non rt callback
 void RtNeural::load_json_file_impl() {
+    if (ramp.mode == ramp.OFF) ramp.mode = ramp.DOWN;
     Glib::signal_timeout().connect_once(
-        sigc::mem_fun(*this, &RtNeural::load_json_file), 60);
+        sigc::mem_fun(*this, &RtNeural::load_json_file), 3);
 }
 
 // non rt callback
 void RtNeural::load_json_file() {
     if (!load_file.empty() && is_inited) {
         if (rtneural_file_names.size() < 1 || filelist < 1.0) return;
-        engine.start_ramp_down();
-        engine.wait_ramp_down_finished();
+        load_file = load_path + "/" + rtneural_file_names[filelist];
+        if (!current_file.empty() && (current_file.compare(load_file) == 0)) {
+            if (ramp.mode == ramp.DOWN) ramp.mode = ramp.UP;
+            return;
+        }
+        ramp.mode = ramp.DOWN;
         gx_system::atomic_set(&ready, 0);
         sync();
         delete model;
@@ -905,7 +975,6 @@ void RtNeural::load_json_file() {
         need_resample = 0;
         clear_state_f();
         try {
-            load_file = load_path + "/" + rtneural_file_names[filelist];
             get_samplerate(std::string(load_file));
             std::ifstream jsonStream(std::string(load_file), std::ifstream::binary);
             model = RTNeural::json_parser::parseJson<float>(jsonStream).release();
@@ -923,11 +992,12 @@ void RtNeural::load_json_file() {
             } else if (mSampleRate < fSampleRate) {
                 smp.setup(mSampleRate, fSampleRate);
                 need_resample = 2;
-            } 
+            }
+            current_file = load_file;
         } 
         gx_system::atomic_set(&ready, 1);
-        engine.start_ramp_up();
     }
+    ramp.mode = ramp.UP;
 }
 
 // non rt callback
@@ -1017,8 +1087,8 @@ void RtNeural::del_instance(PluginDef *p)
  ** class RtNeuralMulti
  */
 
-RtNeuralMulti::RtNeuralMulti(ModuleSequencer& engine_, ParamMap& param_, std::string id_, ParallelThread *pro_, sigc::slot<void> sync_)
-    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), engine(engine_), sync(sync_), idstring(id_), plugin() {
+RtNeuralMulti::RtNeuralMulti(ParamMap& param_, std::string id_, ParallelThread *pro_, sigc::slot<void> sync_)
+    : PluginDef(), modela(nullptr), modelb(nullptr), param(param_), pro(pro_), smpa(), smpb(), rampA(), rampB(), sync(sync_), idstring(id_), plugin() {
     version = PLUGINDEF_VERSION;
     flags = 0;
     id = idstring.c_str();
@@ -1076,6 +1146,8 @@ inline void RtNeuralMulti::init(unsigned int sample_rate)
     is_inited = true;
     buf = nullptr;
     nframes = 1;
+    rampA.init(fSampleRate);
+    rampB.init(fSampleRate);
     load_json_afile();
     load_json_bfile();
     pro->set<0, RtNeuralMulti, &RtNeuralMulti::processModelB>(this);
@@ -1154,6 +1226,8 @@ void always_inline RtNeuralMulti::processModelA(int count, float *bufa) {
                  bufa[i0] = modela->forward (&bufa[i0]);
             }
         }
+        if (rampA.mode == rampA.DOWN || rampA.mode == rampA.DEAD) rampA.rampDown(count, bufa);
+        else if (rampA.mode == rampA.UP) rampA.rampUp(count, bufa);
     }
 }
 
@@ -1201,6 +1275,8 @@ void always_inline RtNeuralMulti::processModelB() {
                  buf[i0] = modelb->forward (&buf[i0]);
             }
         }
+        if (rampB.mode == rampB.DOWN || rampB.mode == rampB.DEAD) rampB.rampDown(nframes, buf);
+        else if (rampB.mode == rampB.UP) rampB.rampUp(nframes, buf);
     }
 }
 
@@ -1283,16 +1359,21 @@ void RtNeuralMulti::get_samplerate(std::string config_file, int *mSampleRate) {
 
 // non rt callback
 void RtNeuralMulti::load_json_afile_impl() {
+    if (rampA.mode == rampA.OFF) rampA.mode = rampA.DOWN;
     Glib::signal_timeout().connect_once(
-        sigc::mem_fun(*this, &RtNeuralMulti::load_json_afile), 60);
+        sigc::mem_fun(*this, &RtNeuralMulti::load_json_afile), 3);
 }
 
 // non rt callback
 void RtNeuralMulti::load_json_afile() {
     if (!load_afile.empty() && is_inited) {
         if (rtneural_afile_names.size() < 1 || afilelist < 1.0) return;
-        engine.start_ramp_down();
-        engine.wait_ramp_down_finished();
+        load_afile = load_apath + "/" + rtneural_afile_names[afilelist];
+        if (!current_afile.empty() && (current_afile.compare(load_afile) == 0)) {
+            if (rampA.mode == rampA.DOWN) rampA.mode = rampA.UP;
+            return;
+        }
+        rampA.mode = rampA.DOWN;
         gx_system::atomic_set(&ready, 0);
         sync();
         delete modela;
@@ -1301,7 +1382,6 @@ void RtNeuralMulti::load_json_afile() {
         need_aresample = 0;
         clear_state_f();
         try {
-            load_afile = load_apath + "/" + rtneural_afile_names[afilelist];
             get_samplerate(std::string(load_afile), &maSampleRate);
             std::ifstream jsonStream(std::string(load_afile), std::ifstream::binary);
             modela = RTNeural::json_parser::parseJson<float>(jsonStream).release();
@@ -1321,24 +1401,30 @@ void RtNeuralMulti::load_json_afile() {
                 need_aresample = 2;
             } 
              //fprintf(stderr, "A: %s\n", load_afile.c_str());
+             current_afile = load_afile;
         } 
         gx_system::atomic_set(&ready, 1);
-        engine.start_ramp_up();
     }
+    rampA.mode = rampA.UP;
 }
 
 // non rt callback
 void RtNeuralMulti::load_json_bfile_impl() {
+    if (rampB.mode == rampB.OFF) rampB.mode = rampB.DOWN;
     Glib::signal_timeout().connect_once(
-        sigc::mem_fun(*this, &RtNeuralMulti::load_json_bfile), 60);
+        sigc::mem_fun(*this, &RtNeuralMulti::load_json_bfile), 3);
 }
 
 // non rt callback
 void RtNeuralMulti::load_json_bfile() {
     if (!load_bfile.empty() && is_inited) {
         if (rtneural_bfile_names.size() < 1 || bfilelist < 1.0) return;
-        engine.start_ramp_down();
-        engine.wait_ramp_down_finished();
+        load_bfile = load_bpath + "/" + rtneural_bfile_names[bfilelist];
+        if (!current_bfile.empty() && (current_bfile.compare(load_bfile) == 0)) {
+            if (rampB.mode == rampB.DOWN) rampB.mode = rampB.UP;
+            return;
+        }
+        rampB.mode = rampB.DOWN;
         gx_system::atomic_set(&ready, 0);
         sync();
         delete modelb;
@@ -1347,7 +1433,6 @@ void RtNeuralMulti::load_json_bfile() {
         need_bresample = 0;
         clear_state_f();
         try {
-            load_bfile = load_bpath + "/" + rtneural_bfile_names[bfilelist];
             get_samplerate(std::string(load_bfile), &mbSampleRate);
             std::ifstream jsonStream(std::string(load_bfile), std::ifstream::binary);
             modelb = RTNeural::json_parser::parseJson<float>(jsonStream).release();
@@ -1367,10 +1452,11 @@ void RtNeuralMulti::load_json_bfile() {
                 need_bresample = 2;
             } 
              //fprintf(stderr, "B: %s\n", load_bfile.c_str());
+             current_bfile = load_bfile;
         } 
         gx_system::atomic_set(&ready, 1);
-        engine.start_ramp_up();
     }
+    rampB.mode = rampB.UP;
 }
 
 // non rt callback

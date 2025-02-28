@@ -36,6 +36,29 @@ namespace gx_jack { class GxJack; }
 
 namespace gx_engine {
 
+class Ramp {
+public:
+    int                         mode;
+    float                       ramp_down;
+    float                       ramp_up;
+    float                       ramp_step;
+    float                       ramp_step_impl;
+
+    enum {
+        OFF =  0x0001,
+        UP  =  0x0002,
+        DOWN = 0x0004,
+        DEAD = 0x0008,
+    };
+
+    Ramp() {};
+    ~Ramp() {};
+    inline void init(unsigned int rate);
+    inline void rampDown(int count, float *output);
+    inline void rampUp(int count, float *output);
+
+};
+
 /****************************************************************
  ** class Neural Amp Modeler
  */
@@ -45,7 +68,7 @@ private:
     nam::DSP* model;
     ParamMap& param;
     gx_resample::FixedRateResampler smp;
-    ModuleSequencer& engine;
+    Ramp ramp;
     sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
@@ -59,6 +82,7 @@ private:
     bool is_inited;
     float filelist;
     Glib::ustring load_file;
+    Glib::ustring current_file;
     Glib::ustring load_path;
     std::vector<Glib::ustring> nam_file_names;
     std::string idstring;
@@ -80,7 +104,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    NeuralAmp(ModuleSequencer& engine, ParamMap& param_, std::string id, sigc::slot<void> sync);
+    NeuralAmp(ParamMap& param_, std::string id, sigc::slot<void> sync);
     ~NeuralAmp();
 };
 
@@ -96,7 +120,8 @@ private:
     ParallelThread* pro;
     gx_resample::FixedRateResampler smpa;
     gx_resample::FixedRateResampler smpb;
-    ModuleSequencer& engine;
+    Ramp rampA;
+    Ramp rampB;
     sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
@@ -128,7 +153,9 @@ private:
     float afilelist;
     float bfilelist;
     Glib::ustring load_afile;
+    Glib::ustring current_afile;
     Glib::ustring load_bfile;
+    Glib::ustring current_bfile;
     Glib::ustring load_apath;
     Glib::ustring load_bpath;
     std::vector<Glib::ustring> nam_afile_names;
@@ -158,8 +185,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    NeuralAmpMulti(ModuleSequencer& engine, ParamMap& param_, std::string id,
-                                ParallelThread *pro_, sigc::slot<void> sync);
+    NeuralAmpMulti(ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
     ~NeuralAmpMulti();
 };
 
@@ -172,7 +198,7 @@ private:
     RTNeural::Model<float> *model;
     ParamMap& param;
     gx_resample::FixedRateResampler smp;
-    ModuleSequencer& engine;
+    Ramp ramp;
     sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
@@ -185,6 +211,7 @@ private:
     bool is_inited;
     float filelist;
     Glib::ustring load_file;
+    Glib::ustring current_file;
     Glib::ustring load_path;
     std::vector<Glib::ustring> rtneural_file_names;
     std::string idstring;
@@ -207,7 +234,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    RtNeural(ModuleSequencer& engine, ParamMap& param_, std::string id, sigc::slot<void> sync);
+    RtNeural(ParamMap& param_, std::string id, sigc::slot<void> sync);
     ~RtNeural();
 };
 
@@ -223,7 +250,8 @@ private:
     ParallelThread* pro;
     gx_resample::FixedRateResampler smpa;
     gx_resample::FixedRateResampler smpb;
-    ModuleSequencer& engine;
+    Ramp rampA;
+    Ramp rampB;
     sigc::slot<void> sync;
     volatile int ready;
     int fSampleRate;
@@ -253,7 +281,9 @@ private:
     float afilelist;
     float bfilelist;
     Glib::ustring load_afile;
+    Glib::ustring current_afile;
     Glib::ustring load_bfile;
+    Glib::ustring current_bfile;
     Glib::ustring load_apath;
     Glib::ustring load_bpath;
     std::vector<Glib::ustring> rtneural_afile_names;
@@ -284,8 +314,7 @@ private:
     static void del_instance(PluginDef *p);
 public:
     Plugin plugin;
-    RtNeuralMulti(ModuleSequencer& engine, ParamMap& param_, std::string id,
-                                ParallelThread *pro_, sigc::slot<void> sync);
+    RtNeuralMulti(ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
     ~RtNeuralMulti();
 };
 
