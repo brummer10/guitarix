@@ -2,12 +2,6 @@
 
 #define GLIBMM_INCLUDED_FROM_WRAP_INIT_CC
 #include <glibmm.h>
-
-// Disable the 'const' function attribute of the get_type() functions.
-// GCC would optimize them out because we don't use the return value.
-#undef  G_GNUC_CONST
-#define G_GNUC_CONST /* empty */
-
 #include <gxwmm/wrap_init.h>
 #include <glibmm/error.h>
 #include <glibmm/object.h>
@@ -42,6 +36,11 @@
 #include "waveview.h"
 #include "wheel.h"
 #include "wheelvertical.h"
+
+#ifdef _MSC_VER
+#pragma warning( push )
+#pragma warning( disable : 4273 ) // Disable MSVC warning C4273 in wrap_init.cc momentarily
+#endif // _MSC_VER
 
 extern "C"
 {
@@ -79,6 +78,10 @@ GType gx_wheel_vertical_get_type(void);
 //Declarations of the *_error_quark() functions:
 
 } // extern "C"
+
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif // _MSC_VER
 
 namespace Gxw {
 
@@ -148,34 +151,34 @@ void wrap_init()
   Glib::wrap_register(gx_wheel_vertical_get_type(), &WheelVertical_Class::wrap_new);
 
   // Register the gtkmm gtypes:
-  BigKnob::get_type();
-  EqSlider::get_type();
-  FastMeter::get_type();
-  HSlider::get_type();
-  IREdit::get_type();
-  Knob::get_type();
-  LevelSlider::get_type();
-  MeterScale::get_type();
-  MidKnob::get_type();
-  MiniSlider::get_type();
-  PaintBox::get_type();
-  PlayHead::get_type();
-  PortDisplay::get_type();
-  RackTuner::get_type();
-  RadioButton::get_type();
-  Regler::get_type();
-  Selector::get_type();
-  SimpleValueDisplay::get_type();
-  SmallKnob::get_type();
-  SmallKnobR::get_type();
-  Switch::get_type();
-  ToggleImage::get_type();
-  Tuner::get_type();
-  ValueDisplay::get_type();
-  VSlider::get_type();
-  WaveView::get_type();
-  Wheel::get_type();
-  WheelVertical::get_type();
+  g_type_ensure(BigKnob::get_type());
+  g_type_ensure(EqSlider::get_type());
+  g_type_ensure(FastMeter::get_type());
+  g_type_ensure(HSlider::get_type());
+  g_type_ensure(IREdit::get_type());
+  g_type_ensure(Knob::get_type());
+  g_type_ensure(LevelSlider::get_type());
+  g_type_ensure(MeterScale::get_type());
+  g_type_ensure(MidKnob::get_type());
+  g_type_ensure(MiniSlider::get_type());
+  g_type_ensure(PaintBox::get_type());
+  g_type_ensure(PlayHead::get_type());
+  g_type_ensure(PortDisplay::get_type());
+  g_type_ensure(RackTuner::get_type());
+  g_type_ensure(RadioButton::get_type());
+  g_type_ensure(Regler::get_type());
+  g_type_ensure(Selector::get_type());
+  g_type_ensure(SimpleValueDisplay::get_type());
+  g_type_ensure(SmallKnob::get_type());
+  g_type_ensure(SmallKnobR::get_type());
+  g_type_ensure(Switch::get_type());
+  g_type_ensure(ToggleImage::get_type());
+  g_type_ensure(Tuner::get_type());
+  g_type_ensure(ValueDisplay::get_type());
+  g_type_ensure(VSlider::get_type());
+  g_type_ensure(WaveView::get_type());
+  g_type_ensure(Wheel::get_type());
+  g_type_ensure(WheelVertical::get_type());
 
 } // wrap_init()
 

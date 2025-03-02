@@ -417,6 +417,9 @@ static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& pref
 #define PROCEDURE(n)                break; case RPNM_##n:
 #define END_FUNCTION_SWITCH(s)      break; default: s; }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+
 void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonArray& params) {
     START_FUNCTION_SWITCH(mn->m_id);
 
@@ -799,6 +802,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     END_FUNCTION_SWITCH(cerr << "Method not found: " << mn->name << endl; assert(false));
 }
+#pragma GCC diagnostic pop
 
 static void save_preset(gx_preset::GxSettings& settings, const Glib::ustring& bank,
                         const Glib::ustring& preset) {

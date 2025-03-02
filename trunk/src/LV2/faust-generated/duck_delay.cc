@@ -7,6 +7,7 @@ namespace duck_delay {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
+	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT	*fHslider0_;
@@ -81,7 +82,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = std::exp(-(1e+01 / fConst0));
 	fConst2 = 1.0 / fConst0;
 	fConst3 = 1.0 - fConst1;

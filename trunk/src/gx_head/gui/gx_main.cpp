@@ -668,8 +668,6 @@ class GxRtCheck {
 private:
     std::thread _thd;
     std::mutex m;
-    std::condition_variable cv;
-    std::atomic<bool> _execute;
     bool set_priority();
     void run();
 
@@ -678,8 +676,7 @@ public:
     GxRtCheck();
     ~GxRtCheck();
 };
-GxRtCheck::GxRtCheck() :
-    _execute(true) {run();}
+GxRtCheck::GxRtCheck() {run();}
 
 GxRtCheck::~GxRtCheck() {}
 
@@ -698,20 +695,20 @@ bool GxRtCheck::run_check() {
 #else
     //system does not supports thread priority!
 #endif
-    _execute.store(false, std::memory_order_release);
+
+    m.unlock();
     if (_thd.joinable()) {
-        cv.notify_one();
         _thd.join();
     }
     return true;
 }
 
 void GxRtCheck::run() {
+    m.lock();
     _thd = std::thread([this]() {
-        while (_execute.load(std::memory_order_acquire)) {
-            std::unique_lock<std::mutex> lk(m);
-            cv.wait(lk);
-        }
+        /* Initially locked by the main thread, then released when this thread
+         * should delete itself */
+        std::scoped_lock<std::mutex> lk(m);
     });
 }
 
@@ -761,16 +758,7 @@ static void mainHeadless(int argc, char *argv[]) {
     options.process(argc, argv);
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
-    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
-        cerr << 
-            _("old config directory found (.gx_head)."
-            " state file and standard presets file have been copied to"
-            " the new directory (.config/guitarix).\n"
-            " Additional old preset files can be imported into the"
-            " new bank scheme by mouse drag and drop with a file"
-            " manager");
-        return;
-    }
+    gx_preset::GxSettings::check_settings_dir(options, &need_new_preset);
 
     gx_engine::GxMachine machine(options);
 
@@ -868,6 +856,7 @@ static void mainGtk(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTh
     }
 
     gx_engine::GxMachine machine(options);
+#if 0
     while(Gtk::Main::events_pending()) {
         // prevents crash in show_error_msg!dialog.run() when its
         // called due to an early exception (like some icon file not
@@ -875,7 +864,6 @@ static void mainGtk(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTh
         // correct cure but it helps...
         Gtk::Main::iteration(false);
     }
-#if 0
 #ifndef NDEBUG
     if (argc > 1) {
         delete Splash;
@@ -992,20 +980,7 @@ static void mainProg(int argc, char *argv[]) {
     }
     // ---------------- Check for working user directory  -------------
     bool need_new_preset;
-    if (gx_preset::GxSettings::check_settings_dir(options, &need_new_preset)) {
-        if (Splash) {
-            Splash->hide();
-        }
-        Gtk::MessageDialog dialog(
-            _("old config directory found (.gx_head)."
-              " state file and standard presets file have been copied to"
-              " the new directory (.config/guitarix).\n"
-              " Additional old preset files can be imported into the"
-              " new bank scheme by mouse drag and drop with a file"
-              " manager"), false, Gtk::MESSAGE_INFO, Gtk::BUTTONS_CLOSE, true);
-        dialog.set_title("Guitarix");
-        dialog.run();
-    }
+    gx_preset::GxSettings::check_settings_dir(options, &need_new_preset);
 
     if (frontend) {
         mainFront(options, nsmsig, theme, Splash, need_new_preset);

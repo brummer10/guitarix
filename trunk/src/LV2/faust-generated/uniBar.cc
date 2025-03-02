@@ -8,6 +8,7 @@ class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
 	double fConst0;
+	double fConst1;
 	double fConst2;
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT	*fHslider0_;
@@ -115,7 +116,7 @@ inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
 	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 100.53096491487338 / fConst0;
+	fConst1 = 100.53096491487338 / fConst0;
 	fConst2 = mydsp_faustpower2_f(1.0 - fConst1);
 	fConst3 = 6.283185307179586 / fConst0;
 	fConst4 = 2.0 * (fConst1 - 1.0);

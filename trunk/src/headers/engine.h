@@ -105,6 +105,7 @@ using namespace std;
 #include "gx_system.h"
 #include "gx_parameter.h"
 
+#include "ParallelThread.h"
 #include "gx_resampler.h"
 #include "gx_convolver.h"
 #include "gx_pitch_tracker.h"
@@ -118,6 +119,7 @@ using namespace std;
 #include "gx_jack_wrapper.h"
 #endif // GUITARIX_AS_PLUGIN
 #include "gx_internal_plugins.h"
+#include "gx_neural_plugins.h"
 #include "gx_preset.h"
 #include "gx_engine.h"
 

@@ -1521,7 +1521,7 @@ void MainWindow::show_tonehunt() {
 #if GTK_MINOR_VERSION >= 24
     try {
 	bld.window->show_uri(
-	    "https://tonehunt.org/all",
+	    "https://tonehunt.org/models?tags%5B0%5D=nam",
 	    gtk_get_current_event_time());
     } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
 	gx_print_info("tonehunt", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
@@ -1529,7 +1529,7 @@ void MainWindow::show_tonehunt() {
     }
 #else
     try {
-        gtk_show_uri_on_window(NULL, "https://tonehunt.org/all",
+        gtk_show_uri_on_window(NULL, "https://tonehunt.org/models?tags%5B0%5D=nam",
             gtk_get_current_event_time(), NULL);
     } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
 	gx_print_info("tonehunt", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
@@ -1546,7 +1546,7 @@ void MainWindow::show_rtneural() {
 #if GTK_MINOR_VERSION >= 24
     try {
 	bld.window->show_uri(
-	    "https://cloud.aida-x.cc/all",
+	    "https://tonehunt.org/models?tags%5B0%5D=aida-x",
 	    gtk_get_current_event_time());
     } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
 	gx_print_info("RTNeural", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
@@ -1554,7 +1554,7 @@ void MainWindow::show_rtneural() {
     }
 #else
     try {
-        gtk_show_uri_on_window(NULL, "https://cloud.aida-x.cc/all",
+        gtk_show_uri_on_window(NULL, "https://tonehunt.org/models?tags%5B0%5D=aida-x",
             gtk_get_current_event_time(), NULL);
     } catch (Glib::Error& e) { // seems to never happen, all errors silently ignored
 	gx_print_info("RTNeural", Glib::ustring::compose(_("Uri launch error: %s"), e.what()));
@@ -2949,13 +2949,15 @@ MainWindow::MainWindow(gx_engine::GxMachineBase& machine_, gx_system::CmdlineOpt
 
     machine.set_update_parameter(this, "maxlevel.left", true);
     machine.set_update_parameter(this, "maxlevel.right", true);
-    machine.set_update_parameter(this, "hardlim.v1", true);
+    machine.set_update_parameter(this, "hardlim.vleft", true);
+    machine.set_update_parameter(this, "hardlim.vright", true);
  }
 
 MainWindow::~MainWindow() {
     machine.set_update_parameter(this, "maxlevel.left", false);
     machine.set_update_parameter(this, "maxlevel.right", false);
-    machine.set_update_parameter(this, "hardlim.v1", false);
+    machine.set_update_parameter(this, "hardlim.vleft", false);
+    machine.set_update_parameter(this, "hardlim.vright", false);
 #if false   // set true to generate a new keyboard accel file
     gtk_accel_map_add_filter("<Actions>/Main/ChangeSkin_*");
     gtk_accel_map_add_filter("<Actions>/Main/Enum_tube.select.*");

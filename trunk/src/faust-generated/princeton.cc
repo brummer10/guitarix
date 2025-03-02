@@ -11,7 +11,9 @@ private:
 	int sample_rate;
 	int fSampleRate;
 	double fConst0;
+	double fConst1;
 	double fConst2;
+	double fConst3;
 	double fConst4;
 	double fConst5;
 	FAUSTFLOAT fVslider0;
@@ -19,6 +21,7 @@ private:
 	double fRec1[2];
 	double fRec0[3];
 	double fConst6;
+	double fConst7;
 	double fConst8;
 	double fConst9;
 	FAUSTFLOAT fVslider1;
@@ -83,13 +86,13 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	smp.setup(RsamplingFreq, sample_rate);
 	fSampleRate = sample_rate;
 	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 4.31429171140134e-10 * fConst0;
+	fConst1 = 4.31429171140134e-10 * fConst0;
 	fConst2 = fConst0 * (fConst1 + -1.24411557886099e-07) + 1.54349145985544e-05;
-	double fConst3 = mydsp_faustpower2_f(fConst0);
+	fConst3 = mydsp_faustpower2_f(fConst0);
 	fConst4 = 3.08698291971088e-05 - 8.62858342280268e-10 * fConst3;
 	fConst5 = 1.0 / (fConst0 * (fConst1 + 1.24411557886099e-07) + 1.54349145985544e-05);
 	fConst6 = 4.92767505200435e-09 * fConst3;
-	double fConst7 = 2.46383752600217e-09 * fConst0;
+	fConst7 = 2.46383752600217e-09 * fConst0;
 	fConst8 = fConst7 + -1.18536469845222e-07;
 	fConst9 = fConst7 + 1.18536469845222e-07;
 	clear_state_f();

@@ -7,6 +7,9 @@ namespace trbuff {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	double fConst0;
+	double fConst1;
+	double fConst2;
 	double fConst3;
 	FAUSTFLOAT fVslider0;
 	double fRec0[2];
@@ -65,9 +68,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 2.08132601776102e-05 * fConst0;
-	double fConst2 = fConst1 + 0.000963511474709834;
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = 2.08132601776102e-05 * fConst0;
+	fConst2 = fConst1 + 0.000963511474709834;
 	fConst3 = (0.000963511474709834 - fConst1) / fConst2;
 	fConst4 = 2.06312564351033e-05 * (fConst0 / fConst2);
 	clear_state_f();

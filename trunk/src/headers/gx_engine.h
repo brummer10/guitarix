@@ -22,6 +22,7 @@
 
 #pragma once
 
+
 #ifndef SRC_HEADERS_GX_ENGINE_H_
 #define SRC_HEADERS_GX_ENGINE_H_
 

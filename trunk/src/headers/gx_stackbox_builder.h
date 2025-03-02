@@ -50,6 +50,14 @@ private:
     Glib::RefPtr<Gdk::Pixbuf> window_icon;
     int next_flags;
     PluginUI *current_plugin;
+    std::vector<Glib::ustring> nam_file_names;
+    std::vector<Glib::ustring> snam_file_names;
+    std::vector<Glib::ustring> mnam_afile_names;
+    std::vector<Glib::ustring> mnam_bfile_names;
+    std::vector<Glib::ustring> rtneural_file_names;
+    std::vector<Glib::ustring> srtneural_file_names;
+    std::vector<Glib::ustring> mrtneural_afile_names;
+    std::vector<Glib::ustring> mrtneural_bfile_names;
 
 private:
     void loadRackFromBuilder(const Glib::RefPtr<GxBuilder>& bld);
@@ -108,6 +116,8 @@ public:
     StackBoxBuilder(
 	gx_engine::GxMachineBase& machine_, Glib::RefPtr<Gdk::Pixbuf> window_icon);
     ~StackBoxBuilder();
+    void set_neural_filelist(Gxw::Selector *sel, std::string id, std::string fileid, std::string pathid);
+    void set_neural_file(std::string id, std::string fileid);
     void set_accelgroup(Glib::RefPtr<Gtk::AccelGroup> accels_) { accels = accels_; }
     void prepare();
     void fetch(Gtk::Widget*& mainbox, Gtk::Widget*& minibox);

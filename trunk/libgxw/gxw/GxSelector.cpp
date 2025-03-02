@@ -438,7 +438,7 @@ static void gx_selector_init(GxSelector *selector)
     selector->icon = NULL;
 }
 
-static void gx_selector_unset_model(GxSelector *selector)
+void gx_selector_unset_model(GxSelector *selector)
 {
 	if (selector->model) {
 		g_object_unref (selector->model);
@@ -470,6 +470,10 @@ void gx_selector_set_model(GxSelector *selector, GtkTreeModel *model)
 	if (model == selector->model)
 		return;
 	gx_selector_unset_model(selector);
+    if (priv->menu) {
+        g_object_ref_sink(priv->menu);
+        priv->menu = NULL;
+    }
 	int n = 0;
 	if (model != NULL) {
 		selector->model = model;

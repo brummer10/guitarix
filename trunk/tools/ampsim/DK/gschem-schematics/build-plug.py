@@ -400,6 +400,8 @@ class Generators(object):
                     copy2(src1, dst1)
         os.chdir('gx_%s.lv2' % modulename)
         os.system('make uninstall && make && make install')
+        os.chdir('../')
+        os.system("chmod -R a+rw ./gx_%s.lv2" % modulename)        
         os.chdir(p)
 
     def deploy_c(self, c1):
@@ -579,8 +581,10 @@ class DKbuilder(object):
                         with open(tsrc, 'r') as f:
                             mytable = f.read()
                         f.close()
+                        os.system("chmod -R a+rw %s" % tsrc)
                     else:
                         src = 'dkbuild/%s_table.h' %  self.tablename[dsp_counter-1]
+                        os.system("chmod -R a+rw %s" % src)
                         # copy table to build dir
                         copy2(src, dst)
                     if (tn) :
@@ -589,8 +593,10 @@ class DKbuilder(object):
                             with open(tsrc, 'r') as f:
                                 myneg_table = f.read()
                             f.close()
+                            os.system("chmod -R a+rw %s" % tsrc)
                         else :
                             src = 'dkbuild/%s_neg_table.h' %  self.tablename[dsp_counter-1]
+                            os.system("chmod -R a+rw %s" % src)
                             # copy table to build dir
                             copy2(src, dst)
                     # include table use in faust code
@@ -671,6 +677,7 @@ class DKbuilder(object):
         # create a LV2 module
         elif args.buildlv2 :
             g.generate_lv2_plugin(args.input, dspfile, self.tablename, self.modulename, self.name, self.rs, self.vec, self.vs, args.table, args.table_neg, args.faust_table)
+        os.system("chmod -R a+rw %s" % dst)
 
 def main(argv):
     dk = DKbuilder()

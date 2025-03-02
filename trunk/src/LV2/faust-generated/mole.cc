@@ -7,9 +7,13 @@ namespace mole {
 class Dsp: public PluginLV2 {
 private:
 	uint32_t fSampleRate;
+	double fConst0;
+	double fConst1;
 	double fConst2;
+	double fConst3;
 	double fConst4;
 	double fConst5;
+	double fConst6;
 	double fConst7;
 	FAUSTFLOAT fVslider0;
 	FAUSTFLOAT	*fVslider0_;
@@ -67,13 +71,13 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 8.93878454194095e-15 * fConst0;
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = 8.93878454194095e-15 * fConst0;
 	fConst2 = fConst0 * (fConst0 * (4.96556855945694e-12 - fConst1) + -2.64572840995574e-11) + 2.70404912477885e-11;
-	double fConst3 = 2.68163536258229e-14 * fConst0;
+	fConst3 = 2.68163536258229e-14 * fConst0;
 	fConst4 = fConst0 * (fConst0 * (fConst3 + -4.96556855945694e-12) + -2.64572840995574e-11) + 8.11214737433656e-11;
 	fConst5 = fConst0 * (fConst0 * (-4.96556855945694e-12 - fConst3) + 2.64572840995574e-11) + 8.11214737433656e-11;
-	double fConst6 = fConst0 * (fConst0 * (fConst1 + 4.96556855945694e-12) + 2.64572840995574e-11) + 2.70404912477885e-11;
+	fConst6 = fConst0 * (fConst0 * (fConst1 + 4.96556855945694e-12) + 2.64572840995574e-11) + 2.70404912477885e-11;
 	fConst7 = 1.0 / fConst6;
 	fConst8 = 9.74268345040146e-11 * (mydsp_faustpower2_f(fConst0) / fConst6);
 	clear_state_f();

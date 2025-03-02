@@ -12,6 +12,7 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	int iVec0[2];
+	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fHslider0;
 	double fConst2;
@@ -33,50 +34,60 @@ private:
 	double fRec3[3];
 	FAUSTFLOAT fHslider4;
 	double fRec12[2];
+	FAUSTFLOAT fVslider0;
+	double fRec13[2];
 	double fRec0[2];
 	int iRec1[2];
 	double fRec2[2];
 	FAUSTFLOAT fVbargraph0;
-	double fRec18[2];
-	double fRec17[3];
-	double fRec16[3];
-	FAUSTFLOAT fHslider5;
 	double fRec19[2];
-	double fRec13[2];
-	int iRec14[2];
-	double fRec15[2];
-	FAUSTFLOAT fVbargraph1;
-	double fRec26[2];
-	double fRec25[3];
-	double fRec24[3];
-	double fRec23[3];
-	FAUSTFLOAT fHslider6;
-	double fRec27[2];
+	double fRec18[3];
+	double fRec17[3];
+	FAUSTFLOAT fHslider5;
 	double fRec20[2];
-	int iRec21[2];
-	double fRec22[2];
-	FAUSTFLOAT fVbargraph2;
-	double fRec35[2];
-	double fRec34[3];
-	double fRec33[3];
-	double fRec32[3];
-	double fRec31[3];
-	FAUSTFLOAT fHslider7;
-	double fRec36[2];
+	FAUSTFLOAT fVslider1;
+	double fRec21[2];
+	double fRec14[2];
+	int iRec15[2];
+	double fRec16[2];
+	FAUSTFLOAT fVbargraph1;
 	double fRec28[2];
-	int iRec29[2];
+	double fRec27[3];
+	double fRec26[3];
+	double fRec25[3];
+	FAUSTFLOAT fHslider6;
+	double fRec29[2];
+	FAUSTFLOAT fVslider2;
 	double fRec30[2];
-	FAUSTFLOAT fVbargraph3;
-	double fRec41[2];
-	double fRec40[3];
-	FAUSTFLOAT fHslider8;
-	double fRec42[2];
-	double fRec37[2];
-	int iRec38[2];
+	double fRec22[2];
+	int iRec23[2];
+	double fRec24[2];
+	FAUSTFLOAT fVbargraph2;
+	double fRec38[2];
+	double fRec37[3];
+	double fRec36[3];
+	double fRec35[3];
+	double fRec34[3];
+	FAUSTFLOAT fHslider7;
 	double fRec39[2];
-	FAUSTFLOAT fVbargraph4;
-	FAUSTFLOAT fVslider0;
+	FAUSTFLOAT fVslider3;
+	double fRec40[2];
+	double fRec31[2];
+	int iRec32[2];
+	double fRec33[2];
+	FAUSTFLOAT fVbargraph3;
+	double fRec45[2];
+	double fRec44[3];
+	FAUSTFLOAT fHslider8;
+	double fRec46[2];
+	FAUSTFLOAT fVslider4;
+	double fRec47[2];
+	double fRec41[2];
+	int iRec42[2];
 	double fRec43[2];
+	FAUSTFLOAT fVbargraph4;
+	FAUSTFLOAT fVslider5;
+	double fRec48[2];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -138,40 +149,45 @@ inline void Dsp::clear_state_f()
 	for (int l12 = 0; l12 < 2; l12 = l12 + 1) fRec4[l12] = 0.0;
 	for (int l13 = 0; l13 < 3; l13 = l13 + 1) fRec3[l13] = 0.0;
 	for (int l14 = 0; l14 < 2; l14 = l14 + 1) fRec12[l14] = 0.0;
-	for (int l15 = 0; l15 < 2; l15 = l15 + 1) fRec0[l15] = 0.0;
-	for (int l16 = 0; l16 < 2; l16 = l16 + 1) iRec1[l16] = 0;
-	for (int l17 = 0; l17 < 2; l17 = l17 + 1) fRec2[l17] = 0.0;
-	for (int l18 = 0; l18 < 2; l18 = l18 + 1) fRec18[l18] = 0.0;
-	for (int l19 = 0; l19 < 3; l19 = l19 + 1) fRec17[l19] = 0.0;
-	for (int l20 = 0; l20 < 3; l20 = l20 + 1) fRec16[l20] = 0.0;
-	for (int l21 = 0; l21 < 2; l21 = l21 + 1) fRec19[l21] = 0.0;
-	for (int l22 = 0; l22 < 2; l22 = l22 + 1) fRec13[l22] = 0.0;
-	for (int l23 = 0; l23 < 2; l23 = l23 + 1) iRec14[l23] = 0;
-	for (int l24 = 0; l24 < 2; l24 = l24 + 1) fRec15[l24] = 0.0;
-	for (int l25 = 0; l25 < 2; l25 = l25 + 1) fRec26[l25] = 0.0;
-	for (int l26 = 0; l26 < 3; l26 = l26 + 1) fRec25[l26] = 0.0;
-	for (int l27 = 0; l27 < 3; l27 = l27 + 1) fRec24[l27] = 0.0;
-	for (int l28 = 0; l28 < 3; l28 = l28 + 1) fRec23[l28] = 0.0;
-	for (int l29 = 0; l29 < 2; l29 = l29 + 1) fRec27[l29] = 0.0;
-	for (int l30 = 0; l30 < 2; l30 = l30 + 1) fRec20[l30] = 0.0;
-	for (int l31 = 0; l31 < 2; l31 = l31 + 1) iRec21[l31] = 0;
-	for (int l32 = 0; l32 < 2; l32 = l32 + 1) fRec22[l32] = 0.0;
-	for (int l33 = 0; l33 < 2; l33 = l33 + 1) fRec35[l33] = 0.0;
-	for (int l34 = 0; l34 < 3; l34 = l34 + 1) fRec34[l34] = 0.0;
-	for (int l35 = 0; l35 < 3; l35 = l35 + 1) fRec33[l35] = 0.0;
-	for (int l36 = 0; l36 < 3; l36 = l36 + 1) fRec32[l36] = 0.0;
-	for (int l37 = 0; l37 < 3; l37 = l37 + 1) fRec31[l37] = 0.0;
-	for (int l38 = 0; l38 < 2; l38 = l38 + 1) fRec36[l38] = 0.0;
-	for (int l39 = 0; l39 < 2; l39 = l39 + 1) fRec28[l39] = 0.0;
-	for (int l40 = 0; l40 < 2; l40 = l40 + 1) iRec29[l40] = 0;
-	for (int l41 = 0; l41 < 2; l41 = l41 + 1) fRec30[l41] = 0.0;
-	for (int l42 = 0; l42 < 2; l42 = l42 + 1) fRec41[l42] = 0.0;
-	for (int l43 = 0; l43 < 3; l43 = l43 + 1) fRec40[l43] = 0.0;
-	for (int l44 = 0; l44 < 2; l44 = l44 + 1) fRec42[l44] = 0.0;
-	for (int l45 = 0; l45 < 2; l45 = l45 + 1) fRec37[l45] = 0.0;
-	for (int l46 = 0; l46 < 2; l46 = l46 + 1) iRec38[l46] = 0;
-	for (int l47 = 0; l47 < 2; l47 = l47 + 1) fRec39[l47] = 0.0;
-	for (int l48 = 0; l48 < 2; l48 = l48 + 1) fRec43[l48] = 0.0;
+	for (int l15 = 0; l15 < 2; l15 = l15 + 1) fRec13[l15] = 0.0;
+	for (int l16 = 0; l16 < 2; l16 = l16 + 1) fRec0[l16] = 0.0;
+	for (int l17 = 0; l17 < 2; l17 = l17 + 1) iRec1[l17] = 0;
+	for (int l18 = 0; l18 < 2; l18 = l18 + 1) fRec2[l18] = 0.0;
+	for (int l19 = 0; l19 < 2; l19 = l19 + 1) fRec19[l19] = 0.0;
+	for (int l20 = 0; l20 < 3; l20 = l20 + 1) fRec18[l20] = 0.0;
+	for (int l21 = 0; l21 < 3; l21 = l21 + 1) fRec17[l21] = 0.0;
+	for (int l22 = 0; l22 < 2; l22 = l22 + 1) fRec20[l22] = 0.0;
+	for (int l23 = 0; l23 < 2; l23 = l23 + 1) fRec21[l23] = 0.0;
+	for (int l24 = 0; l24 < 2; l24 = l24 + 1) fRec14[l24] = 0.0;
+	for (int l25 = 0; l25 < 2; l25 = l25 + 1) iRec15[l25] = 0;
+	for (int l26 = 0; l26 < 2; l26 = l26 + 1) fRec16[l26] = 0.0;
+	for (int l27 = 0; l27 < 2; l27 = l27 + 1) fRec28[l27] = 0.0;
+	for (int l28 = 0; l28 < 3; l28 = l28 + 1) fRec27[l28] = 0.0;
+	for (int l29 = 0; l29 < 3; l29 = l29 + 1) fRec26[l29] = 0.0;
+	for (int l30 = 0; l30 < 3; l30 = l30 + 1) fRec25[l30] = 0.0;
+	for (int l31 = 0; l31 < 2; l31 = l31 + 1) fRec29[l31] = 0.0;
+	for (int l32 = 0; l32 < 2; l32 = l32 + 1) fRec30[l32] = 0.0;
+	for (int l33 = 0; l33 < 2; l33 = l33 + 1) fRec22[l33] = 0.0;
+	for (int l34 = 0; l34 < 2; l34 = l34 + 1) iRec23[l34] = 0;
+	for (int l35 = 0; l35 < 2; l35 = l35 + 1) fRec24[l35] = 0.0;
+	for (int l36 = 0; l36 < 2; l36 = l36 + 1) fRec38[l36] = 0.0;
+	for (int l37 = 0; l37 < 3; l37 = l37 + 1) fRec37[l37] = 0.0;
+	for (int l38 = 0; l38 < 3; l38 = l38 + 1) fRec36[l38] = 0.0;
+	for (int l39 = 0; l39 < 3; l39 = l39 + 1) fRec35[l39] = 0.0;
+	for (int l40 = 0; l40 < 3; l40 = l40 + 1) fRec34[l40] = 0.0;
+	for (int l41 = 0; l41 < 2; l41 = l41 + 1) fRec39[l41] = 0.0;
+	for (int l42 = 0; l42 < 2; l42 = l42 + 1) fRec40[l42] = 0.0;
+	for (int l43 = 0; l43 < 2; l43 = l43 + 1) fRec31[l43] = 0.0;
+	for (int l44 = 0; l44 < 2; l44 = l44 + 1) iRec32[l44] = 0;
+	for (int l45 = 0; l45 < 2; l45 = l45 + 1) fRec33[l45] = 0.0;
+	for (int l46 = 0; l46 < 2; l46 = l46 + 1) fRec45[l46] = 0.0;
+	for (int l47 = 0; l47 < 3; l47 = l47 + 1) fRec44[l47] = 0.0;
+	for (int l48 = 0; l48 < 2; l48 = l48 + 1) fRec46[l48] = 0.0;
+	for (int l49 = 0; l49 < 2; l49 = l49 + 1) fRec47[l49] = 0.0;
+	for (int l50 = 0; l50 < 2; l50 = l50 + 1) fRec41[l50] = 0.0;
+	for (int l51 = 0; l51 < 2; l51 = l51 + 1) iRec42[l51] = 0;
+	for (int l52 = 0; l52 < 2; l52 = l52 + 1) fRec43[l52] = 0.0;
+	for (int l53 = 0; l53 < 2; l53 = l53 + 1) fRec48[l53] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -182,7 +198,7 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 1.0 / fConst0;
 	fConst2 = 3.141592653589793 / fConst0;
 	clear_state_f();
@@ -235,21 +251,26 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow37 = fSlow3 + 1.0;
 	double fSlow38 = 1.0 / fSlow37;
 	double fSlow39 = 0.0010000000000000009 * double(fHslider4);
-	double fSlow40 = 1.0 - fSlow36 / fSlow0;
-	double fSlow41 = 1.0 / (fSlow37 / fSlow0 + 1.0);
-	double fSlow42 = 1.0 / (fSlow8 * fSlow12);
-	double fSlow43 = 0.0010000000000000009 * double(fHslider5);
-	double fSlow44 = 1.0 - fSlow33 / fSlow7;
-	double fSlow45 = 1.0 / (fSlow34 / fSlow7 + 1.0);
-	double fSlow46 = 1.0 / (fSlow15 * fSlow19);
-	double fSlow47 = 0.0010000000000000009 * double(fHslider6);
-	double fSlow48 = 1.0 - fSlow30 / fSlow14;
-	double fSlow49 = 1.0 / (fSlow31 / fSlow14 + 1.0);
-	double fSlow50 = 1.0 / (fSlow22 * fSlow26);
-	double fSlow51 = 0.0010000000000000009 * double(fHslider7);
-	double fSlow52 = 0.0010000000000000009 * double(fHslider8);
-	double fSlow53 = 1.0 / (fSlow1 * fSlow5);
-	double fSlow54 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
+	double fSlow40 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider0));
+	double fSlow41 = 1.0 - fSlow36 / fSlow0;
+	double fSlow42 = 1.0 / (fSlow37 / fSlow0 + 1.0);
+	double fSlow43 = 1.0 / (fSlow8 * fSlow12);
+	double fSlow44 = 0.0010000000000000009 * double(fHslider5);
+	double fSlow45 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider1));
+	double fSlow46 = 1.0 - fSlow33 / fSlow7;
+	double fSlow47 = 1.0 / (fSlow34 / fSlow7 + 1.0);
+	double fSlow48 = 1.0 / (fSlow15 * fSlow19);
+	double fSlow49 = 0.0010000000000000009 * double(fHslider6);
+	double fSlow50 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider2));
+	double fSlow51 = 1.0 - fSlow30 / fSlow14;
+	double fSlow52 = 1.0 / (fSlow31 / fSlow14 + 1.0);
+	double fSlow53 = 1.0 / (fSlow22 * fSlow26);
+	double fSlow54 = 0.0010000000000000009 * double(fHslider7);
+	double fSlow55 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider3));
+	double fSlow56 = 0.0010000000000000009 * double(fHslider8);
+	double fSlow57 = 1.0 / (fSlow1 * fSlow5);
+	double fSlow58 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider4));
+	double fSlow59 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider5));
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		iVec0[0] = 1;
 		int iTemp0 = iRec1[1] < 4096;
@@ -272,71 +293,76 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec3[0] = fRec4[0] - fSlow6 * (fSlow4 * fRec3[2] + fSlow2 * fRec3[1]);
 		fRec12[0] = fSlow39 + 0.999 * fRec12[1];
 		double fTemp5 = std::pow(1e+01, 2.0 * fRec12[0]);
-		double fTemp6 = std::max<double>(1.0, 1.0 / fTemp5) * symclip(fSlow6 * fTemp5 * (fRec3[2] + fRec3[0] + 2.0 * fRec3[1]));
+		fRec13[0] = fSlow40 + 0.999 * fRec13[1];
+		double fTemp6 = fRec13[0] * std::max<double>(1.0, 1.0 / fTemp5) * symclip(fSlow6 * fTemp5 * (fRec3[2] + fRec3[0] + 2.0 * fRec3[1]));
 		double fTemp7 = std::max<double>(fConst1, std::fabs(fTemp6));
 		fRec0[0] = ((iTemp0) ? fTemp7 + fRec0[1] : fTemp7);
 		iRec1[0] = ((iTemp0) ? iRec1[1] + 1 : 1);
 		fRec2[0] = ((iTemp0) ? fRec2[1] : 0.000244140625 * fRec0[1]);
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
-		int iTemp8 = iRec14[1] < 4096;
-		double fTemp9 = fSlow2 * fRec16[1];
-		fRec18[0] = -(fSlow35 * (fSlow33 * fRec18[1] - fSlow10 * (fTemp3 - fVec3[1])));
-		fRec17[0] = fRec18[0] - fSlow13 * (fSlow11 * fRec17[2] + fSlow9 * fRec17[1]);
-		fRec16[0] = fSlow42 * (fRec17[2] + (fRec17[0] - 2.0 * fRec17[1])) - fSlow41 * (fSlow40 * fRec16[2] + fTemp9);
-		fRec19[0] = fSlow43 + 0.999 * fRec19[1];
-		double fTemp10 = std::pow(1e+01, 2.0 * fRec19[0]);
-		double fTemp11 = std::max<double>(1.0, 1.0 / fTemp10) * symclip(fTemp10 * (fRec16[2] + fSlow41 * (fTemp9 + fSlow40 * fRec16[0])));
+		int iTemp8 = iRec15[1] < 4096;
+		double fTemp9 = fSlow2 * fRec17[1];
+		fRec19[0] = -(fSlow35 * (fSlow33 * fRec19[1] - fSlow10 * (fTemp3 - fVec3[1])));
+		fRec18[0] = fRec19[0] - fSlow13 * (fSlow11 * fRec18[2] + fSlow9 * fRec18[1]);
+		fRec17[0] = fSlow43 * (fRec18[2] + (fRec18[0] - 2.0 * fRec18[1])) - fSlow42 * (fSlow41 * fRec17[2] + fTemp9);
+		fRec20[0] = fSlow44 + 0.999 * fRec20[1];
+		double fTemp10 = std::pow(1e+01, 2.0 * fRec20[0]);
+		fRec21[0] = fSlow45 + 0.999 * fRec21[1];
+		double fTemp11 = fRec21[0] * std::max<double>(1.0, 1.0 / fTemp10) * symclip(fTemp10 * (fRec17[2] + fSlow42 * (fTemp9 + fSlow41 * fRec17[0])));
 		double fTemp12 = std::max<double>(fConst1, std::fabs(fTemp11));
-		fRec13[0] = ((iTemp8) ? fTemp12 + fRec13[1] : fTemp12);
-		iRec14[0] = ((iTemp8) ? iRec14[1] + 1 : 1);
-		fRec15[0] = ((iTemp8) ? fRec15[1] : 0.000244140625 * fRec13[1]);
-		fVbargraph1 = FAUSTFLOAT(fRec15[0]);
-		int iTemp13 = iRec21[1] < 4096;
-		double fTemp14 = fSlow2 * fRec23[1];
-		double fTemp15 = fSlow9 * fRec24[1];
-		fRec26[0] = -(fSlow32 * (fSlow30 * fRec26[1] - fSlow17 * (fTemp2 - fVec2[1])));
-		fRec25[0] = fRec26[0] - fSlow20 * (fSlow18 * fRec25[2] + fSlow16 * fRec25[1]);
-		fRec24[0] = fSlow46 * (fRec25[2] + (fRec25[0] - 2.0 * fRec25[1])) - fSlow45 * (fSlow44 * fRec24[2] + fTemp15);
-		fRec23[0] = fRec24[2] + fSlow45 * (fTemp15 + fSlow44 * fRec24[0]) - fSlow41 * (fSlow40 * fRec23[2] + fTemp14);
-		fRec27[0] = fSlow47 + 0.999 * fRec27[1];
-		double fTemp16 = std::pow(1e+01, 2.0 * fRec27[0]);
-		double fTemp17 = std::max<double>(1.0, 1.0 / fTemp16) * symclip(fTemp16 * (fRec23[2] + fSlow41 * (fTemp14 + fSlow40 * fRec23[0])));
+		fRec14[0] = ((iTemp8) ? fTemp12 + fRec14[1] : fTemp12);
+		iRec15[0] = ((iTemp8) ? iRec15[1] + 1 : 1);
+		fRec16[0] = ((iTemp8) ? fRec16[1] : 0.000244140625 * fRec14[1]);
+		fVbargraph1 = FAUSTFLOAT(fRec16[0]);
+		int iTemp13 = iRec23[1] < 4096;
+		double fTemp14 = fSlow2 * fRec25[1];
+		double fTemp15 = fSlow9 * fRec26[1];
+		fRec28[0] = -(fSlow32 * (fSlow30 * fRec28[1] - fSlow17 * (fTemp2 - fVec2[1])));
+		fRec27[0] = fRec28[0] - fSlow20 * (fSlow18 * fRec27[2] + fSlow16 * fRec27[1]);
+		fRec26[0] = fSlow48 * (fRec27[2] + (fRec27[0] - 2.0 * fRec27[1])) - fSlow47 * (fSlow46 * fRec26[2] + fTemp15);
+		fRec25[0] = fRec26[2] + fSlow47 * (fTemp15 + fSlow46 * fRec26[0]) - fSlow42 * (fSlow41 * fRec25[2] + fTemp14);
+		fRec29[0] = fSlow49 + 0.999 * fRec29[1];
+		double fTemp16 = std::pow(1e+01, 2.0 * fRec29[0]);
+		fRec30[0] = fSlow50 + 0.999 * fRec30[1];
+		double fTemp17 = fRec30[0] * std::max<double>(1.0, 1.0 / fTemp16) * symclip(fTemp16 * (fRec25[2] + fSlow42 * (fTemp14 + fSlow41 * fRec25[0])));
 		double fTemp18 = std::max<double>(fConst1, std::fabs(fTemp17));
-		fRec20[0] = ((iTemp13) ? fTemp18 + fRec20[1] : fTemp18);
-		iRec21[0] = ((iTemp13) ? iRec21[1] + 1 : 1);
-		fRec22[0] = ((iTemp13) ? fRec22[1] : 0.000244140625 * fRec20[1]);
-		fVbargraph2 = FAUSTFLOAT(fRec22[0]);
-		int iTemp19 = iRec29[1] < 4096;
-		double fTemp20 = fSlow2 * fRec31[1];
-		double fTemp21 = fSlow9 * fRec32[1];
-		double fTemp22 = fSlow16 * fRec33[1];
-		fRec35[0] = -(fSlow29 * (fSlow28 * fRec35[1] - fSlow24 * (fTemp1 - fVec1[1])));
-		fRec34[0] = fRec35[0] - fSlow27 * (fSlow25 * fRec34[2] + fSlow23 * fRec34[1]);
-		fRec33[0] = fSlow50 * (fRec34[2] + (fRec34[0] - 2.0 * fRec34[1])) - fSlow49 * (fSlow48 * fRec33[2] + fTemp22);
-		fRec32[0] = fRec33[2] + fSlow49 * (fTemp22 + fSlow48 * fRec33[0]) - fSlow45 * (fSlow44 * fRec32[2] + fTemp21);
-		fRec31[0] = fRec32[2] + fSlow45 * (fTemp21 + fSlow44 * fRec32[0]) - fSlow41 * (fSlow40 * fRec31[2] + fTemp20);
-		fRec36[0] = fSlow51 + 0.999 * fRec36[1];
-		double fTemp23 = std::pow(1e+01, 2.0 * fRec36[0]);
-		double fTemp24 = std::max<double>(1.0, 1.0 / fTemp23) * symclip(fTemp23 * (fRec31[2] + fSlow41 * (fTemp20 + fSlow40 * fRec31[0])));
+		fRec22[0] = ((iTemp13) ? fTemp18 + fRec22[1] : fTemp18);
+		iRec23[0] = ((iTemp13) ? iRec23[1] + 1 : 1);
+		fRec24[0] = ((iTemp13) ? fRec24[1] : 0.000244140625 * fRec22[1]);
+		fVbargraph2 = FAUSTFLOAT(fRec24[0]);
+		int iTemp19 = iRec32[1] < 4096;
+		double fTemp20 = fSlow2 * fRec34[1];
+		double fTemp21 = fSlow9 * fRec35[1];
+		double fTemp22 = fSlow16 * fRec36[1];
+		fRec38[0] = -(fSlow29 * (fSlow28 * fRec38[1] - fSlow24 * (fTemp1 - fVec1[1])));
+		fRec37[0] = fRec38[0] - fSlow27 * (fSlow25 * fRec37[2] + fSlow23 * fRec37[1]);
+		fRec36[0] = fSlow53 * (fRec37[2] + (fRec37[0] - 2.0 * fRec37[1])) - fSlow52 * (fSlow51 * fRec36[2] + fTemp22);
+		fRec35[0] = fRec36[2] + fSlow52 * (fTemp22 + fSlow51 * fRec36[0]) - fSlow47 * (fSlow46 * fRec35[2] + fTemp21);
+		fRec34[0] = fRec35[2] + fSlow47 * (fTemp21 + fSlow46 * fRec35[0]) - fSlow42 * (fSlow41 * fRec34[2] + fTemp20);
+		fRec39[0] = fSlow54 + 0.999 * fRec39[1];
+		double fTemp23 = std::pow(1e+01, 2.0 * fRec39[0]);
+		fRec40[0] = fSlow55 + 0.999 * fRec40[1];
+		double fTemp24 = fRec40[0] * std::max<double>(1.0, 1.0 / fTemp23) * symclip(fTemp23 * (fRec34[2] + fSlow42 * (fTemp20 + fSlow41 * fRec34[0])));
 		double fTemp25 = std::max<double>(fConst1, std::fabs(fTemp24));
-		fRec28[0] = ((iTemp19) ? fTemp25 + fRec28[1] : fTemp25);
-		iRec29[0] = ((iTemp19) ? iRec29[1] + 1 : 1);
-		fRec30[0] = ((iTemp19) ? fRec30[1] : 0.000244140625 * fRec28[1]);
-		fVbargraph3 = FAUSTFLOAT(fRec30[0]);
-		int iTemp26 = iRec38[1] < 4096;
-		fRec41[0] = -(fSlow38 * (fSlow36 * fRec41[1] - fSlow3 * (fTemp4 - fVec4[1])));
-		fRec40[0] = fRec41[0] - fSlow6 * (fSlow4 * fRec40[2] + fSlow2 * fRec40[1]);
-		double fTemp27 = 2.0 * fRec40[1];
-		fRec42[0] = fSlow52 + 0.999 * fRec42[1];
-		double fTemp28 = std::pow(1e+01, 2.0 * fRec42[0]);
-		double fTemp29 = std::max<double>(1.0, 1.0 / fTemp28);
-		double fTemp30 = std::max<double>(fConst1, std::fabs(fTemp29 * symclip(fSlow53 * fTemp28 * (fRec40[2] + (fRec40[0] - fTemp27)))));
-		fRec37[0] = ((iTemp26) ? fTemp30 + fRec37[1] : fTemp30);
-		iRec38[0] = ((iTemp26) ? iRec38[1] + 1 : 1);
-		fRec39[0] = ((iTemp26) ? fRec39[1] : 0.000244140625 * fRec37[1]);
-		fVbargraph4 = FAUSTFLOAT(fRec39[0]);
-		fRec43[0] = fSlow54 + 0.999 * fRec43[1];
-		output0[i0] = FAUSTFLOAT(fRec43[0] * (fTemp29 * symclip(fSlow53 * fTemp28 * (fRec40[0] + fRec40[2] - fTemp27)) + fTemp24 + fTemp17 + fTemp11 + fTemp6));
+		fRec31[0] = ((iTemp19) ? fTemp25 + fRec31[1] : fTemp25);
+		iRec32[0] = ((iTemp19) ? iRec32[1] + 1 : 1);
+		fRec33[0] = ((iTemp19) ? fRec33[1] : 0.000244140625 * fRec31[1]);
+		fVbargraph3 = FAUSTFLOAT(fRec33[0]);
+		int iTemp26 = iRec42[1] < 4096;
+		fRec45[0] = -(fSlow38 * (fSlow36 * fRec45[1] - fSlow3 * (fTemp4 - fVec4[1])));
+		fRec44[0] = fRec45[0] - fSlow6 * (fSlow4 * fRec44[2] + fSlow2 * fRec44[1]);
+		double fTemp27 = 2.0 * fRec44[1];
+		fRec46[0] = fSlow56 + 0.999 * fRec46[1];
+		double fTemp28 = std::pow(1e+01, 2.0 * fRec46[0]);
+		fRec47[0] = fSlow58 + 0.999 * fRec47[1];
+		double fTemp29 = fRec47[0] * std::max<double>(1.0, 1.0 / fTemp28);
+		double fTemp30 = std::max<double>(fConst1, std::fabs(fTemp29 * symclip(fSlow57 * fTemp28 * (fRec44[2] + (fRec44[0] - fTemp27)))));
+		fRec41[0] = ((iTemp26) ? fTemp30 + fRec41[1] : fTemp30);
+		iRec42[0] = ((iTemp26) ? iRec42[1] + 1 : 1);
+		fRec43[0] = ((iTemp26) ? fRec43[1] : 0.000244140625 * fRec41[1]);
+		fVbargraph4 = FAUSTFLOAT(fRec43[0]);
+		fRec48[0] = fSlow59 + 0.999 * fRec48[1];
+		output0[i0] = FAUSTFLOAT(fRec48[0] * (fTemp29 * symclip(fSlow57 * fTemp28 * (fRec44[0] + fRec44[2] - fTemp27)) + fTemp24 + fTemp17 + fTemp11 + fTemp6));
 		iVec0[1] = iVec0[0];
 		fRec11[1] = fRec11[0];
 		fVec1[1] = fVec1[0];
@@ -356,50 +382,55 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec3[2] = fRec3[1];
 		fRec3[1] = fRec3[0];
 		fRec12[1] = fRec12[0];
+		fRec13[1] = fRec13[0];
 		fRec0[1] = fRec0[0];
 		iRec1[1] = iRec1[0];
 		fRec2[1] = fRec2[0];
+		fRec19[1] = fRec19[0];
+		fRec18[2] = fRec18[1];
 		fRec18[1] = fRec18[0];
 		fRec17[2] = fRec17[1];
 		fRec17[1] = fRec17[0];
-		fRec16[2] = fRec16[1];
+		fRec20[1] = fRec20[0];
+		fRec21[1] = fRec21[0];
+		fRec14[1] = fRec14[0];
+		iRec15[1] = iRec15[0];
 		fRec16[1] = fRec16[0];
-		fRec19[1] = fRec19[0];
-		fRec13[1] = fRec13[0];
-		iRec14[1] = iRec14[0];
-		fRec15[1] = fRec15[0];
+		fRec28[1] = fRec28[0];
+		fRec27[2] = fRec27[1];
+		fRec27[1] = fRec27[0];
+		fRec26[2] = fRec26[1];
 		fRec26[1] = fRec26[0];
 		fRec25[2] = fRec25[1];
 		fRec25[1] = fRec25[0];
-		fRec24[2] = fRec24[1];
-		fRec24[1] = fRec24[0];
-		fRec23[2] = fRec23[1];
-		fRec23[1] = fRec23[0];
-		fRec27[1] = fRec27[0];
-		fRec20[1] = fRec20[0];
-		iRec21[1] = iRec21[0];
+		fRec29[1] = fRec29[0];
+		fRec30[1] = fRec30[0];
 		fRec22[1] = fRec22[0];
+		iRec23[1] = iRec23[0];
+		fRec24[1] = fRec24[0];
+		fRec38[1] = fRec38[0];
+		fRec37[2] = fRec37[1];
+		fRec37[1] = fRec37[0];
+		fRec36[2] = fRec36[1];
+		fRec36[1] = fRec36[0];
+		fRec35[2] = fRec35[1];
 		fRec35[1] = fRec35[0];
 		fRec34[2] = fRec34[1];
 		fRec34[1] = fRec34[0];
-		fRec33[2] = fRec33[1];
-		fRec33[1] = fRec33[0];
-		fRec32[2] = fRec32[1];
-		fRec32[1] = fRec32[0];
-		fRec31[2] = fRec31[1];
-		fRec31[1] = fRec31[0];
-		fRec36[1] = fRec36[0];
-		fRec28[1] = fRec28[0];
-		iRec29[1] = iRec29[0];
-		fRec30[1] = fRec30[0];
-		fRec41[1] = fRec41[0];
-		fRec40[2] = fRec40[1];
-		fRec40[1] = fRec40[0];
-		fRec42[1] = fRec42[0];
-		fRec37[1] = fRec37[0];
-		iRec38[1] = iRec38[0];
 		fRec39[1] = fRec39[0];
+		fRec40[1] = fRec40[0];
+		fRec31[1] = fRec31[0];
+		iRec32[1] = iRec32[0];
+		fRec33[1] = fRec33[0];
+		fRec45[1] = fRec45[0];
+		fRec44[2] = fRec44[1];
+		fRec44[1] = fRec44[0];
+		fRec46[1] = fRec46[0];
+		fRec47[1] = fRec47[0];
+		fRec41[1] = fRec41[0];
+		iRec42[1] = iRec42[0];
 		fRec43[1] = fRec43[0];
+		fRec48[1] = fRec48[0];
 	}
 }
 
@@ -415,7 +446,12 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerFloatVar("mbclip.Drive3","","S",N_("Amount of distortion"),&fHslider5, 0.65, 0.0, 1.0, 0.01, 0);
 	reg.registerFloatVar("mbclip.Drive4","","S",N_("Amount of distortion"),&fHslider6, 0.33, 0.0, 1.0, 0.01, 0);
 	reg.registerFloatVar("mbclip.Drive5","","S",N_("Amount of distortion"),&fHslider7, 0.1, 0.0, 1.0, 0.01, 0);
-	reg.registerFloatVar("mbclip.Gain","","S","",&fVslider0, 0.0, -4e+01, 4.0, 0.1, 0);
+	reg.registerFloatVar("mbclip.Gain","","S","",&fVslider5, 0.0, -4e+01, 4.0, 0.1, 0);
+	reg.registerFloatVar("mbclip.Gain1","","S","",&fVslider0, 0.0, -4e+01, 4.0, 0.1, 0);
+	reg.registerFloatVar("mbclip.Gain2","","S","",&fVslider4, 0.0, -4e+01, 4.0, 0.1, 0);
+	reg.registerFloatVar("mbclip.Gain3","","S","",&fVslider1, 0.0, -4e+01, 4.0, 0.1, 0);
+	reg.registerFloatVar("mbclip.Gain4","","S","",&fVslider2, 0.0, -4e+01, 4.0, 0.1, 0);
+	reg.registerFloatVar("mbclip.Gain5","","S","",&fVslider3, 0.0, -4e+01, 4.0, 0.1, 0);
 	reg.registerFloatVar("mbclip.crossover_b1_b2",N_("Crossover B1-B2 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider0, 8e+01, 2e+01, 2e+04, 1.08, 0);
 	reg.registerFloatVar("mbclip.crossover_b2_b3",N_("Crossover B2-B3 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider1, 2.1e+02, 2e+01, 2e+04, 1.08, 0);
 	reg.registerFloatVar("mbclip.crossover_b3_b4",N_("Crossover B3-B4 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider2, 1.7e+03, 2e+01, 2e+04, 1.08, 0);
@@ -435,55 +471,52 @@ int Dsp::register_params_static(const ParamReg& reg)
 
 const char *Dsp::glade_def = "\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
-<!-- Generated with glade 3.22.1 -->\n\
+<!-- Generated with glade 3.40.0 -->\n\
 <interface>\n\
   <requires lib=\"gtk+\" version=\"3.0\"/>\n\
   <requires lib=\"gxwidgets\" version=\"0.0\"/>\n\
   <object class=\"GtkWindow\" id=\"window1\">\n\
-    <property name=\"can_focus\">False</property>\n\
-    <child>\n\
-      <placeholder/>\n\
-    </child>\n\
+    <property name=\"can-focus\">False</property>\n\
     <child>\n\
       <object class=\"GtkBox\" id=\"vbox1\">\n\
         <property name=\"visible\">True</property>\n\
-        <property name=\"can_focus\">False</property>\n\
+        <property name=\"can-focus\">False</property>\n\
         <property name=\"orientation\">vertical</property>\n\
         <child>\n\
           <object class=\"GtkBox\" id=\"rackbox\">\n\
             <property name=\"visible\">True</property>\n\
-            <property name=\"can_focus\">False</property>\n\
+            <property name=\"can-focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
             <child>\n\
               <object class=\"GtkBox\" id=\"hbox1\">\n\
                 <property name=\"visible\">True</property>\n\
-                <property name=\"can_focus\">False</property>\n\
+                <property name=\"can-focus\">False</property>\n\
                 <child>\n\
                   <object class=\"GtkNotebook\" id=\"notebook\">\n\
                     <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">True</property>\n\
+                    <property name=\"can-focus\">True</property>\n\
                     <child>\n\
                       <object class=\"GtkBox\" id=\"hbox2\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"margin_left\">4</property>\n\
-                        <property name=\"margin_right\">4</property>\n\
-                        <property name=\"margin_top\">4</property>\n\
-                        <property name=\"margin_bottom\">4</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
+                        <property name=\"margin-left\">4</property>\n\
+                        <property name=\"margin-right\">4</property>\n\
+                        <property name=\"margin-top\">4</property>\n\
+                        <property name=\"margin-bottom\">4</property>\n\
                         <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkBox\" id=\"hbox4\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <child>\n\
                               <object class=\"GtkBox\" id=\"vbox3\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"orientation\">vertical</property>\n\
                                 <child>\n\
                                   <object class=\"GtkLabel\" id=\"label_81:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
                                     <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -495,9 +528,9 @@ const char *Dsp::glade_def = "\
                                 <child>\n\
                                   <object class=\"GxSmallKnobR\" id=\"gxmediumknob1\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">True</property>\n\
-                                    <property name=\"receives_default\">True</property>\n\
-                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"show-fill-level\">True</property>\n\
                                     <property name=\"var_id\">mbclip.Drive1</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -514,7 +547,41 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <placeholder/>\n\
+                              <object class=\"GtkBox\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
+                                <property name=\"orientation\">vertical</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_9:rack_label\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob8\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"var_id\">mbclip.Gain1</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -524,50 +591,65 @@ const char *Dsp::glade_def = "\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
+                          <!-- n-columns=3 n-rows=3 -->\n\
                           <object class=\"GtkGrid\" id=\"table1\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"margin_left\">4</property>\n\
-                            <property name=\"margin_right\">4</property>\n\
-                            <property name=\"margin_top\">4</property>\n\
-                            <property name=\"margin_bottom\">4</property>\n\
-                            <property name=\"row_spacing\">4</property>\n\
-                            <property name=\"column_spacing\">4</property>\n\
-                            <property name=\"row_homogeneous\">True</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
+                            <property name=\"margin-left\">4</property>\n\
+                            <property name=\"margin-right\">4</property>\n\
+                            <property name=\"margin-top\">4</property>\n\
+                            <property name=\"margin-bottom\">4</property>\n\
+                            <property name=\"row-spacing\">4</property>\n\
+                            <property name=\"column-spacing\">4</property>\n\
+                            <property name=\"row-homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_141:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"hexpand\">True</property>\n\
                                 <property name=\"label\" translatable=\"yes\">High</property>\n\
-                                <property name=\"xalign\">1</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">0</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">0</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob2\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"can-focus\">True</property>\n\
+                                <property name=\"receives-default\">True</property>\n\
                                 <property name=\"var_id\">mbclip.crossover_b1_b2</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">1</property>\n\
-                                <property name=\"top_attach\">0</property>\n\
+                                <property name=\"left-attach\">1</property>\n\
+                                <property name=\"top-attach\">0</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GtkLabel\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">1</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                             <child>\n\
                               <placeholder/>\n\
@@ -584,35 +666,35 @@ const char *Dsp::glade_def = "\
                     <child type=\"tab\">\n\
                       <object class=\"GtkLabel\" id=\"label1\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
                         <property name=\"label\" translatable=\"yes\">Band 1</property>\n\
                       </object>\n\
                       <packing>\n\
-                        <property name=\"tab_fill\">False</property>\n\
+                        <property name=\"tab-fill\">False</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
                       <object class=\"GtkBox\" id=\"hbox5\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"margin_left\">4</property>\n\
-                        <property name=\"margin_right\">4</property>\n\
-                        <property name=\"margin_top\">4</property>\n\
-                        <property name=\"margin_bottom\">4</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
+                        <property name=\"margin-left\">4</property>\n\
+                        <property name=\"margin-right\">4</property>\n\
+                        <property name=\"margin-top\">4</property>\n\
+                        <property name=\"margin-bottom\">4</property>\n\
                         <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkBox\" id=\"hbox6\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <child>\n\
                               <object class=\"GtkBox\" id=\"vbox8\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"orientation\">vertical</property>\n\
                                 <child>\n\
                                   <object class=\"GtkLabel\" id=\"label_8:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
                                     <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -624,9 +706,9 @@ const char *Dsp::glade_def = "\
                                 <child>\n\
                                   <object class=\"GxSmallKnobR\" id=\"gxmediumknob4\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">True</property>\n\
-                                    <property name=\"receives_default\">True</property>\n\
-                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"show-fill-level\">True</property>\n\
                                     <property name=\"var_id\">mbclip.Drive2</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -643,7 +725,41 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <placeholder/>\n\
+                              <object class=\"GtkBox\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
+                                <property name=\"orientation\">vertical</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_9:rack_label1\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob2\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"var_id\">mbclip.Gain2</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -653,65 +769,79 @@ const char *Dsp::glade_def = "\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
+                          <!-- n-columns=3 n-rows=3 -->\n\
                           <object class=\"GtkGrid\" id=\"table2\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"margin_left\">4</property>\n\
-                            <property name=\"margin_right\">4</property>\n\
-                            <property name=\"margin_top\">4</property>\n\
-                            <property name=\"margin_bottom\">4</property>\n\
-                            <property name=\"row_spacing\">4</property>\n\
-                            <property name=\"column_spacing\">4</property>\n\
-                            <property name=\"row_homogeneous\">True</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
+                            <property name=\"margin-left\">4</property>\n\
+                            <property name=\"margin-right\">4</property>\n\
+                            <property name=\"margin-top\">4</property>\n\
+                            <property name=\"margin-bottom\">4</property>\n\
+                            <property name=\"row-spacing\">4</property>\n\
+                            <property name=\"column-spacing\">4</property>\n\
+                            <property name=\"row-homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_13:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"hexpand\">True</property>\n\
                                 <property name=\"label\" translatable=\"yes\">Low</property>\n\
-                                <property name=\"xalign\">1</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">1</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob7\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"can-focus\">True</property>\n\
+                                <property name=\"receives-default\">True</property>\n\
                                 <property name=\"var_id\">mbclip.crossover_b1_b2</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">1</property>\n\
-                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"left-attach\">1</property>\n\
+                                <property name=\"top-attach\">1</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_14:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"hexpand\">True</property>\n\
                                 <property name=\"label\" translatable=\"yes\">High</property>\n\
-                                <property name=\"xalign\">1</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">0</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">0</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob6\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"can-focus\">True</property>\n\
+                                <property name=\"receives-default\">True</property>\n\
                                 <property name=\"var_id\">mbclip.crossover_b2_b3</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">1</property>\n\
-                                <property name=\"top_attach\">0</property>\n\
+                                <property name=\"left-attach\">1</property>\n\
+                                <property name=\"top-attach\">0</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -728,36 +858,36 @@ const char *Dsp::glade_def = "\
                     <child type=\"tab\">\n\
                       <object class=\"GtkLabel\" id=\"label2\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
                         <property name=\"label\" translatable=\"yes\">Band 2</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"position\">1</property>\n\
-                        <property name=\"tab_fill\">False</property>\n\
+                        <property name=\"tab-fill\">False</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
                       <object class=\"GtkBox\" id=\"hbox7\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"margin_left\">4</property>\n\
-                        <property name=\"margin_right\">4</property>\n\
-                        <property name=\"margin_top\">4</property>\n\
-                        <property name=\"margin_bottom\">4</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
+                        <property name=\"margin-left\">4</property>\n\
+                        <property name=\"margin-right\">4</property>\n\
+                        <property name=\"margin-top\">4</property>\n\
+                        <property name=\"margin-bottom\">4</property>\n\
                         <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkBox\" id=\"hbox8\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <child>\n\
                               <object class=\"GtkBox\" id=\"vbox7\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"orientation\">vertical</property>\n\
                                 <child>\n\
                                   <object class=\"GtkLabel\" id=\"label_82:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
                                     <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -769,9 +899,9 @@ const char *Dsp::glade_def = "\
                                 <child>\n\
                                   <object class=\"GxSmallKnobR\" id=\"gxmediumknob7\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">True</property>\n\
-                                    <property name=\"receives_default\">True</property>\n\
-                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"show-fill-level\">True</property>\n\
                                     <property name=\"var_id\">mbclip.Drive3</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -788,7 +918,41 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <placeholder/>\n\
+                              <object class=\"GtkBox\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
+                                <property name=\"orientation\">vertical</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_9:rack_label2\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob3\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"var_id\">mbclip.Gain3</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -798,65 +962,79 @@ const char *Dsp::glade_def = "\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
+                          <!-- n-columns=3 n-rows=3 -->\n\
                           <object class=\"GtkGrid\" id=\"table3\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"margin_left\">4</property>\n\
-                            <property name=\"margin_right\">4</property>\n\
-                            <property name=\"margin_top\">4</property>\n\
-                            <property name=\"margin_bottom\">4</property>\n\
-                            <property name=\"row_spacing\">4</property>\n\
-                            <property name=\"column_spacing\">4</property>\n\
-                            <property name=\"row_homogeneous\">True</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
+                            <property name=\"margin-left\">4</property>\n\
+                            <property name=\"margin-right\">4</property>\n\
+                            <property name=\"margin-top\">4</property>\n\
+                            <property name=\"margin-bottom\">4</property>\n\
+                            <property name=\"row-spacing\">4</property>\n\
+                            <property name=\"column-spacing\">4</property>\n\
+                            <property name=\"row-homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_132:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"hexpand\">True</property>\n\
                                 <property name=\"label\" translatable=\"yes\">Low</property>\n\
-                                <property name=\"xalign\">1</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">1</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob3\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"can-focus\">True</property>\n\
+                                <property name=\"receives-default\">True</property>\n\
                                 <property name=\"var_id\">mbclip.crossover_b2_b3</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">1</property>\n\
-                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"left-attach\">1</property>\n\
+                                <property name=\"top-attach\">1</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_142:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"hexpand\">True</property>\n\
                                 <property name=\"label\" translatable=\"yes\">High</property>\n\
-                                <property name=\"xalign\">1</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">0</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">0</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob4\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"can-focus\">True</property>\n\
+                                <property name=\"receives-default\">True</property>\n\
                                 <property name=\"var_id\">mbclip.crossover_b3_b4</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">1</property>\n\
-                                <property name=\"top_attach\">0</property>\n\
+                                <property name=\"left-attach\">1</property>\n\
+                                <property name=\"top-attach\">0</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -873,36 +1051,36 @@ const char *Dsp::glade_def = "\
                     <child type=\"tab\">\n\
                       <object class=\"GtkLabel\" id=\"label3\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
                         <property name=\"label\" translatable=\"yes\">Band 3</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"position\">2</property>\n\
-                        <property name=\"tab_fill\">False</property>\n\
+                        <property name=\"tab-fill\">False</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
                       <object class=\"GtkBox\" id=\"hbox9\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"margin_left\">4</property>\n\
-                        <property name=\"margin_right\">4</property>\n\
-                        <property name=\"margin_top\">4</property>\n\
-                        <property name=\"margin_bottom\">4</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
+                        <property name=\"margin-left\">4</property>\n\
+                        <property name=\"margin-right\">4</property>\n\
+                        <property name=\"margin-top\">4</property>\n\
+                        <property name=\"margin-bottom\">4</property>\n\
                         <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkBox\" id=\"hbox10\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <child>\n\
                               <object class=\"GtkBox\" id=\"vbox14\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"orientation\">vertical</property>\n\
                                 <child>\n\
                                   <object class=\"GtkLabel\" id=\"label_83:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
                                     <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -914,9 +1092,9 @@ const char *Dsp::glade_def = "\
                                 <child>\n\
                                   <object class=\"GxSmallKnobR\" id=\"gxmediumknob10\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">True</property>\n\
-                                    <property name=\"receives_default\">True</property>\n\
-                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"show-fill-level\">True</property>\n\
                                     <property name=\"var_id\">mbclip.Drive4</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -933,7 +1111,41 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <placeholder/>\n\
+                              <object class=\"GtkBox\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
+                                <property name=\"orientation\">vertical</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_9:rack_label3\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob5\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"var_id\">mbclip.Gain4</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -943,65 +1155,79 @@ const char *Dsp::glade_def = "\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
+                          <!-- n-columns=3 n-rows=3 -->\n\
                           <object class=\"GtkGrid\" id=\"table4\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"margin_left\">4</property>\n\
-                            <property name=\"margin_right\">4</property>\n\
-                            <property name=\"margin_top\">4</property>\n\
-                            <property name=\"margin_bottom\">4</property>\n\
-                            <property name=\"row_spacing\">4</property>\n\
-                            <property name=\"column_spacing\">4</property>\n\
-                            <property name=\"row_homogeneous\">True</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
+                            <property name=\"margin-left\">4</property>\n\
+                            <property name=\"margin-right\">4</property>\n\
+                            <property name=\"margin-top\">4</property>\n\
+                            <property name=\"margin-bottom\">4</property>\n\
+                            <property name=\"row-spacing\">4</property>\n\
+                            <property name=\"column-spacing\">4</property>\n\
+                            <property name=\"row-homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_133:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"hexpand\">True</property>\n\
                                 <property name=\"label\" translatable=\"yes\">Low</property>\n\
-                                <property name=\"xalign\">1</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">1</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob5\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"can-focus\">True</property>\n\
+                                <property name=\"receives-default\">True</property>\n\
                                 <property name=\"var_id\">mbclip.crossover_b3_b4</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">1</property>\n\
-                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"left-attach\">1</property>\n\
+                                <property name=\"top-attach\">1</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_143:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"hexpand\">True</property>\n\
                                 <property name=\"label\" translatable=\"yes\">High</property>\n\
-                                <property name=\"xalign\">1</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">0</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">0</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob8\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"can-focus\">True</property>\n\
+                                <property name=\"receives-default\">True</property>\n\
                                 <property name=\"var_id\">mbclip.crossover_b4_b5</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">1</property>\n\
-                                <property name=\"top_attach\">0</property>\n\
+                                <property name=\"left-attach\">1</property>\n\
+                                <property name=\"top-attach\">0</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -1018,36 +1244,36 @@ const char *Dsp::glade_def = "\
                     <child type=\"tab\">\n\
                       <object class=\"GtkLabel\" id=\"label4\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
                         <property name=\"label\" translatable=\"yes\">Band 4</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"position\">3</property>\n\
-                        <property name=\"tab_fill\">False</property>\n\
+                        <property name=\"tab-fill\">False</property>\n\
                       </packing>\n\
                     </child>\n\
                     <child>\n\
                       <object class=\"GtkBox\" id=\"hbox11\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"margin_left\">4</property>\n\
-                        <property name=\"margin_right\">4</property>\n\
-                        <property name=\"margin_top\">4</property>\n\
-                        <property name=\"margin_bottom\">4</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
+                        <property name=\"margin-left\">4</property>\n\
+                        <property name=\"margin-right\">4</property>\n\
+                        <property name=\"margin-top\">4</property>\n\
+                        <property name=\"margin-bottom\">4</property>\n\
                         <property name=\"spacing\">4</property>\n\
                         <child>\n\
                           <object class=\"GtkBox\" id=\"hbox12\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <child>\n\
                               <object class=\"GtkBox\" id=\"vbox18\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"orientation\">vertical</property>\n\
                                 <child>\n\
                                   <object class=\"GtkLabel\" id=\"label_84:rack_label\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">False</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
                                     <property name=\"label\" translatable=\"yes\">Drive</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -1059,9 +1285,9 @@ const char *Dsp::glade_def = "\
                                 <child>\n\
                                   <object class=\"GxSmallKnobR\" id=\"gxmediumknob13\">\n\
                                     <property name=\"visible\">True</property>\n\
-                                    <property name=\"can_focus\">True</property>\n\
-                                    <property name=\"receives_default\">True</property>\n\
-                                    <property name=\"show_fill_level\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"show-fill-level\">True</property>\n\
                                     <property name=\"var_id\">mbclip.Drive5</property>\n\
                                   </object>\n\
                                   <packing>\n\
@@ -1078,7 +1304,41 @@ const char *Dsp::glade_def = "\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
-                              <placeholder/>\n\
+                              <object class=\"GtkBox\">\n\
+                                <property name=\"visible\">True</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
+                                <property name=\"orientation\">vertical</property>\n\
+                                <child>\n\
+                                  <object class=\"GtkLabel\" id=\"label_9:rack_label4\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">False</property>\n\
+                                    <property name=\"label\" translatable=\"yes\">Gain</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">0</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                                <child>\n\
+                                  <object class=\"GxSmallKnobR\" id=\"gxmediumknob6\">\n\
+                                    <property name=\"visible\">True</property>\n\
+                                    <property name=\"can-focus\">True</property>\n\
+                                    <property name=\"receives-default\">True</property>\n\
+                                    <property name=\"var_id\">mbclip.Gain5</property>\n\
+                                  </object>\n\
+                                  <packing>\n\
+                                    <property name=\"expand\">False</property>\n\
+                                    <property name=\"fill\">True</property>\n\
+                                    <property name=\"position\">1</property>\n\
+                                  </packing>\n\
+                                </child>\n\
+                              </object>\n\
+                              <packing>\n\
+                                <property name=\"expand\">False</property>\n\
+                                <property name=\"fill\">True</property>\n\
+                                <property name=\"position\">1</property>\n\
+                              </packing>\n\
                             </child>\n\
                           </object>\n\
                           <packing>\n\
@@ -1088,50 +1348,65 @@ const char *Dsp::glade_def = "\
                           </packing>\n\
                         </child>\n\
                         <child>\n\
+                          <!-- n-columns=3 n-rows=3 -->\n\
                           <object class=\"GtkGrid\" id=\"table5\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
-                            <property name=\"margin_left\">4</property>\n\
-                            <property name=\"margin_right\">4</property>\n\
-                            <property name=\"margin_top\">4</property>\n\
-                            <property name=\"margin_bottom\">4</property>\n\
-                            <property name=\"row_spacing\">4</property>\n\
-                            <property name=\"column_spacing\">4</property>\n\
-                            <property name=\"row_homogeneous\">True</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
+                            <property name=\"margin-left\">4</property>\n\
+                            <property name=\"margin-right\">4</property>\n\
+                            <property name=\"margin-top\">4</property>\n\
+                            <property name=\"margin-bottom\">4</property>\n\
+                            <property name=\"row-spacing\">4</property>\n\
+                            <property name=\"column-spacing\">4</property>\n\
+                            <property name=\"row-homogeneous\">True</property>\n\
                             <child>\n\
                               <object class=\"GtkLabel\" id=\"label_134:rack_label\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                                 <property name=\"hexpand\">True</property>\n\
                                 <property name=\"label\" translatable=\"yes\">Low</property>\n\
-                                <property name=\"xalign\">1</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">1</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GxSmallKnob\" id=\"gxsmallknob9\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">True</property>\n\
-                                <property name=\"receives_default\">True</property>\n\
+                                <property name=\"can-focus\">True</property>\n\
+                                <property name=\"receives-default\">True</property>\n\
                                 <property name=\"var_id\">mbclip.crossover_b4_b5</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">1</property>\n\
-                                <property name=\"top_attach\">1</property>\n\
+                                <property name=\"left-attach\">1</property>\n\
+                                <property name=\"top-attach\">1</property>\n\
                               </packing>\n\
                             </child>\n\
                             <child>\n\
                               <object class=\"GtkLabel\">\n\
                                 <property name=\"visible\">True</property>\n\
-                                <property name=\"can_focus\">False</property>\n\
+                                <property name=\"can-focus\">False</property>\n\
                               </object>\n\
                               <packing>\n\
-                                <property name=\"left_attach\">0</property>\n\
-                                <property name=\"top_attach\">0</property>\n\
+                                <property name=\"left-attach\">0</property>\n\
+                                <property name=\"top-attach\">0</property>\n\
                               </packing>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
+                            </child>\n\
+                            <child>\n\
+                              <placeholder/>\n\
                             </child>\n\
                             <child>\n\
                               <placeholder/>\n\
@@ -1151,12 +1426,12 @@ const char *Dsp::glade_def = "\
                     <child type=\"tab\">\n\
                       <object class=\"GtkLabel\" id=\"label6\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
                         <property name=\"label\" translatable=\"yes\">Band 5</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"position\">4</property>\n\
-                        <property name=\"tab_fill\">False</property>\n\
+                        <property name=\"tab-fill\">False</property>\n\
                       </packing>\n\
                     </child>\n\
                     <style>\n\
@@ -1172,12 +1447,12 @@ const char *Dsp::glade_def = "\
                 <child>\n\
                   <object class=\"GtkBox\" id=\"vbox5\">\n\
                     <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"can-focus\">False</property>\n\
                     <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label_99:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
                         <property name=\"label\" translatable=\"yes\">Gain</property>\n\
                       </object>\n\
                       <packing>\n\
@@ -1189,8 +1464,8 @@ const char *Dsp::glade_def = "\
                     <child>\n\
                       <object class=\"GxMidKnob\" id=\"gxmidknob1\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">True</property>\n\
-                        <property name=\"receives_default\">True</property>\n\
+                        <property name=\"can-focus\">True</property>\n\
+                        <property name=\"receives-default\">True</property>\n\
                         <property name=\"var_id\">mbclip.Gain</property>\n\
                       </object>\n\
                       <packing>\n\
@@ -1209,14 +1484,13 @@ const char *Dsp::glade_def = "\
                 <child>\n\
                   <object class=\"GtkBox\" id=\"vbox2\">\n\
                     <property name=\"visible\">True</property>\n\
-                    <property name=\"can_focus\">False</property>\n\
+                    <property name=\"can-focus\">False</property>\n\
                     <property name=\"orientation\">vertical</property>\n\
                     <child>\n\
                       <object class=\"GtkLabel\" id=\"label5:rack_label\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
                         <property name=\"label\" translatable=\"yes\">Levels</property>\n\
-                        <property name=\"xalign\">0</property>\n\
                       </object>\n\
                       <packing>\n\
                         <property name=\"expand\">False</property>\n\
@@ -1227,12 +1501,12 @@ const char *Dsp::glade_def = "\
                     <child>\n\
                       <object class=\"GtkBox\" id=\"hbox3\">\n\
                         <property name=\"visible\">True</property>\n\
-                        <property name=\"can_focus\">False</property>\n\
-                        <property name=\"margin_bottom\">4</property>\n\
+                        <property name=\"can-focus\">False</property>\n\
+                        <property name=\"margin-bottom\">4</property>\n\
                         <child>\n\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter1\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
@@ -1248,7 +1522,7 @@ const char *Dsp::glade_def = "\
                         <child>\n\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter2\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
@@ -1264,7 +1538,7 @@ const char *Dsp::glade_def = "\
                         <child>\n\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter3\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
@@ -1280,7 +1554,7 @@ const char *Dsp::glade_def = "\
                         <child>\n\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter4\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
@@ -1296,7 +1570,7 @@ const char *Dsp::glade_def = "\
                         <child>\n\
                           <object class=\"GxFastMeter\" id=\"gxfastmeter5\">\n\
                             <property name=\"visible\">True</property>\n\
-                            <property name=\"can_focus\">False</property>\n\
+                            <property name=\"can-focus\">False</property>\n\
                             <property name=\"orientation\">vertical</property>\n\
                             <property name=\"hold\">0</property>\n\
                             <property name=\"dimen\">0</property>\n\
@@ -1340,7 +1614,7 @@ const char *Dsp::glade_def = "\
         <child>\n\
           <object class=\"GtkBox\" id=\"minibox\">\n\
             <property name=\"visible\">True</property>\n\
-            <property name=\"can_focus\">False</property>\n\
+            <property name=\"can-focus\">False</property>\n\
             <property name=\"spacing\">4</property>\n\
             <child>\n\
               <placeholder/>\n\
@@ -1379,6 +1653,7 @@ b.openVerticalBox("");
 b.openpaintampBox("");
 b.openHorizontalBox("");
 b.create_small_rackknob(PARAM("Drive1"), N_("Drive"));
+b.create_small_rackknob(PARAM("Gain1"), N_("Gain"));
 b.insertSpacer();
 b.insertSpacer();
 b.insertSpacer();
@@ -1393,6 +1668,7 @@ b.openVerticalBox("");
 b.openpaintampBox("");
 b.openHorizontalBox("");
 b.create_small_rackknob(PARAM("Drive2"), N_("Drive"));
+b.create_small_rackknob(PARAM("Gain2"), N_("Gain"));
 b.create_small_rackknob(PARAM("crossover_b1_b2"), N_("Low"));
 b.create_small_rackknob(PARAM("crossover_b2_b3"), N_("High"));
 b.closeBox();
@@ -1405,6 +1681,7 @@ b.openVerticalBox("");
 b.openpaintampBox("");
 b.openHorizontalBox("");
 b.create_small_rackknob(PARAM("Drive3"), N_("Drive"));
+b.create_small_rackknob(PARAM("Gain3"), N_("Gain"));
 b.create_small_rackknob(PARAM("crossover_b2_b3"), N_("Low"));
 b.create_small_rackknob(PARAM("crossover_b3_b4"), N_("High"));
 b.closeBox();
@@ -1417,6 +1694,7 @@ b.openVerticalBox("");
 b.openpaintampBox("");
 b.openHorizontalBox("");
 b.create_small_rackknob(PARAM("Drive4"), N_("Drive"));
+b.create_small_rackknob(PARAM("Gain4"), N_("Gain"));
 b.create_small_rackknob(PARAM("crossover_b3_b4"), N_("Low"));
 b.create_small_rackknob(PARAM("crossover_b4_b5"), N_("High"));
 b.closeBox();
@@ -1429,6 +1707,7 @@ b.openVerticalBox("");
 b.openpaintampBox("");
 b.openHorizontalBox("");
 b.create_small_rackknob(PARAM("Drive5"), N_("Drive"));
+b.create_small_rackknob(PARAM("Gain5"), N_("Gain"));
 b.create_small_rackknob(PARAM("crossover_b4_b5"), N_("Low"));
 b.closeBox();
 b.closeBox();

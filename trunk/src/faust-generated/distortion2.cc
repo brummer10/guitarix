@@ -8,6 +8,7 @@ class Dsp: public PluginDef {
 private:
 	int fSampleRate;
 	FAUSTFLOAT fVslider0;
+	double fConst0;
 	double fConst1;
 	FAUSTFLOAT fVslider1;
 	double fRec2[2];
@@ -17,6 +18,7 @@ private:
 	FAUSTFLOAT fVslider4;
 	double fRec5[3];
 	double fVec0[2];
+	double fConst2;
 	double fConst3;
 	double fConst4;
 	double fRec4[2];
@@ -85,9 +87,9 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
 	fConst1 = 3.141592653589793 / fConst0;
-	double fConst2 = 1.0 / std::tan(20520.88321324853 / fConst0);
+	fConst2 = 1.0 / std::tan(20520.88321324853 / fConst0);
 	fConst3 = 1.0 - fConst2;
 	fConst4 = 1.0 / (fConst2 + 1.0);
 	clear_state_f();

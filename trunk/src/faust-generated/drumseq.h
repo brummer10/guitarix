@@ -23,10 +23,13 @@ private:
 	double fVec2[2];
 	int IOTA0;
 	double fVec3[64];
+	double fConst4;
 	int iConst5;
 	int iConst6;
+	double fConst7;
 	double fConst8;
 	double fConst9;
+	double fConst10;
 	double fConst11;
 	double fConst12;
 	double fRec6[2];
@@ -35,6 +38,7 @@ private:
 	double fConst14;
 	double fRec3[2];
 	double fRec4[2];
+	double fConst15;
 	double fConst16;
 	double fConst17;
 	double fRec10[2];
@@ -42,6 +46,7 @@ private:
 	double fConst18;
 	double fRec8[2];
 	double fRec9[2];
+	double fConst19;
 	double fConst20;
 	double fConst21;
 	double fRec14[2];
@@ -49,6 +54,7 @@ private:
 	double fConst22;
 	double fRec12[2];
 	double fRec13[2];
+	double fConst23;
 	double fConst24;
 	double fConst25;
 	double fRec18[2];
@@ -107,8 +113,12 @@ private:
 	FAUSTFLOAT	*fCheckbox3_;
 	double fVec6[2];
 	double fRec45[2];
+	double fConst38;
+	double fConst39;
 	double fConst40;
+	double fConst41;
 	double fConst42;
+	double fConst43;
 	double fConst44;
 	double fConst45;
 	int iRec50[2];
@@ -125,11 +135,14 @@ private:
 	int iRec51[2];
 	double fConst49;
 	double fRec52[2];
+	double fConst50;
 	double fConst51;
+	double fConst52;
 	double fConst53;
 	double fConst54;
 	double fConst55;
 	double fRec58[2];
+	double fConst56;
 	double fConst57;
 	double fConst58;
 	double fRec59[2];
@@ -143,8 +156,12 @@ private:
 	double fRec63[2];
 	int iRec61[2];
 	double fRec62[2];
+	double fConst61;
+	double fConst62;
 	double fConst63;
+	double fConst64;
 	double fConst65;
+	double fConst66;
 	double fConst67;
 	double fConst68;
 	double fConst69;
@@ -162,7 +179,9 @@ private:
 	double fConst74;
 	double fRec67[2];
 	double fConst75;
+	double fConst76;
 	double fConst77;
+	double fConst78;
 	double fConst79;
 	double fConst80;
 	double fConst81;
@@ -172,6 +191,7 @@ private:
 	int iRec71[2];
 	double fConst83;
 	double fRec72[2];
+	double fConst84;
 	double fConst85;
 	double fConst86;
 	double fRec73[2];
@@ -179,6 +199,7 @@ private:
 	int iRec75[2];
 	double fConst87;
 	double fRec76[2];
+	double fConst88;
 	double fConst89;
 	double fConst90;
 	double fRec77[2];

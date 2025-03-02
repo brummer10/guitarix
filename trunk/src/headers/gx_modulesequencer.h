@@ -258,6 +258,7 @@ protected:
     unsigned int buffersize;
     unsigned int samplerate;
 public:
+    ParallelThread pro;
     enum OverloadType {		// type of overload condition
 	ov_User      = 0x1,	// idle thread probe starved
 	ov_Convolver = 0x2,	// convolver overload

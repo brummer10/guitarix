@@ -171,20 +171,37 @@ static void on_refresh_oscilloscope(Gxw::WaveView& fWaveView, const gx_engine::O
     fWaveView.queue_draw();
 }
 
+std::string getPathName(const std::string& s) {
+
+   char sep = '/';
+
+#ifdef _WIN32
+   sep = '\\';
+#endif
+
+   size_t i = s.rfind(sep, s.length());
+   if (i != std::string::npos) {
+      return(s.substr(0, i));
+   }
+
+   return("");
+}
+
+static inline bool endsWith(const std::string& s, int n, const std::string& t) {
+    return s.compare(std::max<int>(0, s.size()-n), n, t) == 0;
+}
+
 /*
  * JConvolver
  */
-static void jconv_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine, bool stereo) {
+static void jconv_filelabel(Gtk::Label *label, gx_engine::GxMachineBase& machine, bool stereo) {
     gx_engine::JConvParameter *jcp = dynamic_cast<gx_engine::JConvParameter*>(
         &machine.get_parameter(stereo ? "jconv.convolver" : "jconv_mono.convolver"));
     assert(jcp);
-    Gtk::Label *label = dynamic_cast<Gtk::Label*>(object.get());
     assert(label);
     auto set_convolver_filename = [=](const gx_engine::GxJConvSettings *jcs) { label->set_label(jcs->getIRFile()); };
     set_convolver_filename(&jcp->get_value());
     sigc::connection conn = jcp->signal_changed().connect(set_convolver_filename);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuse-after-free"
     label->add_destroy_notify_callback(
         new sigc::connection(conn),
         [](void *p) {
@@ -193,21 +210,165 @@ static void jconv_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMac
             //delete conn;  //FIXME
             return p;
         });
-#pragma GCC diagnostic pop
 }
 
+Glib::ustring truncate(Glib::ustring str, size_t width, bool show_ellipsis=true)
+{
+    if (str.length() > width) {
+        if (show_ellipsis) {
+            return str.substr(0, width) + "...";
+        } else {
+            return str.substr(0, width);
+        }
+    }
+    return str;
+}
 
-static void nam_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine, std::string idstring) {
-    Gtk::Label *label = dynamic_cast<Gtk::Label*>(object.get());
-    assert(label);
+void StackBoxBuilder::set_neural_filelist(Gxw::Selector *sel, std::string id, 
+                                        std::string fileid, std::string pathid) {
+
     gx_engine::StringParameter *p = dynamic_cast<gx_engine::StringParameter*>(
-        &machine.get_parameter(idstring));
-    auto set_nam_filename = [=](Glib::ustring s) { label->set_label(s.substr(s.find_last_of("/\\") + 1)); };
-    set_nam_filename(p->getString().get_value());
-    sigc::connection conne = p->signal_changed().connect(set_nam_filename);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuse-after-free"
-    label->add_destroy_notify_callback(
+        &machine.get_parameter(fileid));
+    gx_engine::StringParameter *pp = dynamic_cast<gx_engine::StringParameter*>(
+        &machine.get_parameter(pathid));
+    gx_engine::Parameter *pa = dynamic_cast<gx_engine::Parameter*>(
+        &machine.get_parameter(id));
+    std::string filename = p->getString().get_value();
+    filename = filename.substr(filename.find_last_of("/\\") + 1);
+    std::string path = getPathName(p->getString().get_value());
+    std::string oldpath = pp->getString().get_value();
+    std::vector<Glib::ustring> *file_names = &nam_file_names;
+    std::string extension = ".nam";
+    std::string extension2 = ".nam";
+    if (id == "snam.flist") file_names = &snam_file_names;
+    else if (id == "mnam.falist") file_names = &mnam_afile_names;
+    else if (id == "mnam.fblist") file_names = &mnam_bfile_names;
+    else if (id == "rtneural.flist") {
+        file_names = &rtneural_file_names;
+        extension = "idax"; //aidax
+        extension2 = "json";
+    } else if (id == "srtneural.flist") {
+        file_names = &srtneural_file_names;
+        extension = "idax"; //aidax
+        extension2 = "json";
+    } else if (id == "mrtneural.falist") {
+        file_names = &mrtneural_afile_names;
+        extension = "idax"; //aidax
+        extension2 = "json";
+    } else if (id == "mrtneural.fblist") {
+        file_names = &mrtneural_bfile_names;
+        extension = "idax"; //aidax
+        extension2 = "json";
+    }
+
+    //if (!oldpath.empty() && oldpath == path && 
+    //!((*file_names).size() < 1) && filename != "None") return;
+
+    if (path.empty()) path = oldpath;
+
+    if (!path.empty()) {
+        machine.set_parameter_value(pathid, path);
+        sel->unset_model();
+        (*file_names).clear();
+
+        Glib::ustring hostname = "localhost";
+        if (! machine.get_jack()) {
+            hostname = Gio::Resolver::get_default()->lookup_by_address
+            (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+        }
+        Glib::RefPtr<Gio::File> file = Gio::File::create_for_uri(Glib::filename_to_uri(path, hostname));
+
+        unsigned int j = 0;
+        Glib::ustring s = p->getString().get_value();
+        s = s.substr(s.find_last_of("/\\") + 1);
+        unsigned int i = 0;
+
+        if (file->query_exists()) {
+            Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
+                  file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
+                            "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
+                            "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
+            Glib::RefPtr<Gio::FileInfo> file_info;
+            (*file_names).push_back("None");
+            while ((file_info = child_enumeration->next_file())) {
+                std::string name = file_info->get_name();
+                if (endsWith(name, 4, extension) || endsWith(name, 4, extension2)) {
+                    (*file_names).push_back(file_info->get_name());
+                    i++;
+                    if (i > 126) break;
+                }
+            }
+        }
+        Gtk::TreeModelColumn<Glib::ustring> label;
+        Gtk::TreeModelColumnRecord rec;
+        rec.add(label);
+        Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+
+        i = 0;
+        for (; i < (*file_names).size(); i++) {
+            Gtk::TreeIter t = ls->append();
+            t->set_value(0, Glib::ustring(truncate(std::to_string(i) + " " + (*file_names)[i], 44)));
+            if ((*file_names)[i] == s) j = i;
+        }
+        sel->set_model(ls);
+        sel->cp_configure(pa->l_group(), pa->l_name(), 0.0,(float)(*file_names).size(), 1.0);
+        for (; i < 127; i++) {
+            (*file_names).push_back("None");
+        }
+
+        if (j) machine.set_parameter_value(id, (float)j);
+    } else  if (oldpath.empty() || ((*file_names).size() < 1)) {
+        sel->unset_model();
+        (*file_names).clear();
+        unsigned int i=0;
+        for (; i < 127; i++) {
+            (*file_names).push_back("None");
+        }
+        Gtk::TreeModelColumn<Glib::ustring> label;
+        Gtk::TreeModelColumnRecord rec;
+        rec.add(label);
+        Glib::RefPtr<Gtk::ListStore> ls = Gtk::ListStore::create(rec);
+        Gtk::TreeIter t = ls->append();
+        t->set_value(0, Glib::ustring("None"));
+        sel->set_model(ls);
+        sel->cp_configure(pa->l_group(), pa->l_name(), 0.0, 1.0, 1.0);
+    } else {
+        machine.set_parameter_value(id, 0.0);
+    }
+}
+
+void StackBoxBuilder::set_neural_file(std::string id, std::string fileid) {
+    gx_engine::StringParameter *p = dynamic_cast<gx_engine::StringParameter*>(
+        &machine.get_parameter(fileid));
+    std::string file = p->getString().get_value();
+    file = file.substr(file.find_last_of("/\\") + 1);
+    if (file == "None") machine.set_parameter_value(id, 0.0);
+}
+
+static void neural_filelist(StackBoxBuilder * st, Gxw::Selector *sel, gx_engine::GxMachineBase& machine,
+                            std::string id, std::string fileid, std::string pathid) {
+    //Gxw::Selector *sel = dynamic_cast<Gxw::Selector*>(object.get());
+    assert(sel);
+    st->set_neural_filelist(sel, id, fileid, pathid);
+
+    gx_engine::StringParameter *p = dynamic_cast<gx_engine::StringParameter*>(
+        &machine.get_parameter(fileid));
+
+    auto s_neural_filelist = [st, sel, id, fileid, pathid](Glib::ustring s) {
+        Glib::signal_idle().connect_once(
+        sigc::bind(
+        sigc::bind(
+        sigc::bind(
+        sigc::bind(
+            sigc::mem_fun(st, &StackBoxBuilder::set_neural_filelist),
+            pathid),
+            fileid),
+            id),
+            sel));
+    };
+
+    sigc::connection conne = p->signal_changed().connect(s_neural_filelist);
+    sel->add_destroy_notify_callback(
         new sigc::connection(conne),
         [](void *p) {
             sigc::connection *conne = static_cast<sigc::connection*>(p);
@@ -215,28 +376,27 @@ static void nam_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachi
            // delete conne;
             return p;
         });
-#pragma GCC diagnostic pop
-}
 
-static void rtneural_filelabel(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine, std::string idstring) {
-    Gtk::Label *label = dynamic_cast<Gtk::Label*>(object.get());
-    assert(label);
-    gx_engine::StringParameter *p = dynamic_cast<gx_engine::StringParameter*>(
-        &machine.get_parameter(idstring));
-    auto set_rtneural_filename = [=](Glib::ustring s) { label->set_label(s.substr(s.find_last_of("/\\") + 1)); };
-    set_rtneural_filename(p->getString().get_value());
-    sigc::connection conne = p->signal_changed().connect(set_rtneural_filename);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuse-after-free"
-    label->add_destroy_notify_callback(
-        new sigc::connection(conne),
-        [](void *p) {
-            sigc::connection *conne = static_cast<sigc::connection*>(p);
-            conne->disconnect();
-            delete conne;
-            return p;
+    gx_engine::Parameter *pf = check_get_parameter(machine, id, sel);
+    auto s_neural_file = [st, id, fileid](float v) {
+        Glib::signal_idle().connect_once(
+        sigc::bind(
+        sigc::bind(
+            sigc::mem_fun(st, &StackBoxBuilder::set_neural_file),
+            fileid),
+            id));
+    };
+
+    sigc::connection conn = pf->signal_changed_float().connect(s_neural_file);
+    sel->add_destroy_notify_callback(
+        new sigc::connection(conn),
+        [](void *pf) {
+            sigc::connection *conn = static_cast<sigc::connection*>(pf);
+            conn->disconnect();
+           // delete conne;
+            return pf;
         });
-#pragma GCC diagnostic pop
+
 }
 
 static void jconv_button(Glib::RefPtr<Glib::Object>& object, gx_engine::GxMachineBase& machine,
@@ -328,6 +488,10 @@ static void on_file_chooser_response(int response_id, Gxw::Switch *button, Gtk::
 {
     if (response_id == Gtk::RESPONSE_OK) {
         Glib::ustring hostname = "localhost";
+        if (! machine.get_jack()) {
+            hostname = Gio::Resolver::get_default()->lookup_by_address
+            (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+        }
         Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
         Gtk::RecentManager::Data data;
         bool result_uncertain;
@@ -365,20 +529,25 @@ static Gtk::FileChooserDialog* create_looper_filedialog(Gxw::Switch* button,
     all->add_pattern("*");
     all->set_name("All Files");
     d->add_filter(all);
+    Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     d->signal_response().connect(
         [=,&machine](int response) {
             on_file_chooser_response(response, button, d, machine, id); });
     d->add_shortcut_folder_uri(
-        Glib::filename_to_uri(machine.get_options().get_loop_dir(), "localhost"));
+        Glib::filename_to_uri(machine.get_options().get_loop_dir(), hostname));
     return d;
 }
 
 static void select_looper_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, const string& id) {
     assert(w);
-    if (!machine.get_jack()) {
-        w->hide();
-        return;
-    }
+    //if (!machine.get_jack()) {
+    //    w->hide();
+    //    return;
+    //}
     gx_engine::Parameter *p = check_get_parameter(machine, id, w);
     if (!p) {
         return;
@@ -407,6 +576,10 @@ static void select_looper_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine
             }
             static Glib::ustring recent_filename = "";
             static Glib::ustring hostname = "localhost";
+            if (! machine.get_jack()) {
+                hostname = Gio::Resolver::get_default()->lookup_by_address
+                (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+            }
             Glib::ustring filename = machine.get_parameter_value<string>(id);
             Glib::ustring loop_dir = machine.get_options().get_loop_dir();
             if (!recent_filename.empty()) {
@@ -431,6 +604,10 @@ static void on_nam_chooser_response(int response_id, Gxw::Switch *button, Gtk::F
 {
     if (response_id == Gtk::RESPONSE_OK) {
         Glib::ustring hostname = "localhost";
+        if (! machine.get_jack()) {
+            hostname = Gio::Resolver::get_default()->lookup_by_address
+            (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+        }
         Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
         Gtk::RecentManager::Data data;
         bool result_uncertain;
@@ -454,7 +631,7 @@ static Gtk::FileChooserDialog* create_nam_filedialog(Gxw::Switch* button,
     Glib::RefPtr<Gtk::FileFilter> wav = Gtk::FileFilter::create();
     wav->set_name("NAM Files");
     wav->add_pattern("*.nam");
-    wav->add_pattern("*.json");
+    //wav->add_pattern("*.json");
     d->add_filter(wav);
     Glib::RefPtr<Gtk::FileFilter> audio = Gtk::FileFilter::create();
     audio->set_name("NAM Files");
@@ -463,36 +640,25 @@ static Gtk::FileChooserDialog* create_nam_filedialog(Gxw::Switch* button,
     all->add_pattern("*");
     all->set_name("All Files");
     d->add_filter(all);
+    Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     d->signal_response().connect(
         [=,&machine](int response) {
             on_nam_chooser_response(response, button, d, machine, id); });
     d->add_shortcut_folder_uri(
-        Glib::filename_to_uri(machine.get_options().get_loop_dir(), "localhost"));
+        Glib::filename_to_uri(machine.get_options().get_loop_dir(), hostname));
     return d;
-}
-
-std::string getPathName(const std::string& s) {
-
-   char sep = '/';
-
-#ifdef _WIN32
-   sep = '\\';
-#endif
-
-   size_t i = s.rfind(sep, s.length());
-   if (i != std::string::npos) {
-      return(s.substr(0, i));
-   }
-
-   return("");
 }
 
 static void select_nam_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, const string& id) {
     assert(w);
-    if (!machine.get_jack()) {
-        w->hide();
-        return;
-    }
+    //if (!machine.get_jack()) {
+    //    w->hide();
+    //    return;
+    //}
     gx_engine::Parameter *p = check_get_parameter(machine, id, w);
     if (!p) {
         return;
@@ -501,6 +667,10 @@ static void select_nam_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, c
         GxBuilder::set_tooltip_text_connect_handler(*w, p->l_desc());
     }
     static Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     static std::map<std::string, Gtk::FileChooserDialog*> sel_windows;
     Gtk::FileChooserDialog*& sel = sel_windows[id];
     Glib::ustring filename = machine.get_parameter_value<string>(id);
@@ -524,6 +694,10 @@ static void select_nam_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, c
             }
             static Glib::ustring recent_filename = "";
             static Glib::ustring hostname = "localhost";
+            if (! machine.get_jack()) {
+                hostname = Gio::Resolver::get_default()->lookup_by_address
+                (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+            }
             Glib::ustring filename = machine.get_parameter_value<string>(id);
             if (!recent_filename.empty()) {
                 sel->set_uri(Glib::filename_to_uri (recent_filename, hostname));
@@ -549,6 +723,10 @@ static void on_rtneural_chooser_response(int response_id, Gxw::Switch *button, G
 {
     if (response_id == Gtk::RESPONSE_OK) {
         Glib::ustring hostname = "localhost";
+        if (! machine.get_jack()) {
+            hostname = Gio::Resolver::get_default()->lookup_by_address
+            (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+        }
         Glib::ustring filename = Glib::filename_from_uri(d->get_uri(), hostname);
         Gtk::RecentManager::Data data;
         bool result_uncertain;
@@ -578,20 +756,25 @@ static Gtk::FileChooserDialog* create_rtneural_filedialog(Gxw::Switch* button,
     all->add_pattern("*");
     all->set_name("All Files");
     d->add_filter(all);
+    Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     d->signal_response().connect(
         [=,&machine](int response) {
             on_rtneural_chooser_response(response, button, d, machine, id); });
     d->add_shortcut_folder_uri(
-        Glib::filename_to_uri(machine.get_options().get_loop_dir(), "localhost"));
+        Glib::filename_to_uri(machine.get_options().get_loop_dir(), hostname));
     return d;
 }
 
 static void select_rtneural_file(Gxw::Switch *w, gx_engine::GxMachineBase& machine, const string& id) {
     assert(w);
-    if (!machine.get_jack()) {
-        w->hide();
-        return;
-    }
+   // if (!machine.get_jack()) {
+   //     w->hide();
+   //     return;
+    //}
     gx_engine::Parameter *p = check_get_parameter(machine, id, w);
     if (!p) {
         return;
@@ -600,6 +783,10 @@ static void select_rtneural_file(Gxw::Switch *w, gx_engine::GxMachineBase& machi
         GxBuilder::set_tooltip_text_connect_handler(*w, p->l_desc());
     }
     static Glib::ustring hostname = "localhost";
+    if (! machine.get_jack()) {
+        hostname = Gio::Resolver::get_default()->lookup_by_address
+        (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+    }
     static std::map<std::string, Gtk::FileChooserDialog*> sel_windows;
     Gtk::FileChooserDialog*& sel = sel_windows[id];
     Glib::ustring filename = machine.get_parameter_value<string>(id);
@@ -623,6 +810,10 @@ static void select_rtneural_file(Gxw::Switch *w, gx_engine::GxMachineBase& machi
             }
             static Glib::ustring recent_filename = "";
             static Glib::ustring hostname = "localhost";
+            if (! machine.get_jack()) {
+                hostname = Gio::Resolver::get_default()->lookup_by_address
+                (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+            }
             Glib::ustring filename = machine.get_parameter_value<string>(id);
             if (!recent_filename.empty()) {
                 sel->set_uri(Glib::filename_to_uri (recent_filename, hostname));
@@ -668,33 +859,41 @@ void StackBoxBuilder::connect_signals(Glib::RefPtr<GxBuilder> builder, Glib::Ref
     } else if (token[0] == "connect_oscilloscope") {
         connect_waveview(object, machine, *current_plugin);
     } else if (token[0] == "jconv_mono.convolver:IRFile") {
-        jconv_filelabel(object, machine, false);
+        jconv_filelabel(dynamic_cast<Gtk::Label*>(object.get()), machine, false);
     } else if (token[0] == "jconv.convolver:IRFile") {
-        jconv_filelabel(object, machine, true);
+        jconv_filelabel(dynamic_cast<Gtk::Label*>(object.get()), machine, true);
     } else if (token[0] == "dubber:load_loop_file") {
         select_looper_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
     } else if (token[0] == "portdisplay:clip") {
         portdisplay_clip(dynamic_cast<Gxw::PortDisplay*>(object.get()), machine, token[1], token[2]);
     } else if (token[0] == "nam:load_nam_file") {
         select_nam_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
-    } else if (token[0] == "nam.file") {
-        nam_filelabel(object, machine, "nam.loadfile");
-    } else if (token[0] == "snam.file") {
-        nam_filelabel(object, machine, "snam.loadfile");
-    } else if (token[0] == "mnam.afile") {
-        nam_filelabel(object, machine, "mnam.loadafile");
-    } else if (token[0] == "mnam.bfile") {
-        nam_filelabel(object, machine, "mnam.loadbfile");
+    } else if (token[0] == "nam.filelist") {
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "nam.flist", "nam.loadfile", "nam.loadpath");
+    } else if (token[0] == "snam.filelist") {
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "snam.flist", "snam.loadfile", "snam.loadpath");
+    } else if (token[0] == "mnam.afilelist") {
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "mnam.falist", "mnam.loadafile", "mnam.loadapath");
+    } else if (token[0] == "mnam.bfilelist") {
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "mnam.fblist", "mnam.loadbfile", "mnam.loadbpath");
     } else if (token[0] == "rtneural:load_json_file") {
         select_rtneural_file(dynamic_cast<Gxw::Switch*>(object.get()), machine, token[1]);
-    } else if (token[0] == "rtneural.file") {
-        rtneural_filelabel(object, machine, "rtneural.loadfile");
-    } else if (token[0] == "srtneural.file") {
-        rtneural_filelabel(object, machine, "srtneural.loadfile");
-    } else if (token[0] == "mrtneural.afile") {
-        rtneural_filelabel(object, machine, "mrtneural.loadafile");
-    } else if (token[0] == "mrtneural.bfile") {
-        rtneural_filelabel(object, machine, "mrtneural.loadbfile");
+    } else if (token[0] == "rtneural.filelist") {
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "rtneural.flist", "rtneural.loadfile", "rtneural.loadpath");
+    } else if (token[0] == "srtneural.filelist") {
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "srtneural.flist", "srtneural.loadfile", "srtneural.loadpath");
+    } else if (token[0] == "mrtneural.afilelist") {
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "mrtneural.falist", "mrtneural.loadafile", "mrtneural.loadapath");
+    } else if (token[0] == "mrtneural.bfilelist") {
+        neural_filelist(this, dynamic_cast<Gxw::Selector*>(object.get()), machine,
+            "mrtneural.fblist", "mrtneural.loadbfile", "mrtneural.loadbpath");
     } else {
         gx_print_error(
             "StackBoxBuilder::connect_signals",
@@ -839,9 +1038,9 @@ void StackBoxBuilder::create_feedback_switch(const char *sw_type, const std::str
 }
 
 void StackBoxBuilder::create_fload_switch(const char *sw_type, const char *id, const std::string& idf) {
-    if (!machine.get_jack()) {
-        return;
-    }
+    //if (!machine.get_jack()) {
+   //     return;
+   // }
     auto sw = new Gxw::Switch(sw_type);
     sw->set_name("effect_on_off");
     sw->show();

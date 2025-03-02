@@ -307,12 +307,12 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       dseq(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
 #endif
       detune(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
-      neural_amp(get_param(), "nam", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      sneural_amp(get_param(), "snam", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      mneural_amp(get_param(), "mnam", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      rtneural(get_param(), "rtneural", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      srtneural(get_param(), "srtneural", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)),
-      rtneuralmulti(get_param(), "mrtneural", sigc::mem_fun(mono_chain,&MonoModuleChain::sync)) {
+      neural_amp(get_param(), "nam", sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
+      sneural_amp(get_param(), "snam", sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
+      mneural_amp(get_param(), "mnam", &pro, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
+      rtneural(get_param(), "rtneural", sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
+      srtneural(get_param(), "srtneural", sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
+      rtneuralmulti(get_param(), "mrtneural", &pro, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)) {
     set_overload_interval(options.get_sporadic_overload());
     if (!options.get_convolver_watchdog()) {
         ov_disabled |= ov_Convolver;
@@ -396,12 +396,12 @@ void GxEngine::load_static_plugins() {
     pl.add(balance::plugin(),                     PLUGIN_POS_END, PGN_MODE_BYPASS);
     pl.add(&stereomute,                           PLUGIN_POS_END, PGN_MODE_MUTE);
     pl.add(fizz_remover::plugin(),                PLUGIN_POS_END, PGN_GUI);
-    pl.add(hardlim::plugin(),                     PLUGIN_POS_END, PGN_MODE_NORMAL);
 #ifndef GUITARIX_AS_PLUGIN
     pl.add(&drumout.outputdrum,                   PLUGIN_POS_END, PGN_MODE_NORMAL);
 #endif
-    pl.add(&directout,                            PLUGIN_POS_END, PGN_MODE_NORMAL);
     pl.add(&maxlevel,                             PLUGIN_POS_END, PGN_MODE_NORMAL|PGN_MODE_BYPASS);
+    pl.add(hardlim::plugin(),                     PLUGIN_POS_END, PGN_MODE_NORMAL);
+    pl.add(&directout,                            PLUGIN_POS_END, PGN_MODE_NORMAL);
 
     // * fx amp output *
 

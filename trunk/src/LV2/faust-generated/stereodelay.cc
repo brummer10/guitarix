@@ -10,6 +10,7 @@ private:
 	int iVec0[2];
 	FAUSTFLOAT fHslider0;
 	FAUSTFLOAT	*fHslider0_;
+	float fConst0;
 	float fConst1;
 	float fRec0[2];
 	float fRec1[2];
@@ -107,7 +108,7 @@ void Dsp::clear_state_f_static(PluginLV2 *p)
 inline void Dsp::init(uint32_t sample_rate)
 {
 	fSampleRate = sample_rate;
-	float fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
+	fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
 	fConst1 = 6.2831855f / fConst0;
 	fConst2 = 0.001f * fConst0;
 	IOTA0 = 0;

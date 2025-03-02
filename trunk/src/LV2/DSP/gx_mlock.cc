@@ -40,11 +40,11 @@ public:
 
 void GX_LOCK::lock_rt_memory() {
 #ifndef __APPLE__    
-  extern char __rt_text__start[], __rt_text__end[];
-  extern char __rt_data__start[], __rt_data__end[];
+  extern char __start_rt_text[], __stop_rt_text[];
+  extern char __start_rt_data[], __stop_rt_data[];
   rt_lock regions[] = {
-    { __rt_text__start, __rt_text__end - __rt_text__start },
-    { __rt_data__start, __rt_data__end - __rt_data__start },
+    { __start_rt_text, __stop_rt_text - __start_rt_text },
+    { __start_rt_data, __stop_rt_data - __start_rt_data },
   };
   long int total_size = 0;
   for (uint32_t i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {
@@ -60,11 +60,11 @@ void GX_LOCK::lock_rt_memory() {
 
 void GX_LOCK::unlock_rt_memory() {
 #ifndef __APPLE__    
-  extern char __rt_text__start[], __rt_text__end[];
-  extern char __rt_data__start[], __rt_data__end[];
+  extern char __start_rt_text[], __stop_rt_text[];
+  extern char __start_rt_data[], __stop_rt_data[];
   rt_lock regions[] = {
-    { __rt_text__start, __rt_text__end - __rt_text__start },
-    { __rt_data__start, __rt_data__end - __rt_data__start },
+    { __start_rt_text, __stop_rt_text - __start_rt_text },
+    { __start_rt_data, __stop_rt_data - __start_rt_data },
   };
   long int total_size = 0;
   for (uint32_t i = 0; i < sizeof(regions)/sizeof(regions[0]); i++) {

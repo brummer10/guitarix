@@ -24,11 +24,11 @@ inline void Dsp::clear_state_f()
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 1884.9555921538758 / fConst0;
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = 1884.9555921538758 / fConst0;
 	fConst2 = 1.4142135623730951 * std::sin(fConst1);
 	fConst3 = std::cos(fConst1);
-	double fConst4 = 15079.644737231007 / fConst0;
+	fConst4 = 15079.644737231007 / fConst0;
 	fConst5 = 1.4142135623730951 * std::sin(fConst4);
 	fConst6 = std::cos(fConst4);
 	clear_state_f();

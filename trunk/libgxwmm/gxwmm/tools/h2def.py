@@ -139,8 +139,8 @@ def find_obj_defs(buf, objdefs=[]):
     maybeobjdefs = []  # contains all possible objects from file
 
     # first find all structures that look like they may represent a GtkObject
-    pat = re.compile("struct\s+_(" + obj_name_pat + ")\s*{\s*" +
-                     "(" + obj_name_pat + ")\s+", re.MULTILINE)
+    pat = re.compile("struct\\s+_(" + obj_name_pat + ")\\s*{\\s*" +
+                     "(" + obj_name_pat + ")\\s+", re.MULTILINE)
     pos = 0
     while pos < len(buf):
         m = pat.search(buf, pos)
@@ -149,9 +149,9 @@ def find_obj_defs(buf, objdefs=[]):
         pos = m.end()
 
     # handle typedef struct { ... } style struct defs.
-    pat = re.compile("typedef struct\s+[_\w]*\s*{\s*" +
-                     "(" + obj_name_pat + ")\s+[^}]*}\s*" +
-                     "(" + obj_name_pat + ")\s*;", re.MULTILINE)
+    pat = re.compile("typedef struct\\s+[_\\w]*\\s*{\\s*" +
+                     "(" + obj_name_pat + ")\\s+[^}]*}\\s*" +
+                     "(" + obj_name_pat + ")\\s*;", re.MULTILINE)
     pos = 0
     while pos < len(buf):
         m = pat.search(buf, pos)
@@ -160,8 +160,8 @@ def find_obj_defs(buf, objdefs=[]):
         pos = m.end()
 
     # now find all structures that look like they might represent a class:
-    pat = re.compile("struct\s+_(" + obj_name_pat + ")Class\s*{\s*" +
-                     "(" + obj_name_pat + ")Class\s+", re.MULTILINE)
+    pat = re.compile("struct\\s+_(" + obj_name_pat + ")Class\\s*{\\s*" +
+                     "(" + obj_name_pat + ")Class\\s+", re.MULTILINE)
     pos = 0
     while pos < len(buf):
         m = pat.search(buf, pos)
@@ -173,9 +173,9 @@ def find_obj_defs(buf, objdefs=[]):
             objdefs.append(t)
         pos = m.end()
 
-    pat = re.compile("typedef struct\s+[_\w]*\s*{\s*" +
-                     "(" + obj_name_pat + ")Class\s+[^}]*}\s*" +
-                     "(" + obj_name_pat + ")Class\s*;", re.MULTILINE)
+    pat = re.compile("typedef struct\\s+[_\\w]*\\s*{\\s*" +
+                     "(" + obj_name_pat + ")Class\\s+[^}]*}\\s*" +
+                     "(" + obj_name_pat + ")Class\\s*;", re.MULTILINE)
     pos = 0
     while pos < len(buf):
         m = pat.search(buf, pos)
@@ -189,8 +189,8 @@ def find_obj_defs(buf, objdefs=[]):
 
     # now find all structures that look like they might represent
     # a class inherited from GTypeInterface:
-    pat = re.compile("struct\s+_(" + obj_name_pat + ")Class\s*{\s*" +
-                     "GTypeInterface\s+", re.MULTILINE)
+    pat = re.compile("struct\\s+_(" + obj_name_pat + ")Class\\s*{\\s*" +
+                     "GTypeInterface\\s+", re.MULTILINE)
     pos = 0
     while pos < len(buf):
         m = pat.search(buf, pos)
@@ -205,8 +205,8 @@ def find_obj_defs(buf, objdefs=[]):
 
     # now find all structures that look like they might represent
     # an Iface inherited from GTypeInterface:
-    pat = re.compile("struct\s+_(" + obj_name_pat + ")Iface\s*{\s*" +
-                     "GTypeInterface\s+", re.MULTILINE)
+    pat = re.compile("struct\\s+_(" + obj_name_pat + ")Iface\\s*{\\s*" +
+                     "GTypeInterface\\s+", re.MULTILINE)
     pos = 0
     while pos < len(buf):
         m = pat.search(buf, pos)
@@ -378,12 +378,12 @@ def clean_func(buf):
                 buf = buf.replace(buf[start:match.start()+1], "\n")
                 pos = start
             bracket_cnt -= 1
-    buf = re.sub("^\s+", "", buf, flags=re.MULTILINE)
+    buf = re.sub("^\\s+", "", buf, flags=re.MULTILINE)
 
     # remove static and inline keywords
-    buf = re.sub('^\s*static\s+', '', buf, flags = re.MULTILINE)
-    buf = re.sub('^\s*inline\s+', '', buf, flags = re.MULTILINE)
-    buf = re.sub('^\s*static\s+', '', buf, flags = re.MULTILINE) # in case of "inline static" function declaration
+    buf = re.sub('^\\s*static\\s+', '', buf, flags = re.MULTILINE)
+    buf = re.sub('^\\s*inline\\s+', '', buf, flags = re.MULTILINE)
+    buf = re.sub('^\\s*static\\s+', '', buf, flags = re.MULTILINE) # in case of "inline static" function declaration
 
     return buf
 
@@ -394,11 +394,11 @@ proto_pat=re.compile(r"""
 \s*(?P<args>.*?)\s*[)]     # group the function arguments
 """, re.IGNORECASE|re.VERBOSE)
 #"""
-arg_split_pat = re.compile("\s*,\s*")
+arg_split_pat = re.compile("\\s*,\\s*")
 
 get_type_pat = re.compile(r'(const-)?([A-Za-z0-9]+)\*?\s+')
-pointer_pat = re.compile('.*\*$')
-func_new_pat = re.compile('(\w+)_new$')
+pointer_pat = re.compile('.*\\*$')
+func_new_pat = re.compile('(\\w+)_new$')
 
 class DefsWriter:
     def __init__(self, fp=None, prefix=None, ns=None, verbose=False,

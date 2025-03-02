@@ -12,9 +12,13 @@ namespace buzz {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	double fConst0;
+	double fConst1;
 	double fConst2;
+	double fConst3;
 	double fConst4;
 	double fConst5;
+	double fConst6;
 	double fConst7;
 	FAUSTFLOAT fVslider0;
 	double fRec0[4];
@@ -24,10 +28,14 @@ private:
 
 
 	gx_resample::FixedRateResampler smpCl;
+	double fConstCl0;
+	double fConstCl1;
+	double fConstCl2;
 	double fConstCl3;
 	double fVecCl0[2];
 	double fRecCl7[2];
 	double fRecCl6[3];
+	double fConstCl4;
 	double fConstCl5;
 	double fConstCl6;
 	double fRecCl8[2];
@@ -111,24 +119,24 @@ void Dsp::clear_state_f_static(PluginDef *p)
 inline void Dsp::init(unsigned int sample_rate)
 {
 	fSampleRate = sample_rate;
-	double fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConst1 = 9.04201686922855e-15 * fConst0;
+	fConst0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConst1 = 9.04201686922855e-15 * fConst0;
 	fConst2 = fConst0 * (fConst0 * (1.0967885210812e-14 - fConst1) + -8.14058347559848e-15) + 2.46256378077601e-15;
-	double fConst3 = 2.71260506076857e-14 * fConst0;
+	fConst3 = 2.71260506076857e-14 * fConst0;
 	fConst4 = fConst0 * (fConst0 * (fConst3 + -1.0967885210812e-14) + -8.14058347559848e-15) + 7.38769134232804e-15;
 	fConst5 = fConst0 * (fConst0 * (-1.0967885210812e-14 - fConst3) + 8.14058347559848e-15) + 7.38769134232804e-15;
-	double fConst6 = fConst0 * (fConst0 * (fConst1 + 1.0967885210812e-14) + 8.14058347559848e-15) + 2.46256378077601e-15;
+	fConst6 = fConst0 * (fConst0 * (fConst1 + 1.0967885210812e-14) + 8.14058347559848e-15) + 2.46256378077601e-15;
 	fConst7 = 1.0 / fConst6;
 	fConst8 = mydsp_faustpower3_f(fConst0) / fConst6;
 
 	sample_rate = 96000;
 	smpCl.setup(fSampleRate, sample_rate);
 	fSampleRate = sample_rate;
-	double fConstCl0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
-	double fConstCl1 = std::tan(97.38937226128358 / fConstCl0);
-	double fConstCl2 = 1.0 / fConstCl1;
+	fConstCl0 = std::min<double>(1.92e+05, std::max<double>(1.0, double(fSampleRate)));
+	fConstCl1 = std::tan(97.38937226128358 / fConstCl0);
+	fConstCl2 = 1.0 / fConstCl1;
 	fConstCl3 = 1.0 - fConstCl2;
-	double fConstCl4 = 1.0 / std::tan(270.1769682087222 / fConstCl0);
+	fConstCl4 = 1.0 / std::tan(270.1769682087222 / fConstCl0);
 	fConstCl5 = 1.0 - fConstCl4;
 	fConstCl6 = 1.0 / (fConstCl4 + 1.0);
 	fConstCl7 = 0.025 / fConstCl1;

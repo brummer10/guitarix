@@ -35,3 +35,29 @@ Guitarix can also load up LAPSPA and LV2 plugins to comply the effect chain.
 - ./waf configure --prefix=/usr  --includeresampler --includeconvolver --optimization --install-roboto-font 
 - ./waf build
 - sudo ./waf install
+
+## (build) Dependencies
+
+- gperf,
+- intltool,
+- libavahi-gobject-dev,
+- libbluetooth-dev 
+- libboost-dev,
+- libboost-iostreams-dev,
+- libboost-system-dev,
+- libboost-thread-dev,
+- libeigen3-dev,
+- libgtk-3-dev,
+- libgtkmm-3.0-dev,
+- libjack-dev | libjack-jackd2-dev,
+- liblilv-dev,
+- liblrdf0-dev,
+- libsndfile1-dev,
+- libfftw3-dev,
+- lv2-dev,
+- python3,
+- sassc,
+
+## Hardware Optimization and Containerized Deployment
+
+Guitarix can be easily built with hardware optimizations and deployed in a containerized environment using GuitarixContainer, a Docker-based solution. This approach ensures the code is automatically built for your hardware, enabling low-latency performance, especially when running Neural Amp Modeler (NAM) module. Perfect for devices like Raspberry Pi or laptop/workstation setups. Learn more at the [GuitarixContainer](https://github.com/fjammes/GuitarixContainer) GitHub repository.
