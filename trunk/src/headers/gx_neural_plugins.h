@@ -54,6 +54,8 @@ public:
     Ramp() {};
     ~Ramp() {};
     inline void init(unsigned int rate);
+    inline void startRampDown();
+    inline void checkRampMode();
     inline void rampDown(int count, float *output);
     inline void rampUp(int count, float *output);
 

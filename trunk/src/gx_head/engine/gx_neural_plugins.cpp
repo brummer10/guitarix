@@ -41,6 +41,17 @@ inline void Ramp::init(unsigned int rate) {
     ramp_up = 0.0;
     ramp_step_impl = 1.0/ramp_step;
 };
+    
+inline void Ramp::startRampDown() {
+    mode = DOWN;
+    Glib::signal_timeout().connect_once(
+        sigc::mem_fun(*this, &Ramp::checkRampMode), 15);
+    
+}
+    
+inline void Ramp::checkRampMode() {
+    if (mode != OFF) mode = UP;
+}
 
 inline void Ramp::rampDown(int count, float *output) {
     for (int i=0; i<count; i++) {
@@ -186,7 +197,7 @@ void NeuralAmp::compute_static(int count, float *input0, float *output0, PluginD
 
 // non rt callback
 void NeuralAmp::load_nam_file_impl() {
-    if (ramp.mode == ramp.OFF) ramp.mode = ramp.DOWN;
+    if (ramp.mode == ramp.OFF) ramp.startRampDown();
     Glib::signal_timeout().connect_once(
         sigc::mem_fun(*this, &NeuralAmp::load_nam_file), 3);
 }
@@ -216,6 +227,7 @@ void NeuralAmp::load_nam_file() {
         }
         
         if (model) {
+            current_file = load_file;
             if (model->HasLoudness()) loudness = model->GetLoudness();
             mSampleRate = static_cast<int>(model->GetExpectedSampleRate());
             //model->SetLoudness(-15.0);
@@ -234,7 +246,6 @@ void NeuralAmp::load_nam_file() {
 
             delete[] buffer;
             //fprintf(stderr, "model %f %s inputGain %f outputGain %f\n", filelist, load_file.c_str(), fVslider0, fVslider1);
-            current_file = load_file;
         }
         gx_system::atomic_set(&ready, 1);
     }
@@ -569,7 +580,7 @@ void NeuralAmpMulti::compute_static(int count, float *input0, float *output0, Pl
 
 // non rt callback
 void NeuralAmpMulti::load_nam_afile_impl() {
-    if (rampA.mode == rampA.OFF) rampA.mode = rampA.DOWN;
+    if (rampA.mode == rampA.OFF) rampA.startRampDown();
     Glib::signal_timeout().connect_once(
         sigc::mem_fun(*this, &NeuralAmpMulti::load_nam_afile), 3);
 }
@@ -599,6 +610,7 @@ void NeuralAmpMulti::load_nam_afile() {
         }
         
         if (modela) {
+            current_afile = load_afile;
             if (modela->HasLoudness()) loudnessa = modela->GetLoudness();
             maSampleRate = static_cast<int>(modela->GetExpectedSampleRate());
             //model->SetLoudness(-15.0);
@@ -618,7 +630,6 @@ void NeuralAmpMulti::load_nam_afile() {
             delete[] buffer;
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, maSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
-            current_afile = load_afile;
         }
         gx_system::atomic_set(&ready, 1);
     }
@@ -627,7 +638,7 @@ void NeuralAmpMulti::load_nam_afile() {
 
 // non rt callback
 void NeuralAmpMulti::load_nam_bfile_impl() {
-    if (rampB.mode == rampB.OFF) rampB.mode = rampB.DOWN;
+    if (rampB.mode == rampB.OFF) rampB.startRampDown();
     Glib::signal_timeout().connect_once(
         sigc::mem_fun(*this, &NeuralAmpMulti::load_nam_bfile), 3);
 }
@@ -657,6 +668,7 @@ void NeuralAmpMulti::load_nam_bfile() {
         }
         
         if (modelb) {
+            current_bfile = load_bfile;
             if (modelb->HasLoudness()) loudnessb = modelb->GetLoudness();
             mbSampleRate = static_cast<int>(modelb->GetExpectedSampleRate());
             //model->SetLoudness(-15.0);
@@ -676,7 +688,6 @@ void NeuralAmpMulti::load_nam_bfile() {
             delete[] buffer;
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mbSampleRate, loudness);
             //fprintf(stderr, "%s\n", load_file.c_str());
-            current_bfile = load_bfile;
         }
         gx_system::atomic_set(&ready, 1);
     }
@@ -952,7 +963,7 @@ void RtNeural::get_samplerate(std::string config_file) {
 
 // non rt callback
 void RtNeural::load_json_file_impl() {
-    if (ramp.mode == ramp.OFF) ramp.mode = ramp.DOWN;
+    if (ramp.mode == ramp.OFF) ramp.startRampDown();
     Glib::signal_timeout().connect_once(
         sigc::mem_fun(*this, &RtNeural::load_json_file), 3);
 }
@@ -984,6 +995,7 @@ void RtNeural::load_json_file() {
         }
         
         if (model) {
+            current_file = load_file;
             model->reset();
             if (mSampleRate <= 0) mSampleRate = 48000;
             if (mSampleRate > fSampleRate) {
@@ -993,7 +1005,6 @@ void RtNeural::load_json_file() {
                 smp.setup(mSampleRate, fSampleRate);
                 need_resample = 2;
             }
-            current_file = load_file;
         } 
         gx_system::atomic_set(&ready, 1);
     }
@@ -1359,7 +1370,7 @@ void RtNeuralMulti::get_samplerate(std::string config_file, int *mSampleRate) {
 
 // non rt callback
 void RtNeuralMulti::load_json_afile_impl() {
-    if (rampA.mode == rampA.OFF) rampA.mode = rampA.DOWN;
+    if (rampA.mode == rampA.OFF) rampA.startRampDown();
     Glib::signal_timeout().connect_once(
         sigc::mem_fun(*this, &RtNeuralMulti::load_json_afile), 3);
 }
@@ -1391,6 +1402,7 @@ void RtNeuralMulti::load_json_afile() {
         }
         
         if (modela) {
+            current_afile = load_afile;
             modela->reset();
             if (maSampleRate <= 0) maSampleRate = 48000;
             if (maSampleRate > fSampleRate) {
@@ -1401,7 +1413,6 @@ void RtNeuralMulti::load_json_afile() {
                 need_aresample = 2;
             } 
              //fprintf(stderr, "A: %s\n", load_afile.c_str());
-             current_afile = load_afile;
         } 
         gx_system::atomic_set(&ready, 1);
     }
@@ -1410,7 +1421,7 @@ void RtNeuralMulti::load_json_afile() {
 
 // non rt callback
 void RtNeuralMulti::load_json_bfile_impl() {
-    if (rampB.mode == rampB.OFF) rampB.mode = rampB.DOWN;
+    if (rampB.mode == rampB.OFF) rampB.startRampDown();
     Glib::signal_timeout().connect_once(
         sigc::mem_fun(*this, &RtNeuralMulti::load_json_bfile), 3);
 }
@@ -1442,6 +1453,7 @@ void RtNeuralMulti::load_json_bfile() {
         }
         
         if (modelb) {
+            current_bfile = load_bfile;
             modelb->reset();
             if (mbSampleRate <= 0) mbSampleRate = 48000;
             if (mbSampleRate > fSampleRate) {
@@ -1452,7 +1464,6 @@ void RtNeuralMulti::load_json_bfile() {
                 need_bresample = 2;
             } 
              //fprintf(stderr, "B: %s\n", load_bfile.c_str());
-             current_bfile = load_bfile;
         } 
         gx_system::atomic_set(&ready, 1);
     }
