@@ -737,9 +737,13 @@ static void live_box_expose (GtkWidget *wi, cairo_t *cr) {
 	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox->priv->gxr_image))) {
 		ne_w = w*h;
 		opf = spf;
-		while (G_IS_OBJECT(paintbox->priv->gxr_image)) {
+		if (G_IS_OBJECT(paintbox->priv->gxr_image)) {
+			while (G_OBJECT(paintbox->priv->gxr_image)->ref_count > 1) {
+				g_object_unref(paintbox->priv->gxr_image);
+			}
 			g_object_unref(paintbox->priv->gxr_image);
-		}
+			paintbox->priv->gxr_image = NULL;
+   		}         
 		GdkPixbuf  *stock_image = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
 														   get_amp_id(wi), -1,
 														   GTK_ICON_LOOKUP_GENERIC_FALLBACK,
@@ -1500,9 +1504,13 @@ static void amp_skin_expose(GtkWidget *wi, cairo_t *cr)
 	if (rel || spf != opf || ne_w != w*h || !(GDK_IS_PIXBUF (paintbox->priv->gxr_image))) {
 		ne_w = w*h;
         opf = spf;
-        while (G_IS_OBJECT(paintbox->priv->gxr_image)) {
+		if (G_IS_OBJECT(paintbox->priv->gxr_image)) {
+			while (G_OBJECT(paintbox->priv->gxr_image)->ref_count > 1) {
+				g_object_unref(paintbox->priv->gxr_image);
+			}
 			g_object_unref(paintbox->priv->gxr_image);
-		}
+			paintbox->priv->gxr_image = NULL;
+   		}         
         GdkPixbuf  *stock_image = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
                                                            get_amp_id(wi), -1,
                                                            GTK_ICON_LOOKUP_GENERIC_FALLBACK,
