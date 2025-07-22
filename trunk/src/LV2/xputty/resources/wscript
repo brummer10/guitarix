@@ -37,26 +37,48 @@ def copyimg(task):
     return ret
 
 def img2obj(task):
+    import os
+    import platform
+
     env = task.env
     task.no_errcheck_out = True
     copyimg(task)
-    before = ['xcairo']
-    src = " ".join(["'%s'" % os.path.splitext(v.name)[0] for v in task.inputs[0:]])
-    # win32: fix dir-separator, remove non-existing flag
-    ld_cmd = env.LD[0]
-    noexecstack = task.env['OS_RESOURCES_LDFLAGS']
-    if task.env['OS'] == 'win32':
-        ld_cmd = ld_cmd.replace('\\','/')
-    cmd = ("cd src/LV2/xputty/resources/ \
-    && for f in %s; do\
-     %s -r -b binary %s ${f}.png -o  ${f}.o; \
-     done " % (src, ld_cmd, noexecstack) )
-    # win32: dont use cmd.exe as shell
-    if task.env['OS'] == 'win32':
-        cmd = 'bash -c "%s"' % cmd
-   # Logs.debug("runner: system command -> %s" % cmd)
-    ret = task.exec_command(cmd, shell=True)
-    return ret
+
+    src_files = [os.path.splitext(v.name)[0] for v in task.inputs[0:]]
+    os_name = env['OS']
+
+    if os_name == 'darwin':
+        if (isinstance(env['CC'], list) and len(env['CC']) > 0):
+            clang = env['CC'][0]
+        elif isinstance(env['CC'], str):
+            clang = env['CC']
+        else:
+            clang = 'clang'  # domyślny clang jeśli nic nie ustawiono
+
+        cmds = []
+        cmds.append(f"cd src/LV2/xputty/resources/")
+        for f in src_files:
+            c_file = f"{f}_png.c"
+            png_file = f"{f}.png"
+            o_file = f"{f}.o"
+            sym = f"_binary_{f}_png"
+            cmds.append(f"xxd -i {png_file} > {c_file}")
+            cmds.append(f"{clang} -c {c_file} -o {o_file}")
+
+        cmd = " && ".join(cmds)
+       
+    else:
+        ld_cmd = env.LD[0]
+        noexecstack = env.get('OS_RESOURCES_LDFLAGS', '')
+        src = " ".join([f"'{f}'" for f in src_files])
+        cmd = (
+            f"cd src/LV2/xputty/resources/ && "
+            f"for f in {src}; do "
+            f"{ld_cmd} -r -b binary {noexecstack} ${{f}}.png -o ${{f}}.o; "
+            f"done"
+        )
+
+    return task.exec_command(cmd, shell=True)
 
 def build(bld):
     if not (bld.env.LV2GUI):

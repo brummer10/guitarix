@@ -48,10 +48,19 @@ extern "C" {
 extern "C" {
 #endif
 
+// This work
+#define EXTLD(name) \
+    extern unsigned char name[]; \
+    extern unsigned int name##_len;
+
+#define LDVAR(name) name
+#define LDLEN(name) name##_len
+/* This not work
 #define EXTLD(NAME) \
   extern const unsigned char _section$__DATA__ ## NAME [];
 #define LDVAR(NAME) _section$__DATA__ ## NAME
 #define LDLEN(NAME) (getsectbyname("__DATA", "__" #NAME)->size)
+*/
 
 #else /* gnu ld (linux or mingw) */
 

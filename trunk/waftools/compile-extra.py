@@ -1,3 +1,4 @@
+import sys
 from waflib.TaskGen import feature, before_method
 
 @feature('cxx','c')
@@ -8,4 +9,7 @@ def add_mapfile(self):
     if hasattr(self, 'mapfile'):
         mapfile = self.path.find_or_declare(self.mapfile)
         self.ldflags.append('-fno-lto')
-        self.ldflags.append('-Wl,-Map=%s' % mapfile.bldpath())
+        if sys.platform == 'darwin':
+            self.ldflags.append('-Wl,-map,%s' % mapfile.bldpath())
+        else:
+            self.ldflags.append('-Wl,-Map=%s' % mapfile.bldpath())

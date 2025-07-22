@@ -1,6 +1,6 @@
 from waflib import Task, Configure
 from waflib.TaskGen import feature, before_method, after_method
-
+import sys
 class strip(Task.Task):
     run_str = '${STRIP} ${SRC}'
     color   = 'BLUE'
@@ -16,7 +16,7 @@ class strip(Task.Task):
             return Task.RUN_ME
         return Task.SKIP_ME
 
-@feature('strip')
+@feature('strip -x')
 @after_method('apply_link')
 def add_strip_task(self):
     try:
