@@ -25,7 +25,11 @@
 #ifndef SRC_HEADERS_GX_PITCH_TRACKER_H_
 #define SRC_HEADERS_GX_PITCH_TRACKER_H_
 #include <fftw3.h>
+#ifdef __APPLE__
+#include <dispatch/dispatch.h>
+#else
 #include <semaphore.h>
+#endif
 #include <sigc++/sigc++.h>
 
 /* ------------- Pitch Tracker ------------- */
@@ -53,7 +57,11 @@ class PitchTracker {
     bool            error;
     volatile bool   busy;
     int             tick;
+   #ifdef __APPLE__
+    dispatch_semaphore_t m_trig;
+   #else
     sem_t           m_trig;
+   #endif
     pthread_t       m_pthr;
     Resampler       resamp;
     int             m_sampleRate;

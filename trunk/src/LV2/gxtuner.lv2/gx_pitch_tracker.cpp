@@ -74,7 +74,11 @@ PitchTracker::PitchTracker()
     memset(m_fftwBufferTime, 0, size * sizeof(*m_fftwBufferTime));
     memset(m_fftwBufferFreq, 0, size * sizeof(*m_fftwBufferFreq));
 
-    sem_init(&m_trig, 0, 0);
+    #ifdef __APPLE__
+        m_trig = dispatch_semaphore_create(0);
+    #else
+        sem_init(&m_trig, 0, 0);
+    #endif
 
     if (!m_buffer || !m_input || !m_fftwBufferTime || !m_fftwBufferFreq) {
         error = true;
@@ -204,7 +208,11 @@ void PitchTracker::add(int count, float* input) {
         busy = true;
         tick = 0;
         copy();
-        sem_post(&m_trig);
+        #ifdef __APPLE__
+            dispatch_semaphore_signal(m_trig);
+        #else
+            sem_post(&m_trig);
+        #endif
     }
 }
 
@@ -310,7 +318,12 @@ static int findsubMaximum(float *input, int len, float threshold) {
 void PitchTracker::run() {
     for (;;) {
         busy = false;
-        sem_wait(&m_trig);
+        #ifdef __APPLE__
+            dispatch_semaphore_wait(m_trig, DISPATCH_TIME_FOREVER);
+        #else
+            sem_wait(&m_trig);
+        #endif
+        
         if (error) {
             continue;
         }
