@@ -237,7 +237,10 @@ Gx_detune_::instantiate(const LV2_Descriptor* descriptor,
 const LV2_Options_Option* options  = NULL;
   uint32_t bufsize_ = 0;
   //printf(" %s\n",descriptor->URI);
-
+  #ifdef __APPLE__
+  self->schedule = nullptr;
+  self->map = nullptr;
+  #endif
   for (int32_t i = 0; features[i]; ++i)
     {
       if (!strcmp(features[i]->URI, LV2_URID__map))

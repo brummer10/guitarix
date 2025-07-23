@@ -22,8 +22,9 @@
 
 namespace detune {
 
-
+#ifndef M_PI
 #define M_PI 3.14159265358979323846
+#endif
 #define MAX_FRAME_LENGTH 8096
 
 class smbPitchShift : public PluginLV2 {
