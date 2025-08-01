@@ -106,7 +106,6 @@ private:
 	int iRec53[2];
 	double fRec54[2];
 	FAUSTFLOAT fVbargraph4;
-	double fVec9[524288];
 
 	void clear_state_f();
 	int load_ui_f(const UiBuilder& b, int form);
@@ -224,7 +223,6 @@ inline void Dsp::clear_state_f()
 	for (int l68 = 0; l68 < 2; l68 = l68 + 1) fRec52[l68] = 0.0;
 	for (int l69 = 0; l69 < 2; l69 = l69 + 1) iRec53[l69] = 0;
 	for (int l70 = 0; l70 < 2; l70 = l70 + 1) fRec54[l70] = 0.0;
-	for (int l71 = 0; l71 < 524288; l71 = l71 + 1) fVec9[l71] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -306,9 +304,9 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	double fSlow52 = 1.0 / fSlow51;
 	double fSlow53 = 1.0 / fSlow6;
 	double fSlow54 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider3));
-	double fSlow55 = fConst3 / double(fHslider7);
-	double fSlow56 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider4));
-	double fSlow57 = 1.0 / (fSlow1 * fSlow51);
+	double fSlow55 = 1.0 / (fSlow1 * fSlow51);
+	double fSlow56 = fConst3 / double(fHslider7);
+	double fSlow57 = 0.0010000000000000009 * std::pow(1e+01, 0.05 * double(fVslider4));
 	double fSlow58 = fConst3 / double(fHslider8);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		int iTemp0 = iRec1[1] < 4096;
@@ -392,16 +390,16 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec45[0] = fRec46[0] - fSlow45 * (fSlow43 * fRec45[2] + fSlow10 * fRec45[1]);
 		double fTemp28 = fSlow45 * (fRec45[2] + fRec45[0] + 2.0 * fRec45[1]);
 		fVec6[0] = fTemp28;
-		fRec44[0] = -(fSlow53 * (fSlow4 * fRec44[1] - (fTemp28 + fVec6[1])));
+		fRec44[0] = -(fSlow53 * (fSlow4 * fRec44[1] - fSlow3 * (fTemp28 - fVec6[1])));
 		fRec43[0] = fRec44[0] - fSlow52 * (fSlow50 * fRec43[2] + fSlow2 * fRec43[1]);
 		fRec47[0] = fSlow54 + 0.999 * fRec47[1];
-		double fTemp29 = fSlow52 * fRec47[0] * (fRec43[2] + fRec43[0] + 2.0 * fRec43[1]);
+		double fTemp29 = fSlow55 * fRec47[0] * (fRec43[2] + (fRec43[0] - 2.0 * fRec43[1]));
 		fVec7[IOTA0 & 524287] = fTemp29;
-		double fTemp30 = ((fRec48[1] != 0.0) ? (((fRec49[1] > 0.0) & (fRec49[1] < 1.0)) ? fRec48[1] : 0.0) : (((fRec49[1] == 0.0) & (fSlow55 != fRec50[1])) ? fConst4 : (((fRec49[1] == 1.0) & (fSlow55 != fRec51[1])) ? -fConst4 : 0.0)));
+		double fTemp30 = ((fRec48[1] != 0.0) ? (((fRec49[1] > 0.0) & (fRec49[1] < 1.0)) ? fRec48[1] : 0.0) : (((fRec49[1] == 0.0) & (fSlow56 != fRec50[1])) ? fConst4 : (((fRec49[1] == 1.0) & (fSlow56 != fRec51[1])) ? -fConst4 : 0.0)));
 		fRec48[0] = fTemp30;
 		fRec49[0] = std::max<double>(0.0, std::min<double>(1.0, fRec49[1] + fTemp30));
-		fRec50[0] = (((fRec49[1] >= 1.0) & (fRec51[1] != fSlow55)) ? fSlow55 : fRec50[1]);
-		fRec51[0] = (((fRec49[1] <= 0.0) & (fRec50[1] != fSlow55)) ? fSlow55 : fRec51[1]);
+		fRec50[0] = (((fRec49[1] >= 1.0) & (fRec51[1] != fSlow56)) ? fSlow56 : fRec50[1]);
+		fRec51[0] = (((fRec49[1] <= 0.0) & (fRec50[1] != fSlow56)) ? fSlow56 : fRec51[1]);
 		double fTemp31 = fVec7[(IOTA0 - int(std::min<double>(262144.0, std::max<double>(0.0, fRec50[0])))) & 524287];
 		double fTemp32 = fTemp31 + fRec49[0] * (fVec7[(IOTA0 - int(std::min<double>(262144.0, std::max<double>(0.0, fRec51[0])))) & 524287] - fTemp31);
 		double fTemp33 = std::max<double>(fConst1, std::fabs(fTemp32));
@@ -410,29 +408,24 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec42[0] = ((iTemp27) ? fRec42[1] : 0.000244140625 * fRec40[1]);
 		fVbargraph3 = FAUSTFLOAT(fRec42[0]);
 		int iTemp34 = iRec53[1] < 4096;
-		fRec56[0] = -(fSlow53 * (fSlow4 * fRec56[1] - fSlow3 * (fTemp28 - fVec6[1])));
+		fRec56[0] = -(fSlow53 * (fSlow4 * fRec56[1] - (fTemp28 + fVec6[1])));
 		fRec55[0] = fRec56[0] - fSlow52 * (fSlow50 * fRec55[2] + fSlow2 * fRec55[1]);
-		double fTemp35 = 2.0 * fRec55[1];
-		fRec57[0] = fSlow56 + 0.999 * fRec57[1];
-		double fTemp36 = fSlow57 * fRec57[0] * (fRec55[2] + (fRec55[0] - fTemp35));
-		fVec8[IOTA0 & 524287] = fTemp36;
-		double fTemp37 = ((fRec58[1] != 0.0) ? (((fRec59[1] > 0.0) & (fRec59[1] < 1.0)) ? fRec58[1] : 0.0) : (((fRec59[1] == 0.0) & (fSlow58 != fRec60[1])) ? fConst4 : (((fRec59[1] == 1.0) & (fSlow58 != fRec61[1])) ? -fConst4 : 0.0)));
-		fRec58[0] = fTemp37;
-		fRec59[0] = std::max<double>(0.0, std::min<double>(1.0, fRec59[1] + fTemp37));
+		fRec57[0] = fSlow57 + 0.999 * fRec57[1];
+		double fTemp35 = fSlow52 * fRec57[0] * (fRec55[2] + fRec55[0] + 2.0 * fRec55[1]);
+		fVec8[IOTA0 & 524287] = fTemp35;
+		double fTemp36 = ((fRec58[1] != 0.0) ? (((fRec59[1] > 0.0) & (fRec59[1] < 1.0)) ? fRec58[1] : 0.0) : (((fRec59[1] == 0.0) & (fSlow58 != fRec60[1])) ? fConst4 : (((fRec59[1] == 1.0) & (fSlow58 != fRec61[1])) ? -fConst4 : 0.0)));
+		fRec58[0] = fTemp36;
+		fRec59[0] = std::max<double>(0.0, std::min<double>(1.0, fRec59[1] + fTemp36));
 		fRec60[0] = (((fRec59[1] >= 1.0) & (fRec61[1] != fSlow58)) ? fSlow58 : fRec60[1]);
 		fRec61[0] = (((fRec59[1] <= 0.0) & (fRec60[1] != fSlow58)) ? fSlow58 : fRec61[1]);
-		int iTemp38 = int(std::min<double>(262144.0, std::max<double>(0.0, fRec60[0])));
-		double fTemp39 = fVec8[(IOTA0 - iTemp38) & 524287];
-		int iTemp40 = int(std::min<double>(262144.0, std::max<double>(0.0, fRec61[0])));
-		double fTemp41 = std::max<double>(fConst1, std::fabs(fTemp39 + fRec59[0] * (fVec8[(IOTA0 - iTemp40) & 524287] - fTemp39)));
-		fRec52[0] = ((iTemp34) ? fTemp41 + fRec52[1] : fTemp41);
+		double fTemp37 = fVec8[(IOTA0 - int(std::min<double>(262144.0, std::max<double>(0.0, fRec60[0])))) & 524287];
+		double fTemp38 = fTemp37 + fRec59[0] * (fVec8[(IOTA0 - int(std::min<double>(262144.0, std::max<double>(0.0, fRec61[0])))) & 524287] - fTemp37);
+		double fTemp39 = std::max<double>(fConst1, std::fabs(fTemp38));
+		fRec52[0] = ((iTemp34) ? fTemp39 + fRec52[1] : fTemp39);
 		iRec53[0] = ((iTemp34) ? iRec53[1] + 1 : 1);
 		fRec54[0] = ((iTemp34) ? fRec54[1] : 0.000244140625 * fRec52[1]);
 		fVbargraph4 = FAUSTFLOAT(fRec54[0]);
-		double fTemp42 = fSlow57 * fRec57[0] * (fRec55[0] + fRec55[2] - fTemp35);
-		fVec9[IOTA0 & 524287] = fTemp42;
-		double fTemp43 = fVec9[(IOTA0 - iTemp38) & 524287];
-		output0[i0] = FAUSTFLOAT(fTemp43 + fRec59[0] * (fVec9[(IOTA0 - iTemp40) & 524287] - fTemp43) + fTemp32 + fTemp25 + fTemp17 + fTemp4 + fTemp8);
+		output0[i0] = FAUSTFLOAT(fTemp38 + fTemp32 + fTemp25 + fTemp17 + fTemp4 + fTemp8);
 		fVec0[1] = fVec0[0];
 		fRec7[1] = fRec7[0];
 		fRec6[2] = fRec6[1];
@@ -528,18 +521,18 @@ int Dsp::register_par(const ParamReg& reg)
 	reg.registerFloatVar("mbdel.crossover_b2_b3",N_("Crossover B2-B3 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider1, 2.1e+02, 2e+01, 2e+04, 1.08, 0);
 	reg.registerFloatVar("mbdel.crossover_b3_b4",N_("Crossover B3-B4 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider2, 1.7e+03, 2e+01, 2e+04, 1.08, 0);
 	reg.registerFloatVar("mbdel.crossover_b4_b5",N_("Crossover B4-B5 (hz)"),"SL",N_("Crossover fi.bandpass frequency"),&fHslider3, 5e+03, 2e+01, 2e+04, 1.08, 0);
-	reg.registerFloatVar("mbdel.delay1","","S",N_("Delay in Beats per Minute"),&fHslider7, 3e+01, 24.0, 3.6e+02, 1.0, 0);
-	reg.registerFloatVar("mbdel.delay2","","S",N_("Delay in Beats per Minute"),&fHslider8, 6e+01, 24.0, 3.6e+02, 1.0, 0);
+	reg.registerFloatVar("mbdel.delay1","","S",N_("Delay in Beats per Minute"),&fHslider8, 3e+01, 24.0, 3.6e+02, 1.0, 0);
+	reg.registerFloatVar("mbdel.delay2","","S",N_("Delay in Beats per Minute"),&fHslider7, 6e+01, 24.0, 3.6e+02, 1.0, 0);
 	reg.registerFloatVar("mbdel.delay3","","S",N_("Delay in Beats per Minute"),&fHslider6, 9e+01, 24.0, 3.6e+02, 1.0, 0);
 	reg.registerFloatVar("mbdel.delay4","","S",N_("Delay in Beats per Minute"),&fHslider5, 1.2e+02, 24.0, 3.6e+02, 1.0, 0);
 	reg.registerFloatVar("mbdel.delay5","","S",N_("Delay in Beats per Minute"),&fHslider4, 1.5e+02, 24.0, 3.6e+02, 1.0, 0);
-	reg.registerFloatVar("mbdel.gain1","","S","",&fVslider3, -1e+01, -2e+01, 2e+01, 0.1, 0);
-	reg.registerFloatVar("mbdel.gain2","","S","",&fVslider4, -5.0, -2e+01, 2e+01, 0.1, 0);
+	reg.registerFloatVar("mbdel.gain1","","S","",&fVslider4, -1e+01, -2e+01, 2e+01, 0.1, 0);
+	reg.registerFloatVar("mbdel.gain2","","S","",&fVslider3, -5.0, -2e+01, 2e+01, 0.1, 0);
 	reg.registerFloatVar("mbdel.gain3","","S","",&fVslider2, -2.0, -2e+01, 2e+01, 0.1, 0);
 	reg.registerFloatVar("mbdel.gain4","","S","",&fVslider1, 0.0, -2e+01, 2e+01, 0.1, 0);
 	reg.registerFloatVar("mbdel.gain5","","S","",&fVslider0, -1e+01, -2e+01, 2e+01, 0.1, 0);
-	reg.registerFloatVar("mbdel.v1","","SOLN","",&fVbargraph3, 0, -7e+01, 5.0, 0, 0);
-	reg.registerFloatVar("mbdel.v2","","SOLN","",&fVbargraph4, 0, -7e+01, 5.0, 0, 0);
+	reg.registerFloatVar("mbdel.v1","","SOLN","",&fVbargraph4, 0, -7e+01, 5.0, 0, 0);
+	reg.registerFloatVar("mbdel.v2","","SOLN","",&fVbargraph3, 0, -7e+01, 5.0, 0, 0);
 	reg.registerFloatVar("mbdel.v3","","SOLN","",&fVbargraph2, 0, -7e+01, 5.0, 0, 0);
 	reg.registerFloatVar("mbdel.v4","","SOLN","",&fVbargraph1, 0, -7e+01, 5.0, 0, 0);
 	reg.registerFloatVar("mbdel.v5","","SOLN","",&fVbargraph0, 0, -7e+01, 5.0, 0, 0);

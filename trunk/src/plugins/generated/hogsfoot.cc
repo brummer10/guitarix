@@ -10,6 +10,8 @@ namespace hogsfoot {
 class Dsp: public PluginDef {
 private:
 	int fSampleRate;
+	FAUSTFLOAT fVslider0;
+	double fRec0[2];
 	double fConst0;
 	double fConst1;
 	double fConst2;
@@ -18,10 +20,8 @@ private:
 	double fConst5;
 	double fConst6;
 	double fConst7;
-	FAUSTFLOAT fVslider0;
-	double fRec0[4];
 	FAUSTFLOAT fVslider1;
-	double fRec1[2];
+	double fRec1[4];
 	double fConst8;
 
 	void clear_state_f();
@@ -69,8 +69,8 @@ Dsp::~Dsp() {
 
 inline void Dsp::clear_state_f()
 {
-	for (int l0 = 0; l0 < 4; l0 = l0 + 1) fRec0[l0] = 0.0;
-	for (int l1 = 0; l1 < 2; l1 = l1 + 1) fRec1[l1] = 0.0;
+	for (int l0 = 0; l0 < 2; l0 = l0 + 1) fRec0[l0] = 0.0;
+	for (int l1 = 0; l1 < 4; l1 = l1 + 1) fRec1[l1] = 0.0;
 }
 
 void Dsp::clear_state_f_static(PluginDef *p)
@@ -100,19 +100,21 @@ void Dsp::init_static(unsigned int sample_rate, PluginDef *p)
 
 void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *output0)
 {
-	double fSlow0 = 0.01 * double(fVslider0);
-	double fSlow1 = 0.007000000000000006 * double(fVslider1);
-	double fSlow2 = 1.0 - fSlow0;
+	double fSlow0 = 0.007000000000000006 * double(fVslider0);
+	double fSlow1 = 0.01 * double(fVslider1);
+	double fSlow2 = 1.0 - fSlow1;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		double fTemp0 = double(input0[i0]);
-		fRec0[0] = fSlow0 * fTemp0 - fConst7 * (fConst5 * fRec0[1] + fConst4 * fRec0[2] + fConst2 * fRec0[3]);
-		fRec1[0] = fSlow1 + 0.993 * fRec1[1];
-		double fTemp1 = 9.64632260709932e-11 * fRec1[0];
-		output0[i0] = FAUSTFLOAT(fSlow2 * fTemp0 + fConst8 * ((fTemp1 + 9.64632260709932e-13) * (fRec0[1] + fRec0[2]) + (-9.64632260709932e-13 - fTemp1) * (fRec0[0] + fRec0[3])));
+		fRec0[0] = fSlow0 + 0.993 * fRec0[1];
+		double fTemp0 = 9.64632260709932e-11 * fRec0[0];
+		double fTemp1 = -9.64632260709932e-13 - fTemp0;
+		double fTemp2 = double(input0[i0]);
+		fRec1[0] = fSlow1 * fTemp2 - fConst7 * (fConst5 * fRec1[1] + fConst4 * fRec1[2] + fConst2 * fRec1[3]);
+		double fTemp3 = fTemp0 + 9.64632260709932e-13;
+		output0[i0] = FAUSTFLOAT(fSlow2 * fTemp2 + fConst8 * (fRec1[0] * fTemp1 + fRec1[1] * fTemp3 + fRec1[2] * fTemp3 + fRec1[3] * fTemp1));
+		fRec0[1] = fRec0[0];
 		for (int j0 = 3; j0 > 0; j0 = j0 - 1) {
-			fRec0[j0] = fRec0[j0 - 1];
+			fRec1[j0] = fRec1[j0 - 1];
 		}
-		fRec1[1] = fRec1[0];
 	}
 }
 
@@ -123,8 +125,8 @@ void __rt_func Dsp::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLOAT *ou
 
 int Dsp::register_par(const ParamReg& reg)
 {
-	reg.registerFloatVar("hogsfoot.Volume",N_("Volume"),"S","",&fVslider1, 0.5, 0.0, 1.0, 0.01, 0);
-	reg.registerFloatVar("hogsfoot.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider0, 1e+02, 0.0, 1e+02, 1.0, 0);
+	reg.registerFloatVar("hogsfoot.Volume",N_("Volume"),"S","",&fVslider0, 0.5, 0.0, 1.0, 0.01, 0);
+	reg.registerFloatVar("hogsfoot.wet_dry",N_("Wet/Dry"),"S",N_("percentage of processed signal in output signal"),&fVslider1, 1e+02, 0.0, 1e+02, 1.0, 0);
 	return 0;
 }
 

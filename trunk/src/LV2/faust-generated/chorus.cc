@@ -27,7 +27,7 @@ class mydspSIG0 {
 	void fillmydspSIG0(int count, float* table) {
 		for (int i1 = 0; i1 < count; i1 = i1 + 1) {
 			iRec4[0] = iRec4[1] + 1;
-			table[i1] = std::sin(9.58738e-05f * float(iRec4[0] + -1));
+			table[i1] = std::sin(9.58738e-05f * float(iRec4[1]));
 			iRec4[1] = iRec4[0];
 		}
 	}

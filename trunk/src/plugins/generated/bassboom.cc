@@ -128,11 +128,12 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec3[0] = fSlow0 + 0.999 * fRec3[1];
 		double fTemp1 = std::pow(1e+01, 1.5 * fRec3[0]);
 		double fTemp2 = std::max<double>(-1.0, std::min<double>(1.0, fConst6 * fTemp1 * (fRec0[2] + fRec0[0] + 2.0 * fRec0[1])));
-		double fTemp3 = std::exp(4.0 * fTemp2);
+		double fTemp3 = 4.0 * fTemp2;
+		double fTemp4 = std::exp(fTemp3);
 		fRec5[0] = -(fConst8 * (fConst7 * fRec5[1] - fConst3 * (fTemp0 - fVec1[1])));
 		fRec4[0] = fRec5[0] - fConst6 * (fConst4 * fRec4[2] + fConst2 * fRec4[1]);
 		fRec6[0] = fSlow1 + 0.999 * fRec6[1];
-		output0[i0] = FAUSTFLOAT(fRec6[0] * (fConst9 * (fRec4[0] + fRec4[2] - 2.0 * fRec4[1]) + 0.25 * (std::max<double>(1.0, 0.4 / fTemp1) * (fTemp3 - std::exp(-4.8 * fTemp2)) / (fTemp3 + std::exp(-4.0 * fTemp2)))));
+		output0[i0] = FAUSTFLOAT(fRec6[0] * (fConst9 * (fRec4[2] + (fRec4[0] - 2.0 * fRec4[1])) + 0.25 * ((fTemp4 - std::exp(-(4.8 * fTemp2))) * std::max<double>(1.0, 0.4 / fTemp1) / (fTemp4 + std::exp(-fTemp3)))));
 		iVec0[1] = iVec0[0];
 		fRec2[1] = fRec2[0];
 		fVec1[1] = fVec1[0];

@@ -84,35 +84,33 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fVslider1 (*fVslider1_)
 #define fVslider2 (*fVslider2_)
 	double fSlow0 = std::exp(3.4 * (double(fVslider0) + -1.0));
-	double fSlow1 = 0.00010719478000000002 * fSlow0;
-	double fSlow2 = double(fVslider1);
-	double fSlow3 = 0.00022854915600000004 * fSlow2;
-	double fSlow4 = fConst1 * (fSlow2 * (0.00022854915600000004 * fSlow0 + 0.00012621831200000002 - fSlow3) + fSlow1 + 0.00010871476000000002);
-	double fSlow5 = fSlow0 + 1.0;
-	double fSlow6 = fConst2 * (fSlow2 * (3.421299200000001e-08 * (fSlow0 - fSlow2) + 2.3521432000000005e-08) + 1.0691560000000003e-08 * fSlow5);
-	double fSlow7 = 0.01034 * fSlow2;
+	double fSlow1 = double(fVslider1);
+	double fSlow2 = 0.00022854915600000004 * fSlow1;
+	double fSlow3 = fConst1 * (fSlow1 * (0.00022854915600000004 * fSlow0 + 0.00012621831200000002 - fSlow2) + 0.00010719478000000002 * fSlow0 + 0.00010871476000000002);
+	double fSlow4 = fSlow0 + 1.0;
+	double fSlow5 = fSlow0 - fSlow1;
+	double fSlow6 = fConst2 * (fSlow1 * (3.421299200000001e-08 * fSlow5 + 2.3521432000000005e-08) + 1.0691560000000003e-08 * fSlow4);
+	double fSlow7 = 0.01034 * fSlow1;
 	double fSlow8 = fConst0 * (fSlow7 + 0.022103400000000002 * fSlow0 + 0.036906800000000003);
-	double fSlow9 = fSlow8 + fSlow6;
-	double fSlow10 = fSlow9 + (-1.0 - fSlow4);
-	double fSlow11 = fSlow8 + fSlow4;
-	double fSlow12 = fSlow11 - 3.0 * (fSlow6 + 1.0);
-	double fSlow13 = fSlow4 - (fSlow8 + 3.0 * (1.0 - fSlow6));
-	double fSlow14 = 1.0 / (-1.0 - (fSlow11 + fSlow6));
-	double fSlow15 = double(fVslider2);
-	double fSlow16 = (fSlow0 + (1.0 - fSlow2)) * (3.421299200000001e-08 * fSlow2 + 1.0691560000000003e-08 * fSlow15);
-	double fSlow17 = fConst2 * fSlow16;
-	double fSlow18 = fConst1 * (1.5199800000000001e-06 * fSlow15 + fSlow2 * (0.00022961831200000004 - fSlow3) + fSlow0 * (fSlow3 + 3.7947800000000004e-06) + 3.7947800000000004e-06);
-	double fSlow19 = fConst0 * (fSlow7 + 0.0001034 * fSlow15 + 0.022103400000000002 * fSlow5);
-	double fSlow20 = fSlow19 + fSlow18;
-	double fSlow21 = fSlow20 + fSlow17;
-	double fSlow22 = fSlow19 + fSlow17 - fSlow18;
-	double fSlow23 = fConst3 * fSlow16;
-	double fSlow24 = fSlow20 - fSlow23;
-	double fSlow25 = fSlow18 + fSlow23 - fSlow19;
-	double fSlow26 = 1.0 / (-1.0 - (fSlow9 + fConst1 * (fSlow1 + fSlow2 * (0.00012621831200000002 - 0.00022854915600000004 * (fSlow2 - fSlow0)) + 0.00010871476000000002)));
+	double fSlow9 = fSlow8 + fSlow6 + (-1.0 - fSlow3);
+	double fSlow10 = fSlow8 + fSlow3;
+	double fSlow11 = fSlow10 - 3.0 * (fSlow6 + 1.0);
+	double fSlow12 = fSlow3 - (fSlow8 + 3.0 * (1.0 - fSlow6));
+	double fSlow13 = 1.0 / (-1.0 - (fSlow10 + fSlow6));
+	double fSlow14 = double(fVslider2);
+	double fSlow15 = 3.421299200000001e-08 * fSlow1 * (fSlow5 + 1.0) + 1.0691560000000003e-08 * fSlow14 * (fSlow0 + (1.0 - fSlow1));
+	double fSlow16 = fConst2 * fSlow15;
+	double fSlow17 = fConst1 * (1.5199800000000001e-06 * fSlow14 + fSlow1 * (0.00022961831200000004 - fSlow2) + fSlow0 * (fSlow2 + 3.7947800000000004e-06) + 3.7947800000000004e-06);
+	double fSlow18 = fConst0 * (fSlow7 + 0.0001034 * fSlow14 + 0.022103400000000002 * fSlow4);
+	double fSlow19 = fSlow18 + fSlow17;
+	double fSlow20 = fSlow19 + fSlow16;
+	double fSlow21 = fSlow18 + fSlow16 - fSlow17;
+	double fSlow22 = fConst3 * fSlow15;
+	double fSlow23 = fSlow19 - fSlow22;
+	double fSlow24 = fSlow17 + fSlow22 - fSlow18;
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-		fRec0[0] = double(input0[i0]) - fSlow14 * (fSlow13 * fRec0[1] + fSlow12 * fRec0[2] + fSlow10 * fRec0[3]);
-		output0[i0] = FAUSTFLOAT(fSlow26 * (fSlow25 * fRec0[1] + fSlow24 * fRec0[2] + fSlow22 * fRec0[3] - fSlow21 * fRec0[0]));
+		fRec0[0] = double(input0[i0]) - fSlow13 * (fSlow12 * fRec0[1] + fSlow11 * fRec0[2] + fSlow9 * fRec0[3]);
+		output0[i0] = FAUSTFLOAT(fSlow13 * (fSlow24 * fRec0[1] + fSlow23 * fRec0[2] + fSlow21 * fRec0[3] - fSlow20 * fRec0[0]));
 		for (int j0 = 3; j0 > 0; j0 = j0 - 1) {
 			fRec0[j0] = fRec0[j0 - 1];
 		}

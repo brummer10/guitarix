@@ -96,7 +96,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fVbargraph0 = FAUSTFLOAT(fRec2[0]);
 		double fTemp3 = fTemp1;
 		double fTemp4 = std::fabs(fTemp3);
-		output0[i0] = FAUSTFLOAT(((fTemp4 <= 0.8912509381337456) ? fTemp3 : double((fTemp3 > 0.0) - (fTemp3 < 0.0)) * (1.0 - 0.10874906186625444 * std::exp(-9.19548162383097 * (fTemp4 + -0.8912509381337456)))));
+		output0[i0] = FAUSTFLOAT(((fTemp4 <= 0.8912509381337456) ? fTemp3 : double((fTemp3 > 0.0) - (fTemp3 < 0.0)) * (1.0 - 0.10874906186625444 * std::exp(-(9.19548162383097 * (fTemp4 + -0.8912509381337456))))));
 		int iTemp5 = iRec4[1] < 1024;
 		double fTemp6 = double(input1[i0]);
 		double fTemp7 = std::max<double>(fConst0, std::fabs(std::min<double>(std::max<double>(fTemp6 + -0.8912509381337456, 0.0), 1.0)));
@@ -106,7 +106,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fVbargraph1 = FAUSTFLOAT(fRec5[0]);
 		double fTemp8 = fTemp6;
 		double fTemp9 = std::fabs(fTemp8);
-		output1[i0] = FAUSTFLOAT(((fTemp9 <= 0.8912509381337456) ? fTemp8 : double((fTemp8 > 0.0) - (fTemp8 < 0.0)) * (1.0 - 0.10874906186625444 * std::exp(-9.19548162383097 * (fTemp9 + -0.8912509381337456)))));
+		output1[i0] = FAUSTFLOAT(((fTemp9 <= 0.8912509381337456) ? fTemp8 : double((fTemp8 > 0.0) - (fTemp8 < 0.0)) * (1.0 - 0.10874906186625444 * std::exp(-(9.19548162383097 * (fTemp9 + -0.8912509381337456))))));
 		fRec0[1] = fRec0[0];
 		iRec1[1] = iRec1[0];
 		fRec2[1] = fRec2[0];

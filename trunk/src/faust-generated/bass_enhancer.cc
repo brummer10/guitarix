@@ -186,13 +186,13 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *input
 		fRec12[0] = fRec13[0];
 		fRec11[0] = fRec12[0];
 		double fTemp6 = fRec11[0] * fRec10[0];
-		output0[i0] = FAUSTFLOAT(fTemp6 + fSlow6 * (fTemp3 + fSlow2 * (fRec0[0] + fRec0[2] - 2.0 * fRec0[1])));
+		output0[i0] = FAUSTFLOAT(fTemp6 + fSlow6 * (fTemp3 + fSlow2 * (fRec0[2] + (fRec0[0] - 2.0 * fRec0[1]))));
 		fRec22[0] = fConst4 * (fTemp1 - fVec1[1] + fConst3 * fRec22[1]);
 		fRec21[0] = fRec22[0] - fSlow15 * (fSlow13 * fRec21[2] + fSlow3 * fRec21[1]);
 		fRec20[0] = fSlow16 * (fRec21[2] + (fRec21[0] - 2.0 * fRec21[1])) - fSlow12 * (fSlow10 * fRec20[2] + fSlow3 * fRec20[1]);
 		fRec19[0] = fSlow17 * (fRec20[2] + (fRec20[0] - 2.0 * fRec20[1])) - fSlow9 * (fSlow7 * fRec19[2] + fSlow3 * fRec19[1]);
 		fRec18[0] = fSlow18 * (fRec19[2] + (fRec19[0] - 2.0 * fRec19[1])) - fSlow6 * (fSlow5 * fRec18[2] + fSlow3 * fRec18[1]);
-		output1[i0] = FAUSTFLOAT(fTemp6 + fSlow6 * (fTemp3 + fSlow2 * (fRec18[0] + fRec18[2] - 2.0 * fRec18[1])));
+		output1[i0] = FAUSTFLOAT(fTemp6 + fSlow6 * (fTemp3 + fSlow2 * (fRec18[2] + (fRec18[0] - 2.0 * fRec18[1]))));
 		fVec0[1] = fVec0[0];
 		fRec4[1] = fRec4[0];
 		fRec3[2] = fRec3[1];

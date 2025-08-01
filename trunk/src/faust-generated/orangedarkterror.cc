@@ -103,12 +103,12 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	fConst7 = fConst0 * (fConst4 * (-1.3640208145726e-16 - fConst3) + 1.30220827983647e-13) + 1.89457056158527e-16;
 	fConst8 = 1.0 / (fConst0 * (fConst0 * (fConst0 * (fConst1 + 6.82010407286301e-17) + 4.53454013961264e-15) + 6.51104139918237e-14) + 4.73642640396319e-17);
 	fConst9 = 6.57377333665727e-19 * fConst0;
-	fConst10 = fConst0 * (fConst0 * (4.01607201070155e-17 - fConst9) + -4.37865590304316e-21) + -1.22291757237028e-24;
+	fConst10 = fConst0 * (fConst0 * (fConst0 * (4.01607201070155e-17 - fConst9) + -4.37865590304316e-21) + -1.22291757237028e-24);
 	fConst11 = 2.62950933466291e-18 * fConst0;
-	fConst12 = fConst4 * (fConst11 + -8.03214402140309e-17) + -2.44583514474056e-24;
-	fConst13 = fConst4 * (fConst11 + 8.03214402140309e-17) + 2.44583514474056e-24;
-	fConst14 = fConst0 * (fConst0 * (-4.01607201070155e-17 - fConst9) + -4.37865590304316e-21) + 1.22291757237028e-24;
-	fConst15 = fConst4 * (8.75731180608631e-21 - 3.94426400199436e-18 * fConst4);
+	fConst12 = fConst0 * (fConst4 * (fConst11 + -8.03214402140309e-17) + -2.44583514474056e-24);
+	fConst13 = fConst4 * (8.75731180608631e-21 - 3.94426400199436e-18 * fConst4);
+	fConst14 = fConst4 * (fConst11 + 8.03214402140309e-17) + 2.44583514474056e-24;
+	fConst15 = fConst0 * (fConst0 * (-4.01607201070155e-17 - fConst9) + -4.37865590304316e-21) + 1.22291757237028e-24;
 	clear_state_f();
 }
 
@@ -128,7 +128,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i0 = 0; i0 < ReCount; i0 = i0 + 1) {
 		fRec1[0] = fSlow0 + 0.999 * fRec1[1];
 		fRec0[0] = double(buf[i0]) * fRec1[0] - fConst8 * (fConst7 * fRec0[1] + fConst6 * fRec0[2] + fConst5 * fRec0[3] + fConst2 * fRec0[4]);
-		double fTemp0 = fConst8 * (fConst15 * fRec0[2] + fConst0 * (fConst14 * fRec0[0] + fConst13 * fRec0[1] + fConst12 * fRec0[3] + fConst10 * fRec0[4]));
+		double fTemp0 = fConst8 * (fConst0 * (fConst15 * fRec0[0] + fConst14 * fRec0[1]) + fConst13 * fRec0[2] + fConst12 * fRec0[3] + fConst10 * fRec0[4]);
 		fRec2[0] = fSlow1 + 0.999 * fRec2[1];
 		buf[i0] = FAUSTFLOAT(0.6 * fRec2[0] * ((signbit(fTemp0)) ? orangedarkterrorp3_negclip(fTemp0) : orangedarkterrorp3clip(fTemp0)));
 		fRec1[1] = fRec1[0];

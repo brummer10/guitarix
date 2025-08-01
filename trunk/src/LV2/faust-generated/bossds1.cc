@@ -256,7 +256,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = asymhardclip2(fConst26 * (fRec3[2] + fRec3[0] + 2.0 * fRec3[1])) - (fRec2[1] * (fRec1[0] * (fConst21 * fRec1[0] + 0.00107562519972983 - fConst20) + 0.00229710517654303 - fConst19) + fRec2[2] * (fConst18 + fRec1[0] * (fConst17 + fConst16 * fRec1[0] + 0.000537812599864916) + 0.00114855258827151)) / fTemp0;
 		fRec0[0] = (fRec2[0] * (fConst61 + fConst60 * fRec1[0] + 0.000182856283954071) + fRec2[1] * (fConst59 * fRec1[0] + 0.000365712567908143 - fConst58) + fRec2[2] * (fConst15 + fConst14 * fRec1[0] + 0.000182856283954071)) / fTemp0 - fConst6 * (fConst4 * fRec0[1] + fConst2 * fRec0[2]);
 		fRec10[0] = fSlow2 + 0.993 * fRec10[1];
-		buf[i0] = FAUSTFLOAT(fConst62 * fRec10[0] * (4.28019579852603e-10 * (fRec0[0] + fRec0[2]) - 8.56039159705207e-10 * fRec0[1]));
+		buf[i0] = FAUSTFLOAT(fConst62 * fRec10[0] * (4.28019579852603e-10 * fRec0[0] - 8.56039159705207e-10 * fRec0[1] + 4.28019579852603e-10 * fRec0[2]));
 		fRec1[1] = fRec1[0];
 		fRec5[1] = fRec5[0];
 		fRec8[1] = fRec8[0];

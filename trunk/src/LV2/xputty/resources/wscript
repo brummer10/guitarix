@@ -56,14 +56,14 @@ def img2obj(task):
             clang = 'clang'  # default clang if not set
 
         cmds = []
-        cmds.append(f"cd src/LV2/xputty/resources/")
+        cmds.append("cd src/LV2/xputty/resources/")
         for f in src_files:
-            c_file = f"{f}_png.c"
-            png_file = f"{f}.png"
-            o_file = f"{f}.o"
-            sym = f"_binary_{f}_png"
-            cmds.append(f"xxd -i {png_file} > {c_file}")
-            cmds.append(f"{clang} -c {c_file} -o {o_file}")
+            c_file = "{f}_png.c"
+            png_file = "{f}.png"
+            o_file = "{f}.o"
+            sym = "_binary_{f}_png"
+            cmds.append("xxd -i {png_file} > {c_file}")
+            cmds.append("{clang} -c {c_file} -o {o_file}")
 
         cmd = " && ".join(cmds)
        

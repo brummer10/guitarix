@@ -27,7 +27,7 @@ class mydspSIG0 {
 	void fillmydspSIG0(int count, double* table) {
 		for (int i1 = 0; i1 < count; i1 = i1 + 1) {
 			iRec4[0] = iRec4[1] + 1;
-			table[i1] = std::sin(9.587379924285257e-05 * double(iRec4[0] + -1));
+			table[i1] = std::sin(9.587379924285257e-05 * double(iRec4[1]));
 			iRec4[1] = iRec4[0];
 		}
 	}
@@ -138,13 +138,14 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fHslider0 (*fHslider0_)
 #define fHslider1 (*fHslider1_)
 	double fSlow0 = 0.01 * double(fVslider0);
-	double fSlow1 = fConst1 * double(fHslider0);
-	double fSlow2 = 0.007000000000000006 * double(fHslider1);
+	double fSlow1 = fSlow0 + (1.0 - fSlow0);
+	double fSlow2 = fConst1 * double(fHslider0);
+	double fSlow3 = 0.007000000000000006 * double(fHslider1);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		double fTemp0 = double(input0[i0]);
 		double fTemp1 = fSlow0 * fTemp0;
 		fVec0[IOTA0 & 131071] = fTemp1;
-		fRec5[0] = fSlow1 + (fRec5[1] - std::floor(fSlow1 + fRec5[1]));
+		fRec5[0] = fSlow2 + (fRec5[1] - std::floor(fSlow2 + fRec5[1]));
 		double fTemp2 = 65536.0 * (fRec5[0] - std::floor(fRec5[0]));
 		double fTemp3 = std::floor(fTemp2);
 		int iTemp4 = int(fTemp3);
@@ -155,8 +156,8 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = (((fRec1[1] >= 1.0) & (fRec3[1] != fTemp5)) ? fTemp5 : fRec2[1]);
 		fRec3[0] = (((fRec1[1] <= 0.0) & (fRec2[1] != fTemp5)) ? fTemp5 : fRec3[1]);
 		double fTemp7 = fVec0[(IOTA0 - int(std::min<double>(65536.0, std::max<double>(0.0, fRec2[0])))) & 131071];
-		fRec6[0] = fSlow2 + 0.993 * fRec6[1];
-		output0[i0] = FAUSTFLOAT(fTemp0 + fRec6[0] * (fTemp7 + fRec1[0] * (fVec0[(IOTA0 - int(std::min<double>(65536.0, std::max<double>(0.0, fRec3[0])))) & 131071] - fTemp7)));
+		fRec6[0] = fSlow3 + 0.993 * fRec6[1];
+		output0[i0] = FAUSTFLOAT(fRec6[0] * (fTemp7 + fRec1[0] * (fVec0[(IOTA0 - int(std::min<double>(65536.0, std::max<double>(0.0, fRec3[0])))) & 131071] - fTemp7)) + fSlow1 * fTemp0);
 		IOTA0 = IOTA0 + 1;
 		fRec5[1] = fRec5[0];
 		fRec0[1] = fRec0[0];

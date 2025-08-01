@@ -93,10 +93,10 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	fConst3 = mydsp_faustpower2_f(fConst0);
 	fConst4 = 7.36751480683202e-07 - 8.66139715522468e-10 * fConst3;
 	fConst5 = 1.0 / (fConst0 * (fConst1 + 4.59724862995143e-08) + 3.68375740341601e-07);
-	fConst6 = 1.03317985209489e-09 * fConst3;
-	fConst7 = 5.16589926047446e-10 * fConst0;
-	fConst8 = fConst7 + -5.33527722168907e-08;
-	fConst9 = fConst7 + 5.33527722168907e-08;
+	fConst6 = 5.16589926047446e-10 * fConst0;
+	fConst7 = fConst0 * (fConst6 + -5.33527722168907e-08);
+	fConst8 = 1.03317985209489e-09 * fConst3;
+	fConst9 = fConst0 * (fConst6 + 5.33527722168907e-08);
 	clear_state_f();
 }
 
@@ -116,7 +116,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i0 = 0; i0 < ReCount; i0 = i0 + 1) {
 		fRec1[0] = fSlow0 + 0.999 * fRec1[1];
 		fRec0[0] = double(buf[i0]) * fRec1[0] - fConst5 * (fConst4 * fRec0[1] + fConst2 * fRec0[2]);
-		double fTemp0 = fConst5 * (fConst0 * (fConst9 * fRec0[0] + fConst8 * fRec0[2]) - fConst6 * fRec0[1]);
+		double fTemp0 = fConst5 * (fConst9 * fRec0[0] - fConst8 * fRec0[1] + fConst7 * fRec0[2]);
 		fRec2[0] = fSlow1 + 0.999 * fRec2[1];
 		buf[i0] = FAUSTFLOAT(2.0 * fRec2[0] * ((signbit(fTemp0)) ? epiphone_jr_out_negclip(fTemp0) : epiphone_jr_outclip(fTemp0)));
 		fRec1[1] = fRec1[0];

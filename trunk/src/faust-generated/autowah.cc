@@ -107,7 +107,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 #define fVslider2 (*fVslider2_)
 	float fSlow0 = float(fVslider0);
 	float fSlow1 = float(fVslider1);
-	float fSlow2 = 2.0f - (fSlow1 + 0.01f * fSlow0);
+	float fSlow2 = 1.0f - fSlow1 + (1.0f - 0.01f * fSlow0);
 	float fSlow3 = 0.01f * fSlow0 * float(fVslider2);
 	for (int i0 = 0; i0 < count; i0 = i0 + 1) {
 		float fTemp0 = float(input0[i0]);

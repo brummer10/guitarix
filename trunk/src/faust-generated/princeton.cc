@@ -91,10 +91,10 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	fConst3 = mydsp_faustpower2_f(fConst0);
 	fConst4 = 3.08698291971088e-05 - 8.62858342280268e-10 * fConst3;
 	fConst5 = 1.0 / (fConst0 * (fConst1 + 1.24411557886099e-07) + 1.54349145985544e-05);
-	fConst6 = 4.92767505200435e-09 * fConst3;
-	fConst7 = 2.46383752600217e-09 * fConst0;
-	fConst8 = fConst7 + -1.18536469845222e-07;
-	fConst9 = fConst7 + 1.18536469845222e-07;
+	fConst6 = 2.46383752600217e-09 * fConst0;
+	fConst7 = fConst0 * (fConst6 + -1.18536469845222e-07);
+	fConst8 = 4.92767505200435e-09 * fConst3;
+	fConst9 = fConst0 * (fConst6 + 1.18536469845222e-07);
 	clear_state_f();
 }
 
@@ -115,7 +115,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec1[0] = fSlow0 + 0.999 * fRec1[1];
 		fRec0[0] = double(buf[i0]) * fRec1[0] - fConst5 * (fConst4 * fRec0[1] + fConst2 * fRec0[2]);
 		fRec2[0] = fSlow1 + 0.999 * fRec2[1];
-		buf[i0] = FAUSTFLOAT(0.2 * fRec2[0] * princetonclip(fConst5 * (fConst0 * (fConst9 * fRec0[0] + fConst8 * fRec0[2]) - fConst6 * fRec0[1])));
+		buf[i0] = FAUSTFLOAT(0.2 * fRec2[0] * princetonclip(fConst5 * (fConst9 * fRec0[0] - fConst8 * fRec0[1] + fConst7 * fRec0[2])));
 		fRec1[1] = fRec1[0];
 		fRec0[2] = fRec0[1];
 		fRec0[1] = fRec0[0];

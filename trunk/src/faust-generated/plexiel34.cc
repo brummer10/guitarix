@@ -103,12 +103,12 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	fConst7 = fConst0 * (fConst4 * (-5.42487047233173e-16 - fConst3) + 9.28294596348523e-12) + 1.60063241150001e-11;
 	fConst8 = 1.0 / (fConst0 * (fConst0 * (fConst0 * (fConst1 + 2.71243523616587e-16) + 8.16290535602033e-14) + 4.64147298174261e-12) + 4.00158102875003e-12);
 	fConst9 = 3.87560926163844e-19 * fConst0;
-	fConst10 = fConst0 * (fConst0 * (fConst9 + -4.30800903120125e-16) + 3.17509705609174e-17) + -5.3495467261267e-19;
+	fConst10 = fConst0 * (fConst0 * (fConst0 * (fConst9 + -4.30800903120125e-16) + 3.17509705609174e-17) + -5.3495467261267e-19);
 	fConst11 = 1.55024370465538e-18 * fConst0;
-	fConst12 = fConst4 * (8.61601806240251e-16 - fConst11) + -1.06990934522534e-18;
-	fConst13 = fConst4 * (-8.61601806240251e-16 - fConst11) + 1.06990934522534e-18;
-	fConst14 = fConst0 * (fConst0 * (fConst9 + 4.30800903120125e-16) + 3.17509705609174e-17) + 5.3495467261267e-19;
-	fConst15 = fConst4 * (2.32536555698307e-18 * fConst4 + -6.35019411218347e-17);
+	fConst12 = fConst0 * (fConst4 * (8.61601806240251e-16 - fConst11) + -1.06990934522534e-18);
+	fConst13 = fConst4 * (2.32536555698307e-18 * fConst4 + -6.35019411218347e-17);
+	fConst14 = fConst4 * (-8.61601806240251e-16 - fConst11) + 1.06990934522534e-18;
+	fConst15 = fConst0 * (fConst0 * (fConst9 + 4.30800903120125e-16) + 3.17509705609174e-17) + 5.3495467261267e-19;
 	clear_state_f();
 }
 
@@ -128,7 +128,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 	for (int i0 = 0; i0 < ReCount; i0 = i0 + 1) {
 		fRec1[0] = fSlow0 + 0.999 * fRec1[1];
 		fRec0[0] = double(buf[i0]) * fRec1[0] - fConst8 * (fConst7 * fRec0[1] + fConst6 * fRec0[2] + fConst5 * fRec0[3] + fConst2 * fRec0[4]);
-		double fTemp0 = fConst8 * (fConst15 * fRec0[2] + fConst0 * (fConst14 * fRec0[0] + fConst13 * fRec0[1] + fConst12 * fRec0[3] + fConst10 * fRec0[4]));
+		double fTemp0 = fConst8 * (fConst0 * (fConst15 * fRec0[0] + fConst14 * fRec0[1]) + fConst13 * fRec0[2] + fConst12 * fRec0[3] + fConst10 * fRec0[4]);
 		fRec2[0] = fSlow1 + 0.999 * fRec2[1];
 		buf[i0] = FAUSTFLOAT(fRec2[0] * ((signbit(fTemp0)) ? plexipowerampel34_negclip(fTemp0) : plexipowerampel34clip(fTemp0)));
 		fRec1[1] = fRec1[0];

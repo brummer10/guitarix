@@ -365,7 +365,7 @@ inline void Dsp::init(uint32_t sample_rate)
 	fConst90 = 2.70015032412166e-14 * fConst0;
 	fConst91 = fConst0 * (fConst0 * (fConst90 + -2.00144504609273e-12) + -1.09475884941298e-10) + 8.6135263961978e-10;
 	fConst92 = fConst0 * (fConst0 * (-2.00144504609273e-12 - fConst90) + 1.09475884941298e-10) + 8.6135263961978e-10;
-	fConst93 = (fConst0 * (fConst88 + 2.00144504609273e-12) + 1.09475884941298e-10) * fConst0 + 2.87117546539927e-10;
+	fConst93 = fConst0 * (fConst0 * (fConst88 + 2.00144504609273e-12) + 1.09475884941298e-10) + 2.87117546539927e-10;
 	fConst94 = 1.0 / fConst93;
 	fConst95 = 8.08665507806617e-14 * fConst0;
 	fConst96 = 3.42440032262935e-12 - fConst95;
@@ -444,7 +444,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		double fTemp18 = fConst101 * (fConst100 * fRec12[0] + fConst99 * fRec12[1] + fConst98 * fRec12[2] + fConst96 * fRec12[3]);
 		fRec16[0] = -(fConst69 * (fConst67 * fRec16[1] - fConst102 * (fTemp8 - fVec3[1])));
 		fRec15[0] = fRec16[0] - fConst37 * (fConst35 * fRec15[2] + fConst33 * fRec15[1]);
-		fRec14[0] = fConst103 * (fRec15[2] + (fRec15[0] - 2.0 * fRec15[1])) - (fTemp2 * fRec14[3] + fTemp4 * fRec14[1] + fTemp3 * fRec14[2] + fTemp1 * fRec14[4]) / fTemp0;
+		fRec14[0] = fConst103 * (fRec15[2] + (fRec15[0] - 2.0 * fRec15[1])) - (fTemp4 * fRec14[1] + fTemp3 * fRec14[2] + fTemp2 * fRec14[3] + fTemp1 * fRec14[4]) / fTemp0;
 		double fTemp19 = fRec1[0] * (fRec14[0] * fTemp14 + fTemp13 * fRec14[1] + fConst9 * fTemp12 * fRec14[2] + fTemp11 * fRec14[3] + fTemp9 * fRec14[4]) / fTemp0;
 		double fTemp20 = ((signbit(fTemp19)) ? redeyechumppre_negclip(fTemp19) : redeyechumppreclip(fTemp19));
 		fRec13[0] = fTemp20 - fConst7 * (fConst5 * fRec13[1] + fConst4 * fRec13[2] + fConst2 * fRec13[3]);
@@ -468,7 +468,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec28[0] = fRec29[0] - fConst51 * (fConst49 * fRec28[2] + fConst47 * fRec28[1]);
 		fRec27[0] = fConst111 * (fRec28[2] + (fRec28[0] - 2.0 * fRec28[1])) - fConst109 * (fConst108 * fRec27[2] + fTemp29);
 		fRec26[0] = fRec27[2] + fConst109 * (fTemp29 + fConst108 * fRec27[0]) - fConst105 * (fConst104 * fRec26[2] + fTemp28);
-		fRec25[0] = fRec26[2] + fConst105 * (fTemp28 + fConst104 * fRec26[0]) - (fTemp2 * fRec25[3] + fTemp4 * fRec25[1] + fTemp3 * fRec25[2] + fTemp1 * fRec25[4]) / fTemp0;
+		fRec25[0] = fRec26[2] + fConst105 * (fTemp28 + fConst104 * fRec26[0]) - (fTemp4 * fRec25[1] + fTemp3 * fRec25[2] + fTemp2 * fRec25[3] + fTemp1 * fRec25[4]) / fTemp0;
 		double fTemp30 = fRec1[0] * (fRec25[0] * fTemp14 + fTemp13 * fRec25[1] + fConst9 * fTemp12 * fRec25[2] + fTemp11 * fRec25[3] + fTemp9 * fRec25[4]) / fTemp0;
 		double fTemp31 = ((signbit(fTemp30)) ? redeyechumppre_negclip(fTemp30) : redeyechumppreclip(fTemp30));
 		fRec24[0] = fTemp31 - fConst7 * (fConst5 * fRec24[1] + fConst4 * fRec24[2] + fConst2 * fRec24[3]);

@@ -214,10 +214,10 @@ inline void Dsp::init(unsigned int RsamplingFreq)
 	fConst53 = fConst52 + 0.00107562519972983;
 	fConst54 = fConst0 * (5.20602596669238e-08 - fConst12) + 0.000537812599864916;
 	fConst55 = fConst0 * (fConst12 + 2.33324618325395e-07);
-	fConst56 = 8.52062719537733e-10 * fConst3;
-	fConst57 = 4.26031359768866e-10 * fConst0;
-	fConst58 = fConst57 + -2.06011295826338e-10;
-	fConst59 = fConst57 + 2.06011295826338e-10;
+	fConst56 = 4.26031359768866e-10 * fConst0;
+	fConst57 = fConst0 * (fConst56 + -2.06011295826338e-10);
+	fConst58 = 8.52062719537733e-10 * fConst3;
+	fConst59 = fConst0 * (fConst56 + 2.06011295826338e-10);
 	clear_state_f();
 }
 
@@ -256,7 +256,7 @@ void always_inline Dsp::compute(int count, FAUSTFLOAT *input0, FAUSTFLOAT *outpu
 		fRec2[0] = fConst51 * (fRec3[0] + fRec3[1]) - (fRec2[1] * (fRec1[0] * (fConst20 * fRec1[0] + 0.00107562519972983 - fConst19) + 0.00229710517654303 - fConst18) + fRec2[2] * (fConst17 + fRec1[0] * (fConst16 + fConst15 * fRec1[0] + 0.000537812599864916) + 0.00114855258827151)) / fTemp0;
 		fRec0[0] = (fRec2[0] * (fConst55 + fConst54 * fRec1[0] + 0.000182856283954071) + fRec2[1] * (fConst53 * fRec1[0] + 0.000365712567908143 - fConst52) + fRec2[2] * (fConst14 + fConst13 * fRec1[0] + 0.000182856283954071)) / fTemp0 - fConst5 * (fConst4 * fRec0[1] + fConst2 * fRec0[2]);
 		fRec10[0] = fSlow2 + 0.993 * fRec10[1];
-		buf[i0] = FAUSTFLOAT(fConst5 * fRec10[0] * (fConst0 * (fConst59 * fRec0[0] + fConst58 * fRec0[2]) - fConst56 * fRec0[1]));
+		buf[i0] = FAUSTFLOAT(fConst5 * fRec10[0] * (fConst59 * fRec0[0] - fConst58 * fRec0[1] + fConst57 * fRec0[2]));
 		fRec1[1] = fRec1[0];
 		fRec5[1] = fRec5[0];
 		fRec8[1] = fRec8[0];
