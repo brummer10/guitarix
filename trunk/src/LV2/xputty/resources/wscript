@@ -44,28 +44,29 @@ def img2obj(task):
     task.no_errcheck_out = True
     copyimg(task)
 
-    src_files = [os.path.splitext(v.name)[0] for v in task.inputs[0:]]
-    os_name = env['OS']
-
-    if os_name == 'darwin':
-        if (isinstance(env['CC'], list) and len(env['CC']) > 0):
+    if env['OS'] == 'darwin':
+        # Determine compiler (clang)
+        if isinstance(env['CC'], list) and len(env['CC']) > 0:
             clang = env['CC'][0]
         elif isinstance(env['CC'], str):
             clang = env['CC']
         else:
-            clang = 'clang'  # default clang if not set
+            clang = 'clang'  # default fallback
 
-        cmds = []
-        cmds.append("cd src/LV2/xputty/resources/")
-        for f in src_files:
-            c_file = "{f}_png.c"
-            png_file = "{f}.png"
-            o_file = "{f}.o"
-            sym = "_binary_{f}_png"
-            cmds.append("xxd -i {png_file} > {c_file}")
-            cmds.append("{clang} -c {c_file} -o {o_file}")
+        # Get list of source file basenames (without extension)
+        src_files = [os.path.splitext(v.name)[0] for v in task.inputs[0:]]
+        src_list = " ".join(src_files)
 
-        cmd = " && ".join(cmds)
+        # Compose shell command for macOS: generate .c from .png using xxd, then compile to .o
+        cmd = (
+            "cd src/LV2/xputty/resources/ && "
+            "for f in {src}; do "
+            "xxd -i ${{f}}.png > ${{f}}_png.c && "
+            "{clang} -c ${{f}}_png.c -o ${{f}}.o; "
+            "done"
+        ).format(src=src_list, clang=clang)
+
+        return task.exec_command(cmd, shell=True)
        
     else:
         before = ['xcairo']
