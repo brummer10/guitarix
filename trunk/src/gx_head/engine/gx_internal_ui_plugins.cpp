@@ -142,7 +142,7 @@ void TunerAdapter::init(unsigned int samplingFreq, PluginDef *plugin) {
     // zita-convoler uses 5 levels, so subtract 6
     self.engine.get_sched_priority(policy, priority, 6);
     self.lhc.init(samplingFreq);
-    self.pitch_tracker.init(policy, priority, samplingFreq);
+    self.pitch_tracker.init(priority, policy, samplingFreq);
 }
 
 void TunerAdapter::set_and_check(int use, bool on) {
