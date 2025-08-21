@@ -623,4 +623,26 @@ void GxEngine::ladspaloader_update_plugins() {
     plugin_changed(0, PluginChange::update);
 }
 
+std::vector<Glib::ustring>& GxEngine::get_file_list_by_id(const std::string& id) {
+    list.clear();
+    if (id == "nam.flist") {
+        list = neural_amp.nam_file_names;
+    } else if (id == "snam.flist") {
+        list = sneural_amp.nam_file_names;
+    } else if (id == "mnam.falist") {
+        list = mneural_amp.nam_afile_names;
+    } else if (id == "mnam.fblist") {
+        list = mneural_amp.nam_bfile_names;
+    } else if (id == "rtneural.flist") {
+        list = rtneural.rtneural_file_names;
+    } else if (id == "srtneural.flist") {
+        list = srtneural.rtneural_file_names; 
+    } else if (id == "mrtneural.falist") {
+        list = rtneuralmulti.rtneural_afile_names;
+    } else if (id == "mrtneural.fblist") {
+        list = rtneuralmulti.rtneural_bfile_names;
+    }
+    return list;
+}
+
 } /* end of gx_engine namespace */

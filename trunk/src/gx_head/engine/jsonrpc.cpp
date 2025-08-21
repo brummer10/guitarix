@@ -503,6 +503,15 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
         jw.end_array();
     }
 
+    FUNCTION(get_file_list) {
+        std::vector<Glib::ustring>& ul = serv.jack.get_engine().get_file_list_by_id(params[0]->getString());
+        jw.begin_array();
+        for (std::vector<Glib::ustring>::iterator i = ul.begin(); i != ul.end(); ++i) {
+            jw.write(*i);
+        }
+        jw.end_array();
+    }
+
     FUNCTION(get_parameter) {
         gx_engine::ParamMap& param = serv.settings.get_param();
         jw.begin_object();

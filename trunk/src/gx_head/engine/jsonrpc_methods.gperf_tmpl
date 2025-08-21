@@ -114,6 +114,7 @@ struct CmdConnection::methodnames;
 "pluginlist", true
 "plugin_load_ui", true
 "get_rack_unit_order", true
+"get_file_list", true
 "insert_rack_unit", false
 "remove_rack_unit", false
 "queryunit", true

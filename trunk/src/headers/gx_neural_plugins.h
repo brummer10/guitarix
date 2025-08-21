@@ -86,7 +86,6 @@ private:
     Glib::ustring load_file;
     Glib::ustring current_file;
     Glib::ustring load_path;
-    std::vector<Glib::ustring> nam_file_names;
     std::string idstring;
 
     void clear_state_f();
@@ -105,6 +104,7 @@ private:
     static int register_params_static(const ParamReg& reg);
     static void del_instance(PluginDef *p);
 public:
+    std::vector<Glib::ustring> nam_file_names;
     Plugin plugin;
     NeuralAmp(ParamMap& param_, std::string id, sigc::slot<void> sync);
     ~NeuralAmp();
@@ -160,8 +160,6 @@ private:
     Glib::ustring current_bfile;
     Glib::ustring load_apath;
     Glib::ustring load_bpath;
-    std::vector<Glib::ustring> nam_afile_names;
-    std::vector<Glib::ustring> nam_bfile_names;
     std::string idstring;
 
     void clear_state_f();
@@ -186,6 +184,8 @@ private:
     static int register_params_static(const ParamReg& reg);
     static void del_instance(PluginDef *p);
 public:
+    std::vector<Glib::ustring> nam_afile_names;
+    std::vector<Glib::ustring> nam_bfile_names;
     Plugin plugin;
     NeuralAmpMulti(ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
     ~NeuralAmpMulti();
@@ -215,7 +215,6 @@ private:
     Glib::ustring load_file;
     Glib::ustring current_file;
     Glib::ustring load_path;
-    std::vector<Glib::ustring> rtneural_file_names;
     std::string idstring;
 
     void clear_state_f();
@@ -235,6 +234,7 @@ private:
     static int register_params_static(const ParamReg& reg);
     static void del_instance(PluginDef *p);
 public:
+    std::vector<Glib::ustring> rtneural_file_names;
     Plugin plugin;
     RtNeural(ParamMap& param_, std::string id, sigc::slot<void> sync);
     ~RtNeural();
@@ -288,8 +288,6 @@ private:
     Glib::ustring current_bfile;
     Glib::ustring load_apath;
     Glib::ustring load_bpath;
-    std::vector<Glib::ustring> rtneural_afile_names;
-    std::vector<Glib::ustring> rtneural_bfile_names;
     std::string idstring;
 
     void clear_state_f();
@@ -315,6 +313,8 @@ private:
     static int register_params_static(const ParamReg& reg);
     static void del_instance(PluginDef *p);
 public:
+    std::vector<Glib::ustring> rtneural_afile_names;
+    std::vector<Glib::ustring> rtneural_bfile_names;
     Plugin plugin;
     RtNeuralMulti(ParamMap& param_, std::string id, ParallelThread *pro_, sigc::slot<void> sync);
     ~RtNeuralMulti();

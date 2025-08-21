@@ -581,6 +581,10 @@ const std::vector<std::string>& GxMachine::get_rack_unit_order(PluginType type) 
     return settings.get_rack_unit_order(type == PLUGIN_TYPE_STEREO);
 }
 
+const std::vector<Glib::ustring>& GxMachine::get_file_list(const std::string& id) {
+    return engine.get_file_list_by_id(id);
+}
+
 sigc::signal<void,bool>& GxMachine::signal_rack_unit_order_changed() {
     return settings.signal_rack_unit_order_changed();
 }
@@ -2053,6 +2057,27 @@ const std::vector<std::string>& GxMachineRemote::get_rack_unit_order(PluginType 
     l.clear();
     START_CALL(get_rack_unit_order);
     jw->write(stereo);
+    START_RECEIVE(l);
+    try {
+	jp->next(gx_system::JsonParser::begin_array);
+	while (jp->peek() != gx_system::JsonParser::end_array) {
+	    jp->next(gx_system::JsonParser::value_string);
+	    l.push_back(jp->current_value());
+	}
+	jp->next(gx_system::JsonParser::end_array);
+    } catch (gx_system::JsonException& e) {
+	cerr << "JsonException: " << e.what() << ": '" << jp->get_string() << "'" << endl;
+	assert(false);
+    }
+    return l;
+    END_RECEIVE(return l);
+}
+
+const std::vector<Glib::ustring>& GxMachineRemote::get_file_list(const std::string& id) {
+    std::vector<Glib::ustring>& l = list;
+    l.clear();
+    START_CALL(get_file_list);
+    jw->write(id);
     START_RECEIVE(l);
     try {
 	jp->next(gx_system::JsonParser::begin_array);

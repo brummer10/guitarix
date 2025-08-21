@@ -221,16 +221,17 @@ static gboolean gx_selector_draw (GtkWidget *widget, cairo_t *cr)
 
 	if (selector->model) {
 		PangoRectangle logical;
-		char *s;
 		GtkTreeIter iter;
-		gtk_tree_model_iter_nth_child(selector->model, &iter, NULL, selectorstate);
-		gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
-		pango_layout_set_text(layout, s, -1);
-		pango_layout_get_pixel_extents(layout, NULL, &logical);
-		gint x = text.x + (text.width - logical.width) / 2;
-		gint y = off_y;
-		gtk_render_layout(sc, cr, x, y, layout);
-		g_free(s);
+		if (gtk_tree_model_iter_nth_child(selector->model, &iter, NULL, selectorstate)) {
+            char *s;
+            gtk_tree_model_get(selector->model, &iter, 0, &s, -1);
+            pango_layout_set_text(layout, s, -1);
+            pango_layout_get_pixel_extents(layout, NULL, &logical);
+            gint x = text.x + (text.width - logical.width) / 2;
+            gint y = off_y;
+            gtk_render_layout(sc, cr, x, y, layout);
+            g_free(s);
+        }
 	}
 	g_object_unref(layout);
 	return TRUE;

@@ -270,32 +270,37 @@ void StackBoxBuilder::set_neural_filelist(Gxw::Selector *sel, std::string id,
         machine.set_parameter_value(pathid, path);
         sel->unset_model();
         (*file_names).clear();
-
-        Glib::ustring hostname = "localhost";
-        if (! machine.get_jack()) {
-            hostname = Gio::Resolver::get_default()->lookup_by_address
-            (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
-        }
-        Glib::RefPtr<Gio::File> file = Gio::File::create_for_uri(Glib::filename_to_uri(path, hostname));
-
         unsigned int j = 0;
+        unsigned int i = 0;
         Glib::ustring s = p->getString().get_value();
         s = s.substr(s.find_last_of("/\\") + 1);
-        unsigned int i = 0;
 
-        if (file->query_exists()) {
-            Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
-                  file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
-                            "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
-                            "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
-            Glib::RefPtr<Gio::FileInfo> file_info;
-            (*file_names).push_back("None");
-            while ((file_info = child_enumeration->next_file())) {
-                std::string name = file_info->get_name();
-                if (endsWith(name, 4, extension) || endsWith(name, 4, extension2)) {
-                    (*file_names).push_back(file_info->get_name());
-                    i++;
-                    if (i > 126) break;
+        if (! machine.get_jack()) {
+            (*file_names) = machine.get_file_list(id);
+        } else {
+
+            Glib::ustring hostname = "localhost";
+            if (! machine.get_jack()) {
+                hostname = Gio::Resolver::get_default()->lookup_by_address
+                (Gio::InetAddress::create( machine.get_options().get_rpcaddress()));
+            }
+            Glib::RefPtr<Gio::File> file = Gio::File::create_for_uri(Glib::filename_to_uri(path, hostname));
+
+
+            if (file->query_exists()) {
+                Glib::RefPtr<Gio::FileEnumerator> child_enumeration =
+                      file->enumerate_children(G_FILE_ATTRIBUTE_STANDARD_NAME
+                                "," G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME
+                                "," G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
+                Glib::RefPtr<Gio::FileInfo> file_info;
+                (*file_names).push_back("None");
+                while ((file_info = child_enumeration->next_file())) {
+                    std::string name = file_info->get_name();
+                    if (endsWith(name, 4, extension) || endsWith(name, 4, extension2)) {
+                        (*file_names).push_back(file_info->get_name());
+                        i++;
+                        if (i > 126) break;
+                    }
                 }
             }
         }

@@ -73,6 +73,7 @@ private:
     sigc::signal<void,Plugin*,PluginChange::pc> plugin_changed;
     LadspaLoader ladspaloader;
     void load_static_plugins();
+    std::vector<Glib::ustring> list;
 public:
     MidiControllerList controller_map;
     // ModuleSelector's
@@ -119,6 +120,7 @@ public:
     ~GxEngine();
     void ladspaloader_update_plugins();
     sigc::signal<void,Plugin*,PluginChange::pc>& signal_plugin_changed() { return plugin_changed; }
+    std::vector<Glib::ustring>& get_file_list_by_id(const std::string& id);
 };
 
 /* ------------------------------------------------------------------- */

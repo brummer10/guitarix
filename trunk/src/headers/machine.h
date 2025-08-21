@@ -97,6 +97,7 @@ public:
     virtual void tuner_used_by_midi(bool on) = 0;
     virtual void tuner_switch(bool on) = 0;
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type) = 0;
+    virtual const std::vector<Glib::ustring>& get_file_list(const std::string& id) = 0;
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed() = 0;
     virtual void remove_rack_unit(const std::string& unit, PluginType type) = 0;
     virtual void insert_rack_unit(const std::string& unit, const std::string& before, PluginType type) = 0;
@@ -298,6 +299,7 @@ public:
     virtual void tuner_used_by_midi(bool on);
     virtual void tuner_switch(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
+    virtual const std::vector<Glib::ustring>& get_file_list(const std::string& id);
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed();
     virtual void remove_rack_unit(const std::string& unit, PluginType type);
     virtual void insert_rack_unit(const std::string& unit, const std::string& before, PluginType type);
@@ -412,6 +414,7 @@ private:
     sigc::signal<void> selection_changed;
     sigc::signal<void> presetlist_changed;
     Glib::RefPtr<Gio::Socket> socket;
+    std::vector<Glib::ustring> list;
 #ifdef GUITARIX_AS_PLUGIN
     __gnu_cxx::stdio_filebuf<char> *writebuf;
     ostream *os;
@@ -488,6 +491,7 @@ public:
     virtual void tuner_used_by_midi(bool on);
     virtual void tuner_switch(bool on);
     virtual const std::vector<std::string>& get_rack_unit_order(PluginType type);
+    virtual const std::vector<Glib::ustring>& get_file_list(const std::string& id);
     virtual sigc::signal<void,bool>& signal_rack_unit_order_changed();
     virtual void remove_rack_unit(const std::string& unit, PluginType type);
     virtual void insert_rack_unit(const std::string& unit, const std::string& before, PluginType type);

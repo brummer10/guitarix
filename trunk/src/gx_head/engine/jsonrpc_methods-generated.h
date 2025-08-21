@@ -57,6 +57,7 @@ enum jsonrpc_method {
 	RPCM_pluginlist,
 	RPCM_plugin_load_ui,
 	RPCM_get_rack_unit_order,
+	RPCM_get_file_list,
 	RPNM_insert_rack_unit,
 	RPNM_remove_rack_unit,
 	RPCM_queryunit,
