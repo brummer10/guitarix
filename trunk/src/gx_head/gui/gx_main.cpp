@@ -850,13 +850,13 @@ static bool is_frontend(int argc, char *argv[]) {
 }
 
 static void mainGtk(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTheme& theme, GxSplashBox *Splash, bool need_new_preset) {
-
+/*
     GxRtCheck rtc;
     if (!rtc.run_check()) {
         delete Splash;
         gx_print_fatal(_("Guitarix"), "Can't access realtime priority, exit now");
     }
-
+*/
     gx_engine::GxMachine machine(options);
 #if 0
     while(Gtk::Main::events_pending()) {

@@ -317,13 +317,13 @@ private:
     inline void setThreadPolicy(int32_t rt_prio, int32_t rt_policy) noexcept {
         #if defined(__linux__) || defined(_UNIX) || defined(__APPLE__) || defined(_OS_UNIX_)
         sched_param sch_params;
-        if (rt_prio == 0) {
+        if (rt_prio <= 0) {
             rt_prio = sched_get_priority_max(rt_policy);
         }
         if ((rt_prio/5) > 0) rt_prio = rt_prio/5;
         sch_params.sched_priority = rt_prio;
         if (pthread_setschedparam(pThd.native_handle(), rt_policy, &sch_params)) {
-            fprintf(stderr, "ParallelThread:%s fail to set priority\n", threadName.c_str());
+            fprintf(stderr, "ParallelThread:%s fail to set priority %i shed %i\n", threadName.c_str(), rt_prio, rt_policy);
         }
         #elif defined(_WIN32)
         // REALTIME_PRIORITY_CLASS, THREAD_PRIORITY_NORMAL

@@ -714,7 +714,7 @@ void GxJack::gx_jack_callbacks() {
           client_insert, "out_1", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
     }
 
-    engine.init(jack_sr, jack_bs, SCHED_FIFO,
+    engine.init(jack_sr, jack_bs, get_is_rt() ? SCHED_FIFO : SCHED_OTHER,
 		jack_client_real_time_priority(client));
     jack_set_process_callback(client, gx_jack_process, this);
     if (!single_client) jack_set_process_callback(client_insert, gx_jack_insert_process, this);
