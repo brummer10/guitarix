@@ -37,6 +37,56 @@
 
 namespace gx_jack {
 #ifndef GUITARIX_AS_PLUGIN
+
+/****************************************************************
+ ** class GxRtCheck
+ ** check if user have realtime priority
+ */
+
+GxRtCheck::GxRtCheck() :
+    isRT(false),
+    _execute(true)
+    {run();}
+
+GxRtCheck::~GxRtCheck() {}
+
+bool GxRtCheck::run_check() {
+    isRT = true;
+#if defined(__linux__) || defined(_UNIX) || defined(__APPLE__)
+    sched_param sch_params;
+    sch_params.sched_priority = 50;
+    if (pthread_setschedparam(_thd.native_handle(), SCHED_FIFO, &sch_params)) {
+        gx_print_info(
+            _("Jack init"),
+            boost::format(_("Can't use Realtime Priority")));
+        isRT = false;
+    }
+#elif defined(_WIN32)
+    // HIGH_PRIORITY_CLASS, THREAD_PRIORITY_TIME_CRITICAL
+    if (SetThreadPriority(_thd.native_handle(), 15)) {
+        isRT = false;
+    }
+#else
+    //system does not supports thread priority!
+    isRT = false;
+#endif
+    _execute.store(false, std::memory_order_release);
+    if (_thd.joinable()) {
+        cv.notify_one();
+        _thd.join();
+    }
+    return isRT;
+}
+
+void GxRtCheck::run() {
+    _thd = std::thread([this]() {
+        while (_execute.load(std::memory_order_acquire)) {
+            std::unique_lock<std::mutex> lk(m);
+            cv.wait(lk);
+        }
+    });
+}
+
 /****************************************************************
  ** class GxJack
  ****************************************************************/
@@ -137,6 +187,8 @@ bool MidiCC::send_midi_cc(int _cc, int _pg, int _bgn, int _num) {
 
 GxJack::GxJack(gx_engine::GxEngine& engine_)
     : sigc::trackable(),
+      rtc(),
+      IS_RT(false),
       engine(engine_),
       jack_is_down(false),
       jack_is_exit(true),
@@ -279,6 +331,7 @@ int GxJack::is_power_of_two (unsigned int x)
 // ----- pop up a dialog for starting jack
 bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_system::CmdlineOptions& opt) {
     AVOIDDENORMALS();
+    IS_RT = rtc.run_check();
     single_client = opt.get_jack_single();
     int jackopt = (startserver ? JackNullOption : JackNoStartServer);
     client_instance = opt.get_jack_instancename();
@@ -715,7 +768,7 @@ void GxJack::gx_jack_callbacks() {
     }
 
     engine.init(jack_sr, jack_bs, get_is_rt() ? SCHED_FIFO : SCHED_OTHER,
-		jack_client_real_time_priority(client));
+		get_is_rt() ? jack_client_real_time_priority(client) : 0);
     jack_set_process_callback(client, gx_jack_process, this);
     if (!single_client) jack_set_process_callback(client_insert, gx_jack_insert_process, this);
     if (jack_activate(client) != 0) {

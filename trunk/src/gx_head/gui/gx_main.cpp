@@ -660,59 +660,6 @@ void GxSplashBox::on_show() {
 }
 
 /****************************************************************
- ** class GxRtCheck
- ** check if user have realtime priority
- */
-
-class GxRtCheck {
-private:
-    std::thread _thd;
-    std::mutex m;
-    bool set_priority();
-    void run();
-
-public:
-    bool run_check();
-    GxRtCheck();
-    ~GxRtCheck();
-};
-GxRtCheck::GxRtCheck() {run();}
-
-GxRtCheck::~GxRtCheck() {}
-
-bool GxRtCheck::run_check() {
-#if defined(__linux__) || defined(_UNIX) || defined(__APPLE__)
-    sched_param sch_params;
-    sch_params.sched_priority = 50;
-    if (pthread_setschedparam(_thd.native_handle(), SCHED_FIFO, &sch_params)) {
-        return false;
-    }
-#elif defined(_WIN32)
-    // HIGH_PRIORITY_CLASS, THREAD_PRIORITY_TIME_CRITICAL
-    if (SetThreadPriority(_thd.native_handle(), 15)) {
-        return false;
-    }
-#else
-    //system does not supports thread priority!
-#endif
-
-    m.unlock();
-    if (_thd.joinable()) {
-        _thd.join();
-    }
-    return true;
-}
-
-void GxRtCheck::run() {
-    m.lock();
-    _thd = std::thread([this]() {
-        /* Initially locked by the main thread, then released when this thread
-         * should delete itself */
-        std::scoped_lock<std::mutex> lk(m);
-    });
-}
-
-/****************************************************************
  ** main()
  */
  
@@ -854,7 +801,7 @@ static void mainGtk(gx_system::CmdlineOptions& options, NsmSignals& nsmsig, GxTh
     GxRtCheck rtc;
     if (!rtc.run_check()) {
         delete Splash;
-        gx_print_fatal(_("Guitarix"), "Can't access realtime priority, exit now");
+        gx_print_error(_("Guitarix"), "Can't access realtime priority, exit now");
     }
 */
     gx_engine::GxMachine machine(options);

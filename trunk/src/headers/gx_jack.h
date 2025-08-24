@@ -44,6 +44,27 @@ class GxEngine;
 namespace gx_jack {
 
 /****************************************************************
+ ** class GxRtCheck
+ ** check if user have realtime priority
+ */
+
+class GxRtCheck {
+private:
+    std::thread _thd;
+    std::mutex m;
+    std::condition_variable cv;
+    bool isRT;
+    std::atomic<bool> _execute;
+    bool set_priority();
+    void run();
+
+public:
+    bool run_check();
+    GxRtCheck();
+    ~GxRtCheck();
+};
+
+/****************************************************************
  ** port connection callback
  */
 
@@ -146,6 +167,8 @@ inline void MidiCC::fill(unsigned char *midi_send, int i) {
 
 class GxJack: public sigc::trackable {
  private:
+    GxRtCheck           rtc;
+    bool                IS_RT;
     gx_engine::GxEngine& engine;
     bool                jack_is_down;
     bool                jack_is_exit;
@@ -215,7 +238,7 @@ class GxJack: public sigc::trackable {
     jack_nframes_t      get_jack_sr() { return jack_sr; }
     jack_nframes_t      get_jack_bs() { return jack_bs; }
     float               get_jcpu_load() { return client ? jack_cpu_load(client) : -1; }
-    bool                get_is_rt() { return client ? jack_is_realtime(client) : false; }
+    bool                get_is_rt() { return client ? IS_RT: false; }
     jack_nframes_t      get_time_is() { return client ? jack_frame_time(client) : 0; }
 
 public:
