@@ -471,7 +471,7 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
 		
 	// create buffer to bypass the insert ports
     insert_buffer = new float[jack_bs];
-    
+    if (IS_RT) IS_RT = jack_is_realtime(client) ? true : false;
     gx_jack_callbacks();
     client_change(); // might load port connection definitions
     if (opt.get_jack_uuid().empty() && !opt.get_jack_noconnect()) {
