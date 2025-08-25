@@ -16,7 +16,7 @@ class strip(Task.Task):
             return Task.RUN_ME
         return Task.SKIP_ME
 
-@feature('strip -x')
+@feature('strip')
 @after_method('apply_link')
 def add_strip_task(self):
     try:
