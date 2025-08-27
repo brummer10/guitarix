@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import re, os, sys
@@ -661,7 +661,7 @@ class Parser(object):
 
 
 template_plugin_insert = """\
-#! /usr/bin/python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 insert_p1_incl = \"\"\"
