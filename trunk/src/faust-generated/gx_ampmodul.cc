@@ -127,8 +127,8 @@ public:
 
 
 static const char* parm_groups[] = {
-	"amp2.stage2", N_("Postamp Tube2"),
 	"amp2.stage1", N_("Postamp Tube1"),
+	"amp2.stage2", N_("Postamp Tube2"),
 	0
 	};
 

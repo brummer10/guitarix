@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # encoding: utf-8
 
 import sys, os, re, shutil
@@ -8,8 +8,8 @@ from waflib.TaskGen import extension, taskgen_method, feature, before_method, af
 
 # Waf version check, for global waf installs
 
-if Context.WAFVERSION[:3] != '2.0':
-    print('Incompatible Waf, use 2.0')
+if Context.WAFVERSION[:3] != '2.1':
+    print('Incompatible Waf, use 2.1')
     sys.exit (1)
 
 # these variables are mandatory ('/' are converted automatically)
@@ -104,7 +104,7 @@ def options(opt):
     opt.load('compiler_c') # for pygxw and glade-gxw
 
     opt.add_option('--dist-tree',
-                   type='string',
+                   type=str,
                    dest='dist_tree',
                    help=("option for 'dist' command: git tree-ish to build"
                          " the archive from [Default: %s]" % 'V%s' % VERSION))

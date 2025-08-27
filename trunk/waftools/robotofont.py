@@ -10,7 +10,7 @@ def options(opt):
                     help=("install the included roboto condensed font"))
 
     style.add_option('--fontdir',
-                    type='string',
+                    type=str,
                     help=('roboto condensed font install directory [Default: <prefix>/share/fonts/truetype]'))
 
     style.add_option('--no-font-cache-update',

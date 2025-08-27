@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import re, os, sys
@@ -421,7 +421,7 @@ class Parser(object):
     def splitgroups(self, value):
         d = {}
         for l in re.split(r"\]\s*,\s*", value):
-            a = re.split(r"\s*\[\s*",l,1)
+            a = re.split(r"\s*\[\s*",l, maxsplit=1)
             g = a[0].strip()
             if len(a) == 1:
                 v = "?"

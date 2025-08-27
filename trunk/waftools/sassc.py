@@ -3,7 +3,7 @@ from waflib.TaskGen import extension, feature
 import os, re
 
 def scan_scss(fname):
-    defn = re.compile(' *\* *([-a-zA-Z0-9_]+) *: *([-a-zA-Z0-9_.]+)').match
+    defn = re.compile(' *\\* *([-a-zA-Z0-9_]+) *: *([-a-zA-Z0-9_.]+)').match
     with open(fname) as fd:
         for line in fd:
             if line.strip() == '/* ICON THEME':

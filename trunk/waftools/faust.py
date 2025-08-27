@@ -174,7 +174,10 @@ def options(opt):
               "in single (float) precision")))
 
     o.append(faust.add_option('--faust-options', help="additional faust options"))
-    Context.g_module.faust_params = [(v.dest, v.get_opt_string()) for v in o]
+    Context.g_module.faust_params = [
+    (v.dest, getattr(v, "get_opt_string", lambda: v.option_strings[0])())
+    for v in o
+]
 
 def check_faust(conf):
     opt = conf.options

@@ -89,7 +89,7 @@ def options(opt):
                     help=("Install MOD LV2 GUI's (Default no)"))
 
     lv2.add_option('--lv2dir',
-                    type='string',
+                    type=str,
                     help='LV2 plugin directory [Default: <prefix>/lib/lv2]')
 
     lv2.add_option('--disable-sse',
