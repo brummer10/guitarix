@@ -728,7 +728,15 @@ static void mainHeadless(int argc, char *argv[]) {
     if (!options.get_setbank().empty())
         machine.load_preset(machine.get_bank_file(options.get_cmdline_bank()), options.get_cmdline_preset()); 
     // ----------------------- Run Glib main loop ----------------------
-    cout << "Ctrl-C to quit\n";
+    cout << "      ---------------------------------------------" << endl <<
+            "      *     ____       _ _             _          *" << endl <<
+            "      *    / ___|_   _(_) |_ __ _ _ __(_)_  __    *" << endl <<
+            "      *   | |  _| | | | | __/ _` | '__| \\ \\/ /    *" << endl <<
+            "      *   | |_| | |_| | | || (_| | |  | |>  <     *" << endl <<
+            "      *    \\____|\\__,_|_|\\__\\__,_|_|  |_/_/\\_\\    *" << endl <<
+            "      *                                           *" << endl <<
+            "      ---------------------------------------------" << endl;
+    cout << "                Press Ctrl-C to quit\n";
     Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create();
     machine.get_jack()->shutdown.connect(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit));
     int port = options.get_rpcport();
