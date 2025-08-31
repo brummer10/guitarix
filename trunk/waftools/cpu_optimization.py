@@ -95,6 +95,20 @@ def append_optimization_flags(conf, cxxflags):
     except IOError:
         pass
     if cpu_model is None or x86_flags is None:
+        try:
+            v = os.popen('lscpu').read()
+            for line in v.splitlines():
+                if cpu_model is None:
+                    if line.startswith("Model name"):
+                        cpu_model = line.split(":",1)[1].strip()
+                elif x86_flags is None:
+                    if line.startswith("Flags"):
+                        x86_flags = line.split(":",1)[1].strip()
+                else:
+                    break
+        except IOError:
+            pass
+    if cpu_model is None or x86_flags is None:
         conf.display_msg_1("Checking CPU Architecture",
                          "cpu model not found in /proc/cpuinfo",
                          "YELLOW")
@@ -111,6 +125,12 @@ def append_optimization_flags(conf, cxxflags):
         cxxflags.append ("-march=geode")
     elif "Core" in model and "x86_64" in arch:
         cxxflags.append ("-march=core2")
+    elif "BCM2837" in model and "x86_64" in arch: #PI 3
+        cxxflags.append ("-mcpu=cortex-a53 -mfloat-abi=hard -mfpu=neon-fp-armv8 -mneon-for-64bits")
+    elif "BCM2711" in model and "x86_64" in arch: # PI 4
+        cxxflags.append ("-mcpu=cortex-a72 -mfloat-abi=hard -mfpu=neon-fp-armv8 -mneon-for-64bits")
+    elif "BCM2712" in model and "x86_64" in arch: # PI 5
+        cxxflags.append ("-mcpu=armv8.2-a+crypto+fp16+rcpc+dotprod -mfloat-abi=hard -mfpu=neon-fp-armv8 -mneon-for-64bits")
     elif "i386" in arch:
         cxxflags.append ("-march=i386")
     elif "i486" in arch:

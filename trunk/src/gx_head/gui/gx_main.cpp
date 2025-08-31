@@ -735,8 +735,8 @@ static void mainHeadless(int argc, char *argv[]) {
             "      *   | |_| | |_| | | || (_| | |  | |>  <     *" << endl <<
             "      *    \\____|\\__,_|_|\\__\\__,_|_|  |_/_/\\_\\    *" << endl <<
             "      *                                           *" << endl <<
-            "      ---------------------------------------------" << endl;
-    cout << "                Press Ctrl-C to quit\n";
+            "      ---------------------------------------------" << endl <<
+            "             Press Ctrl-C to quit                  " << endl;
     Glib::RefPtr<Glib::MainLoop> loop = Glib::MainLoop::create();
     machine.get_jack()->shutdown.connect(sigc::mem_fun(loop.operator->(),&Glib::MainLoop::quit));
     int port = options.get_rpcport();
