@@ -78,6 +78,18 @@ def check_v3 (conf, x86_flags):
     conf.display_msg_1("Checking for x86-64-v3 support", s, f)
     return res
 
+def detect_pi_model():
+    """
+    Detects and returns the Raspberry Pi board model.
+    Returns a string representing the model, or None if not found or on a non-Pi system.
+    """
+    try:
+        with open('/proc/device-tree/model', 'r') as f:
+            model = f.read().strip()
+            return model
+    except FileNotFoundError:
+        # This file only exists on Raspberry Pi devices
+        return None
 
 def append_optimization_flags(conf, cxxflags):
     cpu_model = None
@@ -113,8 +125,12 @@ def append_optimization_flags(conf, cxxflags):
                          "cpu model not found in /proc/cpuinfo",
                          "YELLOW")
         return None
+    
     model = cpu_model.split()
     arch = os.uname()[4]
+
+    pi_model = detect_pi_model()
+    
     if check_v3(conf, x86_flags):
         cxxflags.append ("-march=x86-64-v3")
     elif "AMD" in model and "x86_64" in arch:
@@ -125,12 +141,8 @@ def append_optimization_flags(conf, cxxflags):
         cxxflags.append ("-march=geode")
     elif "Core" in model and "x86_64" in arch:
         cxxflags.append ("-march=core2")
-    elif "BCM2837" in model and "x86_64" in arch: #PI 3
-        cxxflags.append ("-mcpu=cortex-a53 -mfloat-abi=hard -mfpu=neon-fp-armv8 -mneon-for-64bits")
-    elif "BCM2711" in model and "x86_64" in arch: # PI 4
-        cxxflags.append ("-mcpu=cortex-a72 -mfloat-abi=hard -mfpu=neon-fp-armv8 -mneon-for-64bits")
-    elif "BCM2712" in model and "x86_64" in arch: # PI 5
-        cxxflags.append ("-mcpu=armv8.2-a+crypto+fp16+rcpc+dotprod -mfloat-abi=hard -mfpu=neon-fp-armv8 -mneon-for-64bits")
+    elif pi_model != None and "Raspberry Pi" in pi_model:
+        cxxflags.extend (["-mcpu=native", "-march=native", "-mtune=native"])
     elif "i386" in arch:
         cxxflags.append ("-march=i386")
     elif "i486" in arch:
