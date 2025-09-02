@@ -204,7 +204,7 @@ void NeuralAmp::load_nam_file_impl() {
 
 // non rt callback
 void NeuralAmp::load_nam_file() {
-    if (!load_file.empty() && is_inited) {
+    if (is_inited) {
         if (nam_file_names.size() < 1 || filelist < 1.0) return;
         load_file = load_path + "/" + nam_file_names[filelist];
         if (!current_file.empty() && (current_file.compare(load_file) == 0)) {
@@ -587,7 +587,7 @@ void NeuralAmpMulti::load_nam_afile_impl() {
 
 // non rt callback
 void NeuralAmpMulti::load_nam_afile() {
-    if (!load_afile.empty() && is_inited) {
+    if (is_inited) {
         if (nam_afile_names.size() < 1 || afilelist < 1.0) return;
         load_afile = load_apath + "/" + nam_afile_names[afilelist];
         if (!current_afile.empty() && (current_afile.compare(load_afile) == 0)) {
@@ -645,7 +645,7 @@ void NeuralAmpMulti::load_nam_bfile_impl() {
 
 // non rt callback
 void NeuralAmpMulti::load_nam_bfile() {
-    if (!load_bfile.empty() && is_inited) {
+    if (is_inited) {
         if (nam_bfile_names.size() < 1 || bfilelist < 1.0) return;
         load_bfile = load_bpath + "/" + nam_bfile_names[bfilelist];
         if (!current_bfile.empty() && (current_bfile.compare(load_bfile) == 0)) {
@@ -970,7 +970,7 @@ void RtNeural::load_json_file_impl() {
 
 // non rt callback
 void RtNeural::load_json_file() {
-    if (!load_file.empty() && is_inited) {
+    if (is_inited) {
         if (rtneural_file_names.size() < 1 || filelist < 1.0) return;
         load_file = load_path + "/" + rtneural_file_names[filelist];
         if (!current_file.empty() && (current_file.compare(load_file) == 0)) {
@@ -1377,7 +1377,7 @@ void RtNeuralMulti::load_json_afile_impl() {
 
 // non rt callback
 void RtNeuralMulti::load_json_afile() {
-    if (!load_afile.empty() && is_inited) {
+    if (is_inited) {
         if (rtneural_afile_names.size() < 1 || afilelist < 1.0) return;
         load_afile = load_apath + "/" + rtneural_afile_names[afilelist];
         if (!current_afile.empty() && (current_afile.compare(load_afile) == 0)) {
@@ -1428,7 +1428,7 @@ void RtNeuralMulti::load_json_bfile_impl() {
 
 // non rt callback
 void RtNeuralMulti::load_json_bfile() {
-    if (!load_bfile.empty() && is_inited) {
+    if (is_inited) {
         if (rtneural_bfile_names.size() < 1 || bfilelist < 1.0) return;
         load_bfile = load_bpath + "/" + rtneural_bfile_names[bfilelist];
         if (!current_bfile.empty() && (current_bfile.compare(load_bfile) == 0)) {
