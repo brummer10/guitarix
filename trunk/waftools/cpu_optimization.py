@@ -14,19 +14,19 @@ def options(opt):
                     type=str,
                     default='-O3 -DNDEBUG',
                     dest='cxxflags_release',
-                    help='additional C++ compiler flags for release version (not used if --debug) [Default: %default]')
+                    help='additional C++ compiler flags for release version (not used if --debug) [Default: -O3 -DNDEBUG]')
 
     comp.add_option('--cxxflags-debug',
                     type=str,
                     default='-O2 -g -fstack-protector-all',
                     dest='cxxflags_debug',
-                    help='additional C++ compiler flags for debug version (only used if --debug) [Default: %default]')
+                    help='additional C++ compiler flags for debug version (only used if --debug) [Default: -O2 -g -fstack-protector-all]')
 
     comp.add_option('--cxxflags',
                     type=str,
                     default='-Wall -DGSEAL_ENABLE', # -fomit-frame-pointer -ffast-math -fstrength-reduce -mmmx -mfpmath=sse -DUSE_XMMINTRIN -pipe
                     dest='cxxflags',
-                    help='C++ base compiler flags [Default: %default]')
+                    help='C++ base compiler flags [Default: -Wall -DGSEAL_ENABLE]')
 
     comp.add_option('--ldflags',
                     type=str,
@@ -141,6 +141,10 @@ def append_optimization_flags(conf, cxxflags):
         cxxflags.append ("-march=geode")
     elif "Core" in model and "x86_64" in arch:
         cxxflags.append ("-march=core2")
+    elif "Cortex-A72" in model :
+        cxxflags.append ("-march=armv8-a")
+    elif "Cortex-A53" in model :
+        cxxflags.append ("-march=armv8-a")
     elif pi_model != None and "Raspberry Pi" in pi_model:
         cxxflags.extend (["-mcpu=native", "-march=native", "-mtune=native"])
     elif "i386" in arch:
