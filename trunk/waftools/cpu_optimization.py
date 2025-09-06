@@ -144,18 +144,12 @@ def append_optimization_flags(conf, cxxflags):
     elif "Cortex-A76" in model : # PI 5
         cxxflags.append ("-march=armv8-a")
         cxxflags.append ("-mtune=cortex-a76")
-        cxxflags.append ("-mfpu=neon-fp-armv8")
-        cxxflags.append ("-mfloat-abi=hard")
     elif "Cortex-A72" in model : # PI 4
         cxxflags.append ("-march=armv8-a")
         cxxflags.append ("-mtune=cortex-a72")
-        cxxflags.append ("-mfpu=neon-fp-armv8")
-        cxxflags.append ("-mfloat-abi=hard")
     elif "Cortex-A53" in model : # PI 3
         cxxflags.append ("-march=armv8-a")
         cxxflags.append ("-mtune=cortex-a53")
-        cxxflags.append ("-mfpu=neon-fp-armv8")
-        cxxflags.append ("-mfloat-abi=hard")
     elif pi_model != None and "Raspberry Pi" in pi_model:
         cxxflags.extend (["-mcpu=native", "-march=native", "-mtune=native"])
     elif "i386" in arch:
