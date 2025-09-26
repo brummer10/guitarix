@@ -205,6 +205,7 @@ def append_optimization_flags(conf, cxxflags):
     #cxxflags.append ("-ffinite-math-only")
     cxxflags.append ("-fno-math-errno")
     cxxflags.append ("-fno-signed-zeros")
+    cxxflags.append ("-funroll-loops")
     #cxxflags.append ("-ffast-math") # quicker but doesn't seem to work (difference in sound output)
     #cxxflags.append ("-malign-double")
     if any('clang' not in s for s in conf.env["CXX"]):
@@ -236,7 +237,6 @@ def configure(conf):
             cxxflags.append ("-ffat-lto-objects")
 
     cxxflags.append ("-std=c++20")
-   # cxxflags.append ("-Ofast")
     cxxflags.append ("-DDSP_SAMPLE_FLOAT")
     cxxflags.append ("-DNAM_SAMPLE_FLOAT")
     cxxflags.append ("-Dneural_amp_modeler_EXPORTS")

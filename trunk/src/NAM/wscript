@@ -29,7 +29,7 @@ def build(bld):
         './NeuralAmpModelerCore/Dependencies/nlohmann/',
         ]
 
-    cxx_flags = ["-std=c++17", "-Wno-sign-compare", "-Ofast"]
+    cxx_flags = ["-Wno-deprecated-declarations", "-Wno-sign-compare", "-Ofast"]
 
     if not bld.env['LTO']:
         if any('clang' not in s for s in bld.env["CXX"]):
