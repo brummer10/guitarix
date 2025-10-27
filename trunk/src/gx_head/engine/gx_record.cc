@@ -375,13 +375,13 @@ int SCapture::register_par(const ParamReg& reg)
 {
     static const value_pair fformat_values[] = {{"wav"},{"ogg"},{"w64"},{"flac"},{0}};
     if (channel == 1) {
-	reg.registerFloatVar("recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 2.0, 1.0, fformat_values);
+	reg.registerFloatVar("recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 3.0, 1.0, fformat_values);
 	reg.registerFloatVar("recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0, 0);
 	reg.registerFloatVar("recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f, 0);
 	reg.registerFloatVar("recorder.clip","","BON","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
 	reg.registerFloatVar("recorder.v1","","SOLN","",&fbargraph0, -70.0, -70.0, 4.0, 0.00001, 0);
     } else {
-	reg.registerFloatVar("st_recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 2.0, 1.0, fformat_values);
+	reg.registerFloatVar("st_recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 3.0, 1.0, fformat_values);
 	reg.registerFloatVar("st_recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0, 0);
 	reg.registerFloatVar("st_recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f, 0);
 	reg.registerFloatVar("st_recorder.clip","","BON","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
