@@ -60,7 +60,7 @@
 
   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_amp_stereo#gui>;
   
-    lv2:minorVersion 43;
+    lv2:minorVersion 47;
     lv2:microVersion 0;
 
 rdfs:comment """
@@ -330,8 +330,14 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
         lv2:portProperty lv2:toggled;
-    ] .
-
+    ] ,	[ a lv2:InputPort, lv2:ControlPort ;
+				lv2:index   21 ;
+				lv2:symbol  "trim" ;
+				lv2:name    "Post trim" ;
+				lv2:default 1.0 ;
+				lv2:minimum 0.0 ;
+				lv2:maximum 2.0
+] .
 
 <http://guitarix.sourceforge.net/plugins/gx_amp_stereo#gui>
   a guiext:X11UI;
