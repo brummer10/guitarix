@@ -1,0 +1,447 @@
+diff -ru guitarix-orig/trunk/src/LV2/gx_amp.lv2/gxamp.cpp trunk/src/LV2/gx_amp.lv2/gxamp.cpp
+--- guitarix-orig/trunk/src/LV2/gx_amp.lv2/gxamp.cpp	2025-10-29 20:51:23.000000000 -0400
++++ guitarix/trunk/src/LV2/gx_amp.lv2/gxamp.cpp	2025-10-30 11:44:23.192136929 -0400
+@@ -196,6 +196,8 @@
+   float*                       schedule_ok;
+   float                        schedule_ok_;
+   std::atomic<bool>            _execute;
++	float                        *trim;
++	float                        trim_, old_trim_; // -delt.
+ 
+   inline bool cab_changed() 
+     {return std::abs(cab - clevel_ ) > 0.1;}
+@@ -212,7 +214,10 @@
+   inline void update_pre() 
+     {pre = (alevel_);}
+   inline bool val_changed() 
+-    {return  std::abs(alevel_ - (*alevel)) > 0.1 || abs(clevel_ - (*clevel)) > 0.1 || std::abs(c_model_ - (*c_model)) > 0.1;}
++    { return  std::abs(alevel_ - (*alevel))        > 0.1
++							 || std::abs(clevel_ - (*clevel))    > 0.1
++							 || std::abs(c_model_ - (*c_model))  > 0.1
++							 || std::fabs (old_trim_ - trim_)    > 0.01; }
+ 
+   // LV2 stuff
+   LV2_URID_Map*                map;
+@@ -283,6 +288,9 @@
+   c_old_model_(0),
+   alevel(NULL),
+   alevel_(0),
++	trim (NULL),
++	trim_ (1.0),  // -delt.
++	old_trim_ (1.0),
+   pre(0),
+   schedule_ok(NULL),
+   schedule_ok_(0)
+@@ -316,7 +324,7 @@
+           ampconv.stop_process();
+         }
+      bufsize = cur_bufsize;
+-	 cabconv.cleanup();
++	   cabconv.cleanup();
+      CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
+      cabconv.cab_count = cab.ir_count;
+      cabconv.cab_sr = cab.ir_sr;
+@@ -490,13 +498,24 @@
+     case BYPASS: 
+       bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
+       break;
++		case TRIM:  // -delt.
++		  trim = static_cast<float*>(data);
++		  break;
+     default:
+       break;
+     }
+ }
+ 
++#define DELT_PRESENCE_HACK
++
+ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
+ {
++ // Latch TRIM from control port every block (before val_changed())  -delt.
++	if (trim) {
++		float v = *trim;
++		if (!std::isfinite(v)) v = 1.0f;
++		trim_ = v;
++	}
+   if (n_samples< 1) return;
+   MXCSR.set_();
+   cur_bufsize = n_samples;
+@@ -515,14 +534,43 @@
+     a_model_ = std::min(a_max, static_cast<uint32_t>(*(a_model)));
+     amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
+     // run presence convolver
+-    if (*(alevel) >= 1.0)
++#ifdef DELT_PRESENCE_HACK
++    // --- Smooth Presence blend over 0.0..0.5 of the knob -----------------
++    const float p = (alevel ? *alevel : 0.f) * 0.1f;   // 0..10 -> 0..1
++    const float t = fminf(p * 2.0f, 1.0f);             // 0..0.5 knob -> 0..1 mix
++    const float mix = t * t * (3.0f - 2.0f * t);       // smoothstep
++
++    if (mix >= 0.9999f) {
++        // Full wet: in-place is fine
+         ampconv.run_static(n_samples, &ampconv, output);
+-    // run selected tonestack
++    } else if (mix > 1e-4f) {
++        // Blend: copy DRY to buf, convolve WET in-place on output, then equal-power crossfade
++        memcpy(buf, output, n_samples * sizeof(float));     // DRY -> buf
++        ampconv.run_static(n_samples, &ampconv, output);       // WET in-place (output)
++
++        const float half_pi = 1.57079632679f;
++        const float a = cosf(half_pi * mix);    // dry gain
++        const float b = sinf(half_pi * mix);    // wet gain
++
++        for (uint32_t i = 0; i < n_samples; ++i) {
++            output[i] = buf[i] * a + output[i] * b;
++        }
++    }
++    // mix <= ~0: leave DRY as-is (no work)
++    // ---------------------------------------------------------------------
++#else
++    if (*(alevel) >= 1.0f)
++        ampconv.run_static(n_samples, &ampconv, output);
++#endif
++// run selected tonestack
+     t_model_ =  static_cast<uint32_t>(*(t_model));
+     if (t_model_<=t_max)
+       tonestack[t_model_]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t_model_]);
+     // run selected cabinet convolver
+     cabconv.run_static(n_samples, &cabconv, output);
++		
++		for (unsigned int i = 0; i < n_samples; i++)
++		  output [i] *= trim_;
+   }
+   bp.post_check_bypass(buf, output, n_samples);
+ 
+@@ -532,6 +580,7 @@
+     {
+       clevel_ = (*clevel);
+       alevel_ = (*alevel);
++			old_trim_ = trim_;
+       c_model_= (*c_model);
+       _execute.store(true, std::memory_order_release);
+       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
+diff -ru guitarix-orig/trunk/src/LV2/gx_amp.lv2/gxamp.h trunk/src/LV2/gx_amp.lv2/gxamp.h
+--- guitarix-orig/trunk/src/LV2/gx_amp.lv2/gxamp.h	2025-10-29 20:51:23.000000000 -0400
++++ guitarix/trunk/src/LV2/gx_amp.lv2/gxamp.h	2025-10-30 11:44:23.192136929 -0400
+@@ -57,8 +57,9 @@
+   AMP_INPUT,
+   BYPASS,
+   HIGHGAIN,
+-  AMP_OUTPUT1,
+-  AMP_INPUT1,
++  /*AMP_OUTPUT1,
++  AMP_INPUT1, wtf are these? -delt. */
++	TRIM
+ } PortIndex;
+ 
+ #endif //SRC_HEADERS_GXAMP_H_
+diff -ru guitarix-orig/trunk/src/LV2/gx_amp.lv2/gx_amp.ttl trunk/src/LV2/gx_amp.lv2/gx_amp.ttl
+--- guitarix-orig/trunk/src/LV2/gx_amp.lv2/gx_amp.ttl	2025-10-29 20:51:23.000000000 -0400
++++ guitarix/trunk/src/LV2/gx_amp.lv2/gx_amp.ttl	2025-10-30 11:45:23.477665921 -0400
+@@ -61,7 +61,7 @@
+     bufsz:maxBlockLength 8192 ;
+     lv2:extensionData work:interface ;
+ 
+-    lv2:minorVersion 43;
++    lv2:minorVersion 47;
+     lv2:microVersion 0;
+ 
+   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_amp#gui>;
+@@ -319,8 +319,14 @@
+         lv2:minimum 0.0 ;
+         lv2:maximum 1.0 ;
+         lv2:portProperty lv2:toggled;
+-    ] .
+-
++    ] ,	[ a lv2:InputPort, lv2:ControlPort ;
++				lv2:index   19 ;
++				lv2:symbol  "trim" ;
++				lv2:name    "Post trim" ;
++				lv2:default 1.0 ;
++				lv2:minimum 0.0 ;
++				lv2:maximum 2.0
++] .
+ 
+ <http://guitarix.sourceforge.net/plugins/gx_amp#gui>
+  a guiext:X11UI;
+diff -ru guitarix-orig/trunk/src/LV2/gx_amp.lv2/gxamp_ui.cpp trunk/src/LV2/gx_amp.lv2/gxamp_ui.cpp
+--- guitarix-orig/trunk/src/LV2/gx_amp.lv2/gxamp_ui.cpp	2025-10-29 20:51:23.000000000 -0400
++++ guitarix/trunk/src/LV2/gx_amp.lv2/gxamp_ui.cpp	2025-10-30 11:44:23.193136937 -0400
+@@ -32,7 +32,8 @@
+ -----------------------------------------------------------------------
+ ----------------------------------------------------------------------*/
+ 
+-#define CONTROLS 14
++//#define CONTROLS 14
++#define CONTROLS 15 // Added master trim knob. -delt
+ 
+ /*---------------------------------------------------------------------
+ -----------------------------------------------------------------------    
+@@ -71,7 +72,7 @@
+     ps->schedule = 2.0;
+ 
+     // create knob widgets
+-    ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Mastergain", ui,745, 60, 90, 115);
++    /*ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Mastergain", ui,745, 60, 90, 115);
+     set_adjustment(ui->widget[0]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
+ 
+     ui->widget[1] = add_my_knob(ui->widget[1], PREGAIN,"Pregain", ui,100, 60, 90, 115);
+@@ -97,6 +98,38 @@
+ 
+     ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,660, 67, 75, 100);
+     set_adjustment(ui->widget[8]->adj,1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
++		
++    adjusted X coords for 1 extra knob: */
++		ui->widget[0] = add_my_knob(ui->widget[0], GAIN1, "Master", ui, 670, 60, 90, 115);
++		set_adjustment(ui->widget[0]->adj, 0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
++
++		ui->widget[1] = add_my_knob(ui->widget[1], PREGAIN, "Pregain", ui, 90, 60, 90, 115);
++		set_adjustment(ui->widget[1]->adj, 0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
++
++		ui->widget[2] = add_my_knob(ui->widget[2], WET_DRY, "Distortion", ui, 182, 67, 75, 100);
++		set_adjustment(ui->widget[2]->adj, 1.0, 1.0, 1.0, 100.0, 1.0, CL_CONTINUOS);
++
++		ui->widget[3] = add_my_knob(ui->widget[3], DRIVE, "Drive", ui, 257, 70, 70, 95);
++		set_adjustment(ui->widget[3]->adj, 0.01, 0.01, 0.01, 1.0, 0.01, CL_CONTINUOS);
++
++		ui->widget[4] = add_my_knob(ui->widget[4], TREBLE, "Treble", ui, 328, 72, 65, 90);
++		set_adjustment(ui->widget[4]->adj, 0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
++
++		ui->widget[5] = add_my_knob(ui->widget[5], MIDDLE, "Mid", ui, 392, 72, 65, 90);
++		set_adjustment(ui->widget[5]->adj, 0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
++
++		ui->widget[6] = add_my_knob(ui->widget[6], BASS, "Bass", ui, 455, 72, 65, 90);
++		set_adjustment(ui->widget[6]->adj, 0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
++
++		ui->widget[7] = add_my_knob(ui->widget[7], ALevel, "Presence", ui, 522, 70, 70, 95);
++		set_adjustment(ui->widget[7]->adj, 5.0, 5.0, 0.0, 10.0, 0.1, CL_CONTINUOS);
++
++		ui->widget[8] = add_my_knob(ui->widget[8], CLevel, "Cabinet", ui, 594, 67, 75, 100);
++		set_adjustment(ui->widget[8]->adj, 1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
++		
++		// ...and added our post trim knob -delt.
++		ui->widget[14] = add_my_knob(ui->widget[14], TRIM, "Post trim", ui, 760, 67, 75, 100);
++		set_adjustment(ui->widget[14]->adj, 0.0, 1.0, 0.0, 2.0, 0.01, CL_CONTINUOS);
+ 
+     ui->widget[12] = add_on_off_button(ui->win, "Power", 40, 80, 40, 80);
+     ui->widget[12]->scale.gravity = ASPECT;
+diff -ru guitarix-orig/trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo.cpp trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo.cpp
+--- guitarix-orig/trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo.cpp	2025-10-29 20:51:23.000000000 -0400
++++ guitarix/trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo.cpp	2025-10-30 11:44:23.193136937 -0400
+@@ -197,6 +197,8 @@
+   float*                       schedule_ok;
+   float                        schedule_ok_;
+   std::atomic<bool>            _execute;
++	float                        *trim;
++	float                        trim_, old_trim_;
+   
+   bool cab_changed()
+     {return std::abs(cab - clevel_ ) > 0.1;}
+@@ -213,7 +215,12 @@
+   void update_pre()
+     {pre = (alevel_);}
+   inline bool val_changed() 
+-    {return  std::abs(alevel_ - (*alevel)) > 0.1 || abs(clevel_ - (*clevel)) > 0.1 || std::abs(c_model_ - (*c_model)) > 0.1;}
++    //{return  std::abs(alevel_ - (*alevel)) > 0.1 || abs(clevel_ - (*clevel)) > 0.1 || std::abs(c_model_ - (*c_model)) > 0.1;}
++    { return  std::abs(alevel_ - (*alevel))        > 0.1
++							 || std::abs(clevel_ - (*clevel))    > 0.1
++							 || std::abs(c_model_ - (*c_model))  > 0.1
++							 || std::fabs (old_trim_ - trim_)    > 0.01; }  // -delt.
++		
+ 
+   // LV2 stuff
+   LV2_URID_Map*                map;
+@@ -288,6 +295,9 @@
+   c_old_model_(0),
+   alevel(NULL),
+   alevel_(0),
++	trim (NULL),
++	trim_ (1.0),
++	old_trim_ (1.0),  // -delt.
+   pre(0),
+   schedule_ok(NULL),
+   schedule_ok_(0)
+@@ -506,13 +516,25 @@
+     case BYPASS: 
+       bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
+       break;
++	  case TRIM:
++		  trim = static_cast<float*>(data);  // -delt.
++		  break;
+     default:
+       break;
+     }
+ }
+ 
++#define DELT_PRESENCE_HACK
++
+ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
+ {
++  // Latch TRIM from control port every block (before val_changed())  -delt.
++	if (trim) {
++		float v = *trim;
++		if (!std::isfinite(v)) v = 1.0f;
++		trim_ = v;
++	}
++
+   if (n_samples< 1) return;
+   MXCSR.set_();
+   cur_bufsize = n_samples;
+@@ -534,14 +556,47 @@
+     a_model_ = std::min(a_max, static_cast<uint32_t>(*(a_model)));
+     amplifier[a_model_]->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1, amplifier[a_model_]);
+     // run presence convolver
+-    if (*(alevel) >= 1.0)
+-        ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
++#ifdef DELT_PRESENCE_HACK
++		// --- Smooth Presence blend over 0.0..0.5 of the knob -----------------
++		const float p   = (alevel ? *alevel : 0.f) * 0.1f;   // 0..10 -> 0..1
++		const float t   = fminf(p * 2.0f, 1.0f);             // 0..0.5 -> 0..1
++		const float mix = t * t * (3.0f - 2.0f * t);         // smoothstep
++		
++		if (mix >= 0.9999f) {
++				// Full wet on both channels
++				ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
++		} else if (mix > 1e-4f) {
++				// Equal-power crossfade: dry*cos + wet*sin, for L and R
++				const float half_pi = 1.57079632679f;
++				const float a = cosf(half_pi * mix);    // dry gain
++				const float b = sinf(half_pi * mix);    // wet gain
++
++				memcpy(buf,  output,  n_samples * sizeof(float));   // DRY L -> buf
++				memcpy(buf1, output1, n_samples * sizeof(float));   // DRY R -> buf1
++				ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
++
++				for (uint32_t i = 0; i < n_samples; ++i) {
++					output[i] = buf[i] * a + output[i] * b;
++					output1[i] = buf1[i] * a + output1[i] * b;
++				}
++		}
++		// mix <= ~0: leave DRY as-is (no work)
++    // ---------------------------------------------------------------------
++#else
++    if (*(alevel) >= 1.0f)
++    ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
++#endif
+     // run selected tonestack
+     t_model_ = static_cast<uint32_t>(*(t_model));
+     if (t_model_ <= t_max)
+     tonestack[t_model_]->stereo_audio(static_cast<int>(n_samples), output, output1, output, output1, tonestack[t_model_]);
+     // run selected cabinet convolver
+     cabconv.run_static_stereo(n_samples, &cabconv, output, output1);
++		
++		for (unsigned int i = 0; i < n_samples; i++) {
++		  output [i] *= trim_;
++		  output1 [i] *= trim_;
++		}
+   }
+   bp.post_check_bypass(buf, buf1, output, output1, n_samples);
+ 
+@@ -551,6 +606,7 @@
+     {
+       clevel_ = (*clevel);
+       alevel_ = (*alevel);
++			old_trim_ = trim_;  // -delt.
+       c_model_= (*c_model);
+       _execute.store(true, std::memory_order_release);
+       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
+diff -ru guitarix-orig/trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo.h trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo.h
+--- guitarix-orig/trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo.h	2025-10-29 20:51:23.000000000 -0400
++++ guitarix/trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo.h	2025-10-30 11:44:23.193136937 -0400
+@@ -59,6 +59,7 @@
+   AMP_INPUT1,
+   BYPASS,
+   HIGHGAIN,
++	TRIM        // -delt.
+ } PortIndex;
+ 
+ #endif //SRC_HEADERS_GXAMP_H_
+diff -ru guitarix-orig/trunk/src/LV2/gx_amp_stereo.lv2/gx_amp_stereo.ttl trunk/src/LV2/gx_amp_stereo.lv2/gx_amp_stereo.ttl
+--- guitarix-orig/trunk/src/LV2/gx_amp_stereo.lv2/gx_amp_stereo.ttl	2025-10-29 20:51:23.000000000 -0400
++++ guitarix/trunk/src/LV2/gx_amp_stereo.lv2/gx_amp_stereo.ttl	2025-10-30 11:45:22.725659320 -0400
+@@ -60,7 +60,7 @@
+ 
+   guiext:ui <http://guitarix.sourceforge.net/plugins/gx_amp_stereo#gui>;
+   
+-    lv2:minorVersion 43;
++    lv2:minorVersion 47;
+     lv2:microVersion 0;
+ 
+ rdfs:comment """
+@@ -330,8 +330,14 @@
+         lv2:minimum 0.0 ;
+         lv2:maximum 1.0 ;
+         lv2:portProperty lv2:toggled;
+-    ] .
+-
++    ] ,	[ a lv2:InputPort, lv2:ControlPort ;
++				lv2:index   21 ;
++				lv2:symbol  "trim" ;
++				lv2:name    "Post trim" ;
++				lv2:default 1.0 ;
++				lv2:minimum 0.0 ;
++				lv2:maximum 2.0
++] .
+ 
+ <http://guitarix.sourceforge.net/plugins/gx_amp_stereo#gui>
+   a guiext:X11UI;
+diff -ru guitarix-orig/trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo_ui.cpp trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo_ui.cpp
+--- guitarix-orig/trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo_ui.cpp	2025-10-29 20:51:23.000000000 -0400
++++ guitarix/trunk/src/LV2/gx_amp_stereo.lv2/gxamp_stereo_ui.cpp	2025-10-30 11:44:23.193136937 -0400
+@@ -32,7 +32,7 @@
+ -----------------------------------------------------------------------
+ ----------------------------------------------------------------------*/
+ 
+-#define CONTROLS 14
++#define CONTROLS 15  // added trim knob  -delt.
+ 
+ /*---------------------------------------------------------------------
+ -----------------------------------------------------------------------    
+@@ -118,7 +118,7 @@
+ 
+ 
+     // create knob widgets
+-    ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Mastergain", ui,745, 60, 90, 115);
++    /*ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Mastergain", ui,745, 60, 90, 115);
+     set_adjustment(ui->widget[0]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
+ 
+     ui->widget[1] = add_my_knob(ui->widget[1], PREGAIN,"Pregain", ui,100, 60, 90, 115);
+@@ -144,6 +144,38 @@
+ 
+     ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,660, 67, 75, 100);
+     set_adjustment(ui->widget[8]->adj,1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
++		
++		adjusted X coord for 1 extra knob: */
++    ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Mastergain", ui,670, 60, 90, 115);
++    set_adjustment(ui->widget[0]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
++
++    ui->widget[1] = add_my_knob(ui->widget[1], PREGAIN,"Pregain", ui,90, 60, 90, 115);
++    set_adjustment(ui->widget[1]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
++
++    ui->widget[2] = add_my_knob(ui->widget[2], WET_DRY,"Distortion", ui,182, 67, 75, 100);
++    set_adjustment(ui->widget[2]->adj,1.0, 1.0, 1.0, 100.0, 1.0, CL_CONTINUOS);
++
++    ui->widget[3] = add_my_knob(ui->widget[3], DRIVE,"Drive", ui,257, 70, 70, 95);
++    set_adjustment(ui->widget[3]->adj,0.01, 0.01, 0.01, 1.0, 0.01, CL_CONTINUOS);
++
++    ui->widget[4] = add_my_knob(ui->widget[4], TREBLE,"Treble", ui,328, 72, 65, 90);
++    set_adjustment(ui->widget[4]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
++
++    ui->widget[5] = add_my_knob(ui->widget[5], MIDDLE,"Mid", ui,392, 72, 65, 90);
++    set_adjustment(ui->widget[5]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
++
++    ui->widget[6] = add_my_knob(ui->widget[6], BASS,"Bass", ui,455, 72, 65, 90);
++    set_adjustment(ui->widget[6]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
++
++    ui->widget[7] = add_my_knob(ui->widget[7], ALevel,"Presence", ui,522, 70, 70, 95);
++    set_adjustment(ui->widget[7]->adj,5.0, 5.0, 0.0, 10.0, 0.1, CL_CONTINUOS);
++
++    ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,594, 67, 75, 100);
++    set_adjustment(ui->widget[8]->adj,1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);		
++
++		// ...and added our post trim knob -delt.
++		ui->widget[14] = add_my_knob(ui->widget[14], TRIM, "Post trim", ui, 760, 67, 75, 100);
++		set_adjustment(ui->widget[14]->adj, 0.0, 1.0, 0.0, 2.0, 0.01, CL_CONTINUOS);
+ 
+     ui->widget[12] = add_on_off_button(ui->win, "Power", 40, 80, 40, 80);
+     ui->widget[12]->scale.gravity = ASPECT;
