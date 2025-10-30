@@ -58,7 +58,7 @@ typedef enum
   BYPASS,
   HIGHGAIN,
   /*AMP_OUTPUT1,
-  AMP_INPUT1, wtf are these? -delt. */
+  AMP_INPUT1, we need our indexes contiguous? -delt. */
 	TRIM
 } PortIndex;
 

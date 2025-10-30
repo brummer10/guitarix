@@ -569,10 +569,11 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
     // run selected cabinet convolver
     cabconv.run_static(n_samples, &cabconv, output);
 		
-		for (unsigned int i = 0; i < n_samples; i++)
-		  output [i] *= trim_;
-  }
+  }		
   bp.post_check_bypass(buf, output, n_samples);
+
+	for (unsigned int i = 0; i < n_samples; i++)
+		output [i] *= trim_;
 
   MXCSR.reset_();
   // work ?

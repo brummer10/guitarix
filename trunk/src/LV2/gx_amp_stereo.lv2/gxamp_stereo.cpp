@@ -593,13 +593,14 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
     // run selected cabinet convolver
     cabconv.run_static_stereo(n_samples, &cabconv, output, output1);
 		
-		for (unsigned int i = 0; i < n_samples; i++) {
-		  output [i] *= trim_;
-		  output1 [i] *= trim_;
-		}
   }
   bp.post_check_bypass(buf, buf1, output, output1, n_samples);
 
+	for (unsigned int i = 0; i < n_samples; i++) {
+		output [i] *= trim_;
+		output1 [i] *= trim_;
+	}
+		
   MXCSR.reset_();
   // work ?
   if (!_execute.load(std::memory_order_acquire) && (val_changed() || buffsize_changed()) )
