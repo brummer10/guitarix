@@ -548,7 +548,8 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   if (output1 != input1)
     memcpy(output1, input1, n_samples*sizeof(float));
   // check if bypass is pressed
-  if (!bp.pre_check_bypass(bypass, buf, buf1, input, input1, n_samples)) {
+	bool byp = bp.pre_check_bypass(bypass, buf, buf1, input, input1, n_samples);
+  if (!byp) {
 #ifndef __SSE__
     wn->stereo_audio(static_cast<int>(n_samples), input, input1, input, input1, wn);;
 #endif
@@ -595,10 +596,12 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 		
   }
   bp.post_check_bypass(buf, buf1, output, output1, n_samples);
-
-	for (unsigned int i = 0; i < n_samples; i++) {
-		output [i] *= trim_;
-		output1 [i] *= trim_;
+  
+	if (!byp) {
+		for (unsigned int i = 0; i < n_samples; i++) {
+			output [i] *= trim_;
+			output1 [i] *= trim_;
+		}
 	}
 		
   MXCSR.reset_();

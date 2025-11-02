@@ -146,7 +146,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     set_adjustment(ui->widget[8]->adj,1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
 		
 		adjusted X coord for 1 extra knob: */
-    ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Mastergain", ui,670, 60, 90, 115);
+    ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Master", ui,670, 60, 90, 115);
     set_adjustment(ui->widget[0]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
 
     ui->widget[1] = add_my_knob(ui->widget[1], PREGAIN,"Pregain", ui,90, 60, 90, 115);

@@ -526,7 +526,8 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
   if (output != input)
     memcpy(output, input, n_samples*sizeof(float));
   // check if bypass is pressed
-  if (!bp.pre_check_bypass(bypass, buf, input, n_samples)) {
+	bool byp = bp.pre_check_bypass(bypass, buf, input, n_samples);
+  if (!byp) {
 #ifndef __SSE__
     wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
 #endif
@@ -571,9 +572,11 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 		
   }		
   bp.post_check_bypass(buf, output, n_samples);
-
-	for (unsigned int i = 0; i < n_samples; i++)
-		output [i] *= trim_;
+  
+	if (!byp) {
+		for (unsigned int i = 0; i < n_samples; i++)
+			output [i] *= trim_;
+	}
 
   MXCSR.reset_();
   // work ?
