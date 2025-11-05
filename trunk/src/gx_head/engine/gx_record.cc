@@ -97,6 +97,9 @@ inline std::string SCapture::get_ffilename() {
       case(2) :
           name = "guitarix_session0.w64";
           break;
+      case(3) :
+          name = "guitarix_session0.flac";
+          break;
       default :
           break;
     }
@@ -203,6 +206,9 @@ SNDFILE *SCapture::open_stream(std::string fname)
           break;
       case(2) :
           sfinfo.format = SF_FORMAT_W64 | SF_FORMAT_PCM_24;
+          break;
+      case(3) :
+          sfinfo.format = SF_FORMAT_FLAC | SF_FORMAT_PCM_24;
           break;
       default :
           sfinfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
@@ -367,15 +373,15 @@ void SCapture::compute_static_st(int count, float *input0, float *input1, float 
 
 int SCapture::register_par(const ParamReg& reg)
 {
-    static const value_pair fformat_values[] = {{"wav"},{"ogg"},{"w64"},{0}};
+    static const value_pair fformat_values[] = {{"wav"},{"ogg"},{"w64"},{"flac"},{0}};
     if (channel == 1) {
-	reg.registerFloatVar("recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 2.0, 1.0, fformat_values);
+	reg.registerFloatVar("recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 3.0, 1.0, fformat_values);
 	reg.registerFloatVar("recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0, 0);
 	reg.registerFloatVar("recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f, 0);
 	reg.registerFloatVar("recorder.clip","","BON","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
 	reg.registerFloatVar("recorder.v1","","SOLN","",&fbargraph0, -70.0, -70.0, 4.0, 0.00001, 0);
     } else {
-	reg.registerFloatVar("st_recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 2.0, 1.0, fformat_values);
+	reg.registerFloatVar("st_recorder.file","","S",N_("select file format"),&fformat, 0.0, 0.0, 3.0, 1.0, fformat_values);
 	reg.registerFloatVar("st_recorder.rec","","B",N_("Record files to ~/gxrecord/"),&fcheckbox0, 0.0, 0.0, 1.0, 1.0, 0);
 	reg.registerFloatVar("st_recorder.gain","","S",N_("Record gain control"),&fslider0, 0.0f, -7e+01f, 4.0f, 0.1f, 0);
 	reg.registerFloatVar("st_recorder.clip","","BON","",&fcheckbox1, 0.0, 0.0, 1.0, 1.0, 0);
