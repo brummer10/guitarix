@@ -511,6 +511,8 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
     }
 }
 
+#define DELT_PRESENCE_HACK
+
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
   if (n_samples< 1) return;
@@ -534,8 +536,36 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
     a_model_ = std::min(a_max, static_cast<uint32_t>(*(a_model)));
     amplifier[a_model_]->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1, amplifier[a_model_]);
     // run presence convolver
-    if (*(alevel) >= 1.0)
-        ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+#ifdef DELT_PRESENCE_HACK
+		// --- Smooth Presence blend over 0.0..0.5 of the knob -----------------
+		const float p   = (alevel ? *alevel : 0.f) * 0.1f;   // 0..10 -> 0..1
+		const float t   = fminf(p * 2.0f, 1.0f);             // 0..0.5 -> 0..1
+		const float mix = t * t * (3.0f - 2.0f * t);         // smoothstep
+		
+		if (mix >= 0.9999f) {
+				// Full wet on both channels
+				ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+		} else if (mix > 1e-4f) {
+				// Equal-power crossfade: dry*cos + wet*sin, for L and R
+				const float half_pi = 1.57079632679f;
+				const float a = cosf(half_pi * mix);    // dry gain
+				const float b = sinf(half_pi * mix);    // wet gain
+
+				memcpy(buf,  output,  n_samples * sizeof(float));   // DRY L -> buf
+				memcpy(buf1, output1, n_samples * sizeof(float));   // DRY R -> buf1
+				ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+
+				for (uint32_t i = 0; i < n_samples; ++i) {
+					output[i] = buf[i] * a + output[i] * b;
+					output1[i] = buf1[i] * a + output1[i] * b;
+				}
+		}
+		// mix <= ~0: leave DRY as-is (no work)
+    // ---------------------------------------------------------------------
+#else
+    if (*(alevel) >= 1.0f)
+    ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+#endif
     // run selected tonestack
     t_model_ = static_cast<uint32_t>(*(t_model));
     if (t_model_ <= t_max)

@@ -495,6 +495,8 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
     }
 }
 
+#define DELT_PRESENCE_HACK
+
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
   if (n_samples< 1) return;
@@ -514,9 +516,35 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
     // run selected tube model
     a_model_ = std::min(a_max, static_cast<uint32_t>(*(a_model)));
     amplifier[a_model_]->mono_audio(static_cast<int>(n_samples), input, output, amplifier[a_model_]);
-    // run presence convolver
-    if (*(alevel) >= 1.0)
+#ifdef DELT_PRESENCE_HACK
+    // --- Smooth Presence blend over 0.0..0.5 of the knob -----------------
+    const float p = (alevel ? *alevel : 0.f) * 0.1f;   // 0..10 -> 0..1
+    const float t = fminf(p * 2.0f, 1.0f);             // 0..0.5 knob -> 0..1 mix
+    const float mix = t * t * (3.0f - 2.0f * t);       // smoothstep
+
+    if (mix >= 0.9999f) {
+        // Full wet: in-place is fine
         ampconv.run_static(n_samples, &ampconv, output);
+    } else if (mix > 1e-4f) {
+        // Blend: copy DRY to buf, convolve WET in-place on output, then equal-power crossfade
+        memcpy(buf, output, n_samples * sizeof(float));     // DRY -> buf
+        ampconv.run_static(n_samples, &ampconv, output);       // WET in-place (output)
+
+        const float half_pi = 1.57079632679f;
+        const float a = cosf(half_pi * mix);    // dry gain
+        const float b = sinf(half_pi * mix);    // wet gain
+
+        for (uint32_t i = 0; i < n_samples; ++i) {
+            output[i] = buf[i] * a + output[i] * b;
+        }
+    }
+    // mix <= ~0: leave DRY as-is (no work)
+    // ---------------------------------------------------------------------
+#else
+    if (*(alevel) >= 1.0f)
+        ampconv.run_static(n_samples, &ampconv, output);
+#endif // DELT_PRESENCE_HACK
+
     // run selected tonestack
     t_model_ =  static_cast<uint32_t>(*(t_model));
     if (t_model_<=t_max)
