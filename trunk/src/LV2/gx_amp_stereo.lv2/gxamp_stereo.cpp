@@ -331,7 +331,7 @@ void GxPluginStereo::do_work_stereo()
         }
      bufsize = cur_bufsize;
 
-   cabconv.cleanup();
+     cabconv.cleanup();
      CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
      cabconv.cab_count = cab.ir_count;
      cabconv.cab_sr = cab.ir_sr;
