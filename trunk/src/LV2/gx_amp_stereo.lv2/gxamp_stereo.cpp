@@ -197,6 +197,8 @@ private:
   float*                       schedule_ok;
   float                        schedule_ok_;
   std::atomic<bool>            _execute;
+  float                        *trim;
+  float                        trim_, old_trim_;  
   
   bool cab_changed()
     {return std::abs(cab - clevel_ ) > 0.1;}
@@ -213,8 +215,11 @@ private:
   void update_pre()
     {pre = (alevel_);}
   inline bool val_changed() 
-    {return  std::abs(alevel_ - (*alevel)) > 0.1 || abs(clevel_ - (*clevel)) > 0.1 || std::abs(c_model_ - (*c_model)) > 0.1;}
-
+    { return  std::abs(alevel_ - (*alevel))        > 0.1
+               || std::abs(clevel_ - (*clevel))    > 0.1
+               || std::abs(c_model_ - (*c_model))  > 0.1
+               || std::fabs (old_trim_ - trim_)    > 0.01; }  // -delt.
+  
   // LV2 stuff
   LV2_URID_Map*                map;
   LV2_Worker_Schedule*         schedule;
@@ -288,6 +293,9 @@ GxPluginStereo::GxPluginStereo() :
   c_old_model_(0),
   alevel(NULL),
   alevel_(0),
+  trim (NULL),
+  trim_ (1.0),
+  old_trim_ (1.0),  // -delt.  
   pre(0),
   schedule_ok(NULL),
   schedule_ok_(0)
@@ -323,7 +331,7 @@ void GxPluginStereo::do_work_stereo()
         }
      bufsize = cur_bufsize;
 
-	 cabconv.cleanup();
+   cabconv.cleanup();
      CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
      cabconv.cab_count = cab.ir_count;
      cabconv.cab_sr = cab.ir_sr;
@@ -506,13 +514,25 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
     case BYPASS: 
       bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
       break;
+    case TRIM:
+      trim = static_cast<float*>(data);  // -delt.
+      break;
     default:
       break;
     }
 }
 
+#define DELT_PRESENCE_HACK
+
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
+  // Latch TRIM from control port every block (before val_changed())  -delt.
+  if (trim) {
+    float v = *trim;
+    if (!std::isfinite(v)) v = 1.0f;
+    trim_ = v;
+  }
+  
   if (n_samples< 1) return;
   MXCSR.set_();
   cur_bufsize = n_samples;
@@ -526,7 +546,8 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   if (output1 != input1)
     memcpy(output1, input1, n_samples*sizeof(float));
   // check if bypass is pressed
-  if (!bp.pre_check_bypass(bypass, buf, buf1, input, input1, n_samples)) {
+  bool byp = bp.pre_check_bypass(bypass, buf, buf1, input, input1, n_samples);
+  if (!byp) {
 #ifndef __SSE__
     wn->stereo_audio(static_cast<int>(n_samples), input, input1, input, input1, wn);;
 #endif
@@ -534,8 +555,36 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
     a_model_ = std::min(a_max, static_cast<uint32_t>(*(a_model)));
     amplifier[a_model_]->stereo_audio(static_cast<int>(n_samples), input, input1, output, output1, amplifier[a_model_]);
     // run presence convolver
-    if (*(alevel) >= 1.0)
+#ifdef DELT_PRESENCE_HACK
+    // --- Smooth Presence blend over 0.0..0.5 of the knob -----------------
+    const float p   = (alevel ? *alevel : 0.f) * 0.1f;   // 0..10 -> 0..1
+    const float t   = fminf(p * 2.0f, 1.0f);             // 0..0.5 -> 0..1
+    const float mix = t * t * (3.0f - 2.0f * t);         // smoothstep
+    
+    if (mix >= 0.9999f) {
+        // Full wet on both channels
         ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+    } else if (mix > 1e-4f) {
+        // Equal-power crossfade: dry*cos + wet*sin, for L and R
+        const float half_pi = 1.57079632679f;
+        const float a = cosf(half_pi * mix);    // dry gain
+        const float b = sinf(half_pi * mix);    // wet gain
+
+        memcpy(buf,  output,  n_samples * sizeof(float));   // DRY L -> buf
+        memcpy(buf1, output1, n_samples * sizeof(float));   // DRY R -> buf1
+        ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+
+        for (uint32_t i = 0; i < n_samples; ++i) {
+          output[i] = buf[i] * a + output[i] * b;
+          output1[i] = buf1[i] * a + output1[i] * b;
+        }
+    }
+    // mix <= ~0: leave DRY as-is (no work)
+    // ---------------------------------------------------------------------
+#else
+    if (*(alevel) >= 1.0f)
+    ampconv.run_static_stereo(n_samples, &ampconv, output, output1);
+#endif
     // run selected tonestack
     t_model_ = static_cast<uint32_t>(*(t_model));
     if (t_model_ <= t_max)
@@ -545,12 +594,20 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   }
   bp.post_check_bypass(buf, buf1, output, output1, n_samples);
 
+  if (!byp) {
+    for (unsigned int i = 0; i < n_samples; i++) {
+      output [i] *= trim_;
+      output1 [i] *= trim_;
+    }
+  }
+  
   MXCSR.reset_();
   // work ?
   if (!_execute.load(std::memory_order_acquire) && (val_changed() || buffsize_changed()) )
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
+      old_trim_ = trim_;  // -delt.
       c_model_= (*c_model);
       _execute.store(true, std::memory_order_release);
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
