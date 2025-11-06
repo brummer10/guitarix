@@ -32,7 +32,7 @@
 -----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#define CONTROLS 14
+#define CONTROLS 15 // added post trim knob
 
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
@@ -115,35 +115,39 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     ps->schedule = 2.0;
     set_my_theme(&ui->main);
     widget_get_png(ui->win, LDVAR(guitarix_png));
-
-
+    
     // create knob widgets
-    ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Mastergain", ui,745, 60, 90, 115);
+    // adjusted X coord for 1 extra knob:
+    ui->widget[0] = add_my_knob(ui->widget[0], GAIN1,"Master", ui,670, 60, 90, 115);
     set_adjustment(ui->widget[0]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[1] = add_my_knob(ui->widget[1], PREGAIN,"Pregain", ui,100, 60, 90, 115);
+    ui->widget[1] = add_my_knob(ui->widget[1], PREGAIN,"Pregain", ui,90, 60, 90, 115);
     set_adjustment(ui->widget[1]->adj,0.0, 0.0, -20.0, 20.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[2] = add_my_knob(ui->widget[2], WET_DRY,"Distortion", ui,202, 67, 75, 100);
+    ui->widget[2] = add_my_knob(ui->widget[2], WET_DRY,"Distortion", ui,182, 67, 75, 100);
     set_adjustment(ui->widget[2]->adj,1.0, 1.0, 1.0, 100.0, 1.0, CL_CONTINUOS);
 
-    ui->widget[3] = add_my_knob(ui->widget[3], DRIVE,"Drive", ui,285, 70, 70, 95);
+    ui->widget[3] = add_my_knob(ui->widget[3], DRIVE,"Drive", ui,257, 70, 70, 95);
     set_adjustment(ui->widget[3]->adj,0.01, 0.01, 0.01, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[4] = add_my_knob(ui->widget[4], TREBLE,"Treble", ui,365, 72, 65, 90);
+    ui->widget[4] = add_my_knob(ui->widget[4], TREBLE,"Treble", ui,328, 72, 65, 90);
     set_adjustment(ui->widget[4]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[5] = add_my_knob(ui->widget[5], MIDDLE,"Mid", ui,435, 72, 65, 90);
+    ui->widget[5] = add_my_knob(ui->widget[5], MIDDLE,"Mid", ui,392, 72, 65, 90);
     set_adjustment(ui->widget[5]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[6] = add_my_knob(ui->widget[6], BASS,"Bass", ui,505, 72, 65, 90);
+    ui->widget[6] = add_my_knob(ui->widget[6], BASS,"Bass", ui,455, 72, 65, 90);
     set_adjustment(ui->widget[6]->adj,0.5, 0.5, 0.0, 1.0, 0.01, CL_CONTINUOS);
 
-    ui->widget[7] = add_my_knob(ui->widget[7], ALevel,"Presence", ui,580, 70, 70, 95);
+    ui->widget[7] = add_my_knob(ui->widget[7], ALevel,"Presence", ui,522, 70, 70, 95);
     set_adjustment(ui->widget[7]->adj,5.0, 5.0, 0.0, 10.0, 0.1, CL_CONTINUOS);
 
-    ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,660, 67, 75, 100);
-    set_adjustment(ui->widget[8]->adj,1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);
+    ui->widget[8] = add_my_knob(ui->widget[8], CLevel,"Cabinet", ui,594, 67, 75, 100);
+    set_adjustment(ui->widget[8]->adj,1.0, 1.0, 1.0, 20.0, 0.1, CL_CONTINUOS);		
+
+    // ...and added our post trim knob -delt.
+    ui->widget[14] = add_my_knob(ui->widget[14], TRIM, "Post trim", ui, 760, 67, 75, 100);
+    set_adjustment(ui->widget[14]->adj, 0.0, 1.0, 0.0, 2.0, 0.01, CL_CONTINUOS);
 
     ui->widget[12] = add_on_off_button(ui->win, "Power", 40, 80, 40, 80);
     ui->widget[12]->scale.gravity = ASPECT;

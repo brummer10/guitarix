@@ -197,6 +197,8 @@ private:
   float*                       schedule_ok;
   float                        schedule_ok_;
   std::atomic<bool>            _execute;
+  float                        *trim;
+  float                        trim_, old_trim_;  
   
   bool cab_changed()
     {return std::abs(cab - clevel_ ) > 0.1;}
@@ -213,8 +215,11 @@ private:
   void update_pre()
     {pre = (alevel_);}
   inline bool val_changed() 
-    {return  std::abs(alevel_ - (*alevel)) > 0.1 || abs(clevel_ - (*clevel)) > 0.1 || std::abs(c_model_ - (*c_model)) > 0.1;}
-
+    { return  std::abs(alevel_ - (*alevel))        > 0.1
+							 || std::abs(clevel_ - (*clevel))    > 0.1
+							 || std::abs(c_model_ - (*c_model))  > 0.1
+							 || std::fabs (old_trim_ - trim_)    > 0.01; }  // -delt.
+  
   // LV2 stuff
   LV2_URID_Map*                map;
   LV2_Worker_Schedule*         schedule;
@@ -288,6 +293,9 @@ GxPluginStereo::GxPluginStereo() :
   c_old_model_(0),
   alevel(NULL),
   alevel_(0),
+  trim (NULL),
+  trim_ (1.0),
+  old_trim_ (1.0),  // -delt.  
   pre(0),
   schedule_ok(NULL),
   schedule_ok_(0)
@@ -506,6 +514,9 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
     case BYPASS: 
       bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
       break;
+    case TRIM:
+      trim = static_cast<float*>(data);  // -delt.
+      break;
     default:
       break;
     }
@@ -515,6 +526,13 @@ void GxPluginStereo::connect_stereo(uint32_t port,void* data)
 
 void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 {
+	// Latch TRIM from control port every block (before val_changed())  -delt.
+	if (trim) {
+		float v = *trim;
+		if (!std::isfinite(v)) v = 1.0f;
+		trim_ = v;
+	}
+  
   if (n_samples< 1) return;
   MXCSR.set_();
   cur_bufsize = n_samples;
@@ -528,7 +546,8 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   if (output1 != input1)
     memcpy(output1, input1, n_samples*sizeof(float));
   // check if bypass is pressed
-  if (!bp.pre_check_bypass(bypass, buf, buf1, input, input1, n_samples)) {
+  bool byp = bp.pre_check_bypass(bypass, buf, buf1, input, input1, n_samples);
+  if (!byp) {
 #ifndef __SSE__
     wn->stereo_audio(static_cast<int>(n_samples), input, input1, input, input1, wn);;
 #endif
@@ -575,12 +594,20 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
   }
   bp.post_check_bypass(buf, buf1, output, output1, n_samples);
 
+  if (!byp) {
+    for (unsigned int i = 0; i < n_samples; i++) {
+      output [i] *= trim_;
+      output1 [i] *= trim_;
+    }
+  }
+  
   MXCSR.reset_();
   // work ?
   if (!_execute.load(std::memory_order_acquire) && (val_changed() || buffsize_changed()) )
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
+			old_trim_ = trim_;  // -delt.
       c_model_= (*c_model);
       _execute.store(true, std::memory_order_release);
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);

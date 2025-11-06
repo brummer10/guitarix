@@ -196,7 +196,9 @@ private:
   float*                       schedule_ok;
   float                        schedule_ok_;
   std::atomic<bool>            _execute;
-
+  float                        *trim;
+  float                        trim_, old_trim_; // -delt.
+  
   inline bool cab_changed() 
     {return std::abs(cab - clevel_ ) > 0.1;}
   inline bool buffsize_changed() 
@@ -212,8 +214,10 @@ private:
   inline void update_pre() 
     {pre = (alevel_);}
   inline bool val_changed() 
-    {return  std::abs(alevel_ - (*alevel)) > 0.1 || abs(clevel_ - (*clevel)) > 0.1 || std::abs(c_model_ - (*c_model)) > 0.1;}
-
+    { return  std::abs(alevel_ - (*alevel))        > 0.1
+               || std::abs(clevel_ - (*clevel))    > 0.1
+               || std::abs(c_model_ - (*c_model))  > 0.1
+               || std::fabs (old_trim_ - trim_)    > 0.01; } // -delt.
   // LV2 stuff
   LV2_URID_Map*                map;
   LV2_Worker_Schedule*         schedule;
@@ -283,6 +287,9 @@ GxPluginMono::GxPluginMono() :
   c_old_model_(0),
   alevel(NULL),
   alevel_(0),
+  trim (NULL),
+  trim_ (1.0),  // -delt.
+  old_trim_ (1.0),
   pre(0),
   schedule_ok(NULL),
   schedule_ok_(0)
@@ -316,7 +323,7 @@ void GxPluginMono::do_work_mono()
           ampconv.stop_process();
         }
      bufsize = cur_bufsize;
-	 cabconv.cleanup();
+     cabconv.cleanup();
      CabDesc& cab = *getCabEntry(static_cast<uint32_t>(c_model_)).data;
      cabconv.cab_count = cab.ir_count;
      cabconv.cab_sr = cab.ir_sr;
@@ -490,6 +497,9 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
     case BYPASS: 
       bypass = static_cast<float*>(data); // , 0.0, 0.0, 1.0, 1.0 
       break;
+    case TRIM:  // -delt.
+      trim = static_cast<float*>(data);
+      break;    
     default:
       break;
     }
@@ -499,7 +509,14 @@ void GxPluginMono::connect_mono(uint32_t port,void* data)
 
 void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 {
-  if (n_samples< 1) return;
+  // Latch TRIM from control port every block (before val_changed())  -delt.
+	if (trim) {
+		float v = *trim;
+		if (!std::isfinite(v)) v = 1.0f;
+		trim_ = v;
+	}
+  
+	if (n_samples< 1) return;
   MXCSR.set_();
   cur_bufsize = n_samples;
   if (*(schedule_ok) != schedule_ok_) *(schedule_ok) = schedule_ok_;
@@ -509,7 +526,8 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
   if (output != input)
     memcpy(output, input, n_samples*sizeof(float));
   // check if bypass is pressed
-  if (!bp.pre_check_bypass(bypass, buf, input, n_samples)) {
+  bool byp = bp.pre_check_bypass(bypass, buf, input, n_samples);
+  if (!byp) {
 #ifndef __SSE__
     wn->mono_audio(static_cast<int>(n_samples), input, input, wn);;
 #endif
@@ -554,12 +572,18 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
   }
   bp.post_check_bypass(buf, output, n_samples);
 
+	if (!byp) {
+		for (unsigned int i = 0; i < n_samples; i++)
+			output [i] *= trim_;
+	}
+  
   MXCSR.reset_();
   // work ?
   if (!_execute.load(std::memory_order_acquire) && (val_changed() || buffsize_changed())) 
     {
       clevel_ = (*clevel);
       alevel_ = (*alevel);
+			old_trim_ = trim_;  // -delt.
       c_model_= (*c_model);
       _execute.store(true, std::memory_order_release);
       schedule->schedule_work(schedule->handle, sizeof(bool), &doit);
