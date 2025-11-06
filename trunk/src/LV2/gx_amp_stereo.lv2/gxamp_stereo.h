@@ -59,6 +59,7 @@ typedef enum
   AMP_INPUT1,
   BYPASS,
   HIGHGAIN,
+	TRIM
 } PortIndex;
 
 #endif //SRC_HEADERS_GXAMP_H_

@@ -57,8 +57,9 @@ typedef enum
   AMP_INPUT,
   BYPASS,
   HIGHGAIN,
-  AMP_OUTPUT1,
-  AMP_INPUT1,
+  /*AMP_OUTPUT1,   unused in mono gxamp
+  AMP_INPUT1,      -delt.*/
+  TRIM
 } PortIndex;
 
 #endif //SRC_HEADERS_GXAMP_H_
