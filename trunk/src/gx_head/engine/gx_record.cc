@@ -109,7 +109,7 @@ inline std::string SCapture::get_ffilename() {
       default :
           break;
     }
-    std::string name = defaultName + std::string(datetime) + extension;
+    std::string name = defaultName + datetime + extension;
     return pPath+name;
 }
 
