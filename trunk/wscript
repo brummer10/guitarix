@@ -264,7 +264,7 @@ def check_boost(conf):
     )
     msg = "Checking for boost >= %s" % boost_atleast_vermsg
     conf.check_cxx(msg=msg, fragment=code, lib="boost_system", mandatory=0)
-    # conf.check_cxx(msg = msg, fragment=code, lib="boost_system-mt", mandatory=0,includes='/opt/local/include', libpath='/opt/local/lib')
+    # conf.check_cxx(msg = msg, fragment=code, lib="boost_system-mt", mandatory=1,includes='/opt/local/include', libpath='/opt/local/lib')
 
     msg = "Checking for boost_iostreams >= %s" % boost_atleast_vermsg
     conf.check_cxx(
