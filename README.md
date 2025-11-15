@@ -43,7 +43,6 @@ Guitarix can also load up LAPSPA and LV2 plugins to comply the effect chain.
 - libbluetooth-dev 
 - libboost-dev,
 - libboost-iostreams-dev,
-- libboost-system-dev,
 - libboost-thread-dev,
 - libeigen3-dev,
 - libgtk-3-dev,
