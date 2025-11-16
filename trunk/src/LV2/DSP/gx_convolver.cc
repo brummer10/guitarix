@@ -160,7 +160,7 @@ public:
   {
     if (vec)
       {
-        delete vec;
+        delete [] vec;
       }
   }
 };
