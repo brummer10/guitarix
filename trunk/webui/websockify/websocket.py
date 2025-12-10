@@ -243,7 +243,7 @@ Sec-WebSocket-Accept: %s\r
                 data = numpy.frombuffer(buf, dtype=numpy.dtype('<u4'),
                         offset=pstart, count=int(plen / 4))
                 #b = numpy.bitwise_xor(data, mask).data
-                b = numpy.bitwise_xor(data, mask).tostring()
+                b = numpy.bitwise_xor(data, mask).tobytes()
 
             if plen % 4:
                 #print("Partial unmask")
@@ -252,7 +252,7 @@ Sec-WebSocket-Accept: %s\r
                 data = numpy.frombuffer(buf, dtype=numpy.dtype('B'),
                         offset=pend - (plen % 4),
                         count=(plen % 4))
-                c = numpy.bitwise_xor(data, mask).tostring()
+                c = numpy.bitwise_xor(data, mask).tobytes()
             return b + c
         else:
             # Slower fallback
