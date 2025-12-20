@@ -70,20 +70,10 @@ def scss2css(task):
     o = task.outputs[0]
     dst = o.abspath()
     p = o.parent
-    #gendir = p.parent.get_src().find_dir(p.name+task.gen_dir_suffix)
-    #cpy = gendir.make_node(o.name).abspath()
     proc_args = Utils.to_list(getattr(task.generator, 'proc_args', ''))
     lst = task.env['SASSC'] + proc_args + [src, dst]
     ret = task.exec_command(lst, shell=False)
     return ret
-    if ret != 0:
-        return ret
-    try:
-        shutil.copy2(dst, cpy)
-    except (OSError, IOError) as e:
-        Logs.error("runner: cannot copy file -> %s" % e)
-        return e.errno
-    return 0
 
 def scan_scss_imports(task):
     is_import = re.compile(r"\s*@import\s+([^;]+?)\s*;").match
