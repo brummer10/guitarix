@@ -44,7 +44,7 @@ Guitarix is fully resizable. Just drag the bottom-right corner to adjust width a
         - Scratchpad: Snapshots of unsaved/work in progress signal chains the user is building
         - Musiclab: Premade signal chains provided with the application
     - Save: Saves preset
-    - Online: Opens resource with available presets for Guitarix (this currently appears broken)
+    - Online: Opens resource with available presets for Guitarix
     - Organize: Rename or delete user-created presets
     - New bank: Creates a new bank/folder for presets
 - Next Preset: Cycles to the next preset
