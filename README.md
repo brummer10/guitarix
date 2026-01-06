@@ -26,7 +26,8 @@ Guitarix can also load up LAPSPA and LV2 plugins to comply the effect chain.
 
 ## Documentation
 [Standalone app](/documentation/standalone-app-overview.md)
-[LV2 Plugins](/documentation/lv2-plugins-overview.md)
+
+[LV2 plugins](/documentation/lv2-plugins-overview.md)
 
 
 ## Building guitarix from source code
