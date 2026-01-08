@@ -22,7 +22,7 @@ including compression, distortion, modulation, reverb, delay, EQ, etc.
 Some of the effects modules that are included in Guitarix 
 are influenced by some popular hardware units, 
 for example the Tube Screamer is, not surprisingly, based off of the Ibanez Tube Screamer.
-Guitarix can also load up LAPSPA and LV2 plugins to comply the effect chain.
+Guitarix can also load up LADSPA and LV2 plugins to comply the effect chain.
 
 ## Documentation
 [Standalone app](/documentation/standalone-app-overview.md)
