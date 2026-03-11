@@ -84,6 +84,7 @@ rdfs:comment """
         lv2:default 120.0 ;
         lv2:minimum 24.0 ;
         lv2:maximum 360.0 ;
+        units:unit units:bpm;
     ]      , [
         a lv2:InputPort ,
             lv2:ControlPort ;
@@ -216,6 +217,7 @@ rdfs:comment """
         lv2:minimum 24.0 ;
         lv2:maximum 360.0 ;
         lv2:designation time:beatsPerMinute;
+        units:unit units:bpm;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
