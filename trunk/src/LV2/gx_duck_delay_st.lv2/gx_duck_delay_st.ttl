@@ -157,6 +157,7 @@ The switching controlled by envelope follower
         lv2:default 500.0 ;
         lv2:minimum 1.0 ;
         lv2:maximum 2000 ;
+        units:unit units:ms;
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
