@@ -287,12 +287,12 @@ GxPluginMono::GxPluginMono() :
   c_old_model_(0),
   alevel(NULL),
   alevel_(0),
-  trim (NULL),
-  trim_ (1.0),  // -delt.
-  old_trim_ (1.0),
   pre(0),
   schedule_ok(NULL),
-  schedule_ok_(0)
+  schedule_ok_(0),
+  trim (NULL),
+  trim_ (1.0),  // -delt.
+  old_trim_ (1.0)
 {
 
 };

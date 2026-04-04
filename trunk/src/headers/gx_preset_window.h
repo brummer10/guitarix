@@ -156,6 +156,8 @@ private:
     void popup_pos( int& x, int& y, bool& push_in );
     void downloadPreset(Gtk::Menu *presetMenu,std::string uri);
     bool download_file(Glib::ustring from_uri, Glib::ustring to_path);
+    bool download_all_metadata(const std::string& out_path);
+    bool download_to_string(const std::string& url, std::string& out);
     Glib::ustring resolve_hostname();
     void create_preset_menu();
     void read_preset_menu();

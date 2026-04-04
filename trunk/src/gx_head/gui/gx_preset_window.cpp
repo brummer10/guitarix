@@ -770,6 +770,76 @@ Glib::ustring PresetWindow::resolve_hostname() {
     return hostname;
 }
 
+static size_t write_to_string(void *ptr, size_t size, size_t nmemb, void *userdata) {
+    std::string *str = static_cast<std::string*>(userdata);
+    str->append(static_cast<char*>(ptr), size * nmemb);
+    return size * nmemb;
+}
+
+bool PresetWindow::download_to_string(const std::string& url, std::string& out) {
+    CURLcode res;
+
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_string);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
+
+    res = curl_easy_perform(curl);
+
+    if (res != CURLE_OK) {
+        gx_print_error("download", curl_easy_strerror(res));
+        curl_easy_reset(curl);
+        return false;
+    }
+
+    curl_easy_reset(curl);
+    return true;
+}
+
+bool PresetWindow::download_all_metadata(const std::string& out_path) {
+    std::string combined = "[";
+    bool first = true;
+
+    for (int page = 1; ; ++page) {
+        std::string url = "https://musical-artifacts.com/artifacts.json?apps=guitarix&formats=gx&page=" 
+                        + std::to_string(page);
+
+        std::string response;
+        if (!download_to_string(url, response)) {
+            return false;
+        }
+
+        if (response == "[]" || response.size() < 3) {
+            break;
+        }
+
+        size_t start = response.find('[');
+        size_t end   = response.rfind(']');
+        if (start == std::string::npos || end == std::string::npos || end <= start) {
+            continue;
+        }
+
+        std::string content = response.substr(start + 1, end - start - 1);
+
+        if (!content.empty()) {
+            if (!first) {
+                combined += ",";
+            }
+            combined += content;
+            first = false;
+        }
+    }
+
+    combined += "]";
+
+    FILE* out = fopen(out_path.c_str(), "wb");
+    if (!out) return false;
+
+    fwrite(combined.c_str(), 1, combined.size(), out);
+    fclose(out);
+
+    return true;
+}
+
 bool PresetWindow::download_file(Glib::ustring from_uri, Glib::ustring to_path) {
 
     CURLcode res;
@@ -902,8 +972,8 @@ void PresetWindow::show_online_preset() {
 	    }
         }
 	if (!exists || reload) {
-	    if (!download_file("https://musical-artifacts.com/artifacts.json?apps=guitarix&formats=gx", options.get_online_config_filename())) {
-		return;
+        if (!download_all_metadata(options.get_online_config_filename())) {
+            return;
 	    }
 	}
     }
