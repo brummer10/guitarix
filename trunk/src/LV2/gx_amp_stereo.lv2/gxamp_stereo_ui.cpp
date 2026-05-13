@@ -160,7 +160,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
 
     // create combobox widgets
     const char* tonestacks[] = {"default","Bassman Style","Twin Reverb Style","Princeton Style","JCM-800 Style",
-    "JCM-2000 Style","M-Lead Style","M2199 Style","AC-30 Style","Mesa Boogie Style","SOL 100 Style","JTM-45 Style","AC-15 Style",
+    "JCM-2000 Style","M-Lead Style","M2199 Style","AC-30 Style","SOL 100 Style","Mesa Boogie Style","JTM-45 Style","AC-15 Style",
     "Peavey Style","Ibanez Style","Roland Style","Ampeg Style","Rev.Rocket Style","MIG 100 H Style","Triple Giant Style",
     "Trio Preamp Style","Hughes&Kettner Style","Fender Junior Style","Fender Style","Fender Deville Style",
     "Gibsen Style", "Off" };

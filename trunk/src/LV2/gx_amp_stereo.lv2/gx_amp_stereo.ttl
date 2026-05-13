@@ -210,8 +210,8 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:scalePoint [rdfs:label "M-Lead Style"; rdf:value 6];
         lv2:scalePoint [rdfs:label "M2199 Style"; rdf:value 7];
         lv2:scalePoint [rdfs:label "AC-30 Style"; rdf:value 8];
-        lv2:scalePoint [rdfs:label "Mesa Boogie Style"; rdf:value 9];
-        lv2:scalePoint [rdfs:label "SOL 100 Style"; rdf:value 10];
+        lv2:scalePoint [rdfs:label "SOL 100 Style"; rdf:value 9];
+        lv2:scalePoint [rdfs:label "Mesa Boogie Style"; rdf:value 10];
         lv2:scalePoint [rdfs:label "JTM-45 Style"; rdf:value 11];
         lv2:scalePoint [rdfs:label "AC-15 Style"; rdf:value 12];
         lv2:scalePoint [rdfs:label "Peavey Style"; rdf:value 13];
