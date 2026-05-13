@@ -198,7 +198,7 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:name "Tonestack Model" ;
         lv2:default 1 ;
         lv2:minimum 0 ;
-        lv2:maximum 26 ;
+        lv2:maximum 27 ;
         lv2:portProperty lv2:integer;
         lv2:portProperty lv2:enumeration ;
         lv2:scalePoint [rdfs:label "default"; rdf:value 0];
@@ -228,6 +228,7 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:scalePoint [rdfs:label "Fender Deville Style"; rdf:value 24];
         lv2:scalePoint [rdfs:label "Gibsen Style"; rdf:value 25];
         lv2:scalePoint [rdfs:label "(Off)"; rdf:value 26];
+        lv2:scalePoint [rdfs:label "Engl Style"; rdf:value 27];
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;

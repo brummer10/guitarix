@@ -49,6 +49,7 @@
 #include "tonestack_fender_default_stereo.cc"
 #include "tonestack_fender_deville_stereo.cc"
 #include "tonestack_gibsen_stereo.cc"
+#include "tonestack_engl_stereo.cc"
 
 
 

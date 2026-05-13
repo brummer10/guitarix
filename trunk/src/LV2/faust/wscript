@@ -161,6 +161,7 @@ def build(bld):
         'tonestack_fender_default.dsp',
         'tonestack_fender_deville.dsp',
         'tonestack_gibsen.dsp',
+        'tonestack_engl.dsp',
 
         # tone stacks stereo
         'tonestack_default_stereo.dsp',
@@ -189,6 +190,7 @@ def build(bld):
         'tonestack_fender_default_stereo.dsp',
         'tonestack_fender_deville_stereo.dsp',
         'tonestack_gibsen_stereo.dsp',
+        'tonestack_engl_stereo.dsp',
 
         # amps
         'gxamp.dsp',

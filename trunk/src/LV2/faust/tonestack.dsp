@@ -1,5 +1,7 @@
 //tonestack ba.selector
 
+// use double precision, single precision suffers from numerical cancellation.
+
 declare id 		"tonestack_imp";
 
 import("stdfaust.lib");
@@ -296,7 +298,16 @@ ts = environment {
         C3 = 20:nF;
         };
         
-    
+    engl = environment { /* engl   */
+    R1 = 250:k;
+        R2 = 1:M;
+        R3 = 20:k;  
+        R4 = 100:k;
+        C1 = 600:pF;
+        C2 = 47:nF;
+        C3 = 47:nF;
+        };
+   
 };
 
 t = vslider(".amp.tonestack.Treble[alias]", 0.5, 0, 1, 0.01);

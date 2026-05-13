@@ -163,7 +163,7 @@ void plugin_create_controller_widgets(X11_UI *ui, const char * plugin_uri) {
     "JCM-2000 Style","M-Lead Style","M2199 Style","AC-30 Style","SOL 100 Style","Mesa Boogie Style","JTM-45 Style","AC-15 Style",
     "Peavey Style","Ibanez Style","Roland Style","Ampeg Style","Rev.Rocket Style","MIG 100 H Style","Triple Giant Style",
     "Trio Preamp Style","Hughes&Kettner Style","Fender Junior Style","Fender Style","Fender Deville Style",
-    "Gibsen Style", "Off" };
+    "Gibsen Style", "Off", "Engl Style" };
     size_t len = sizeof(tonestacks) / sizeof(tonestacks[0]);
     ui->widget[9] = add_my_combobox(ui->widget[9], T_MODEL, "Tonestack", tonestacks, len, 1, ui, 360, 30, 210, 30);
 
