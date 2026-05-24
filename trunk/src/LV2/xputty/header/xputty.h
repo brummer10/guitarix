@@ -201,6 +201,10 @@ struct Xputty{
     int big_font;
     
     bool queue_event;
+#if defined (__linux__) || (__FreeBSD__)
+/** Context to Locale and UTF 8 support */
+    XIM xim;
+#endif
 };
 
 /**

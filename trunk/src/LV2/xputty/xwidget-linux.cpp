@@ -38,7 +38,6 @@ void os_close_display(Display *dpy) {
 
 void os_destroy_window(Widget_t *w) {
     if (w->xic) XDestroyIC(w->xic);
-    if (w->xim) XCloseIM(w->xim);
     XUnmapWindow(w->app->dpy, w->widget);
     XDestroyWindow(w->app->dpy, w->widget);
 }
@@ -113,14 +112,7 @@ void os_create_main_window_and_surface(Widget_t *w, Xputty *app, Window win,
                             CopyFromParent, &attributes);
     debug_print("XCreateWindow\n");
 
-    XSetLocaleModifiers("");
-    w->xim = XOpenIM(app->dpy, 0, 0, 0);
-    if(!w->xim){
-        XSetLocaleModifiers("@im=none");
-        w->xim = XOpenIM(app->dpy, 0, 0, 0);
-    }
-
-    w->xic = XCreateIC(w->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
+    w->xic = XCreateIC(app->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
                     XNClientWindow, w->widget, XNFocusWindow,  w->widget, NULL);
 
     XSetICFocus(w->xic);
@@ -150,14 +142,7 @@ void os_create_widget_window_and_surface(Widget_t *w, Xputty *app, Widget_t *par
                             CopyFromParent|CWOverrideRedirect, &attributes);
     debug_print("XCreateWindow\n");
 
-    XSetLocaleModifiers("");
-    w->xim = XOpenIM(app->dpy, 0, 0, 0);
-    if(!w->xim){
-        XSetLocaleModifiers("@im=none");
-        w->xim = XOpenIM(app->dpy, 0, 0, 0);
-    }
-
-    w->xic = XCreateIC(w->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
+    w->xic = XCreateIC(app->xim, XNInputStyle, XIMPreeditNothing | XIMStatusNothing,
                     XNClientWindow, w->widget, XNFocusWindow,  w->widget, NULL);
 
     XSetICFocus(w->xic);

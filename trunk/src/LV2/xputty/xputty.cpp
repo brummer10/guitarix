@@ -24,6 +24,14 @@
 void main_init(Xputty *main) {
     main->dpy = os_open_display(0);
     assert(main->dpy);
+#if defined (__linux__) || (__FreeBSD__)
+    XSetLocaleModifiers("");
+    main->xim = XOpenIM(main->dpy, 0, 0, 0);
+    if(!main->xim){
+        XSetLocaleModifiers("@im=none");
+        main->xim = XOpenIM(main->dpy, 0, 0, 0);
+    }
+#endif
     main->childlist = (Childlist_t*)malloc(sizeof(Childlist_t));
     assert(main->childlist);
     childlist_init(main->childlist);
@@ -55,6 +63,9 @@ void main_quit(Xputty *main) {
     childlist_destroy(main->childlist);
     free(main->childlist);
     free(main->color_scheme);
+#if defined (__linux__) || (__FreeBSD__)
+    if (main->xim) XCloseIM(main->xim);
+#endif
     os_close_display(main->dpy);
     debug_print("quit\n");
 }
