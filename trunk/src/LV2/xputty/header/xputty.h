@@ -58,6 +58,8 @@ extern "C" {
 #endif
 #endif
 
+#define cairo_show_text(cr,text) { cairo_text_path (cr,text); cairo_fill (cr); }
+
 /**
  * @brief debug_print         - print out state messages when compiled with
  * the -DDEBUG flag
