@@ -20,8 +20,6 @@
 
 #include "lv2_plugin.h"
 
-#define cairo_show_text(cr,text) { cairo_text_path (cr,text); cairo_fill (cr); }
-
 /*---------------------------------------------------------------------
 -----------------------------------------------------------------------    
                 the main LV2 handle->XWindow
