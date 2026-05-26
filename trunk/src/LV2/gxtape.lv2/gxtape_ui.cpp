@@ -103,13 +103,13 @@ static void draw_my_window(void *w_, void* user_data) {
     cairo_set_font_size (w->crb, 12);
     use_text_color_scheme(w, get_color_state(w));
     cairo_move_to (w->crb, w->scale.init_width*0.18, w->scale.init_height*0.65 );
-    cairo_show_text(w->crb, "WOW");
+    cairo_show_text_dummy(w->crb, "WOW");
     cairo_new_path (w->crb);
     cairo_move_to (w->crb, w->scale.init_width*0.45, w->scale.init_height*0.65 );
-    cairo_show_text(w->crb, "FLUTTER");
+    cairo_show_text_dummy(w->crb, "FLUTTER");
     cairo_new_path (w->crb);
     cairo_move_to (w->crb, w->scale.init_width*0.75, w->scale.init_height*0.65 );
-    cairo_show_text(w->crb, "TAPE");
+    cairo_show_text_dummy(w->crb, "TAPE");
     cairo_new_path (w->crb);
 
     widget_reset_scale(w);

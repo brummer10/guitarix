@@ -32,6 +32,8 @@
 extern "C" {
 #endif
 
+void cairo_show_text_dummy (cairo_t *cr, const char *text);
+
 // struct to define the knob pattern colors
 typedef struct {
     double p1f[4];

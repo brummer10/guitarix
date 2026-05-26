@@ -163,10 +163,10 @@ void _draw_tuner(void *w_, void* user_data) {
     if (value > 24.0 && value < 999.0) {
         float c = (extents.width/2)+10.0;
         cairo_move_to(w->crb,x0-c , y0+5 );
-        cairo_show_text(w->crb, _get_note_set(w)[vis]);
+        cairo_show_text_dummy(w->crb, _get_note_set(w)[vis]);
         cairo_set_font_size(w->crb, (w->app->small_font*2)/w->scale.ascale);
         cairo_move_to(w->crb,x0+c-10.0, y0+5+ extents.height/2 );
-        cairo_show_text(w->crb, octave[indicate_oc]);
+        cairo_show_text_dummy(w->crb, octave[indicate_oc]);
 
         char s[64];
         const char* format[] = {"%.1f Hz", "%.2f Hz", "%.3f Hz"};
@@ -175,7 +175,7 @@ void _draw_tuner(void *w_, void* user_data) {
         cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
         cairo_text_extents(w->crb,s , &extents);
         cairo_move_to (w->crb, width/1.2-extents.width/2, height-extents.height );
-        cairo_show_text(w->crb, s);
+        cairo_show_text_dummy(w->crb, s);
     
         cairo_set_source(w->crb,pat);
         int m = 100*scale;

@@ -82,7 +82,7 @@ static void draw_my_window(void *w_, void* user_data) {
 
     widget_set_scale(w);
     cairo_move_to (w->crb, (w->scale.init_width*0.5)-tw, w->scale.init_height-10 );
-    cairo_show_text(w->crb, w->label);
+    cairo_show_text_dummy(w->crb, w->label);
     cairo_new_path (w->crb);
     cairo_scale (w->crb, 0.95, 0.95);
     cairo_set_source_surface (w->crb, w->image,w->scale.init_width-110,15);

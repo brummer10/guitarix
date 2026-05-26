@@ -78,7 +78,7 @@ void _draw_list(void *w_, void* user_data) {
         cairo_text_extents(w->crb,filelist->list_names[i] , &extents);
 
         cairo_move_to (w->crb, (width-extents.width)/2., (25*(i+1)) - extents.height );
-        cairo_show_text(w->crb, filelist->list_names[i]);
+        cairo_show_text_dummy(w->crb, filelist->list_names[i]);
         cairo_new_path (w->crb);
         if (i == filelist->prelight_item && extents.width > (float)width-20) {
             tooltip_set_text(w,filelist->list_names[i]);

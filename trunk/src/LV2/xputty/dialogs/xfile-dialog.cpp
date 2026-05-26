@@ -51,15 +51,15 @@ static void draw_window(void *w_, void* user_data) {
     use_fg_color_scheme(w, NORMAL_);
     cairo_set_font_size (w->crb, 12.0);
     cairo_move_to (w->crb, 20, 35);
-    cairo_show_text(w->crb, "Directory");
+    cairo_show_text_dummy(w->crb, "Directory");
     cairo_move_to (w->crb, 20, 85);
-    cairo_show_text(w->crb, "File");
+    cairo_show_text_dummy(w->crb, "File");
     cairo_move_to (w->crb, 20, 340);
-    cairo_show_text(w->crb, "Load: ");
+    cairo_show_text_dummy(w->crb, "Load: ");
     cairo_move_to (w->crb, 45, 380);
-    cairo_show_text(w->crb, "Show hidden files"); 
+    cairo_show_text_dummy(w->crb, "Show hidden files"); 
     cairo_move_to (w->crb, 60, 340);
-    cairo_show_text(w->crb, w->label);
+    cairo_show_text_dummy(w->crb, w->label);
     widget_reset_scale(w);
 }
 

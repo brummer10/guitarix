@@ -152,7 +152,7 @@ void _draw_combobox(void *w_, void* user_data) {
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, (width-extents.width)*0.4, (height+extents.height)*0.55);
-    cairo_show_text(w->crb, w->label);
+    cairo_show_text_dummy(w->crb, w->label);
     cairo_new_path (w->crb);
     if (extents.width > (float)width-20) {
         tooltip_set_text(w,w->label);

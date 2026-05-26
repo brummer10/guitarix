@@ -318,7 +318,7 @@ void mk_draw_knob(void *w_, void* user_data) {
         cairo_set_font_size (w->crb, knobx1/3);
         cairo_text_extents(w->crb, s, &extents);
         cairo_move_to (w->crb, knobx1-extents.width/2, knoby1+extents.height/2);
-        cairo_show_text(w->crb, s);
+        cairo_show_text_dummy(w->crb, s);
         cairo_new_path (w->crb);
     }
 
@@ -329,7 +329,7 @@ void mk_draw_knob(void *w_, void* user_data) {
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, knobx1-extents.width/2, height );
-    cairo_show_text(w->crb, w->label);
+    cairo_show_text_dummy(w->crb, w->label);
     cairo_new_path (w->crb);
 }
 

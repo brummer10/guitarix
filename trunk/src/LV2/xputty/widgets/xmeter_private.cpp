@@ -59,7 +59,7 @@ void _draw_vmeter_scale(void *w_, void* user_data) {
             snprintf (buf, sizeof (buf), " %d", db_points[i]);
             cairo_move_to (w->crb, x0+rect_width*0.21,y0+rect_height - (rect_height * fraction)-3);
         }
-        cairo_show_text (w->crb, buf);
+        cairo_show_text_dummy (w->crb, buf);
     }
 
     cairo_set_source_rgb(w->crb, 0.6, 0.6, 0.6);
@@ -100,7 +100,7 @@ void _draw_hmeter_scale(void *w_, void* user_data) {
             snprintf (buf, sizeof (buf), " %d", db_points[i]);
             cairo_move_to (w->crb, x0+(rect_width * fraction)+3,y0+rect_height );
         }
-        cairo_show_text (w->crb, buf);
+        cairo_show_text_dummy (w->crb, buf);
     }
 
     cairo_set_source_rgba(w->crb, 0.6, 0.6, 0.6, 0.6);

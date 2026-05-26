@@ -80,7 +80,7 @@ void _draw_valuedisplay(void *w_, void* user_data) {
     cairo_set_font_size (w->crb, font_size);
     cairo_text_extents(w->crb,s , &extents);
     cairo_move_to (w->crb, (width-extents.width)*0.5, (height+extents.height)*0.55);
-    cairo_show_text(w->crb, s);
+    cairo_show_text_dummy(w->crb, s);
     cairo_new_path (w->crb);
 
 }
