@@ -64,6 +64,7 @@ static void draw_window(void *w_, void* user_data) {
     cairo_fill (w->crb);
     cairo_move_to (w->crb, 60, 340);
     cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     widget_reset_scale(w);
 }
 

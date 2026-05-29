@@ -61,6 +61,7 @@ void _draw_item(void *w_, void* user_data) {
 
     cairo_move_to (w->crb, (width-extents.width)/2., height - extents.height );
     cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     
     cairo_new_path (w->crb);
 }
