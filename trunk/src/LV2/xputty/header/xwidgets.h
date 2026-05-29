@@ -44,6 +44,4 @@
 #include "xtuner.h"
 #include "xvaluedisplay.h"
 
-void cairo_show_text_dummy (cairo_t *cr, const char *text);
-
 #endif //XWIDGETS_H_

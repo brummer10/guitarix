@@ -102,7 +102,8 @@ static void draw_window(void *w_, void* user_data) {
 
     widget_set_scale(w);
     cairo_move_to (w->crb, 255-tw, 230 );
-    cairo_show_text_dummy(w->crb, w->label);
+    cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
     cairo_scale (w->crb, 0.95, 0.95);
     cairo_set_source_surface (w->crb, w->image,410,10);
@@ -200,7 +201,8 @@ static void draw_my_knob(void *w_, void* user_data) {
         cairo_set_font_size (w->crb, min(11.0,knobx1/3));
         cairo_text_extents(w->crb, s, &extents);
         cairo_move_to (w->crb, knobx1-extents.width/2, knoby1+extents.height/2);
-        cairo_show_text_dummy(w->crb, s);
+        cairo_text_path(w->crb, s);
+        cairo_fill (w->crb);
         cairo_new_path (w->crb);
     }
 
@@ -210,7 +212,8 @@ static void draw_my_knob(void *w_, void* user_data) {
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, knobx1-extents.width/2, height );
-    cairo_show_text_dummy(w->crb, w->label);
+    cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
 }
 

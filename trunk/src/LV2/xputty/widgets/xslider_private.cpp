@@ -96,7 +96,8 @@ void _draw_vslider(void *w_, void* user_data) {
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, center-extents.width/2, height-center/2.1);
-    cairo_show_text_dummy(w->crb, w->label);
+    cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
 
     char s[64];
@@ -111,7 +112,8 @@ void _draw_vslider(void *w_, void* user_data) {
     }
     cairo_text_extents(w->crb,s , &extents);
     cairo_move_to (w->crb, center-extents.width/2, extents.height );
-    cairo_show_text_dummy(w->crb, s);
+    cairo_text_path(w->crb, s);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
 }
 
@@ -166,7 +168,8 @@ void _draw_hslider(void *w_, void* user_data) {
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, width/2-extents.width/2, height );
-    cairo_show_text_dummy(w->crb, w->label);
+    cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
 
     cairo_set_font_size (w->crb, w->app->small_font/w->scale.ascale);
@@ -182,7 +185,8 @@ void _draw_hslider(void *w_, void* user_data) {
         }
     cairo_text_extents(w->crb,s , &extents);
     cairo_move_to (w->crb, width/2-extents.width/2, extents.height );
-    cairo_show_text_dummy(w->crb, s);
+    cairo_text_path(w->crb, s);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
 }
 

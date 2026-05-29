@@ -102,11 +102,13 @@ void _draw_image_button_with_label(Widget_t *w, int width_t, int height_t) {
     if ((int)adj_get_value(w->adj) && strlen(w->input_label)) {
         cairo_text_extents(w->crb,w->input_label , &extents);
         cairo_move_to (w->crb, (width_t*0.5)-(extents.width/2), height_t-(extents.height/4));
-        cairo_show_text_dummy(w->crb, w->input_label);
+        cairo_text_path(w->crb, w->input_label);
+        cairo_fill (w->crb);
     } else {
         cairo_text_extents(w->crb,w->label , &extents);
         cairo_move_to (w->crb, (width_t*0.5)-(extents.width/2), height_t-(extents.height/4));
-        cairo_show_text_dummy(w->crb, w->label);
+        cairo_text_path(w->crb, w->label);
+        cairo_fill (w->crb);
     }
     cairo_new_path (w->crb);
 }
@@ -214,7 +216,8 @@ void _draw_button(void *w_, void* user_data) {
         }
 
         cairo_move_to (w->crb, (width-extents.width)*0.5 +offset, (height+extents.height)*0.5 +offset);
-        cairo_show_text_dummy(w->crb, w->label);
+        cairo_text_path(w->crb, w->label);
+        cairo_fill (w->crb);
         cairo_new_path (w->crb);
     }
 }
@@ -257,7 +260,8 @@ void _draw_on_off_button(void *w_, void* user_data) {
     }
 
     cairo_move_to (w->crb, (width-extents.width)*0.5 +offset, (height+extents.height)*0.5 +offset);
-    cairo_show_text_dummy(w->crb, w->label);
+    cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
 
 }
@@ -358,7 +362,8 @@ void _draw_check_box(void *w_, void* user_data) {
         cairo_set_font_size (w->crb, w->app->normal_font/w->scale.ascale);
         cairo_text_extents(w->crb,w->label , &extents);
         cairo_move_to (w->crb, height+5 , (height+extents.height)*0.5 );
-        cairo_show_text_dummy(w->crb, w->label);
+        cairo_text_path(w->crb, w->label);
+        cairo_fill (w->crb);
         cairo_new_path (w->crb);
     }
 }

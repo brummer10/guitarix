@@ -60,7 +60,8 @@ void _draw_item(void *w_, void* user_data) {
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, (width-extents.width)/2., height - extents.height );
-    cairo_show_text_dummy(w->crb, w->label);
+    cairo_text_path(w->crb, w->label);
+    
     cairo_new_path (w->crb);
 }
 
