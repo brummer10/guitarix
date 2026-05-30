@@ -114,6 +114,9 @@ declare(tonestack_fender_blues_stereo)
 declare(tonestack_fender_default_stereo)
 declare(tonestack_fender_deville_stereo)
 declare(tonestack_gibsen_stereo)
+declare(tonestack_engl_stereo)
+
+static const size_t TONESTACK_OFF_VALUE = 26;
 
 static plug tonestack_model[] = {
     tonestack_default_stereo::plugin,
@@ -142,6 +145,8 @@ static plug tonestack_model[] = {
     tonestack_fender_default_stereo::plugin,
     tonestack_fender_deville_stereo::plugin,
     tonestack_gibsen_stereo::plugin,
+    // Missing "Off" entry. See comment by TONESTACK_OFF_VALUE
+    tonestack_engl_stereo::plugin,
 };
 
 static const size_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[0]);
@@ -587,6 +592,15 @@ void GxPluginStereo::run_dsp_stereo(uint32_t n_samples)
 #endif
     // run selected tonestack
     t_model_ = static_cast<uint32_t>(*(t_model));
+    // For historical/compatibility reasons: "Off" is not at the end of the list
+    // in the UI and LV2 data, but the code assumes that it is. Make the
+    // adjustment here: If it is the historical "Off" value, move to the end of
+    // the list. If it's above that value, subtract one instead, to fit into the
+    // tonestack list which has no "Off" entry in it.
+    if (t_model_ == TONESTACK_OFF_VALUE)
+      t_model_ = TS_COUNT;
+    else if (t_model_ > TONESTACK_OFF_VALUE)
+      t_model_--;
     if (t_model_ <= t_max)
     tonestack[t_model_]->stereo_audio(static_cast<int>(n_samples), output, output1, output, output1, tonestack[t_model_]);
     // run selected cabinet convolver

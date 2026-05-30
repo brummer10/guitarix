@@ -115,6 +115,9 @@ declare(tonestack_fender_blues)
 declare(tonestack_fender_default)
 declare(tonestack_fender_deville)
 declare(tonestack_gibsen)
+declare(tonestack_engl)
+
+static const size_t TONESTACK_OFF_VALUE = 26;
 
 static plug tonestack_model[] = {
     tonestack_default::plugin,
@@ -143,6 +146,8 @@ static plug tonestack_model[] = {
     tonestack_fender_default::plugin,
     tonestack_fender_deville::plugin,
     tonestack_gibsen::plugin,
+    // Missing "Off" entry. See comment by TONESTACK_OFF_VALUE
+    tonestack_engl::plugin,
 };
 
 static const size_t TS_COUNT = sizeof(tonestack_model) / sizeof(tonestack_model[0]);
@@ -565,6 +570,15 @@ void GxPluginMono::run_dsp_mono(uint32_t n_samples)
 
     // run selected tonestack
     t_model_ =  static_cast<uint32_t>(*(t_model));
+    // For historical/compatibility reasons: "Off" is not at the end of the list
+    // in the UI and LV2 data, but the code assumes that it is. Make the
+    // adjustment here: If it is the historical "Off" value, move to the end of
+    // the list. If it's above that value, subtract one instead, to fit into the
+    // tonestack list which has no "Off" entry in it.
+    if (t_model_ == TONESTACK_OFF_VALUE)
+      t_model_ = TS_COUNT;
+    else if (t_model_ > TONESTACK_OFF_VALUE)
+      t_model_--;
     if (t_model_<=t_max)
       tonestack[t_model_]->mono_audio(static_cast<int>(n_samples), output, output, tonestack[t_model_]);
     // run selected cabinet convolver

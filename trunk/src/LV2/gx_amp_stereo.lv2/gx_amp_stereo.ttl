@@ -198,7 +198,7 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:name "Tonestack Model" ;
         lv2:default 1 ;
         lv2:minimum 0 ;
-        lv2:maximum 26 ;
+        lv2:maximum 27 ;
         lv2:portProperty lv2:integer;
         lv2:portProperty lv2:enumeration ;
         lv2:scalePoint [rdfs:label "default"; rdf:value 0];
@@ -210,8 +210,8 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:scalePoint [rdfs:label "M-Lead Style"; rdf:value 6];
         lv2:scalePoint [rdfs:label "M2199 Style"; rdf:value 7];
         lv2:scalePoint [rdfs:label "AC-30 Style"; rdf:value 8];
-        lv2:scalePoint [rdfs:label "Mesa Boogie Style"; rdf:value 9];
-        lv2:scalePoint [rdfs:label "SOL 100 Style"; rdf:value 10];
+        lv2:scalePoint [rdfs:label "SOL 100 Style"; rdf:value 9];
+        lv2:scalePoint [rdfs:label "Mesa Boogie Style"; rdf:value 10];
         lv2:scalePoint [rdfs:label "JTM-45 Style"; rdf:value 11];
         lv2:scalePoint [rdfs:label "AC-15 Style"; rdf:value 12];
         lv2:scalePoint [rdfs:label "Peavey Style"; rdf:value 13];
@@ -228,6 +228,7 @@ https://sourceforge.net/apps/mediawiki/guitarix/index.php?title=Cabinet_Impulse_
         lv2:scalePoint [rdfs:label "Fender Deville Style"; rdf:value 24];
         lv2:scalePoint [rdfs:label "Gibsen Style"; rdf:value 25];
         lv2:scalePoint [rdfs:label "(Off)"; rdf:value 26];
+        lv2:scalePoint [rdfs:label "Engl Style"; rdf:value 27];
     ] , [
         a lv2:InputPort ,
             lv2:ControlPort ;
