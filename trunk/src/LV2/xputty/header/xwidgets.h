@@ -44,5 +44,4 @@
 #include "xtuner.h"
 #include "xvaluedisplay.h"
 
-
 #endif //XWIDGETS_H_

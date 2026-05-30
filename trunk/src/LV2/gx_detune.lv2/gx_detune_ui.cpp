@@ -134,12 +134,14 @@ static void draw_my_window(void *w_, void* user_data) {
 
     widget_set_scale(w);
     cairo_move_to (w->crb, 390-tw, 170 );
-    cairo_show_text(w->crb, w->label);
+    cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
     if (strlen(w->input_label)) {
     cairo_set_font_size (w->crb, 11);
         cairo_move_to (w->crb, 140, 160 );
-        cairo_show_text(w->crb, w->input_label);
+        cairo_text_path(w->crb, w->input_label);
+        cairo_fill (w->crb);
         cairo_new_path (w->crb);
     }
     
@@ -204,7 +206,8 @@ static void draw_my_vslider(void *w_, void* user_data) {
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, center-extents.width/2, height-center/2.1);
-    cairo_show_text(w->crb, w->label);
+    cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
 
     char s[64];
@@ -218,7 +221,8 @@ static void draw_my_vslider(void *w_, void* user_data) {
     }
     cairo_text_extents(w->crb,s , &extents);
     cairo_move_to (w->crb, center-extents.width/2, extents.height );
-    cairo_show_text(w->crb, s);
+    cairo_text_path(w->crb, s);
+    cairo_fill (w->crb);
     cairo_new_path (w->crb);
 }
 

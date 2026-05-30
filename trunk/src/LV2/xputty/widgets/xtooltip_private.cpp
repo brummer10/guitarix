@@ -47,6 +47,7 @@ void _draw_tooltip(void *w_, void* user_data) {
     cairo_text_extents(w->crb,w->label , &extents);
 
     cairo_move_to (w->crb, (width-extents.width)/2., height+5 - extents.height );
-    cairo_show_text(w->crb, w->label);
+    cairo_text_path(w->crb, w->label);
+    cairo_fill (w->crb);
     
 }

@@ -227,7 +227,8 @@ static void draw_my_hslider(void *w_, void* user_data) {
         cairo_set_font_size (w->crb, min(11.0,height));
         cairo_text_extents(w->crb, l, &extents);
         cairo_move_to (w->crb, min(width-extents.width ,(width-height)*sliderstate), height);
-        cairo_show_text(w->crb, l);
+        cairo_text_path(w->crb, l);
+        cairo_fill (w->crb);
         cairo_new_path (w->crb);
     }
 }
