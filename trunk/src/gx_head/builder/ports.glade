@@ -138,6 +138,7 @@
                           <object class="GtkTreeView" id="treeview1">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="vexpand">True</property>
                             <property name="model">treestore1</property>
                             <property name="headers_visible">False</property>
                             <property name="headers_clickable">False</property>
@@ -186,6 +187,7 @@
                           <object class="GtkTreeView" id="treeview2">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="vexpand">True</property>
                             <property name="model">treestore2</property>
                             <property name="headers_visible">False</property>
                             <property name="headers_clickable">False</property>
@@ -235,6 +237,7 @@
                           <object class="GtkTreeView" id="treeview3">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="vexpand">True</property>
                             <property name="model">treestore3</property>
                             <property name="headers_visible">False</property>
                             <property name="headers_clickable">False</property>
@@ -346,6 +349,7 @@
                           <object class="GtkTreeView" id="treeview7">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="vexpand">True</property>
                             <property name="model">treestore7</property>
                             <property name="headers_visible">False</property>
                             <property name="headers_clickable">False</property>
@@ -395,6 +399,7 @@
                           <object class="GtkTreeView" id="treeview6">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="vexpand">True</property>
                             <property name="model">treestore6</property>
                             <property name="headers_visible">False</property>
                             <property name="headers_clickable">False</property>
@@ -495,6 +500,7 @@
                           <object class="GtkTreeView" id="treeview4">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="vexpand">True</property>
                             <property name="model">treestore4</property>
                             <property name="headers_visible">False</property>
                             <property name="headers_clickable">False</property>
@@ -544,6 +550,7 @@
                           <object class="GtkTreeView" id="treeview5">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="vexpand">True</property>
                             <property name="model">treestore5</property>
                             <property name="headers_visible">False</property>
                             <property name="headers_clickable">False</property>
