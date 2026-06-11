@@ -1798,12 +1798,40 @@ void ContrastConvolver::check_update() {
 
 int ContrastConvolver::register_con(const ParamReg& reg) {
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(reg.plugin);
-    reg.registerFloatVar("con.Level", "",  "S", "", &self.level,  1.0, 0.5, 5.0, 0.5, 0);
+    // changed granularity from 0.5 (too coarse and "jumpy") to 0.1 -delt.
+    reg.registerFloatVar("con.Level", "",  "S", "", &self.level,  1.0, 0.1, 5.0, 0.1, 0);
     self.presl.register_par(reg);
     return 0;
 }
 
+#define DELT_PRESENCE_HACK
+
 void ContrastConvolver::run_contrast(int count, float *input0, float *output0, PluginDef *p) {
+#ifdef DELT_PRESENCE_HACK
+    ContrastConvolver& self = *static_cast<ContrastConvolver*>(p);
+    int totalcount = self.smp.max_out_count(count);
+    FAUSTFLOAT bufout[totalcount], bufin [totalcount];
+    int ReCount = self.smp.up(count, output0, bufout);
+    
+    // keep copy of resampled buffer to mix afterwards
+    for (int i = 0; i < totalcount; i++)
+      bufin [i] = bufout [i];
+    
+    const float t = fminf (self.level * 0.2, 1.0f);   // crossfade over full knob range, 0..5
+    const float mix = t * t * (3.0f - (2.0f * t));    // smoothstep
+    const float half_pi = 1.57079632679f;
+    const float a = cosf (half_pi * mix);             // dry gain
+    const float b = sinf (half_pi * mix) / 2;         // wet gain
+    
+    if (!self.conv.compute(ReCount,bufout)) {
+        self.engine.overload(EngineControl::ov_Convolver, "contrast");
+    }
+    
+    for (int i = 0; i < totalcount; i++) {
+      bufout [i] = (bufin [i] * a) + (bufout [i] * b);
+    }
+    self.smp.down(bufout, output0);
+#else
     ContrastConvolver& self = *static_cast<ContrastConvolver*>(p);
     FAUSTFLOAT buf[self.smp.max_out_count(count)];
     int ReCount = self.smp.up(count, output0, buf);
@@ -1811,6 +1839,7 @@ void ContrastConvolver::run_contrast(int count, float *input0, float *output0, P
         self.engine.overload(EngineControl::ov_Convolver, "contrast");
     }
     self.smp.down(buf, output0);
+#endif
 }
 
 /****************************************************************
