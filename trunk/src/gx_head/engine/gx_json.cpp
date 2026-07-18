@@ -901,10 +901,13 @@ void PresetFile::readJSON_remote(JsonParser& jp) {
 	    jp.skip_object();
 	} else if (jp.current_value() == "flag_invalid") {
 	    flags |= PRESET_FLAG_INVALID;
+	    jp.skip_object();
 	} else if (jp.current_value() == "flag_readonly") {
 	    flags |= PRESET_FLAG_READONLY;
+	    jp.skip_object();
 	} else if (jp.current_value() == "flag_versiondiff") {
 	    flags |= PRESET_FLAG_VERSIONDIFF;
+	    jp.skip_object();
 	} else if (jp.current_value() == "presets") {
 	    jp.next(JsonParser::begin_array);
 	    while (jp.peek() != JsonParser::end_array) {
@@ -935,12 +938,15 @@ void PresetFile::writeJSON_remote(gx_system::JsonWriter& jw) {
     }
     if (flags & gx_system::PRESET_FLAG_INVALID) {
 	jw.write_key("flag_invalid");
+	jw.write(1);
     }
     if (flags & gx_system::PRESET_FLAG_READONLY) {
 	jw.write_key("flag_readonly");
+	jw.write(1);
     }
     if (flags & gx_system::PRESET_FLAG_VERSIONDIFF) {
 	jw.write_key("flag_versiondiff");
+	jw.write(1);
     }
     jw.write_key("presets");
     jw.begin_array();
