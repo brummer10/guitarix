@@ -255,13 +255,19 @@ void _resize_surface(Widget_t *wid, int width, int height) {
     wid->height = height;
     os_set_widget_surface_size(wid, wid->width, wid->height);
     cairo_font_face_t *ff = cairo_get_font_face(wid->crb);
+    if (ff) {
+        cairo_font_face_reference(ff);
+    }
     cairo_destroy(wid->crb);
     cairo_surface_destroy(wid->buffer);
     wid->buffer = cairo_surface_create_similar (wid->surface, 
                         CAIRO_CONTENT_COLOR_ALPHA, width, height);
     assert(cairo_surface_status(wid->buffer) == CAIRO_STATUS_SUCCESS);
     wid->crb = cairo_create (wid->buffer);
-    cairo_set_font_face(wid->crb, ff);
+    if (ff) {
+        cairo_set_font_face(wid->crb, ff);
+        cairo_font_face_destroy(ff);
+    }
 }
 
 void _resize_childs(Widget_t *wid) {
