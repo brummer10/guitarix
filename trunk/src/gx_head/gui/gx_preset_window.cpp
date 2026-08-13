@@ -874,6 +874,8 @@ bool PresetWindow::download_file(Glib::ustring from_uri, Glib::ustring to_path) 
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, out);
     curl_easy_setopt(curl, CURLOPT_URL, from_uri.c_str());
     curl_easy_setopt(curl, CURLOPT_USERAGENT, GX_USERAGENT);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L);
 
     res = curl_easy_perform(curl);
     if (CURLE_OK == res) {
@@ -892,6 +894,8 @@ bool PresetWindow::download_file(Glib::ustring from_uri, Glib::ustring to_path) 
             } else if (strstr(ct, "application/json") != NULL) {
                 gx_print_info( "download_file", from_uri);
             } else if (strstr(ct, "application/octet-stream") != NULL) {
+                 gx_print_info( "download_preset", from_uri);
+            } else if (strstr(ct, "text/plain") != NULL) {
                  gx_print_info( "download_preset", from_uri);
             } else {
                 gx_print_error("download", Glib::ustring::compose("Fetching %1 returned data in unexpected encoding \"%2\"", from_uri, ct));
