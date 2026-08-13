@@ -226,6 +226,11 @@ def build(bld):
         chmod = 0o755,
         install_path = bld.env.BINDIR,
         mapfile = "guitarix.map",
+        # NAM's self-registering DSP architecture parsers (e.g. WaveNet, SlimmableContainer)
+        # live in libnam.a with no directly-referenced symbols outside their own
+        # translation unit -- normal static linking silently drops those object files.
+        # Force the whole archive in so their static registration constructors run.
+        linkflags = ['-Wl,--whole-archive,-lnam,--no-whole-archive'],
         )
     bld.install_files(bld.env.GX_BUILDER_DIR, builder_files, chmod=0o644)
     if "RUN_DOXYGEN" in os.environ:

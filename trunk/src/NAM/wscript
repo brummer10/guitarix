@@ -15,12 +15,17 @@ def build(bld):
 
     src = [
         './NeuralAmpModelerCore/NAM/activations.cpp',
+        './NeuralAmpModelerCore/NAM/container.cpp',
+        './NeuralAmpModelerCore/NAM/conv1d.cpp',
         './NeuralAmpModelerCore/NAM/convnet.cpp',
         './NeuralAmpModelerCore/NAM/dsp.cpp',
         './NeuralAmpModelerCore/NAM/get_dsp.cpp',
         './NeuralAmpModelerCore/NAM/lstm.cpp',
+        './NeuralAmpModelerCore/NAM/ring_buffer.cpp',
         './NeuralAmpModelerCore/NAM/util.cpp',
-        './NeuralAmpModelerCore/NAM/wavenet.cpp',
+        './NeuralAmpModelerCore/NAM/wavenet/model.cpp',
+        './NeuralAmpModelerCore/NAM/wavenet/slimmable.cpp',
+        './NeuralAmpModelerCore/NAM/wavenet/a2_fast.cpp',
         ]
 
     incl = ['../headers', '..',
@@ -29,7 +34,7 @@ def build(bld):
         './NeuralAmpModelerCore/Dependencies/nlohmann/',
         ]
 
-    cxx_flags = ["-std=c++17", "-Wno-sign-compare", "-Ofast"]
+    cxx_flags = ["-std=c++20", "-Wno-sign-compare", "-Ofast"]
 
     if not bld.env['LTO']:
         if any('clang' not in s for s in bld.env["CXX"]):

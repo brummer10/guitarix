@@ -170,7 +170,8 @@ void always_inline NeuralAmp::compute(int count, float *input0, float *output0)
                 memcpy(buf, output0, ReCount * sizeof(float));
             }
 
-            model->process(buf, buf, ReCount);
+            float* buf_chans[1] = { buf };
+            model->process(buf_chans, buf_chans, ReCount);
 
             if (need_resample == 1) {
                 smp.down(buf, output0);
@@ -178,7 +179,8 @@ void always_inline NeuralAmp::compute(int count, float *input0, float *output0)
                 smp.up(ReCount, buf, output0);
             }
         } else {
-            model->process(output0, output0, count);
+            float* output0_chans[1] = { output0 };
+            model->process(output0_chans, output0_chans, count);
         }
     }
     for (int i0 = 0; i0 < count; i0 = i0 + 1) {
@@ -220,7 +222,7 @@ void NeuralAmp::load_nam_file() {
         clear_state_f();
         int32_t warmUpSize = 4096;
         try {
-            model = nam::get_dsp(std::string(load_file)).release();
+            model = nam::get_dsp(std::filesystem::path(load_file)).release();
         } catch (const std::exception&) {
             gx_print_info("Neural Amp Modeler", "fail to load " + load_file);
             load_file = "None";
@@ -242,7 +244,8 @@ void NeuralAmp::load_nam_file() {
             float* buffer = new float[warmUpSize];
             memset(buffer, 0, warmUpSize * sizeof(float));
 
-            model->process(buffer, buffer, warmUpSize);
+            float* buffer_chans[1] = { buffer };
+            model->process(buffer_chans, buffer_chans, warmUpSize);
 
             delete[] buffer;
             //fprintf(stderr, "model %f %s inputGain %f outputGain %f\n", filelist, load_file.c_str(), fVslider0, fVslider1);
@@ -464,7 +467,8 @@ void always_inline NeuralAmpMulti::processModelA(int count, float *bufa) {
                 memcpy(bufa1, bufa, ReCounta * sizeof(float));
             }
 
-            modela->process(bufa1, bufa1, ReCounta);
+            float* bufa1_chans[1] = { bufa1 };
+            modela->process(bufa1_chans, bufa1_chans, ReCounta);
 
             if (need_aresample == 1) {
                 smpa.down(bufa1, bufa);
@@ -472,7 +476,8 @@ void always_inline NeuralAmpMulti::processModelA(int count, float *bufa) {
                 smpa.up(ReCounta, bufa1, bufa);
             }
         } else {
-            modela->process(bufa, bufa, count);
+            float* bufa_chans[1] = { bufa };
+            modela->process(bufa_chans, bufa_chans, count);
         }
         if (rampA.mode == rampA.DOWN || rampA.mode == rampA.DEAD) rampA.rampDown(count, bufa);
         else if (rampA.mode == rampA.UP) rampA.rampUp(count, bufa);
@@ -508,7 +513,8 @@ void always_inline NeuralAmpMulti::processModelB() {
                 memcpy(buf1, buf, ReCountb * sizeof(float));
             }
 
-            modelb->process(buf1, buf1, ReCountb);
+            float* buf1_chans[1] = { buf1 };
+            modelb->process(buf1_chans, buf1_chans, ReCountb);
 
             if (need_bresample == 1) {
                 smpb.down(buf1, buf);
@@ -516,7 +522,8 @@ void always_inline NeuralAmpMulti::processModelB() {
                 smpb.up(ReCountb, buf1, buf);
             }
         } else {
-            modelb->process(buf, buf, nframes);
+            float* buf_chans[1] = { buf };
+            modelb->process(buf_chans, buf_chans, nframes);
         }
         if (rampB.mode == rampB.DOWN || rampB.mode == rampB.DEAD) rampB.rampDown(nframes, buf);
         else if (rampB.mode == rampA.UP) rampB.rampUp(nframes, buf);
@@ -603,7 +610,7 @@ void NeuralAmpMulti::load_nam_afile() {
         clear_state_f();
         int32_t warmUpSize = 4096;
         try {
-            modela = nam::get_dsp(std::string(load_afile)).release();
+            modela = nam::get_dsp(std::filesystem::path(load_afile)).release();
         } catch (const std::exception&) {
             gx_print_info("Neural Multi Amp Modeler", "fail to load " + load_afile);
             load_afile = "None";
@@ -625,7 +632,8 @@ void NeuralAmpMulti::load_nam_afile() {
             float* buffer = new float[warmUpSize];
             memset(buffer, 0, warmUpSize * sizeof(float));
 
-            modela->process(buffer, buffer, warmUpSize);
+            float* buffer_chans[1] = { buffer };
+            modela->process(buffer_chans, buffer_chans, warmUpSize);
 
             delete[] buffer;
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, maSampleRate, loudness);
@@ -661,7 +669,7 @@ void NeuralAmpMulti::load_nam_bfile() {
         clear_state_f();
         int32_t warmUpSize = 4096;
         try {
-            modelb = nam::get_dsp(std::string(load_bfile)).release();
+            modelb = nam::get_dsp(std::filesystem::path(load_bfile)).release();
         } catch (const std::exception&) {
             gx_print_info("Neural Multi Amp Modeler", "fail to load " + load_bfile);
             load_bfile = "None";
@@ -683,7 +691,8 @@ void NeuralAmpMulti::load_nam_bfile() {
             float* buffer = new float[warmUpSize];
             memset(buffer, 0, warmUpSize * sizeof(float));
 
-            modelb->process(buffer, buffer, warmUpSize);
+            float* buffer_chans[1] = { buffer };
+            modelb->process(buffer_chans, buffer_chans, warmUpSize);
 
             delete[] buffer;
             //fprintf(stderr, "sample rate = %i file = %i l = %f\n",fSampleRate, mbSampleRate, loudness);
