@@ -273,11 +273,11 @@ void PortDesc::set_default_value(const LADSPA_PortRangeHint& h, ChangeableValues
     } else if (LADSPA_IS_HINT_DEFAULT_0(h.HintDescriptor)) {
         store.set_dflt(0);
     } else if (LADSPA_IS_HINT_DEFAULT_1(h.HintDescriptor)) {
-        store.set_dflt(1);
+        store.set_dflt(has_sr ? 1.0 / SR : 1);
     } else if (LADSPA_IS_HINT_DEFAULT_100(h.HintDescriptor)) {
-        store.set_dflt(100);
+        store.set_dflt(has_sr ? 100.0 / SR : 100);
     } else if (LADSPA_IS_HINT_DEFAULT_440(h.HintDescriptor)) {
-        store.set_dflt(440);
+        store.set_dflt(has_sr ? 440.0 / SR : 440);
     } else if (LADSPA_IS_HINT_DEFAULT_MINIMUM(h.HintDescriptor)) {
         store.set_dflt(get_low());
     } else if (LADSPA_IS_HINT_DEFAULT_MAXIMUM(h.HintDescriptor)) {
