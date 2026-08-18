@@ -668,7 +668,7 @@ bool ModuleSequencer::update_module_lists() {
 	commit_module_lists();
 	if (stateflags & SF_OVERLOAD) {
 	    // hack: jackd need some time for new load statistic
-#if defined(_WINDOWS) || defined(__APPLE__)
+#if defined(_WINDOWS)
         clearoverride_conn=signal_timeout().connect(
             sigc::mem_fun(*this, &ModuleSequencer::clear_override));
 #else
