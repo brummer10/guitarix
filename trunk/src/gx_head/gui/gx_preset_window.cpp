@@ -874,6 +874,8 @@ bool PresetWindow::download_file(Glib::ustring from_uri, Glib::ustring to_path) 
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, out);
     curl_easy_setopt(curl, CURLOPT_URL, from_uri.c_str());
     curl_easy_setopt(curl, CURLOPT_USERAGENT, GX_USERAGENT);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 5L);
 
     res = curl_easy_perform(curl);
     if (CURLE_OK == res) {
