@@ -2,7 +2,7 @@ from waflib import Task, Configure
 from waflib.TaskGen import feature, before_method, after_method
 import sys
 class strip(Task.Task):
-    run_str = '${STRIP} ${SRC}'
+    run_str = '${STRIP} ${STRIPFLAGS} ${SRC}'
     color   = 'BLUE'
 
     def runnable_status(self):
@@ -27,3 +27,7 @@ def add_strip_task(self):
 
 def configure(conf):
     conf.find_program('strip')
+    if sys.platform == 'darwin':
+        # Mach-O dynamic libraries must keep their exported symbols;
+        # only local symbols can be stripped
+        conf.env.STRIPFLAGS = ['-x']

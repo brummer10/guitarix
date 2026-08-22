@@ -183,7 +183,7 @@ public:
             int maxDuration = 0;
             while (!getState()) {
                 pthread_mutex_lock(&pWaitProc);
-                if (pthread_cond_timedwait(&pProcCond, &pWaitProc, getTimeOut()) == ETIMEDOUT) {
+                if (timedWait() == ETIMEDOUT) {
                     pthread_mutex_unlock(&pWaitProc);
                     maxDuration +=1;
                     //fprintf(stderr, "%s wait for process %i\n", threadName.c_str(), maxDuration);
@@ -217,7 +217,7 @@ public:
             int maxDuration = 0;
             while (pWait.load(std::memory_order_acquire)) {
                 pthread_mutex_lock(&pWaitProc);
-                if (pthread_cond_timedwait(&pProcCond, &pWaitProc, getTimeOut()) == ETIMEDOUT) {
+                if (timedWait() == ETIMEDOUT) {
                     pthread_mutex_unlock(&pWaitProc);
                     maxDuration +=1;
                     //fprintf(stderr, "%s wait for data %i\n", threadName.c_str(), maxDuration);
@@ -273,7 +273,11 @@ private:
     inline void init() noexcept {
         pthread_condattr_t cond_attr;
         pthread_condattr_init(&cond_attr);
+        #ifndef __APPLE__
+        // macOS has no pthread_condattr_setclock();
+        // timedWait() uses pthread_cond_timedwait_relative_np() instead
         pthread_condattr_setclock(&cond_attr, CLOCK_MONOTONIC);
+        #endif
         pthread_cond_init(&pProcCond, &cond_attr);
         pthread_condattr_destroy(&cond_attr);
         pWaitProc = PTHREAD_MUTEX_INITIALIZER;
@@ -345,6 +349,19 @@ private:
         }
         timeOut.tv_nsec += at;
         return &timeOut;
+    }
+
+    // wait on pProcCond with a timeout of timeoutPeriod microseconds;
+    // pWaitProc must be locked by the caller
+    inline int timedWait() noexcept {
+        #ifdef __APPLE__
+        struct timespec rel;
+        rel.tv_sec = timeoutPeriod / 1000000;
+        rel.tv_nsec = (timeoutPeriod % 1000000) * 1000;
+        return pthread_cond_timedwait_relative_np(&pProcCond, &pWaitProc, &rel);
+        #else
+        return pthread_cond_timedwait(&pProcCond, &pWaitProc, getTimeOut());
+        #endif
     }
 
     // simple implement clock_gettime for windows (8)
