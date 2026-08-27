@@ -895,6 +895,8 @@ bool PresetWindow::download_file(Glib::ustring from_uri, Glib::ustring to_path) 
                 gx_print_info( "download_file", from_uri);
             } else if (strstr(ct, "application/octet-stream") != NULL) {
                  gx_print_info( "download_preset", from_uri);
+            } else if (strstr(ct, "text/plain") != NULL) {
+                 gx_print_info( "download_preset", from_uri);
             } else {
                 gx_print_error("download", Glib::ustring::compose("Fetching %1 returned data in unexpected encoding \"%2\"", from_uri, ct));
                 res = CURLE_CONV_FAILED;
