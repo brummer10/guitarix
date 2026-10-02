@@ -151,6 +151,7 @@ def build(bld):
         './builder/oscilloscope_ui.glade',
         './builder/drumsequencer_ui.glade',
         './builder/dubber_ui.glade',
+        './builder/dubber_st_ui.glade',
         './builder/metronome_ui.glade',
         './builder/nam_ui.glade',
         './builder/snam_ui.glade',

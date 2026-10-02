@@ -102,6 +102,7 @@ public:
     PreampStereoConvolver preamp_st;
     ContrastConvolver contrast;
     LiveLooper loop;
+    LiveLooper_ST loop_st;
 #ifndef GUITARIX_AS_PLUGIN
     SCapture record;
     SCapture record_st;
