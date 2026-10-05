@@ -1,0 +1,1063 @@
+int LiveLooper_ST::FileResampler::setup(int _inputRate, int _outputRate)
+{
+    const int qual = 16;
+    inputRate = _inputRate;
+    outputRate = _outputRate;
+    if (inputRate == outputRate) {
+        return 0;
+    }
+    int ret = r_file.setup(inputRate, outputRate, 1, qual);
+    if (ret) {
+        return ret;
+    }
+    r_file.inp_count = r_file.filtlen() - 1;
+    r_file.out_count = 1;
+    r_file.inp_data = r_file.out_data = 0;
+    r_file.process();
+    return 0;
+}
+
+int LiveLooper_ST::FileResampler::run(int count, float *input, float *output)
+{
+    if (inputRate == outputRate) {
+        memcpy(output, input, count*sizeof(float));
+        return count;
+    }
+    r_file.inp_count = count;
+    r_file.inp_data = input;
+    int m = max_out_count(count);
+    r_file.out_count = m;
+    r_file.out_data = output;
+    r_file.process();
+    assert(r_file.inp_count == 0);
+    assert(r_file.out_count <= 1);
+    return m - r_file.out_count;
+}
+
+LiveLooper_ST::LiveLooper_ST(ParamMap& param_, Directout* d_, sigc::slot<void> sync_, const string& loop_dir_)
+    : PluginDef(),
+      tape1(NULL),
+      tape1_r(NULL),
+      tape1_size(4194304),
+      tape2(NULL),
+      tape2_r(NULL),
+      tape2_size(4194304),
+      tape3(NULL),
+      tape3_r(NULL),
+      tape3_size(4194304),
+      tape4(NULL),
+      tape4_r(NULL),
+      tape4_size(4194304),
+      outbuffer(0),
+      save1(false),
+      save2(false),
+      save3(false),
+      save4(false),
+      first1(true),
+      first2(true),
+      first3(true),
+      first4(true),
+      RP1(false),
+      RP2(false),
+      RP3(false),
+      RP4(false),
+      preset_name("tape"),
+      cur_name("tape"),
+      loop_dir(loop_dir_),
+      save_p(false),
+      param(param_),
+      mem_allocated(false),
+      sync(sync_),
+      smp_l(),
+      smp_r(),
+      d(d_),
+      plugin() {
+    version = PLUGINDEF_VERSION;
+    id = "dubber_st";
+    name = N_("Live Looper ST");
+    groups = 0;
+    description = N_("Stereo Live Looper"); // description (tooltip)
+    category = N_("Misc");       // category
+    shortname = "";     // shortname
+    mono_audio = 0;
+    stereo_audio = compute_stereo_static;
+    set_samplerate = init_static;
+    activate_plugin = activate_static;
+    register_params = register_params_static;
+    load_ui = load_ui_f_static;
+    clear_state = clear_state_f_static;
+    delete_instance = del_instance;
+    plugin = this;
+}
+
+LiveLooper_ST::~LiveLooper_ST() {
+    outbuffer = 0;
+    d =  0;
+    activate(false);
+}
+
+inline void LiveLooper_ST::clear_state_f()
+{
+    for (int i=0; i<2; i++) fRec0[i] = 0;
+    for (int i=0; i<2; i++) iVec0[i] = 0;
+    for (int i=0; i<tape1_size; i++) { tape1[i] = 0; tape1_r[i] = 0; }
+    for (int i=0; i<2; i++) RecSize1[i] = 0;
+    for (int i=0; i<2; i++) fRec1[i] = 0;
+    for (int i=0; i<2; i++) fRec2[i] = 0;
+    for (int i=0; i<2; i++) iRec3[i] = 0;
+    for (int i=0; i<2; i++) iRec4[i] = 0;
+    for (int i=0; i<2; i++) iVec2[i] = 0;
+    for (int i=0; i<tape2_size; i++) { tape2[i] = 0; tape2_r[i] = 0; }
+    for (int i=0; i<2; i++) RecSize2[i] = 0;
+    for (int i=0; i<2; i++) fRec6[i] = 0;
+    for (int i=0; i<2; i++) fRec7[i] = 0;
+    for (int i=0; i<2; i++) iRec8[i] = 0;
+    for (int i=0; i<2; i++) iRec9[i] = 0;
+    for (int i=0; i<2; i++) iVec4[i] = 0;
+    for (int i=0; i<tape3_size; i++) { tape3[i] = 0; tape3_r[i] = 0; }
+    for (int i=0; i<2; i++) RecSize3[i] = 0;
+    for (int i=0; i<2; i++) fRec11[i] = 0;
+    for (int i=0; i<2; i++) fRec12[i] = 0;
+    for (int i=0; i<2; i++) iRec13[i] = 0;
+    for (int i=0; i<2; i++) iRec14[i] = 0;
+    for (int i=0; i<2; i++) iVec6[i] = 0;
+    for (int i=0; i<tape4_size; i++) { tape4[i] = 0; tape4_r[i] = 0; }
+    for (int i=0; i<2; i++) RecSize4[i] = 0;
+    for (int i=0; i<2; i++) fRec16[i] = 0;
+    for (int i=0; i<2; i++) fRec17[i] = 0;
+    for (int i=0; i<2; i++) iRec18[i] = 0;
+    for (int i=0; i<2; i++) iRec19[i] = 0;
+}
+
+void LiveLooper_ST::clear_state_f_static(PluginDef *p)
+{
+    static_cast<LiveLooper_ST*>(p)->clear_state_f();
+}
+
+inline void LiveLooper_ST::init(unsigned int samplingFreq)
+{
+    fSamplingFreq = samplingFreq;
+    IOTA1 = 0;
+    IOTA2 = 0;
+    IOTA3 = 0;
+    IOTA4 = 0;
+    IOTAR1 = 0;
+    IOTAR2 = 0;
+    IOTAR3 = 0;
+    IOTAR4 = 0;
+    fConst0 = (1e+01f / float(fmin(192000, fmax(1, fSamplingFreq))));
+    fConst1 = (0 - fConst0);
+    fConst2 = (1.0 / float(fmin(192000, fmax(1, fSamplingFreq))));
+    load_file1 = "tape1";
+    load_file2 = "tape2";
+    load_file3 = "tape3";
+    load_file4 = "tape4";
+    gx_system::atomic_set(&ready,0);
+}
+
+void LiveLooper_ST::init_static(unsigned int samplingFreq, PluginDef *p)
+{
+    static_cast<LiveLooper_ST*>(p)->init(samplingFreq);
+}
+
+void LiveLooper_ST::mem_alloc()
+{
+    try {
+        if (!tape1) tape1 = new float[tape1_size]();
+        if (!tape1_r) tape1_r = new float[tape1_size]();
+        if (!tape2) tape2 = new float[tape2_size]();
+        if (!tape2_r) tape2_r = new float[tape2_size]();
+        if (!tape3) tape3 = new float[tape3_size]();
+        if (!tape3_r) tape3_r = new float[tape3_size]();
+        if (!tape4) tape4 = new float[tape4_size]();
+        if (!tape4_r) tape4_r = new float[tape4_size]();
+    } catch(...) {
+        gx_print_error("dubber_st", "out of memory");
+        return;
+    }
+    mem_allocated = true;
+    gx_system::atomic_set(&ready,1);
+}
+
+void LiveLooper_ST::mem_free()
+{
+    gx_system::atomic_set(&ready,0);
+    mem_allocated = false;
+    if (tape1) { delete[] tape1; tape1 = 0; }
+    if (tape1_r) { delete[] tape1_r; tape1_r = 0; }
+    if (tape2) { delete[] tape2; tape2 = 0; }
+    if (tape2_r) { delete[] tape2_r; tape2_r = 0; }
+    if (tape3) { delete[] tape3; tape3 = 0; }
+    if (tape3_r) { delete[] tape3_r; tape3_r = 0; }
+    if (tape4) { delete[] tape4; tape4 = 0; }
+    if (tape4_r) { delete[] tape4_r; tape4_r = 0; }
+}
+
+int LiveLooper_ST::do_resample(int inrate, int insize, float *input, int maxsize, FileResampler& smp) {
+    float *getout = 0;
+    try {
+        getout = new float[maxsize];
+    } catch(...) {
+        gx_print_error("dubber_st", "out of memory");
+        return 0;
+    }
+    int produced = smp.run(insize, input, getout);
+    memset(input, 0, maxsize*sizeof(float));
+    memcpy(input, getout, produced*sizeof(float));
+    delete[] getout;
+    gx_print_info("dubber_st", Glib::ustring::compose(
+        _("resampling from %1 to %2"), inrate, fSamplingFreq));
+    return produced;
+}
+
+int LiveLooper_ST::load_from_wave_stereo(std::string fname, float **tape_l, float **tape_r, int tape_size)
+{
+    SF_INFO sfinfo;
+    sfinfo.format = 0;
+    SNDFILE *sf = sf_open(fname.c_str(),SFM_READ,&sfinfo);
+    if (!sf) {
+        return 0;
+    }
+    gx_print_info("dubber_st", Glib::ustring::compose(
+       _("load file %1 "), fname));
+    int f = sfinfo.frames;
+    int c = sfinfo.channels;
+    int r = sfinfo.samplerate;
+    bool res = (r != fSamplingFreq);
+
+    int alloc_size = f;
+    if (res) {
+        smp_l.setup(r, fSamplingFreq);
+        smp_r.setup(r, fSamplingFreq);
+        alloc_size = smp_l.max_out_count(f);
+    }
+
+    if (alloc_size > tape_size) {
+        delete[] *tape_l; *tape_l = NULL;
+        delete[] *tape_r; *tape_r = NULL;
+        try {
+            *tape_l = new float[alloc_size];
+            *tape_r = new float[alloc_size];
+        } catch(...) {
+            gx_print_error("dubber_st", "out of memory");
+            sf_close(sf);
+            return 0;
+        }
+    }
+
+    // read raw interleaved data
+    float *raw = 0;
+    try {
+        raw = new float[f * c];
+    } catch(...) {
+        gx_print_error("dubber_st", "out of memory");
+        sf_close(sf);
+        return 0;
+    }
+    sf_read_float(sf, raw, f * c);
+    sf_close(sf);
+
+    // de-interleave (mono files are duplicated to both channels)
+    if (c == 1) {
+        for (int i = 0; i < f; i++) { (*tape_l)[i] = raw[i]; (*tape_r)[i] = raw[i]; }
+    } else {
+        for (int i = 0; i < f; i++) { (*tape_l)[i] = raw[i*c]; (*tape_r)[i] = raw[i*c+1]; }
+    }
+    delete[] raw;
+
+    int out_size = f;
+    if (res) {
+        int p_l = do_resample(r, f, *tape_l, alloc_size, smp_l);
+        int p_r = do_resample(r, f, *tape_r, alloc_size, smp_r);
+        out_size = max(p_l, p_r);
+    }
+    return out_size;
+}
+
+inline void LiveLooper_ST::load_array(std::string name)
+{
+    RecSize1[1] = load_from_wave_stereo(loop_dir+name+"1.wav", &tape1, &tape1_r, tape1_size);
+    tape1_size = max(4194304,RecSize1[1]);
+    IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
+    
+    RecSize2[1] = load_from_wave_stereo(loop_dir+name+"2.wav", &tape2, &tape2_r, tape2_size);
+    tape2_size = max(4194304,RecSize2[1]);
+    IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
+    
+    RecSize3[1] = load_from_wave_stereo(loop_dir+name+"3.wav", &tape3, &tape3_r, tape3_size);
+    tape3_size = max(4194304,RecSize3[1]);
+    IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
+    
+    RecSize4[1] = load_from_wave_stereo(loop_dir+name+"4.wav", &tape4, &tape4_r, tape4_size);
+    tape4_size = max(4194304,RecSize4[1]);
+    IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
+    
+    cur_name = preset_name;
+}
+
+inline void LiveLooper_ST::save_to_wave_stereo(std::string fname, float *tape_l, float *tape_r, float fSize, int tape_size)
+{
+    SF_INFO sfinfo ;
+    sfinfo.channels = 2;
+    sfinfo.samplerate = fSamplingFreq;
+    sfinfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    
+    SNDFILE * sf = sf_open(fname.c_str(), SFM_WRITE, &sfinfo);
+    if (sf) {
+        size_t lSize = tape_size - int(fSize/fConst2);
+        float *interleaved = new float[lSize * 2];
+        for (size_t i = 0; i < lSize; i++) {
+            interleaved[2*i]     = tape_l[i];
+            interleaved[2*i + 1] = tape_r[i];
+        }
+        sf_write_float(sf, interleaved, lSize * 2);
+        sf_write_sync(sf);
+        delete[] interleaved;
+    }
+    sf_close(sf);
+}
+
+inline void LiveLooper_ST::save_array(std::string name)
+{
+    if (name.compare("tape")==0 || save_p) {
+        if (save1) {
+            save_to_wave_stereo(loop_dir+name+"1.wav",tape1,tape1_r,rectime0, tape1_size);
+            save1 = false;
+        }
+        if (save2) {
+            save_to_wave_stereo(loop_dir+name+"2.wav",tape2,tape2_r,rectime1, tape2_size);
+            save2 = false;
+        }
+        if (save3) {
+            save_to_wave_stereo(loop_dir+name+"3.wav",tape3,tape3_r,rectime2, tape3_size);
+            save3 = false;
+        }
+        if (save4) {
+            save_to_wave_stereo(loop_dir+name+"4.wav",tape4,tape4_r,rectime3, tape4_size);
+            save4 = false;
+        }
+    }
+}
+
+int LiveLooper_ST::activate(bool start)
+{
+    if (start) {
+        if (!mem_allocated) {
+            mem_alloc();
+            clear_state_f();
+            load_array(preset_name);
+        }
+    } else if (mem_allocated) {
+        save_array(cur_name);
+        mem_free();
+        load_file1 = "tape1";
+        load_file2 = "tape2";
+        load_file3 = "tape3";
+        load_file4 = "tape4";
+    }
+    return 0;
+}
+
+int LiveLooper_ST::activate_static(bool start, PluginDef *p)
+{
+    return static_cast<LiveLooper_ST*>(p)->activate(start);
+}
+
+void LiveLooper_ST::load_tape1() {
+    if (!load_file1.empty()) {
+        gx_system::atomic_set(&ready,0);
+        sync();
+        if (cur_name.compare("tape")==0 || save_p) {
+            if (save1) {
+                save_to_wave_stereo(loop_dir+cur_name+"1.wav",tape1,tape1_r,rectime0, tape1_size);
+                save1 = false;
+            }
+        }
+        RecSize1[1] = load_from_wave_stereo(load_file1, &tape1, &tape1_r, tape1_size);
+        tape1_size = max(4194304,RecSize1[1]);
+        IOTAR1= RecSize1[1] - int(RecSize1[1]*(100-fclips1)*0.01);
+        if (!first1) save1 = true;
+        else first1 = false;
+        load_file1 = "tape1";
+        gx_system::atomic_set(&ready,1);
+    }
+}
+
+void LiveLooper_ST::load_tape2() {
+    if (!load_file2.empty()) {
+        gx_system::atomic_set(&ready,0);
+        sync();
+        if (cur_name.compare("tape")==0 || save_p) {
+            if (save2) {
+                save_to_wave_stereo(loop_dir+cur_name+"2.wav",tape2,tape2_r,rectime1,tape2_size);
+                save2 = false;
+            }
+        }
+        RecSize2[1] = load_from_wave_stereo(load_file2, &tape2, &tape2_r, tape2_size);
+        tape2_size = max(4194304,RecSize2[1]);
+        IOTAR2= RecSize2[1] - int(RecSize2[1]*(100-fclips2)*0.01);
+        if (!first2) save2 = true;
+        else first2 = false;
+        load_file2 = "tape2";
+        gx_system::atomic_set(&ready,1);
+    }
+}
+
+void LiveLooper_ST::load_tape3() {
+    if (!load_file3.empty()) {
+        gx_system::atomic_set(&ready,0);
+        sync();
+        if (cur_name.compare("tape")==0 || save_p) {
+            if (save3) {
+                save_to_wave_stereo(loop_dir+cur_name+"3.wav",tape3,tape3_r,rectime2,tape3_size);
+                save3 = false;
+            }
+        }
+        RecSize3[1] = load_from_wave_stereo(load_file3, &tape3, &tape3_r, tape3_size);
+        tape3_size = max(4194304,RecSize3[1]);
+        IOTAR3= RecSize3[1] - int(RecSize3[1]*(100-fclips3)*0.01);
+        if (!first3) save3 = true;
+        else first3 = false;
+        load_file3 = "tape3";
+        gx_system::atomic_set(&ready,1);
+    }
+}
+
+void LiveLooper_ST::load_tape4() {
+    if (!load_file4.empty()) {
+        gx_system::atomic_set(&ready,0);
+        sync();
+        if (cur_name.compare("tape")==0 || save_p) {
+            if (save4) {
+                save_to_wave_stereo(loop_dir+cur_name+"4.wav",tape4,tape4_r,rectime3,tape4_size);
+                save4 = false;
+            }
+        }
+        RecSize4[1] = load_from_wave_stereo(load_file4, &tape4, &tape4_r, tape4_size);
+        tape4_size = max(4194304,RecSize4[1]);
+        IOTAR4= RecSize4[1] - int(RecSize4[1]*(100-fclips4)*0.01);
+        if (!first4) save4 = true;
+        else first4 = false;
+        load_file4 = "tape4";
+        gx_system::atomic_set(&ready,1);
+    }
+}
+
+void LiveLooper_ST::set_p_state() {
+    if (!preset_name.empty() && fSamplingFreq != 0) {
+        gx_system::atomic_set(&ready,0);
+        sync();
+        activate(true);
+        if(save_p) {
+            save1 = true;
+            save2 = true;
+            save3 = true;
+            save4 = true;
+            cur_name = preset_name;
+        }
+        activate(false);
+        activate(true);
+        gx_system::atomic_set(&ready,1);
+        save_p = false;
+    }
+}
+
+void LiveLooper_ST::play_all_tapes() {
+    play1=play2=play3=play4=play_all;
+}
+
+void always_inline LiveLooper_ST::compute_stereo(int count, float *input0, float *input1, float *output0, float *output1)
+{
+    if (!gx_system::atomic_get(ready)) {
+        memcpy(output0, input0, count * sizeof(float));
+        memcpy(output1, input1, count * sizeof(float));
+        return;
+    }
+    int diout = int(dout);
+    if (diout) {
+        if(d->mem_allocated) outbuffer = d->get_buffer();
+        else diout = 0;
+     }
+
+    // trigger save array on exit
+    if(record1 || reset1 || od1) save1 = true;
+    if(record2 || reset2 || od2) save2 = true;
+    if(record3 || reset3 || od3) save3 = true;
+    if(record4 || reset4 || od4) save4 = true;
+    // make play/ reverse play button act as radio button
+    if (rplay1 && !RP1) {play1 = 0.0;RP1=true;}
+    else if (play1 && RP1) {rplay1 = 0.0;RP1=false;}
+    if (rplay2 && !RP2) {play2 = 0.0;RP2=true;}
+    else if (play2 && RP2) {rplay2 = 0.0;RP2=false;}
+    if (rplay3 && !RP3) {play3 = 0.0;RP3=true;}
+    else if (play3 && RP3) {rplay3 = 0.0;RP3=false;}
+    if (rplay4 && !RP4) {play4 = 0.0;RP4=true;}
+    else if (play4 && RP4) {rplay4 = 0.0;RP4=false;}
+    // switch off record when buffer is full
+    record1     = rectime0? record1 : 0.0;
+    record2     = rectime1? record2 : 0.0;
+    record3     = rectime2? record3 : 0.0;
+    record4     = rectime3? record4 : 0.0;
+    // switch off overdub when buffer is full
+    od1     = rectime0? od1 : 0.0;
+    od2     = rectime1? od2 : 0.0;
+    od3     = rectime2? od3 : 0.0;
+    od4     = rectime3? od4 : 0.0;
+    // reset clip when reset is pressed
+    if (reset1) {fclip1=100.0;fclips1=0.0;}
+    if (reset2) {fclip2=100.0;fclips2=0.0;}
+    if (reset3) {fclip3=100.0;fclips3=0.0;}
+    if (reset4) {fclip4=100.0;fclips4=0.0;}
+    // switch off reset button when buffer is empty 
+    reset1     = (rectime0 < tape1_size*fConst2)? reset1 : 0.0;
+    reset2     = (rectime1 < tape2_size*fConst2)? reset2 : 0.0;
+    reset3     = (rectime2 < tape3_size*fConst2)? reset3 : 0.0;
+    reset4     = (rectime3 < tape4_size*fConst2)? reset4 : 0.0;
+    // set play head position
+    
+    float ph1      = RecSize1[0] ? 1.0/(RecSize1[0] * 0.001) : 0.0;
+    playh1 = (1-iVec0[0]) * fmin(1000,fmax(0,float(IOTAR1*ph1)));
+    float ph2      = RecSize2[0] ? 1.0/(RecSize2[0] * 0.001) : 0.0;
+    playh2 = (1-iVec2[0]) *  fmin(1000,fmax(0,float(IOTAR2*ph2)));
+    float ph3      = RecSize3[0] ? 1.0/(RecSize3[0] * 0.001) : 0.0;
+    playh3 = (1-iVec4[0]) *  fmin(1000,fmax(0,float(IOTAR3*ph3)));
+    float ph4      = RecSize4[0] ? 1.0/(RecSize4[0] * 0.001) : 0.0;
+    playh4 = (1-iVec6[0]) *  fmin(1000,fmax(0,float(IOTAR4*ph4)));
+    // playback speed
+    float speed1 = fspeed1;
+    float speed2 = fspeed2;
+    float speed3 = fspeed3;
+    float speed4 = fspeed4;
+    // engine var settings
+    float     fSlow0 = (0.0010000000000000009f * powf(10,(0.05f * gain)));
+    float     fSlow1 = gain_out;
+    int     iSlow3 = int(record1);
+    int     iod1 = int(od1);
+    int     iSlow4 = int((1 - reset1));
+    float     fSlow5 = (((1 - iSlow3) * gain1) * (play1+rplay1));
+    int     iSlow6 = int(record2);
+    int     iod2 = int(od2);
+    int     iSlow7 = int((1 - reset2));
+    float     fSlow8 = (((1 - iSlow6) * gain2) * (play2+rplay2));
+    int     iSlow9 = int(record3);
+    int     iod3 = int(od3);
+    int     iSlow10 = int((1 - reset3));
+    float     fSlow11 = (((1 - iSlow9) * gain3) * (play3+rplay3));
+    int     iSlow12 = int(record4);
+    int     iod4 = int(od4);
+    int     iSlow13 = int((1 - reset4));
+    float     fSlow14 = (((1 - iSlow12) * gain4) * (play4+rplay4));
+    float     fSlow15 = (0.0001f * fSlow1);
+    float   iClip1  = fclip1*0.01;
+    float   iClip2  = fclip2*0.01;
+    float   iClip3  = fclip3*0.01;
+    float   iClip4  = fclip4*0.01;
+    float   iClips1  = (100-fclips1)*0.01;
+    float   iClips2  = (100-fclips2)*0.01;
+    float   iClips3  = (100-fclips3)*0.01;
+    float   iClips4  = (100-fclips4)*0.01;
+    // switch off record when overdub
+    record1     = iod1? 0.0 : record1;
+    record2     = iod2? 0.0 : record2;
+    record3     = iod3? 0.0 : record3;
+    record4     = iod4? 0.0 : record4;
+    if (iod1 && (fod1 || !int(RecSize1[0]))) {
+        iSlow3 = iod1;
+        fod1 = od1;
+        play1 = 1.0;
+    } else {
+        fod1 = 0;
+    }
+    if (iod2 && (fod2 || !int(RecSize2[0]))) {
+        iSlow6 = iod2;
+        fod2 = od2;
+        play2 = 1.0;
+    } else {
+        fod2 = 0;
+    }
+    if (iod3 && (fod3 || !int(RecSize3[0]))) {
+        iSlow9 = iod3;
+        fod3 = od3;
+        play3 = 1.0;
+    } else {
+        fod3 = 0;
+    }
+    if (iod4 && (fod4 || !int(RecSize4[0]))) {
+        iSlow12 = iod4;
+        fod4 = od4;
+        play4 = 1.0;
+    } else {
+        fod4 = 0;
+    }
+    float nfod1 = 1.0 - fod1;
+    float nfod2 = 1.0 - fod2;
+    float nfod3 = 1.0 - fod3;
+    float nfod4 = 1.0 - fod4;
+    // run loop
+    for (int i=0; i<count; i++) {
+        fRec0[0] = (fSlow0 + (0.999f * fRec0[1]));
+        float fTemp0_l = ((float)input0[i] * fRec0[0]);
+        float fTemp0_r = ((float)input1[i] * fRec0[0]);
+        iVec0[0] = iSlow3;
+        float fTemp1_l = (iSlow3 * fTemp0_l);
+        float fTemp1_r = (iSlow3 * fTemp0_r);
+        RecSize1[0] = fmin(tape1_size, (int)(iSlow4 * (((iSlow3 - iVec0[1]) <= 0) * (iSlow3 + RecSize1[1]))));
+        int iTemp2 = (tape1_size - RecSize1[0]);
+        rectime0 = iTemp2*fConst2;
+        int iTemp3 = fmin(tape1_size-1, (int)(tape1_size - iTemp2));
+        if (iSlow3 == 1) {
+            IOTA1 = IOTA1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):IOTA1+1;
+            if (!iod1) { tape1[IOTA1] = fTemp1_l; tape1_r[IOTA1] = fTemp1_r; }
+        }
+        if (rplay1) {
+        IOTAR1 = IOTAR1-speed1< (iTemp3 - int(iTemp3*iClips1))? int(iTemp3*iClip1):(IOTAR1-speed1)-1;
+        } else if (play1) {
+        IOTAR1 = IOTAR1+speed1>int(iTemp3*iClip1)? iTemp3 - int(iTemp3*iClips1):(IOTAR1+speed1)+1;
+        }
+        
+        float fTemp4 = ((int((fRec1[1] != 0.0f)))?((int(((fRec2[1] > 0.0f) & (fRec2[1] < 1.0f))))?fRec1[1]:0):((int(((fRec2[1] == 0.0f) & (iTemp3 != iRec3[1]))))?fConst0:((int(((fRec2[1] == 1.0f) & (iTemp3 != iRec4[1]))))?fConst1:0)));
+        fRec1[0] = fTemp4;
+        fRec2[0] = fmax(0.0f, fmin(1.0f, (fRec2[1] + fTemp4)));
+        iRec3[0] = ((int(((fRec2[1] >= 1.0f) & (iRec4[1] != iTemp3))))?iTemp3:iRec3[1]);
+        iRec4[0] = ((int(((fRec2[1] <= 0.0f) & (iRec3[1] != iTemp3))))?iTemp3:iRec4[1]);
+        iVec2[0] = iSlow6;
+        float fTemp5_l = (iSlow6 * fTemp0_l);
+        float fTemp5_r = (iSlow6 * fTemp0_r);
+        RecSize2[0] = fmin(tape2_size, (int)(iSlow7 * (((iSlow6 - iVec2[1]) <= 0) * (iSlow6 + RecSize2[1]))));
+        int iTemp6 = (tape2_size - RecSize2[0]);
+        rectime1 = iTemp6*fConst2;
+        int iTemp7 = fmin(tape2_size-1, (int)(tape2_size - iTemp6));
+        if (iSlow6 == 1) {
+            IOTA2 = IOTA2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):IOTA2+1;
+            if (!iod2) { tape2[IOTA2] = fTemp5_l; tape2_r[IOTA2] = fTemp5_r; }
+        }
+        if (rplay2) {
+        IOTAR2 = IOTAR2-speed2< (iTemp7 - int(iTemp7*iClips2))? int(iTemp7*iClip2):(IOTAR2-speed2)-1;
+        } else if (play2) {
+        IOTAR2 = IOTAR2+speed2>int(iTemp7*iClip2)? iTemp7 - int(iTemp7*iClips2):(IOTAR2+speed2)+1;
+        }
+        
+        float fTemp8 = ((int((fRec6[1] != 0.0f)))?((int(((fRec7[1] > 0.0f) & (fRec7[1] < 1.0f))))?fRec6[1]:0):((int(((fRec7[1] == 0.0f) & (iTemp7 != iRec8[1]))))?fConst0:((int(((fRec7[1] == 1.0f) & (iTemp7 != iRec9[1]))))?fConst1:0)));
+        fRec6[0] = fTemp8;
+        fRec7[0] = fmax(0.0f, fmin(1.0f, (fRec7[1] + fTemp8)));
+        iRec8[0] = ((int(((fRec7[1] >= 1.0f) & (iRec9[1] != iTemp7))))?iTemp7:iRec8[1]);
+        iRec9[0] = ((int(((fRec7[1] <= 0.0f) & (iRec8[1] != iTemp7))))?iTemp7:iRec9[1]);
+        iVec4[0] = iSlow9;
+        float fTemp9_l = (iSlow9 * fTemp0_l);
+        float fTemp9_r = (iSlow9 * fTemp0_r);
+        RecSize3[0] = fmin(tape3_size, (int)(iSlow10 * (((iSlow9 - iVec4[1]) <= 0) * (iSlow9 + RecSize3[1]))));
+        int iTemp10 = (tape3_size - RecSize3[0]);
+        rectime2 = iTemp10*fConst2;
+        int iTemp11 = fmin(tape3_size-1, (int)(tape3_size - iTemp10));
+        if (iSlow9 == 1) {
+            IOTA3 = IOTA3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):IOTA3+1;
+            if (!iod3) { tape3[IOTA3] = fTemp9_l; tape3_r[IOTA3] = fTemp9_r; }
+        }
+        if (rplay3) {
+        IOTAR3 = IOTAR3-speed3< (iTemp11 - int(iTemp11*iClips3))? int(iTemp11*iClip3):(IOTAR3-speed3)-1;
+        } else if (play3) {
+        IOTAR3 = IOTAR3+speed3>int(iTemp11*iClip3)? iTemp11 - int(iTemp11*iClips3):(IOTAR3+speed3)+1;
+        }
+        
+        float fTemp12 = ((int((fRec11[1] != 0.0f)))?((int(((fRec12[1] > 0.0f) & (fRec12[1] < 1.0f))))?fRec11[1]:0):((int(((fRec12[1] == 0.0f) & (iTemp11 != iRec13[1]))))?fConst0:((int(((fRec12[1] == 1.0f) & (iTemp11 != iRec14[1]))))?fConst1:0)));
+        fRec11[0] = fTemp12;
+        fRec12[0] = fmax(0.0f, fmin(1.0f, (fRec12[1] + fTemp12)));
+        iRec13[0] = ((int(((fRec12[1] >= 1.0f) & (iRec14[1] != iTemp11))))?iTemp11:iRec13[1]);
+        iRec14[0] = ((int(((fRec12[1] <= 0.0f) & (iRec13[1] != iTemp11))))?iTemp11:iRec14[1]);
+        iVec6[0] = iSlow12;
+        float fTemp13_l = (iSlow12 * fTemp0_l);
+        float fTemp13_r = (iSlow12 * fTemp0_r);
+        RecSize4[0] = fmin(tape4_size, (int)(iSlow13 * (((iSlow12 - iVec6[1]) <= 0) * (iSlow12 + RecSize4[1]))));
+        int iTemp14 = (tape4_size - RecSize4[0]);
+        rectime3 = iTemp14*fConst2;
+        int iTemp15 = fmin(tape4_size-1, (int)(tape4_size - iTemp14));
+        if (iSlow12 == 1) {
+            IOTA4 = IOTA4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):IOTA4+1;
+            if (!iod4) { tape4[IOTA4] = fTemp13_l; tape4_r[IOTA4] = fTemp13_r; }
+        }
+        if (rplay4) {
+        IOTAR4 = IOTAR4-speed4< (iTemp15 - int(iTemp15*iClips4))? int(iTemp15*iClip4):(IOTAR4-speed4)-1;
+        } else if (play4) {
+        IOTAR4 = IOTAR4+speed4>int(iTemp15*iClip4)? iTemp15 - int(iTemp15*iClips4):(IOTAR4+speed4)+1;
+        }
+        
+        float fTemp16 = ((int((fRec16[1] != 0.0f)))?((int(((fRec17[1] > 0.0f) & (fRec17[1] < 1.0f))))?fRec16[1]:0):((int(((fRec17[1] == 0.0f) & (iTemp15 != iRec18[1]))))?fConst0:((int(((fRec17[1] == 1.0f) & (iTemp15 != iRec19[1]))))?fConst1:0)));
+        fRec16[0] = fTemp16;
+        fRec17[0] = fmax(0.0f, fmin(1.0f, (fRec17[1] + fTemp16)));
+        iRec18[0] = ((int(((fRec17[1] >= 1.0f) & (iRec19[1] != iTemp15))))?iTemp15:iRec18[1]);
+        iRec19[0] = ((int(((fRec17[1] <= 0.0f) & (iRec18[1] != iTemp15))))?iTemp15:iRec19[1]);
+        
+        float mix_l = (float)(fSlow15 * (
+              (fSlow14 * tape4[int(IOTAR4)]   * nfod4)
+            + (fSlow11 * tape3[int(IOTAR3)]   * nfod3)
+            + (fSlow8  * tape2[int(IOTAR2)]   * nfod2)
+            + (fSlow5  * tape1[int(IOTAR1)]   * nfod1)));
+        float mix_r = (float)(fSlow15 * (
+              (fSlow14 * tape4_r[int(IOTAR4)]   * nfod4)
+            + (fSlow11 * tape3_r[int(IOTAR3)]   * nfod3)
+            + (fSlow8  * tape2_r[int(IOTAR2)]   * nfod2)
+            + (fSlow5  * tape1_r[int(IOTAR1)]   * nfod1)));
+
+        if (!diout) {
+            output0[i] = mix_l + fTemp0_l;
+            output1[i] = mix_r + fTemp0_r;
+        } else {
+            outbuffer[i] += mix_l + mix_r; // Directout is mono: sum L+R
+        }
+        // overdubbing
+        if (iod1) {
+            if (!fod1) { tape1[int(IOTAR1)] += fTemp0_l; tape1_r[int(IOTAR1)] += fTemp0_r; }
+            else { tape1[int(IOTAR1)] = fTemp0_l; tape1_r[int(IOTAR1)] = fTemp0_r; }
+        }
+        if (iod2) {
+            if (!fod2) { tape2[int(IOTAR2)] += fTemp0_l; tape2_r[int(IOTAR2)] += fTemp0_r; }
+            else { tape2[int(IOTAR2)] = fTemp0_l; tape2_r[int(IOTAR2)] = fTemp0_r; }
+        }
+        if (iod3) {
+            if (!fod3) { tape3[int(IOTAR3)] += fTemp0_l; tape3_r[int(IOTAR3)] += fTemp0_r; }
+            else { tape3[int(IOTAR3)] = fTemp0_l; tape3_r[int(IOTAR3)] = fTemp0_r; }
+        }
+        if (iod4) {
+            if (!fod4) { tape4[int(IOTAR4)] += fTemp0_l; tape4_r[int(IOTAR4)] += fTemp0_r; }
+            else { tape4[int(IOTAR4)] = fTemp0_l; tape4_r[int(IOTAR4)] = fTemp0_r; }
+        }
+        
+        // post processing
+        iRec19[1] = iRec19[0];
+        iRec18[1] = iRec18[0];
+        fRec17[1] = fRec17[0];
+        fRec16[1] = fRec16[0];
+        RecSize4[1] = RecSize4[0];
+        iVec6[1] = iVec6[0];
+        iRec14[1] = iRec14[0];
+        iRec13[1] = iRec13[0];
+        fRec12[1] = fRec12[0];
+        fRec11[1] = fRec11[0];
+        RecSize3[1] = RecSize3[0];
+        iVec4[1] = iVec4[0];
+        iRec9[1] = iRec9[0];
+        iRec8[1] = iRec8[0];
+        fRec7[1] = fRec7[0];
+        fRec6[1] = fRec6[0];
+        RecSize2[1] = RecSize2[0];
+        iVec2[1] = iVec2[0];
+        iRec4[1] = iRec4[0];
+        iRec3[1] = iRec3[0];
+        fRec2[1] = fRec2[0];
+        fRec1[1] = fRec1[0];
+        RecSize1[1] = RecSize1[0];
+        iVec0[1] = iVec0[0];
+        fRec0[1] = fRec0[0];
+    }
+    if (diout) {
+        d->set_data(true);
+        memcpy(output0, input0, count * sizeof(float));
+        memcpy(output1, input1, count * sizeof(float));
+        outbuffer = 0;
+    }
+}
+
+void __rt_func LiveLooper_ST::compute_stereo_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef *p)
+{
+    static_cast<LiveLooper_ST*>(p)->compute_stereo(count, input0, input1, output0, output1);
+}
+
+int LiveLooper_ST::register_par(const ParamReg& reg)
+{
+    reg.registerFloatVar("dubber_st.clip1","","So",N_("percentage clip at the delay length "),&fclip1, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.clip2","","So",N_("percentage clip at the delay length "),&fclip2, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.clip3","","So",N_("percentage clip at the delay length "),&fclip3, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.clip4","","So",N_("percentage clip at the delay length "),&fclip4, 1e+02f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.clips1","","So",N_("percentage cut on the delay start "),&fclips1, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.clips2","","So",N_("percentage cut on the delay start "),&fclips2, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.clips3","","So",N_("percentage cut on the delay start "),&fclips3, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.clips4","","So",N_("percentage cut on the delay start "),&fclips4, 0.0f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.speed1","","S",N_("playback speed "),&fspeed1, 0.0f, -0.9f, 0.9f, 0.01f, 0);
+    reg.registerFloatVar("dubber_st.speed2","","S",N_("playback speed "),&fspeed2, 0.0f, -0.9f, 0.9f, 0.01f, 0);
+    reg.registerFloatVar("dubber_st.speed3","","S",N_("playback speed "),&fspeed3, 0.0f, -0.9f, 0.9f, 0.01f, 0);
+    reg.registerFloatVar("dubber_st.speed4","","S",N_("playback speed "),&fspeed4, 0.0f, -0.9f, 0.9f, 0.01f, 0);
+    reg.registerFloatVar("dubber_st.bar1","","SO","",&rectime0, 0.0, 0.0, 96.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.bar2","","SO","",&rectime1, 0.0, 0.0, 96.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.bar3","","SO","",&rectime2, 0.0, 0.0, 96.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.bar4","","SO","",&rectime3, 0.0, 0.0, 96.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.gain","","S",N_("overall gain of the input"),&gain, 0.0f, -2e+01f, 12.0f, 0.1f, 0);
+    reg.registerFloatVar("dubber_st.level1","","S",N_("percentage of the delay gain level"),&gain1, 5e+01f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.level2","","S",N_("percentage of the delay gain level"),&gain2, 5e+01f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.level3","","S",N_("percentage of the delay gain level"),&gain3, 5e+01f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.level4","","S",N_("percentage of the delay gain level"),&gain4, 5e+01f, 0.0f, 1e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.mix","","S",N_("overall gain_out of the delay line in percent"),&gain_out, 1e+02f, 0.0f, 1.5e+02f, 1.0f, 0);
+    reg.registerFloatVar("dubber_st.play1","","Bo",N_("play tape 1"),&play1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.play2","","Bo",N_("play tape 2"),&play2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.play3","","Bo",N_("play tape 3"),&play3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.play4","","Bo",N_("play tape 4"),&play4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.rplay1","","Bo",N_("play reverse"),&rplay1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.rplay2","","Bo",N_("play reverse"),&rplay2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.rplay3","","Bo",N_("play reverse"),&rplay3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.rplay4","","Bo",N_("play reverse"),&rplay4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.playh1","","SO","",&playh1, 0.0, 0.0, 1000.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.playh2","","SO","",&playh2, 0.0, 0.0, 1000.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.playh3","","SO","",&playh3, 0.0, 0.0, 1000.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.playh4","","SO","",&playh4, 0.0, 0.0, 1000.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.rec1","","Bosw",N_("record"),&record1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.rec2","","Bosw",N_("record"),&record2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.rec3","","Bosw",N_("record"),&record3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.rec4","","Bosw",N_("record"),&record4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.reset1","","Bosw",N_("erase"),&reset1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.reset2","","Bosw",N_("erase"),&reset2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.reset3","","Bosw",N_("erase"),&reset3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.reset4","","Bosw",N_("erase"),&reset4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.od1","","Bosw",N_("overdub"),&od1, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.od2","","Bosw",N_("overdub"),&od2, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.od3","","Bosw",N_("overdub"),&od3, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.od4","","Bosw",N_("overdub"),&od4, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.playall","","B",N_("play all tapes "),&play_all, 0.0, 0.0, 1.0, 1.0, 0);
+    reg.registerFloatVar("dubber_st.dout","","B",N_("bypass the rack for direct output"),&dout, 0.0, 0.0, 1.0, 1.0, 0);
+    param["dubber_st.playall"].signal_changed_float().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper_ST::play_all_tapes)));
+    param.reg_non_midi_par("dubber_st.savefile", &save_p, false);
+    param.reg_preset_string("dubber_st.filename", "", &preset_name, "tape");
+    param["dubber_st.filename"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper_ST::set_p_state)));
+    param.reg_string("dubber_st.loadfile1", "", &load_file1, "tape1")->set_desc(N_("import file"));
+    param.reg_string("dubber_st.loadfile2", "", &load_file2, "tape2")->set_desc(N_("import file"));
+    param.reg_string("dubber_st.loadfile3", "", &load_file3, "tape3")->set_desc(N_("import file"));
+    param.reg_string("dubber_st.loadfile4", "", &load_file4, "tape4")->set_desc(N_("import file"));
+
+    param["dubber_st.loadfile1"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper_ST::load_tape1)));
+    param["dubber_st.loadfile2"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper_ST::load_tape2)));
+    param["dubber_st.loadfile3"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper_ST::load_tape3)));
+    param["dubber_st.loadfile4"].signal_changed_string().connect(
+        sigc::hide(sigc::mem_fun(this, &LiveLooper_ST::load_tape4)));
+    return 0;
+}
+
+int LiveLooper_ST::register_params_static(const ParamReg& reg)
+{
+    return static_cast<LiveLooper_ST*>(reg.plugin)->register_par(reg);
+}
+
+inline int LiveLooper_ST::load_ui_f(const UiBuilder& b, int form)
+{
+    if (form & UI_FORM_GLADE) {
+        b.load_glade_file("dubber_st_ui.glade");
+        return 0;
+    }
+    if (form & UI_FORM_STACK) {
+#define PARAM(p) ("dubber_st" "." p)
+b.openHorizontalhideBox("");
+b.create_switch_no_caption(sw_pbutton,PARAM("playall"));
+b.closeBox();
+
+b.openHorizontalBox("");
+    b.create_small_rackknobr(PARAM("gain"), "Gain");
+    
+    b.openTabBox("");
+    
+        b.openHorizontalBox(N_("Tape 1"));
+        
+            b.openVerticalBox("");
+                b.openHorizontalBox("");
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.create_p_display(PARAM("playh1"),PARAM("clips1"),PARAM("clip1"));
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.create_feedback_switch(sw_rbutton,PARAM("rec1"));
+                        b.create_feedback_switch(sw_pbutton,PARAM("play1"));
+                        b.create_feedback_switch(sw_prbutton,PARAM("rplay1"));
+                        b.create_feedback_switch(sw_button,PARAM("reset1"));
+                        b.create_fload_switch(sw_fbutton,nullptr,PARAM("loadfile1"));
+                        b.create_feedback_switch("overdub",PARAM("od1"));
+                        b.closeBox();
+                        b.closeBox();
+                        
+                        b.insertSpacer();
+                        b.create_port_display(PARAM("bar1"), "Buffer");
+                        b.insertSpacer();
+                        b.closeBox();
+                        
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.openVerticalBox("");
+                        
+                        b.create_feedback_slider(PARAM("clips1"), "Cut");
+                        b.create_feedback_slider(PARAM("clip1"), "Clip");
+                        b.create_master_slider(PARAM("speed1"), "Speed");
+                        
+                    b.closeBox();
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_small_rackknob(PARAM("level1"), "Level");
+                    b.closeBox();
+                b.closeBox();
+            
+            b.closeBox();
+        b.closeBox();
+            
+        b.openHorizontalBox(N_("Tape 2"));
+            b.openVerticalBox("");
+            
+                b.openHorizontalBox("");
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.create_p_display(PARAM("playh2"),PARAM("clips2"),PARAM("clip2"));
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.create_feedback_switch(sw_rbutton,PARAM("rec2"));
+                        b.create_feedback_switch(sw_pbutton,PARAM("play2"));
+                        b.create_feedback_switch(sw_prbutton,PARAM("rplay2"));
+                        b.create_feedback_switch(sw_button,PARAM("reset2"));
+                        b.create_fload_switch(sw_fbutton,nullptr,PARAM("loadfile2"));
+                        b.create_feedback_switch("overdub",PARAM("od2"));
+                        b.closeBox();
+                        b.closeBox();
+                        b.insertSpacer();
+                        b.create_port_display(PARAM("bar2"), "Buffer");
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.openVerticalBox("");
+                        b.create_feedback_slider(PARAM("clips2"), "Cut");
+                        b.create_feedback_slider(PARAM("clip2"), "Clip");
+                        b.create_master_slider(PARAM("speed2"), "Speed");
+                    b.closeBox();
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_small_rackknob(PARAM("level2"), "Level");
+                    b.closeBox();
+                b.closeBox();
+                
+            b.closeBox();
+            
+        b.closeBox();
+        
+        b.openHorizontalBox(N_("Tape 3"));
+            b.openVerticalBox("");
+            
+                b.openHorizontalBox("");
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.create_p_display(PARAM("playh3"),PARAM("clips3"),PARAM("clip3"));
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.create_feedback_switch(sw_rbutton,PARAM("rec3"));
+                        b.create_feedback_switch(sw_pbutton,PARAM("play3"));
+                        b.create_feedback_switch(sw_prbutton,PARAM("rplay3"));
+                        b.create_feedback_switch(sw_button,PARAM("reset3"));
+                        b.create_fload_switch(sw_fbutton,nullptr,PARAM("loadfile3"));
+                        b.create_feedback_switch("overdub",PARAM("od3"));
+                        b.closeBox();
+                        b.closeBox();
+                        b.insertSpacer();
+                        b.create_port_display(PARAM("bar3"), "Buffer");
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.openVerticalBox("");
+                        b.create_feedback_slider(PARAM("clips3"), "Cut");
+                        b.create_feedback_slider(PARAM("clip3"), "Clip");
+                        b.create_master_slider(PARAM("speed3"), "Speed");
+                    b.closeBox();
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_small_rackknob(PARAM("level3"), "Level");
+                    b.closeBox();
+                b.closeBox();
+                
+            b.closeBox();
+        b.closeBox();
+        
+        b.openHorizontalBox(N_("Tape 4"));
+            b.openVerticalBox("");
+            
+                b.openHorizontalBox("");
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.create_p_display(PARAM("playh4"),PARAM("clips4"),PARAM("clip4"));
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.create_feedback_switch(sw_rbutton,PARAM("rec4"));
+                        b.create_feedback_switch(sw_pbutton,PARAM("play4"));
+                        b.create_feedback_switch(sw_prbutton,PARAM("rplay4"));
+                        b.create_feedback_switch(sw_button,PARAM("reset4"));
+                        b.create_fload_switch(sw_fbutton,nullptr,PARAM("loadfile4"));
+                        b.create_feedback_switch("overdub",PARAM("od4"));
+                        b.closeBox();
+                        b.closeBox();
+                        b.insertSpacer();
+                        b.create_port_display(PARAM("bar4"), "Buffer");
+                        b.insertSpacer();
+                        b.closeBox();
+                        b.openHorizontalBox("");
+                        b.insertSpacer();
+                        b.openVerticalBox("");
+                        b.create_feedback_slider(PARAM("clips4"), "Cut");
+                        b.create_feedback_slider(PARAM("clip4"), "Clip");
+                        b.create_master_slider(PARAM("speed4"), "Speed");
+                    b.closeBox();
+                    b.insertSpacer();
+                    b.openVerticalBox("");
+                        b.insertSpacer();
+                        b.create_small_rackknob(PARAM("level4"), "Level");
+                    b.closeBox();
+                b.closeBox();
+                
+            b.closeBox();
+        b.closeBox();
+        
+    b.closeBox();
+    
+    b.openVerticalBox("");
+        b.insertSpacer();
+        b.create_small_rackknobr(PARAM("mix"), "Mix");
+        b.insertSpacer();
+        b.openHorizontalBox("");
+        b.insertSpacer();
+        b.insertSpacer();
+        b.create_switch_no_caption("bypass",PARAM("dout"));
+        b.insertSpacer();
+        b.insertSpacer();
+        b.closeBox();
+        b.insertSpacer();
+    b.closeBox();
+b.closeBox();
+
+#undef PARAM
+        return 0;
+    }
+    return -1;
+}
+
+int LiveLooper_ST::load_ui_f_static(const UiBuilder& b, int form)
+{
+    return static_cast<LiveLooper_ST*>(b.plugin)->load_ui_f(b, form);
+}
+
+void LiveLooper_ST::del_instance(PluginDef *p)
+{
+    delete static_cast<LiveLooper_ST*>(p);
+}

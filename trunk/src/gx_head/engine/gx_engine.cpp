@@ -302,6 +302,7 @@ GxEngine::GxEngine(const string& plugin_dir, ParameterGroups& groups, const gx_s
       preamp_st(*this, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), resamp),
       contrast(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync), resamp),
       loop(get_param(), &directout, sigc::mem_fun(mono_chain,&MonoModuleChain::sync),options.get_loop_dir()),
+      loop_st(get_param(), &directout, sigc::mem_fun(stereo_chain, &StereoModuleChain::sync), options.get_loop_dir()),
 #ifndef GUITARIX_AS_PLUGIN
       record(*this, 1), record_st(*this, 2),
       dseq(*this, sigc::mem_fun(mono_chain, &MonoModuleChain::sync)),
@@ -542,7 +543,8 @@ void GxEngine::load_static_plugins() {
 	pl.add(gx_effects::duck_delay_st::plugin(),   PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&cabinet_st.plugin,                    PLUGIN_POS_RACK, PGN_GUI);
     pl.add(&preamp_st.plugin,                     PLUGIN_POS_RACK, PGN_GUI);
-	pl.add(pluginlib::vumeter_st::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
+	pl.add(&loop_st.plugin,                       PLUGIN_POS_RACK, PGN_GUI);
+    pl.add(pluginlib::vumeter_st::plugin(),       PLUGIN_POS_RACK, PGN_GUI);
 }
 
 static LadspaLoader::pluginarray::iterator find_plugin(LadspaLoader::pluginarray& ml, plugdesc *pl) {

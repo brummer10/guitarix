@@ -1950,6 +1950,12 @@ void __rt_func Directout::compute_static(int count, FAUSTFLOAT *input0, FAUSTFLO
 #include "gx_livelooper.cc"
 
 /****************************************************************
+ ** class LiveLooper_ST
+ */
+
+#include "gx_livelooper_st.cc"
+
+/****************************************************************
  ** class SCapture
  */
 

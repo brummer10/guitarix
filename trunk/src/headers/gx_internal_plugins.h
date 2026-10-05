@@ -998,6 +998,187 @@ public:
     ~LiveLooper();
 };
 
+/****************************************************************
+ * * class LiveLooper_ST
+ */
+
+class LiveLooper_ST: public PluginDef {
+
+
+    class FileResampler {
+    private:
+        Resampler r_file;
+        int inputRate, outputRate;
+    public:
+        int setup(int _inputRate, int _outputRate);
+        int run(int count, float *input, float *output);
+        int max_out_count(int in_count) {
+            return static_cast<int>(ceil((in_count*static_cast<double>(outputRate))/inputRate)); }
+    };
+
+private:
+    int fSamplingFreq;
+    float     gain;
+    float     fRec0[2];
+    float     gain_out;
+    float     fclip1;
+    float     fclip2;
+    float     fclip3;
+    float     fclip4;
+    float     fclips1;
+    float     fclips2;
+    float     fclips3;
+    float     fclips4;
+    float     fspeed1;
+    float     fspeed2;
+    float     fspeed3;
+    float     fspeed4;
+    float     rplay1;
+    float     rplay2;
+    float     rplay3;
+    float     rplay4;
+    float     od1;
+    float     od2;
+    float     od3;
+    float     od4;
+    float     fod1;
+    float     fod2;
+    float     fod3;
+    float     fod4;
+    float     record1;
+    int     iVec0[2];
+    int     IOTA1;
+    int     IOTA2;
+    int     IOTA3;
+    int     IOTA4;
+    float     IOTAR1;
+    float     IOTAR2;
+    float     IOTAR3;
+    float     IOTAR4;
+    float *tape1;
+    float *tape1_r;
+    int     tape1_size;
+    float     fConst0;
+    float     fConst1;
+    float     fConst2;
+    float     reset1;
+    int     RecSize1[2];
+    float     rectime0;
+    float     fRec1[2];
+    float     fRec2[2];
+    int     iRec3[2];
+    int     iRec4[2];
+    float     play1;
+    float     playh1;
+    float     gain1;
+    float     record2;
+    int     iVec2[2];
+    float *tape2;
+    float *tape2_r;
+    int     tape2_size;
+    float     reset2;
+    int     RecSize2[2];
+    float     rectime1;
+    float     fRec6[2];
+    float     fRec7[2];
+    int     iRec8[2];
+    int     iRec9[2];
+    float     play2;
+    float     playh2;
+    float     gain2;
+    float     record3;
+    int     iVec4[2];
+    float *tape3;
+    float *tape3_r;
+    int     tape3_size;
+    float     reset3;
+    int     RecSize3[2];
+    float     rectime2;
+    float     fRec11[2];
+    float     fRec12[2];
+    int     iRec13[2];
+    int     iRec14[2];
+    float     play3;
+    float     playh3;
+    float     gain3;
+    float     record4;
+    int     iVec6[2];
+    float *tape4;
+    float *tape4_r;
+    int     tape4_size;
+    float     reset4;
+    int     RecSize4[2];
+    float     rectime3;
+    float     fRec16[2];
+    float     fRec17[2];
+    int     iRec18[2];
+    int     iRec19[2];
+    float     play4;
+    float     playh4;
+    float     gain4;
+    float     play_all;
+    float     dout;
+    float* outbuffer;
+    bool save1;
+    bool save2;
+    bool save3;
+    bool save4;
+    bool first1;
+    bool first2;
+    bool first3;
+    bool first4;
+    bool RP1;
+    bool RP2;
+    bool RP3;
+    bool RP4;
+    Glib::ustring preset_name;
+    Glib::ustring load_file1;
+    Glib::ustring load_file2;
+    Glib::ustring load_file3;
+    Glib::ustring load_file4;
+    Glib::ustring cur_name;
+    Glib::ustring loop_dir;
+    bool save_p;
+    ParamMap& param;
+    bool mem_allocated;
+    sigc::slot<void> sync;
+    volatile int ready;
+    FileResampler smp_l;
+    FileResampler smp_r;
+    Directout* d;
+
+    int do_resample(int inrate, int insize, float *input, int maxsize, FileResampler& smp);
+    int load_from_wave_stereo(std::string fname, float **tape_l, float **tape_r, int tape_size);
+    void save_to_wave_stereo(std::string fname, float *tape_l, float *tape_r, float fSize, int tape_size);
+    void play_all_tapes();
+    void mem_alloc();
+    void mem_free();
+    void clear_state_f();
+    int activate(bool start);
+    int load_ui_f(const UiBuilder& b, int form);
+    void init(unsigned int samplingFreq);
+    void compute_stereo(int count, float *input0, float *input1, float *output0, float *output1);
+    int register_par(const ParamReg& reg);
+    void save_array(std::string name);
+    void load_array(std::string name);
+    void set_p_state();
+    void load_tape1();
+    void load_tape2();
+    void load_tape3();
+    void load_tape4();
+
+    static void clear_state_f_static(PluginDef*);
+    static int activate_static(bool start, PluginDef*);
+    static int load_ui_f_static(const UiBuilder& b, int form);
+    static void init_static(unsigned int samplingFreq, PluginDef*);
+    static void compute_stereo_static(int count, float *input0, float *input1, float *output0, float *output1, PluginDef*);
+    static int register_params_static(const ParamReg& reg);
+    static void del_instance(PluginDef *p);
+public:
+    Plugin plugin;
+    LiveLooper_ST(ParamMap& param_, Directout* d, sigc::slot<void> sync, const string& loop_dir_);
+    ~LiveLooper_ST();
+};
 
 /****************************************************************
  ** class SCapture
