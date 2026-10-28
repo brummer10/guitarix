@@ -236,7 +236,7 @@ public:
  */
 
 const static int InterfaceVersionMajor = 1;
-const static int InterfaceVersionMinor = 1;
+const static int InterfaceVersionMinor = 2;
 
 CmdConnection::CmdConnection(GxService& serv_, const Glib::RefPtr<Gio::SocketConnection>& connection_)
     : serv(serv_),
@@ -727,6 +727,65 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
         jw.end_array();
         jw.end_array();
         delete[] buffer;
+    }
+
+    // {"path": path, "entries": [[name, is_dir, size, mtime], ...], "error": text}
+    // lets a client running on another computer choose the engine's files
+    FUNCTION(list_directory) {
+        std::string path = params[0]->getString();
+        jw.begin_object();
+        jw.write_kv("path", path);
+        jw.write_key("entries");
+        jw.begin_array();
+        Glib::ustring error;
+        try {
+            Glib::RefPtr<Gio::FileEnumerator> en = Gio::File::create_for_path(path)->enumerate_children(
+                G_FILE_ATTRIBUTE_STANDARD_NAME "," G_FILE_ATTRIBUTE_STANDARD_TYPE ","
+                G_FILE_ATTRIBUTE_STANDARD_SIZE "," G_FILE_ATTRIBUTE_TIME_MODIFIED);
+            Glib::RefPtr<Gio::FileInfo> info;
+            while ((info = en->next_file())) {
+                Gio::FileType tp = info->get_file_type();
+                if (tp != Gio::FILE_TYPE_DIRECTORY && tp != Gio::FILE_TYPE_REGULAR) {
+                    continue;
+                }
+                jw.begin_array();
+                jw.write(info->get_name());
+                jw.write(tp == Gio::FILE_TYPE_DIRECTORY ? 1 : 0);
+                // floats and doubles are written with 6 digits: use
+                // integers (sizes above 4 GiB are clamped)
+                goffset size = info->get_size();
+                jw.write(static_cast<unsigned int>(std::min<goffset>(size, 0xffffffff)));
+                jw.write(static_cast<unsigned int>(info->get_attribute_uint64(G_FILE_ATTRIBUTE_TIME_MODIFIED)));
+                jw.end_array();
+            }
+        } catch (Gio::Error& e) {
+            error = e.what();
+        }
+        jw.end_array();
+        jw.write_kv("error", error);
+        jw.end_object();
+    }
+
+    // [[name, path], ...] of the folders a file chooser starts from
+    FUNCTION(get_file_places) {
+        const gx_system::CmdlineOptions& opt = serv.settings.get_options();
+        jw.begin_array();
+        const char *names[] = {"Home", "Guitarix", "IR files", "Loops"};
+        std::string dirs[] = {Glib::get_home_dir(), opt.get_user_dir(), opt.get_user_IR_dir(), opt.get_loop_dir()};
+        for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
+            std::string d = dirs[i];
+            while (d.size() > 1 && d[d.size()-1] == '/') {
+                d.erase(d.size()-1);
+            }
+            if (d.empty() || Gio::File::create_for_path(d)->query_file_type() != Gio::FILE_TYPE_DIRECTORY) {
+                continue;
+            }
+            jw.begin_array();
+            jw.write(names[i]);
+            jw.write(d);
+            jw.end_array();
+        }
+        jw.end_array();
     }
 
     FUNCTION(load_ladspalist) {
