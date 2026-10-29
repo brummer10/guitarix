@@ -43,6 +43,14 @@ class GxEngine;
 
 namespace gx_jack {
 
+#ifndef GUITARIX_AS_PLUGIN
+// true when the loaded libjack is the PipeWire implementation (pipewire-jack)
+bool uses_pipewire_jack();
+// re-run the program through pw-jack when PipeWire runs, no jackd answers
+// and the loaded libjack is jackd's; returns only if no re-exec happened
+void maybe_reexec_under_pipewire(int argc, char *argv[]);
+#endif
+
 /****************************************************************
  ** class GxRtCheck
  ** check if user have realtime priority

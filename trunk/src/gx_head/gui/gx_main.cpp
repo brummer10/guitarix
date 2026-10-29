@@ -958,6 +958,7 @@ int main(int argc, char *argv[]) {
     if (!getenv("QT_AUTO_SCREEN_SCALE_FACTOR")) {
         setenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1", 0);
     }
+    gx_jack::maybe_reexec_under_pipewire(argc, argv);
 #ifdef DISABLE_NLS
 // break
 #elif defined(IS_MACOSX)
