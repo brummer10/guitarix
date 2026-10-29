@@ -629,9 +629,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     FUNCTION(get_last_midi_control_value) {
-        jw.begin_object();
         jw.write(serv.jack.get_engine().controller_map.get_last_midi_control_value(params[0]->getInt()));
-        jw.end_object();
     }
 
     FUNCTION(midi_get_config_mode) {
@@ -647,9 +645,7 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     FUNCTION(get_midi_feedback) {
-        jw.begin_object();
         jw.write(serv.settings.get_options().system_midiout);
-        jw.end_object();
     }
 
     FUNCTION(getstate) {
