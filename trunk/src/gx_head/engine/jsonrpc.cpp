@@ -412,6 +412,64 @@ static inline bool unit_match(const Glib::ustring& id, const Glib::ustring& pref
     return false;
 }
 
+/*
+** files of the engine's computer, for clients running elsewhere
+*/
+
+// canonical absolute path (symlinks, "..", "." and "//" resolved) of
+// an existing file, or ""
+static std::string canonical_path(const std::string& path) {
+    char *p = realpath(path.c_str(), nullptr);
+    if (!p) {
+        return "";
+    }
+    std::string r = p;
+    free(p);
+    return r;
+}
+
+// [(name, canonical path), ...] of the folders the remote file chooser
+// may show; list_directory refuses anything outside of them
+static std::vector<std::pair<const char*, std::string> > get_file_places(
+    const gx_system::CmdlineOptions& opt) {
+    const char *names[] = {"Home", "Guitarix", "IR files", "System IR files", "Loops"};
+    std::string dirs[] = {Glib::get_home_dir(), opt.get_user_dir(), opt.get_user_IR_dir(),
+                          opt.get_sys_IR_dir(), opt.get_loop_dir()};
+    std::vector<std::pair<const char*, std::string> > places;
+    for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
+        if (!Glib::path_is_absolute(dirs[i])) {
+            continue;
+        }
+        std::string d = canonical_path(dirs[i]);
+        if (d.empty() || !g_file_test(d.c_str(), G_FILE_TEST_IS_DIR)) {
+            continue;
+        }
+        places.push_back(std::make_pair(names[i], d));
+    }
+    return places;
+}
+
+// path (canonical) is one of the places or inside one of them, but
+// not inside a hidden file or folder of a place (like ~/.ssh)
+static bool in_file_places(const std::string& path,
+                           const std::vector<std::pair<const char*, std::string> >& places) {
+    for (std::vector<std::pair<const char*, std::string> >::const_iterator i = places.begin();
+         i != places.end(); ++i) {
+        std::string d = i->second;
+        if (d != "/") {
+            d += '/';
+        }
+        if (path + '/' == d) {
+            return true;
+        }
+        if (path.compare(0, d.size(), d) == 0
+            && path[d.size()] != '.' && path.find("/.", d.size()) == std::string::npos) {
+            return true;
+        }
+    }
+    return false;
+}
+
 #define START_FUNCTION_SWITCH(v)    switch (v) {
 #define FUNCTION(n)                 break; case RPCM_##n:
 #define PROCEDURE(n)                break; case RPNM_##n:
@@ -730,36 +788,84 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
     }
 
     // {"path": path, "entries": [[name, is_dir, size, mtime], ...], "error": text}
-    // lets a client running on another computer choose the engine's files
+    // lets a client running on another computer choose the engine's
+    // files. Only the folders returned by get_file_places and their
+    // subfolders can be listed, hidden files and folders are left out.
+    // path is returned canonical; entries are complete, or empty if
+    // error is set.
     FUNCTION(list_directory) {
         std::string path = params[0]->getString();
+        if (!Glib::path_is_absolute(path)) {
+            throw RpcError(-32602, "Invalid param -- absolute path expected");
+        }
+        struct Entry {
+            std::string name;
+            bool is_dir;
+            goffset size;
+            guint64 mtime;
+        };
+        std::vector<Entry> entries;
+        Glib::ustring error;
+        std::vector<std::pair<const char*, std::string> > places =
+            get_file_places(serv.settings.get_options());
+        // the same error for a missing path and a path outside of the
+        // places: don't tell which files exist outside of them
+        std::string canonical = canonical_path(path);
+        if (canonical.empty() || !in_file_places(canonical, places)) {
+            error = "No such directory in the file places";
+        } else {
+            path = canonical;
+            try {
+                // symlinks are followed: a link is listed like its
+                // target if that is in the places, else left out (as is
+                // a dangling link)
+                Glib::RefPtr<Gio::FileEnumerator> en = Gio::File::create_for_path(path)->enumerate_children(
+                    G_FILE_ATTRIBUTE_STANDARD_NAME "," G_FILE_ATTRIBUTE_STANDARD_TYPE ","
+                    G_FILE_ATTRIBUTE_STANDARD_IS_SYMLINK "," G_FILE_ATTRIBUTE_STANDARD_SIZE ","
+                    G_FILE_ATTRIBUTE_TIME_MODIFIED);
+                Glib::RefPtr<Gio::FileInfo> info;
+                while ((info = en->next_file())) {
+                    Gio::FileType tp = info->get_file_type();
+                    if (tp != Gio::FILE_TYPE_DIRECTORY && tp != Gio::FILE_TYPE_REGULAR) {
+                        continue;
+                    }
+                    // hidden files are left out; JsonWriter doesn't escape
+                    // all control characters and the client must be able
+                    // to send the name back
+                    std::string name = info->get_name();
+                    if (name[0] == '.' || !g_utf8_validate(name.c_str(), name.size(), nullptr)
+                        || std::find_if(name.begin(), name.end(),
+                                        [](unsigned char c) { return c < 0x20 || c == 0x7f; }) != name.end()) {
+                        continue;
+                    }
+                    if (info->is_symlink()) {
+                        std::string target = canonical_path(Glib::build_filename(path, name));
+                        if (target.empty() || !in_file_places(target, places)) {
+                            continue;
+                        }
+                    }
+                    bool is_dir = (tp == Gio::FILE_TYPE_DIRECTORY);
+                    entries.push_back(Entry{name, is_dir, is_dir ? 0 : info->get_size(),
+                                            info->get_attribute_uint64(G_FILE_ATTRIBUTE_TIME_MODIFIED)});
+                }
+            } catch (Glib::Error& e) {
+                error = e.what();
+                entries.clear();
+            }
+        }
         jw.begin_object();
         jw.write_kv("path", path);
         jw.write_key("entries");
         jw.begin_array();
-        Glib::ustring error;
-        try {
-            Glib::RefPtr<Gio::FileEnumerator> en = Gio::File::create_for_path(path)->enumerate_children(
-                G_FILE_ATTRIBUTE_STANDARD_NAME "," G_FILE_ATTRIBUTE_STANDARD_TYPE ","
-                G_FILE_ATTRIBUTE_STANDARD_SIZE "," G_FILE_ATTRIBUTE_TIME_MODIFIED);
-            Glib::RefPtr<Gio::FileInfo> info;
-            while ((info = en->next_file())) {
-                Gio::FileType tp = info->get_file_type();
-                if (tp != Gio::FILE_TYPE_DIRECTORY && tp != Gio::FILE_TYPE_REGULAR) {
-                    continue;
-                }
-                jw.begin_array();
-                jw.write(info->get_name());
-                jw.write(tp == Gio::FILE_TYPE_DIRECTORY ? 1 : 0);
-                // floats and doubles are written with 6 digits: use
-                // integers (sizes above 4 GiB are clamped)
-                goffset size = info->get_size();
-                jw.write(static_cast<unsigned int>(std::min<goffset>(size, 0xffffffff)));
-                jw.write(static_cast<unsigned int>(info->get_attribute_uint64(G_FILE_ATTRIBUTE_TIME_MODIFIED)));
-                jw.end_array();
-            }
-        } catch (Gio::Error& e) {
-            error = e.what();
+        for (std::vector<Entry>::iterator i = entries.begin(); i != entries.end(); ++i) {
+            jw.begin_array();
+            jw.write(i->name);
+            jw.write(i->is_dir ? 1 : 0);
+            // JsonWriter has no 64 bit integers and writes floating
+            // point numbers with 6 digits
+            jw.write_lit(std::to_string(static_cast<long long>(i->size)));
+            jw.write_lit(std::to_string(static_cast<unsigned long long>(i->mtime)));
+            jw.end_array();
         }
         jw.end_array();
         jw.write_kv("error", error);
@@ -768,21 +874,14 @@ void CmdConnection::call(gx_system::JsonWriter& jw, const methodnames *mn, JsonA
 
     // [[name, path], ...] of the folders a file chooser starts from
     FUNCTION(get_file_places) {
-        const gx_system::CmdlineOptions& opt = serv.settings.get_options();
+        std::vector<std::pair<const char*, std::string> > places =
+            get_file_places(serv.settings.get_options());
         jw.begin_array();
-        const char *names[] = {"Home", "Guitarix", "IR files", "Loops"};
-        std::string dirs[] = {Glib::get_home_dir(), opt.get_user_dir(), opt.get_user_IR_dir(), opt.get_loop_dir()};
-        for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
-            std::string d = dirs[i];
-            while (d.size() > 1 && d[d.size()-1] == '/') {
-                d.erase(d.size()-1);
-            }
-            if (d.empty() || Gio::File::create_for_path(d)->query_file_type() != Gio::FILE_TYPE_DIRECTORY) {
-                continue;
-            }
+        for (std::vector<std::pair<const char*, std::string> >::iterator i = places.begin();
+             i != places.end(); ++i) {
             jw.begin_array();
-            jw.write(names[i]);
-            jw.write(d);
+            jw.write(i->first);
+            jw.write(i->second);
             jw.end_array();
         }
         jw.end_array();
