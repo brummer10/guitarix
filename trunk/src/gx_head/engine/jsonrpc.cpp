@@ -1399,6 +1399,16 @@ void CmdConnection::process(gx_system::JsonStringParser& jp) {
         error_response(jw, e.code, e.message);
         jw.finish();
         send(jw);
+    } catch (Glib::Error& e) {
+        // escaping from here would leave on_data_in() and the
+        // connection would never be read again
+        gx_print_error(
+            "JSON-RPC", Glib::ustring::compose("error: %1, request: '%2'",
+                                               e.what(), jp.get_string()));
+        gx_system::JsonStringWriter jw;
+        error_response(jw, -32603, "Internal error");
+        jw.finish();
+        send(jw);
     }
 }
 
