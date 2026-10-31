@@ -1759,7 +1759,7 @@ bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
 	    delete jp;
 	    gx_print_info(
 		_("loaded preset"),
-		boost::format(_("%1% from file %2%")) % name % p->get_filename());
+		boost::format(_("%1% from file %2%")) % name.raw() % p->get_filename());
 		
 	} else {
 	    JsonParser *jp = statefile.create_reader();
@@ -1776,7 +1776,7 @@ bool GxSettingsBase::loadsetting(PresetFile *p, const Glib::ustring& name) {
 	if (p) {
 	    gx_print_error(
 		_("load preset"),
-		boost::format(_("error loading %1% from file %2%")) % name % p->get_filename());
+		boost::format(_("error loading %1% from file %2%")) % name.raw() % p->get_filename());
 	} else {
 	    gx_print_warning(
 		_("load state"),
