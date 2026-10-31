@@ -2948,7 +2948,10 @@ int GxMachineRemote::midi_get_last_controller_value(int ctl) {
     START_CALL(get_last_midi_control_value);
     jw->write(ctl);
     START_RECEIVE(false);
-    jp->next(gx_system::JsonParser::begin_object);
+    // older servers wrap the number in an object without key
+    if (jp->peek() == gx_system::JsonParser::begin_object) {
+        jp->next(gx_system::JsonParser::begin_object);
+    }
     jp->next(gx_system::JsonParser::value_number);
     return jp->current_value_int();
     END_RECEIVE(return false);
@@ -2977,7 +2980,10 @@ void GxMachineRemote::midi_feedback(int c, int v) {
 bool GxMachineRemote::get_midi_feedback() {
     START_CALL(get_midi_feedback);
     START_RECEIVE(false);
-    jp->next(gx_system::JsonParser::begin_object);
+    // older servers wrap the number in an object without key
+    if (jp->peek() == gx_system::JsonParser::begin_object) {
+        jp->next(gx_system::JsonParser::begin_object);
+    }
     jp->next(gx_system::JsonParser::value_number);
     return jp->current_value_int();
     END_RECEIVE(return false);
