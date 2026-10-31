@@ -85,6 +85,8 @@ enum jsonrpc_method {
 	RPNM_reload_impresp_list,
 	RPCM_load_impresp_dirs,
 	RPCM_read_audio,
+	RPCM_list_directory,
+	RPCM_get_file_places,
 	RPCM_load_ladspalist,
 	RPNM_save_ladspalist,
 	RPCM_ladspaloader_update_plugins,

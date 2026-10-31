@@ -158,6 +158,11 @@ struct CmdConnection::methodnames;
 "load_impresp_dirs", true
 "read_audio", true
 
+/* Files of the engine's computer (remote file choosers) */
+
+"list_directory", true
+"get_file_places", true
+
 
 /* Ladspa Loader */
 
