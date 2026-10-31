@@ -30,13 +30,75 @@
 #endif
 #include "engine.h"           // NOLINT
 
-#ifdef HAVE_JACK_SESSION
 #include <dlfcn.h>
-#endif
+#include <sys/stat.h>
 
 
 namespace gx_jack {
 #ifndef GUITARIX_AS_PLUGIN
+
+/****************************************************************
+ ** PipeWire support (through pipewire-jack)
+ */
+
+bool uses_pipewire_jack() {
+    Dl_info info;
+    if (!dladdr(reinterpret_cast<void*>(jack_client_open), &info) || !info.dli_fname) {
+        return false;
+    }
+    return strstr(info.dli_fname, "pipewire") != nullptr;
+}
+
+static bool pipewire_is_running() {
+    const char *rundir = getenv("XDG_RUNTIME_DIR");
+    if (!rundir) {
+        return false;
+    }
+    const char *remote = getenv("PIPEWIRE_REMOTE");
+    std::string sock = std::string(rundir) + "/" + (remote ? remote : "pipewire-0");
+    struct stat st;
+    return stat(sock.c_str(), &st) == 0;
+}
+
+static bool jackd_is_running() {
+    jack_status_t status;
+    jack_client_t *probe = jack_client_open("gx_probe", JackNoStartServer, &status);
+    if (!probe) {
+        return false;
+    }
+    jack_client_close(probe);
+    return true;
+}
+
+void maybe_reexec_under_pipewire(int argc, char *argv[]) {
+    if (getenv("GUITARIX_NO_PW_JACK")) {
+        return;
+    }
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "-G") == 0 || strcmp(argv[i], "--onlygui") == 0
+            || strncmp(argv[i], "-s", 2) == 0 || strncmp(argv[i], "--server-name", 13) == 0) {
+            return; // remote UI needs no jack, explicit server name is respected
+        }
+    }
+    if (uses_pipewire_jack() || !pipewire_is_running()) {
+        return;
+    }
+    // silence libjack's "cannot connect to server" messages during the probe
+    jack_set_error_function([](const char*) {});
+    bool jackd = jackd_is_running();
+    jack_set_error_function(nullptr);
+    if (jackd) {
+        return;
+    }
+    setenv("GUITARIX_NO_PW_JACK", "1", 1); // no second re-exec
+    std::vector<char*> args;
+    args.push_back(const_cast<char*>("pw-jack"));
+    args.insert(args.end(), argv, argv + argc);
+    args.push_back(nullptr);
+    execvp("pw-jack", args.data());
+    fprintf(stderr, "guitarix: PipeWire is running but pw-jack was not found; "
+            "install pipewire-jack to use PipeWire\n");
+}
 
 /****************************************************************
  ** class GxRtCheck
@@ -347,6 +409,13 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
 
     std::string ServerName = opt.get_jack_servername();
 
+    bool pipewire = uses_pipewire_jack();
+    if (pipewire) {
+        // pipewire-jack defaults to a high latency; ask for a low one
+        // unless the user set PIPEWIRE_LATENCY
+        setenv("PIPEWIRE_LATENCY", "256/48000", 0);
+    }
+
     set_jack_down(false);
     set_jack_exit(true);
     engine.set_stateflag(gx_engine::GxEngine::SF_INITIALIZING);
@@ -451,6 +520,10 @@ bool GxJack::gx_jack_init(bool startserver, int wait_after_connect, const gx_sys
     if (wait_after_connect) {
 	usleep(wait_after_connect);
     }
+    gx_print_info(
+	_("Jack init"),
+	pipewire ? _("connected through PipeWire (pipewire-jack)")
+	         : _("connected to the JACK server"));
     jack_sr = jack_get_sample_rate(client); // jack sample rate
     gx_print_info(
 	_("Jack init"),
